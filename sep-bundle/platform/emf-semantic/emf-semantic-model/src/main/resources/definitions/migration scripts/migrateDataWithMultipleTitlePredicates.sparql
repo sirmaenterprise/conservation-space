@@ -1,0 +1,14 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+delete {
+?instance dcterms:title ?title .
+} insert {
+?instance dcterms:title ?titles 
+} where {
+?instance dcterms:title ?title .
+{select ?instance (group_concat(distinct ?title ; separator = ", ") AS ?titles) where {
+   ?instance dcterms:title ?title .
+  } group by ?instance having ( count(?title) > 1 )}
+
+}

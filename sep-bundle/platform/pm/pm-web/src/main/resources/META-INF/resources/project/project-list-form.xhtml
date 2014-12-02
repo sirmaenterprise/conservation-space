@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:rich="http://richfaces.org/rich">
+
+	<rich:dataScroller id="topDataScroller" for="projectMasterTable" maxPages="#{projectSearchAction.maxPagesInPager}"
+		ignoreDupResponses="true" scrollListener="#{projectSearchAction.onScroll}" boundaryControls="hide" fastControls="hide"
+		styleClass="cmf-datatable-scroller project-datascroller-bottom" renderIfSinglePage="false" />
+
+	<rich:extendedDataTable id="projectMasterTable" value="#{projectSearchAction.dataModel}" var="projectInstance"
+		rows="#{projectSearchAction.pageSize}" styleClass="cmf-data-table master-table"
+		noDataLabel="#{label['cmf.msg.info.emptySearchResult']}">
+
+		<rich:column id="instanceDataColumn">
+			<emf:treeHeader currentInstance="#{projectInstance}" mode="#{searchPageTreeHeaderMode}"
+				display="#{searchPageTreeHeaderDisplay}" size="#{searchPageTreeHeaderSize}"
+				disableLinks="#{!entityPreviewAction.canOpenProject(projectInstance)}" />
+		</rich:column>
+
+		<rich:column id="actionsColumn" styleClass="actions-column">
+			<ui:include src="/common/min-allowed-actions.xhtml">
+				<ui:param name="currentInstance" value="#{projectInstance}" />
+				<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+				<ui:param name="placeholder" value="project-list" />
+			</ui:include>
+		</rich:column>
+
+	</rich:extendedDataTable>
+
+	<rich:dataScroller id="bottomDataScroller" for="projectMasterTable" maxPages="#{projectSearchAction.maxPagesInPager}"
+		ignoreDupResponses="true" scrollListener="#{projectSearchAction.onScroll}" boundaryControls="hide" fastControls="hide"
+		styleClass="cmf-datatable-scroller project-datascroller-bottom" renderIfSinglePage="false" />
+
+	<script type="text/javascript">
+		// if searchAll is set, then execute the 'search all' filter - this is the default behaviour
+		$(function() {
+			var params = $.deparam(location.search.substr(1));
+			var searchAll = params.searchAll;
+			if(searchAll) {
+				$('.list-all-button').click();
+			}
+		});
+	</script>
+</ui:composition>

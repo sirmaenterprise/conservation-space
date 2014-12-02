@@ -1,0 +1,14 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+
+delete {
+?instance a ptop:Document .
+}insert {
+  GRAPH <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?instance a emf:Image .
+  }
+} where {
+  ?instance a ptop:Document .
+  ?instance emf:mimetype ?mimetype .
+  filter ( regex(?mimetype, "image/*")) .
+}

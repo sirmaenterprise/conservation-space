@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:rich="http://richfaces.org/rich">
+	
+	<h:panelGroup id="itemListToolbar" layout="block" class="item-list-toolbar case-list-toolbar clearfix">
+	
+		<div style="width: 33%; float: left; visibility: hidden;">&#160;</div>
+		
+		<div class="cmf-datascroller-wrapper">
+			<rich:dataScroller for="caseList" id="caseListDatascroller"
+				scrollListener="#{cmfEntityBrowser.onScroll}"
+				maxPages="#{cmfEntityBrowser.searchAction.maxPagesInPager}"
+				ignoreDupResponses="true"
+				boundaryControls="hide" fastControls="hide"
+				styleClass="cmf-datatable-scroller" renderIfSinglePage="false" />
+		</div>
+		
+		<h:panelGroup id="itemListSortingBar" layout="block" styleClass="item-list-sorting-bar">
+			<span>
+				<a4j:outputPanel id="sortingOptionsMenuWrapper" ajaxRendered="true">
+					<ui:include src="/common/select-one.xhtml">
+						<ui:param name="activatorLinkValue"
+							value="#{label['cmf.case.search.args.'.concat(cmfEntityBrowser.searchAction.searchData.sorter.sortField)]}" />
+						<ui:param name="itemsList" value="#{cmfEntityBrowser.searchAction.sortActions}" />
+						<ui:param name="action" value="#{cmfEntityBrowser.searchAction}" />
+						<ui:param name="allowClear" value="false" />
+					</ui:include>
+				</a4j:outputPanel>
+			</span>
+
+			<a4j:commandLink id="sortingOrderButton" value="" action="#{cmfEntityBrowser.searchAction.switchOrder()}" render="caseList,sortingOrderButton"
+				styleClass="btn btn-default btn-sm glyphicon switch-order-btn blockUI #{(cmfEntityBrowser.searchAction.sortOrderAscending) ? 'glyphicon-sort-by-alphabet-alt' : 'glyphicon-sort-by-alphabet'}">
+				<h:outputText value=" " />
+			</a4j:commandLink>
+		</h:panelGroup>
+	</h:panelGroup>
+	
+	<a4j:outputPanel ajaxRendered="true">
+		<h:outputText id="noContentMessage" value="#{label['cmf.msg.info.emptySearchResult']}" 
+			rendered="#{cmfEntityBrowser.searchAction.dataModel.data==null}"
+			styleClass="no-content-message" />
+	</a4j:outputPanel>
+	
+	<rich:list id="caseList" value="#{cmfEntityBrowser.searchAction.dataModel}" var="case"
+		onrowclick="#{rich:element('setSelectedCaseLink')}.onclick();" 
+		rows="#{cmfEntityBrowser.searchAction.pageSize}"
+		styleClass="case-list" rowClass="list-item">
+		
+		<emf:treeHeader currentInstance="#{case}" mode="default_header" display="current_only" size="big"
+			disableLinks="true" />
+			
+		<a4j:commandLink id="setSelectedCaseLink" value="" 
+			action="#{linkCaseAction.toggleTarget(case)}"
+			execute="@this" render="selectEntityButton" style="display: none;"
+			onclick="CMF.entityBrowser.selectCase(this);" />
+	</rich:list>
+	
+</ui:composition>

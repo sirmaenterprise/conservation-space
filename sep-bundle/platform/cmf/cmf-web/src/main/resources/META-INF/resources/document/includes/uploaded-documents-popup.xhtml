@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich" xmlns:emf="http://com.sirma.itt.emf" template="/common/modal-panel.xhtml">
+
+	<ui:define name="panelParams">
+		<ui:param name="panelId" value="uploadedDocumentsPopup" />
+		<ui:param name="panelClosingFunction"
+			value="#{rich:component(panelId)}.hide(); CMF.incomingDocuments.resetPanel('.case-sections-list');" />
+		<ui:param name="panelShowFunction" value="CMF.incomingDocuments.resetPanel('.case-sections-list');" />
+	</ui:define>
+
+	<ui:define name="panelHeader">
+		<h:outputText value="#{label['cmf.workflow.task.document.uploadedDocuments.panel']}" />
+	</ui:define>
+
+	<ui:define name="panelContent">
+		<rich:list id="caseSectionsList" value="#{incomingTaskDocumentsController.allowedSections}" var="sectionInstance"
+			styleClass="case-sections-list" rowClasses="pad-0">
+
+			<div class="section-row #{sectionInstance.identifier} #{(sectionInstance.content.isEmpty()) ? '' : 'expanded'}">
+				<div class="section-togler"></div>
+
+				<emf:treeHeader currentInstance="#{sectionInstance}" mode="default_header" display="current_only" size="big"
+					disableLinks="true" />
+			</div>
+
+			<rich:list id="sectionDocuments" value="#{sectionInstance.content}" var="documentInstance"
+				onrowclick="#{rich:element('setSelectedDocumentLink')}.onclick();"
+				styleClass="section-documents-list section-items-list" rowClasses="pad-1">
+				<h:panelGroup rendered="#{!incomingTaskDocumentsController.isLinked(documentInstance.dmsId)}">
+					<div class="item-row">
+						<emf:treeHeader currentInstance="#{documentInstance}" mode="default_header" display="current_only" size="medium"
+							disableLinks="true" />
+					</div>
+					<a4j:commandLink id="setSelectedDocumentLink" value=""
+						action="#{incomingTaskDocumentsController.updateSelection(documentInstance)}" immediate="true" execute="@this"
+						render="@this,uploadedDocumentsPopup_addDocumentButton" styleClass="hidden"
+						onclick="CMF.incomingDocuments.selectDocument(this);" />
+				</h:panelGroup>
+			</rich:list>
+		</rich:list>
+	</ui:define>
+
+	<ui:define name="panelButtons">
+		<a4j:commandButton id="uploadedDocumentsPopup_addDocumentButton"
+			value="#{label['cmf.workflow.task.document.add.incoming']}"
+			disabled="#{incomingTaskDocumentsController.selectedDocuments.size() == 0}"
+			onclick="#{rich:component('uploadedDocumentsPopup')}.hide(); CMF.incomingDocuments.resetPanel('.case-sections-list'); EMF.blockUI.showAjaxLoader();"
+			oncomplete="EMF.blockUI.hideAjaxBlocker();"
+			styleClass="btn btn-primary standard-button" immediate="true" render="incomingDocumentsRegion"
+			action="#{incomingTaskDocumentsController.addIncomingDocuments()}" />
+
+		<a4j:commandButton id="uploadedDocumentsPopup_cancelButton" value="#{label['cmf.btn.cancel']}" action="cancel"
+			onclick="#{rich:component('uploadedDocumentsPopup')}.hide();CMF.incomingDocuments.resetPanel('.case-sections-list');"
+			styleClass="btn btn-default standard-button" render="@none" immediate="true" />
+	</ui:define>
+
+</ui:composition>

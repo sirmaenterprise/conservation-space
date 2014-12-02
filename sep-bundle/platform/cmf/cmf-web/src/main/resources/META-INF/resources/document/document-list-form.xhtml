@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:rich="http://richfaces.org/rich">
+	
+	<div class="doc-list-datascroller-wrapper-upper">
+		<rich:dataScroller for="documentsTable" 
+			maxPages="#{documentSearchAction.maxPagesInPager}"
+			ignoreDupResponses="true"
+			scrollListener="#{documentSearchAction.onScroll}"
+			boundaryControls="hide" fastControls="hide"
+			styleClass="cmf-datatable-scroller" renderIfSinglePage="false" />
+	</div>
+		
+	<rich:list id="documentsTable" value="#{documentSearchAction.dataModel}"
+		rows="#{documentSearchAction.pageSize}" var="caseInstance" 
+		styleClass="standard-list case-and-documents-list" rowClass="case-row">
+		<emf:treeHeader currentInstance="#{caseInstance}" mode="#{searchPageTreeHeaderMode}" 
+			display="#{searchPageTreeHeaderDisplay}" size="#{searchPageTreeHeaderSize}" 
+			disableLinks="#{!entityPreviewAction.canOpenInstance(caseInstance)}" />
+			
+		<rich:list id="documentList" value="#{documentSearchAction.resultMap.get(caseInstance)}"
+			var="documentInstance" type="unordered" styleClass="standard-list" rowClass="document-row">
+			
+			<emf:treeHeader currentInstance="#{documentInstance}" mode="#{searchPageTreeHeaderMode}" 
+				display="#{searchPageTreeHeaderDisplay}" size="#{searchPageTreeHeaderSize}" 
+				disableLinks="#{!entityPreviewAction.canOpenInstance(documentInstance)}">
+				<ui:define name="beforeContent">
+					<ui:include src="/common/banner.xhtml">
+						<ui:param name="renderIf" value="#{documentInstance.isLocked()}" />
+						<ui:param name="label" value="#{labelBuilder.getDocumentIsLockedMessage(documentInstance)}" />
+						<ui:param name="bannerClass" value="info-banner" />
+					</ui:include>
+				</ui:define>
+			</emf:treeHeader>
+				
+		</rich:list>
+		
+	</rich:list> 
+	
+	<a4j:outputPanel ajaxRendered="true">
+		<h:outputText id="noDocumentsFound" value="#{label['cmf.msg.info.emptySearchResult']}" 
+			rendered="#{documentSearchAction.dataModel.data==null}"
+			styleClass="no-content-message" />
+	</a4j:outputPanel>
+	
+	<div class="doc-list-datascroller-wrapper-lower">
+		<rich:dataScroller for="documentsTable" 
+			maxPages="#{documentSearchAction.maxPagesInPager}"
+			ignoreDupResponses="true"
+			scrollListener="#{documentSearchAction.onScroll}"
+			boundaryControls="hide" fastControls="hide"
+			styleClass="cmf-datatable-scroller" renderIfSinglePage="false" />
+	</div>
+</ui:composition>

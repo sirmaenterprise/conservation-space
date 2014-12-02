@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup styleClass="facet list-content members project-members" rendered="true" layout="block">
+		
+		<div class="facet-header expanded" id="projectMembersFacetHeader">
+			<span class="facet-title">#{label['pm.project.facet.members.header']}</span>
+		</div>
+
+		<div class="facet-content">
+			<rich:list id="roleList" value="#{projectColleaguesPanel.colleagues}" var="colleague" iterationStatusVar="index" styleClass="hidden colleagues-facet-data">
+				<div class="tree-header default_header">
+					<div class="instance-header">
+						<span class="icon-cell row#{index.count}">
+							<h:graphicImage library="images" name="user-icon-32.png" styleClass="header-icon" />
+						</span>
+						<span class="data-cell">
+							<span class="generated-region-label group-label colleagues-names-label">
+								<span>#{colleague.displayName}</span> 
+								<h:panelGroup rendered="#{colleague.jobtitle.length() > 0 ? true : false}" layout="block">&#44;
+									<span>#{colleague.jobtitle}</span>
+								</h:panelGroup>
+							</span>
+							<span>#{colleague.role}</span>
+						</span>
+					</div>
+				</div>
+				<script type="text/javascript">
+					$(function(){
+						
+						var avatar = '#{colleague.avatarPath}';
+						var colleagueData = {
+								wrapper : '.project-colleagues-panel-body .row#{index.count}',
+								avatar  : encodeURIComponent(avatar),
+								context : SF.config.contextPath
+						};
+						
+						CMF.utilityFunctions.colleaguesUtils.avatarGenerator(colleagueData);
+					});
+				</script>
+			</rich:list>
+		</div>
+		
+		<a4j:commandLink id="initProjectColleaguesFacet" value="initProjectColleaguesFacet" action="#{projectColleaguesPanel.initData()}"
+			styleClass="init-project-colleagues-facet hide" render="roleList" execute="@this" 
+			oncomplete="$('.colleagues-facet-data').removeClass('hidden');" />
+		<script type="text/javascript">
+			$(function() {
+				$('.init-project-colleagues-facet').click();
+			});
+		</script>
+	</h:panelGroup>
+
+</ui:composition>

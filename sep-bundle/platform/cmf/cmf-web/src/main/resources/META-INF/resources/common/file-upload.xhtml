@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	template="/common/modal-panel.xhtml">
+	
+	<ui:define name="panelParams">
+		<ui:param name="panelId" value="uploadDocumentPopup" />
+		<ui:param name="panelClosingFunction" 
+			value="#{rich:component('uploadDocumentPopup')}.hide(); CMF.fileUpload.resetUploadPanel('.file-upload');" />
+		<ui:param name="panelShowFunction"
+			value="CMF.fileUpload.resetUploadPanel('.file-upload');CMF.fileUpload.changeFileUploadActivatorLink('.file-upload');" />
+	</ui:define>
+	
+	<ui:define name="panelHeader">
+		<h:outputText value="#{label['cmf.document.upload.new.document.title.label']}" />
+	</ui:define>
+
+	<ui:define name="panelContent">
+		
+		<div class="data-group">
+			<div id="documentTitleGroup" class="row-group document-title-group required-field">
+				<div class="item-selector-panel-wrapper case-type-toolbar">
+					<ui:include src="/common/item-selector.xhtml">
+						<ui:param name="id" value="fileTypesSelectorPanel" />
+						<ui:param name="listId" value="fileTypesList" />
+						<ui:param name="renderCondition" value="true" />
+						<ui:param name="activatorPrefix" value="fileUpload" />
+						<ui:param name="renderType" value="false" />
+						<ui:param name="renderCount" value="true" />
+						<ui:param name="selectorLabel" value="#{label['cmf.document.upload.document.title.label']}" />
+						<ui:param name="activatorLinkValue" value="#{label['cmf.document.upload.fileType.selector.label']}" />
+						<ui:param name="itemsList" value="#{uploadAction.fileTypes}" />
+						<ui:param name="action" value="select document type" />
+						<ui:param name="refreshIds" value="" />
+						<ui:param name="styleClass" value="file-types-selector" />
+						<ui:param name="onclickFunction" 
+							value="return CMF.fileUpload.fileTypeSelectedhandler(this, #{rich:element('fileTitleValue')}, '#{item.id}', '#{item.description}', '.file-upload');" />
+					</ui:include>
+				</div>
+				<h:inputHidden id="fileTitleValue" value="#{uploadAction.title}" />
+			</div>
+			
+			<div id="descriptionGroup" class="row-group document-description-group">
+				<label for="description">#{label['cmf.document.upload.document.description.label']}</label>
+				<h:inputTextarea id="description" value="#{uploadAction.description}" styleClass="document-description" />
+			</div>
+		</div>
+		
+		<rich:fileUpload id="upload" fileUploadListener="#{uploadAction.listener}"
+			styleClass="file-upload"
+			listHeight="1"
+			sizeExceededLabel="Max size exceeded!"
+			onfilesubmit="CMF.fileUpload.disableFields('.file-upload');"
+			execute="description,fileTitleValue"
+			maxFilesQuantity="#{uploadAction.uploadsAvailable}"
+			ontyperejected="alert('rejected file type!');"
+			addLabel="#{label['cmf.document.upload.button.add']}"
+			uploadLabel="#{label['cmf.document.upload.button.upload']}"
+			deleteLabel="#{label['cmf.document.upload.button.delete']}" 
+			doneLabel="#{label['cmf.document.upload.label.done']}">
+			
+			<a4j:ajax event="uploadcomplete" execute="@none" render="#{idsToRerender}" 
+				oncomplete="CMF.fileUpload.onuploadcompleteHandler('.file-upload', #{rich:component('uploadDocumentPopup')});" />
+			<script type="text/javascript">
+				$(function(){
+					$('.rf-fu-btn-upl').click(function(){
+						CMF.fileUpload.changeUploadPanelIndexes("formId:uploadDocumentPopup");
+					});
+				});
+			</script>	
+		</rich:fileUpload>
+				
+	</ui:define>
+	
+</ui:composition>

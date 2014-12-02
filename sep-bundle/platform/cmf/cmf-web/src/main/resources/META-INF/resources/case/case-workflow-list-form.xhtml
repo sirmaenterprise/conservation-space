@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:rich="http://richfaces.org/rich">
+
+	<rich:list id="caseWorkflowsList" value="#{caseWorkflowListAction.workflowInstanceContexts}" var="workflowInstance"
+		type="unordered" styleClass="standard-list section-items-list workflow-list">
+		<div class="data-column">
+			<emf:treeHeader currentInstance="#{workflowInstance}" mode="default_header" display="current_only" size="bigger"
+				disableLinks="false" />
+		</div>
+		<div class="actions-column">
+			<ui:include src="/common/min-allowed-actions.xhtml">
+				<ui:param name="currentInstance" value="#{workflowInstance}" />
+				<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+				<ui:param name="placeholder" value="case-workflow-list" />
+				<ui:param name="rowKey" value="#{rich:clientId('actionsColumn')}" />
+			</ui:include>
+		</div>
+		<ui:include src="/workflow/includes/workflow-cancel-popup.xhtml">
+			<ui:param name="currentInstanceObject" value="#{workflowInstance}" />
+		</ui:include>
+	</rich:list>
+	<h:panelGroup id="noWorkflowsToDisplayMessage" styleClass="no-content-message" layout="block"
+		rendered="#{caseWorkflowListAction.workflowInstanceContexts.size() == 0}">
+		<span>#{label['cmf.workflow.history.noCotent.message']}</span>
+	</h:panelGroup>
+	
+	<a4j:commandLink id="workflowactivator" render="caseWorkflowsList"
+			action="#{caseWorkflowListAction.retrieveWorkflows(caseInstance)}" styleClass="hidden workflow-selector-action" />
+			
+	<script type="text/javascript">
+		$(function(){
+			var workflowListActivator = $(".workflow-selector-action");
+			if(workflowListActivator != undefined){
+				workflowListActivator.click();
+			}
+		});
+	</script>
+</ui:composition>

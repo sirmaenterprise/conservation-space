@@ -1,0 +1,31 @@
+<div class="radiobutton-widget-config">
+	<div>
+		<div class="input-group input-group-sm add-radiobutton-wrapper">
+			<span class="input-group-addon">
+				<input type="radio" data-ng-model="newButton.checked">
+			</span>
+			<input type="text" class="form-control" data-ng-model="newButton.label" placeholder="{{placeholder}}" data-ng-keyup="$event.keyCode == 13 ? addButton() : null"> 
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button" 
+					data-emf-label="widget.checkbox.add" 
+					data-ng-click="addButton()">
+					[!]Add
+				</button>
+			</span>
+		</div>
+		
+		<div class="configured-radiobuttons">
+			<div class="input-group input-group-sm" data-ng-repeat="btn in config.buttons track by $index">
+				<span class="input-group-addon">
+					<input type="radio" name="{{groupName}}" data-ng-model="btn.checked" data-ng-click="updateBtn($index)">
+				</span>
+				<input type="text" class="form-control"  data-ng-model="btn.label" placeholder="{{placeholder}}">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" data-ng-click="removeButton($index)">
+						<span class="glyphicon glyphicon-remove"></span> 
+					</button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>

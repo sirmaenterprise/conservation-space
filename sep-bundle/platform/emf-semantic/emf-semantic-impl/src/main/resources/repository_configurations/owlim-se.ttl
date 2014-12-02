@@ -1,0 +1,38 @@
+#
+# Sesame configuration template for a OWLIM SE repository
+#
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rep: <http://www.openrdf.org/config/repository#>.
+@prefix sr: <http://www.openrdf.org/config/repository/sail#>.
+@prefix sail: <http://www.openrdf.org/config/sail#>.
+@prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+
+[] a rep:Repository ;
+   rep:repositoryID "owlim-se" ;
+   rdfs:label "OWLIM SE Repository" ;
+   rep:repositoryImpl [
+      rep:repositoryType "openrdf:SailRepository" ;
+      sr:sailImpl [
+        sail:sailType "owlim:Sail" ;
+        owlim:ruleset "owl-horst-optimized" ;
+        owlim:storage-folder "storage" ;
+
+        owlim:repository-type "file-repository" ;
+        # owlim:base-URL "http://example.org/owlim#" ;
+        # owlim:imports "" ;
+        # owlim:defaultNS "" ;
+
+        owlim:entity-index-size "90000000" ;
+        owlim:cache-memory "180m" ;
+        owlim:tuple-index-memory "80m" ;
+        owlim:enable-context-index "false" ;
+        owlim:enablePredicateList "false" ;
+        owlim:predicate-memory "0" ;
+        owlim:fts-memory "0" ;
+        owlim:ftsIndexPolicy "never" ;
+        owlim:ftsLiteralsOnly "true" ;
+        owlim:in-memory-literal-properties "false" ;
+        owlim:transaction-mode "safe" ;
+        owlim:transaction-isolation "true" ;
+        ]
+    ].

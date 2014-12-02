@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	template="/common/modal-panel.xhtml">
+	
+	<ui:define name="panelParams">
+		<ui:param name="panelId" value="workflowCancelPopup" />
+		<ui:param name="panelClosingFunction" value="#{rich:component(panelId)}.hide();" />
+		<ui:param name="panelShowFunction" value="CMF.utilityFunctions.resetPanel('.workflow-cancel-reason','.submit-reason-button');" />
+		<ui:param name="styleClass" value="workflow-cancel-panel new-version-width-fix" />
+	</ui:define>
+	
+	<ui:define name="panelHeader">
+		<h:outputText value="#{label['cmf.workflow.cancel.popup.title']}" />
+	</ui:define>
+
+	<ui:define name="panelContent">
+		<h:panelGroup id="workflowCancelReasonGroup" layout="block" styleClass="workflow-cancel-reason-group required-field">
+			<h:outputLabel for="workflowCancelReason" value="#{label['cmf.workflow.cancel.popup.cancelReason']}: " />
+			<h:inputTextarea id="workflowCancelReason" value="#{workflowAction.workflowCancelReason}"
+				styleClass="workflow-cancel-reason"
+				onkeyup="CMF.keyUpHandlers.toggleSaveButton(this, '.submit-reason-button');" />					
+		</h:panelGroup>
+	</ui:define>
+	
+	<ui:define name="panelButtons">
+		<a4j:commandButton id="submitReasonButtonWorkflow" value="#{label['cmf.workflow.cancel.popup.cancelButton']}" 
+			onclick="#{rich:component('workflowCancelPopup')}.hide();"
+			styleClass="submit-reason-button btn btn-primary standard-button"
+			action="#{workflowAction.stopWorkflowAction(currentInstanceObject)}" 
+			oncomplete="EMF.blockUI.hideAjaxBlocker();"
+			render="#{renderId ? renderId : '@form'}" />
+		
+		<a4j:commandButton id="cancelWorkflowCancelOperationButton" action="cancel" value="#{label['cmf.btn.cancel']}"
+			onclick="#{rich:component('workflowCancelPopup')}.hide();" 
+			styleClass="btn btn-default standard-button"
+			oncomplete="EMF.blockUI.hideAjaxBlocker();"
+			immediate="true" />
+	</ui:define>
+	
+</ui:composition>

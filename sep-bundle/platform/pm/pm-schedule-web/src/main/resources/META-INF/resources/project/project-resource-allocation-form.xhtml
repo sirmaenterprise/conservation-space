@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <link href="../js/libs/extGantt/resources/css/sch-gantt-all.css" rel="stylesheet" type="text/css" />
+    
+	<script type="text/javascript">
+		PM.Sch = PM.Sch || {};
+		PM.Sch.resourceAllocationData = {
+				projectId		: '#{projectId}',
+				usernames 		: '#{usernames}',
+				viewOtherProjects : '#{viewOtherProjects}' 
+		}
+	</script>
+    
+<c:choose>
+<c:when test="#{emfApplication.applicationModeDevelopement}">
+    <script src="../js/libs/extGantt/gnt-all-debug.js" type="text/javascript"></script>
+    <script src="../js/app/resource-allocation-app.js" type="text/javascript"></script>
+</c:when>
+<c:otherwise>
+    <script src="../js/libs/extGantt/gnt-all.js" type="text/javascript"></script>
+    <script src="../js/app/pmsch-resource-allocation-min.js" type="text/javascript"></script>
+</c:otherwise>
+</c:choose>
+
+	<div id="resourceAllocationContainer"></div>
+
+</ui:composition>

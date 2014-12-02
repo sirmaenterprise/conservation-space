@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:f="http://java.sun.com/jsf/core" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="projectCasePanel" rendered="true" styleClass="dashboard-panel list-content col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['pm.project.dashboard.panel.cases']}</div>
+
+			<ui:include src="/search/dashlet-search/total-count.xhtml">
+				<ui:param name="panelId" value="projectCasePanel" />
+				<ui:param name="action" value="#{projectCasePanel}" />
+			</ui:include>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="projectCasePanel" />
+				<ui:param name="action" value="#{projectCasePanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="projectCasesPanelToolbar" styleClass="panel-toolbar">
+			<ui:include src="/search/dashlet-search/search-toolbar.xhtml">
+				<ui:param name="panelId" value="projectCasePanel" />
+				<ui:param name="action" value="#{projectCasePanel}" />
+				<ui:param name="renderId" value="projectCasePanel" />
+			</ui:include>
+
+			<emf:panel id="projectCasesToolbarActions" styleClass="allowed-actions-inline blockUI">
+				<ui:include src="/common/min-allowed-actions.xhtml">
+					<ui:param name="dashlet" value="#{projectCasePanel}" />
+					<ui:param name="renderLabel" value="true" />
+					<ui:param name="currentInstance" value="#{projectInstance}" />
+				</ui:include>
+			</emf:panel>
+		</h:panelGroup>
+
+		<div class="panel-body project-cases-panel-body">
+			<rich:list id="caseList" value="#{projectCasePanel.result}" var="caseInstance" type="unordered" rowClass="list-item">
+
+				<emf:treeHeader currentInstance="#{caseInstance}" mode="#{dashletsTreeHeaderMode}"
+					display="#{dashletsTreeHeaderDisplay}" size="#{dashletsTreeHeaderSize}" />
+
+				<h:panelGroup styleClass="item-link-min" layout="block">
+					<ui:include src="/common/min-allowed-actions.xhtml">
+						<ui:param name="currentInstance" value="#{caseInstance}" />
+						<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+						<ui:param name="ajaxLoaderRenderElement" value=".project-cases-panel-body" />
+						<ui:param name="placeholder" value="#{projectCasePanel.targetDashletName()}" />
+					</ui:include>
+				</h:panelGroup>
+			</rich:list>
+		</div>
+
+		<a4j:commandLink id="initProjectCasesDashlet" value="initProjectCasesDashlet" action="initProjectCasesDashlet"
+			onclick="EMF.ajaxloader.showLoading('.project-cases-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.project-cases-panel-body');" styleClass="load-project-cases-link hide"
+			render="caseList, projectCasesPanelToolbar" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

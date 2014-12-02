@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+	<link rel="stylesheet" href="#{request.contextPath}/image-editor/view/image-editor.css" type="text/css" />
+
+	<h:panelGroup id="documentPreviewPanel" styleClass="object-preview document-preview-wrapper image-annotation-controls" layout="block">
+		<ui:insert name="scene"></ui:insert>
+		<div id="info_panel" style="visibility: hidden;" />
+		<div id="page">
+			<div id="sub-main-container">
+				<div id="imageDetails" style="display: none;" />
+				<div id="annotations" style="display: block;">
+					<div id="art-prospect-head" class="clearfix">
+						<div>
+							<div class="tools-wrap">
+								<div class="tools">
+									<ul class="tools-edit radioButtons">
+										<li class="line"><a href="javascript:void(0);"><span class="tool_button" id="tool_line">line</span></a></li>
+										<li class="draw"><a href="javascript:void(0);"><span class="tool_button" id="tool_fhpath">draw</span></a></li>
+										<li class="vector"><a href="javascript:void(0);"><span class="tool_button" id="tool_path">vector</span></a></li>
+										<li class="circle"><a href="javascript:void(0);"><span class="tool_button" id="tool_my_ellipse" data-curopt="#tool_my_ellipse">circle</span></a></li>
+										<li class="square"><a href="javascript:void(0);"><span class="tool_button" id="tool_my_rect" data-curopt="#tool_my_rect">square</span></a></li>
+										<li class="point"><a href="javascript:void(0);"><span class="tool_button" id="tool_star" data-curopt="#tool_star">vector</span></a></li>
+										<li class="free-text"><a href="javascript:void(0);"><span class="tool_button" id="tool_free_text" data-curopt="#tool_free_text">free text</span></a></li>
+										<li class="arrow active"><a href="javascript:void(0);"><span class="tool_button" id="tool_select">arrow</span></a></li>
+									</ul>
+									<ul class="tools-edit radioButtons">
+										<li class="bucket">
+											<a href="javascript:void(0);">
+												<span class="tool_button" id="tool_fill_shape">line</span>
+											</a>
+										</li>
+										<li class="bucket-color-picker">
+											<input type="text" class="color-picker color-picker-fill" />
+										</li>
+										<li class="shape-border">
+											<a href="javascript:void(0);">
+												<span class="tool_button" id="tool_border_color">line</span>
+											</a>
+										</li>
+										<li class="bucket-color-picker">
+											<input type="text" class="color-picker color-picker-border" />
+										</li>
+										<li class="stroke-type">
+											<select id="tool_stroke_type">
+												<option value="solid" selected="selected">Solid</option>
+												<option value="dotted">Dotted</option>
+												<option value="dashed">Dashed</option>
+											</select>
+										</li>
+									</ul>
+									<div style="float: left;" class="has-tooltip">
+										<ul class="tools-colour radioButtons" id="palette">
+											<li class="red"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ff0000" /></li>
+											<li class="orange"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ffaa00" /></li>
+											<li class="yellow"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ffff00" /></li>
+											<li class="green"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#33cc33" /></li>
+											<li class="blue"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#00ffff" /></li>
+											<li class="azure"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#336699" /></li>
+											<li class="pink"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ff77bb" /></li>
+											<li class="grey"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#333333" /></li>
+										</ul>
+										<div class="palette tooltip"></div>
+									</div>
+									<ul class="tools-edit radioButtons">
+										<li class="comp-1 active"><a href="javascript:void(0);"><span>compare 1</span></a></li>
+										<li class="comp-2"><a href="javascript:void(0);"><span>compare 2</span></a></li>
+										<li class="comp-2"><a href="javascript:void(0);" id="fullscreen"><span>full screen</span></a></li>
+										<li><a href="javascript:void(0);" id="normalscreen" style="display: none;"><span>normal screen</span></a></li>
+									</ul>
+									<ul class="tools-edit radioButtons region">
+										<li>
+											<button type="button" disabled="disabled" class="editRegion idoc-action-btn btn btn-xs btn-primary">
+												Edit Annotation
+											</button>
+										</li>
+										<li>
+											<button type="button" style="display: none;" class="saveRegion idoc-action-btn btn btn-xs btn-primary">
+												Save Annotation
+											</button>
+										</li>
+										<li>
+											<button type="button" style="display: none;" class="cancelRegion idoc-action-btn btn btn-xs btn-default">
+												Cancel
+											</button>
+										</li>
+									</ul>
+								</div>
+							</div>
+							<div class="navigation-bar">
+								<ul id="flydown-menu">
+									<li class="button-wrap last"><a href="javascript:void(0);" class="flydown-handle overlayMenu disabled">Overlay<span /></a>
+										<div class="flyout-menu right">
+											<div class="flyout-section add-overlay">
+												<a href="javascript:void(0);">Add Overlay</a>
+											</div>
+										</div></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div id="art-prospect-body" class="clearfix">
+						<div class="col-60">
+							<div id="svg_editor">
+								<input id="show_rulers" style="visibility: hidden; display: none;" type="checkbox" value="show_rulers" />
+								<div id="rulers" style="visibility: hidden; display: none;">
+									<div id="ruler_corner" />
+									<div id="ruler_x">
+										<div>
+											<canvas height="0" />
+										</div>
+									</div>
+									<div id="ruler_y">
+										<div>
+											<canvas width="0" />
+										</div>
+									</div>
+								</div>
+								<div id="menu_panel" style="visibility: hidden; display: none;">
+									<div id="color_tools" class="tool_button">
+										<div id="tool_stroke" class="color_tool" data-curopt="#tool_stroke">
+											<div class="color_block">
+												<label class="icon_label" />
+											</div>
+											<div class="color_block">
+												<div id="stroke_bg" />
+												<div id="stroke_color" class="color_block">test</div>
+											</div>
+											<label><input id="stroke_width" class="spin-button" data-attr="Stroke Width" type="text" value="5" size="1" autocomplete="off" /></label>
+											<div id="stroke_linejoin" class="stroke_tool dropdown dropup">
+												<div>
+													<div id="cur_linejoin" />
+													<button />
+												</div>
+											</div>
+											<div id="stroke_linecap" class="stroke_tool dropdown dropup">
+												<div>
+													<div id="cur_linecap" />
+													<button />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div style="display: inline-block;">
+									<div id="workarea">
+										<div id="svgcanvas" style="overflow: hidden;" />
+									</div>
+									<div id="zoom_panel" class="zoom-bar">
+										<a href="javascript:void(0);"><span class="tool_button" id="tool_zoom_out"><img src="images/zoom_out.png" /></span></a>
+										<div id="zoomer" />
+										<a href="javascript:void(0);"><span class="tool_button" id="tool_zoom_in"><img src="images/zoom_in.png" /></span></a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</h:panelGroup>
+</ui:composition>

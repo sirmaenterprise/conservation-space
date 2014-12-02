@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	template="/common/modal-panel.xhtml">
+	
+	<ui:define name="panelParams">
+		<ui:param name="idsToRerender" value="@form" />
+		<ui:param name="panelId" value="createDocumentPopup" />
+		<ui:param name="panelClosingFunction" 
+			value="#{rich:component('createDocumentPopup')}.hide();" />
+	</ui:define>
+	
+	<ui:define name="panelHeader">
+		<h:outputText value="#{label['cmf.document.create.popup.title']}" />
+	</ui:define>
+
+	<ui:define name="panelContent">
+		<div class="document-title-group required-field">
+			<div class="item-selector-panel-wrapper case-type-toolbar">
+				<ui:include src="/common/item-selector.xhtml">
+					<ui:param name="id" value="createDocumentItemSelector" />
+					<ui:param name="listId" value="createDocumentItemsList" />
+					<ui:param name="renderCondition" value="true" />
+					<ui:param name="renderType" value="false" />
+					<ui:param name="renderCount" value="true" />
+					<ui:param name="selectorLabel" value="#{label['cmf.document.create.type']}" />
+					<ui:param name="activatorLinkValue" value="#{label['cmf.document.upload.fileType.selector.label']}" />
+					<ui:param name="itemsList" value="#{createDocumentAction.fileTypes}" />
+					<ui:param name="action" value="select document type" />
+					<ui:param name="refreshIds" value="" />
+					<ui:param name="styleClass" value="file-types-selector" />
+					<ui:param name="onclickFunction" 
+						value="return CMF.fileCreateEventHandlers.fileTypeSelectedhandler(this,#{rich:element('newDocumenType')},#{rich:element('newDocumentManualtitle')},#{rich:element('newDocumentFileName')},#{rich:element('performDocumentCreateButton')},'#{item.id}','#{item.description}','#{createDocumentAction.defaultDocumentType}');" />
+				</ui:include>
+			</div>
+		</div>
+			
+		<a4j:region id="createDocumentRegion">
+			<h:inputHidden id="newDocumenType" value="#{createDocumentAction.title}" />
+		
+			<a4j:outputPanel id="createDocumentPopupContentPanel">
+				<div class="row-group" style="display:none">
+					<label>#{label['cmf.document.create.title']}</label>
+					<h:inputText id="newDocumentManualtitle" value="#{createDocumentAction.manualTitle}" autocomplete="off" />
+				</div>
+				
+				<div class="row-group required-field">
+					<label>#{label['cmf.document.create.name']}</label>
+					<h:inputText id="newDocumentFileName" value="#{createDocumentAction.fileName}" 
+						required="false" requiredMessage="#{label['validation.required']}" autocomplete="off" />
+					<h:message for="newDocumentFileName" errorClass="tooltip-error" />
+				</div>
+				
+				<div class="row-group document-description-group">
+					<h:outputLabel for="newDocumentDescription" value="#{label['cmf.document.create.description']}" />
+					<h:inputTextarea id="newDocumentDescription" value="#{createDocumentAction.description}"
+						styleClass="document-description" />
+				</div>
+			</a4j:outputPanel>
+		</a4j:region>
+	</ui:define>
+	
+	<ui:define name="panelButtons">
+		<a4j:commandButton id="performDocumentCreateButton" action="#{createDocumentAction.create()}" 
+			value="#{label['cmf.btn.create']}" styleClass="btn btn-primary standard-button"
+			oncomplete="CMF.fileCreateEventHandlers.initFileCreationDialog(#{rich:element('newDocumenType')},#{rich:element('newDocumentManualtitle')},#{rich:element('newDocumentFileName')},#{rich:element('performDocumentCreateButton')},'#{createDocumentAction.defaultDocumentType}')"
+			render="createDocumentPopupContentPanel" execute="@region" />
+	</ui:define>
+	
+</ui:composition>

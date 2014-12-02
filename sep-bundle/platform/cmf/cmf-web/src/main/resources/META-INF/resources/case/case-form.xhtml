@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:rich="http://richfaces.org/rich">
+
+	<div class="new-case-panel">
+		<rich:panel id="newCaseDataPanel" styleClass="dynamic-form-panel-wrapper new-case-data">
+			<div class="item-selector-panel-wrapper case-type-toolbar">
+				<ui:include src="/common/select-one.xhtml">
+					<ui:param name="renderCondition"
+						value="#{instanceUtil.isNotPersisted(caseInstance) and (caseLandingPage.definitionItems.size() > 1)}" />
+					<ui:param name="selectorLabel" value="#{label['cmf.case.detail.type']}:" />
+					<ui:param name="activatorLinkValue" value="#{label['genericcase.caseTypeMenu.defaultLabel']}" />
+					<ui:param name="itemsList" value="#{caseLandingPage.definitionItems}" />
+					<ui:param name="action" value="#{caseLandingPage}" />
+					<ui:param name="allowClear" value="false" />
+				</ui:include>
+			</div>
+
+			<h:panelGroup id="instanceDataPanel" styleClass="dynamic-form-panel case-metadata-panel"
+				rendered="#{documentContext.structuredDocumentPath == null}" />
+
+			<ui:repeat var="path" value="#{viewScope.basePaths}">
+				<script type="text/javascript">
+					#{viewScope[path]}
+				</script>
+			</ui:repeat>
+
+			<script type="text/javascript">
+				CMF.utilityFunctions.initDynamicForm('case-metadata-panel');
+			</script>
+
+			<a4j:outputPanel id="structuredDocumentPanel" styleClass="structured-document-panel"
+				rendered="#{caseLandingPage.structuredDocumentEditor != null}">
+				<h:panelGroup id="documentEditor" class="full-height" layout="block">
+					<ui:include src="#{caseLandingPage.structuredDocumentEditor.path}">
+						<ui:param name="includeHeader" value="false" />
+					</ui:include>
+				</h:panelGroup>
+			</a4j:outputPanel>
+
+			<h:panelGroup id="buttonsPanel" styleClass="buttons-panel">
+				<div class="buttons-panel new-case-buttons">
+					<h:commandButton id="saveButton" action="#{caseLandingPage.save(caseInstance)}"
+						rendered="#{(caseLandingPage.structuredDocumentEditor == null) and (caseInstance != null) and (caseLandingPage.isEditMode(caseInstance))}"
+						disabled="#{caseLandingPage.selectedType == null and instanceUtil.isNotPersisted(caseInstance)}"
+						styleClass="btn btn-primary standard-button cmf-button save-button blockUI"
+						value="#{label['cmf.btn.save']}" />
+
+					<c:if test="#{caseInstance != null and caseLandingPage.isEditMode(caseInstance)}">
+						<h:commandButton id="cancelButton" action="#{caseLandingPage.cancelEdit(caseInstance)}"
+							styleClass="btn btn-default standard-button blockUI" value="#{label['cmf.btn.cancel']}" immediate="true" />
+					</c:if>
+					<c:if test="#{caseInstance == null}">
+						<h:commandButton id="cancelButton" action="backward" styleClass="btn btn-default standard-button blockUI"
+							value="#{label['cmf.btn.cancel']}" immediate="true" />
+					</c:if>
+				</div>
+			</h:panelGroup>
+		</rich:panel>
+
+		<ui:include src="includes/case-facets-panel.xhtml" />
+	</div>
+
+</ui:composition>

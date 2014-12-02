@@ -1,0 +1,71 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:rich="http://richfaces.org/rich">
+	
+	<div class="definition-preview" >
+		<label for="definitionMenu">#{label['cmf.administration.definitions.synching']}</label>
+		
+		<h:selectOneMenu  styleClass = "definition-select" id="definitionMenu" value="#{administration.serverGroup}" onchange="CMF.onchangeHandlers.selectChange(this,'.synchro-button')">	
+			<f:selectItem itemValue="" itemLabel="" noSelectionOption="true" />
+			<f:selectItem itemValue="cases" itemLabel="#{label['cmf.administration.definitions.caseslabel']}"  />
+			<f:selectItem itemValue="documents" itemLabel="#{label['cmf.administration.definitions.documentslabel']}"  />
+			<f:selectItem itemValue="workflows" itemLabel="#{label['cmf.administration.definitions.workflowlabel']}"  />
+		</h:selectOneMenu><br />
+		
+		<label for="definitionType"> #{label['cmf.administration.definitions.type']} </label>
+		<h:selectOneMenu  styleClass = "definition-select" id="definitionType" value="#{administration.definitionType}">	
+			<f:selectItem itemValue="allDefinitions" itemLabel="#{label['cmf.administration.definitions.alldefinitions']}"  />
+			<f:selectItem itemValue="instantiatedDefinitions" itemLabel="#{label['cmf.administration.definitions.instantiated.definitions']}"  />
+			<f:selectItem itemValue="nonInstantiatedDefinitions" itemLabel="#{label['cmf.administration.definitions.noninstantiated.definitions']}"  />
+		</h:selectOneMenu>
+		
+	</div>
+	
+	<div class="buttons-panel def-buttons" >
+	  <h:commandButton styleClass="btn btn-default standard-button synchro-button"  
+	  	actionListener="#{administration.getRequiredDefinitions}"
+	  	
+	  	value="#{label['cmf.administration.show.definitions']}" 
+	  	disabled="#{administration.serverGroup == null}" />
+	 
+	</div>
+	
+	
+	<div>
+		<h:dataTable value="#{administration.caseDefinitionList}"
+		 var="definition"
+		 styleClass="admin-definitions-datatable break-words"
+		 headerClass="admin-datatable-header"
+		 rowClasses="admin-datatable-row"
+		 rendered="#{administration.caseDefinitionList.size() gt 0}" >
+		 
+			<h:column>
+				<f:facet name="header">#{label['cmf.administration.definitions.name']}</f:facet>
+				<h:commandLink  value="#{definition.identifier}" />   
+				
+			</h:column>
+			<h:column>
+				<f:facet name="header">#{label['cmf.administration.definitions.creationdate']}</f:facet>
+				#{definition.creationDate}
+			</h:column>
+			<h:column>
+				<f:facet name="header">#{label['cmf.administration.definitions.lastmodified']}</f:facet>
+				#{definition.lastModifiedDate}
+			</h:column>
+			<h:column>
+				<f:facet name="header">#{label['cmf.administration.definitions.revision']}</f:facet>
+				#{definition.revision}
+			</h:column>
+			<h:column>
+				<f:facet name="header">#{label['cmf.administration.definitions.description']}</f:facet>
+			</h:column>
+			
+		</h:dataTable>
+	</div>	
+	
+	
+</ui:composition>

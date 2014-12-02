@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="/search/entity-browser.xhtml">
+	
+	<ui:define name="browserParams">
+		<ui:param name="panelId" value="caseSearchPopup" />
+		<ui:param name="panelClosingFunction" value="#{rich:component('caseSearchPopup')}.hide()" />
+		<ui:param name="styleClass" value="search-modal-dialog" />
+	</ui:define>
+
+	<ui:define name="browserHeader"> #{label['cmf.entity.browser.casesearch.header']}</ui:define>
+
+	<ui:define name="searchData">
+		<c:if test="#{!''.equals(cmfEntityBrowser.searchDataFormPath)}">
+			<span class="modal-search-button-panel">
+				<a4j:commandButton id="entityBrowserSearchButton"
+					action="#{cmfEntityBrowser.searchInContext(false)}"
+					disabled="false"
+					styleClass="btn btn-default standard-button search-button"
+					render="caseList,itemListToolbar"
+					value="#{label['cmf.btn.search']}">
+				</a4j:commandButton>
+			</span>
+			
+			<ui:include src="#{cmfEntityBrowser.searchDataFormPath}" />
+		</c:if>
+	</ui:define>
+
+	<ui:define name="resultList">
+		<ui:include src="#{cmfEntityBrowser.resultListFormPath}" />
+		
+		<!-- 
+			this is hack for a problem that is described here
+			https://community.jboss.org/people/wesleyhales/blog/2011/09/20/richfaces-4-and-todays-mobile-web-frameworks-part-1
+			https://community.jboss.org/message/789788 
+		-->
+		<a4j:outputPanel rendered="false">
+		    <rich:list >
+		    	<rich:dataScroller/>
+		    </rich:list>
+		</a4j:outputPanel>
+	</ui:define>
+	
+	<ui:define name="browserButtons">
+		<a4j:commandButton id="selectEntityButton" value="#{label['cmf.entity.browser.casesearch.accept.btn']}" 
+			action="accept"
+			disabled="#{linkCaseAction.selectedCaseInstance == null}"
+			onclick="#{rich:component('caseSearchPopup')}.hide();"
+			styleClass="btn btn-primary standard-button accept-button"
+			render="@form" />
+		
+		<a4j:commandButton id="cancelSelectionButton" value="#{label['cmf.btn.cancel']}"
+			action="#{linkCaseAction.cancelSelection()}"
+			styleClass="btn btn-default standard-button"
+			render="@none"
+			onclick="#{rich:component('caseSearchPopup')}.hide();" />
+		<script type="text/javascript">
+			$(function(){
+				CMF.utilityFunctions.initDropdownsForSearchDialogs();
+			});
+		</script>
+	</ui:define>
+	
+</ui:composition>

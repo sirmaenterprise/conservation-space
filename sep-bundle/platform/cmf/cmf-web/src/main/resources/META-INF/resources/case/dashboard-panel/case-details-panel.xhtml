@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:emf="http://com.sirma.itt.emf" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="caseDetailsPanel" styleClass="dashboard-panel dynamic-form-panel case-details-panel col-lg-4 dr-1" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['cmf.case.dashboard.panel.details']}</div>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="caseDetailsPanel" />
+				<ui:param name="action" value="#{caseDetailsPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="caseDetailsPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<emf:panel id="caseDetailsToolbarActions" styleClass="allowed-actions-inline">
+				<ui:include src="/common/min-allowed-actions.xhtml">
+					<ui:param name="currentInstance" value="#{caseInstance}" />
+					<ui:param name="dashlet" value="#{caseDetailsPanel}" />
+					<ui:param name="renderLabel" value="true" />
+				</ui:include>
+			</emf:panel>
+		</h:panelGroup>
+
+		<a4j:outputPanel id="caseDataPanel" styleClass="panel-body case-details-panel-body" style="padding: 10px 5px;"
+			layout="block" />
+
+		<a4j:commandLink id="refreshCaseDetailsDashlet" value="refreshCaseDetailsDashlet" action="refreshCaseDetailsDashlet"
+			onclick="EMF.ajaxloader.showLoading('.case-details-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.case-details-panel-body');" styleClass="load-case-details-link hide"
+			render="caseDataPanel" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

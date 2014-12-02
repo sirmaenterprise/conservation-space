@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<div class="create-case-link-form">
+
+		<div class="buttons-panel">
+			<a4j:commandLink id="entityBrowserTriggerButton"
+				action="#{linkCaseAction.openEntityBrowser()}"
+				oncomplete="#{rich:component('caseSearchPopup')}.show();"
+				disabled="false"
+				styleClass="btn btn-default standard-button"
+				value="#{label['cmf.case.link.casesearch.btn']}"
+				immediate="true"
+				render="caseSearchPopup,caseList,caseListDatascroller"
+				execute="@this"
+				rendered="true" />
+		</div>
+
+		<div class="case-link-form-content">
+			<h:panelGroup id="selectedCaseForLink" layout="block" rendered="#{linkCaseAction.selectedCaseInstance != null}"
+				styleClass="item-row clearfix">
+				<span class="item-icon">
+					<h:graphicImage library="images" name="caseinstance-icon-32.png" />
+				</span>
+				<span class="item-text">
+					<h:outputText id="selectedCaseData" value="#{labelBuilder.getCaseLinkLabel(linkCaseAction.selectedCaseInstance)}" 
+						escape="false" />
+				</span>
+				<span class="item-actions">
+					<span>
+						<a4j:commandLink id="removeLinkButton" action="#{linkCaseAction.removeSelectedCase()}" 
+							value="" execute="@this" render="@form">
+							<h:graphicImage value="../images/delete.png" />
+						</a4j:commandLink>
+					</span>
+				</span>
+			</h:panelGroup>
+
+			<div class="case-link-description required-field">
+				<label>#{label['cmf.case.link.description']}</label>
+				<h:inputTextarea id="caseLinkDescription" value="#{linkCaseAction.caseLinkDescription}" styleClass="case-link-description-field"
+					onkeyup="CMF.keyUpHandlers.toggleSaveLinkButton(this, '.save-link-button', #{linkCaseAction.selectedCaseInstance != null})" />
+			</div>
+		</div>
+		
+		<div class="buttons-panel center">
+			<h:commandButton id="saveCaseLinkButton" 
+				action="#{linkCaseAction.linkCases()}"
+				disabled="#{linkCaseAction.selectedCaseInstance == null}"
+				styleClass="btn btn-primary standard-button cmf-button save-link-button"
+				value="#{label['cmf.case.link.savelink.btn']}" />
+
+			<h:commandButton id="cancelButton" 
+				action="#{linkCaseAction.cancelCaseLink()}"
+				styleClass="btn btn-default standard-button" 
+				value="#{label['cmf.btn.cancel']}" immediate="true" />
+		</div>
+
+		<script type="text/javascript">
+			CMF.keyUpHandlers.toggleSaveLinkButton('.case-link-description-field', '.save-link-button', #{linkCaseAction.selectedCaseInstance != null})
+		</script>	
+	</div>
+
+</ui:composition>

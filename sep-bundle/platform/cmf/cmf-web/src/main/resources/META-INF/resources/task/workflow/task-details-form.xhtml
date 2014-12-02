@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<h:panelGroup id="taskDetails" class="object-details clearfix" layout="block">
+
+		<h:panelGroup id="taskDetailsPanel" layout="block"
+			styleClass="dynamic-form-panel-wrapper object-preview task-details-panel">
+
+			<h:panelGroup id="workflowProcessDiagram" layout="block" styleClass="workflow-process-diagram"
+				rendered="#{workflowInstanceContext.active}">
+				<label>#{label['cmf.workflow.diagram.label']}</label>
+				<a4j:mediaOutput element="img" cacheable="false" session="true" createContent="#{drawBean.render}"
+					value="#{workflowTaskAction.picKey}" mimeType="image/png" styleClass="process-diagram">
+				</a4j:mediaOutput>
+			</h:panelGroup>
+
+			<h:panelGroup id="workflowHistoryPanel" styleClass="dynamic-form-panel workflow-history-panel" />
+						
+			<h:panelGroup id="taskDataPanel" styleClass="dynamic-form-panel task-data-panel" />
+
+			<ui:include src="/task/transition-actions.xhtml">
+				<ui:param name="transitionActions" value="#{workflowTaskAction.transitionActions}" />
+				<ui:param name="transitionExecutor" value="#{workflowTransitionExecutor}" />
+				<ui:param name="additionalStyleClass" value="workflow-task-transitions" />
+				<ui:param name="currentInstanceObject" value="#{taskInstance}" />
+			</ui:include>
+
+			<a4j:outputPanel id="buttonsPanel" ajaxRendered="true" layout="block"
+				rendered="#{taskInstance.editable and workflowTaskAction.hasEditPermission}">
+				<div class="buttons-panel default-task-buttons">
+					<h:commandButton id="saveButton" action="#{workflowTaskAction.saveTask(taskInstance)}" disabled="false"
+						styleClass="btn btn-primary standard-button cmf-button"
+						value="#{(documentContext.selectedAction != null) ? ((documentContext.selectedAction.actionId == 'editDetails') ? label['cmf.btn.save'] : documentContext.selectedAction.label) : label['cmf.btn.save']}" />
+
+					<h:commandButton id="cancelButton" action="#{workflowTaskAction.cancelTaskEdit(taskInstance)}"
+						styleClass="btn btn-default standard-button" value="#{label['cmf.btn.cancel']}" immediate="true" />
+				</div>
+			</a4j:outputPanel>
+
+			<ui:repeat var="path" value="#{viewScope.basePaths}">
+				<script type="text/javascript">
+					#{viewScope[path]}
+				</script>
+			</ui:repeat>
+
+			<script type="text/javascript">
+				CMF.utilityFunctions.initDynamicForm('task-data-panel');
+			</script>
+		</h:panelGroup>
+
+		<ui:include src="includes/task-facets-panel.xhtml" />
+
+		<script type="text/javascript"> 
+			jQuery(function() {
+				CMF.oncompleteHandlers.bindClickHandlerToProcessDiagramPanel($('.process-diagram'));
+				EMF.onbeforeload.preventBeforeLoadMessage();
+			});
+		</script>
+
+	</h:panelGroup>
+
+</ui:composition>

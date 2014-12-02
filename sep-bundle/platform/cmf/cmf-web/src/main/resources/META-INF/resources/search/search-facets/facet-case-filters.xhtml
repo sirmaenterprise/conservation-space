@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="casesFiltersFacet" styleClass="facet filter-facet" layout="block">
+		
+		<h:form id="casesFilterForm">
+			<div id="casesFiltersFacetHeader" class="facet-header expanded">
+				#{label['cmf.facet.case.filter.title']}
+			</div>
+
+			<rich:list id="caseFilters" value="#{caseSearchAction.caseFilters}"
+				var="caseFilter" type="unordered" styleClass="facet-content">
+
+				<a4j:commandLink id="caseFilterLink" value="#{caseFilter.getLabel('case')}" action="#{caseSearchAction.filter(caseFilter)}"
+					rendered="#{caseFilter.rendered}" disabled="#{caseFilter.disabled}">
+
+					<f:attribute name="styleClass"
+						value="#{(selectedFilternameHolder.selectedFilterName==caseFilter.filterType) ? 'selected-search-filter' : ''}" />
+
+				</a4j:commandLink>
+			</rich:list>
+		</h:form>
+	</h:panelGroup>
+
+</ui:composition>

@@ -1,0 +1,31 @@
+<div>
+	<div>
+		<label>
+			<input  type="checkbox" data-ng-model="config.hideIfNoObject" />
+			Hide if no relationships are found
+		</label>
+		
+		<label>
+			<input type="radio" name="selectionMethod" data-ng-model="config.objectSelectionMethod" value="current-object"></input>
+			Display information for the current object
+		</label>
+		
+		<label>
+			<input type="radio" name="selectionMethod" data-ng-model="config.objectSelectionMethod" value="object-search"></input>
+			Manually select object
+		</label>
+		
+		<div data-ng-if="config.objectSelectionMethod === 'current-object'">
+			<div class="tree-header default_header">
+		    	<div class="instance-header {{$parent.currentObject.type}}">
+		    		<span class="icon-cell">
+		    			<img class="header-icon" data-ng-src="{{currentObjectIconPath}}" width="64">
+		    		</span>
+		    		<span class="data-cell" data-ng-bind-html="currentObjectHeader | trustAsHtmlFilter"></span>
+		    	</div>
+		    </div>
+		</div>
+		
+		<div class="object-picker-placeholder" object-picker="fake" data-ng-if="config.objectSelectionMethod === 'object-search'"></div>
+	</div>
+</div>

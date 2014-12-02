@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="projectWorkflowsPanel" styleClass="dashboard-panel list-content project-workflows-panel col-lg-4"
+		layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['pm.workflow.panel.header.title']}</div>
+
+			<ui:include src="/search/dashlet-search/total-count.xhtml">
+				<ui:param name="panelId" value="projectWorkflowsPanel" />
+				<ui:param name="action" value="#{projectWorkflowsPanel}" />
+			</ui:include>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="projectWorkflowsPanel" />
+				<ui:param name="action" value="#{projectWorkflowsPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="projectWorkflowsPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<ui:include src="/search/dashlet-search/search-toolbar.xhtml">
+				<ui:param name="panelId" value="projectWorkflowsPanel" />
+				<ui:param name="action" value="#{projectWorkflowsPanel}" />
+				<ui:param name="renderId" value="projectWorkflowsPanel" />
+			</ui:include>
+		</h:panelGroup>
+
+		<div class="panel-body project-workflows-panel-body clearfix">
+			<rich:list id="workflowList" value="#{projectWorkflowsPanel.result}" var="workflowInstance" type="unordered"
+				styleClass="workflow-history-list" rowClass="list-item">
+				<emf:treeHeader currentInstance="#{workflowInstance}" mode="#{dashletsTreeHeaderMode}" display="current_only"
+					size="#{dashletsTreeHeaderSize}" />
+				<div class="item-link-min">
+					<ui:include src="/common/min-allowed-actions.xhtml">
+						<ui:param name="currentInstance" value="#{workflowInstance}" />
+						<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+						<ui:param name="placeholder" value="#{projectWorkflowsPanel.targetDashletName()}" />
+						<ui:param name="ajaxLoaderRenderElement" value=".project-workflows-panel-body" />
+					</ui:include>
+				</div>
+				<ui:include src="/workflow/includes/workflow-cancel-popup.xhtml">
+					<ui:param name="currentInstanceObject" value="#{workflowInstance}" />
+				</ui:include>
+			</rich:list>
+		</div>
+
+		<a4j:commandLink id="refreshProjectWorkflowsDashlet" value="refreshProjectWorkflowsDashlet"
+			action="refreshProjectWorkflowsDashlet" onclick="EMF.ajaxloader.showLoading('.project-workflows-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.project-workflows-panel-body');"
+			styleClass="load-project-workflows-link hide" render="workflowList, projectWorkflowsPanelToolbar" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

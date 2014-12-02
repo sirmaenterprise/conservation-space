@@ -1,0 +1,71 @@
+<div class="data-table-config" tabs="fake">
+	<div>
+		<input id="data-table-hide-if-no-objects" type="checkbox" ng-model="config.hideIfEmpty" />
+		<label for="data-table-hide-if-no-objects">Hide if no objects are found</label>
+	</div>
+	<ul>
+		<li><a href="#tabs-1">Object to be displayed</a></li>
+		<li><a href="#tabs-2">Object details to be displayed</a></li>
+	</ul>
+	<div id="tabs-1">
+		
+		<label>
+			<input name="object-selection-method" type="radio" ng-model="config.objectSelectionMethod" value="object-manual-select" />
+			Manually select objects
+		</label>
+
+		<label>
+			<input name="object-selection-method" type="radio" ng-model="config.objectSelectionMethod" value="object-search" />
+			Search for object
+		</label>
+		
+		<div class="object-picker">
+			
+			<div class="object-picker-placeholder" data-object-picker="fake" 
+				data-ng-if="config.objectSelectionMethod === 'object-manual-select'">
+			</div>
+			
+			<div class="object-picker-placeholder object-data-search-wrapper" data-basic-search="fake"
+				data-ng-if="config.objectSelectionMethod === 'object-search'">
+			</div>
+		</div>
+		
+		<div class="data-table-data-basket" 
+			ng-show="config.objectSelectionMethod === 'object-manual-select' && value.manuallySelectedObjects.length > 0">
+			<div class="tree-header default_header" ng-repeat="object in value.manuallySelectedObjects">     				
+				<div class="instance-header {{object.type}}">     					
+					<span class="icon-cell">
+						<a href="javascript:void(0);" ng-click="removeFromBasket(object)">Remove</a>
+					</span>
+					<span class="data-cell" ng-bind-html="object.compact_header | trustAsHtmlFilter"></span>     				
+				</div>     			 
+			</div>
+		</div>
+	</div>
+	<div id="tabs-2">
+		<div class="data-table-property-selection-wrapper">
+			<ul ng-repeat="holder in availableProperties track by $index">
+				<div class="btn-group btn-group-xs">
+  					<button type="button" class="btn btn-default" ng-click="selectAllProperties(true, holder)">
+                    	<span>Select All</span>
+            		</button>
+  					<button type="button" class="btn btn-default" ng-click="selectAllProperties(false, holder)">
+                    	<span>Deselect All</span>
+            		</button>
+				</div>
+				<li><em>{{holder.title}}</em>
+				<ul>
+					<li ng-repeat="property in holder.properties track by $index">
+						<label data-toggle="tooltip" data-container="body" bootstrap-tooltip="{{property.description}}" data-placement="right">
+							<input 
+								type="checkbox" 
+								ng-model="property.checked" 
+								ng-change="updateSelectedProperties(property)" /> 
+								{{property.title}}
+						</label>
+					</li>
+				</ul>
+			</ul>
+		</div>
+	</div>
+</div>

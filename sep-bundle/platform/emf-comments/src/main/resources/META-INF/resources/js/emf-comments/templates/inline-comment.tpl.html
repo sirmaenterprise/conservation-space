@@ -1,0 +1,58 @@
+<div class="inline-comment-wrapper">
+	<div class="avatar">
+		<img alt="{{model.createdByLabel}}" data-ng-src="{{ defaultUserIconPath() }}" />
+	</div>
+	<div>
+		<div class="user-and-actions">
+			<a class="username" href="javascript:void(0);">{{model.createdByLabel}}</a> 
+			<small class="date text-muted">{{model.createdOn | dateFormatterFilter}}</small>
+			
+			<div class="actions pull-right" data-ng-show="!collapsed">
+
+				<div data-ng-if="forTopic">
+					<a class="comment-action-link" href="javascript:void(0);" 
+						data-ng-show="topicActionsModel.primary.action"
+						data-ng-click="executeAction(topicActionsModel.primary.action)">
+						{{topicActionsModel.primary.label}}
+					</a>
+					<div class="btn-group" data-ng-show="topicActionsModel.secondary.length">
+						<a href="javascript:void(0)" role="button" class="dropdown-toggle inline-comment-action-dropdown" data-toggle="dropdown" data-ng-click="loadActions()">
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" role="menu" style="right: 0; left: auto;">
+						
+							<li data-ng-show="loadingActions">
+								<i>Please wait</i>
+							</li>
+								
+							<li data-ng-show="!loadingActions &#38;&#38; (!model.actions || !model.actions.length)">
+								<i>No available actions</i>
+							</li>
+							
+							<li data-ng-repeat="action in topicActionsModel.secondary">
+								<a href="javascript:void(0);" data-ng-click="executeAction(action.action)" class="inline-comment-actions">{{action.label}}</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+					
+				<div data-ng-if="!forTopic">
+					<a class="comment-action-link" href="javascript:void(0);" 
+						data-ng-repeat="action in model.actions"
+						data-ng-click="executeAction(action.action)">
+						{{action.label}}
+					</a>
+				</div>
+			</div>
+		</div>
+		
+		<div class="comment-content emf-tiny-editor" data-ng-click="triggerToggleExpand(model)" 
+			data-ng-bind-html="model.title || model.content | htmlAsString:collapsed | trustAsHtmlFilter">
+		</div>
+		
+		<div data-ng-transclude="noop" class="inline-comment-extension" data-ng-show="model.title &#38;&#38; model.content &#38;&#38; !collapsed">
+			<!-- extension for topic content -->
+		</div>
+	</div>
+</div>
+

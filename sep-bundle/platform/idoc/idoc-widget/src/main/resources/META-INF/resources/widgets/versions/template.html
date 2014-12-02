@@ -1,0 +1,33 @@
+<div class="versionsWidget">
+	<table cellspacing="1" cellpadding="2" border="1">
+		<thead>
+			<tr>
+				<th emf-label="widget.versions.version"></th>
+				<th emf-label="widget.versions.createdBy"></th>
+				<th emf-label="widget.versions.createdOn"></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="{{version.selectedClass}}" ng-repeat="version in versions">
+				<td ng-bind="version.title"></td>
+				<td ng-bind="version.createdBy"></td>
+				<td ng-bind="version.createdOn"></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="broadcastRevertToVersion(version.title)">
+						<img class="has-tooltip" alt="Revert to version {{version.title}}" ng-src="{{applicationPath}}/images/icon_revert.png" />
+						<div class="tooltip">
+							<span emf-label="cmf.version.history.revert" />
+						</div>
+					</a>
+					<a href="javascript:void(0)" ng-click="broadcastPreviewVersionEvent(version.title)">
+						<img class="has-tooltip" alt="Preview version {{version.title}}" ng-src="{{applicationPath}}/images/icon_document_historyPreview.png" />
+						<div class="tooltip">
+							<span emf-label="cmf.version.history.view.older.version" />
+						</div>
+					</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

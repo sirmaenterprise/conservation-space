@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:a4j="http://richfaces.org/a4j" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup rendered="#{!'cancel'.equals(transitionId) and transitionAction.userSelectionField  != null  }">
+		<span id="assignTaskOnCompleteFieldsWrapper#{transitionId}">
+			<h:inputHidden id="setAssigneesId" value="#{taskAssigneesActions.newAssignees}"
+				immediate="#{transitionAction.immediate}" />
+			<a4j:commandButton id="setAssigneesTaskButton" value="" execute="setAssigneesId" styleClass="hide blockUI"
+				immediate="#{transitionAction.immediate}"
+				action="#{taskAssigneesActions.setAssigneesAndNavigate(documentContext.TaskInstance, transitionAction.userSelectionField, transitionId)}"
+				render="#{renderIds}" />
+		</span>
+
+		<script type="text/javascript">
+			$('#assignTaskOnCompleteFieldsWrapper#{transitionId}').picklist({
+				updatePreviewField 	: false,
+				pklMode             : "#{transitionAction.getPickerControlUIParam( 'FUNCTIONAL_MODE')}",       // [multy|single|singleImmediate] plugin working mode
+				itemType            : "#{transitionAction.getPickerControlUIParam( 'ITEM_TYPE')}",
+				submitValueLink 	: $('#assignTaskOnCompleteFieldsWrapper#{transitionId} input[type=submit]'),
+				hiddenField 		: $('#assignTaskOnCompleteFieldsWrapper#{transitionId} input[type="hidden"]'),
+				okButtonTitle		: "#{label[transitionAction.getPickerControlUIParam( 'OK_BUTTON_TITLE')]}", 
+				cancelButtonTitle	: "#{label[transitionAction.getPickerControlUIParam( 'CANCEL_BUTTON_TITLE')]}",
+				headerTitle			: "#{label[transitionAction.getPickerControlUIParam( 'HEADER_TITLE')]}", 
+				imgResourceService  : "/service/dms/proxy/",	
+				applicationContext  : SF.config.contextPath
+			});
+		</script>
+
+		<span id="#{transitionId}" class="transition-action #{transitionAction.tooltip != null ? 'has-tooltip' : ''}">
+			<a4j:commandButton id="transitionActionLinkWithPicker"
+				action="#{taskAssigneesActions.initialize(transitionAction.getPickerControlUIParam('ITEM_TYPE'), transitionAction.getPickerControlUIParam( 'FUNCTIONAL_MODE'), transitionAction.getPickerControlParam('FILTER_NAME') )}"
+				oncomplete="CMF.taskAssigneesSelectionEventHandlers.openPicklist('assignTaskOnCompleteFieldsWrapper#{transitionId}', '#{transitionAction.getPickerControlUIParam('ITEM_TYPE')}', '#{transitionAction.getPickerControlParam('FILTER_NAME')}');"
+				styleClass="btn btn-default standard-button transition-button" 
+				immediate="false"
+				value="#{transitionAction.buttonLabel}">
+			</a4j:commandButton>
+			<span class="tooltip">
+				<span>#{transitionAction.tooltip}</span>
+			</span>
+		</span>
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{!'cancel'.equals(transitionId) and transitionAction.userSelectionField  == null}">
+		<span id="#{transitionId}" class="transition-action #{transitionAction.tooltip != null ? 'has-tooltip' : ''}">
+			<h:button id="transitionActionLink" styleClass="btn btn-default standard-button transition-button #{transitionId=='startWorkflow'?'btn-primary':''}" 
+				value="#{transitionAction.buttonLabel}" 
+				onclick="CMF.action.completeTask(event, {instanceId: '#{currentInstanceObject.id}', instanceType: '#{currentInstanceObject.getClass().getSimpleName().toLowerCase()}', checkonly: true, confirmationMessage: '#{transitionAction.confirmation}'}); return false;" />
+			<h:commandButton id="transitionActionLinkHidden" action="#{transitionExecutor.executeTransition(transitionId)}"
+				immediate="#{transitionAction.immediate}" styleClass="hidden" />
+			<span class="tooltip">
+				<span>#{transitionAction.tooltip}</span>
+			</span>
+		</span>
+	</h:panelGroup>
+
+	<h:panelGroup rendered="#{'cancel'.equals(transitionId) and instanceUtil.isNotPersisted(currentInstanceObject)}">
+		<span id="#{transitionId}" class="transition-action #{transitionAction.tooltip != null ? 'has-tooltip' : ''}">
+			<h:commandButton id="cancelWorkflowCreationLink" action="#{transitionExecutor.executeTransition('cancelStart')}"
+				styleClass="btn btn-default standard-button transition-button" immediate="true"
+				value="#{transitionAction.buttonLabel}">
+			</h:commandButton>
+			<span class="tooltip">
+				<span>#{transitionAction.tooltip}</span>
+			</span>
+		</span>
+	</h:panelGroup>
+
+</ui:composition>

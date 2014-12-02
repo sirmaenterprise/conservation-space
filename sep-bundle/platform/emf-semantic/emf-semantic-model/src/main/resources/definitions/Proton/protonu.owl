@@ -1,0 +1,1821 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY psys "http://proton.semanticweb.org/2006/05/protons#">
+  <!ENTITY ptop "http://proton.semanticweb.org/2006/05/protont#">
+  <!ENTITY pupp "http://proton.semanticweb.org/2006/05/protonu#">
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+]>
+<rdf:RDF xmlns:owl="&owl;"
+         xmlns:psys="&psys;"
+         xmlns:ptop="&psys;"
+         xmlns:rdf="&rdf;"
+         xmlns:rdfs="&rdfs;"
+         xmlns = "&pupp;"
+         >
+
+<!-- Ontology Information -->
+  <owl:Ontology rdf:about=""
+                rdfs:comment="PROTON (Proto Ontology), Upper module"
+                owl:versionInfo="0.2">
+  <!-- THESE IMPORTS NEED TO BE with NAMESPACES when D E P L O Y E D -->
+          
+    <owl:imports rdf:resource="protons.owl"/>
+    <owl:imports rdf:resource="protont.owl"/>
+  </owl:Ontology>
+
+<!-- Classes -->
+  <owl:Class rdf:about="&pupp;Accident"
+             rdfs:label="Accident">
+    <rdfs:subClassOf rdf:resource="&ptop;Event"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Account"
+             rdfs:label="Account">
+    <rdfs:comment>An explicit agreement between agents. Typically, service providers (e.g. banks or ISPs) provide accounts to their customers or users, which are considered account owners. The existence of the account depends on the provider, even though the user owns it in some metaphoric sense.
+Examples could be bank, ISP, e-Commerce, ICQ, email accounts.
+The accounts are usually aligned with a sort of contract.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Object"/>
+  </owl:Class>
+  
+  <owl:Class rdf:about="&pupp;Address"
+             rdfs:label="Address">
+    <rdfs:comment>Any sort of address, specifying how to locate something somewhere</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;ContactInformation"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Airline"
+             rdfs:label="Airline">
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;AirplaneModel"
+             rdfs:label="Airplane Model">
+    <rdfs:subClassOf rdf:resource="&ptop;ProductModel"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Airport"
+             rdfs:label="Airport">
+    <rdfs:comment>An airport, including heliports.
+NIMA GNS designators AIPR, AIRH.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Album"
+             rdfs:label="Album">
+    <rdfs:subClassOf rdf:resource="&pupp;AudioRecording"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;AlcoholicBeverage"
+             rdfs:label="Alcoholic Beverage">
+    <rdfs:comment>A type (specific receipe) for a beverage. For instance: Guiness Beer, Absolut Currant, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Beverage"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;AmusementPark"
+             rdfs:label="Amusement Park">
+    <rdfs:comment>(ADL FT) Commercially operated enterprises that offer rides, games, and other forms of entertainment.
+NIMA GNS designator - no equivalents.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;RecreationalFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Announcement"
+             rdfs:label="Announcement">
+    <rdfs:comment>A formal public statement; "the government made an announcement about changes in the drug war"; "a declaration of independence".) WordNet 1.7.1</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PublishedMaterial"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Archipelago"
+             rdfs:label="Archipelago">
+    <rdfs:comment>(ADL FT) Seas or areas in a sea that contain numerous islands; also, the island groups themselves.
+NIMA GNS designator - no equivalent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Island"/>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Art"
+             rdfs:label="Art">
+    <rdfs:subClassOf rdf:resource="&pupp;SocialAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ArtPerformance"
+             rdfs:label="Art Performance">
+    <rdfs:comment>A specific performance taking place at some moment, somewhere. Quite often starting at 19:00 in the theatre, stadium, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Event"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Article"
+             rdfs:label="Article">
+    <rdfs:comment>A relatively short document publishes as a part of Resource Collection.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PublishedMaterial"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ArtificialSatellite"
+             rdfs:comment="A satellite created by humans"
+             rdfs:label="Artificial Satellite">
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;AstronomicalObject"
+             rdfs:label="Astronomical Object">
+    <rdfs:comment>Any object studied by astronomers, (usually quite large natural and inanimate) object that is located in the physical universe and is not on the surface of the Earth. Definition partly derived from OpenCyc 0.7</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;AudioRecording"
+             rdfs:label="Audio Recording">
+    <rdfs:subClassOf rdf:resource="&pupp;MusicalComposition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Acquirement" rdfs:label="Acquirement">
+	 <rdfs:comment>
+		The event of the acquiring of one organization by another.
+	</rdfs:comment>  
+     <rdfs:subClassOf rdf:resource="&ptop;Event" />
+  </owl:Class>
+   
+  <owl:Class rdf:about="&pupp;Bank"
+             rdfs:label="Bank">
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Bay"
+             rdfs:label="Bay">
+    <rdfs:comment>(ADL FT) Indentations of a coastline or shoreline enclosing a part of a body of water; bodies of water partly surrounded by land. We use this category for bahias; for coves; and for embayments.
+NIMA GNS designators BAY, BAYS.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Beach"
+             rdfs:label="Beach">
+    <rdfs:comment>(ADL FT)  Sloping shores along a body of water that is washed by waves or tides and is usually covered by sand or gravel. ... We use this category for sandy areas; and for strands.
+NIMA GNS designator BCH, BCHS.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Beverage"
+             rdfs:label="Beverage">
+    <rdfs:comment>Any liquid suitable for drinking (WordNet, 1.7). The instances of this class are types of drinks, specific receipts. For instance: Diet Coke, Bacardi Spice.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;ChemicalCompound"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;BiogeographicRegion"
+             rdfs:label="Biogeographic Region">
+    <rdfs:comment>(ADL FT)  Geographic regions characterized chiefly by the dominant forms of plant life and the prevailing climate. [Adapted from American Heritage Dict. of the English Language, 4th ed.] We use this category for biomes; for ecoregions; and for vegetation.
+Omitted ADL sub-classes: Barren lands, Grasslands, Habitats, Snow Regions, Wetlands.
+NIMA GNS designator - no equivalent. Some correspondence to class Hypsographic Features.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;BoardMeeting"
+             rdfs:label="Board Meeting">
+    <rdfs:subClassOf rdf:resource="&pupp;Meeting"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;BoardMember"
+             rdfs:label="Board Member">
+    <rdfs:comment>Position of a Person who belongs to the Board of Directors, which is responsible for oversight of the Organization. A member of the Board of Directors of an organization may or may not be an executive of the organization.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;JobPosition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Book"
+             rdfs:label="Book">
+    <rdfs:comment>A relatively large published document. It may or may not have chapters. There could be series of books considered as volumes of a single one.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PublishedMaterial"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Brand"
+             rdfs:comment="Like Dodge and Milka"
+             rdfs:label="Brand">
+    <rdfs:subClassOf rdf:resource="&ptop;Object"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Bridge"
+             rdfs:label="Bridge">
+    <rdfs:comment>(ADL FT) Structures erected over a depression or obstacle to carry traffic. [USGS Circ 1048] We use this category for covered bridges; for drawbridges; for overpasses; for trestles; and for viaducts.
+NIMA GNS designator BDG, BDGQ.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Building"
+             rdfs:label="Building">
+    <rdfs:comment>(ADL FT) Permanent constructions that are roofed and usually walled. [USGS Circ 1048] We use this category for administrative facilities; for administrative facilities; for animal pounds; for animal shelters; for aquariums; for barns; for border posts; for cabins; for castles; for city halls; for civic centers; for civil buildings; for club houses; for coast guard stations; for commissaries; for community centers; for community houses; for conference facilities; for consulates; for convention centers; for customs houses; for customs posts; for depots; for embassy buildings; for exhibition buildings; for facilities; for facility centers; for fire stations; for firehouses; for forest stations; for government buildings; for guard stations; for halls; for headquarters; for hostels; for hotels; for houses; for inns; for inspection stations; for legation buildings; for lodges; for missions; for motels; for neighborhood centers; for offices; for park headquarters; for patrol posts; for pavilions; for planetariums; for plazas; for police posts; for public buildings; for ranger stations; for restaurants; for shelters; for shops; for stations; for structures; for student unions; for studios; for substations; for taverns; for town halls; for trading posts; for treatment plants; for United States Government establishments; for visitor centers; for walls; and for warehouses
+NIMA GNS designator BLDG.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;BusinessAbstraction"
+             rdfs:label="Business Abstraction">
+    <rdfs:subClassOf rdf:resource="&ptop;Abstract"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;CEO"
+             rdfs:label="CEO">
+    <rdfs:subClassOf rdf:resource="&pupp;Executive"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;CalendarMonth"
+             rdfs:label="Calendar Month">
+    <rdfs:comment>A specific month of the year, such as: Jan., Feb., etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;CalendarYear"
+             rdfs:label="Calendar Year">
+    <rdfs:comment>A specific year, such as 2000, taken as a time interval</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;TimeInterval"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Camp"
+             rdfs:label="Camp">
+    <rdfs:comment>(ADL FT)  Designated areas on which primitive structure(s) are erected for temporary shelter or where recreational vehicles are temporarily parked. [USGS Circ 1048] We use this category for campgrounds; for camping sites; for logging camps; for oil camps; for refugee camps; for RV parks; and for trailer parks (recreational).
+NIMA GNS designators CMP, CMPL, CMPLA, CMPO, CMPQ, CMPRF.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;RecreationalFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Canal"
+             rdfs:label="Canal">
+    <rdfs:comment>(ADL FT) Artificial waterways with no flow or a controlled flow used for navigation (canal), or for draining or irrigating land (ditch). We use this category for canal bends; for canalized streams; for ditch mouths; for ditches; for drainage canals; for drainage ditches; for drains (channels); for flumes (manmade); for irrigation canals; for irrigation ditches; for irrigation systems; for laterals; for navigation canals; and for underground irrigation canals.
+NIMA GNS designators CNL,CNLA, CNLB, CNLD, CNLI, CNLN, CNLQ, CNLSB, CNLX.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Channel"/>
+    <rdfs:subClassOf rdf:resource="&pupp;HydrographicStructure"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Canyon"
+             rdfs:label="Canyon">
+    <rdfs:comment>(ADL FT)  Relatively narrow, deep depressions with steep sides, the bottom of which generally has a continuous slope ... We use this category for barrancas; for chasms; for flumes (natural); for gorges; for gulches; for quebradas; and for ravines.
+NIMA GNS designator CNSU, CNYN, CNYU, GRGE, RAVU, RVN.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Valley"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Cape"
+             rdfs:label="Cape">
+    <rdfs:comment>(ADL FT)  Projection of land extending into a body of water that prominently marks a change in or interrupts the coastal trend of that water body. We use this category for headlands; for peninsulas; for points (physiographic); and for promontories.
+NIMA GNS designator CAPE, HDLD, PROM.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Capital"
+             rdfs:label="Capital">
+    <rdfs:comment>(ADL FT) Towns or cities that are the official seats of government in a political entity, such as a state or nation. [American Heritage Dic. of the English Language, 4th ed.] We use this category for county seats; for national capitals; and for state capitals.
+NIMA GNS designators PPLC, PPLA</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;City"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;CarModel"
+             rdfs:comment="Such as Ford-T or BMW Z3."
+             rdfs:label="Car Model">
+    <rdfs:subClassOf rdf:resource="&ptop;ProductModel"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Cave"
+             rdfs:label="Cave">
+    <rdfs:comment>(ADL FT) Natural underground passageways or chambers, or hollowed out cavities in the side of a cliff. ... We use this category for cave entrances; for caverns; for grottoes; for natural tunnels; and for underground lakes.
+NIMA GNS designator CAVE.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Chairman"
+             rdfs:label="Chairman">
+    <rdfs:subClassOf rdf:resource="&pupp;Leader"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Channel"
+             rdfs:label="Channel">
+    <rdfs:comment>(ADL FT) (a) Relatively narrow seas or stretches of water between two close landmasses and connecting two larger bodies of water; (b) Deeper parts of a moving body of water (as bays, estuaries, or straits) through which the main current flows or which affords the best passage through an area otherwise too shallow to navigate. ... We use this category for chutes (hydrographic); for cutoffs (hydrographic); for inlets; for lake channels; for marine channels; for narrows (hydrographic); for navigation channels; for reaches (hydrographic); for sounds (bodies of water); and for straits.
+NIMA GNS designators   CHN, CHNL, CHNM, CHNN, STRT.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Charity"
+             rdfs:comment="A legal charity organization"
+             rdfs:label="Charity">
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ChemicalCompound"
+             rdfs:label="Chemical Compound">
+    <rdfs:comment>A specific chemical compound, such as H2O or Zarin.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;ProductModel"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;City"
+             rdfs:label="City">
+    <rdfs:comment>(ADL FT) For smaller, less formally established communities, use 'populated places'. For independent cities, use 'countries, 2nd order divisions. Incorporated populated places. [Adapted from USGS Circ 1048] We use this category for municipalities; for towns; and for urban areas.
+NIMA GNS designator PPL.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PopulatedPlace"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Coast"
+             rdfs:label="Coast">
+    <rdfs:comment>(ADL FT: Coastal Zones)  Strips of land (of indefinite width) that extend from the low-tide line inland to the first major change in landform features. [Adapted from Glossary of Geology, 4th ed.] We use this category for coastal plains; for coasts; for intertidal zones; for offshore areas; for shorelines; and for shores.
+NIMA GNS designators CST, SHOR.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;CommercialOrganization"
+             rdfs:label="Commercial Organization">
+    <rdfs:comment>Organization which buys or sells goods or services for a profit. It may also be a Business or it may merely be a sub-organization of a Business entity.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Company"
+             rdfs:label="Company">
+    <rdfs:comment>A private, legal, corporate entity with the legal rights to own property, manage itself, and sue or be sued. It is established by a charter or registration granted by the government.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;CommercialOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Concert"
+             rdfs:label="Concert">
+    <rdfs:subClassOf rdf:resource="&pupp;ArtPerformance"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Continent"
+             rdfs:label="Continent">
+    <rdfs:comment>(ADL FT) Earth's major land masses, including both dry land and continental shelves.
+NIMA GNS designator - no equivalent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Contract"
+             rdfs:label="Contract">
+    <rdfs:comment>Any sort of contract or treaty, as well, as other documents signed or otherwise accepted by more than one agent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Document"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Country"
+             rdfs:label="Country">
+    <rdfs:comment>(ADL FTT) Territory occupied by a large group of people organized under a single, usually independent government, and recognized internationally as a country. [Adapted from American Heritage Dic. of the English Language, 4th ed.] We use this category for nations; and for republics.
+NIMA GNS designators PCLD, PCLF, PCLI, PCLS.
+FIPS 10-4 is applicable, difining: Basic geopolitical entities assigned country codes include the following categories: (a) independent states; (b) dependent areas; (c) areas of quasi-independence, non-contiguous territories, possessions without populations, areas with special sovereignty associations, areas without sovereignty; (d) political regimes not recognized by the United States; and (e) outlying areas of the United States. The list of basic entities provides complete coverage of the land areas of the world without overlap or duplication.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;CountryCapital"
+             rdfs:label="Country Capital">
+    <rdfs:comment>A capital of a Country.
+NIMA GNS designator PPLC.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Capital"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;County"
+             rdfs:label="County">
+    <rdfs:comment>(ADL FT: Countries, 2nd order divisions) Second-order divisions of a nation such as parishes, boroughs, counties, municipios, or judicial divisions, and independent cities such as those in Maryland, Missouri, Nevada, and Virginia. [Adapted from USGS Circ 1048] We use this category for boroughs; for counties; for judicial divisions; for municipios; for parishes; and for second-order administrative divisions.
+NIMA GNS designator ADM2.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Crater"
+             rdfs:label="Crater">
+    <rdfs:comment>(ADL FT)  Circular-shaped depressions at the summit of a volcanic core or on the surface of the land caused by the impact of a meteorite; man-made depressions caused by an explosion. ... We use this category for calderas.
+NIMA GNS designator CRTR, CLDA.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Creek"
+             rdfs:label="Creek">
+    <rdfs:comment>(ADL FT: Guts) Relatively small coastal waterways connecting larger bodies of water or other waterways.
+NIMA GNS designator CRKT, INLT.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Currency"
+             rdfs:comment="Specific currency, usually national"
+             rdfs:label="Currency">
+    <rdfs:subClassOf rdf:resource="&ptop;Object"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;DataSchema"
+             rdfs:label="Data Schema">
+    <rdfs:comment>A particular notation for representation, standardization, and/or structuring of infomation. It can range from db schema, through ontology, to any sort of taxonomies, nomenclatures and subject hierarchies. Examples are Dublin Core, KIMO, SIC, XML, RDFS</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Dataset"
+             rdfs:label="Dataset">
+    <rdfs:comment>A dataset is information encoded in a defined structure (for example, lists, tables, and databases), intended to be useful for direct machine processing (DCMI Type.)
+Somehow structured and interrelated body of information, data, or knowledge. This includes databases, knowledge bases, catalogues, registries, specific lists, etc. All tangible aspects (like media or host) are irrelevant for this class - it only considers the abstract information. What can be considered as a single document is outside the scope of this class, although it can be comprehensive in terms of size and structure.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Date"
+             rdfs:label="Date">
+    <rdfs:comment>A specific date, as 12th of April, 1956, as the time period (the 24 hours of the day)</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;TimeInterval"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;DayOfMonth"
+             rdfs:label="Day of Month">
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;DayOfWeek"
+             rdfs:comment="(day)"
+             rdfs:label="Day of Week">
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;DayTime"
+             rdfs:label="Daytime">
+    <rdfs:comment>Specific time (point) during the day, when the day is not specified. Like in "the supermarket is closing 20:30 p.m."</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Delta"
+             rdfs:label="Delta">
+    <rdfs:comment>(ADL FT) Flat plains formed by alluvial deposits at the mouth of a stream.
+NIMA GNS designator DLTA.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Desert"
+             rdfs:label="Desert">
+    <rdfs:comment>(ADL FT) Regions rendered barren or partially barren by environmental extremes, especially by low rainfall. [USGS Circ 1048] We use this category for arid regions; for bajadas; for rock deserts; for sandy areas; for sandy deserts; and for stony deserts.
+NIMA GNS designators DSRT, ERG, HMDA, REG.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;BiogeographicRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Disease"
+             rdfs:label="Disease">
+    <rdfs:comment>A specific sort of desease, such as AIDS, SARS, Parcinson, etc. The instances of those class can often by considered as terms instead of entities, but in all cases, those are the general phenomena, not the particular situations when somebody is suffering the disease.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;NaturalPhenomenon"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Division"
+             rdfs:label="Division">
+    <rdfs:comment>Branch, division, department, laboratory, etc. within an organisation. Usually, not a legal agent and not independent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Drug"
+             rdfs:comment="Such as Viagra."
+             rdfs:label="Drug">
+    <rdfs:subClassOf rdf:resource="&pupp;ChemicalCompound"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;EMail"
+             rdfs:label="E-mail">
+    <rdfs:subClassOf rdf:resource="&pupp;InternetAddress"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;EducationalOrganization"
+             rdfs:label="Educational Organization">
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Employee"
+             rdfs:label="Employee">
+    <rdfs:subClassOf rdf:resource="&ptop;JobPosition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Executive"
+             rdfs:label="Executive">
+    <rdfs:comment>An executive managerial position in a certain Organization. Executives are top managers of organizations, including corporate officers (CompanyPresident, etc.), Chiefs of Staff, Generals, Admirals, and others like Chief Corporate Counsel, Managing Partner, Producer, Chief Scientist, Chief Engineer, as well as other top and middle-top managers.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Leader"/>
+    <rdfs:subClassOf rdf:resource="&pupp;Manager"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Facility"
+             rdfs:label="Facility">
+    <rdfs:comment>(ADL FT: Manmade Features, no def) Any regions and locations determined artificially, as a result of human activity. Many of the ADL sub-classes are omitted.
+NIMA GNS - no direct equivalent, although many sub-types are defined as classes (S, R) and designators.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Festival"
+             rdfs:label="Festival">
+    <rdfs:comment>Any widely recognized festival or holiday, such as, Christmas or St. Valentine's Day</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Fjord"
+             rdfs:label="Fjord">
+    <rdfs:comment>(ADL FT) Long narrow glacially-eroded inlets of the sea, U-shaped and steep-walled, generally several hundred meters deep, between high rocky cliffs or slopes along a mountainous coast. ... We use this category for fiords; and for lochs.
+NIMA GNS designator FJD, FJDS.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Bay"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Forest"
+             rdfs:label="Forest">
+    <rdfs:comment>(ADL FT) Dense growths of trees, plants, and underbrush covering a large area. [American Heritage Dic. of the English Language, 4th ed.] We use this category for forest reserves; and for national forests.
+Omitted ADL sub-classes: Petrified forests, Rain forests, Woods (the sub-classes collapsed here).
+NIMA GNS designator FRST, FRSTF, GDVC, GRVO, GRVP, GRVPN, TREE.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;BiogeographicRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Galaxy"
+             rdfs:label="Galaxy">
+    <rdfs:subClassOf rdf:resource="&pupp;AstronomicalObject"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Gap"
+             rdfs:label="Gap">
+    <rdfs:comment>(ADL FT) Ravines or gorges cut deeply through mountain ridges, or between hills or mountains. We use this category for cols; for defiles; for passes; for saddles (physiographic); and for sills (physiographic).
+NIMA GNS designator GAP, GAPU, GAPF, PASS, SILL, SILU.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;GlobalRegion"
+             rdfs:label="Global Region">
+    <rdfs:comment>Things like Southeastern Europe, Middle East, Oceania are global regions</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Government"
+             rdfs:comment="The governmental cabinet"
+             rdfs:label="Government">
+    <rdfs:subClassOf rdf:resource="&pupp;GovernmentOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;GovernmentOrganization"
+             rdfs:label="Government Organization">
+    <rdfs:comment>The government of a country, i.e. the authorized  country administration, without account for a specific government elected and being in power for some period. This notion of government groups all the administration, including any sort of ministries, agencies, commissions, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Gulf"
+             rdfs:label="Gulf">
+    <rdfs:comment>(ADL FT) Largest of various forms of inlets of the sea; usually larger, more enclosed, and more deeply indented than bays.
+NIMA GNS designator GULF.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Harbor"
+             rdfs:label="Harbor">
+    <rdfs:comment>(ADL FT) Sheltered areas of water where ships or other watercraft can anchor or dock. We use this category for anchorages; for anclajes; for boat yards; for boatyards; for dock yards; for docking basins; for dockyards; for dry docks; for harbors; for marine terminals; for moorings; for ports; for roadsteads (anchorages); and for turning basins.
+The following sub-classes included (i.e. not-distinguishable): Marinas, Piers.
+NIMA GNS designators HBR, HBRX, MAR, BTYD, PIER, DCK, DCKB, DCKY, PRT, AIRS.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;HydrographicStructure"/>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;HomePage"
+             rdfs:label="Homepage">
+    <rdfs:subClassOf rdf:resource="&pupp;WebPage"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Hotel"
+             rdfs:label="Hotel">
+    <rdfs:subClassOf rdf:resource="&pupp;Building"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;HydrographicStructure"
+             rdfs:label="Hydrographic Structure">
+    <rdfs:comment>(ADL FT) For constructed bodies of water. For natural water bodies, use 'hydrographic features'. We use this category for boat landings; for boat launches; for boat ramps; for sluices; and for water mills.
+Many sub-classes omitted; those considered are also made sub-classes of WaterRegion.
+NIMA GNS ... no direct equivalent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;IPAddress"
+             rdfs:label="IP Address">
+    <rdfs:subClassOf rdf:resource="&pupp;InternetAddress"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;IndustrySector"
+             rdfs:comment=" "
+             rdfs:label="Industry Sector">
+    <rdfs:subClassOf rdf:resource="&pupp;BusinessAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Institute"
+             rdfs:label="Institute">
+    <rdfs:subClassOf rdf:resource="&pupp;ResearchOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;InsuranceCompany"
+             rdfs:label="Insurance Company">
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;InternationalOrganization"
+             rdfs:label="International Organization">
+    <rdfs:comment>Legal international organization. Legal in this case means officially recognized by more than one government.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;InternetAddress"
+             rdfs:label="Internet Address">
+    <rdfs:subClassOf rdf:resource="&ptop;ContactInformation"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;InternetDomain"
+             rdfs:label="Internet Domain">
+    <rdfs:subClassOf rdf:resource="&pupp;InternetAddress"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Island"
+             rdfs:label="Island">
+    <rdfs:comment>(ADL FT) Tracts of land smaller than a continent, surrounded by the water of an ocean, sea, lake or stream. [Glossary of Geology, 4th ed.] We use this category for atolls; for cays; for island arcs; for isles; for islets; for keys (islands); for land-tied islands; and for mangrove islands.
+NIMA GNS designator ISL, ISLF, ISLM, ISLS, ISLT, ISLX</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;IssueOfPeriodical"
+             rdfs:label="Issue of Periodical">
+    <rdfs:comment>A specific issue, number, and/or volume of periodical publication such as magazine.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PublishedMaterial"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Isthmus"
+             rdfs:label="Isthmus">
+    <rdfs:comment>(ADL FT) Narrow sections of land in a body of water connecting two larger land areas.
+NIMA GNS designator ISTH.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Jungle"
+             rdfs:label="Jungle">
+    <rdfs:comment>(ADL FT) Tropical regions of wild, tangled, dense vegetation.
+NIMA GNS designator - no equivalent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;BiogeographicRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Lake"
+             rdfs:label="Lake">
+    <rdfs:comment>(ADL FT) Use 'reservoirs' for human engineered lakes. Natural inland bodies of standing water, generally of appreciable size, occupying a depression in the Earth's surface. [Adapted from Glossary of Geology, 4th ed.] We use this category for beaver ponds; for crater lakes; for dry lakes; for fish ponds; for fishponds; for inland seas; for intermittent lakes; for intermittent oxbow lakes; for intermittent ponds; for intermittent pools; for intermittent salt lakes; for intermittent salt ponds; for lagoons; for laguna; for lake beds; for lochs; for millponds; for oxbow lakes; for ponds; for pools (water bodies); for salt evaporation ponds; for salt lakes; for salt ponds; and for tarns.
+NIMA GNS designators LBED, LK, LKC, LKI, LKN, LKNI, LKO, LKOI, LKS, LKSB, LKSC, LKSI, LKSN, LKSNI, LKX</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;LandRegion"
+             rdfs:label="Land Region">
+    <rdfs:comment>Any sort of land regions which are sort of natural, i.e. excluding urban areas, political and administrative regions. It combines number of ADL feature types under Physiographic features and Regions.
+Omitted ADL sub-classes: Badlands, Bars, Basins, Bight, Cirques, Cliffs, Dunes, Flats, Karst areas. Ledges, Massifs, Mineral deposit areas, Moraines, Natural rock formations, Arches, Playas, Seafloor Features, Tectonic features, Volcanic features (Volcano put under Mountain), Subcontinents.
+NIMA GNS designators FSR, FURU, HMCK, PLDR, RKFL, SINK, SLID, SLP, SLPU, TERU, TRR.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;LaunchFacility"
+             rdfs:label="Launch Facility">
+    <rdfs:comment>(ADL FT) Areas from which rockets/missiles may be housed and projected, usually equipped with associated buildings and facilities. [USGS Circ 1048] We use this category for missile sites.
+NIMA GNS designator - no equivalent.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Leader"
+             rdfs:label="Leader">
+    <rdfs:comment>A position for a person who heads an Organization. Typically, a leader of an organization makes major decisions on behalf of the whole organization, has the authority to direct the organization's personnel to carry out those decisions, and is empowered to engage or negotiate with external agents to achieve the organization's goals. This collection includes leaders of Divisions, such as department heads within larger organizations. Also, a single person may be a leader in more than one organization.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;JobPosition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Legislation"
+             rdfs:label="Legislation">
+    <rdfs:comment>Various sorts of legislative documents, including consitutions, laws, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;LocalCapital"
+             rdfs:label="Local Capital">
+    <rdfs:comment>A capital of a Province or smaller administrative region.
+NIMA GNS designator PPLA.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Capital"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Lock"
+             rdfs:label="Lock">
+    <rdfs:comment>(ADL FT) Stretches of water in canals, streams, or docks, enclosed by gates at each end, and used in raising and lowering boats as they pass from one water level to another.
+NIMA GNS designator LOCK.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;HydrographicStructure"/>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Magazine"
+             rdfs:label="Magazine">
+    <rdfs:comment>A periodic paperback publication; "it takes several years before a magazine starts to break even or make money"), WordNet 1.7.1. This includes also journals and digests. The specific issues typically contain number of different articles.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PeriodicalPublication"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MagazineIssue"
+             rdfs:label="Magazine Issue">
+    <rdfs:comment>A specific issue of a magazine, journal or digest.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;IssueOfPeriodical"/>
+    <rdfs:subClassOf rdf:resource="&pupp;ResourceCollection"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Man"
+             rdfs:label="Man">
+    <rdfs:subClassOf rdf:resource="&ptop;Person"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Manager"
+             rdfs:label="Manager">
+    <rdfs:comment>Person whose primary job is to manage other people, directing their work activity in an Organization or for a project. A Manager tells his or her subordinate workers what to do</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Employee"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Market"
+             rdfs:label="Market">
+    <rdfs:comment>In contrast to IndustrySector, the
+market is determined by the customers instead of the business or the manifacturers. The market can be defined in terms of types of goods/services, geographic region,
+price levels and typical customer behaviours. Corresponding to the third sense in WordNet 1.7.1 "the customers for a particular product or service".</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;BusinessAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MediaBrand"
+             rdfs:label="Media Brand">
+    <rdfs:subClassOf rdf:resource="&pupp;Brand"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MediaCompany"
+             rdfs:label="Media Company">
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MediaProduct"
+             rdfs:label="Media Product">
+    <rdfs:comment>A mass media product (for instance a newspaper) abstracted from its organizational and ownership aspects (i.e. from its publisher) and considered more as a social phenomenon, partly a brand.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;ProductModel"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Meeting"
+             rdfs:label="Meeting">
+    <rdfs:subClassOf rdf:resource="&ptop;Event"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MeetingProceedings"
+             rdfs:label="Meeting Proceedings">
+    <rdfs:comment>A collection of articles or presentations published as a book.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Book"/>
+    <rdfs:subClassOf rdf:resource="&pupp;ResourceCollection"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MemberOfParliament"
+             rdfs:label="Member of Parliament">
+    <rdfs:subClassOf rdf:resource="&ptop;JobPosition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Message"
+             rdfs:label="Message">
+    <rdfs:comment>A written message, including various postings in newspapers or public sources, job position adverts, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Document"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MilitaryAreas"
+             rdfs:label="Military Areas">
+    <rdfs:comment>(ADL FTT) We use this category for air force bases; for army facilities; for arsenals; for artillery ranges; for barracks; for bases (military); for camps (military); for forts; for infantry camps; for maneuver areas; for military bases; for military installations; for national guard facilities; and for naval bases. The following NIMA designators fit here: MILB, INSM, SCHM. The following ADL types are skipped as irrelevant: Cadastral areas,</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MilitaryConflict"
+             rdfs:label="Military Conflict">
+    <rdfs:subClassOf rdf:resource="&ptop;Event"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MineSite"
+             rdfs:label="Mine Site">
+    <rdfs:comment>(ADL FT) Places or areas from which commercial minerals are or were removed by excavation from the Earth. [Adapted from USGS Feature Class Definitions &lt;http://mapping.usgs.gov/www/ti/GNIS/gnis_users_guide_appendixc.html>] We use this category for adits (mine sites); for chrome mines; for coal mines; for collieries; for copper mines; for diatomite mines; for gold mines; for gravel pits; for iron mines; for lead mines; for mine entrances; for mine shafts; for mines; for mining areas; for mining camps; for nickel mines; for open pit mines; for placer mines; for quarries; for salt mines; for strip mines; and for tin mines.
+NIMA GNS designators MN, MNA, MNAU, MNC, MNCR, MNDT, MNFE, MNN, MNNI, MNPB, MNPL. MNQ, MNSN.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Minister"
+             rdfs:label="Minister">
+    <rdfs:subClassOf rdf:resource="&pupp;Executive"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Ministry"
+             rdfs:label="Ministry">
+    <rdfs:comment>(Department) A specific ministry or department, structural unit of the government of specific country with focus and authority on specific problems of the country.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;GovernmentOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Money"
+             rdfs:label="Money">
+    <rdfs:comment>A specific amount of money in specific currency</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;SocialAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Month"
+             rdfs:label="Month">
+    <rdfs:comment>A specific month, like Dec 2000, as a time period.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;TimeInterval"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Monument"
+             rdfs:label="Monument">
+    <rdfs:comment>(ADL FT) Structures erected as memorials. [Adapted from American Heritage Dic. of the English Language, 4th ed.] We use this category for cairns; for landmarks (monuments); for memorials; for national monuments; for pyramids; for shrines; for statues; and for tombs.
+NIMA GNS designators MNMT, PYR, PYRS, CARN.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Mountain"
+             rdfs:label="Mountain">
+    <rdfs:comment>(ADL FT) Landmasses that project conspicuously above their surroundings. [USGS Circ 1048] We use this category for cerros; for cordilleras; for foothills; for hills; for knolls; for mounds; and for mounts.
+Omitted ADL sub-classes: Continental divides.
+NIMA GNS designator MT, MTS, MTSU, MTU, MND, KNLU, KNSU, CDAU, HLL, HLLS, HLLU, HLSU.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MountainRange"
+             rdfs:label="Mountain Range">
+    <rdfs:comment>(ADL FT) (a) Chains of hills or mountains; (b) somewhat linear, complex mountainous or hilly areas. ... We use this category for ranges (physiographic); and for sierra.
+NIMA GNS designator RNGU.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Mountain"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MountainSummit"
+             rdfs:label="Mountain Summit">
+    <rdfs:comment>(ADL FT) Peaks of mountains. [USGS Circ 1048] We use this category for ahus; for mountain crests; for nunataks; for peaks; and for summits.
+NIMA GNS designators PK, PKS, PKSU, PKU.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Mountain"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Movie"
+             rdfs:label="Movie">
+    <rdfs:subClassOf rdf:resource="&pupp;MediaProduct"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;MusicalComposition"
+             rdfs:label="Musical Composition">
+    <rdfs:subClassOf rdf:resource="&pupp;MediaProduct"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;NaturalPhenomenon"
+             rdfs:label="Natural Phenomenon">
+    <rdfs:comment>Such as particular disease, the Gulfstream and other similar natural abstractions. The particular events or objects which could instantiate an abstract natural phenomena (i.e. specific sickness event caused by a disease) are not instances of this class.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Abstract"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;NaturalSatellite"
+             rdfs:label="Natural Satellite">
+    <rdfs:comment>A satellite which is not a direct result of human activity</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Satellite"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;NewsAgency"
+             rdfs:label="News Agency">
+    <rdfs:subClassOf rdf:resource="&pupp;MediaCompany"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Newspaper"
+             rdfs:label="Newspaper">
+    <rdfs:comment>A newspaper abstracted from its organizational and ownership aspects as well as from specific issue or paper body.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PeriodicalPublication"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;NewspaperIssue"
+             rdfs:label="Newspaper Issue">
+    <rdfs:subClassOf rdf:resource="&pupp;IssueOfPeriodical"/>
+    <rdfs:subClassOf rdf:resource="&pupp;ResourceCollection"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;NonGeographicLocation"
+             rdfs:label="Non-geographic Location">
+    <rdfs:comment>A non-geographic region in some 3D space. The Longitude and Latitude properties for such objects could be void.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Oasis"
+             rdfs:label="Oasis">
+    <rdfs:comment>(ADL FT)  Fertile, vegetated areas in the midst of a desert, where the water table has come close enough to the surface for wells and springs or seepages to exist, thus making them suitable for human habitation.
+NIMA GNS designator  OAS.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;BiogeographicRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Ocean"
+             rdfs:label="Ocean">
+    <rdfs:comment>(ADL FT) Continuous salt-water bodies that surround the continents and fill the Earth's great depressions.
+NIMA GNS designator OCN</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Sea"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Offer"
+             rdfs:label="Offer">
+    <rdfs:comment>Something offered (as a proposal or bid), WordNet 1.7.1. An offer is a statement made by the offerer to a specific agent or without recepient.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Statement"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;OfficialPoliticalMeeting"
+             rdfs:label="Official Political Meeting">
+    <rdfs:subClassOf rdf:resource="&pupp;Meeting"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;OfficialPosition"
+             rdfs:label="Official Position">
+    <rdfs:comment>Specific position, which models the Person->hasPosition->Location, e.g. "the president of US", "the Mayor of NY". It is usually a shortcut to holding a position within the local government or other local administration, including military positions.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;JobPosition"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;OilField"
+             rdfs:label="Oil Field">
+    <rdfs:comment>(ADL FT) Areas with reserves of recoverable petroleum or where petroleum has been removed from the Earth. ... We use this category for gas fields; for gasfields; for oilfields; for petroleum fields; and for storage fields (petroleum).
+NIMA GNS designator CMPO, OILF, OILQ, OILW, PMPO, GASF.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;OlympicGames"
+             rdfs:label="Olympic Games">
+    <rdfs:comment>a specific issue of the games, like Athens 2004</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;SportEvent"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;OperaPerformance"
+             rdfs:label="Opera Performance">
+    <rdfs:subClassOf rdf:resource="&pupp;ArtPerformance"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Order"
+             rdfs:label="Order">
+    <rdfs:subClassOf rdf:resource="&ptop;Statement"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Park"
+             rdfs:label="Park">
+    <rdfs:comment>(ADL FT) Places or areas developed for public use or recreation. [USGS Circ 1048] We use this category for arboretums; for botanical gardens; for commemorative areas; for commons; for gardens; for marine parks; for national forests; for national parks; for national seashores; for park gates; for picnic areas; for playgrounds; for provincial parks; for public use areas; for recreation areas; for rest areas; for scenic areas; for state forests; for state parks; for urban parks; for village squares; for wilderness areas; for zoological gardens; and for zoos.
+Omitted sub-classes: Viewing locations.
+NIMA GNS designators PRK, PRKHQ, PRKGT</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Parliament"
+             rdfs:label="Parliament">
+    <rdfs:comment>A legislative assembly representative at national or regional level. It can also be called Senate, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Patent"
+             rdfs:label="Patent">
+    <rdfs:comment>A registered (or awaiting registration) patent for specific invention or design.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Peninsula"
+             rdfs:comment="NIMA GNS designator PEN, PENX."
+             rdfs:label="Peninsula">
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Percent"
+             rdfs:comment="A specific percent value"
+             rdfs:label="Percent">
+    <rdfs:subClassOf rdf:resource="&ptop;Number"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PerformanceSite"
+             rdfs:label="Performance Site">
+    <rdfs:comment>Buildings where cultural events are presented before an audience. We use this category for amphitheaters; for amphitheatres; for auditoriums; for bowls (performance); for coliseums; for concert halls; for opera houses; for playhouses; for recital halls; for stages (performance); for symphony halls; for theaters; and for theatres.
+NIMA GNS designator AMTH.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Building"/>
+    <rdfs:subClassOf rdf:resource="&pupp;RecreationalFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PeriodicalPublication"
+             rdfs:label="Periodical Publication">
+    <rdfs:comment>A periodical publication, disregarding its specific issues, numbers, volumes, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;MediaBrand"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PhoneNumber"
+             rdfs:label="Phone Number">
+    <rdfs:subClassOf rdf:resource="&ptop;ContactInformation"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PieceOfArt"
+             rdfs:label="Piece of Art">
+    <rdfs:comment>An artifact, namely a piece of art, usually, matterial object. Typical instances are paintings and sculptures. Corresponds to the Wordnet 1.7.1 synset "art, fine art -  the products of human creativity; works of art collectively; "an art exhibition"; "a fine collection of art")"</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Object"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Pipeline"
+             rdfs:label="Pipeline">
+    <rdfs:comment>(ADL FT)  Tubular conduits of substantial length, with pumps, valves, and control devices, for conveying fluids, gases, or finely divided solids. [USGS Circ 1048] We use this category for compressor stations; for gas pipelines; for oil pipeline junctions; for oil pipeline terminals; for oil pipelines; for oil pumping stations; for pump houses; for pumphouses; for pumping stations; and for water pumping stations.
+NIMA GNS designators OILP, OILJ, TRMO, PMPO, PMPW.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Plain"
+             rdfs:label="Plain">
+    <rdfs:comment>(ADL FT) Regions of general uniform slope, comparatively level and of considerable extent. [USGS Circ 1048] We use this category for interfluves; and for llanos.
+NIMA GNS designators PLN, PLNU, PLNX, INTF.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Planet"
+             rdfs:label="Planet">
+    <rdfs:comment>Any of the celestial bodies (other than comets or satellites) that revolve around the sun in the solar system. Definition partly derived from WordNet 1.7</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;AstronomicalObject"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Plateau"
+             rdfs:label="Plateau">
+    <rdfs:comment>(ADL FT)  Comparatively flat areas of great extent and elevation; specif. extensive land regions considerably above the adjacent country or above sea level; commonly limited on at least one side by an abrupt descent, have flat or nearly smooth surfaces but are often dissected by deep valleys and surmounted by high hills or mountains, and have a large part of their total surface at or near the summit level. We use this category for table mountains; and for tablelands.
+The ADL type Mesas, collapsed here.
+NIMA GNS designators  PLAT, PLTX, PLTU, MESA, MESU, TMSU, TMST.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PoliticalEntity"
+             rdfs:label="Political Entity">
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PoliticalParty"
+             rdfs:label="Political Party">
+    <rdfs:comment>An organization to gain political power. Definition taken from
+WordNet 1.7</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalEntity"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PoliticalRegion"
+             rdfs:label="Political Region">
+    <rdfs:comment>(ADL, Political Entity) We use this category for commonwealths; for dependent political entities; for freely associated states; for independent political entities; for oblasts; for political entities; and for semi-independent political entities.
+Sub-classes omitted: Countries, 4th order divisions.
+NIMA GNS class: A, Administrative Boundary Features.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PopulatedPlace"
+             rdfs:label="Populated Place">
+    <rdfs:comment>(ADL FT) Places or areas with clustered or scattered buildings and a permanent human population. ... We use this category for agricultural colonies; for communes; for communities; for hamlets; for homesteads; for locales; for localities; for metropolitan areas; for populated localities; for ppl; for pueblos; for settlements; for suburbs; for villages; and with religious facilities for religious populated places.
+NIMA GNS designator PPL, PPL(x)</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PostalAddress"
+             rdfs:label="Postal Address">
+    <rdfs:subClassOf rdf:resource="&pupp;Address"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PrimeMinister"
+             rdfs:label="Prime Minister">
+    <rdfs:subClassOf rdf:resource="&pupp;Executive"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;President"
+             rdfs:label="President">
+    <rdfs:subClassOf rdf:resource="&pupp;Leader"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Profession"
+             rdfs:label="Profession">
+    <rdfs:subClassOf rdf:resource="&pupp;SocialAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Project"
+             rdfs:label="Project">
+    <rdfs:subClassOf rdf:resource="&ptop;Event"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Province"
+             rdfs:label="Province">
+    <rdfs:comment>(ADL FT: Countries, 1st Order Divisions) First-order divisions of a nation. [USGS Circ 1048] We use this category for cantons; for first-order administrative divisions; for provinces; for states; and for territories.
+NIMA GNS designator ADM1. Also corresponds to the FIPS 10-4 principal administrative division defined as "an administrative area directly subordinate to the pertinent governing authority "
+NIMA GNS designator ADM1.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PublicCompany"
+             rdfs:label="Public Company">
+    <rdfs:comment>Company which is publicly traded on a Stock Exchange.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PublishedMaterial"
+             rdfs:label="Published Material">
+    <rdfs:comment>A document which is published or intended for publishing</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;MediaProduct"/>
+    <rdfs:subClassOf rdf:resource="&ptop;Document"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;PublishingCompany"
+             rdfs:label="Publishing Company">
+    <rdfs:comment>An organization which main activity is mass publishing of information. Often, the publishers issue periodic and/or non-periodic documents on paper media. While on-line publishing is considered a typical activity for publishers, the streaming electronic media such as TV and Radio Stations are not.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;MediaCompany"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Quarter"
+             rdfs:label="Quarter">
+    <rdfs:comment>A specific quarter of a specific year, such as Q4 1999</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;TimeInterval"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;RaceCourse"
+             rdfs:label="Race Course">
+    <rdfs:subClassOf rdf:resource="&pupp;SportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;RadioStation"
+             rdfs:label="Radio Station">
+    <rdfs:subClassOf rdf:resource="&pupp;MediaBrand"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;RailroadFacility"
+             rdfs:label="Railroad Facility">
+    <rdfs:comment>(ADL FT: Railroad Features)  We use this category for metro rail stations; for railroad junctions; for railroad sidings; for railroad spurs; for railroad stations; for railroad stops; for railroad switches; for railroad yards; for railways; for subway stations; for switches (railroad); and for tramways.
+NIMA GNS designator RJCT, RR, RRQ, RSD, RSGNL, RSTN, RSTNQ, RSTP, RSTPQ, RYD.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;RailroadTunnel"
+             rdfs:comment="NIMA GNS designator RTNL."
+             rdfs:label="Railroad Tunnel">
+    <rdfs:subClassOf rdf:resource="&pupp;RailroadFacility"/>
+    <rdfs:subClassOf rdf:resource="&pupp;Tunnel"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;RecreationalFacility"
+             rdfs:label="Recreational Facility">
+    <rdfs:comment>(ADL FT)  We use this category for access areas; for access sites; for boardwalks; for casinos; for clubs (recreational); for country clubs; for fairgrounds; for fishing areas; for fishing lodges; for fitness centers; for gun clubs; for hunt posts; for hunting lodges; for ice skating rinks; for playgrounds; for recreation sites; for resorts; for riding stables; for spas; for sportsman lodges; for stables; for yacht clubs; for youth centers; and for youth facilities.
+NIMA GNS designators - no direct equivalents.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Reef"
+             rdfs:label="Reef">
+    <rdfs:comment>(ADL FT) Chains of rocks or coral at or near the surface of water. [USGS Circ 1048] We use this category for barrier reefs; and for fringing reefs.
+Collapsed ADL sub-class: Coral Reefs.
+NIMA GNS designator RF, RFSU, RFU, RFC.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ReferenceLocation"
+             rdfs:label="Reference Location">
+    <rdfs:comment>(ADL FT)  We use this category for astronomical stations; for beacons; for bench marks; for boundaries; for boundary markers; for buoys; for control points; for geodectic stations; for geographic centers; for landmarks (reference locations); for light houses; for light stations; for lighthouses; for markers; for milestones; for plaques; for poles (sphere); for triangulation stations; and for walls.
+NIMNA GNS designators LTHSE, BP, TRIG.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ReligiousLocation"
+             rdfs:comment="Things like Monastery, Church"
+             rdfs:label="Religious Location">
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ReligiousOrganization"
+             rdfs:label="Religious Organization">
+    <rdfs:comment>Organization which offers ideas and opinions about life. Just joking.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Report"
+             rdfs:label="Report">
+    <rdfs:subClassOf rdf:resource="&ptop;Document"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ResearchArea"
+             rdfs:comment="Specific research area, topic or field."
+             rdfs:label="Research Area">
+    <rdfs:subClassOf rdf:resource="&pupp;SocialAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ResearchOrganization"
+             rdfs:label="Research Organization">
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Reserve"
+             rdfs:label="Reserve">
+    <rdfs:comment>(ADL FT) Areas set aside for the preservation of fauna, flora, and their natural habitats. [Macmillan Encyc., 2001] We use this category for agricultural reserves; for conservation areas; for demonstration areas; for environmental areas; for forest reserves; for game management areas; for hunting reserves; for management areas (reserves); for natural areas; for nature reserves; for palm tree reserves; for preserves; for primitive areas; for protected areas; for reservations (nature sites); for road less areas; for sanctuaries (wildlife); for wildlife areas; for wildlife refuges; and for wildlife reserves.
+NIMA GNS designators RES, RESA, RESF, RESH, RESN, RESP, RESV, RESW.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Reservoir"
+             rdfs:label="Reservoir">
+    <rdfs:comment>(ADL FT) Artificially impounded bodies of water. We use this category for covered reservoirs; and for intermittent reservoirs. (incl. dams)
+NIMA GNS designator RSV, RSVI.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;HydrographicStructure"/>
+    <rdfs:subClassOf rdf:resource="&pupp;Lake"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;ResourceCollection"
+             rdfs:label="Resource Collection">
+    <rdfs:comment>A collection is an aggregation of information resources. The term collection means that the resource is described as a group; its parts may be separately described and navigated. (DCMI type Collection)</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Ridge"
+             rdfs:label="Ridge">
+    <rdfs:comment>(ADL FT) Elevations with a narrow, elongated crest which can be part of a hill or mountain. ... We use this category for aretes; for beach ridges; for cuestas; for eskers; for hogbacks; for icecap ridges; for rises (seafloor); and for spurs (physiographic).
+Omitted ADL sub-classes: Drumlin.
+NIMA GNS designators RDGB, RDGE, RDGG, RDGU, RISU, SPRU, SPUR.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Mountain"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;River"
+             rdfs:label="River">
+    <rdfs:comment>(ADL FT) Natural freshwater surface streams of considerable volume and a permanent or seasonal flow, moving in a definite channel toward a sea, lake, or another river; any large streams, or ones larger than brooks or creeks, such as the trunk stream and larger branches of a drainage system. We use this category for rios.
+NIM GNS designators ... no direct equivalents!</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Stream"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Roadway"
+             rdfs:label="Roadway">
+    <rdfs:comment>(ADL FT) Open ways for passage of vehicles. [USGS Circ 1048] We use this category for caravan routes; for causeways; for drives; for highways; for intersections; for parkways; for road bends; for road cuts; for road junctions; for roads; for streets; and for traffic circles.
+NIMA GNS designators CSWY, CSWYQ, RD, RDA, RDB, RDCUT, RDJCT, RDST, RTE, STKR.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Satellite"
+             rdfs:label="Satellite">
+    <rdfs:comment>An astronomic object orbiting around a planet or star. Definition partly derived from WordNet 1.7</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;AstronomicalObject"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;School"
+             rdfs:label="School">
+    <rdfs:subClassOf rdf:resource="&pupp;EducationalOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Science"
+             rdfs:comment="A well established, big research area"
+             rdfs:label="Science">
+    <rdfs:subClassOf rdf:resource="&pupp;ResearchArea"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Sea"
+             rdfs:label="Sea">
+    <rdfs:comment>(ADL FT) Large bodies of salt water.
+NIMA GNS designator SEA</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Season"
+             rdfs:label="Season">
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Ship"
+             rdfs:label="Ship">
+    <rdfs:subClassOf rdf:resource="&pupp;Vehicle"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SoccerClub"
+             rdfs:comment="A soccer (football) team"
+             rdfs:label="Soccer Club">
+    <rdfs:subClassOf rdf:resource="&pupp;SportClub"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SocialAbstraction"
+             rdfs:label="Social Abstraction">
+    <rdfs:comment>Any sort of general social phenomenon, such as particular sort of art or science</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Abstract"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Song"
+             rdfs:label="Song">
+    <rdfs:subClassOf rdf:resource="&pupp;AudioRecording"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Spacecraft"
+             rdfs:label="Spacecraft">
+    <rdfs:comment>[WN1.7] Space vehicle - a craft capable of traveling in outer space; technically a satellite around the sun.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Vehicle"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Sport"
+             rdfs:comment="A specific type of sport game"
+             rdfs:label="Sport">
+    <rdfs:subClassOf rdf:resource="&pupp;SocialAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportBuilding"
+             rdfs:label="Sport Building">
+    <rdfs:subClassOf rdf:resource="&pupp;Building"/>
+    <rdfs:subClassOf rdf:resource="&pupp;SportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportClub"
+             rdfs:label="Sport Club">
+    <rdfs:comment>A sports club, football club or F1 team. Those should be considered commercial although in many cases they are not run for profit.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+    <rdfs:subClassOf rdf:resource="&pupp;SportOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportEvent"
+             rdfs:label="Sport Event">
+    <rdfs:subClassOf rdf:resource="&ptop;Event"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportFacility"
+             rdfs:label="Sport Facility">
+    <rdfs:comment>(ADL FT) Fields, centers, or open areas maintained for the purpose of holding sporting events and activities. [USGS Circ 1048] We use this category for aquatic centers; for arenas; for athletic complexes; for athletic fields; for ball parks; for baseball fields; for dragways; for equestrian centers; for fields; for football fields; for golf clubs; for golf courses; for gymnasiums; for natatoriums; for physical education facilities; for pistol ranges (sport); for polo fields; for pools, swimming; for race tracks; for racecourses; for racetracks; for raceways; for rifle ranges; for rodeo grounds; for shooting ranges (sport); for skeet shooting ranges; for ski areas; for ski facilities; for ski trails; for speedways; for stadiums; for swim clubs; for swimming pools; for tennis clubs; and for tennis courts.
+NIMA GNS designators RECG, RECR, STDM, ATHF.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;RecreationalFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportGame"
+             rdfs:comment="as a soccer match"
+             rdfs:label="Sport Game">
+    <rdfs:subClassOf rdf:resource="&pupp;SportEvent"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportOrganization"
+             rdfs:label="Sport Organization">
+    <rdfs:comment>An organization (local, national or international) which main activity is related to one or more sports. Those could be clubs, as well, as all the sorts of federations.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;SportsFederation"
+             rdfs:label="Sports Federation">
+    <rdfs:subClassOf rdf:resource="&pupp;SportOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Spring"
+             rdfs:label="Spring">
+    <rdfs:comment>(ADL FT) Places where underground water flows naturally to the surface of the Earth. ... We use this category for mineral springs; and for sulfur springs.
+NIMA GNS designators SPNG, SPNS, SPNT.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Stream"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Stadium"
+             rdfs:label="Stadium">
+    <rdfs:comment>A special sort of sport building, usually for open-air sports such as soccer.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;SportBuilding"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Star"
+             rdfs:label="Star">
+    <rdfs:comment>An astronomic object of hot gases that radiates energy derived from thermonuclear reactions in the interior. Definition partly derived from WordNet 1.7</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;AstronomicalObject"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;StockExchange"
+             rdfs:label="Stock Exchange">
+    <rdfs:comment>Stock Exchange where public companies are traded, e. g. Nasdaq, NYSE, etc.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Stream"
+             rdfs:label="Stream">
+    <rdfs:comment>(ADL FT) Linear bodies of water flowing on the Earth's surface. We use this category for anabranches; for brooks; for burns (hydrographic); for confluences; for creeks; for distributaries; for dry stream beds; for forks (physiographic features); for intermittent streams; for lost rivers; for meanders; for stream bends; for stream mouths; for tidal creeks; for tributaries; and for watercourses.
+NIMA GNS designators STM, STMA, STMB, STMC, STMD, STMH, STMI, STMIX, STMM, STMQ, STMS, STMSB, STMX</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;WaterRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Street"
+             rdfs:label="Street">
+    <rdfs:comment>The general notion for a roadway within a city or village, often, surrounded by buildings. We put here boulevards, streets, avenues, etc.
+NIMA GNS designator - missing.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Roadway"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TVChannel"
+             rdfs:label="TV Channel">
+    <rdfs:subClassOf rdf:resource="&pupp;MediaBrand"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TVCompany"
+             rdfs:label="TV Company">
+    <rdfs:subClassOf rdf:resource="&pupp;MediaCompany"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Team"
+             rdfs:label="Team">
+    <rdfs:comment>A group of people gathered for some task, say a project. Teams are usually not formally established and not meant to perform as a single agent for purposes outside the scope of their task. Teams may "live" within organizations, spread between multiple organizations, or be independent form any organization.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Organization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Telecom"
+             rdfs:comment="A telecommunications company"
+             rdfs:label="Telecom">
+    <rdfs:subClassOf rdf:resource="&pupp;Company"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TelecomFacility"
+             rdfs:label="Telecom Facility">
+    <rdfs:comment>(ADL FT: Telecommunication Features)  We use this category for antenna field sites; for communication centers; for radio stations; for television stations; and for transmission lines.
+NIMA GNS designators COMC, STNR, STNS.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TemporalAbstraction"
+             rdfs:label="Temporal Abstraction">
+    <rdfs:comment>Any sort of abstraction used to refer to specific periods of time. Thus, the month of September is an instance of this class, while Sept 1989 is not (it is a specific TimeInterval, and thus not abstract)</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Abstract"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TheatrePerformance"
+             rdfs:label="Theatre Performance">
+    <rdfs:subClassOf rdf:resource="&pupp;ArtPerformance"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TimeZone"
+             rdfs:label="Time Zone">
+    <rdfs:subClassOf rdf:resource="&pupp;TemporalAbstraction"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Tournament"
+             rdfs:label="Tournament">
+    <rdfs:subClassOf rdf:resource="&pupp;SportEvent"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Tower"
+             rdfs:label="Tower">
+    <rdfs:comment>(ADL FT)  Manmade structures, higher than their diameter, generally used for observation, storage, or electronic transmission. We use this category for carillons; for fire lookouts; and for pagodas.
+NIMA GNS designator TOWR.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Building"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;TransportFacility"
+             rdfs:label="Transport Facility">
+    <rdfs:comment>(ADL FT: Transportation Features)  We use this category for air routes; for caravan routes; for corridors; for crossings; for depots; for ferries; for fords (crossings); for fuel depots; for gates (manmade); for halting places (transportation); for highway maintenance sites; for portages; for rest houses; for routes; for ship tracks; for stock routes; for terminals (transportation); and for transit facilities.
+Omitted sub-classes: Aqueducts, Cableways, Parking Sites.
+NIMA GNS designator - no direct equivalents.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Facility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Tundra"
+             rdfs:label="Tundra">
+    <rdfs:comment>(ADL FT)  Treeless, level, or gently rolling plains characteristic of arctic or subarctic regions, having a permanently frozen subsoil, and usually supporting low growing vegetation such as lichens, mosses, and stunted shrubs. [USGS Circ 1048] We use this category for Arctic land.
+NIMA GNS designator TUND, LAND.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;BiogeographicRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Tunnel"
+             rdfs:label="Tunnel">
+    <rdfs:comment>(ADL FT) Underground or underwater passages. [USGS Circ 1048] We use this category for canal tunnels; for railroad tunnels; and for road tunnels.
+NIMA GNS designator TNL, TNLC, TNLN, TNLRD, TNLS</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;TransportFacility"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;University"
+             rdfs:label="University">
+    <rdfs:subClassOf rdf:resource="&pupp;EducationalOrganization"/>
+    <rdfs:subClassOf rdf:resource="&pupp;ResearchOrganization"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;UrbanDistrict"
+             rdfs:label="Urban District">
+    <rdfs:comment>(ADL FT: Countries, 3rd order divisions) Minor civil units. [USGS Circ 1048] We use this category for barrios; for precincts; for third-order administrative divisions; and for townships.
+NIMA GNS designator ADM3.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;PoliticalRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Valley"
+             rdfs:label="Valley">
+    <rdfs:comment>(ADL FT)  Low-lying land bordered by higher ground; especially elongate, relatively large gently sloping depressions of the Earth's surface, commonly situated between two mountains or between ranges of hills or mountains, and often containing a stream with an outlet. [Glossary of Geology, 4th ed.] We use this category for forks (physiographic features); for glens; for hanging valleys; for hollows; for median valleys; and for shelf valleys (seafloor).
+NIMA GNS designators VAL, VALG, VALU, VALS, VALX, VLSU, FRKU, FRSU, MDVU, SHVU.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Vehicle"
+             rdfs:comment="Any sort of specific vehicle"
+             rdfs:label="Vehicle">
+    <rdfs:subClassOf rdf:resource="&ptop;Object"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Volcano"
+             rdfs:label="Volcano">
+    <rdfs:comment>(ADL FT)  Vents in the surface of the Earth through which magma and associated gases erupt; also, the forms or structures, usually conical, that are produced by the erupted material.
+NIMA GNS designator VLC.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;Mountain"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;WaterBank"
+             rdfs:label="Water Bank">
+    <rdfs:comment>(ADL FT: Banks)  Sloping margins of, or the ground bordering, a stream, and serving to confine the water to the natural channel during the normal course of flow. [Glossary of Geology, 4th ed.] We use this category for stream banks.
+NIMA GNS designator BKSU, BNK, BNKR, BNKU, BNKX.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;WaterRegion"
+             rdfs:label="Water Region">
+    <rdfs:comment>(ADL FT: Hydrographic Features) For natural bodies of water. For constructed waterways, reservoirs, and such, use 'hydrographic structures'. We use this category for bodies of water; for eddies; for fluvial features; for marine features; for overfalls; for upwellings; for water bodies; for waterholes; and for whirlpools.
+Many of the ADL hydrographic features ignored.
+NIMA GNS class H.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;Location"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Waterfalls"
+             rdfs:label="Waterfalls">
+    <rdfs:comment>(ADL FT) Perpendicular or very steep falls of water in the course of a stream. ... We use this category for cascades; for cataracts; and for falls.
+NIMA GNS designator FLLS, FLLSX</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&pupp;LandRegion"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;WeaponModelOrSystem"
+             rdfs:label="Weapon Model or System">
+    <rdfs:comment>Such as Patriot, SU-28, and Kalashnikov.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;ProductModel"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;WebPage"
+             rdfs:label="Web Page">
+    <rdfs:subClassOf rdf:resource="&pupp;InternetAddress"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Week"
+             rdfs:label="Week">
+    <rdfs:comment>A specific week of a specific year (say the 41st of 2001)</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;TimeInterval"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&pupp;Woman"
+             rdfs:label="Woman">
+    <rdfs:subClassOf rdf:resource="&ptop;Person"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="&ptop;Abstract"/>
+  <owl:Class rdf:about="&ptop;Agent"/>
+  <owl:Class rdf:about="&ptop;ContactInformation"/>
+  <owl:Class rdf:about="&ptop;Document"/>
+  <owl:Class rdf:about="&ptop;Event"/>
+  <owl:Class rdf:about="&ptop;InformationResource"/>
+  <owl:Class rdf:about="&ptop;JobPosition"/>
+  <owl:Class rdf:about="&ptop;Location"/>
+  <owl:Class rdf:about="&ptop;Number"/>
+  <owl:Class rdf:about="&ptop;Object"/>
+  <owl:Class rdf:about="&ptop;Organization"/>
+  <owl:Class rdf:about="&ptop;Person"/>
+  <owl:Class rdf:about="&ptop;ProductModel"/>
+  <owl:Class rdf:about="&ptop;Statement"/>
+  <owl:Class rdf:about="&ptop;TimeInterval"/>
+
+<!-- Annotation Properties -->
+  <owl:AnnotationProperty rdf:about="&psys;transitiveOver"/>
+  <owl:AnnotationProperty rdf:about="&rdfs;comment"/>
+  <owl:AnnotationProperty rdf:about="&rdfs;label"/>
+  <owl:AnnotationProperty rdf:about="&owl;versionInfo"/>
+
+<!-- Datatype Properties -->
+  <owl:DatatypeProperty rdf:about="&pupp;ISBN"
+                        rdfs:label="ISBN">
+    <rdfs:comment>The ISBN (International Standard Book Number) is a unique machine-readable identification number, which marks any book unmistakably.</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;Book"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;informationResourceIdentifier"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;ISSN"
+                        rdfs:label="ISSN">
+    <rdfs:comment>The ISSN (International Standard Serial Number) is an eight-digit number which identifies periodical publications as such, including electronic serials. More than one million ISSN numbers have so far been assigned.</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;PeriodicalPublication"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;informationResourceIdentifier"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;datePublished"
+                        rdfs:label="Date Published">
+    <rdfs:comment>Typically, associated with the creation or availability of the resource. Recommended
+best practice for encoding the date value is defined in a profile of ISO 8601 [W3CDTF] and includes (among
+others) dates of the form YYYY-MM-DD.</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;PublishedMaterial"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasDate"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;fiscalNetIncome">
+    <rdfs:comment>Net Income last year.</rdfs:comment>
+    <rdfs:comment>fiscalNetIncome</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;CommercialOrganization"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;fiscalSales">
+    <rdfs:comment>Sales last year.</rdfs:comment>
+    <rdfs:comment>fiscalSales</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;CommercialOrganization"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;hasCode"
+                        rdfs:label="has Code">
+    <rdfs:comment>Denotes that the Sector has the specified SIC code</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;IndustrySector"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;hasUnit"
+                        rdfs:label="has Unit">
+    <rdfs:domain rdf:resource="&pupp;Currency"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&pupp;stockExchangeIndex"
+                        rdfs:label="Stock Exchange Index">
+    <rdfs:comment>Name of the company on the Stock Exchange, where it is traded. At present, if a company is traded on two SEs with different indices, there is no way to encode which of them is applicable where.</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;PublicCompany"/>
+  </owl:DatatypeProperty>
+
+  <owl:DatatypeProperty rdf:about="&ptop;hasDate"/>
+  <owl:DatatypeProperty rdf:about="&ptop;informationResourceIdentifier"/>
+
+<!-- Object Properties -->
+  <owl:ObjectProperty rdf:about="&pupp;accountProvider"
+                      rdfs:label="Account Provider">
+    <rdfs:comment>a relation between an account and the Agent (usually organization) providing and managing it</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;Account"/>
+    <rdfs:range rdf:resource="&ptop;Agent"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;activeInSector"
+                      rdfs:label="Active in Sector">
+    <psys:transitiveOver rdf:resource="&pupp;subSectorOf"/>
+    <rdfs:comment>Denotes that the organization is active within the industry sector</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;CommercialOrganization"/>
+    <rdfs:range rdf:resource="&pupp;IndustrySector"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;compliantWithSchema"
+                      rdfs:label="Compliant with Schema">
+    <rdfs:comment>links a dataset with a schema it complies to</rdfs:comment>
+    <rdfs:domain rdf:resource="&ptop;InformationResource"/>
+    <rdfs:range rdf:resource="&pupp;DataSchema"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasAddress"
+                      rdfs:label="has Address">
+    <rdfs:comment>Relates address to an Agent. Will be used for URL, email and other addresses.</rdfs:comment>
+    <rdfs:range rdf:resource="&pupp;Address"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasContactInfo"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasAirport"
+                      rdfs:label="has Airport">
+    <rdfs:domain rdf:resource="&pupp;City"/>
+    <rdfs:range rdf:resource="&pupp;Airport"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasBrother"
+                      rdfs:label="has Brother">
+    <rdfs:range rdf:resource="&pupp;Man"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasSibling"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasCapital"
+                      rdfs:label="has Capital">
+    <rdfs:domain rdf:resource="&pupp;PoliticalRegion"/>
+    <rdfs:range rdf:resource="&pupp;Capital"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasCurrency"
+                      rdfs:label="has Currency">
+    <rdfs:domain rdf:resource="&pupp;Country"/>
+    <rdfs:range rdf:resource="&pupp;Currency"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasDaughter"
+                      rdfs:label="has Daughter">
+    <rdfs:range rdf:resource="&pupp;Woman"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasChild"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasEMail"
+                      rdfs:label="has E-mail">
+    <rdfs:range rdf:resource="&pupp;EMail"/>
+    <rdfs:subPropertyOf rdf:resource="&pupp;hasInternetAddress"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasFather"
+                      rdfs:label="has Father">
+    <rdfs:range rdf:resource="&pupp;Man"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasParent"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasFax"
+                      rdfs:label="has Fax">
+    <rdfs:range rdf:resource="&pupp;PhoneNumber"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasContactInfo"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasGovernment"
+                      rdfs:label="has Government">
+    <rdfs:domain rdf:resource="&pupp;Country"/>
+    <rdfs:range rdf:resource="&pupp;GovernmentOrganization"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasHusband"
+                      rdfs:label="has Husband">
+    <rdfs:domain rdf:resource="&pupp;Woman"/>
+    <rdfs:range rdf:resource="&pupp;Man"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasSpouse"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasInternetAddress"
+                      rdfs:label="has Internet Address">
+    <rdfs:range rdf:resource="&pupp;InternetAddress"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasContactInfo"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasMinister"
+                      rdfs:label="has Minister">
+    <rdfs:comment></rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;Ministry"/>
+    <rdfs:range rdf:resource="&ptop;Person"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasEmployee"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasMobilePhone"
+                      rdfs:label="has Mobile Phone">
+    <rdfs:subPropertyOf rdf:resource="&pupp;hasPhone"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasMother"
+                      rdfs:label="has Mother">
+    <rdfs:range rdf:resource="&pupp;Woman"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasParent"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasPhone"
+                      rdfs:label="has Phone">
+    <rdfs:range rdf:resource="&pupp;PhoneNumber"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasContactInfo"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasPrimeMinister"
+                      rdfs:label="has Prime Minister">
+    <rdfs:comment></rdfs:comment>
+    <rdfs:subPropertyOf rdf:resource="&pupp;hasMinister"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasProfession"
+                      rdfs:label="has Profession">
+    <rdfs:domain rdf:resource="&ptop;Person"/>
+    <rdfs:range rdf:resource="&pupp;Profession"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasPublisher"
+                      rdfs:label="has Publisher">
+    <rdfs:comment>An entity responsible for making the resource available.
+Examples of Publisher include a person, an organization, or a service.  (DC2003ISO)</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;PublishedMaterial"/>
+    <rdfs:range rdf:resource="&ptop;Agent"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasShareholder"
+                      rdfs:comment=""
+                      rdfs:label="has Shareholder">
+    <rdfs:domain rdf:resource="&pupp;CommercialOrganization"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasMember"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasSister"
+                      rdfs:label="has Sister">
+    <rdfs:range rdf:resource="&pupp;Woman"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasSibling"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasSon"
+                      rdfs:label="has Son">
+    <rdfs:range rdf:resource="&pupp;Man"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasChild"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasStationaryPhone"
+                      rdfs:label="has Stationary Phone">
+    <rdfs:subPropertyOf rdf:resource="&pupp;hasPhone"/>
+  </owl:ObjectProperty>
+ 
+  <owl:ObjectProperty rdf:about="&pupp;hasWebPage"
+                      rdfs:label="has Web Page">
+    <rdfs:range rdf:resource="&pupp;WebPage"/>
+    <rdfs:subPropertyOf rdf:resource="&pupp;hasInternetAddress"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;hasWife"
+                      rdfs:label="has Wife">
+    <rdfs:domain rdf:resource="&pupp;Man"/>
+    <rdfs:range rdf:resource="&pupp;Woman"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;hasSpouse"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;issueOf"
+                      rdfs:label="Issue of">
+    <rdfs:domain rdf:resource="&pupp;IssueOfPeriodical"/>
+    <rdfs:range rdf:resource="&pupp;PeriodicalPublication"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;ofCountry"
+                      rdfs:label="of Country">
+    <rdfs:domain rdf:resource="&pupp;GovernmentOrganization"/>
+    <rdfs:range rdf:resource="&pupp;Country"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;locatedIn"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;officialPositionIn"
+                      rdfs:label="Official Position in">
+    <rdfs:comment>This property models the Person->hasPosition->Location.</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;OfficialPosition"/>
+    <rdfs:range rdf:resource="&ptop;Location"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;publishedWithin"
+                      rdfs:label="Published within">
+    <rdfs:domain rdf:resource="&pupp;Article"/>
+    <rdfs:range rdf:resource="&pupp;ResourceCollection"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;subSectorOf"
+                      rdfs:label="Subsector of">
+    <rdf:type rdf:resource="&owl;TransitiveProperty"/>
+    <rdfs:comment>The general part-of relation which takes place between a whole and each of its parts. It has number of specializations.</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;IndustrySector"/>
+    <rdfs:range rdf:resource="&pupp;IndustrySector"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;partOf"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;tradedOn"
+                      rdfs:label="Traded on">
+    <rdfs:comment>Relates the Public Company to the Stock Exchange where it is traded</rdfs:comment>
+    <rdfs:domain rdf:resource="&pupp;PublicCompany"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;acquirer" rdfs:label="acquirer">   
+    <rdfs:range rdf:resource= "&ptop;Organization"/>
+    <rdfs:domain rdf:resource="&pupp;Acquirement"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;partOf"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="&pupp;acquired" rdfs:label="acquired">
+    <rdfs:domain rdf:resource="&ptop;Acquirement"/>
+    <rdfs:range rdf:resource="&pupp;Organization"/>
+    <rdfs:subPropertyOf rdf:resource="&ptop;partOf"/>
+  </owl:ObjectProperty>  
+</rdf:RDF>

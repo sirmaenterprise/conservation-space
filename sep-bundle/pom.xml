@@ -1,0 +1,100 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.sirma.itt.seip</groupId>
+	<artifactId>seip-parent</artifactId>
+	<version>1.7.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>com.sirma</groupId>
+		<artifactId>jee6</artifactId>
+		<version>4</version>
+	</parent>
+
+	<properties>
+		<arquillian.version>1.1.3.Final</arquillian.version>
+		<version.jacoco>0.6.4.201312101107</version.jacoco>
+		<slf4j.version>1.7.7</slf4j.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<dependency>
+				<groupId>org.freemarker</groupId>
+				<artifactId>freemarker</artifactId>
+				<version>2.3.20</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<!-- For satisfying slf4j during test phases TODO see if really needed -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Test -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>6.8.8</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>1.9.5</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>net.javacrumbs.json-unit</groupId>
+				<artifactId>json-unit</artifactId>
+				<version>1.1.4</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Now pull in our server-based unit testing framework -->
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>${arquillian.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<modules>
+		<module>extensions</module>
+		<module>platform</module>
+		<module>adapters</module>
+	</modules>
+	<name>SEIP Bundle</name>
+	<url>http://www.sirmaitt.com/</url>
+	<issueManagement>
+		<system>JIRA</system>
+		<url>https://ittruse.ittbg.com/jira/browse/CMF</url>
+	</issueManagement>
+	<ciManagement>
+		<url>http://jenkins.ruse.ittbg.com:8888/job/EMF CI/</url>
+	</ciManagement>
+	<description>SEIP Main Bundle</description>
+</project>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="caseTasksPanel" styleClass="dashboard-panel list-content tasks-panel col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['cmf.workflow.tasks.panel.header.title']}</div>
+
+			<ui:include src="/search/dashlet-search/total-count.xhtml">
+				<ui:param name="panelId" value="caseTasksPanel" />
+				<ui:param name="action" value="#{caseTasksPanel}" />
+			</ui:include>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="caseTasksPanel" />
+				<ui:param name="action" value="#{caseTasksPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="caseTasksPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<ui:include src="/search/dashlet-search/search-toolbar.xhtml">
+				<ui:param name="panelId" value="caseTasksPanel" />
+				<ui:param name="action" value="#{caseTasksPanel}" />
+				<ui:param name="renderId" value="caseTasksPanel" />
+			</ui:include>
+
+			<emf:panel id="caseTasksToolbarActions" styleClass="allowed-actions-inline">
+				<ui:include src="/common/min-allowed-actions.xhtml">
+					<ui:param name="currentInstance" value="#{caseInstance}" />
+					<ui:param name="dashlet" value="#{caseTasksPanel}" />
+					<ui:param name="renderLabel" value="true" />
+				</ui:include>
+			</emf:panel>
+		</h:panelGroup>
+
+		<div class="panel-body case-tasks-panel-body clearfix">
+			<rich:list id="tasksList" value="#{caseTasksPanel.result}" var="taskInstance" type="unordered" rowClass="list-item">
+				<emf:treeHeader currentInstance="#{taskInstance}" mode="#{dashletsTreeHeaderMode}"
+					display="#{(taskInstance.getParentElement() == null) ? 'current_only' : dashletsTreeHeaderDisplay}"
+					size="#{dashletsTreeHeaderSize}">
+					<ui:define name="beforeContent">
+						<ui:include src="/common/banner.xhtml">
+							<ui:param name="renderIf" value="#{labelBuilder.isOverdueTask(taskInstance)}" />
+							<ui:param name="label" value="#{label['cmf.workflow.task.overdue.warning']}" />
+							<ui:param name="bannerClass" value="warning-banner" />
+						</ui:include>
+					</ui:define>
+				</emf:treeHeader>
+				<h:panelGroup styleClass="item-link-min" layout="block">
+					<ui:include src="/common/min-allowed-actions.xhtml">
+						<ui:param name="currentInstance" value="#{taskInstance}" />
+						<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+						<ui:param name="placeholder" value="#{caseTasksPanel.targetDashletName()}" />
+						<ui:param name="ajaxLoaderRenderElement" value=".case-tasks-panel-body" />
+					</ui:include>
+				</h:panelGroup>
+			</rich:list>
+		</div>
+
+		<a4j:commandLink id="refreshCaseTasksDashlet" value="refreshCaseTasksDashlet" action="refreshCaseTasksDashlet"
+			onclick="EMF.ajaxloader.showLoading('.case-tasks-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.case-tasks-panel-body');" styleClass="load-case-tasks-link hide"
+			render="tasksList, caseTasksPanelToolbar" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

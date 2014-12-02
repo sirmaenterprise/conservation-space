@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="obj-0.0.1-0" author="bbonev">
+		<createTable tableName="obj_objectentity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="obj_objectentity_pkey"/>
+            </column>
+            <column name="container" type="VARCHAR(100)"/>
+            <column name="cmid" type="VARCHAR(100)"/>
+            <column name="definitionid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dmid" type="VARCHAR(100)"/>
+            <column name="revision" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="int8"/>
+        </createTable>
+
+        <createIndex indexName="idx_oe_cmid" tableName="obj_objectentity" unique="false">
+            <column name="cmid"/>
+        </createIndex>
+        <createIndex indexName="idx_oe_defid" tableName="obj_objectentity" unique="false">
+            <column name="definitionid"/>
+        </createIndex>
+         <createIndex indexName="idx_oe_defid_rev" tableName="obj_objectentity" unique="false">
+            <column name="definitionid"/>
+            <column name="revision"/>
+        </createIndex>
+        <createIndex indexName="idx_oe_dmid" tableName="obj_objectentity" unique="false">
+            <column name="dmid"/>
+        </createIndex>
+	</changeSet>
+	<changeSet id="obj-0.0.2-0" author="bbonev">
+		<dropTable tableName="obj_objectentity"/>
+	</changeSet>
+	<changeSet id="obj-0.0.2-1" author="bbonev">
+		<comment>remove link from the old implementation</comment>
+		<sql endDelimiter=";">delete from emf_links where totype in (select d.id from emf_datatypedefinition as d where name='objectinstance');</sql>
+	</changeSet>
+</databaseChangeLog>

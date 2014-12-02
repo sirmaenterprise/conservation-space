@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+	template="/common/default-nofacets-template.xhtml">
+
+	<ui:define name="pageParams">
+		<ui:param name="searchPageTreeHeaderMode" value="default_header" />
+		<ui:param name="searchPageTreeHeaderSize" value="bigger" />
+		<ui:param name="searchPageTreeHeaderDisplay" value="current_only" />
+	</ui:define>
+
+	<ui:define name="content">
+
+		<div id="contextActionsBar" class="al form-inline">
+			<h:inputText id="browseProjectInput" class="form-control project-browse-input"
+				value="#{projectSearchAction.browseProjectFilterInput}" />
+
+			<a4j:commandButton id="searchProjectsButton" value="#{label['pm.project.browse.button.search']}"
+				styleClass="btn btn-default btn-sm standard-button search-button has-tooltip"
+				action="#{projectSearchAction.filterProjects()}"
+				oncomplete="if (#{projectSearchAction.projectSearchArguentsError})  #{rich:component('projectsValidation')}.show();"
+				render="projectMasterTable,noProjectsMessage,topDataScroller,bottomDataScroller" />
+
+			<a4j:commandButton id="listAllProjectsButton" value="#{label['pm.project.browse.button.listall']}"
+				styleClass="btn btn-default btn-sm standard-button search-button list-all-button has-tooltip"
+				action="#{projectSearchAction.filterAllProjects()}"
+				render="projectMasterTable,browseProjectInput,noProjectsMessage,topDataScroller,bottomDataScroller" />
+
+			<a4j:commandLink id="newProjectButton"
+				action="#{actionsManager.executeContextAction('createProject', 'projectinstance')}"
+				value="" immediate="true" styleClass="btn btn-sm btn-primary new-project-btn fr">
+				<span class="sprite sprite-projectinstance-icon-16"></span>
+				<span class="new-project-btn-lbl">#{label['pm.menu.new-project']}</span>
+			</a4j:commandLink>
+		</div>
+
+		<ui:include src="/project/project-list-form.xhtml" />
+		<ui:include src="/project/includes/projects-validation-popup.xhtml" />
+	</ui:define>
+
+</ui:composition>

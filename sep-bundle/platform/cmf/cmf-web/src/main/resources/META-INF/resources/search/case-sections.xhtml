@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:rich="http://richfaces.org/rich" xmlns:emf="http://com.sirma.itt.emf">
+
+	<h:panelGroup id="itemListToolbar" layout="block" class="item-list-toolbar case-list-toolbar clearfix">
+
+		<div style="width: 33%; float: left; visibility: hidden;">&#160;</div>
+
+		<div class="cmf-datascroller-wrapper">
+			<rich:dataScroller for="caseListRecords" id="caseListRecordsDatascroller"
+				scrollListener="#{cmfEntityBrowser.onScroll}" maxPages="#{cmfEntityBrowser.searchAction.maxPagesInPager}"
+				ignoreDupResponses="true" boundaryControls="hide" fastControls="hide" styleClass="cmf-datatable-scroller"
+				renderIfSinglePage="false" />
+		</div>
+
+		<div id="itemListSortingBar" class="item-list-sorting-bar hide">
+			<span>
+				<a4j:outputPanel id="sortingOptionsMenuWrapper" ajaxRendered="true">
+					<a id="sortingOptionsMenu" class="icon-action-link" href="javascript:void(0);">
+						<span>#{label['cmf.case.search.args.'.concat(cmfEntityBrowser.searchAction.searchData.sorter.sortField)]}</span>
+						<h:graphicImage value="../images/menu-button-arrow.png" />
+					</a>
+				</a4j:outputPanel>
+
+				<rich:list id="sortingOptions" value="#{cmfEntityBrowser.searchAction.sortActions}" var="sortAction"
+					styleClass="sorting-options" type="unordered">
+					<a4j:commandLink id="sortActionLink" value="#{sortAction.label}"
+						action="#{cmfEntityBrowser.searchAction.sort(sortAction)}" render="caseListRecords,sortingOptions">
+					</a4j:commandLink>
+				</rich:list>
+			</span>
+
+			<a4j:commandLink id="sortingOrderButton" value="" action="#{cmfEntityBrowser.searchAction.switchOrder()}"
+				render="caseListRecords,sortingOrderButton"
+				styleClass="btn btn-default btn-sm glyphicon switch-order-btn blockUI #{(cmfEntityBrowser.searchAction.sortOrderAscending) ? 'glyphicon-sort-by-alphabet-alt' : 'glyphicon-sort-by-alphabet'}">
+				<h:outputText value=" " />
+			</a4j:commandLink>
+		</div>
+	</h:panelGroup>
+
+	<a4j:outputPanel ajaxRendered="true">
+		<h:outputText id="noContentMessage" value="#{label['cmf.msg.info.emptySearchResult']}"
+			rendered="#{cmfEntityBrowser.searchAction.dataModel.data==null}" styleClass="no-content-message" />
+	</a4j:outputPanel>
+
+	<rich:list id="caseListRecords" value="#{cmfEntityBrowser.searchAction.dataModel}" var="case"
+		rows="#{cmfEntityBrowser.searchAction.pageSize}" styleClass="case-list">
+
+		<emf:treeHeader currentInstance="#{case}" mode="default_header" display="current_only" size="big"
+			disableLinks="#{!entityPreviewAction.canOpenInstance(case)}" />
+
+		<rich:list id="sectionsList" value="#{case.sections}" var="sectionInstance" type="unordered"
+			onrowclick="#{rich:element('setSelectedSectionLink')}.onclick();" styleClass="pad-1"
+			rowClass="list-item sectioninstance">
+
+			<emf:treeHeader currentInstance="#{sectionInstance}" mode="default_header" display="current_only" size="medium"
+				disableLinks="#{!entityPreviewAction.canOpenInstance(sectionInstance)}" />
+
+			<a4j:commandLink id="setSelectedSectionLink" value="" action="#{documentMoveAction.toggleTarget(sectionInstance)}"
+				execute="@this" style="display: none;" render="selectEntityButton"
+				onclick="CMF.entityBrowser.selectSection(this, false);" />
+		</rich:list>
+
+	</rich:list>
+
+</ui:composition>

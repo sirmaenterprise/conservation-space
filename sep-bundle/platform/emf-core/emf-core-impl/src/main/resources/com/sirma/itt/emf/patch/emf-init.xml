@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="bbonev (generated)" id="1378129100604-8">
+        <createTable tableName="emf_comment">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_comment_pkey"/>
+            </column>
+            <column name="comment" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postedfrom" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="identifier" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="posteddate" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="replayof_id" type="int8"/>
+            <column name="topic_id" type="int8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-9">
+        <createTable tableName="emf_commonentity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_commonentity_pkey"/>
+            </column>
+            <column name="definitionid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="path" type="VARCHAR(1000)"/>
+            <column name="revision" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-10">
+        <createTable tableName="emf_datatypedefinition">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_datatypedefinition_pkey"/>
+            </column>
+            <column name="description" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="javaclassname" type="VARCHAR(200)"/>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-11">
+        <createTable tableName="emf_definitionentry">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_definitionentry_pkey"/>
+            </column>
+            <column name="isabstract" type="int2"/>
+            <column name="container" type="VARCHAR(100)"/>
+            <column name="dmsid" type="VARCHAR(100)"/>
+            <column name="hash" type="int4">
+                <constraints nullable="false"/>
+            </column>
+            <column name="identifier" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parentidentifierid" type="VARCHAR(100)"/>
+            <column name="revision" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="targetdefinition_id" type="int8"/>
+            <column name="targettype" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-12">
+        <createTable tableName="emf_filterdefinition">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_filterdefinition_pkey"/>
+            </column>
+            <column name="filtervalues" type="VARCHAR(2048)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="filterid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="filtermode" type="VARCHAR(20)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-13">
+        <createTable tableName="emf_labels">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_labels_pkey"/>
+            </column>
+            <column name="labelid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value_id" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-14">
+        <createTable tableName="emf_links">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_links_pkey"/>
+            </column>
+            <column name="fromid" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="link_id" type="VARCHAR(255)"/>
+            <column name="primarylink" type="int2"/>
+            <column name="reverse" type="int8"/>
+            <column name="toid" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fromtype" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="totype" type="int8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-15">
+        <createTable tableName="emf_mailqueueentry">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_mailqueueentry_pkey"/>
+            </column>
+            <column name="content" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-16">
+        <createTable tableName="emf_properties">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_properties_pkey"/>
+            </column>
+            <column name="bean_id" type="int8"/>
+            <column name="bean_type" type="int4">
+                <constraints nullable="false"/>
+            </column>
+            <column name="listindex" type="int4"/>
+            <column name="propertyid" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value_id" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-17">
+        <createTable tableName="emf_propertyvalue">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_propertyvalue_pkey"/>
+            </column>
+            <column name="actualtype" type="int4"/>
+            <column name="booleanvalue" type="int2"/>
+            <column name="doublevalue" type="FLOAT8(17)"/>
+            <column name="floatvalue" type="FLOAT4(8,8)"/>
+            <column name="longvalue" type="int8"/>
+            <column name="persistedtype" type="int4"/>
+            <column name="stringvalue" type="VARCHAR(2048)"/>
+            <column name="serializablevalue_id" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-18">
+        <createTable tableName="emf_prototype">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_prototype_pkey"/>
+            </column>
+            <column name="container" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="multivalued" type="int2">
+                <constraints nullable="false"/>
+            </column>
+            <column name="datatype_id" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-19">
+        <createTable tableName="emf_resource">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_resource_pkey"/>
+            </column>
+            <column name="displayname" type="VARCHAR(200)"/>
+            <column name="identifier" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-20">
+        <createTable tableName="emf_resourcerole">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_resourcerole_pkey"/>
+            </column>
+            <column name="resource_id" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(100)"/>
+            <column name="targetrolereferencerid" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="targetrolereferencetype" type="int8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-21">
+        <createTable tableName="emf_sequenceentity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_sequenceentity_pkey"/>
+            </column>
+            <column name="sequence" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sequenceid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-22">
+        <createTable tableName="emf_serializablevalue">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_serializablevalue_pkey"/>
+            </column>
+            <column name="serializable" type="bytea">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-23">
+        <createTable tableName="emf_topic">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="emf_topic_pkey"/>
+            </column>
+            <column name="identifier" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topicaboutid" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topicabouttype" type="int8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="bbonev (generated)" id="1378129100604-31">
+        <addUniqueConstraint columnNames="name" constraintName="emf_datatypedefinition_name_key" deferrable="false" disabled="false" initiallyDeferred="false" tableName="emf_datatypedefinition"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-40">
+        <addForeignKeyConstraint baseColumnNames="targetdefinition_id" baseTableName="emf_definitionentry" baseTableSchemaName="public" constraintName="fkbd7ad17ec853ddfd" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_serializablevalue" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-41">
+        <addForeignKeyConstraint baseColumnNames="targettype" baseTableName="emf_definitionentry" baseTableSchemaName="public" constraintName="fkbd7ad17e63fc4b6f" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-42">
+        <addForeignKeyConstraint baseColumnNames="value_id" baseTableName="emf_labels" baseTableSchemaName="public" constraintName="fk451522a092504310" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_serializablevalue" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-43">
+        <addForeignKeyConstraint baseColumnNames="fromtype" baseTableName="emf_links" baseTableSchemaName="public" constraintName="fk75db34f8fccb3d08" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-44">
+        <addForeignKeyConstraint baseColumnNames="totype" baseTableName="emf_links" baseTableSchemaName="public" constraintName="fk75db34f813316359" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-45">
+        <addForeignKeyConstraint baseColumnNames="value_id" baseTableName="emf_properties" baseTableSchemaName="public" constraintName="fkc4be17548af55c15" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_propertyvalue" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-46">
+        <addForeignKeyConstraint baseColumnNames="serializablevalue_id" baseTableName="emf_propertyvalue" baseTableSchemaName="public" constraintName="fk3f9056db89f52d0f" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_serializablevalue" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-47">
+        <addForeignKeyConstraint baseColumnNames="datatype_id" baseTableName="emf_prototype" baseTableSchemaName="public" constraintName="fk370452e15891587a" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-48">
+        <addForeignKeyConstraint baseColumnNames="targetrolereferencetype" baseTableName="emf_resourcerole" baseTableSchemaName="public" constraintName="fkab1b136510fde02" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-49">
+        <addForeignKeyConstraint baseColumnNames="topicabouttype" baseTableName="emf_topic" baseTableSchemaName="public" constraintName="fk764eb26ea25d371c" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+
+    <changeSet author="bbonev (generated)" id="1378129100604-70">
+        <createIndex indexName="idx_cm_fp" tableName="emf_comment" unique="false">
+            <column name="postedfrom"/>
+            <column name="posteddate"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-71">
+        <createIndex indexName="idx_cm_fpt" tableName="emf_comment" unique="false">
+            <column name="postedfrom"/>
+            <column name="posteddate"/>
+            <column name="topic_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-72">
+        <createIndex indexName="idx_cm_pt" tableName="emf_comment" unique="false">
+            <column name="posteddate"/>
+            <column name="topic_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-73">
+        <createIndex indexName="idx_come_definitionid" tableName="emf_commonentity" unique="false">
+            <column name="definitionid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-74">
+        <createIndex indexName="idx_come_path" tableName="emf_commonentity" unique="false">
+            <column name="path"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-75">
+        <createIndex indexName="idx_come_path_rev" tableName="emf_commonentity" unique="false">
+            <column name="path"/>
+            <column name="revision"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-76">
+        <createIndex indexName="idx_de_a_c_t" tableName="emf_definitionentry" unique="false">
+            <column name="isabstract"/>
+            <column name="container"/>
+            <column name="targettype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-77">
+        <createIndex indexName="idx_de_hash" tableName="emf_definitionentry" unique="false">
+            <column name="hash"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-78">
+        <createIndex indexName="idx_de_id_r" tableName="emf_definitionentry" unique="false">
+            <column name="identifier"/>
+            <column name="revision"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-79">
+        <createIndex indexName="idx_de_id_r_c" tableName="emf_definitionentry" unique="false">
+            <column name="identifier"/>
+            <column name="revision"/>
+            <column name="container"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-80">
+        <createIndex indexName="idx_de_id_t_c" tableName="emf_definitionentry" unique="false">
+            <column name="identifier"/>
+            <column name="targettype"/>
+            <column name="container"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-81">
+        <createIndex indexName="idx_de_id_t_c_r" tableName="emf_definitionentry" unique="false">
+            <column name="identifier"/>
+            <column name="targettype"/>
+            <column name="container"/>
+            <column name="revision"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-82">
+        <createIndex indexName="idx_fild_id" tableName="emf_filterdefinition" unique="false">
+            <column name="filterid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-83">
+        <createIndex indexName="idx_l_labelid" tableName="emf_labels" unique="false">
+            <column name="labelid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-84">
+        <createIndex indexName="idx_l_from" tableName="emf_links" unique="false">
+            <column name="fromid"/>
+            <column name="fromtype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-85">
+        <createIndex indexName="idx_l_id_from" tableName="emf_links" unique="false">
+            <column name="link_id"/>
+            <column name="fromid"/>
+            <column name="fromtype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-86">
+        <createIndex indexName="idx_l_id_to" tableName="emf_links" unique="false">
+            <column name="link_id"/>
+            <column name="toid"/>
+            <column name="totype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-87">
+        <createIndex indexName="idx_l_to" tableName="emf_links" unique="false">
+            <column name="toid"/>
+            <column name="totype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-88">
+        <createIndex indexName="idx_pre_entityid_index" tableName="emf_properties" unique="false">
+            <column name="bean_id"/>
+            <column name="bean_type"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-89">
+        <createIndex indexName="idx_pre_propertyid" tableName="emf_properties" unique="false">
+            <column name="propertyid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-90">
+        <createIndex indexName="idx_pre_propertyid_index" tableName="emf_properties" unique="false">
+            <column name="propertyid"/>
+            <column name="listindex"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-91">
+        <createIndex indexName="idx_ptd_n_c_m" tableName="emf_prototype" unique="false">
+            <column name="name"/>
+            <column name="container"/>
+            <column name="multivalued"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-92">
+        <createIndex indexName="idx_ptd_name" tableName="emf_prototype" unique="false">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-93">
+        <createIndex indexName="idx_p_res_name" tableName="emf_resource" unique="false">
+            <column name="identifier"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-94">
+        <createIndex indexName="idx_prr_r_trr" tableName="emf_resourcerole" unique="false">
+            <column name="role"/>
+            <column name="targetrolereferencerid"/>
+            <column name="targetrolereferencetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-95">
+        <createIndex indexName="idx_prr_trr" tableName="emf_resourcerole" unique="false">
+            <column name="targetrolereferencerid"/>
+            <column name="targetrolereferencetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-96">
+        <createIndex indexName="idx_seqent_id" tableName="emf_sequenceentity" unique="false">
+            <column name="sequenceid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-97">
+        <createIndex indexName="idx_top_iabout" tableName="emf_topic" unique="false">
+            <column name="identifier"/>
+            <column name="topicaboutid"/>
+            <column name="topicabouttype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-98">
+        <createIndex indexName="idx_top_id" tableName="emf_topic" unique="false">
+            <column name="identifier"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

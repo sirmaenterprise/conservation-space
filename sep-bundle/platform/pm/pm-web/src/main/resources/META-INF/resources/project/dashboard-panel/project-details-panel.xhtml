@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:f="http://java.sun.com/jsf/core" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="projectDetailsPanel" styleClass="dashboard-panel dynamic-form-panel project-details-panel col-lg-4"
+		layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['pm.project.dashboard.panel.details']}</div>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="projectDetailsPanel" />
+				<ui:param name="action" value="#{projectDetailsPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="projectDetailsPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<span class="btn btn-default btn-sm glyphicon glyphicon-eye-open">
+				<a4j:commandLink id="openProjectProfileLink"
+					action="#{actionsManager.executeContextAction('project', 'projectinstance', projectInstance)}"
+					value="#{label['pm.project.dashboard.panel.details.viewProject']}" styleClass="blockUI">
+				</a4j:commandLink>
+			</span>
+
+			<emf:panel id="projectDetailsToolbarActions" styleClass="allowed-actions-inline">
+				<ui:include src="/common/min-allowed-actions.xhtml">
+					<ui:param name="dashlet" value="#{projectDetailsPanel}" />
+					<ui:param name="renderLabel" value="true" />
+					<ui:param name="currentInstance" value="#{projectInstance}" />
+				</ui:include>
+			</emf:panel>
+		</h:panelGroup>
+
+		<h:panelGroup id="instanceDataPanel" styleClass="panel-body project-details-panel-body" layout="block"
+			style="padding: 10px 5px;" />
+
+		<a4j:commandLink id="initProjectDetailsDashlet" value="initProjectDetailsDashlet" action="initProjectDetailsDashlet"
+			onclick="EMF.ajaxloader.showLoading('.project-details-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.project-details-panel-body');" styleClass="load-project-details-link hide"
+			render="instanceDataPanel, projectDetailsPanelToolbar" execute="@this" />
+			</div>
+	</h:panelGroup>
+
+</ui:composition>

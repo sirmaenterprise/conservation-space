@@ -1,0 +1,9 @@
+select (group_concat(distinct ?data ; separator = ", ") AS ?superClasses)
+{
+	?class rdfs:subClassOf ?class1 .
+	?class1 rdfs:label ?label .
+	bind(if(contains(str(?class1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?class1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?class1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?class1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?class1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?class1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
+	bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?data) .
+	filter (?class != ?class1)
+}
+group by ?class

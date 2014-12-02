@@ -1,0 +1,44 @@
+#### UPDATE REPOSITORY MEMORY CONFIGURATION
+## Replace the _repository_name_ with the name of the repository.
+## Update memory parameters before execution
+## uncomment or comment memory parameters from the delete and insert clause
+####
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sys:<http://www.openrdf.org/config/repository#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix rep: <http://www.openrdf.org/config/repository#>
+prefix sr: <http://www.openrdf.org/config/repository/sail#>
+prefix sail: <http://www.openrdf.org/config/sail#>
+prefix owlim: <http://www.ontotext.com/trree/owlim#>
+
+delete { GRAPH ?g {
+?sailImplementation owlim:entity-index-size	?entityIndexSize .
+?sailImplementation owlim:cache-memory 	?cacheMemory .
+?sailImplementation owlim:tuple-index-memory 	?tupleIndexMemory .
+?sailImplementation owlim:enablePredicateList 	?enablePredicateList .
+?sailImplementation owlim:predicate-memory 	?predicateMemory .
+?sailImplementation owlim:enable-context-index 	?enableContextIndex .
+}
+} insert {
+GRAPH ?g {
+#### Uncomment which property you wish to change
+?sailImplementation owlim:entity-index-size "1350000" .
+?sailImplementation owlim:cache-memory "2380m" .
+?sailImplementation owlim:tuple-index-memory "1785m" .
+?sailImplementation owlim:enable-context-index "false" .
+?sailImplementation owlim:enablePredicateList "true" .
+?sailImplementation owlim:predicate-memory "595m" .
+}
+} where { GRAPH ?g {
+?repository rdf:type 	sys:Repository .
+?repository sys:repositoryID 	"_repository_name_" .
+?repository sys:repositoryImpl 	?sailRepository .
+?sailRepository sr:sailImpl ?sailImplementation .
+?sailImplementation owlim:entity-index-size	?entityIndexSize .
+?sailImplementation owlim:cache-memory 	?cacheMemory .
+?sailImplementation owlim:tuple-index-memory 	?tupleIndexMemory .
+?sailImplementation owlim:enablePredicateList 	?enablePredicateList .
+?sailImplementation owlim:predicate-memory 	?predicateMemory .
+?sailImplementation owlim:enable-context-index 	?enableContextIndex .
+}
+}

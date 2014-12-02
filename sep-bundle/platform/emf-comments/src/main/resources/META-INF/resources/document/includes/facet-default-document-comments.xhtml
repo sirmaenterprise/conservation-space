@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup styleClass="facet comments-facet document-comments" rendered="true" layout="block">
+		<div class="facet-header expanded" id="documentCommentsFacetHeader">
+			<span class="facet-title">#{label['cmf.document.preview.facet.annotations.header']}</span>
+		</div>
+		
+		<h:panelGroup layout="block" class="facet-content" rendered="#{!documentAction.isDocumentImage() and !documentAction.isDocumentScene()}">
+			<ui:include src="/common/comments.xhtml" />
+		</h:panelGroup>
+		
+		<h:panelGroup layout="block" class="facet-content" rendered="#{documentAction.isDocumentImage() or documentAction.isDocumentScene()}">
+			<ui:include src="/common/annotations.xhtml" />
+		</h:panelGroup>
+	</h:panelGroup>
+	
+	
+</ui:composition>

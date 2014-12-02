@@ -1,0 +1,47 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+
+
+insert data {
+
+GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework>
+{
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#parentOf
+
+emf:parentOf rdf:type owl:ObjectProperty ;
+             
+             rdfs:label "Parent Of"@en ;
+             
+             dc:creator "Kiril Penev"@en ;
+             
+             rdfs:range ptop:Entity ;
+          
+          	 rdfs:domain ptop:Entity ;
+             
+             skos:definition "Specifies which Entity is parent of another Entity"@en .
+             
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasParent
+
+emf:hasParent rdf:type owl:ObjectProperty ;
+              
+              rdfs:label "Has Parent"@en ;
+              
+              dc:creator "Kiril Penev"@en ;
+              
+              rdfs:domain ptop:Entity ;
+              
+              owl:inverseOf emf:parentOf ;
+              
+              rdfs:range ptop:Entity ;
+              
+              skos:definition "Specifies which entity is the parent of the current object"@en .
+              
+}
+              
+}

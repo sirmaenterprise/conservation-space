@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+
+	<div class="header-menu navigation-menu">
+	
+		<h:commandLink id="menuAdminHomeLink" 
+			styleClass="#{('menu-admin-home'.equals(adminMenuContext.selectedMenu)) ? 'selected-menu' : ''}"
+			action="#{navigationMenuAction.executeAction('admin', 'home', true)}"
+			onclick="jQuery('#menuForm\\:selectedAdminMenuLink').val('menu-admin-home')"
+			value="#{label['cmf.administration.menulink.home']}">
+		</h:commandLink>
+		
+		<span class="menu-items-separator"></span>
+
+		<h:commandLink id="menuDefinitionPreviewLink"
+			styleClass="#{('menu-admin-definitions'.equals(adminMenuContext.selectedMenu)) ? 'selected-menu' : ''}"
+			action="#{navigationMenuAction.executeAction('admin', 'definitions', true)}"
+			onclick="jQuery('#menuForm\\:selectedAdminMenuLink').val('menu-admin-definitions')"
+			value="#{label['cmf.administration.menulink.definition.preview']}">
+		</h:commandLink>
+		
+		<span class="menu-items-separator"></span>
+
+		<h:commandLink id="menuDefinitionSynchLink"
+			styleClass="#{('menu-admin-sync'.equals(adminMenuContext.selectedMenu)) ? 'selected-menu' : ''}"
+			action="#{navigationMenuAction.executeAction('admin', 'sync', true)}"
+			onclick="jQuery('#menuForm\\:selectedAdminMenuLink').val('menu-admin-sync')"
+			value="#{label['cmf.administration.menulink.definition.synch']}">
+		</h:commandLink>
+		
+		<span class="menu-items-separator"></span>
+					
+		<h:commandLink id="menuAdminExitLink"
+			styleClass="#{('menu-admin-exit'.equals(adminMenuContext.selectedMenu)) ? 'selected-menu' : ''}"
+			action="#{taskMenuAction.executeAction('admin', 'exit')}"
+			onclick="jQuery('#menuForm\\:selectedAdminMenuLink').val('menu-admin-exit');"
+			value="#{label['cmf.administration.menulink.admin.exit']}">
+		</h:commandLink>
+		<h:inputText id="selectedAdminMenuLink" value="#{adminMenuContext.selectedMenu}" style="display: none;"  />
+		<ui:include src="/menu/session-counter.xhtml" />
+		
+	</div>
+
+</ui:composition>

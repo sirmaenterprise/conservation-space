@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j">
+
+	<div id="resourceAllocationMainMenuItem" class="menu-item dropdown-menu-item">
+		<span class="icon sprite sprite-taskallocation-icon-24"></span>
+		<span class="menu-item-trigger dropdown-menu-trigger">#{label['cmf.main.menu.taskallocation']}<b class="caret"></b></span>
+
+		<ul class="submenu dropdown-menu-list">
+			<li class="submenu-item">
+				<h:commandLink id="viewAllocationForAllUsers" action="#{mainMenuAction.executeAction('resourceallocation', 'resourceAllocationAllUsers', false)}"
+					value="" immediate="true" styleClass="icon-action-link">
+					<span class="menu-link-value" style="float: left; margin-left: 6px;">#{label['pm.taskallocation.allusers']}</span>
+				</h:commandLink>
+			</li>
+			<li class="submenu-item">
+ 				<a4j:commandLink id="viewAllocationForSelectedUsers" 
+ 					action="#{picklistController.loadItems(false, 'user')}"
+					value="" immediate="true" 
+					data="#{requestScope.picklistItems}"
+					execute="@this"
+					oncomplete="CMF.resourceAllocation.openPicklist(event);"
+					styleClass="icon-action-link">
+					<span class="menu-link-value" style="float: left; margin-left: 6px;">#{label['pm.taskallocation.selectedusers']}</span>
+				</a4j:commandLink>
+			</li>
+		</ul>
+	</div>
+
+	<ui:include src="/project/resource-allocation-select-users.xhtml" />
+
+</ui:composition>

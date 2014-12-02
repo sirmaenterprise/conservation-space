@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
+
+	<h:panelGroup id="documentVersionFacet" styleClass="facet version-history" rendered="true" layout="block">
+
+		<div class="facet-header expanded" id="versionHistoryFacetHeader">
+			<h:outputText value="#{label['cmf.document.preview.facet.versionHistory.header']}" />
+		</div>
+
+		<div class="facet-content">
+			<ui:repeat value="#{documentVersionFacetAction.documentVersions}" var="version" varStatus="iterationStatus">
+
+				<h:panelGroup layout="block" styleClass="version-item clearfix"
+					rendered="#{(version != null) and (iterationStatus.index eq 0)}">
+
+					<div class="header">#{label['cmf.version.history.last.version']}</div>
+
+					<span class="left-version-panel">#{version.versionLabel}</span>
+
+					<div class="right-version-panel">
+						<div class="panel-toolbar">
+							<span>#{version.versionName}</span>
+						</div>
+
+						<span class="avatar">
+							<h:graphicImage name="user-icon-32.png" library="images" />
+						</span>
+
+						<span class="combo-info">#{labelBuilder.concatVersionStr(version.versionCreator, version.versionDate)}</span>
+
+						<span class="version-description">#{version.versionDescription}</span>
+					</div>
+				</h:panelGroup>
+
+				<h:panelGroup layout="block" styleClass="version-item clearfix"
+					rendered="#{(version != null) and (iterationStatus.index gt 0)}">
+
+					<h:outputText value="#{label['cmf.version.history.older.versions']}" rendered="#{iterationStatus.index eq 1}"
+						styleClass="header" />
+
+					<span class="left-version-panel">#{version.versionLabel}</span>
+
+					<div class="right-version-panel">
+						<div class="panel-toolbar">
+							<span>#{version.versionName}</span>
+							<div class="operations btn-group allowed-action-image-button">
+								<button data-toggle="dropdown tooltip" data-original-title="#{label['cmf.btn.actions']}"
+									class="btn btn-default dropdown-toggle static actions-menu-trigger" type="button">
+									<span class="caret"></span>
+									<span class="sr-only">Toggle Dropdown</span>
+								</button>
+								<ul class="hidden-actions dropdown-menu">
+									<li>
+										<h:outputLink id="downloadHistoryVersionButton" styleClass="download-history-version-button" target="_blank"
+											onclick="CMF.utilityFunctions.downloadDocumentAfterEvent('#{documentAction.downloadHistoricalDocVersion(documentInstance, version.versionLabel)}'); return false;"
+											rendered="#{documentAction.isAllowedOperation(documentInstance, 'download')}">
+											<div class="tooltip">
+												<span>#{label['cmf.version.history.download.version']}</span>
+											</div>
+											<h:outputText value="#{label['cmf.version.history.download.version']}" />
+										</h:outputLink>
+									</li>
+									<li>
+										<h:commandLink id="previewHistoryVersionButton" styleClass="preview-history-version-button"
+											action="#{documentAction.getHistoricalDocVersion(documentInstance, version.versionLabel)}"
+											rendered="#{documentAction.isAllowedOperation(documentInstance, 'historyPreview')}"
+											value="#{label['cmf.version.history.view.older.version']}">
+											<div class="tooltip">
+												<span>#{label['cmf.version.history.view.older.version']}</span>
+											</div>
+										</h:commandLink>
+									</li>
+									<li>
+										<a4j:commandLink id="versionRevertButton" styleClass="version-revert-button"
+											action="#{documentRevertAction.initVersionRevert(documentInstance, version.versionLabel)}" render="@this"
+											execute="@this" oncomplete="#{rich:component('revertVersionPanel')}.show();"
+											rendered="#{documentAction.isAllowedOperation(documentInstance, 'revert')}"
+											value="#{label['cmf.version.history.revert']}">
+											<div class="tooltip">
+												<span>#{label['cmf.version.history.revert']}</span>
+											</div>
+										</a4j:commandLink>
+									</li>
+								</ul>
+							</div>
+
+						</div>
+
+						<span class="avatar">
+							<h:graphicImage name="user-icon-32.png" library="images" />
+						</span>
+
+						<span class="combo-info">#{labelBuilder.concatVersionStr(version.versionCreator, version.versionDate)}</span>
+
+						<span class="version-description">#{version.versionDescription}</span>
+					</div>
+				</h:panelGroup>
+
+			</ui:repeat>
+		</div>
+
+	</h:panelGroup>
+
+</ui:composition>

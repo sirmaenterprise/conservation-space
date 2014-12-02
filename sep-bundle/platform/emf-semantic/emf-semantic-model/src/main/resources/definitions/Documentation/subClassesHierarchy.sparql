@@ -1,0 +1,9 @@
+select ?class (group_concat(distinct ?data ; separator = "\n") AS ?subClassesHierarchy)
+	{
+		?class1 rdfs:subClassOf ?class .
+		?class1 rdfs:label ?label .
+		?class rdfs:label ?classLabel .
+		bind(concat("\"", ?classLabel, "\" <|-- \"", ?label, "\"") as ?data) .
+		filter (?class != ?class1)
+	}
+	group by ?class

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="caseDiscussionPanel" styleClass="dashboard-panel discussion-panel col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['cmf.case.dashboard.panel.discussions']}</div>
+
+			<div class="panel-controls">
+				<div class="control refresh">
+					<a4j:commandLink id="reloadMessagesLink" action="#{discussionActions.retrieveCommentHistory(5)}" execute="@this"
+						render="caseDiscussionDataPanelInputs"
+						oncomplete="EMF.ajaxloader.hideLoading('.discussion-body'); CMF.discussionActions.scrollBottomFromTop()"
+						styleClass="glyphicon glyphicon-refresh" onclick="EMF.ajaxloader.showLoading('.discussion-body');">
+					</a4j:commandLink>
+				</div>
+			</div>
+		</div>
+
+		<h:panelGroup id="caseMessagesPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<a4j:commandLink id="loadTodayMessagesLink" action="#{discussionActions.retrieveCommentHistory(1)}"
+				value="#{label['cmf.case.dashboard.discussion.history.today']}" styleClass="action-link"
+				render="caseDiscussionDataPanelInputs"
+				oncomplete="EMF.ajaxloader.hideLoading('.discussion-body'); 
+				CMF.discussionActions.scrollBottomFromTop()"
+				onclick="EMF.ajaxloader.showLoading('.discussion-body');" />
+
+			<a4j:commandLink id="loadThisWeekMessagesLink" action="#{discussionActions.retrieveCommentHistory(2)}"
+				value="#{label['cmf.case.dashboard.discussion.history.week']}" styleClass="action-link"
+				render="caseDiscussionDataPanelInputs"
+				oncomplete="EMF.ajaxloader.hideLoading('.discussion-body'); 
+				CMF.discussionActions.scrollBottomFromTop()"
+				onclick="EMF.ajaxloader.showLoading('.discussion-body');" />
+
+			<a4j:commandLink id="loadThisMonthMessagesLink" action="#{discussionActions.retrieveCommentHistory(3)}"
+				value="#{label['cmf.case.dashboard.discussion.history.month']}" styleClass="action-link"
+				render="caseDiscussionDataPanelInputs"
+				oncomplete="EMF.ajaxloader.hideLoading('.discussion-body'); 
+				CMF.discussionActions.scrollBottomFromTop()"
+				onclick="EMF.ajaxloader.showLoading('.discussion-body');" />
+
+			<a4j:commandLink id="loadAllMessagesLink" action="#{discussionActions.retrieveCommentHistory(4)}"
+				value="#{label['cmf.case.dashboard.discussion.history.all']}" styleClass="action-link"
+				render="caseDiscussionDataPanelInputs"
+				oncomplete="EMF.ajaxloader.hideLoading('.discussion-body'); 
+				CMF.discussionActions.scrollBottomFromTop()"
+				onclick="EMF.ajaxloader.showLoading('.discussion-body');" />
+		</h:panelGroup>
+
+		<h:panelGroup id="caseDiscussionDataPanelInputs" styleClass="panel-body" layout="block">
+			<div id="descussionDataPanel" class="discussion-body">
+				<rich:list id="commentsList" value="#{caseMessagesPanel.caseComments}" var="currentComment">
+					<h:panelGrid columns="2">
+						<h:outputText value="#{dateUtil.getFormattedDateTime(currentComment.postedDate)}" />
+						<h:outputText value="#{labelBuilder.getDisplayNameForUser(currentComment.from)}" />
+					</h:panelGrid>
+					<h:outputText style="color: #555555" value="#{currentComment.comment}" />
+				</rich:list>
+			</div>
+
+			<div class="discussion-actions clearfix">
+				<div class="message-items-center">
+					<h:inputTextarea id="commentField" styleClass="comment-field" value="#{discussionActions.comment}"
+						onkeyup="CMF.discussionActions.enableDisableMessageButton();"
+						onblur="CMF.discussionActions.enableDisableMessageButton();" />
+
+					<a4j:commandButton id="postCommentButton" action="#{discussionActions.addNewComment(discussionActions.comment)}"
+						styleClass="post-comment-button btn btn-default standard-button cmf-button"
+						value="#{label['cmf.case.dashboard.discussion.button.add']}" render="caseDiscussionDataPanelInputs"
+						onclick="EMF.ajaxloader.showLoading('.discussion-body');"
+						oncomplete="EMF.ajaxloader.hideLoading('.discussion-body'); CMF.discussionActions.scrollBottomFromTop();">
+					</a4j:commandButton>
+					<script type="text/javascript">
+						CMF.discussionActions.enableDisableMessageButton();
+					</script>
+				</div>
+			</div>
+		</h:panelGroup>
+
+		<a4j:commandLink id="refreshCaseMessagesDashlet" value="refreshCaseMessagesDashlet"
+			action="refreshCaseMessagesDashlet" onclick="EMF.ajaxloader.showLoading('.discussion-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.discussion-body');" styleClass="load-case-message-link hide"
+			render="commentsList" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

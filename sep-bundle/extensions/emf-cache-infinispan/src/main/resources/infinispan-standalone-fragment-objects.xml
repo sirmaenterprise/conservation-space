@@ -1,0 +1,28 @@
+ <subsystem xmlns="urn:jboss:domain:infinispan:1.2" default-cache-container="cmf">
+     <!-- Objects module configuration -->
+     <cache-container name="obj" default-cache="DEFAULT_CACHE_REGION" jndi-name="java:jboss/infinispan/obj">
+         <local-cache name="DEFAULT_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/obj/DEFAULT_CACHE_REGION">
+             <transaction mode="NON_XA"/>
+             <eviction max-entries="10000"/>
+             <expiration max-idle="6000000" interval="60000"/>
+         </local-cache>
+         <local-cache name="OBJECT_DEFINITION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/obj/OBJECT_DEFINITION_CACHE_REGION">
+             <transaction mode="NONE"/>
+             <eviction max-entries="200"/>
+         </local-cache>
+         <local-cache name="OBJECT_DEFINITION_MAX_REVISION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/obj/OBJECT_DEFINITION_MAX_REVISION_CACHE_REGION">
+             <transaction mode="NONE"/>
+             <eviction max-entries="100"/>
+         </local-cache>
+         <local-cache name="OBJECT_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/obj/OBJECT_ENTITY_CACHE_REGION">
+             <transaction mode="FULL_XA"/>
+             <eviction max-entries="500"/>
+             <expiration max-idle="6000000" interval="60000"/>
+         </local-cache>
+         <local-cache name="DMS_TYPE_CACHE_FOR_OBJECT_REGION" start="EAGER" jndi-name="java:jboss/infinispan/obj/DMS_TYPE_CACHE_FOR_OBJECT_REGION">
+              <transaction mode="NONE"/>
+              <eviction max-entries="100"/>
+              <expiration max-idle="600000" interval="60000"/>
+          </local-cache>
+     </cache-container>
+</subsystem>

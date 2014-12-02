@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j">
+	
+	<h:panelGroup id="reassignTaskPanel">
+		<span id="reassignTaskFieldsWrapper">
+			<h:inputHidden id="newAssigneeId" value="#{baseTaskActions.newAssigneeId}" />
+		
+			<a4j:commandButton id="reassignTaskButton" value="" execute="newAssigneeId" styleClass="hide blockUI"
+				action="#{baseTaskActions.reassignTask(documentContext.selectedTaskInstance)}" render="#{renderId ? renderId : '@form'}" />
+		</span>
+		
+		<script type="text/javascript">
+			$('#reassignTaskFieldsWrapper').picklist({
+				updatePreviewField 	: false,
+				submitValueLink 	: $('#reassignTaskFieldsWrapper input[type=submit]'),
+				hiddenField 		: $('#reassignTaskFieldsWrapper input[type="hidden"]'),
+				okButtonTitle		: "#{label['cmf.btn.save']}",
+				cancelButtonTitle	: "#{label['cmf.btn.cancel']}",
+				headerTitle			: "#{label['cmf.workflow.task.newAssignee.panel.label']}",
+				imgResourceService  : "/service/dms/proxy/",	
+				applicationContext  : SF.config.contextPath
+			});
+		</script>
+	</h:panelGroup>
+
+</ui:composition>

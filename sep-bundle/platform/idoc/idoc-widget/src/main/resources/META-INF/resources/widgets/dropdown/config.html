@@ -1,0 +1,51 @@
+<div class="dropdown-widget-config">
+
+	<label class="load-method">
+		<input name="loadMethod" type="radio" data-ng-model="config.loadFrom" value="manual" ng-change="clearValues()" /> 
+		<span emf-label="widget.dropdown.manually"></span>
+	</label>
+
+	<label class="load-method">
+		<input name="loadMethod" type="radio" ng-model="config.loadFrom" value="codelist" ng-change="clearValues()" /> 
+		<span emf-label="widget.dropdown.codelist"></span>
+	</label>
+ 
+	<div data-ng-if="config.loadFrom === 'manual'">
+		<div class="input-group input-group-sm">
+			<input type="text" class="form-control" data-ng-model="newValue.label" placeholder="{{placeholder}}" data-ng-keyup="$event.keyCode == 13 ? addValue() : null">
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button" 
+					data-emf-label="widget.checkbox.add" 
+					data-ng-click="addValue()">
+					[!]Add
+				</button>
+			</span>
+		</div>
+		
+		<div>
+			<div class="input-group input-group-sm" data-ng-repeat="_value in config.values track by $index">
+				<input type="text" class="form-control"  data-ng-model="_value.label" placeholder="{{placeholder}}"> 
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" data-ng-click="removeValue(_value)">
+						<span class="glyphicon glyphicon-remove"></span> 
+					</button>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<div data-ng-if="config.loadFrom === 'codelist'" class="codelist-selection-wrapper">
+		<select chosen="allCodelistNumbers" data-ng-model="config.codelistNumber"
+			data-ng-options="item.value as item.label for item in allCodelistNumbers"
+			data-ng-change="loadCodelist(config.codelistNumber)"
+			data-placeholder="Select codelist">
+		</select>
+		
+		<div data-ng-repeat="item in selectedCodelistValues">
+			<label>
+				<input type="checkbox" data-ng-model="item.checked" data-ng-change="addRemove(item)" />
+				<span data-ng-bind="item.label">[Label]</span>
+			</label>
+		</div>
+	</div>
+</div>

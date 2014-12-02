@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="projectObjectsPanel" styleClass="dashboard-panel project-objects-panel list-content col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['cmf.project.dashboard.objects.panel.header']}</div>
+
+			<ui:include src="/search/dashlet-search/total-count.xhtml">
+				<ui:param name="panelId" value="projectObjectsPanel" />
+				<ui:param name="action" value="#{projectObjectsPanel}" />
+			</ui:include>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="projectObjectsPanel" />
+				<ui:param name="action" value="#{projectObjectsPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="objectsPanelToolbar" styleClass="panel-toolbar">
+			<ui:include src="/search/dashlet-search/search-toolbar.xhtml">
+				<ui:param name="panelId" value="projectObjectsPanel" />
+				<ui:param name="action" value="#{projectObjectsPanel}" />
+				<ui:param name="renderId" value="projectObjectsPanel" />
+			</ui:include>
+
+			<emf:panel id="projectObjectToolbarActions" styleClass="allowed-actions-inline blockUI">
+				<ui:include src="/common/min-allowed-actions.xhtml">
+					<ui:param name="currentInstance" value="#{projectInstance}" />
+					<ui:param name="dashlet" value="#{projectObjectsPanel}" />
+					<ui:param name="renderLabel" value="true" />
+				</ui:include>
+			</emf:panel>
+		</h:panelGroup>
+
+		<div class="panel-body project-objects-list-panel-body">
+			<rich:list id="projectObjectsList" value="#{projectObjectsPanel.result}" var="object" type="unordered"
+				rowClass="list-item">
+				<ui:include src="/common/banner.xhtml">
+					<ui:param name="renderIf" value="#{objectCheckLockedAction.isLocked(object)}" />
+					<ui:param name="label" value="#{labelBuilder.getObjectIsLockedMessage(object)}" />
+					<ui:param name="bannerClass" value="info-banner" />
+				</ui:include>
+
+				<emf:treeHeader currentInstance="#{object}" renderThumbnail="true" mode="#{dashletsTreeHeaderMode}"
+					display="#{dashletsTreeHeaderDisplay}" size="#{dashletsTreeHeaderSize}" />
+
+				<div class="item-link-min">
+					<ui:include src="/common/min-allowed-actions.xhtml">
+						<ui:param name="currentInstance" value="#{object}" />
+						<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+						<ui:param name="sectionInstance" value="#{sectionInstance}" />
+						<ui:param name="placeholder" value="#{projectObjectsPanel.targetDashletName()}" />
+					</ui:include>
+				</div>
+			</rich:list>
+		</div>
+		<a4j:commandLink id="refreshProjectObjectDashlet" value="object dashlet" action="refreshProjectObjectDashlet"
+			onclick="EMF.ajaxloader.showLoading('.project-objects-list-panel-body');}"
+			oncomplete="EMF.ajaxloader.hideLoading('.project-objects-list-panel-body'); " styleClass="load-objects-link hide"
+			render="projectObjectsList, objectsPanelToolbar" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

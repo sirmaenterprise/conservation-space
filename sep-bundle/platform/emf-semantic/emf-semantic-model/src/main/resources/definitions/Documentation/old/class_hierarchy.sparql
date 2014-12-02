@@ -1,0 +1,45 @@
+PREFIX dc-terms:<http://purl.org/dc/terms/description>
+PREFIX emf:<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xml:<http://www.w3.org/XML/1998/namespace>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX ptop:<http://www.ontotext.com/proton/protontop#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX chd:<http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#>
+PREFIX pdm:<http://www.sirma.com/ontologies/2013/10/pdmConfiguration#>
+
+
+
+select distinct ?hierarchyDiagram 
+	from <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework>
+	from <http://www.ontotext.com/proton/protontop>
+where 
+{
+
+OPTIONAL {
+select (group_concat(distinct ?superClassesHierarchy; separator = "\n") AS ?classDescription)
+where 
+{
+select ?class (group_concat(distinct ?label ; separator = "\n ") AS ?superClassesHierarchy)
+	{
+		?class rdfs:subClassOf ?class1 .
+		?class1 rdfs:label ?class1Label .
+		?class rdfs:label ?classLabel .
+		bind(concat("\"", ?class1Label, "\" <|-- \"", ?classLabel, "\"") as ?label) .
+		filter (?class != ?class1)
+		#filter ( contains(str(?class), "proton") || contains(str(?class), "skos")) . 
+	}
+	group by ?class
+}
+}
+
+bind(concat("h1. Hierarchy", "\n",
+	"{plantuml}\n@startuml\nhide empty attributes\nhide empty methods", 
+	"\n",
+	"skinparam class {\nArrowColor #436CA6\nBorderColor #436CA6\n}\n",
+	?classDescription, "\n", "@enduml\n{plantuml}")  as ?hierarchyDiagram) .
+
+}

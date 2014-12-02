@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<h:panelGroup id="transitionsPanel" layout="block" styleClass="transitions-panel #{additionalStyleClass} clearfix"
+		rendered="#{transitionActions.size() > 0}">
+		<rich:list id="transitionActions" value="#{transitionActions}" var="transitionAction">
+			<ui:include src="transition-button-template.xhtml">
+				<ui:param name="transitionAction" value="#{transitionAction}" />
+				<ui:param name="transitionId" value="#{transitionAction.transitionId}" />
+				<ui:param name="transitionExecutor" value="#{transitionExecutor}" />
+				<ui:param name="currentInstanceObject" value="#{currentInstanceObject}" />
+			</ui:include>
+		</rich:list>
+	</h:panelGroup>
+	
+</ui:composition>

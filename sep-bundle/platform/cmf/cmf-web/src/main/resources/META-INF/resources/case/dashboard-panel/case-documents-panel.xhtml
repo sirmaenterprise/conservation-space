@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="caseDocumentsPanel" styleClass="dashboard-panel list-content case-documents-panel col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['cmf.case.dashboard.panel.documents']}</div>
+
+			<ui:include src="/search/dashlet-search/total-count.xhtml">
+				<ui:param name="panelId" value="caseDocumentsPanel" />
+				<ui:param name="action" value="#{caseDocumentsPanel}" />
+			</ui:include>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="caseDocumentsPanel" />
+				<ui:param name="action" value="#{caseDocumentsPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="caseDocumentsPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<ui:include src="/search/dashlet-search/search-toolbar.xhtml">
+				<ui:param name="panelId" value="caseDocumentsPanel" />
+				<ui:param name="action" value="#{caseDocumentsPanel}" />
+				<ui:param name="renderId" value="caseDocumentsPanel" />
+			</ui:include>
+		</h:panelGroup>
+
+		<h:panelGroup styleClass="panel-body case-documents-panel-body clearfix">
+			<rich:list id="caseDocumentsList" value="#{caseDocumentsPanel.result}" var="documentInstance" type="unordered"
+				rowClasses="list-item">
+
+				<emf:treeHeader currentInstance="#{documentInstance}" mode="#{dashletsTreeHeaderMode}" display="current_only"
+					size="#{dashletsTreeHeaderSize}">
+					<ui:define name="beforeContent">
+						<ui:include src="/common/banner.xhtml">
+							<ui:param name="renderIf" value="#{documentInstance.isLocked()}" />
+							<ui:param name="label" value="#{labelBuilder.getDocumentIsLockedMessage(documentInstance)}" />
+							<ui:param name="bannerClass" value="info-banner" />
+						</ui:include>
+					</ui:define>
+				</emf:treeHeader>
+
+				<h:panelGroup styleClass="item-link-min" layout="block">
+					<ui:include src="/common/min-allowed-actions.xhtml">
+						<ui:param name="currentInstance" value="#{documentInstance}" />
+						<ui:param name="sectionInstance" value="#{documentInstance.owningInstance}" />
+						<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+						<ui:param name="placeholder" value="#{caseDocumentsPanel.targetDashletName()}" />
+						<ui:param name="ajaxLoaderRenderElement" value=".case-documents-panel-body" />
+					</ui:include>
+				</h:panelGroup>
+			</rich:list>
+		</h:panelGroup>
+
+		<a4j:commandLink id="refreshCaseDocumentsDashlet" value="refreshCaseDocumentsDashlet"
+			action="refreshCaseDocumentsDashlet" onclick="EMF.ajaxloader.showLoading('.case-documents-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.case-documents-panel-body');" styleClass="load-case-documents-link hide"
+			render="caseDocumentsList, caseDocumentsPanelToolbar" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

@@ -1,0 +1,49 @@
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX ptop:<http://www.ontotext.com/proton/protontop#>
+PREFIX xml:<http://www.w3.org/XML/1998/namespace>
+PREFIX dcterms:<http://purl.org/dc/terms/>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX psys:<http://proton.semanticweb.org/protonsys#>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX luc:<http://www.ontotext.com/owlim/lucene4#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sesame:<http://www.openrdf.org/schema/sesame#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX emf:<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+delete {
+emf:fileCreatedDate ?pred ?value .
+emf:fileModifiedDate ?pred1 ?value1 .
+} insert {
+graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#fileCreatedDate
+
+emf:fileCreatedDate rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Original Created Date"@en ;
+             
+             dc:creator "Kiril Penev"@en ;
+             
+             skos:definition "Date of creation of the file"@en .
+
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#fileName
+
+emf:fileModifiedDate rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Original Last Modified Date"@en ;
+             
+             dc:creator "Kiril Penev"@en ;
+             
+             skos:definition "Modification date of the file"@en .
+             
+}
+} where {
+optional {
+emf:fileCreatedDate ?pred ?value .
+emf:fileModifiedDate ?pred1 ?value1 .
+}
+}

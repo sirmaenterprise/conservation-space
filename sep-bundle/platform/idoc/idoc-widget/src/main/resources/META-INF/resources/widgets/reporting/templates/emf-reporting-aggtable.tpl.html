@@ -1,0 +1,24 @@
+<div>
+	<p ng-show="!show && reportConfig.report.type === 'aggtable'" class="no-results info-banner" emf-label="widget.reporting.noresultsfound"></p>
+	<div ng-if="aggregatedData.data.length > 0" ng-show="show">
+		<br />
+		<p class="text-info">
+			<span emf-label="widget.reporting.aggtable.title" /> 
+			<i>{{aggregatedData.title}}</i>
+			<span emf-label="widget.reporting.aggtable.per" ng-show="aggregatedData.interval" /> 
+			<i>{{aggregatedData.interval}}</i>
+		</p>
+		
+		<table class="table table-striped table-bordered table-hover table-condensed table-responsive">
+			<thead>
+				<td><div class="padding-cell" emf-label="widget.reporting.aggtable.count"/></td>
+				<td><div class="padding-cell" emf-label="widget.reporting.aggtable.value"/></td>
+			</thead>
+			
+			<tr data-ng-repeat="value in aggregatedData.data">
+				<td><div class="padding-cell">{{value.count}}</div></td>
+				<td><div class="padding-cell">{{value.name}}</div></td>
+			</tr>
+		</table>
+	</div>
+</div>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:rich="http://richfaces.org/rich">
+	
+	<ui:include src="/task/workflow/includes/item-list-toolbar.xhtml" />
+
+	<rich:dataTable id="tasksTable" value="#{taskSearchAction.dataModel}" var="taskInstance" 
+		rows="#{taskSearchAction.pageSize}" styleClass="cmf-data-table master-table tasks-table"
+		noDataLabel="#{label['cmf.msg.info.emptySearchResult']}">
+		
+		<rich:column id="instanceDataColumn">
+			<emf:treeHeader currentInstance="#{taskInstance}" mode="#{searchPageTreeHeaderMode}" 
+				display="#{searchPageTreeHeaderDisplay}" size="#{searchPageTreeHeaderSize}" 
+				disableLinks="#{!entityPreviewAction.canOpenInstance(taskInstance)}">
+				<ui:define name="beforeContent">
+					<ui:include src="/common/banner.xhtml">
+						<ui:param name="renderIf" value="#{labelBuilder.isOverdueTask(taskInstance)}" />
+						<ui:param name="label" value="#{label['cmf.workflow.task.overdue.warning']}" />
+						<ui:param name="bannerClass" value="warning-banner" />
+					</ui:include>
+				</ui:define>
+			</emf:treeHeader>
+		</rich:column>
+		
+	</rich:dataTable>
+	
+	<rich:dataScroller for="tasksTable" 
+		maxPages="#{taskSearchAction.maxPagesInPager}"
+		ignoreDupResponses="true"
+		scrollListener="#{taskSearchAction.onScroll}"
+		boundaryControls="hide" fastControls="hide"
+		styleClass="cmf-datatable-scroller task-datascroller-bottom" renderIfSinglePage="false" />
+
+</ui:composition>

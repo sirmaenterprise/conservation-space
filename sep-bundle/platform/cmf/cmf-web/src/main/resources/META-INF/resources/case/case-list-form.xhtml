@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<ui:include src="/case/includes/item-list-toolbar.xhtml" />
+	
+	<rich:dataTable id="caseMasterTable" noDataLabel="#{label['cmf.msg.info.emptySearchResult']}"
+		rows="#{caseSearchAction.pageSize}"
+		value="#{caseSearchAction.dataModel}" var="caseInstance"
+		styleClass="cmf-data-table master-table case-table">
+		
+		<rich:column id="instanceDataColumn">
+			<emf:treeHeader currentInstance="#{caseInstance}" mode="#{searchPageTreeHeaderMode}" 
+				display="#{searchPageTreeHeaderDisplay}" size="#{searchPageTreeHeaderSize}" 
+				disableLinks="#{!entityPreviewAction.canOpenInstance(caseInstance)}" />
+		</rich:column>
+		
+		<rich:column id="actionsColumn" styleClass="actions-column">
+			<ui:include src="/common/min-allowed-actions.xhtml">
+				<ui:param name="currentInstance" value="#{caseInstance}" />
+				<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+				<ui:param name="placeholder" value="case-list" />
+			</ui:include>
+		</rich:column>
+
+	</rich:dataTable>
+	
+	<h:panelGroup layout="block" styleClass="cmf-datascroller-wrapper case-lower-wrapper">
+			<rich:dataScroller for="caseMasterTable" 
+				scrollListener="#{caseSearchAction.onScroll}"
+				maxPages="#{caseSearchAction.maxPagesInPager}"
+				ignoreDupResponses="true"
+				boundaryControls="hide" fastControls="hide"
+				styleClass="cmf-datatable-scroller" renderIfSinglePage="false" />
+	</h:panelGroup>
+	
+</ui:composition>

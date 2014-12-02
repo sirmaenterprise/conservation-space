@@ -1,0 +1,532 @@
+@prefix : <http://www.sirma.com/ontologies/2014/05/hrConfiguration#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix hrc: <http://www.sirma.com/ontologies/2014/05/hrConfiguration#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2014/05/hrConfiguration> .
+
+<http://www.sirma.com/ontologies/2014/05/hrConfiguration> rdf:type owl:Ontology ;
+                                                          
+                                                          rdfs:label "Human Resources Management Ontology"@en ;
+                                                          
+                                                          dcterms:creator "Lidiya Dimitrova" ;
+                                                          
+                                                          skos:definition "Human Resources Management Ontology"@en ;
+                                                          
+                                                          dc:subject "Human Resources Management Ontology"@en ;
+                                                          
+                                                          owl:versionInfo "v 0.1" ;
+                                                          
+                                                          owl:imports <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+###  http://purl.org/dc/terms/creator
+
+dcterms:creator rdf:type owl:AnnotationProperty .
+
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#hasCandidate
+
+:hasCandidate rdf:type owl:ObjectProperty ;
+              
+              rdfs:label "has candidate"@en ;
+              
+              dc:creator "Lidiya Dimitrova" ;
+              
+              skos:definition "Represents that the job position has a candidate."@en ;
+              
+              rdfs:range ptop:Person ;
+              
+              rdfs:domain :JobPosition ;
+              
+              owl:inverseOf :isCandidate .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#hasCompetence
+
+:hasCompetence rdf:type owl:ObjectProperty ;
+               
+               rdfs:label "has competence" ;
+               
+               dc:creator "Lidiya Dimitrova" ;
+               
+               skos:definition "Represents that person has a qualification." ;
+               
+               rdfs:domain ptop:Person ;
+               
+               rdfs:range :Competency .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#hasContractWith
+
+:hasContractWith rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label "has contract with" ;
+                 
+                 dc:creator "Lidiya Dimitrova" ;
+                 
+                 skos:definition "Reresents that the employee and the company have signed an employment contract."@en ;
+                 
+                 rdfs:range ptop:Agent ;
+                 
+                 rdfs:domain ptop:Agent ;
+                 
+                 owl:inverseOf :hasContractWith .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#hasEmployee
+
+:hasEmployee rdf:type owl:ObjectProperty ;
+             
+             rdfs:label "has employee" ;
+             
+             skos:definition "Represents the relation between the employee and the company employer." ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             rdfs:domain emf:Company ;
+             
+             rdfs:range ptop:Person .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#hasSubsidiary
+
+:hasSubsidiary rdf:type owl:ObjectProperty ;
+               
+               rdfs:label "has subsidiary" ;
+               
+               dc:creator "Lidiya Dimitrova" ;
+               
+               skos:definition """Represents that a company has subsidiary company.
+A subsidiary, subsidiary company, daughter company, or sister companies a company that is completely or partly owned by another corporation that owns more than half of the subsidiary's stock, and which normally acts as a holding corporation which at least partly or (when as) a parent corporation, wholly controls the activities and policies of the daughter corporation"""@en ;
+               
+               rdfs:domain emf:Company ;
+               
+               rdfs:range emf:Company .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#isCandidate
+
+:isCandidate rdf:type owl:ObjectProperty ;
+             
+             rdfs:label "is candidate"@en ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             skos:definition "Represents that a person is candidate for a job position."@en ;
+             
+             rdfs:domain ptop:Person ;
+             
+             rdfs:range :JobPosition .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#isCompetenceOf
+
+:isCompetenceOf rdf:type owl:ObjectProperty ;
+                
+                rdfs:label "is competence of" ;
+                
+                dc:creator "Lidiya Dimitrova" ;
+                
+                skos:definition "Represents that person has a qualification." ;
+                
+                rdfs:range ptop:Person ;
+                
+                rdfs:domain :Competency ;
+                
+                owl:inverseOf :hasCompetence .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#isEmployeeOf
+
+:isEmployeeOf rdf:type owl:ObjectProperty ;
+              
+              rdfs:label "is employee of" ;
+              
+              dc:creator "Lidiya Dimitrova" ;
+              
+              skos:definition "Represents the relation between the employee and the company employer."@en ;
+              
+              rdfs:range emf:Company ;
+              
+              rdfs:domain ptop:Person ;
+              
+              owl:inverseOf :hasEmployee .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#isOfferedBy
+
+:isOfferedBy rdf:type owl:ObjectProperty ;
+             
+             rdfs:label "is offered by" ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             skos:definition "Each job position is offered by a Company."@en ;
+             
+             rdfs:range emf:Company ;
+             
+             rdfs:domain :JobPosition ;
+             
+             owl:inverseOf :offersJobPosition .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#isRequiredCompetenceFor
+
+:isRequiredCompetenceFor rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:label "is required competence for" ;
+                         
+                         dc:creator "Lidiya Dimitrova" ;
+                         
+                         skos:definition "Represents that a job possiton requires a qualification."@en ;
+                         
+                         rdfs:domain :Competency ;
+                         
+                         rdfs:range :JobPosition ;
+                         
+                         owl:inverseOf :requiresCompetence .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#isSubsidiary
+
+:isSubsidiary rdf:type owl:ObjectProperty ;
+              
+              rdfs:label "is subsidiary" ;
+              
+              dc:creator "Lidiya Dimitrova" ;
+              
+              skos:definition """Represents that a company is subsidiary company to other company.
+A subsidiary, subsidiary company, daughter company, or sister companies a company that is completely or partly owned by another corporation that owns more than half of the subsidiary's stock, and which normally acts as a holding corporation which at least partly or (when as) a parent corporation, wholly controls the activities and policies of the daughter corporation"""@en ;
+              
+              rdfs:domain emf:Company ;
+              
+              rdfs:range emf:Company ;
+              
+              owl:inverseOf :hasSubsidiary .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#offersJobPosition
+
+:offersJobPosition rdf:type owl:ObjectProperty ;
+                   
+                   rdfs:label "offers job position" ;
+                   
+                   dc:creator "Lidiya Dimitrova" ;
+                   
+                   skos:definition "Represents the relation between Company and the job offers made by this Company."@en ;
+                   
+                   rdfs:domain emf:Company ;
+                   
+                   rdfs:range :JobPosition .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#requiresCompetence
+
+:requiresCompetence rdf:type owl:ObjectProperty ;
+                    
+                    rdfs:label "requires competence" ;
+                    
+                    dc:creator "Lidiya Dimitrova" ;
+                    
+                    skos:definition "Represents that a job possiton requires a qualification."@en ;
+                    
+                    rdfs:range :Competency ;
+                    
+                    rdfs:domain :JobPosition .
+
+
+
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#contractDate
+
+:contractDate rdf:type owl:DatatypeProperty ;
+              
+              rdfs:label "Contract date"@en ;
+              
+              dc:creator "Lidiya Dimitrova" ;
+              
+              skos:definition "The date a new employee has signed a contract with the employeer."@en ;
+              
+              rdfs:domain ptop:Person ;
+              
+              rdfs:range xsd:dateTime .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#dateOfEntry
+
+:dateOfEntry rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Date of entry"@en ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             skos:definition "The date a new employee starts his/her service of the employer."@en ;
+             
+             rdfs:domain ptop:Person ;
+             
+             rdfs:range xsd:dateTime .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#drivingLicense
+
+:drivingLicense rdf:type owl:DatatypeProperty ;
+                
+                rdfs:label "Driving License"@en ;
+                
+                dcterms:creator "Lidiya Dimitrova" ;
+                
+                skos:definition "Official permission for someone to drive a car, received after passing a driving test, or a document showing this"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#education
+
+:education rdf:type owl:DatatypeProperty ;
+           
+           rdfs:label "Education"@en ;
+           
+           dc:creator "Lidiya Dimitrova" ;
+           
+           skos:definition "A degree, level, or kind of schooling: a university education. "@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#language
+
+:language rdf:type owl:DatatypeProperty ;
+          
+          rdfs:label "Language" ;
+          
+          skos:definition "Language is the human capacity for acquiring and using complex systems of communication, and a language is any specific example of such a system."@en ;
+          
+          dc:creator "Lidiya Dimitrova" .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#location
+
+:location rdf:type owl:DatatypeProperty ;
+          
+          rdfs:label "Location"@en ;
+          
+          skos:definition "A place or position."@en ;
+          
+          dc:creator "Lidiya Dimitrova" .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#occupation
+
+:occupation rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Occupation"@en ;
+            
+            dc:creator "Lidiya Dimitrova"@en ;
+            
+            skos:definition "Usual or principal business, calling, trade, or work a person is engaged in earning a living."@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#personType
+
+:personType rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Person type"@en ;
+            
+            dc:creator "Lidiya Dimitrova" ;
+            
+            skos:definition "Type of person: Candidate, Employee" ;
+            
+            rdfs:domain ptop:Person .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#Competency
+
+:Competency rdf:type owl:Class ;
+            
+            rdfs:label "Competency"@en ;
+            
+            rdfs:subClassOf :HRObjects ;
+            
+            skos:definition "Competency: The combination of observable and measurable knowledge, skills, abilities and personal attributes that contribute to enhanced employee performance and ultimately result in organizational success."@en ;
+            
+            dc:creator "Lidiya Dimitrova" .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#HRObjects
+
+:HRObjects rdf:type owl:Class ;
+           
+           rdfs:label "HR Objects"@en ;
+           
+           rdfs:subClassOf emf:DomainObject ;
+           
+           skos:definition """Human resource (HR) object main class for every ontology that extends the current.
+
+This class is the parent class for all specific for the HR domain objects.
+
+
+"""@en ;
+           
+           dc:creator "Lidiya Dimitrova" .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#HardSkill
+
+:HardSkill rdf:type owl:Class ;
+           
+           rdfs:label "Hard skill"@en ;
+           
+           rdfs:subClassOf :Competency ;
+           
+           emf:isSearchable "true"^^xsd:boolean ;
+           
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           
+           dc:creator "Lidiya Dimitrova" ;
+           
+           skos:definition """Hard skills are specific, teachable abilities that may be required in a given context, such as a job or university application.
+
+Examples of hard skills include:
+- facility with spreadsheets
+- typing
+- proficiency with software applications
+- operating machinery
+- proficiency in a foreign language
+- calculus
+- a degree or certificate
+- typing speed
+"""@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#Individual
+
+:Individual rdf:type owl:Class ;
+            
+            rdfs:label "Person"@en ;
+            
+            rdfs:subClassOf ptop:Person ,
+                            :HRObjects ;
+            
+            emf:isSearchable "true"^^xsd:boolean ;
+            
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            
+            dcterms:creator "Lidiya Dimitrova" ;
+            
+            skos:definition "a person"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#JobPosition
+
+:JobPosition rdf:type owl:Class ;
+             
+             rdfs:label "Job Position"@en ;
+             
+             rdfs:subClassOf :HRObjects ;
+             
+             emf:isSearchable "true"^^xsd:boolean ;
+             
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             skos:definition "Represents a job description (qualifications and skills the applicant should meet for a certain job position)."@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/05/hrConfiguration#SoftSkill
+
+:SoftSkill rdf:type owl:Class ;
+           
+           rdfs:label "Soft skill"@en ;
+           
+           rdfs:subClassOf :Competency ;
+           
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           
+           emf:isSearchable "true"^^xsd:boolean ;
+           
+           dc:creator "Lidiya Dimitrova" ;
+           
+           skos:definition "Soft skills is a term often associated with a person's \"EQ\" (Emotional Intelligence Quotient), the cluster of personality traits, social graces, communication, language, personal habits, friendliness, and optimism that characterize relationships with other people."@en .
+
+
+
+
+
+#################################################################
+#
+#    Annotations
+#
+#################################################################
+
+
+emf:Customer emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+
+
+
+
+###  Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net
+

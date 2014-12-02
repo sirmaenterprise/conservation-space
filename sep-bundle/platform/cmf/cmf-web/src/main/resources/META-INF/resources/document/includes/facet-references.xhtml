@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup styleClass="facet referenced-in list-content" rendered="true" layout="block">
+		<div class="facet-header expanded" id="referencedInFacetHeader">
+			<h:outputText value="#{label['cmf.document.preview.facet.referenced.header']}" />
+		</div>
+
+		<div class="facet-content panel-body">
+			<ul id="caseList">
+				<li>
+					<span class="item-icon"> 
+						<h:graphicImage library="images" name="caseinstance-icon-32.png" />
+					</span>
+					
+					<span class="item-link">
+						<h:outputLink id="caseReferenceLink" disabled="#{!entityPreviewAction.canOpenCase(caseInstance)}" 
+							styleClass="item-link-style" value="#{bookmarkUtil.buildLink(caseInstance)}">
+							<h:outputText value="#{labelBuilder.getCaseLinkLabel(caseInstance)}" escape="false" />
+						</h:outputLink>
+					</span>
+				</li>
+			</ul>
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

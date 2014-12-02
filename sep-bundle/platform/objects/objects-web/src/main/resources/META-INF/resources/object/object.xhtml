@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf" template="/common/default-nofacets-template.xhtml">
+
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{objectLandingPage.initPage()}" />
+	</f:metadata>
+
+	<ui:define name="pageParams">
+		<ui:param name="objectInstance" value="#{documentContext.ObjectInstance}" />
+	</ui:define>
+
+	<ui:define name="contextData">
+		<a4j:outputPanel id="locationTreePanel">
+			<emf:treeHeader
+				currentInstance="#{(instanceUtil.isNotPersisted(documentContext.ObjectInstance)) ? documentContext.getContextInstance() : documentContext.ObjectInstance}"
+				mode="breadcrumb_header" display="skip_root" />
+			<a4j:commandLink id="refreshLocationTreeLink" value="dummy" styleClass="hide refreshLocationTreeLink mceButton"
+				action="#{objectPanelRefresh.refresh()}" execute="locationTreePanel" render="locationTreePanel" />
+			<h:inputText id="refreshLocationTreeId" value="#{objectPanelRefresh.id}" class="hide refreshLocationTreeId" />
+		</a4j:outputPanel>
+	</ui:define>
+
+	<ui:define name="content">
+		<ui:include src="/object/object-form.xhtml" />
+	</ui:define>
+
+</ui:composition>

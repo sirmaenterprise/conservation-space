@@ -1,0 +1,34 @@
+PREFIX pdm: <http://www.sirma.com/ontologies/2013/10/pdmConfiguration#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+delete {
+pdm:hasConfiguredPart ?pred ?val .
+} insert {
+
+graph <http://www.sirma.com/ontologies/2013/10/pdmConfiguration> {
+###  http://www.sirma.com/ontologies/2013/10/pdmConfiguration#hasConfiguredPart
+
+pdm:hasConfiguredPart rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:label "has configured part"@en ;
+                      
+                      emf:isSearchable "true"^^xsd:boolean ;
+                      
+                      dc:creator "Kiril Penev"@en ;
+                      
+                      skos:definition "has only one part assembly revision from configuration option revision"@en ;
+                      
+                      rdfs:range pdm:PartRevision .
+                    
+}
+
+} where {
+
+pdm:hasConfiguredPart ?pred ?val .
+
+}

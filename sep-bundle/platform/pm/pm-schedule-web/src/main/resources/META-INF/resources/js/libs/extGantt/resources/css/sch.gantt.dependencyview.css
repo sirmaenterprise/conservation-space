@@ -1,0 +1,299 @@
+/*
+
+Ext Gantt 2.2.15
+Copyright(c) 2009-2013 Bryntum AB
+http://bryntum.com/contact
+http://bryntum.com/license
+
+*/
+.sch-dependencyview-ct {
+    position : absolute;
+    z-index  : 2;
+    top      : 0;
+}
+
+.sch-ltr .sch-dependencyview-ct {
+    left : 0;
+}
+
+.x-rtl .sch-dependencyview-ct {
+    right : 0;
+}
+
+.sch-dependency-line {
+    position        : absolute;
+    border-style    : solid;
+    overflow        : hidden;
+    -moz-box-sizing : content-box;
+}
+
+div.sch-dependency-line-h {
+    border-width : 1px 0;
+    height       : 0 !important;
+}
+
+div.sch-dependency-line-v {
+    border-width : 0 1px;
+    width        : 0 !important;
+}
+
+div.sch-dependencyview-thin .sch-dependency-line-h {
+    border-bottom-color : transparent;
+}
+
+.sch-ltr .sch-dependencyview-thin .sch-dependency-line-v {
+    border-right-color : transparent;
+}
+
+.x-rtl .sch-dependencyview-ct .sch-dependency-line-v {
+    border-left-color : transparent;
+}
+
+.sch-dependency-line,
+.sch-dependency-arrow {
+    border-color : magenta;
+}
+
+.sch-export .sch-dependency-line {
+    -webkit-box-sizing : content-box;
+}
+
+.sch-export.x-chrome .sch-dependency-line,
+.sch-export.x-safari .sch-dependency-line,
+.sch-export.sch-ie-export .sch-dependency-line {
+    -webkit-box-sizing : border-box;
+}
+
+.sch-dependency-selected {
+    z-index : 4;
+}
+
+.sch-dependency-arrow,
+.sch-dependency-arrow-ct {
+    position     : absolute;
+    height       : 0px;
+    width        : 0px;
+    border-style : solid;
+    line-height  : 0; /* Required for IE in quirks mode */
+    z-index      : 1; /* Should be above dependency lines */
+}
+
+.sch-dependency-arrow-ct {
+    background : transparent;
+    border     : 0 none;
+}
+
+/* .sch-dependency-arrow-ct is added to override the ext-scoped rules */
+/* The extra 0.5 offset makes the alignment better in Firefox (no effect in Chrome) */
+.sch-dependency-arrow-ct .sch-dependency-arrow-left {
+    margin-top          : -3.5px;
+    margin-left         : -8px;
+    border-top-color    : transparent !important;
+    border-bottom-color : transparent !important;
+    border-left-color   : transparent !important;
+    border-width        : 4px 8px 4px 0;
+    border-style        : solid;
+}
+
+.sch-dependency-arrow-ct .sch-dependency-arrow-right {
+    margin-top          : -3.5px;
+    border-width        : 4px 0 4px 8px;
+    border-style        : solid;
+    border-top-color    : transparent !important;
+    border-bottom-color : transparent !important;
+    border-right-color  : transparent !important;
+}
+
+.sch-dependency-arrow-ct .sch-dependency-arrow-down {
+    margin-left        : -3.5px;
+    border-right-color : transparent !important;
+    border-left-color  : transparent !important;
+    border-width       : 8px 4px 0;
+    border-style       : solid;
+}
+
+.x-rtl .sch-dependency-arrow-down {
+    margin-left  : 0;
+    margin-right : -3.5px;
+}
+
+.x-rtl .sch-dependency-arrow-right {
+    left : -1px;
+}
+
+.sch-dependency-arrow-ct .sch-dependency-arrow-up {
+    margin-top   : -3px;
+    margin-left  : -3px;
+    border-color : blue transparent;
+    border-width : 0px 4px 8px;
+    border-style : solid;
+}
+
+.sch-gantt-terminal {
+    display            : none;
+    height             : 10px;
+    width              : 10px;
+    position           : absolute;
+    margin-top         : -5px;
+    top                : 50%;
+    z-index            : 1000;
+    overflow           : hidden;
+    background         : #fff;
+    border             : 1px double #aaa;
+    border-radius      : 9px;
+    -webkit-box-shadow : 1px 1px 2px rgba(150, 150, 150, 0.5);
+    -moz-box-shadow    : 1px 1px 2px rgba(150, 150, 150, 0.5);
+    -ms-box-shadow     : 1px 1px 2px rgba(150, 150, 150, 0.5);
+    box-shadow         : 1px 1px 2px rgba(150, 150, 150, 0.5);
+    cursor             : pointer;
+}
+
+.sch-gantt-terminal-start {
+    left : -9px;
+}
+
+.sch-gantt-terminal-end {
+    right : -9px;
+}
+
+.x-rtl .sch-gantt-terminal-start {
+    left  : auto;
+    right : -9px;
+}
+
+.x-rtl .sch-gantt-terminal-end {
+    left  : -9px;
+    right : auto;
+}
+
+div.sch-event-hover .sch-gantt-terminal,
+.x-ie .sch-event-hover .sch-gantt-terminal {
+    display : block;
+}
+
+.sch-gantt-terminal:hover {
+    background-color : #eee;
+    border-color     : #7971E2;
+    border-style     : solid;
+}
+
+div.sch-gantt-terminal-drophover {
+    background   : #90ee90;
+    border-color : green;
+    cursor       : pointer;
+}
+
+.x-dd-drag-proxy .sch-gantt-terminal,
+.x-dd-drag-proxy .sch-dependency,
+.sch-ganttview-readonly .sch-gantt-terminal,
+.x-resizable-over .sch-gantt-terminal {
+    display : none !important;
+}
+
+.sch-gantt-dep-dd-dragging div.sch-gantt-terminal {
+    display : block;
+}
+
+.sch-gantt-dep-dd-dragging .x-resizable-handle {
+    display : none !important;
+}
+
+.sch-gantt-connector-proxy {
+    position                 : absolute;
+    width                    : 2px;
+    border-left              : 2px dashed gray;
+    z-index                  : 20;
+    transform-origin         : 0 0;
+    -ms-transform-origin     : 0 0;
+    -o-transform-origin      : 0 0;
+    -moz-transform-origin    : 0 0;
+    -webkit-transform-origin : 0 0;
+}
+
+.sch-gantt-critical-chain .sch-dependency {
+    display : none;
+}
+
+.sch-gantt-critical-chain .sch-dependency-selected {
+    display : block;
+}
+
+div.sch-dependency-line.sch-dependency-selected {
+    border-color : red;
+}
+
+img.sch-dependency-arrow-down.sch-dependency-selected {
+    border-top-color    : red;
+    border-bottom-color : red;
+}
+
+img.sch-dependency-arrow-left.sch-dependency-selected {
+    border-right-color : red;
+}
+
+img.sch-dependency-arrow-right.sch-dependency-selected {
+    border-left-color : red;
+}
+
+.x-border-box .sch-dependency-selected .sch-dependency-arrow-left {
+    border-right-color : red;
+}
+
+.x-border-box .sch-dependency-selected .sch-dependency-arrow-down {
+    border-top-color    : red;
+    border-bottom-color : red;
+}
+
+.x-border-box .sch-dependency-selected .sch-dependency-arrow-right {
+    border-left-color : red;
+}
+
+/* IE HACKS, BEWARE! */
+/* Old IEs lack border radius, use an image */
+.x-quirks .x-ie .sch-gantt-terminal,
+.x-ie8 .sch-gantt-terminal,
+.x-ie7 .sch-gantt-terminal,
+.x-ie6 .sch-gantt-terminal {
+    border     : 0 none;
+    background : transparent url(../images/dependencyterminal.png) no-repeat left top;
+}
+
+/* This makes sure the dependencies are drawn 'under' the tasks which also makes them unreachable (for clicking) */
+.x-quirks .x-ie .sch-ganttpanel .x-grid-table {
+    position : relative;
+    z-index  : 2;
+}
+
+.x-ie7 .sch-gantt-terminal-start,
+.x-quirks .x-ie .sch-gantt-terminal-start {
+    left : -9px;
+}
+
+.x-ie7 .sch-gantt-terminal-end,
+.x-quirks .x-ie .sch-gantt-terminal-end {
+    right : -8px;
+}
+
+/* IE6 to keep background transparent (or white at least) */
+.x-ie6 img.sch-dependency-arrow-left {
+    border-color : transparent blue transparent transparent;
+    _filter      : chroma(color=white);
+}
+
+.x-ie6 img.sch-dependency-arrow-right {
+    border-color : white white white blue;
+    _filter      : chroma(color=white);
+}
+
+.x-ie6 img.sch-dependency-arrow-down {
+    border-color : blue white;
+    _filter      : chroma(color=white);
+}
+
+.x-quirks .x-ie .sch-dependency-line-h {
+    height : 2px !important;
+}
+
+.x-quirks .x-ie .sch-dependency-line-v {
+    width : 2px !important;
+}

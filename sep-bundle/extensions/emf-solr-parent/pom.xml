@@ -1,0 +1,141 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.sirma.itt.seip</groupId>
+		<artifactId>extensions</artifactId>
+		<version>1.7.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>emf-solr</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>emf-solr-api</module>
+		<module>emf-solr-impl</module>
+	</modules>
+
+	<properties>
+		<solr.version>4.9.0</solr.version>
+		<solr.solr.home>java.io.tmpdir</solr.solr.home>
+		<maven.compile.source>1.7</maven.compile.source>
+		<maven.compile.target>1.7</maven.compile.target>
+		<jdktools.version>1.6</jdktools.version>
+		<emf.core.version>${project.version}</emf.core.version>
+		<cmf.core.version>${project.version}</cmf.core.version>
+		<semantic.version>${project.version}</semantic.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.sirma.itt.emf</groupId>
+				<artifactId>emf-solr-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sirma.itt.emf</groupId>
+				<artifactId>emf-solr-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<!-- EMF Core Modules -->
+			<dependency>
+				<groupId>com.sirma.itt.emf</groupId>
+				<artifactId>emf-core-api</artifactId>
+				<version>${emf.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sirma.itt.emf</groupId>
+				<artifactId>emf-core-impl</artifactId>
+				<version>${emf.core.version}</version>
+				<classifier>tests</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.sirma.itt.cmf</groupId>
+				<artifactId>cmf-core-api</artifactId>
+				<version>${cmf.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sirma.itt.cmf</groupId>
+				<artifactId>cmf-core-impl</artifactId>
+				<version>${cmf.core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sirma.itt.cmf</groupId>
+				<artifactId>cmf-core-impl</artifactId>
+				<version>${cmf.core.version}</version>
+				<classifier>tests</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.sirma.itt.emf</groupId>
+				<artifactId>emf-core-web</artifactId>
+				<version>${emf.core.version}</version>
+			</dependency>
+			<!-- semantic -->
+			<dependency>
+				<groupId>com.sirma.itt.emf</groupId>
+				<artifactId>emf-semantic-api</artifactId>
+				<version>${semantic.version}</version>
+			</dependency>
+			<!-- SLF4J -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>1.7.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
+				<version>1.7.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.5</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.17</version>
+			</dependency>
+			<!-- Solr 4.9.0 -->
+			<dependency>
+				<groupId>org.apache.solr</groupId>
+				<artifactId>solr</artifactId>
+				<version>${solr.version}</version>
+				<type>war</type>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.solr</groupId>
+				<artifactId>solr-solrj</artifactId>
+				<version>${solr.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.solr</groupId>
+				<artifactId>solr-core</artifactId>
+				<version>${solr.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<profiles>
+		<profile>
+			<id>windows_profile</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<properties>
+				<toolsjar>${JAVA_HOME}/lib/tools.jar</toolsjar>
+			</properties>
+		</profile>
+	</profiles>
+</project>

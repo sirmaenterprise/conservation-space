@@ -1,0 +1,391 @@
+<?xml version="1.0"?>
+<projectDefinition id="genericProject">
+	<fields>
+		<field name="modifiedBy"    type="an..50" order="30" label="genericproject.createdBy" mandatory="false" displayType="system" previewEmpty="false">
+	    	<control id="USER"/>
+	    </field>
+	    <field name="modifiedOn"    type="datetime" order="30" label="genericproject.createdOn" mandatory="true" displayType="system" previewEmpty="false">
+	    	<condition id="readOnlyFields" renderAs="DISABLED">[status] NOT IN ('SUBMITTED')</condition>
+	    </field>
+	</fields>
+
+	<regions>
+		<region id="generalDetails" order="10" displayType="editable" label="genericproject.generalDetails">
+			<fields>
+				<field name="uniqueIdentifier"	type="an..50" order="10" label="genericproject.uniqueIdentifier" mandatory="true" displayType="readOnly" dmsType="cm:name">
+					<!--<condition id="readOnlyFields" renderAs="DISABLED">+[status]</condition>-->
+				</field>
+	    	    <field name="status"    type="an..50" order="20" label="genericproject.status" mandatory="true" displayType="editable" previewEmpty="false">
+					<!--<condition id="readOnlyFields" renderAs="DISABLED">+[status]</condition>-->
+				</field>
+			    <field name="title"    type="an..80" order="30" label="genericproject.title" mandatory="true" displayType="editable" previewEmpty="false" dmsType="cm:title">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="description"    type="an..1024" order="40" label="genericproject.description" mandatory="false" displayType="editable" previewEmpty="false" dmsType="cm:description">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			     <field name="notes"    type="an..1024" order="41" label="genericproject.notes" mandatory="false" displayType="editable" previewEmpty="false">
+		   	    	<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'CANCELED')</condition>
+			    </field>
+			    <field name="visibility"    type="an..20" order="50" label="genericproject.visibility" mandatory="true" displayType="editable" previewEmpty="false">
+			    	<value>visibleToAll</value>
+			    	<control id="RADIO_BUTTON_GROUP">
+			    		<fields>
+						    <field name="visibleToAll"    type="an..1024" label="genericproject.visibility.visibleToAll" displayType="editable"/>
+						    <field name="visibleToMembers"    type="an..1024" label="genericproject.visibility.visibleToMembers" displayType="editable"/>
+			    		</fields>
+			    	</control>
+			    </field>
+			    <field name="createdBy"    type="an..50" order="60" label="genericproject.createdBy" mandatory="true" displayType="readOnly" previewEmpty="false">
+			    	<!-- <condition id="readOnlyFields" renderAs="DISABLED">[status] NOT IN ('SUBMITTED')</condition> -->
+			    	<control id="USER"/>
+			    </field>
+			    <field name="createdOn"    type="datetime" order="61" label="genericproject.createdOn" mandatory="false" displayType="readOnly" previewEmpty="false" />
+			</fields>
+		</region>
+
+		<region id="specificDetails" order="20" displayType="editable" label="genericproject.specificDetails">
+			<fields>
+				<field name="owner"    type="an..50" order="30" label="genericproject.owner" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    	<control id="PICKLIST">
+						<control-param id="assigneeListItemsFilter" name="FILTER_NAME">ownerListItemsFilter</control-param>
+						<control-param id="triggerBtnTitle" name="TRIGGER_BUTTON_TITLE">assignee.triggerBtn.title</control-param>
+						<!-- ui-params are used only for the picklist popup javascript module and there are default values if missed here -->
+						<ui-param id="okBtnTitle" name="OK_BUTTON_TITLE">assignee.okBtn.title</ui-param>
+						<ui-param id="cancelBtnTitle" name="CANCEL_BUTTON_TITLE">assignee.cancelBtn.title</ui-param>
+						<ui-param id="picklistHeaderTitle" name="HEADER_TITLE">assignee.picklistHeader.title</ui-param>
+					</control>
+			    </field>
+			    <field name="approvedBy"    type="an..50" order="30" label="genericproject.approvedBy" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('IN_PROGRESS', 'COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    	<control id="PICKLIST">
+						<control-param id="assigneeListItemsFilter" name="FILTER_NAME">approvedByListItemsFilter</control-param>
+						<control-param id="triggerBtnTitle" name="TRIGGER_BUTTON_TITLE">assignee.triggerBtn.title</control-param>
+						<!-- ui-params are used only for the picklist popup javascript module and there are default values if missed here -->
+						<ui-param id="okBtnTitle" name="OK_BUTTON_TITLE">assignee.okBtn.title</ui-param>
+						<ui-param id="cancelBtnTitle" name="CANCEL_BUTTON_TITLE">assignee.cancelBtn.title</ui-param>
+						<ui-param id="picklistHeaderTitle" name="HEADER_TITLE">assignee.picklistHeader.title</ui-param>
+					</control>
+			    </field>
+			    <field name="contact"    type="an..50" order="30" label="genericproject.contact" mandatory="false" displayType="editable" previewEmpty="false">
+			    	<control id="PICKLIST">
+						<control-param id="assigneeListItemsFilter" name="FILTER_NAME">assigneeListItemsFilter</control-param>
+						<control-param id="triggerBtnTitle" name="TRIGGER_BUTTON_TITLE">assignee.triggerBtn.title</control-param>
+						<!-- ui-params are used only for the picklist popup javascript module and there are default values if missed here -->
+						<ui-param id="okBtnTitle" name="OK_BUTTON_TITLE">assignee.okBtn.title</ui-param>
+						<ui-param id="cancelBtnTitle" name="CANCEL_BUTTON_TITLE">assignee.cancelBtn.title</ui-param>
+						<ui-param id="picklistHeaderTitle" name="HEADER_TITLE">assignee.picklistHeader.title</ui-param>
+					</control>
+			    </field>
+			    <field name="priority"    type="n..7" order="30" label="genericproject.priority" mandatory="false" displayType="editable" previewEmpty="false">
+			    	<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'CANCELED')</condition>
+			    </field>
+			    <field name="severity"    type="an..50" order="30" label="genericproject.severity" mandatory="false" displayType="editable" previewEmpty="false">
+			    	<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'CANCELED')</condition>
+			    </field>
+			    <field name="dependencyList"    type="an..50" multiValued="true" order="30" label="genericproject.dependencyList" mandatory="false" displayType="editable" previewEmpty="false">
+		   			<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="referenceList"    type="an..50" multiValued="true" order="30" label="genericproject.referenceList" mandatory="false" displayType="editable" previewEmpty="false"/>
+			</fields>
+		</region>
+
+		<region id="timeAndEffort" order="30" displayType="editable" label="genericproject.timeAndEffort">
+			<fields>
+			    <field name="plannedStartDate"    type="date" order="10" label="genericproject.plannedStartDate" mandatory="false" displayType="editable" previewEmpty="false">
+			    	<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'CANCELED')</condition>
+			    </field>
+	    	    <field name="plannedEndDate"    type="date" order="20" label="genericproject.plannedEndDate" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="startTime"    type="date" order="30" label="genericproject.startTime" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="endTime"    type="date" order="40" label="genericproject.endTime" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="estimatedEffortHours"    type="n..10" order="50" label="genericproject.estimatedEffortHours" mandatory="false" displayType="editable" previewEmpty="false">
+		   			<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="actualEffortHours"    type="n..10" order="60" label="genericproject.actualEffortHours" mandatory="false" displayType="editable" previewEmpty="false">
+		   			<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('IN_PROGRESS', 'COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="accumulatedEstimatedEffortHours"    type="n..10" order="70" label="genericproject.accumulatedEstimatedEffortHours" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('SUBMITTED', 'APPROVED', 'COMPLETED', 'ON_HOLD', 'CANCELED')</condition>
+			    </field>
+			    <field name="accumulatedActualEffortHours"    type="n..10" order="80" label="genericproject.accumulatedActualEffortHours" mandatory="false" displayType="editable" previewEmpty="false"/>
+			</fields>
+		</region>
+		<region id="accounting" order="40" displayType="editable" label="genericproject.accounting">
+			<fields>
+				<field name="account"    type="an..50" order="30" label="genericproject.account" mandatory="false" displayType="editable" previewEmpty="false">
+			    	<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'CANCELED')</condition>
+			    </field>
+			     <field name="billingCode"    type="an..100" order="30" label="genericproject.billingCode" mandatory="false" displayType="editable" previewEmpty="false">
+		   	    	<condition id="readOnlyFields" renderAs="DISABLED">[status] IN ('COMPLETED', 'CANCELED')</condition>
+			    </field>
+			</fields>
+		</region>
+	</regions>
+
+	<transitions>
+		<transition id="createProject" label="genericproject.createProject.btn.title" eventId="createProject" />
+		<transition id="editProjectDetails" label="genericproject.editProjectDetails.btn.title" eventId="editProjectDetails" />
+		<transition id="deleteProject" label="genericproject.deleteProject.btn.title" eventId="deleteProject" />
+		<transition id="manageResources" label="genericproject.manageResources.btn.title" eventId="manageResources" />
+		<transition id="manageRelations" label="genericproject.manageRelations.btn.title" eventId="manageRelations" />
+		<transition id="startProject" label="genericproject.startProject.btn.title" eventId="startProject" />
+		<transition id="approveProject" label="genericproject.approveProject.btn.title" eventId="approveProject" />
+		<transition id="stopProject" label="genericproject.stopProject.btn.title" eventId="stopProject" />
+		<transition id="suspendProject" label="genericproject.suspendProject.btn.title" eventId="suspendProject" />
+		<transition id="restartProject" label="genericproject.restartProject.btn.title" eventId="restartProject" />
+		<transition id="completeProject" label="genericproject.completeProject.btn.title" eventId="completeProject" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="createProject" to="SUBMITTED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn]</condition>
+		</stateTransition>
+
+		<stateTransition from="SUBMITTED" transition="editProjectDetails" to="SUBMITTED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn]</condition>
+		</stateTransition>
+		<stateTransition from="SUBMITTED" transition="deleteProject" to="DELETED">
+		</stateTransition>
+		<stateTransition from="SUBMITTED" transition="manageResources" to="SUBMITTED">
+		</stateTransition>
+
+		<stateTransition from="SUBMITTED" transition="manageRelations" to="SUBMITTED">
+		</stateTransition>
+
+		<stateTransition from="SUBMITTED" transition="startProject" to="IN_PROGRESS">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [startTime] AND [estimatedEffortHours] AND [accumulatedEstimatedEffortHours] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="SUBMITTED" transition="approveProject" to="APPROVED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+
+		<stateTransition from="APPROVED" transition="editProjectDetails" to="APPROVED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="manageResources" to="APPROVED">
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="manageRelations" to="APPROVED">
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="startProject" to="IN_PROGRESS">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [startTime] AND [estimatedEffortHours] AND [accumulatedEstimatedEffortHours] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="stopProject" to="CANCELED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+
+		<stateTransition from="IN_PROGRESS" transition="editProjectDetails" to="IN_PROGRESS">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [startTime] AND [estimatedEffortHours] AND [accumulatedEstimatedEffortHours] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="manageResources" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="manageRelations" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="suspendProject" to="ON_HOLD">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="stopProject" to="CANCELED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="completeProject" to="COMPLETED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [startTime] AND [endTime] AND [estimatedEffortHours] AND [accumulatedActualEffortHours] AND [actualEffortHours] AND [accumulatedEstimatedEffortHours] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+
+		<stateTransition from="ON_HOLD" transition="restartProject" to="IN_PROGRESS">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [description] AND [owner] AND [approvedBy] AND [status] AND [plannedStartDate] AND [startTime] AND [estimatedEffortHours] AND [accumulatedEstimatedEffortHours] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="ON_HOLD" transition="editProjectDetails" to="ON_HOLD">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+		<stateTransition from="ON_HOLD" transition="stopProject" to="CANCELED">
+			<condition id="requiredFields" renderAs="REQUIRED">[uniqueIdentifier] AND [title] AND [status] AND [createdBy] AND [createdOn] AND [visibility]</condition>
+		</stateTransition>
+	</stateTransitions>
+
+	<labels>
+		<label id="genericproject.uniqueIdentifier">
+			<value lang="bg">Unique Identifier</value>
+			<value lang="en">Unique Identifier</value>
+		</label>
+		<label id="genericproject.title">
+			<value lang="bg">Title</value>
+			<value lang="en">Title</value>
+		</label>
+		<label id="genericproject.description">
+			<value lang="bg">Description</value>
+			<value lang="en">Description</value>
+		</label>
+		<label id="genericproject.owner">
+			<value lang="bg">Owner</value>
+			<value lang="en">Owner</value>
+		</label>
+		<label id="genericproject.approvedBy">
+			<value lang="bg">Approved By</value>
+			<value lang="en">Approved By</value>
+		</label>
+		<label id="genericproject.status">
+			<value lang="bg">Status</value>
+			<value lang="en">Status</value>
+		</label>
+		<label id="genericproject.priority">
+			<value lang="bg">Priority</value>
+			<value lang="en">Priority</value>
+		</label>
+		<label id="genericproject.severity">
+			<value lang="bg">Severity</value>
+			<value lang="en">Severity</value>
+		</label>
+		<label id="genericproject.plannedStartDate">
+			<value lang="bg">Planned Start Date</value>
+			<value lang="en">Planned Start Date</value>
+		</label>
+		<label id="genericproject.startTime">
+			<value lang="bg">Actual Start Date</value>
+			<value lang="en">Actual Start Date</value>
+		</label>
+		<label id="genericproject.account">
+			<value lang="bg">Account</value>
+			<value lang="en">Account</value>
+		</label>
+		<label id="genericproject.plannedEndDate">
+			<value lang="bg">Planned End Date</value>
+			<value lang="en">Planned End Date</value>
+		</label>
+		<label id="genericproject.endTime">
+			<value lang="bg">Actual End Date</value>
+			<value lang="en">Actual End Date</value>
+		</label>
+		<label id="genericproject.estimatedEffortHours">
+			<value lang="bg">Estimated Effort Hours</value>
+			<value lang="en">Estimated Effort Hours</value>
+		</label>
+		<label id="genericproject.accumulatedEstimatedEffortHours">
+			<value lang="bg">Accumulated Estimated Effort Hours</value>
+			<value lang="en">Accumulated Estimated Effort Hours</value>
+		</label>
+		<label id="genericproject.actualEffortHours">
+			<value lang="bg">Actual Effort Hours</value>
+			<value lang="en">Actual Effort Hours</value>
+		</label>
+		<label id="genericproject.accumulatedActualEffortHours">
+			<value lang="bg">Accumulated Actual Effort Hours</value>
+			<value lang="en">Accumulated Actual Effort Hours</value>
+		</label>
+		<label id="genericproject.contact">
+			<value lang="bg">Contact</value>
+			<value lang="en">Contact</value>
+		</label>
+		<label id="genericproject.dependencyList">
+			<value lang="bg">Dependency List</value>
+			<value lang="en">Dependency List</value>
+		</label>
+		<label id="genericproject.referenceList">
+			<value lang="bg">Reference List</value>
+			<value lang="en">Reference List</value>
+		</label>
+		<label id="genericproject.createdBy">
+			<value lang="bg">Created By</value>
+			<value lang="en">Created By</value>
+		</label>
+		<label id="genericproject.createdOn">
+			<value lang="bg">Created Date</value>
+			<value lang="en">Created Date</value>
+		</label>
+		<label id="genericproject.modifiedBy">
+			<value lang="bg">Last modified By</value>
+			<value lang="en">Last modified By</value>
+		</label>
+		<label id="genericproject.modifiedOn">
+			<value lang="bg">Last modified Date</value>
+			<value lang="en">Last modified Date</value>
+		</label>
+		<label id="genericproject.billingCode">
+			<value lang="bg">Billing Code</value>
+			<value lang="en">Billing Code</value>
+		</label>
+		<label id="genericproject.notes">
+			<value lang="bg">Notes</value>
+			<value lang="en">Notes</value>
+		</label>
+		<label id="genericproject.visibility">
+			<value lang="bg">Visibility</value>
+			<value lang="en">Visibility</value>
+		</label>
+		<label id="genericproject.createProject.btn.title">
+			<value lang="bg">Create Project</value>
+			<value lang="en">Create Project</value>
+		</label>
+		<label id="genericproject.editProjectDetails.btn.title">
+			<value lang="bg">Edit Project</value>
+			<value lang="en">Edit Project</value>
+		</label>
+		<label id="genericproject.deleteProject.btn.title">
+			<value lang="bg">Delete Project</value>
+			<value lang="en">Delete Project</value>
+		</label>
+		<label id="genericproject.manageResources.btn.title">
+			<value lang="bg">Manage Resources</value>
+			<value lang="en">Manage Resources</value>
+		</label>
+		<label id="genericproject.manageRelations.btn.title">
+			<value lang="bg">Manage Relation</value>
+			<value lang="en">Manage Relation</value>
+		</label>
+		<label id="genericproject.startProject.btn.title">
+			<value lang="bg">Start Project</value>
+			<value lang="en">Start Project</value>
+		</label>
+		<label id="genericproject.approveProject.btn.title">
+			<value lang="bg">Approve Project</value>
+			<value lang="en">Approve Project</value>
+		</label>
+		<label id="genericproject.stopProject.btn.title">
+			<value lang="bg">Cancel Project</value>
+			<value lang="en">Cancel Project</value>
+		</label>
+		<label id="genericproject.suspendProject.btn.title">
+			<value lang="bg">Put Project On Hold</value>
+			<value lang="en">Put Project On Hold</value>
+		</label>
+		<label id="genericproject.restartProject.btn.title">
+			<value lang="bg">Put Project In Progress</value>
+			<value lang="en">Put Project In Progress</value>
+		</label>
+		<label id="genericproject.completeProject.btn.title">
+			<value lang="bg">Complete Project</value>
+			<value lang="en">Complete Project</value>
+		</label>
+		<label id="genericproject.visibility.visibleToAll">
+			<value lang="bg">Visible for all users</value>
+			<value lang="en">Visible for all users</value>
+		</label>
+		<label id="genericproject.visibility.visibleToMembers">
+			<value lang="bg">Visible for project memebers only</value>
+			<value lang="en">Visible for project memebers only</value>
+		</label>
+		<label id="genericproject.generalDetails">
+			<value lang="bg">Project Details</value>
+			<value lang="en">Project Details</value>
+		</label>
+		<label id="genericproject.specificDetails">
+			<value lang="bg">Specific Details</value>
+			<value lang="en">Specific Details</value>
+		</label>
+		<label id="genericproject.timeAndEffort">
+			<value lang="bg">Time and Effort</value>
+			<value lang="en">Time and Effort</value>
+		</label>
+		<label id="genericproject.accounting">
+			<value lang="bg">Accounting</value>
+			<value lang="en">Accounting</value>
+		</label>
+
+	</labels>
+
+</projectDefinition>

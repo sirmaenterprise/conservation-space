@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence version="2.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+
+	<!-- Declaring the persistence unit for the audit log. -->
+	<persistence-unit name="seip-auditlog">
+	
+		<class>com.sirma.itt.emf.audit.activity.AuditActivity</class>
+	
+		<!-- Persistence provider. -->
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<!-- This must match the one declared in JBoss's configuration. -->
+		<jta-data-source>java:jboss/datasources/bamDS</jta-data-source>
+
+		<properties>
+			<!-- Loading using external configuration for hibernate. The file should 
+				be located in the root directory if the classpath. -->
+			<property name="hibernate.ejb.cfgfile" value="hibernate.cfg.xml" />
+		</properties>
+
+	</persistence-unit>
+</persistence>

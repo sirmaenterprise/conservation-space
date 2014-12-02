@@ -1,0 +1,90 @@
+<div class="reporting-config" tabs="fake">
+
+	<div>
+		<input id="reporting-hide-if-no-objects" type="checkbox" ng-model="config.hideIfEmpty" />
+		<label for="reporting-hide-if-no-objects" emf-label="widget.reporting.hide"></label>
+	</div>
+	
+	<ul>
+		<li><a href="#tabs-1" emf-label="widget.reporting.searchtab"></a></li>
+		<li><a href="#tabs-2" emf-label="widget.reporting.detailstab"></a></li>
+		<li><a href="#tabs-3" emf-label="widget.reporting.configtab"></a></li>
+		<li><a href="#tabs-4" emf-label="widget.reporting.filtertab"></a></li>
+	</ul>
+
+	<!-- Searching -->
+	<div id="tabs-1">
+		
+		<label>
+			<input name="object-selection-method" type="radio" ng-model="config.objectSelectionMethod" value="object-manual-select">
+			<span emf-label="widget.reporting.searchtab.manual"></span>
+		</label>
+
+		<label>
+			<input name="object-selection-method" type="radio" ng-model="config.objectSelectionMethod" value="object-search">
+			<span emf-label="widget.reporting.searchtab.search"></span>
+		</label>
+		
+		<div class="object-picker">
+			<div basic-search ng-show="config.objectSelectionMethod === 'object-search'"></div>
+		
+			<div object-picker ng-show="config.objectSelectionMethod === 'object-manual-select'"></div>
+		</div>
+		
+		<div class="reporting-data-basket" 
+			ng-show="config.objectSelectionMethod === 'object-manual-select' && value.manuallySelectedObjects.length > 0">
+			<div class="tree-header default_header" ng-repeat="object in value.manuallySelectedObjects">     				
+				<div class="instance-header {{object.type}}">     					
+					<span class="icon-cell">
+						<a href="javascript:void(0);" ng-click="removeFromBasket(object)">Remove</a>
+					</span>
+					<span class="data-cell" ng-bind-html="object.compact_header | trustAsHtmlFilter"></span>     				
+				</div>     			 
+			</div>
+		</div>
+	</div>
+
+	<!-- Details tab -->
+	<div id="tabs-2">
+		<div class="reporting-property-selection-wrapper">
+			<ul ng-repeat="holder in availableProperties track by $index">
+			
+				<div class="btn-group btn-group-xs">
+  					<button type="button" class="btn btn-default" ng-click="selectAllProperties(true, holder)">
+                    	<span emf-label="widget.reporting.detailstab.selectall"></span>
+            		</button>
+            		
+  					<button type="button" class="btn btn-default" ng-click="selectAllProperties(false, holder)">
+                    	<span emf-label="widget.reporting.detailstab.deselectall"></span>
+            		</button>
+				</div>
+				
+				<li>
+					<i>{{holder.title}}</i>
+					<ul>
+						<li ng-repeat="property in holder.properties track by $index">
+							<label data-toggle="tooltip" data-container="body" bootstrap-tooltip="{{property.description}}" data-placement="right">
+								<input 
+									type="checkbox" title="{{property.title}}"
+									ng-model="property.checked" 
+									ng-change="updateSelectedProperties(property)"> 
+									{{property.title}}
+							</label>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- Reporting configuration -->
+	<div id="tabs-3">
+		<emf-reporting-settings conf="config"></emf-reporting-settings>
+	</div>
+	
+	<!-- Additional filtering -->
+	<div id="tabs-4">
+		<emf-reporting-filters-settings conf="config"></emf-reporting-filter-settings>
+	</div>
+	
+</div>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<div class="buttons-panel case-search-buttons">
+		<span>
+			<h:commandLink id="searchButtonTop" action="#{caseSearchAction.search()}" styleClass="btn btn-primary" value="">
+				<span class="glyphicon glyphicon-search"></span>
+				<span>#{label['cmf.btn.search']}</span>
+			</h:commandLink>
+		</span>
+	</div>
+
+	<div class="advanced-search-panel al">
+
+		<div class="search-data">
+			<label for="identifier">#{label['cmf.case.search.args.identifier']}</label>
+			<h:inputText id="identifier" value="#{caseSearchAction.searchData.arguments['identifier']}" autocomplete="off" />
+		</div>
+
+		<div class="search-data">
+			<span>
+				<label for="caseType">#{label['cmf.case.search.args.type']}</label>
+				<h:selectOneMenu id="caseType" value="#{caseSearchAction.searchData.arguments['type']}">
+					<f:selectItem itemValue="" itemLabel="" noSelectionOption="true" />
+					<f:selectItems value="#{caseSearchAction.loadCaseDefinitions()}" var="type" itemLabel="#{type.description}"
+						itemValue="#{type.type}" />
+				</h:selectOneMenu>
+			</span>
+		</div>
+
+		<div class="search-data">
+			<span>
+				<label for="caseState">#{label['cmf.case.search.args.status']}</label>
+				<h:selectOneMenu id="caseState" value="#{caseSearchAction.searchData.arguments['status']}">
+					<f:selectItem itemValue="" itemLabel="" noSelectionOption="true" />
+					<f:selectItems
+						value="#{cls.getFilteredCodeValues(caseSearchAction.statusCodelist, true, formUtil.toArray('removeNewAndDeleted')).values()}"
+						var="item" itemLabel="#{cls.getDescription(item)}" itemValue="#{item.value}" />
+				</h:selectOneMenu>
+			</span>
+		</div>
+
+		<div class="search-data" style="padding: 10px 10px 0px 10px;">
+			<h:outputLabel value="#{label['cmf.case.search.args.createdOn']}" styleClass="max-width-style"
+				style="display: block;" />
+		</div>
+
+		<div class="search-data">
+			<span class="calendar-field-wrapper">
+				<label for="periodFrom" class="date-period-label">#{label['cmf.case.search.args.periodFrom']}</label>
+				<h:inputText id="periodFrom" value="#{caseSearchAction.searchData.arguments['createdOn'].first}" autocomplete="off"
+					styleClass="date-period-value cmf-date-range-start">
+					<f:converter binding="#{emfDateConverter}" />
+				</h:inputText>
+				<span class="ui-icon ui-icon-calendar cmf-calendar-img"></span>
+			</span>
+			<span class="calendar-field-wrapper">
+				<label for="periodTo" class="date-period-label">#{label['cmf.case.search.args.periodTo']}</label>
+				<h:inputText id="periodTo" value="#{caseSearchAction.searchData.arguments['createdOn'].second}" autocomplete="off"
+					styleClass="date-period-value cmf-date-range-end">
+					<f:converter binding="#{emfDateConverter}" />
+				</h:inputText>
+				<span class="ui-icon ui-icon-calendar cmf-calendar-img"></span>
+			</span>
+			<span class="date-format-hint fix-left-margin">#{searchpageSelectAction.getDateFormatHintLabel(dateUtil.converterDateFormatPattern)}</span>
+		</div>
+
+		<div class="search-data">
+			<span>
+				<label for="createdBy">#{label['cmf.case.search.args.createdBy']}</label>
+				<h:selectOneMenu id="createdBy" value="#{caseSearchAction.searchData.arguments['createdBy']}">
+					<f:selectItem itemValue="" itemLabel="" noSelectionOption="true" />
+					<f:selectItems value="#{caseSearchAction.loadUsers()}" itemValue="#{user.identifier}" var="user"
+						itemLabel="#{user.getDisplayName()}" />
+				</h:selectOneMenu>
+			</span>
+		</div>
+
+	</div>
+
+	<div class="buttons-panel case-search-buttons">
+		<span>
+			<h:commandLink id="searchButtonBottom" action="#{caseSearchAction.search()}" styleClass="btn btn-primary" value="">
+				<span class="glyphicon glyphicon-search"></span>
+				<span>#{label['cmf.btn.search']}</span>
+			</h:commandLink>
+		</span>
+	</div>
+
+	<!-- temporary added to force richfaces to load its resources -->
+	<rich:panel id="hiddenpanel1" rendered="false"></rich:panel>
+
+</ui:composition>

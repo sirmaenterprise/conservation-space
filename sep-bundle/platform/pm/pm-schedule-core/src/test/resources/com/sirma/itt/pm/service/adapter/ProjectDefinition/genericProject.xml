@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<projectDefinition id="GEP10001" isAbstract="false">
+	<fields>
+		<field name="default_header" type="an..4096" label="PROJECT_DEFAULT_HEADER" mandatory="true" displayType="system" />
+	    <field name="compact_header" type="an..4096" label="PROJECT_COMPACT_HEADER" mandatory="true" displayType="system" />
+	    <field name="breadcrumb_header" type="an..4096" label="PROJECT_BREADCRUMB_HEADER" mandatory="true" displayType="system" />
+	</fields>
+	<regions>
+		<region id="projectDetails" order="10" displayType="editable" label="genericproject.projectDetails">
+			<fields>
+				<field name="identifier" type="an..50" label="genericproject.identifier" mandatory="true" displayType="readOnly" dmsType="cm:name" uri="dcterms:identifier"  rnc="${eval(${today.format(dd_MM_yyyy)}_${seq({+projectSequence})})}">
+						<condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+				</field>
+				<field name="type" type="an..180" label="genericproject.type" mandatory="true" codelist="CL2" displayType="system" dmsType="pm:type" uri="emf:type"><value>GEP10001</value></field>
+				<field name="title" type="an..50" label="genericproject.title" mandatory="true" displayType="editable" previewEmpty="false" dmsType="cm:title" uri="dcterms:title" />
+				<field name="description" type="an..1024" label="genericproject.description" mandatory="false" displayType="editable" previewEmpty="false" dmsType="cm:description" uri="dcterms:description" />
+				<field name="status" type="an..50" label="genericproject.status" mandatory="true" codelist="CL1" displayType="readOnly" previewEmpty="false" dmsType="pm:status" uri="emf:status" />
+				<field name="createdOn" type="datetime" label="genericproject.createdOn" mandatory="true" displayType="readOnly" previewEmpty="false" dmsType="-cm:created" uri="emf:createdOn" />
+				<field name="createdBy" type="an..50" label="genericproject.createdBy" mandatory="true" displayType="readOnly" previewEmpty="false" dmsType="-cm:creator" uri="emf:createdBy"><control id="USER"/></field>
+				<field name="visibility" type="an..20" order="50" label="genericproject.visibility" mandatory="true" displayType="editable" previewEmpty="false">
+					<value>visibleToAll</value>
+					<control id="RADIO_BUTTON_GROUP">
+						<fields>
+							<field name="visibleToAll" type="an..1024" label="genericproject.visibility.visibleToAll" displayType="editable"/>
+							<field name="visibleToMembers" type="an..1024" label="genericproject.visibility.visibleToMembers" displayType="editable"/>
+						</fields>
+					 </control>
+				</field>
+				<field name="owner" type="an..50" label="genericproject.owner" mandatory="false" displayType="editable" previewEmpty="false"><control id="USER"/></field>
+				<field name="priority" type="an..20" label="genericproject.priority" mandatory="false" codelist="CL208" displayType="editable" previewEmpty="false"></field>
+				<field name="modifiedOn" type="datetime" label="genericproject.modifiedOn" mandatory="true" displayType="readOnly" previewEmpty="false" dmsType="-cm:modified" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="an..50" label="genericproject.modifiedBy" mandatory="true" displayType="readOnly" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy"><control id="USER"/></field>
+			</fields>
+		</region>
+
+		<region id="timeAndEffort" order="30" displayType="editable" label="genericproject.timeAndEffort">
+			<fields>
+				<field name="plannedStartDate" type="date" label="genericproject.plannedStartDate" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="plannedEndDate"  type="date" label="genericproject.plannedEndDate" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="actualStartDate" type="date" label="genericproject.actualStartDate" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="actualEndDate" type="date" label="genericproject.actualEndDate" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="estimatedEffortHours" type="n..10" label="genericproject.estimatedEffortHours" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="actualEffortHours" type="n..10" label="genericproject.actualEffortHours" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="accumulatedEstimatedEffortHours" type="n..10" label="genericproject.accumulatedEstimatedEffortHours" mandatory="false" displayType="editable" previewEmpty="false"></field>
+				<field name="accumulatedActualEffortHours" type="n..10" label="genericproject.accumulatedActualEffortHours" mandatory="false" displayType="editable" previewEmpty="false" ></field>
+				<field name="duration" type="n..10" label="genericproject.duration" mandatory="false" displayType="editable" previewEmpty="false"></field>
+			</fields>
+		</region>
+	</regions>
+
+<transitions>
+		<transition id="createProject" label="genericproject.createProject.btn.title" eventId="createProject" purpose="action"  />
+		<transition id="editDetails" label="genericproject.editProjectDetails.btn.title" eventId="editDetails" purpose="action"  />
+		<transition id="delete" label="genericproject.deleteProject.btn.title" eventId="delete" purpose="action" immediate="true" confirmation="project_delete.confirm"/>
+		<transition id="manageResources" label="genericproject.manageResources.btn.title" eventId="manageResources" purpose="action"  />
+		<transition id="manageRelations" label="genericproject.manageRelations.btn.title" eventId="manageRelations" purpose="action"  />
+		<transition id="start" label="genericproject.startProject.btn.title" eventId="start" purpose="action"  />
+		<transition id="approve" label="genericproject.approveProject.btn.title" eventId="approve" purpose="action" />
+		<transition id="stop" label="genericproject.stopProject.btn.title" eventId="stop" purpose="action"  />
+		<transition id="suspend" label="genericproject.suspendProject.btn.title" eventId="suspend" purpose="action" immediate="true" />
+		<transition id="restart" label="genericproject.restartProject.btn.title" eventId="restart" purpose="action" immediate="true" />
+		<transition id="complete" label="genericproject.completeProject.btn.title" eventId="complete" purpose="action"  />
+		<transition id="createCase" label="GEP10001.createCase.btn.title" eventId="createCase" purpose="action"  />
+		<transition id="createTask" label="GEP10001.createTask.btn.title" eventId="createTask" purpose="action"  />
+		<transition id="createWorkflow" label="GEP10001.createWorkflow.btn.title" eventId="createWorkflow" purpose="action"  />
+		<transition id="editSchedule" label="GEP10001.editSchedule.btn.title" eventId="editSchedule" purpose="schedule"  />
+		<transition id="createObject" label="section.createObject.btn.title" purpose="action" eventId="createObject"/>
+		<transition id="attachObject" label="section.attachObject.btn.title" purpose="action" eventId="attachObject"/>
+	</transitions>
+
+<stateTransitions>
+		<stateTransition from="INIT" transition="createProject" to="SUBMITTED">
+		</stateTransition>
+
+		<stateTransition from="SUBMITTED" transition="editDetails" to="SUBMITTED">
+		</stateTransition>
+		<stateTransition from="SUBMITTED" transition="delete" to="DELETED">
+		</stateTransition>
+		<stateTransition from="SUBMITTED" transition="manageResources" to="SUBMITTED">
+		</stateTransition>
+<!-- doesn't work
+		<stateTransition from="SUBMITTED" transition="manageRelations" to="SUBMITTED">
+		</stateTransition>
+-->
+		<stateTransition from="SUBMITTED" transition="editSchedule" to="SUBMITTED">
+		</stateTransition>
+
+		<stateTransition from="SUBMITTED" transition="start" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="SUBMITTED" transition="approve" to="APPROVED">
+		</stateTransition>
+        <stateTransition from="SUBMITTED" transition="createTask" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="createCase" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="createObject" to="SUBMITTED"/>
+		<stateTransition from="SUBMITTED" transition="attachObject" to="SUBMITTED"/>
+		<stateTransition from="APPROVED" transition="editDetails" to="APPROVED">
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="manageResources" to="APPROVED">
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="editSchedule" to="APPROVED">
+		</stateTransition>
+<!-- doesn't work
+		<stateTransition from="APPROVED" transition="manageRelations" to="APPROVED">
+		</stateTransition>
+-->
+		<stateTransition from="APPROVED" transition="start" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="stop" to="STOPPED">
+		</stateTransition>
+        <stateTransition from="APPROVED" transition="createTask" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="createCase" to="APPROVED"/>
+
+		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="manageResources" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="editSchedule" to="IN_PROGRESS">
+		</stateTransition>
+<!-- doesn't work
+		<stateTransition from="IN_PROGRESS" transition="manageRelations" to="IN_PROGRESS">
+		</stateTransition>
+-->
+		<stateTransition from="IN_PROGRESS" transition="suspend" to="ON_HOLD">
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED">
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED">
+		</stateTransition>
+        <stateTransition from="IN_PROGRESS" transition="createTask" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="createCase" to="IN_PROGRESS"/>
+
+		<stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS">
+		</stateTransition>
+        <stateTransition from="ON_HOLD" transition="editSchedule" to="IN_PROGRESS">
+		</stateTransition>
+		<stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD">
+		</stateTransition>
+		<stateTransition from="ON_HOLD" transition="stop" to="STOPPED">
+		</stateTransition>
+        <stateTransition from="ON_HOLD" transition="createTask" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="createCase" to="ON_HOLD"/>
+
+	</stateTransitions>
+
+
+	<labels>
+		<label id="PROJECT_DEFAULT_HEADER">
+			<value lang="en"><![CDATA[${eval(<a href="${link(currentInstance)}"><b>${get([identifier])} (${CL([type])}) ${get([title])} (${CL([status])})</b></a><br />Owner: <a href="${userLink(${get([owner])})}">${user(${get([owner])})}</a>, Created on: ${date([createdOn]).format(dd.MM.yyyy, HH:mm)})}]]></value>
+			<value lang="bg"><![CDATA[${eval(<a href="${link(currentInstance)}"><b>${get([identifier])} (${CL([type])}) ${get([title])} (${CL([status])})</b></a><br />Собственик: <a href="${userLink(${get([owner])})}">${user(${get([owner])})}</a>, Създаден на: ${date([createdOn]).format(dd.MM.yyyy, HH:mm)})}]]></value>
+		</label>
+        <label id="PROJECT_COMPACT_HEADER">
+			<value lang="en"><![CDATA[${eval(<a class="has-tooltip" href="${link(currentInstance)}"><b>${get([identifier])} (${CL([type])}) ${get([title])} (${CL([status])})</b></a>)}]]></value>
+            <value lang="bg"><![CDATA[${eval(<a class="has-tooltip" href="${link(currentInstance)}"><b>${get([identifier])} (${CL([type])}) ${get([title])} (${CL([status])})</b></a>)}]]></value>
+		</label>
+        <label id="PROJECT_BREADCRUMB_HEADER">
+			<value lang="bg"><![CDATA[${eval(<a class="has-tooltip" href="${link(currentInstance)}">${get([title])}</a>)}]]></value>
+            <value lang="en"><![CDATA[${eval(<a class="has-tooltip" href="${link(currentInstance)}">${get([title])}</a>)}]]></value>
+		</label>
+		<label id="genericproject.projectDetails">
+			<value lang="bg">Project Details</value>
+			<value lang="en">Project Details</value>
+		</label>
+		<label id="genericproject.identifier">
+			<value lang="bg">Identifier</value>
+			<value lang="en">Identifier</value>
+		</label>
+		<label id="genericproject.type">
+			<value lang="bg">Type</value>
+			<value lang="en">Type</value>
+		</label>
+		<label id="genericproject.title">
+			<value lang="bg">Title</value>
+			<value lang="en">Title</value>
+		</label>
+		<label id="genericproject.description">
+			<value lang="bg">Description</value>
+			<value lang="en">Description</value>
+		</label>
+		<label id="genericproject.status">
+			<value lang="bg">Status</value>
+			<value lang="en">Status</value>
+		</label>
+		<label id="genericproject.createdOn">
+			<value lang="bg">Created on</value>
+			<value lang="en">Created on</value>
+		</label>
+		<label id="genericproject.createdBy">
+			<value lang="bg">Created by</value>
+			<value lang="en">Created by</value>
+		</label>
+		<label id="genericproject.visibility">
+			<value lang="bg">Visibility</value>
+			<value lang="en">Visibility</value>
+		</label>
+		<label id="genericproject.owner">
+			<value lang="bg">Project Owner</value>
+			<value lang="en">Project Owner</value>
+		</label>
+		<label id="genericproject.modifiedOn">
+			<value lang="bg">Last modified on</value>
+			<value lang="en">Last modified on</value>
+		</label>
+		<label id="genericproject.modifiedBy">
+			<value lang="bg">Last modified by</value>
+			<value lang="en">Last modified by</value>
+		</label>
+		<label id="genericproject.priority">
+			<value lang="bg">Priority</value>
+			<value lang="en">Priority</value>
+		</label>
+		<label id="genericproject.timeAndEffort">
+			<value lang="bg">Time and Effort</value>
+			<value lang="en">Time and Effort</value>
+		</label>
+		<label id="genericproject.duration">
+			<value lang="bg">Duration</value>
+			<value lang="en">Duration</value>
+		</label>
+		<label id="genericproject.plannedStartDate">
+			<value lang="bg">Planned Start Date</value>
+			<value lang="en">Planned Start Date</value>
+		</label>
+		<label id="genericproject.plannedEndDate">
+			<value lang="bg">Planned End Date</value>
+			<value lang="en">Planned End Date</value>
+		</label>
+		<label id="genericproject.actualStartDate">
+			<value lang="bg">Actual Start Date</value>
+			<value lang="en">Actual Start Date</value>
+		</label>
+		<label id="genericproject.actualAndDate">
+			<value lang="bg">Actual End Date</value>
+			<value lang="en">Actual End Date</value>
+		</label>
+		<label id="genericproject.actualEndDate">
+			<value lang="bg">Actual End Date</value>
+			<value lang="en">Actual End Date</value>
+		</label>
+		<label id="genericproject.estimatedEffortHours">
+			<value lang="bg">Estimated Effort Hours</value>
+			<value lang="en">Estimated Effort Hours</value>
+		</label>
+		<label id="genericproject.actualEffortHours">
+			<value lang="bg">Actual Effort Hours</value>
+			<value lang="en">Actual Effort Hours</value>
+		</label>
+		<label id="genericproject.accumulatedEstimatedEffortHours">
+			<value lang="bg">Accumulated Estimated Effort Hours</value>
+			<value lang="en">Accumulated Estimated Effort Hours</value>
+		</label>
+		<label id="genericproject.accumulatedActualEffortHours">
+			<value lang="bg">Accumulated Actual Effort Hours</value>
+			<value lang="en">Accumulated Actual Effort Hours</value>
+		</label>
+		<label id="genericproject.createProject.btn.title">
+			<value lang="bg">Създай проект</value>
+			<value lang="en">Create Project</value>
+		</label>
+		<label id="genericproject.editProjectDetails.btn.title">
+			<value lang="bg">Редактирай проекта</value>
+			<value lang="en">Edit Project Details</value>
+		</label>
+		<label id="genericproject.deleteProject.btn.title">
+			<value lang="bg">Изтрий проекта</value>
+			<value lang="en">Delete Project</value>
+		</label>
+		<label id="genericproject.manageResources.btn.title">
+			<value lang="bg">Project Members</value>
+			<value lang="en">Project Members</value>
+		</label>
+		<label id="genericproject.manageRelations.btn.title">
+			<value lang="bg">Manage Relationships</value>
+			<value lang="en">Manage Relationships</value>
+		</label>
+		<label id="genericproject.startProject.btn.title">
+			<value lang="bg">Стартирай работа по проекта</value>
+			<value lang="en">Start Project</value>
+		</label>
+		<label id="genericproject.approveProject.btn.title">
+			<value lang="bg">Одобри проекта</value>
+			<value lang="en">Approve Project</value>
+		</label>
+		<label id="genericproject.stopProject.btn.title">
+			<value lang="bg">Прекрати работа по проекта</value>
+			<value lang="en">Stop Project</value>
+		</label>
+		<label id="genericproject.suspendProject.btn.title">
+			<value lang="bg">Спри временно проекта</value>
+			<value lang="en">Suspend Project</value>
+		</label>
+		<label id="genericproject.restartProject.btn.title">
+			<value lang="bg">Поднови работа по проекта</value>
+			<value lang="en">Restart Project</value>
+		</label>
+		<label id="genericproject.completeProject.btn.title">
+			<value lang="bg">Приключи проекта</value>
+			<value lang="en">Complete Project</value>
+		</label>
+		<label id="genericproject.visibility.visibleToAll">
+			<value lang="bg">Видим за всички потребители</value>
+			<value lang="en">Visible for all users</value>
+		</label>
+		<label id="genericproject.visibility.visibleToMembers">
+			<value lang="bg">Видим само за екипа на проекта</value>
+			<value lang="en">Visible for project members only</value>
+		</label>
+		<label id="GEP10001.createCase.btn.title">
+			<value lang="bg">Създай преписка</value>
+			<value lang="en">Create Case</value>
+		</label>
+		<label id="GEP10001.createTask.btn.title">
+			<value lang="bg">Създай задача</value>
+			<value lang="en">Create Task</value>
+		</label>
+		<label id="assignee.createWorkflow.title">
+			<value lang="bg">Създай работен процес</value>
+			<value lang="en">Create Workflow</value>
+		</label>
+		<label id="project.confirm">
+			<value lang="bg">Сигурни ли сте, че искате да продължите с операцията</value>
+			<value lang="en">Are you sure you want to continue with</value>
+		</label>
+		<label id="project_delete.confirm">
+            <value lang="bg">Този проект ще бъде окончателно изтрит с цялото му съдържание. Сигурни ли сте, че искате да продължите с операцията</value>
+            <value lang="en">This project will be permanently deleted with all its content. Are you sure you want to continue with</value>
+        </label>
+        <label id="project_start.confirm">
+            <value lang="bg">Проектът ще бъде стартиран и ще бъде на разположение за всички потребители добавени към проекта. Сигурни ли сте, че искате да продължите с операцията</value>
+            <value lang="en">The project will be started and will become available for all assigned users. Are you sure you want to continue with</value>
+        </label>
+        <label id="project_suspent.confirm">
+            <value lang="bg">Това ще спре временно всички задачи, възложени на потребителите. Сигурни ли сте, че искате да продължите с операцията</value>
+            <value lang="en">This will suspend all tasks assigned to the users. Are you sure you want to continue with</value>
+        </label>
+        <label id="project_stop.confirm">
+            <value lang="bg">Проектът ще бъде спрян за постоянно. Сигурни ли сте, че искате да продължите с операцията</value>
+            <value lang="en">The project will be stopped permanently. Are you sure you want to continue with</value>
+        </label>
+        <label id="project_complete.confirm">
+            <value lang="bg">Проектът ще бъде приключен успешно. Сигурни ли сте, че искате да продължите с операцията</value>
+            <value lang="en">The project will be successfully completed. Are you sure you want to continue with</value>
+        </label>
+		<label id="section.createObject.btn.title">
+			<value lang="bg">Създай обект</value>
+			<value lang="en">Create object</value>
+		</label>
+		<label id="section.attachObject.btn.title">
+			<value lang="bg">Прикачи обект</value>
+			<value lang="en">Attach object</value>
+		</label>
+	</labels>
+</projectDefinition>

@@ -1,0 +1,14 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+
+select ?property (group_concat(distinct ?data ; separator = ", ") AS ?superProperties)
+	{
+		?property rdfs:subPropertyOf ?property1 .
+		bind(if(contains(str(?property1), "#"), STRAFTER(str(?property1), "#"), if(contains(str(?property1), "dc/terms"), replace(str(?property1), "http://purl.org/dc/terms/", ""),replace(str(?property1), "http://purl.org/dc/elements/1.1/", ""))) as ?label) .
+		bind(if(contains(str(?property1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?property1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?property1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?property1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?property1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?property1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?data) .
+		filter (?property != ?property1)
+	}
+	group by ?property

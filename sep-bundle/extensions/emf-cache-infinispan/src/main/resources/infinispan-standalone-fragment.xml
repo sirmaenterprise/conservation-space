@@ -1,0 +1,197 @@
+ <subsystem xmlns="urn:jboss:domain:infinispan:1.2" default-cache-container="cmf">
+        <cache-container name="hibernate" default-cache="local-query">
+            <local-cache name="entity">
+                <transaction mode="NON_XA"/>
+                <eviction strategy="LRU" max-entries="10000"/>
+                <expiration max-idle="100000"/>
+            </local-cache>
+            <local-cache name="local-query">
+                <transaction mode="NONE"/>
+                <eviction strategy="LRU" max-entries="10000"/>
+                <expiration max-idle="100000"/>
+            </local-cache>
+            <local-cache name="timestamps">
+                <transaction mode="NONE"/>
+                <eviction strategy="NONE"/>
+            </local-cache>
+        </cache-container>
+        <cache-container name="cmf" default-cache="DEFAULT_CACHE_REGION" jndi-name="java:jboss/infinispan/cmf">
+            <local-cache name="DEFAULT_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DEFAULT_CACHE_REGION">
+                <transaction mode="NON_XA"/>
+                <eviction max-entries="10000"/>
+                <expiration max-idle="6000000" interval="60000"/>
+            </local-cache>
+            <local-cache name="TYPE_DEFINITION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TYPE_DEFINITION_CACHE_REGION">
+                <transaction mode="NONE"/>
+            </local-cache>
+           	<local-cache name="TYPE_DEFINITION_URI_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TYPE_DEFINITION_URI_CACHE_REGION">
+				<transaction mode="NONE"/>
+				<eviction strategy="NONE" max-entries="10000"/>
+				<expiration max-idle="-1" interval="60000"/>
+			</local-cache>
+            <local-cache name="MAX_REVISIONS_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/MAX_REVISIONS_CACHE_REGION">
+                 <transaction mode="NONE"/>
+                 <eviction max-entries="10"/>
+                 <expiration max-idle="900000" interval="60000"/>
+            </local-cache>
+            <local-cache name="DOCUMENT_TEMPLATE_DEFINITION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DOCUMENT_TEMPLATE_DEFINITION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="600"/>
+                <expiration max-idle="900000" interval="60000"/>
+            </local-cache>
+            <local-cache name="TASK_DEFINITION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TASK_DEFINITION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="500"/>
+            </local-cache>
+            <local-cache name="TASK_DEFINITION_MAX_REVISION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TASK_DEFINITION_MAX_REVISION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="500"/>
+            </local-cache>
+            <local-cache name="TASK_DEFINITION_TEMPLATE_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TASK_DEFINITION_TEMPLATE_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="500"/>
+            </local-cache>
+            <local-cache name="CASE_DEFINITION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/CASE_DEFINITION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="200"/>
+            </local-cache>
+            <local-cache name="CASE_DEFINITION_MAX_REVISION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/CASE_DEFINITION_MAX_REVISION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="100"/>
+            </local-cache>
+            <local-cache name="WORKFLOW_DEFINITION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/WORKFLOW_DEFINITION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="200"/>
+            </local-cache>
+            <local-cache name="WORKFLOW_DEFINITION_MAX_REVISION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/WORKFLOW_DEFINITION_MAX_REVISION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="100"/>
+            </local-cache>
+            <local-cache name="CODELIST_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/CODELIST_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="50"/>
+                <expiration max-idle="900000" interval="60000"/>
+            </local-cache>
+            <local-cache name="LABEL_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/LABEL_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="10000"/>
+            </local-cache>
+			<local-cache name="FILTER_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/FILTER_CACHE_REGION">
+			    <transaction mode="NONE"/>
+			    <eviction max-entries="1000"/>
+			</local-cache>
+            <local-cache name="CASE_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/CASE_ENTITY_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="10000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="SECTION_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/SECTION_ENTITY_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="50000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="DOCUMENT_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DOCUMENT_ENTITY_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="40000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="COMMON_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/COMMON_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="5000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="PROPERTY_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/PROPERTY_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="50000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="PROTOTYPE_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/PROTOTYPE_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="2000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="WORKFLOW_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/WORKFLOW_ENTITY_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="10000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="TASK_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TASK_ENTITY_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="10000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="ACTION_REGISTRY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/ACTION_REGISTRY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction strategy="NONE"/>
+            </local-cache>
+            <local-cache name="ROLE_REGISTRY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/ROLE_REGISTRY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction strategy="NONE"/>
+            </local-cache>
+            <local-cache name="ROLE_EVALUATORS_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/ROLE_EVALUATORS_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="500"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="ACTIVE_USERS_ON_CASE_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/ACTIVE_USERS_ON_CASE_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="2000"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="DMS_TYPE_CACHE_FOR_CASE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DMS_TYPE_CACHE_FOR_CASE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="DMS_TYPE_CACHE_FOR_DOCUMENT_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DMS_TYPE_CACHE_FOR_DOCUMENT_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="DMS_TYPE_CACHE_FOR_WORKFLOW_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DMS_TYPE_CACHE_FOR_WORKFLOW_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="DMS_TYPE_CACHE_FOR_TASK_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/DMS_TYPE_CACHE_FOR_TASK_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="TOPIC_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TOPIC_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="500"/>
+                <expiration max-idle="600000" interval="60000"/>
+            </local-cache>
+            <local-cache name="TODAY_COMMENT_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/TODAY_COMMENT_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="500"/>
+                <expiration max-idle="600000" interval="720000"/>
+            </local-cache>
+            <local-cache name="SCHEDULER_ACTION_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/SCHEDULER_ACTION_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="600000" interval="720000"/>
+            </local-cache>
+            <local-cache name="SCHEDULER_ACTION_EVENT_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/SCHEDULER_ACTION_EVENT_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="600000" interval="720000"/>
+            </local-cache>
+            <local-cache name="STANDALONE_TASK_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/STANDALONE_TASK_ENTITY_CACHE_REGION">
+                <transaction mode="FULL_XA"/>
+                <eviction max-entries="5000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="RESOURCE_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/RESOURCE_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="1000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+            <local-cache name="RESOURCE_ROLE_ENTITY_CACHE_REGION" start="EAGER" jndi-name="java:jboss/infinispan/cmf/RESOURCE_ROLE_ENTITY_CACHE_REGION">
+                <transaction mode="NONE"/>
+                <eviction max-entries="5000"/>
+                <expiration max-idle="1800000" interval="60000"/>
+            </local-cache>
+        </cache-container>
+</subsystem>

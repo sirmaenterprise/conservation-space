@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:emf="http://com.sirma.itt.emf">
+	
+	<ui:remove>
+		Please don't format this page with Eclipse, it's horible and very hard to read.
+	</ui:remove>
+	
+	<h:outputStylesheet name="css/tiny-styles.css"></h:outputStylesheet>
+	<h:outputStylesheet name="css/idoc-main.css"></h:outputStylesheet>
+	<h:outputStylesheet name="css/idoc-content.css"></h:outputStylesheet>
+	<h:outputStylesheet name="css/idoc-visual.css"></h:outputStylesheet>
+	<h:outputStylesheet name="css/widget.css"></h:outputStylesheet>
+	<h:outputStylesheet name="js/emf-comments/emf-comments.css"></h:outputStylesheet>
+	<h:outputStylesheet name="widgets/reporting/emf-reporting.css"></h:outputStylesheet>
+	
+	<c:forEach items="#{widgetManager.widgets}" var="widget">
+		<c:if test="#{widget.containsCSS}">
+			<h:outputStylesheet name="#{widget.path}widget.css"></h:outputStylesheet>
+		</c:if>
+	</c:forEach>
+	
+	<ui:param name="caseInstance" value="#{documentContext.CaseInstance}" />
+	<ui:param name="documentInstance" value="#{documentContext.documentInstance}" />
+
+	<script type="text/javascript">
+		paceOptions = {
+			ajax: true,
+			document: true,
+			eventLag: true,
+			restartOnPushState: true
+		};
+	</script>
+
+	<h:outputScript name="libs/angular.js" minified="libs/angular.min.js" library="js" />
+	<h:outputScript name="idoc-app.js" library="js" />
+	<h:outputScript name="idoc-print.js" library="js" />
+	<h:outputScript name="libs/colResizable-1.3.source.js" minified="libs/colResizable-1.3.min.js" library="js" />
+	<h:outputScript name="extjs.emf.object-relations.js" library="js" />
+	<h:outputScript name="libs/nested-sortable.min.js" library="js" />
+	<h:outputScript name="libs/select2/select2.min.js" library="js" />
+	<h:outputScript name="libs/select2/ui-select2.js" minified="libs/select2/ui-select2.min.js" library="js" /> 
+	<script type="text/javascript" src="#{request.contextPath}/js/libs/pace/pace.min.js"></script>
+
+	
+	<script type="text/javascript">
+			EMF.cache = EMF.cache || { };
+			EMF.cache.codelists = EMF.cache.codelists || { };
+
+			EMF.objectsBrowserConfig = {
+					// objects explorer required data
+					container		: 'objectsExplorerContent',
+					node			: EMF.currentPath ? (EMF.currentPath.length ? EMF.currentPath[0].id : null) : null,
+					type			: EMF.currentPath ? (EMF.currentPath.length ? EMF.currentPath[0].type : null) : null,
+					rootNodeText	: EMF.currentPath ? (EMF.currentPath.length ? EMF.currentPath[0].compactHeader : null) : null,
+					currentNodeId	: '#{documentContext.getCurrentInstance().id}',
+					currentNodeType	: '#{documentContext.getCurrentInstance().getClass().getSimpleName().toLowerCase()}',
+					contextPath		: SF.config.contextPath,
+					autoExpand		: true
+			};
+
+			// Use pace.js done event to see when loading has finished (including ajax calls). 
+			// When this happens windows.status is set. The web kit can then use the window 
+			// status to determine when the document is ready for export.
+			(function() {
+				var $document = $(document),
+					debouncedCommentPositionUpdate = _.debounce(function(event) {
+						$document.trigger('idoc-comments-integration:dom:update');
+					}, 10);
+				
+				Pace.on('done', 
+						function(event){
+							window.status = 'export-ready';
+						}
+					);
+				Pace.on('hide', debouncedCommentPositionUpdate);
+	
+				$document.on('widgets:dom:widget-resize', function(event) {
+					Pace.restart();
+				});
+			}());
+
+			EMF.idoc = EMF.idoc || { };
+			EMF.idoc.printStylesheet = EMF.applicationPath + '/css/idoc-print.css';
+
+			idoc = new Idoc({
+				servicePath: EMF.servicePath, 
+				util: EMF.util, 
+				date: EMF.date,
+				sfConfig: SF.config
+			});
+			// TODO: Need to descuss this functionality for optimization.
+			(function() {
+				var owningInstanceId = null;
+				var owningInstanceType = 'sectioninstance';
+				var id = null;
+				var type = null;
+				var definitionId = null;
+				var currentOperation = null;
+
+				var documentSectionId = "#{instanceUtil.isPersisted(documentInstance.owningInstance) ? documentInstance.owningInstance.id : 'null'}";
+				documentSectionId = documentSectionId == 'null' ? null : documentSectionId;
+
+				var description = "#{labelBuilder.escapeJavascipt(documentInstance.properties['description'])}";
+
+				if (documentSectionId) {
+					owningInstanceId = documentSectionId;
+					id = "#{instanceUtil.isPersisted(documentInstance) ? documentInstance.id : 'null'}";
+					id = id == 'null' ? null : id;
+					type = 'documentinstance';
+					definitionId = '#{documentInstance.identifier}';
+					currentOperation = '#{documentContext.getCurrentOperation("DocumentInstance")}';
+					rdfType = "#{documentInstance.properties['rdf:type']}";
+				} else {
+					owningInstanceId = "#{instanceUtil.isPersisted(documentContext.SectionInstance) ? documentContext.SectionInstance.id : 'null'}";
+					owningInstanceId = owningInstanceId == 'null' ? null : owningInstanceId;
+					if(!owningInstanceId){
+						owningInstanceId = "#{instanceUtil.isPersisted(documentContext.getContextInstance()) ? documentContext.getContextInstance().id : 'null'}";
+						owningInstanceType = "#{documentContext.getContextInstance().getClass().getSimpleName().toLowerCase()}";
+					}
+					// TODO prepare to standalone documents and objects
+					if (EMF.objectsBrowserConfig.currentNodeType == 'documentinstance') {
+						id = "#{instanceUtil.isPersisted(documentContext.DocumentInstance) ? documentContext.DocumentInstance.id : 'null'}";
+					    id = id == 'null' ? null : id;
+					    type = 'documentinstance';
+					    definitionId = '#{documentInstance.identifier}';
+						// TODO: may this is not correct?
+					    currentOperation = '#{documentContext.getCurrentOperation("DocumentInstance")}';
+					    rdfType = "#{documentContext.DocumentInstance.properties['rdf:type']}";
+					} else {
+					    id = "#{instanceUtil.isPersisted(documentContext.ObjectInstance) ? documentContext.ObjectInstance.id : 'null'}";
+					    id = id == 'null' ? null : id;
+					    type = 'objectinstance';
+					    definitionId = '#{documentContext.ObjectDefinition.identifier}';
+					    currentOperation = '#{documentContext.getCurrentOperation("ObjectInstance")}';
+					    rdfType = "#{documentContext.ObjectInstance.properties['rdf:type']}";
+					}
+				}
+
+				var prop = {description: description};
+				
+				window.idoc.update({
+					// TODO: owningInstance context 
+					owningInstanceId: owningInstanceId,
+					owningInstanceType: owningInstanceType,
+					id: id,
+					type: type,
+					definitionId: definitionId,
+					currentOperation: currentOperation,
+					properties : prop 
+				});
+			}());
+
+			// when changing properties from widgets and then save the document chanages get overwritten
+			// this is a quick 'n dirty way to fix that
+			$(document).on('emf-object-relations-property-change', function(event, data) {
+				
+				if (idoc.object.id === data.instanceId) {
+					if (idoc.object.type === data.instanceType) {
+
+						if(typeof idoc.object.properties === "undefined") {
+							idoc.object.properties = {};
+						}
+						var properties = idoc.object.properties;
+ 
+						if(data.isMultiValued) {
+							if(!idoc.object.properties[data.linkId]) {
+								idoc.object.properties[data.linkId] = [];
+							}
+							
+							if(data.oldValue) {
+								$.each(idoc.object.properties[data.linkId], function(index, value) {
+									
+								    if(value == data.oldValue) {
+								    	idoc.object.properties[data.linkId][index] = data.value;
+									}
+								});
+							} else {
+								idoc.object.properties[data.linkId].push(data.value);
+							}
+						} else {
+							idoc.object.properties[data.linkId] = data.value;
+						}
+
+						if(data.modifiedOn) {
+							idoc.object.properties["modifiedOn"] = data.modifiedOn;
+						}
+					}
+				}
+
+			}); 
+
+			$(document).on('emf-object-relations-property-delete', function(event, data) {
+				var removeItem = data.value;
+
+				var str = idoc.object.properties[data.linkId][0];
+				var res = str.split(","); 
+				if(res.length > 1) {
+					idoc.object.properties[data.linkId] = res;
+				}
+ 				idoc.object.properties[data.linkId] = jQuery.grep(idoc.object.properties[data.linkId], function(value) {
+					  return value != removeItem;
+				});
+			});
+
+			$(document).on('emf-object-relation-added', function(event, data) {
+				if(!idoc.relations) {
+					idoc.relations = [];
+				}
+				idoc.relations.push(data);
+			});
+
+	</script>
+
+	<div class="idoc-container" data-ng-app="app" data-ng-controller="DocumentCtrl" data-ng-init="initDocument()" data-on-resize="fake">
+		<div class="item-selector-panel-wrapper idoc-template-selector" ng-controller="DocumentTemplateController" ng-cloak="true" ng-if="showTemplateSelector()">
+			<span id="idoc:templateSelector" class="item-selector-panel">
+				<span class="selector-label"><span emf-label="template"></span>:</span>
+				<span class="selector-wrapper">
+					<a href="javascript:void(0);" class="icon-action-link selector-activator-link" prevent-default-handler="click">
+						<span ng-bind="selectedTemplate.title"></span><img src="../images/menu-button-arrow.png" />
+					</a>
+					<ul id="formId:itemsList" class="items-list rf-ulst">
+						<li id="formId:itemsList:{{$index}}" ng-repeat="template in templates" class="rf-ulst-itm">
+							<a id="formId:itemsList:0:itemLink" href="#" ng-click="selectTemplate(template)" class="dontBlockUI">
+								<span class="item-description" ng-bind="template.title"></span>
+							</a>
+						</li>
+					</ul>
+				</span>
+			</span>
+		</div>
+		<div>
+			<div class="idoc-left-column">
+				<div id="accordion" class="hide">
+					<h3>#{label['idoc.accordion.navigation']}</h3> 
+					<div class="idoc-navigation" id="idoc-navigation"></div>
+					<h3 id="widgets">#{label['idoc.accordion.widgets']}</h3>
+					<div class="idoc-widgets" id="idoc-widgets"></div>
+					<h3 id="browser">#{label['idoc.accordion.browser']}</h3>
+					<div id="objectsExplorerContent" class="facet-content"></div>
+				</div>
+			</div>
+			<div class="idoc-right-column">
+				<div class="clearfix">
+					<div class="idoc-middle-column pull-left idoc-first-row">
+						<div class="idoc-first-row">
+							<div class="clearfix ng-hide" ng-controller="IdocActions" ng-hide="false">
+								<img class="idoc-icon pull-left" ng-src="{{iconUrl}}" /> 
+									<input id="idoc-title-input" 
+										placeholder= "Please enter title"
+										class="idoc-title-edit form-control pull-left " 
+										type="text"
+										ng-model="documentContext.meta.title"
+										ng-if="previewMode == false" />
+								<div id="idoc-title-preview" 
+									class="idoc-title-preview pull-left"
+									ng-bind="documentContext.meta.title"
+									ng-if="previewMode == true">
+								</div>
+								<div>
+								<button type="button"
+									class="idoc-action-btn btn btn-default btn-sm pull-right ng-hide"
+									ng-click="printDocument()" ng-show="versionMode" emf-label="idoc.btn.document_idoc_print">#{label['idoc.btn.document_idoc_print']}</button>
+								<button type="button" 
+									class="idoc-action-btn btn btn-primary btn-sm pull-left ng-hide"
+									ng-click="editDocument()" ng-hide="!previewMode || versionMode" 
+									data-ng-disabled="!isEditAllowed() || !editable"
+									emf-label="edit">
+									#{label['edit']}
+								</button>
+								<button type="button"
+									class="idoc-action-btn btn btn-primary btn-sm pull-left ng-hide"
+									ng-click="saveDocument(false)" ng-hide="previewMode || versionMode">#{label['idoc.btn.save_and_continue']}</button>
+								<button type="button"
+									class="idoc-action-btn btn btn-default btn-sm pull-left ng-hide"
+									ng-click="cancelEditDocument()" ng-hide="previewMode || versionMode">#{label['cancel']}</button>
+
+								<div class="btn-group pull-left" ng-hide="versionMode">
+									<button id="idoc-actions" type="button"
+										class="idoc-action-btn idoc-actions btn btn-default btn-sm dropdown-toggle"
+										data-toggle="dropdown">
+										<span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu" role="button">
+										<li data-ng-repeat="action in actions" data-ng-show="showAction(action)" role="button">
+											<!-- TODO: class="dontBlockUI" is as workaround so that UI is not blocked for the
+											print action. UI us still blocked for the other actions if request is made, 
+											but perhaps there should be better way to handle this-->
+											<a href="javascript:void(0);" role="button" class="dontBlockUI" prevent-default-handler="click" ng-click="$eval(action.action + '()')">{{action.label}}</a>
+										</li>
+									</ul>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="pull-left idoc-first-row idoc-comments-filter" 
+						data-emf-comments-filter="noop"
+						data-order-by-expression="-{{filterCriteria.sortBy}}">
+					</div>
+				</div>
+				<div class="clearfix">
+					<div class="idoc-middle-column pull-left">
+						<div data-ng-hide="!previewMode" document-version-info="comply" 
+							data-object-type="{{documentContext.definitionId}}" 
+							data-created-by="{{documentContext.meta.createdBy}}" 
+							data-modified-by="{{documentContext.meta.modifiedBy}}" 
+							data-version="{{documentContext.meta.version || documentContext.meta.documentVersion}}">
+						</div>
+						<div class="info-banner ng-hide document-available-draft-message" data-ng-show="documentContext.draft">
+							<span>{{documentContext.availableDraftMessage}} </span>
+							<span data-emf-label="idoc.draft.doYouWantTo"></span> 
+							<a href="javascript:void(0);" 
+								class="dontBlockUI resume-editing-draft-link" 
+								data-ng-click="resumeEditingDraft()"
+								prevent-default-handler="click"
+								data-emf-label="idoc.draft.resumeEditing">
+							</a> 
+							<span data-emf-label="idoc.or"></span>
+							<a href="javascript:void(0);" 
+								class="dontBlockUI discard-draft-link" 
+								data-ng-click="discardDraft()"
+								prevent-default-handler="click"
+								data-emf-label="idoc.draft.discard">
+							</a> 
+							<span data-emf-label="idoc.it"></span>?
+						</div>
+						<div class="text-muted document-saved-draft-message" data-ng-show="documentContext.draftSavedMessage">
+							<small>{{documentContext.draftSavedMessage}}</small>
+						</div>
+						<div class="info-banner ng-hide" data-ng-show="documentContext.documentState.historicVersion">
+							<span>{{objectVersionMessage}}</span>
+							<a class="current-version" data-ng-click="reloadDocument()" href="javascript:void(0)"
+								emf-label="cmf.version.history.link.title"> 
+							</a>
+						</div>
+						<div class="info-banner ng-hide" data-ng-show="documentContext.meta.lockedByMessage">
+							{{documentContext.meta.lockedByMessage}}
+						</div>
+						<div class="idoc-main-editor-placeholder"></div>
+					</div>
+
+					<div style="margin-top:50px" data-ng-show="!previewMode">
+						<span id="edit-comments-result-set"></span>
+					</div>
+					<div data-ng-show="previewMode">
+						<span id="preview-comments-result-set"></span>
+					</div>
+				</div>
+				<div class="clearfix idoc-content-container" data-idoc-comment-trigger="noop">
+					<table id="idoc-editor-table" class="idoc-editor-table" style="position: relative;">
+						<tbody>
+							<tr>
+								<td class="idoc-middle-column idoc-editor-column" style="position: relative;">
+									<div class="idoc-editor-container" style="position: relative;">
+										<div style="position: relative;" class="commented-object document-section" id="{{documentContext.id}}">
+											<span style="visibility: hidden;">Fake element to act as a section representing the document itself.</span>
+										</div>
+										<div id="idoc-editor" class="idoc-editor print"></div>
+									</div>
+								</td>
+								<td class="idoc-comments-column">
+									<div class="comments-wrapper" data-ng-if="documentContext.id" data-emf-comments="noop">
+										
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<h:outputScript name="jquery.ba-throttle-debounce.min.js" library="js" />
+	<h:outputScript name="js/libs/jqueryui-editable/js/jqueryui-editable.min.js" />
+	<h:outputScript name="itoc.js" library="js" />
+	<h:outputScript name="js/widget-manager.js" />
+	
+	<c:forEach items="#{widgetManager.components}" var="component">
+		<h:outputScript name="#{component.path}component.js" />
+	</c:forEach>
+	
+	<c:forEach items="#{widgetManager.widgets}" var="widget">
+		<h:outputScript name="#{widget.path}widget.js" />
+	</c:forEach>
+	
+	<h:outputScript name="js/libs/jquery.PrintArea.js"></h:outputScript>
+	<h:outputScript name="js/idoc-common-filters.js"></h:outputScript>
+	<h:outputScript name="js/idoc-common-services.js"></h:outputScript>
+	<h:outputScript name="js/idoc-angular-app.js"></h:outputScript>
+	<h:outputScript name="js/idoc-directives.js"></h:outputScript>
+	<h:outputScript name="js/idoc-services.js"></h:outputScript>
+	<h:outputScript name="js/idoc-emf-commments-integration.js"></h:outputScript>
+	<h:outputScript name="js/libs/tinymce/tinymce.min.js"></h:outputScript>
+	<h:outputScript name="js/libs/tinymce-plugins.js"></h:outputScript>
+	
+	<h:outputScript name="js/emf-comments/emf-comments.js"></h:outputScript>
+	<h:outputScript name="js/emf-comments/emf-comments-directives.js"></h:outputScript>
+	<h:outputScript name="js/emf-comments/emf-comments-controllers.js"></h:outputScript>
+	<h:outputScript name="js/emf-comments/emf-comments-services.js"></h:outputScript>
+
+	<h:outputScript name="js/filterMenu.js"></h:outputScript>
+	
+	<!-- Charting -->
+	<h:outputScript name="libs/flot/jquery.flot.js" minified="libs/flot/jquery.flot.min.js" library="js" />
+	<h:outputScript name="libs/flot/excanvas.js" minified="libs/flot/excanvas.min.js" library="js" />
+	<h:outputScript name="libs/flot/jquery.flot.canvas.js" minified="libs/flot/jquery.flot.canvas.min.js" library="js" />
+	<h:outputScript name="libs/flot/jquery.flot.navigate.js" minified="libs/flot/jquery.flot.navigate.min.js" library="js" />
+	<h:outputScript name="libs/flot/jquery.flot.pie.js" minified="libs/flot/jquery.flot.pie.min.js" library="js" />
+	
+	<!-- Reporting -->
+	<h:outputScript name="widgets/reporting/emf-reporting.js"></h:outputScript>
+	<h:outputScript name="widgets/reporting/emf-reporting-directives.js"></h:outputScript>
+	<h:outputScript name="widgets/reporting/emf-reporting-controllers.js"></h:outputScript>
+	<h:outputScript name="widgets/reporting/emf-reporting-services.js"></h:outputScript>
+	
+</ui:composition>

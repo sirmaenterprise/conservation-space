@@ -1,0 +1,81 @@
+<div class="emf-reporting-settings">
+	
+	<!-- XXX: REVIEW IDS AND CLASSES -->
+	
+	<!-- 
+		TODO: Extract the complex checks in the directives/controllers? 
+		Example: " reportConfig.report.type !== 'rawtable' && reportConfig.report.type !== 'aggtable' " 
+			to " !isReport('rawtable') && !isReport('aggtable')" or something like this?
+	-->
+	
+	<h4 class="text-info" emf-label="widget.reporting.config.title"></h4>
+	
+	<div class="row">
+		<div class="col-md-3">
+			<b emf-label="widget.reporting.config.type"></b>
+		</div>
+		<div class="col-md-6">
+			<select select2one id="chart-type-config" ng-model="reportConfig.report.type" ng-options="item.value as item.label for item in getReportTypes()" /> 
+		</div>
+	</div>
+	
+	<div class="row">
+		<p class="text-info col-md-12" emf-label="widget.reporting.config.type.info"></p>
+	</div>
+	
+	<div class="row" ng-show="reportConfig.report.type !== 'rawtable'">
+		<br />
+		<div class="col-md-3">
+			<b emf-label="widget.reporting.groupby"></b>
+		</div>
+		<div class="col-md-6">
+			<!-- | filter:{value:'!'+config.chart.addGroupBy} -->
+			<select select2one id="group-by-config" ng-model="reportConfig.report.groupBy" ng-options="item.value as item.label for item in (reportConfig.groupBy)" observe="emf:reporting:group-by-updated" ng-change="updateGroupByType()"/>
+		</div>
+	</div>
+	
+	<!-- <div class="row" ng-show="config.chart.type != 'piechart' && config.chart.type != 'rawtable'"> -->
+	<!-- 	<br /> -->
+	<!-- 	<div class="col-md-3"> -->
+	<!-- 		<b emf-label="widget.reporting.addgroupby"></b> -->
+	<!-- 	</div> -->
+	<!-- 	<div class="col-md-6"> -->
+	<!-- 		<select select2dir id="add-group-by-config" disabled="disabled" ng-model="config.chart.addGroupBy" ng-change="updateAddGroupByType(config.chart.addGroupBy)" ng-options="item.value as item.label for item in (config.groupBy | filter:{value:'!'+config.chart.groupBy})" /> -->
+	<!-- 	</div> -->
+	<!-- </div> -->
+	
+	<div class="row" ng-show="reportConfig.report.type !== 'rawtable' && (reportConfig.report.groupByType === 'tdates' || reportConfig.report.addGroupByType === 'tdates')">
+		<br />
+		<div class="col-md-3">
+			<b emf-label="widget.reporting.timeinterval"></b>
+		</div>
+		<div class="col-md-6">
+			<select select2one id="time-interval-config" ng-model="reportConfig.report.timeInterval" ng-options="item.value as item.label for item in getTimeIntervals()" />
+		</div>
+	</div>
+		
+	<div class="row" ng-show="reportConfig.report.type !== 'aggtable' && reportConfig.report.type !== 'rawtable'" >
+		<br />
+		<div class="col-md-3">
+		 	<b emf-label="widget.reporting.displayaggtable"></b>
+		</div>
+		<div class="col-md-6">
+			<input id="agg-table-config" type="checkbox" ng-model="reportConfig.report.aggregatedTable">
+		</div>
+	</div>
+	
+	<div id="add-visualization-config" ng-show="reportConfig.report.type !== 'rawtable' && reportConfig.report.type !== 'aggtable'">
+		<hr />
+		<h4 class="text-info" emf-label="widget.reporting.config.additional"></h4>
+		
+		<div class="row">
+			<div class="col-md-3">
+			 	<b emf-label="widget.reporting.config.legend"></b>
+			</div>
+			<div class="col-md-6">
+				<input id="chart-legend-config" type="checkbox" ng-model="reportConfig.report.chartLegend">
+			</div>
+		</div>
+	</div>
+		
+</div>

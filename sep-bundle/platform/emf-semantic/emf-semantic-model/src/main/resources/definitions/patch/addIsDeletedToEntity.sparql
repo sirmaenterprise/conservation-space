@@ -1,0 +1,15 @@
+PREFIX ptop:<http://www.ontotext.com/proton/protontop#>
+PREFIX emf:<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+INSERT {
+GRAPH <http://ittruse.ittbg.com/data/enterpriseManagementFramework>
+{
+?instance emf:isDeleted "false"^^xsd:boolean.
+}
+}
+WHERE
+{
+?instance a ptop:Entity ;
+filter ( NOT EXISTS { ?instance emf:isDeleted "true"^^xsd:boolean } )
+filter ( NOT EXISTS { ?instance emf:isDeleted "false"^^xsd:boolean } )
+}

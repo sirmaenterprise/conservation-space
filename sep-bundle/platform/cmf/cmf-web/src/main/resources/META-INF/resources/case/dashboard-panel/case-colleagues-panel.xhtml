@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:f="http://java.sun.com/jsf/core" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="caseColleaguesPanel" rendered="true" styleClass="dashboard-panel list-content case-colleagues-panel col-lg-4"
+		layout="block">
+	<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">
+				#{label['cmf.case.dashboard.panel.colleagues']}
+			</div>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="caseColleaguesPanel" />
+				<ui:param name="action" value="#{caseColleaguesPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="caseColleaguesPanelToolbar" styleClass="panel-toolbar">
+
+		</h:panelGroup>
+
+		<div class="panel-body case-colleagues-panel-body">
+			<rich:list id="roleList" value="#{caseColleaguesPanel.colleagues}" var="colleague" iterationStatusVar="index"
+				rowClass="list-item">
+				<div class="tree-header default_header">
+					<div class="instance-header">
+						<span class="icon-cell row#{index.count}">
+							<h:graphicImage library="images" name="user-icon-32.png" styleClass="header-icon" />
+						</span>
+						<span class="data-cell">
+							<span class="generated-region-label group-label colleagues-names-label">
+								<span>#{colleague.displayName}</span>
+								<h:panelGroup rendered="#{colleague.jobtitle.length() > 0 ? true : false}" layout="block">&#44;
+									<span>#{colleague.jobtitle}</span>
+								</h:panelGroup>
+							</span>
+							<span>#{colleague.role}</span>
+						</span>
+					</div>
+				</div>
+				<script type="text/javascript">
+					$(function(){
+						
+						var avatar = '#{colleague.avatarPath}';
+						var colleagueData = {
+								wrapper : '.case-colleagues-panel-body .row#{index.count}',
+								avatar  : encodeURIComponent(avatar),
+								context : SF.config.contextPath
+						};
+						
+						CMF.utilityFunctions.colleaguesUtils.avatarGenerator(colleagueData);
+					});
+				</script>
+			</rich:list>
+		</div>
+	</div>
+	</h:panelGroup>
+
+</ui:composition>

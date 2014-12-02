@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:rich="http://richfaces.org/rich">
+
+	<div class="object-details">
+		<rich:panel id="newStandaloneTaskDataPanel" styleClass="dynamic-form-panel-wrapper standalonetask-details-panel">
+			<div
+				class="item-selector-panel-wrapper standalonetask-type-toolbar #{standaloneTaskLandingPage.definitionSelectorVisiblityStyle()}">
+				<ui:include src="/common/select-one.xhtml">
+					<ui:param name="renderCondition" value="#{instanceUtil.isNotPersisted(standaloneTaskInstance)}" />
+					<ui:param name="selectorLabel" value="#{label['standalonetask.taskType.menu']}:" />
+					<ui:param name="activatorLinkValue" value="#{label['standalonetask.taskTypeMenu.defaultLabel']}" />
+					<ui:param name="itemsList" value="#{standaloneTaskLandingPage.definitionItems}" />
+					<ui:param name="action" value="#{standaloneTaskLandingPage}" />
+					<ui:param name="allowClear" value="false" />
+				</ui:include>
+			</div>
+
+			<h:panelGroup id="standaloneTaskDetails" class="standalone-task-details" layout="block">
+
+				<h:panelGroup id="instanceDataPanel" styleClass="dynamic-form-panel standalonetask-metadata-panel" />
+
+				<ui:include src="/task/transition-actions.xhtml">
+					<ui:param name="transitionActions" value="#{standaloneTaskLandingPage.transitionActions}" />
+					<ui:param name="transitionExecutor" value="#{standaloneTaskTransitionExecutor}" />
+					<ui:param name="additionalStyleClass" value="standalone-task-transitions" />
+					<ui:param name="currentInstanceObject" value="#{standaloneTaskInstance}" />
+				</ui:include>
+
+				<a4j:outputPanel id="buttonsPanel" ajaxRendered="true" layout="block" styleClass="cb">
+					<div class="buttons-panel standalonetask-buttons">
+						<ui:remove>Because of some stupid reason we can not use c:if as in other landing pages because the cancel button didn't get rendered here!</ui:remove>
+						<h:panelGroup rendered="#{(standaloneTaskInstance != null) and standaloneTaskLandingPage.isEditMode(standaloneTaskInstance)}">
+							<h:commandButton id="saveButton" action="#{standaloneTaskLandingPage.save(standaloneTaskInstance)}"
+								styleClass="btn btn-primary standard-button cmf-button blockUI"
+								value="#{label['cmf.btn.save']}" />
+							<h:commandButton id="cancelButton" action="#{standaloneTaskLandingPage.cancelEdit(standaloneTaskInstance)}"
+								styleClass="btn btn-default standard-button blockUI" value="#{label['cmf.btn.cancel']}" immediate="true" />
+						</h:panelGroup>
+						<c:if test="#{standaloneTaskInstance == null}">
+							<h:commandButton id="cancelButtonAndReturn" action="backward" styleClass="btn btn-default standard-button blockUI"
+								value="#{label['cmf.btn.cancel']}" immediate="true" />
+						</c:if>
+					</div>
+				</a4j:outputPanel>
+
+				<ui:repeat var="path" value="#{viewScope.basePaths}">
+					<script type="text/javascript">
+						#{viewScope[path]}
+					</script>
+				</ui:repeat>
+
+				<script type="text/javascript">
+					CMF.utilityFunctions.initDynamicForm('standalonetask-metadata-panel');
+					EMF.onbeforeload.preventBeforeLoadMessage();
+				</script>
+			</h:panelGroup>
+		</rich:panel>
+
+		<ui:include src="includes/task-facets-panel.xhtml" />
+	</div>
+
+</ui:composition>

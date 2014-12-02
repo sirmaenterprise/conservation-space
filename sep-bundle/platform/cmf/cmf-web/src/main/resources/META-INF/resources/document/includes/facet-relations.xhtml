@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup styleClass="facet relation" rendered="true" layout="block">
+		<div class="facet-header expanded" id="relationFacetHeader">
+			<h:outputText value="Relations" />
+		</div>
+
+		<div class="facet-content">
+			<c:if test="#{!documentContext.documentInstance.isHistoryInstance()}">
+				<ui:include src="/common/relations-widget.xhtml">
+					<ui:param name="wrapperId" value="documentRelations" />
+					<ui:param name="wrapperClass" value="document-relations" />
+					<ui:param name="wrapperStyle" value="margin: 15px 0px 0px 0px;" />
+					<ui:param name="instanceId" value="#{documentContext.documentInstance.id}" />
+					<ui:param name="instanceType" value="#{documentContext.documentInstance.getClass().getSimpleName().toLowerCase()}" />
+				</ui:include>
+			</c:if>
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:emf="http://com.sirma.itt.emf" template="/common/default-template.xhtml">
+
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{workflowTaskAction.initTaskDetailsPage()}" />
+	</f:metadata>
+
+	<ui:define name="pageParams">
+		<ui:param name="caseInstance" value="#{documentContext.CaseInstance}" />
+		<ui:param name="taskInstance" value="#{documentContext.TaskInstance}" />
+		<ui:param name="workflowInstanceContext" value="#{documentContext.WorkflowInstanceContext}" />
+	</ui:define>
+
+	<ui:define name="contextData">
+		<emf:treeHeader currentInstance="#{(taskInstance != null) ? taskInstance : documentContext.getContextInstance()}"
+			mode="breadcrumb_header" display="skip_root" extendedCurrent="true" />
+
+		<ui:include src="/common/min-allowed-actions.xhtml">
+			<ui:param name="currentInstance" value="#{taskInstance}" />
+			<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+			<ui:param name="placeholder" value="workflowtask-actions-facet" />
+			<ui:param name="renderLabel" value="true" />
+		</ui:include>
+	</ui:define>
+
+	<ui:define name="content">
+		<ui:include src="task-details-form.xhtml" />
+
+		<ui:include src="/task/reassign-task.xhtml">
+			<ui:param name="renderIds" value="taskDetails" />
+		</ui:include>
+
+		<ui:include src="/document/includes/uploaded-documents-popup.xhtml" />
+	</ui:define>
+
+</ui:composition>

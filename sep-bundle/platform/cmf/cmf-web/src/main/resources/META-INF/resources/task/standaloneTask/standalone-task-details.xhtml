@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:emf="http://com.sirma.itt.emf" template="/common/default-template.xhtml">
+
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{standaloneTaskLandingPage.initPage()}" />
+	</f:metadata>
+
+	<ui:define name="pageParams">
+		<ui:param name="standaloneTaskInstance" value="#{documentContext.StandaloneTaskInstance}" />
+	</ui:define>
+
+	<ui:define name="contextData">
+		<emf:treeHeader
+			currentInstance="#{(standaloneTaskInstance != null) ? standaloneTaskInstance : documentContext.getContextInstance()}"
+			mode="breadcrumb_header" extendedCurrent="true" display="skip_root" />
+
+		<ui:include src="/common/min-allowed-actions.xhtml">
+			<ui:param name="currentInstance"
+				value="#{(standaloneTaskInstance != null) ? standaloneTaskInstance : documentContext.getContextInstance()}" />
+			<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+			<ui:param name="placeholder" value="standalonetask-actions-facet" />
+			<ui:param name="renderLabel" value="true" />
+			<ui:param name="renderHidden" value="#{!standaloneTaskLandingPage.isPersisted(standaloneTaskInstance)}" />
+		</ui:include>
+	</ui:define>
+
+	<ui:define name="content">
+		<ui:include src="standalone-task-details-form.xhtml" />
+
+		<ui:include src="/document/includes/uploaded-documents-popup.xhtml" />
+
+		<ui:include src="/task/reassign-task.xhtml">
+			<ui:param name="renderIds" value="standaloneTaskDetails" />
+		</ui:include>
+	</ui:define>
+
+</ui:composition>

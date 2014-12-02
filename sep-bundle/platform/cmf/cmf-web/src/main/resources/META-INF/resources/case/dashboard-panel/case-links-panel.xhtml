@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="caseLinksPanel" styleClass="dashboard-panel list-content case-links-panel col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['cmf.case.dashboard.panel.links']}</div>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="caseLinksPanel" />
+				<ui:param name="action" value="#{caseLinksPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="caseLinksPanelToolbar" styleClass="panel-toolbar" layout="block">
+			<emf:panel id="caseLinksToolbarActions" styleClass="allowed-actions-inline">
+				<ui:include src="/common/min-allowed-actions.xhtml">
+					<ui:param name="currentInstance" value="#{caseInstance}" />
+					<ui:param name="renderLabel" value="true" />
+					<ui:param name="dashlet" value="#{caseLinksPanel}" />
+				</ui:include>
+			</emf:panel>
+		</h:panelGroup>
+
+		<div class="panel-body case-links-panel-body clearfix">
+			<rich:list id="caseLinksList" value="#{caseLinksPanel.caseLinks}" var="linkInstance" type="unordered"
+				rowClass="list-item">
+
+				<emf:treeHeader currentInstance="#{linkInstance.to}" mode="compact_header" display="current_only" size="small"
+					disableLinks="#{!entityPreviewAction.canOpenInstance(linkInstance.to)}">
+					<ui:define name="afterContent">
+						<h:outputText value="#{labelBuilder.getLinkDescriptionLabel(linkInstance)}" escape="false" />
+					</ui:define>
+				</emf:treeHeader>
+
+				<span class="item-actions">
+					<span>
+						<a4j:commandLink id="removeLinkButton" action="#{caseLinksPanel.removeCaseLink(linkInstance)}" value=""
+							execute="@this" render="caseLinksList" title="#{label['cmf.case.dashboard.links.removelink.btn']}">
+							<h:graphicImage library="images" name="delete.png" />
+						</a4j:commandLink>
+					</span>
+				</span>
+
+			</rich:list>
+		</div>
+
+		<a4j:commandLink id="refreshCaseLinksDashlet" value="refreshCaseLinksDashlet" action="refreshCaseLinksDashlet"
+			onclick="EMF.ajaxloader.showLoading('.case-links-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.case-links-panel-body');" styleClass="load-case-links-link hide"
+			render="caseLinksList" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

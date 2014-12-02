@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<!-- Using customChange tasks the ontology is updated. The class that executes
+		the task is com.sirma.itt.emf.semantic.patch.UpdateSemanticTask it has two
+		parameters: - fileName - List of files to be executed on the repository separated
+		with ';' - fileType - turtle or sparql - type of the files -->
+
+	<changeSet id="1.0.1" author="kpenev">
+		<comment>Initially insert ontologies</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/Proton/protontop.ttl;definitions/SKOS/skos.rdf;definitions/EMFDomainModel/emf.ttl;definitions/DC/dcterms.rdf" />
+			<param name="fileType" value="RDF" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="definitions/patch/removeCollectionType.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="definitions/indexes/dropFTSIndex.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="definitions/indexes/fulltextsearch.ttl" />
+			<param name="fileType" value="RDF" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.4.1" author="kpenev">
+		<comment>Migrate previous data</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/migrateHasChildRelation.sparql;definitions/patch/migrateHasChildComplexRelation.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/migrateThumbnailData1.sparql;definitions/patch/migrateThumbnailData2.sparql;definitions/patch/migrateThumbnailData3.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/migrateDefinitionIdFromEmf-type.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.4.2" author="kpenev">
+		<comment>Update EMF ontology</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/EMFDomainModel/emf.ttl" />
+			<param name="fileType" value="RDF" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.5.0" author="bbonev">
+		<comment>Add emf:isDeleted to all non deleted ptop:Entity</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addIsDeletedToEntity.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.5.1" author="kpenev">
+		<comment>Update EMF ontology - add processes and processedBy relations</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/EMFDomainModel/emf.ttl" />
+			<param name="fileType" value="RDF" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0" author="kpenev">
+		<comment>Update EMF ontology - added definitionId, container and dmsId properties</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/EMFDomainModel/emf.ttl" />
+			<param name="fileType" value="RDF" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-1" author="bbonev">
+		<comment>Update relations entities - added emf:source and emf:destination, removed old relation triplets</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/migrationRelationsSourceAndDestination.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-2" author="kpenev">
+		<comment>Add inverseRelation and completedReason predicates to EMF ontology</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertNewPredicates-20140821.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="emf-semantic-1.6.0-4" author="bbonev">
+		<comment>Add inverseRelation to all existing relations</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/createReverseRelations.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-5" author="kpenev">
+		<comment>Add SavedFilter class and defaultTemplate predicate</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertSavedFilterClass-20140826.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-6" author="kpenev">
+		<comment>Add predicates: filterType and filterCriteria</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertFilterPredicates-20140826.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-7" author="kpenev">
+		<comment>Update domain of the predicate processes and the range of the predicate processedBy in the EMF ontology</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/updateProcessesPredicateDomain.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-8" author="kpenev">
+		<comment>Insert the predicate emf:isActive</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertPredicateIsActive.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.6.0-9" author="kpenev">
+		<comment>Insert the predicates emf:hasParent, emf:parentOf and emf:purpose</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/InsertPredicatesHasParentAndParentOfPredicates.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertPredicatePurpose.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.7.0" author="kpenev">
+		<comment>Insert the predicate FileName</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertPredicateFileaName.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.7.0-1" author="kpenev">
+		<comment>Insert the predicate FileName</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertDefinitionIdForOrganizationAndCustomer.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="emf-semantic-1.7.0-2" author="kpenev">
+		<comment>Insert new tree relations, add missing section compact headers</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addMissingSectionCompactHeaders.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addTreeRelations.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="emf-semantic-1.7.0-3" author="bbonev">
+		<comment>Add missing section purpose</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addMissingPurposeToSections.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addMissingPurposeToIdocs.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.7.0-4" author="kpenev">
+		<comment>Add missing section purpose</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addIsSearchableToEMF.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+
+	<changeSet id="emf-semantic-1.7.0-5" author="kpenev">
+		<comment>Add missing section purpose</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertFileCreatedDateAndFileModifiedDatePredicates.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="emf-semantic-1.7.0-6" author="bbonev">
+		<comment>Add simple semantic relations for each primary complex one</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertSimpleRelationsForComplex.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="emf-semantic-1.7.0-7" author="kpenev">
+		<comment>Remove priority relation</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/removePriorityRelation.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="emf-semantic-1.7.0-8" author="kpenev">
+		<comment>Insert new predicates in EMF ontology</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertNewPredicates.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="emf-semantic-1.7.0-9" author="kpenev">
+		<comment>Update the label of emf:processes</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/changeLabelOfProcessesPredicate.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="emf-semantic-1.7.0-10" author="kpenev">
+		<comment>Insert the predicate emf:isVendorOf</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertIsVendorOfPredicate.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="emf-semantic-1.7.0-11" author="kpenev">
+		<comment>Update the URI of the predicate emf:Vendor</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/migrateHasVendorPredicate.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="emf-semantic-1.7.0-12" author="kpenev">
+		<comment>Update the URI of the predicate emf:Vendor</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/insertDepartmentNameProperty.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+</databaseChangeLog>

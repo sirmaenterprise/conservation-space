@@ -1,0 +1,450 @@
+/* Remove vertical scroll of the body because only the idoc editor panel will have vertical scroll 
+The .noscroll and position:fixed are because on paste/writing big documents the tinymce editor makes the browser scroll
+vertically a little and top of the page is hidden. This keeps the scroll "space" so the site do not jump, 
+its more like it disables it.*/
+html,body.noscroll {
+	overflow-y: hidden;
+    position: fixed; 
+    width: 100%;
+}
+
+.print-override-overflow {
+    overflow-y: auto !important;
+    position: static !important;  
+}
+
+/* Align object type selector with template selector dropdowns */
+.item-selector-panel .selector-label {
+	display: inline-block;
+	width: 70px;
+}
+
+/* style the whole idoc view as a table to avoid floating, etc. */
+.idoc-container {
+	display: table;
+	width: 100%;
+	margin-top: 10px;
+}
+
+.idoc-container>div {
+	display: table-row;
+}
+
+.idoc-container>div>div {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.idoc-container .idoc-first-row {
+	min-height: 40px;
+}
+
+/* left column */
+.idoc-left-column {
+	width: 15%;
+}
+
+/* left navigation */
+.idoc-navigation,.idoc-document-body {
+	overflow: hidden;
+}
+
+/* DnD placeholder styling */
+.idoc-nav-placeholder {
+    border: 1px dashed #4183C4;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+/* nestedSortable styling */
+.mjs-nestedSortable-error {
+    background: #fbe3e4;
+    border-color: transparent;
+}
+
+/* set background color and accordion styles */
+.idoc-left-column,.idoc-left-column .ui-accordion-content {
+	background-color: #F9F9F9;
+}
+
+.idoc-left-column .objects-tree {
+	max-height: 350px !important;
+}
+
+.idoc-left-column .objects-tree:hover {
+	overflow: auto;
+}
+
+.ui-accordion-content-active {
+	border-right: 1px solid #D3D3D3 !important
+}
+
+/* align the icon image and title field */
+.idoc-icon {
+	padding-top: 1px;
+}
+
+/* editor column */
+.idoc-middle-column {
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 716px;
+}
+
+.idoc-editor-column {
+	padding-right: 2px;
+	border-right: 3px dotted lightgray;
+}
+
+/* actions */
+/* align actions button with the title field */
+.idoc-action-btn {
+	margin-left: 5px;
+	margin-top: 6px;
+}
+
+.idoc-action-btn {
+	line-height: 20px;
+	font-size: 14px !important;
+	padding: 0.1em 0.5em !important;
+}
+
+.idoc-middle-column .idoc-first-row .btn-group {
+	line-height: 20px;
+	margin: 0px !important;
+	padding-top: 0px !important;
+	margin-left: 5px !important;
+}
+
+/* make the actions button the same size as the other buttons */
+.idoc-actions {
+	height: 25px;
+}
+
+.idoc-title-edit {
+	font-size: 22px;
+	max-width: 510px;
+	padding: 0px 0px 0px 5px;
+}
+
+.idoc-title-preview {
+	width: 545px;
+	font-size: 24px;
+	/* make the div to take its space even if empty */
+	min-height: 1px;
+	/*if the title is too long show a scroll*/
+	max-height:110px;
+	overflow:auto;
+	padding-left: 7px;
+}
+
+/* editor */
+/* Workaround for tinymce panel in inline mode (for unknown reason it sets longer length) */
+.mce-tinymce {
+	height: 58px !important;
+	min-width: 740px;
+}
+
+
+.mce-tinymce.mce-tinymce-inline.mce-floatpanel {
+	/* CMF-8824 */
+	height: 0 !important;
+}
+
+.idoc-comments-column {
+	background-color: #F9F9F9;
+	
+	/* new topic btns won't be visible otherwise */
+	overflow: visible !important;
+}
+
+/* wraps the both the editor and comments */
+.idoc-content-container {
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+.idoc-editor-width {
+	min-width: 716px;
+}
+
+/* display editor like a paper */
+.idoc-editor-container {
+	min-height: 90%;
+	min-width: 500px;
+	overflow: auto;
+	margin-bottom: 40px;
+}
+
+.idoc-main-editor-placeholder {
+	margin-bottom: 5px;
+}
+
+.idoc-editor-table {
+	width: 100%;
+	border-top: 1px solid lightgray;
+}
+
+.idoc-editor-table>tbody>tr>td {
+	vertical-align: top;
+}
+
+.idoc-editor {
+	width: 624px;
+	max-width: 624px;
+	word-wrap: break-word;
+	margin-left: auto;
+	margin-right: auto;
+	
+	/* Otherwise comments will not align with sections, tinymce sets this to relative. */
+	position: static !important;
+}
+
+/* make the fixed-width buttons smaller to take less place */
+.mce-menubtn.mce-fixed-width span {
+	width: 60px;
+}
+
+/* make "Table" toolbar item the same height as the other items */
+.mce-widget.mce-btn>button {
+	line-height: 15px !important;
+}
+
+/* remove mce dotted outline when the editor is focused */
+.mce-edit-focus {
+	outline: none !important;
+}
+
+.mce-i-picker {
+	background-image: url("/emf/js/libs/tinymce/plugins/internal_thumbnail_link/objectPickerLink.jpg") !important;
+	background-repeat: no-repeat;
+}
+
+.mce-i-thumbnail-picker {
+	background-image: url("/emf/js/libs/tinymce/plugins/internal_thumbnail_link/objectPickerThumbnail.jpg") !important;
+	background-repeat: no-repeat;
+}
+
+/** tinymce styles **/
+.mce-tinymce-inline {
+	display: block !important;
+}
+
+/** remove tinymce background **/
+.mce-tinymce,.mce-tinymce>div>div {
+	background: none !important;
+	background-image: none !important;
+	border: none !important;
+}
+
+.mce-btn.mce-disabled button {
+	opacity: 0.99 !important;
+}
+
+.mce-widget.mce-btn {
+	line-height: 16px;
+}
+
+.mce-widget.mce-btn * {
+	line-height: 16px;
+	font-size: 13px !important;
+}
+
+/* right column */
+.idoc-column-wrapper {
+	
+}
+
+/** end of remove tinymce background **/
+.comments-wrapper {
+	position: relative;
+	margin-left: 0.5em;
+	
+	/* new topic btns won't be visible otherwise */
+	overflow-x: visible;
+}
+
+.idoc-title-section h1 {
+	font-weight: bold;
+	font-size: 26px;
+}
+
+.vsplitbar {
+	width: 2px;
+	background-image: url('../images/vgrabber.gif');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-color: #cccccc;
+}
+
+/* left navigation styles (idoc-left-column) */
+.idoc-navigation ul {
+	padding-left: 10px;
+	list-style-type: none;
+	max-height:550px;
+	overflow:auto;
+}
+
+.idoc-navigation li {
+	padding-top: 4px;
+}
+
+.idoc-navigation a {
+	text-decoration: none;
+}
+
+/*Initialize*/
+ul#menu,ul#menu ul.sub-menu {
+	padding: 0;
+	margin: 0;
+	border: 1px solid #666;
+	border-radius: 5px;
+	background: #666;
+}
+
+ul#menu li,ul#menu ul.sub-menu li {
+	list-style-type: none;
+	display: block;
+	width: 100%;
+}
+
+ul#menu ul.sub-menu li {
+	border-bottom: 1px solid #f0f0f0;
+}
+
+ul#menu ul.sub-menu:last-child {
+	border: none;
+}
+
+/*Link Appearance*/
+ul#menu li a,ul#menu li ul.sub-menu li a {
+	text-decoration: none;
+	color: #fff;
+	padding: 5px;
+}
+/*Make the parent of sub-menu relative*/
+ul#menu li {
+	position: relative;
+}
+/*sub menu*/
+ul#menu li ul.sub-menu {
+	display: none;
+	position: absolute;
+	top: 20px;
+	left: 0;
+	min-width: 100px;
+}
+
+ul#menu li:hover ul.sub-menu {
+	display: block;
+}
+
+.inline-edit-write {
+	background-image: none !important;
+	width: 600px;
+	font-size: 25px !important;
+	font-weight: bold;
+}
+
+.info-banner {
+	padding-left: 30px;
+	background-color: #FFFFE0;
+	background-image:
+		url("/emf/javax.faces.resource/icon-warning-16.png.jsf?ln=images");
+	background-position: 5px 2px;
+	background-repeat: no-repeat;
+	border: 1px solid #FFCA7A;
+	color: #888888;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+.idoc-paceholder-text {
+	color: #C0C0C0;
+	font-style: italic;
+}
+
+.idoc-widgets {
+	padding-left: 15px;
+	list-style-type: none;
+	text-decoration: none;
+}
+
+.idoc-widgets a {
+	text-decoration: none;
+}
+
+.ui-accordion .ui-widget-content {
+	border: none;
+	background: #F9F9F9 !important;
+}
+
+.ui-accordion .ui-accordion-header {
+	cursor: pointer !important;
+	display: block !important;
+	margin-top: 0px !important;
+	min-height: 0 !important;
+	padding-left: 30px !important;
+	position: relative !important;
+	font-family: inherit;
+}
+
+.ui-accordion  .ui-state-default,.ui-accordion .ui-widget-content .ui-state-default,.ui-accordion  .ui-widget-header .ui-state-default
+	{
+	background: #F9F9F9 !important;
+	border: 1px solid #D3D3D3 !important;
+	border-bottom: 1px solid #FFF; ! important;
+	color: #555555 !important;
+}
+
+.ui-accordion  .ui-state-active,.ui-accordion  .ui-widget-content .ui-state-active,.ui-accordion .ui-widget-header .ui-state-active
+	{
+	background: #F9F9F9 !important;
+	border: 1px solid #D3D3D3;
+	border-bottom: 1px solid #FFF; ! important;
+	color: #212121;
+}
+
+.ui-accordion .ui-accordion-content {
+	overflow: auto;
+	padding: 5px;
+}
+
+.widget-selected {
+	padding-left: 10px;
+	padding-top: 4px;
+}
+
+.widget-selected a:hover {
+	color: #0090FF;
+}
+
+/*
+  Left navigation styles
+ */
+.itoc-selected {
+	font-weight: bold;
+}
+
+a.idoc-section-link:hover {
+	color: #0090FF;
+}
+
+.idoc-section-link .button-delete.glyphicons.remove_2:before {
+	display: none;
+}
+
+.idoc-section-link:hover .button-delete.glyphicons.remove_2:before {
+	display: inline-block;
+    color: #FF0000;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+/* properly position the expand/collapse */
+.idoc-section-collapse {
+    display: inline-block;
+    margin-bottom: -3px;
+    cursor: pointer;
+}

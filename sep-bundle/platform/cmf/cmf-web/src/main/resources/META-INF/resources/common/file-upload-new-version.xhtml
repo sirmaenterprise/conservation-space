@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	template="/common/modal-panel.xhtml">
+	
+	<ui:define name="panelParams">
+		<ui:param name="panelId" value="uploadNewVersionPanel" />
+		<ui:param name="panelClosingFunction" 
+			value="CMF.utilityFunctions.hideIframeAndManageDialogDimensions('previewFrame', false);#{rich:component('uploadNewVersionPanel')}.hide(); CMF.fileUpload.resetUploadPanel('.file-upload-new-version');" />
+		<ui:param name="panelShowFunction"
+			value="CMF.fileUpload.resetUploadPanel('.file-upload-new-version'); CMF.fileUpload.resetUploadPanel('.file-upload-new-version');" />
+	</ui:define>
+	
+	<ui:define name="panelHeader">
+		<h:outputText value="#{label['cmf.document.upload.new.version.document.title.label']}" />
+	</ui:define>
+
+	<ui:define name="panelContent">
+		
+		<div id="newVersionAdditionalData" class="new-version-add-data-group data-group">
+			
+			<span class="group-label">#{label['cmf.document.upload.new.document.info.label']}:</span>
+		
+			<div class="row-group version-type-group">
+				<label>#{label['cmf.document.upload.new.document.versionType.label']}</label>
+				<h:selectOneRadio id="versionType"  value="#{uploadAction.isMajorVersion}" styleClass="file-version-type" >
+					<f:selectItem itemLabel="#{label['cmf.document.upload.new.document.versionType.minor']}" itemValue="false" />
+					<f:selectItem itemLabel="#{label['cmf.document.upload.new.document.versionType.major']}" itemValue="true" />
+				</h:selectOneRadio>
+			</div>
+		
+			<div class="row-group version-description-group required-field">
+				<label>#{label['cmf.document.upload.document.description.label']}</label> 
+				<h:inputTextarea id="newVersionDescription" value="#{uploadAction.newVersionDescription}"
+					styleClass="new-version-description"
+					onkeyup="CMF.fileUpload.toggleUploadButton([this], '.file-upload-new-version');" />					
+			</div>
+		</div>
+
+		<rich:fileUpload id="uploadNewVersion" fileUploadListener="#{uploadAction.listener}"  
+			styleClass="file-upload-new-version"
+			listHeight="1"
+			onfilesubmit="CMF.fileUpload.disableFields('.file-upload-new-version');"
+			execute="versionType,newVersionDescription"
+			maxFilesQuantity="#{uploadAction.uploadsAvailable}"
+			addLabel="#{label['cmf.document.upload.button.add']}"
+			uploadLabel="#{label['cmf.document.upload.button.upload']}"
+			deleteLabel="#{label['cmf.document.upload.button.delete']}" 
+			doneLabel="#{label['cmf.document.upload.label.done']}">
+				
+			<a4j:ajax event="uploadcomplete" execute="@none" render="#{renderId ? renderId : '@form'}" onbegin="#{rich:component('uploadNewVersionPanel')}.hide(); EMF.blockUI.showAjaxLoader();" 
+				oncomplete="CMF.fileUpload.onuploadcompleteHandler('.file-upload-new-version', #{rich:component('uploadNewVersionPanel')});CMF.utilityFunctions.hideIframeAndManageDialogDimensions('previewFrame', false);" />
+			
+			<script type="text/javascript">
+				$(function(){
+					$('.rf-fu-btn-upl').click(function(){
+						CMF.fileUpload.changeUploadPanelIndexes("formId:uploadNewVersionPanel");
+					});
+				});
+			</script>	
+		</rich:fileUpload>
+	</ui:define>
+
+	<ui:define name="panelButtons">
+		<a4j:commandButton id="cancelButton" value="#{label['confirm.cancel']}" 
+			styleClass="popup-buttons btn btn-default standard-button"
+	 		onclick="#{panelClosingFunction} EMF.blockUI.hideAjaxBlocker();" render="@none" />
+	</ui:define>
+
+</ui:composition>

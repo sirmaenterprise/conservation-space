@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="../jquery-ui-1.8.23/themes/base/minified/jquery-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="../balloontip/balloontip.css" />
+<link rel="stylesheet" type="text/css" href="../view/image.css" />
+<script type="text/javascript" src="../custom/custom.js"></script>
+<script type="text/javascript" src="../jquery.js"></script>
+<script type="text/javascript" src="../js-hotkeys/jquery.hotkeys.min.js"></script>
+<script type="text/javascript" src="../jquerybbq/jquery.bbq.min.js"></script>
+<script type="text/javascript" src="../svgicons/jquery.svgicons.js"></script>
+<script type="text/javascript" src="../jgraduate/jquery.jgraduate.min.js"></script>
+<script type="text/javascript" src="../spinbtn/JQuerySpinBtn.min.js"></script>
+<script type="text/javascript" src="../touch.js"></script>
+<script type="text/javascript" src="../contextmenu/jquery.contextMenu.js"></script>
+<script type="text/javascript" src="../browser.js"></script>
+<script type="text/javascript" src="../svgtransformlist.js"></script>
+<script type="text/javascript" src="../math.js"></script>
+<script type="text/javascript" src="../units.js"></script>
+<script type="text/javascript" src="../svgutils.js"></script>
+<script type="text/javascript" src="../sanitize.js"></script>
+<script type="text/javascript" src="../history.js"></script>
+<script type="text/javascript" src="../select.js"></script>
+<script type="text/javascript" src="../draw.js"></script>
+<script type="text/javascript" src="../path.js"></script>
+<script type="text/javascript" src="../svgcanvas.js"></script>
+<script type="text/javascript">
+    var host = window.location.hostname;
+    if (window.location.port.toString().length > 0) {
+	host = host + ':' + window.location.port;
+    }
+    var href = window.location.href;
+    var root = href.substring(href.indexOf(host) + host.length);
+    root = root.substring(0, root.indexOf('/', 1));
+
+    svgSpace.rootPath = root;
+    svgSpace.toolPath = root;
+</script>
+<script type="text/javascript" src="../svg-editor.js"></script>
+<script type="text/javascript" src="../locale/locale.js"></script>
+<script type="text/javascript" src="../contextmenu.js"></script>
+<script type="text/javascript" src="../jquery-ui/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" src="../jgraduate/jpicker.js"></script>
+<script type="text/javascript" src="../balloontip/balloontip.js"></script>
+<script type="text/javascript" src="../jquery-ui-1.8.23/ui/minified/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../view/image.js"></script>
+<script type="text/javascript" src="../view/jquery.ba-throttle-debounce.min.js"></script>
+<script type="text/javascript" src="../view/comment.js"></script>
+<script type="text/javascript" src="../custom/imageCache.js"></script>
+</head>
+<body onLoad="onLoad();">
+	<div id="info_panel" style="visibility: hidden;"></div>
+	<div id="page">
+		<div id="sub-main-container">
+			<div id="imageDetails" style="display: none;"></div>
+			<div id="annotations" style="display: block;">
+				<div id="art-prospect-head" class="clearfix">
+					<div>
+						<div class="tools-wrap">
+							<div class="tools">
+								<ul class="tools-edit radioButtons">
+									<li class="line"><a href="javascript:void(0);"><span class="tool_button" id="tool_line">line</span></a></li>
+									<li class="draw"><a href="javascript:void(0);"><span class="tool_button" id="tool_fhpath">draw</span></a></li>
+									<li class="circle"><a href="javascript:void(0);"><span data-curopt="#tool_my_ellipse" class="tool_button" id="tool_my_ellipse">circle</span></a></li>
+									<li class="square"><a href="javascript:void(0);"><span data-curopt="#tool_my_rect" class="tool_button" id="tool_my_rect">square</span></a></li>
+									<li class="vector"><a href="javascript:void(0);"><span class="tool_button" id="tool_path">vector</span></a></li>
+									<li class="point"><a href="javascript:void(0);"><span data-curopt="#tool_star" class="tool_button" id="tool_star">vector</span></a></li>
+									<li class="arrow active"><a href="javascript:void(0);"><span class="tool_button" id="tool_select">arrow</span></a></li>
+								</ul>
+								<span id="palette">
+									<ul class="tools-colour radioButtons">
+										<li class="red"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ff0000"></a></li>
+										<li class="orange"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ffaa00"></a></li>
+										<li class="yellow"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ffff00"></a></li>
+										<li class="green"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#33cc33"></a></li>
+										<li class="blue"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#00ffff"></a></li>
+										<li class="azure"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#336699"></a></li>
+										<li class="pink"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#ff77bb"></a></li>
+										<li class="grey active"><a href="javascript:void(0);" class="palette_item tool_button" data-rgb="#333333"></a></li>
+									</ul>
+								</span>
+								<ul class="tools-edit radioButtons">
+									<li class="comp-1 active"><a href="javascript:void(0);"><span>compare 1</span></a></li>
+									<li class="comp-2"><a href="javascript:void(0);"><span>compare 2</span></a></li>
+									<li class="comp-3"><a href="javascript:void(0);"><span>compare 3</span></a></li>
+									<li class="comp-3"><a href="javascript:void(0);"><span>compare 3</span></a></li>
+								</ul>
+								<ul class="tools-edit">
+									<li class="arrow-left"><a href="javascript:void(0);"><span class="push_button" id="tool_undo_dummy">left</span></a></li>
+									<li class="arrow-right"><a href="javascript:void(0);"><span class="push_button" id="tool_redo_dummy">right</span></a></li>
+									<li><a href="javascript:void(0);" id="normalscreen" style="display: none;"><span>normal screen</span></a></li>
+									<li><a href="javascript:void(0);" id="fullscreen"><img src="images/fullscreen.png" /></a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="navigation-bar">
+							<ul id="flydown-menu">
+								<li class="button-wrap last"><a href="javascript:void(0);" class="flydown-handle overlayMenu disabled">Overlay ssss<span></span></a>
+									<div class="flyout-menu right">
+										<div class="flyout-section add-overlay">
+											<a href="javascript:void(0);" class="dark-buttongrad">Add Overlay</a>
+										</div>
+									</div></li>
+							</ul>
+						</div>
+					</div>
+					<div class="comment-box">
+						<div class="comment-title-label">Title *</div>
+						<input class="comment-title-input" type="text" />
+						<div>Comment</div>
+						<textarea rows="4" cols="40" class="comment-editor" type="text">
+							<p />
+						</textarea>
+						<input type="button" class="comment-post-btn" value="Post" /> <input type="button" class="comment-cancel-btn" value="Cancel" />
+					</div>
+				</div>
+				<div id="art-prospect-body" class="clearfix">
+					<div class="col-60">
+						<div id="svg_editor">
+							<input value="show_rulers" id="show_rulers" type="checkbox" style="visibility: hidden; display: none;" />
+							<div id="rulers" style="visibility: hidden; display: none;">
+								<div id="ruler_corner"></div>
+								<div id="ruler_x">
+									<div>
+										<canvas height="0"></canvas>
+									</div>
+								</div>
+								<div id="ruler_y">
+									<div>
+										<canvas width="0"></canvas>
+									</div>
+								</div>
+							</div>
+							<div id="menu_panel" style="display: none;">
+								<div id="color_tools" class="tool_button" style="display: none;">
+									<div id="tool_stroke" class="color_tool" data-curopt="#tool_stroke" title="">
+										<div class="color_block">
+											<label title="" class="icon_label"></label>
+										</div>
+										<div class="color_block" style="display: none;">
+											<div id="stroke_bg"></div>
+											<div title="" class="color_block" id="stroke_color" style="display: none;">test</div>
+										</div>
+										<label style="display: none;"><input type="text" data-attr="Stroke Width" value="5" size="1" title="" id="stroke_width" autocomplete="off" class="spin-button" /></label>
+										<div id="stroke_linejoin" class="stroke_tool dropdown dropup">
+											<div>
+												<div title="" id="cur_linejoin"></div>
+												<button></button>
+											</div>
+										</div>
+										<div id="stroke_linecap" class="stroke_tool dropdown dropup">
+											<div>
+												<div title="" id="cur_linecap"></div>
+												<button></button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div style="display: inline-block;">
+								<div id="workarea">
+									<div id="svgcanvas" style="overflow: hidden;"></div>
+								</div>
+								<div id="zoom_panel" class="zoom-bar">
+									<a href="javascript:void(0);"><span class="tool_button" id="tool_zoom_out"><img src="images/zoom_out.png" /></span></a>
+									<div id="zoomer"></div>
+									<a href="javascript:void(0);"><span class="tool_button" id="tool_zoom_in"><img src="images/zoom_in.png" /></span></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-36">
+						<div id="commentFacetHeader" class="facet-header expanded">Comments</div>
+						<div class="data-annotation annotation facet-content">
+							<div class="data-annotation-head">
+								<div class="tabs">
+									<div class="tabs-head clearfix">
+										<input type="radio" name="group1" value="" checked="checked">All</input> <input type="radio" name="group1" value="current">Only This Level</input> <input type="radio" name="group1" value="0">None</input>
+										<div class="clearfix"></div>
+										<a id="addAnnotation" class="dark-buttongrad small" href="javascript:void(0);">Add annotation</a>
+										<ul>
+											<li><a href="javascript:void(0);">Filter</a></li>
+											<li><a href="javascript:void(0);">Sort</a></li>
+										</ul>
+									</div>
+									<div class="tabs-content">
+										<div id="filterMenu">
+											<table border="0" cellspacing="10">
+												<tr>
+													<td>Author</td>
+													<td><select id="author">
+															<option value=""></option>
+													</select></td>
+													<td>Keyword</td>
+													<td><input id="keyword" /></td>
+												</tr>
+												<tr>
+													<td>From date</td>
+													<td><input id="fromDate" /></td>
+													<td>To date</td>
+													<td><input id="toDate" /></td>
+												</tr>
+											</table>
+										</div>
+										<div class="clearfix">
+											<div class="export-btns">
+												<a class="dark-buttongrad" href="javascript:cancelFilter();">Cancel</a> <a class="dark-buttongrad" href="javascript:resetFilter();">Reset filters</a> <a class="light-buttongrad" href="javascript:doFilter();">Filter</a>
+											</div>
+										</div>
+									</div>
+									<div class="tabs-content">
+										<div id="sortMenu">
+											<table border="0" cellspacing="10">
+												<tr>
+													<td>Creation date <input type="radio" name="sort" value="sortByCreation" id="sortByCreation" checked="checked" /></td>
+													<td>Last comment date <input type="radio" name="sort" value="sortByComment" id="sortByComment" /></td>
+												</tr>
+											</table>
+										</div>
+										<div class="clearfix">
+											<div class="export-btns">
+												<a class="dark-buttongrad" href="javascript:cancelSort();">Cancel</a> <a class="light-buttongrad" href="javascript:doSort();">Sort</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="annotationsContent">
+								<div class="comments" id="treePane"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

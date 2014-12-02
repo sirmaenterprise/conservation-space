@@ -1,0 +1,9 @@
+	select ?property (group_concat(distinct ?data ; separator = ", ") AS ?subProperties)
+	{
+		?property1 rdfs:subPropertyOf ?property .
+		bind(if(contains(str(?property1), "#"), STRAFTER(str(?property1), "#"), if(contains(str(?property1), "dc/terms"), replace(str(?property1), "http://purl.org/dc/terms/", ""),replace(str(?property1), "http://purl.org/dc/elements/1.1/", ""))) as ?label) .
+		bind(if(contains(str(?property1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?property1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?property1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?property1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?property1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?property1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?data) .
+		filter (?property != ?property1)
+	}
+	group by ?property

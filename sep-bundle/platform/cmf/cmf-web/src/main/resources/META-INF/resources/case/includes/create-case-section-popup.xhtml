@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	template="/common/modal-panel.xhtml">
+	
+	<ui:define name="panelParams">
+		<ui:param name="panelId" value="createCaseSectionPopup" />
+		<ui:param name="panelClosingFunction" value="#{rich:component(panelId)}.hide();" />
+		<ui:param name="panelShowFunction" value="CMF.utilityFunctions.resetPanel('.case-section-title','.create-case-section-button');" />
+	</ui:define>
+
+	<ui:define name="panelHeader">
+		<h:outputText value="#{label['cmf.case.section.create.popup.title']}" />
+	</ui:define>
+
+	<ui:define name="panelContent">
+		<div id="sectionTitleGroup" class="row-group required-field">
+			<h:outputLabel for="sectionTitle" value="#{label['cmf.case.section.title']}" />
+			<h:inputText id="sectionTitle" styleClass="case-section-title max-width-style" 
+				value="#{caseAction.caseSectionTitle}" autocomplete="off"
+				onkeyup="CMF.keyUpHandlers.toggleSaveButton(this, '.create-case-section-button');" />
+		</div>
+	</ui:define>
+	
+	<ui:define name="panelButtons">
+		<a4j:commandButton id="createCaseSectionButton" 
+			value="#{(documentContext.selectedAction != null) ? documentContext.selectedAction.label : label['cmf.btn.save']}" 
+			oncomplete="jQuery('.case-section-title').val('');"
+			styleClass="create-case-section-button btn btn-primary standard-button"
+			onclick="#{rich:component('createCaseSectionPopup')}.hide();"
+			action="#{caseAction.createCaseSection()}"
+			render="#{renderId ? renderId : '@form'}" />
+		
+		<a4j:commandButton id="cancelCreateCaseSectionButton" action="cancel" value="#{label['cmf.btn.cancel']}"
+			onclick="#{rich:component('createCaseSectionPopup')}.hide();" 
+			styleClass="btn btn-default standard-button"
+			immediate="true" />
+	</ui:define>
+	
+</ui:composition>

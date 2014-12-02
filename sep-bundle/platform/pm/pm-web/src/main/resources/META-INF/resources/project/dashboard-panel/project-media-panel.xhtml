@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:emf="http://com.sirma.itt.emf" xmlns:h="http://java.sun.com/jsf/html">
+
+	<h:panelGroup id="projectMediaPanel" styleClass="dashboard-panel media-panel list-content col-lg-4" layout="block">
+		<div class="widget-content">
+		<div class="panel-header rf-p-hdr">
+			<div class="panel-title">#{label['pm.user.dashboard.media.panel.header']}</div>
+
+			<ui:include src="/search/dashlet-search/total-count.xhtml">
+				<ui:param name="panelId" value="projectMediaPanel" />
+				<ui:param name="action" value="#{projectMediaPanel}" />
+			</ui:include>
+
+			<ui:include src="/dashlet/dashlet-controls.xhtml">
+				<ui:param name="panelId" value="projectMediaPanel" />
+				<ui:param name="action" value="#{projectMediaPanel}" />
+			</ui:include>
+		</div>
+
+		<h:panelGroup id="projectMediaPanelToolbar" styleClass="panel-toolbar media-dashlet">
+			<ui:include src="/search/dashlet-search/search-toolbar.xhtml">
+				<ui:param name="panelId" value="projectMediaPanel" />
+				<ui:param name="action" value="#{projectMediaPanel}" />
+				<ui:param name="renderId" value="projectMediaPanel" />
+			</ui:include>
+		</h:panelGroup>
+
+		<div class="panel-body project-media-list-panel-body tree-header-wrapper">
+			<rich:list id="projectMediaList" value="#{projectMediaPanel.result}" style="border:none !important;"
+				var="documentInstance" type="unordered" rowClass="list-item">
+				<emf:treeHeader currentInstance="#{documentInstance}" renderThumbnail="true" mode="#{dashletsTreeHeaderMode}"
+					display="#{dashletsTreeHeaderDisplay}" size="#{dashletsTreeHeaderSize}" />
+				<div class="item-link-min">
+					<ui:include src="/common/min-allowed-actions.xhtml">
+						<ui:param name="currentInstance" value="#{documentInstance}" />
+						<ui:param name="contextInstance" value="#{documentContext.getCurrentInstance()}" />
+						<ui:param name="placeholder" value="#{projectMediaPanel.targetDashletName()}" />
+						<ui:param name="ajaxLoaderRenderElement" value=".project-media-list-panel-body" />
+					</ui:include>
+				</div>
+			</rich:list>
+		</div>
+
+		<a4j:commandLink id="refreshProjectMediaDashlet" value="media dashlet" action="refreshProjectMediaDashlet"
+			onclick="EMF.ajaxloader.showLoading('.project-media-list-panel-body');"
+			oncomplete="EMF.ajaxloader.hideLoading('.project-media-list-panel-body');" styleClass="load-media-link hide"
+			render="projectMediaList, projectMediaPanelToolbar" execute="@this" />
+		</div>
+	</h:panelGroup>
+
+</ui:composition>

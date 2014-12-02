@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j">
+	
+	<h:panelGroup id="resourceAllocationSelectUsers">
+		<span id="resourceAllocationSelectUsersWrapper" style="float: left;">
+			<h:inputHidden id="selectedUsers" value="#{resourceAllocationAction.selectedUsers}" />
+
+			<a4j:commandButton id="resourceAllocationSelectUsersButton" value="" execute="selectedUsers" styleClass="hide"
+				action="#{resourceAllocationAction.viewForSelectedUsers()}"  />
+		</span>
+		
+		<script type="text/javascript">
+			$('#resourceAllocationSelectUsersWrapper').picklist({
+				updatePreviewField 	: false,
+				pklMode				: 'multy',
+				submitValueLink 	: $('#resourceAllocationSelectUsersWrapper input[type=submit]'),
+				hiddenField 		: $('#resourceAllocationSelectUsersWrapper input[type="hidden"]'),
+				okButtonTitle		: "#{label['cmf.btn.proceed']}",
+				cancelButtonTitle	: "#{label['cmf.btn.cancel']}",
+				headerTitle			: "#{label['pm.taskallocation.selectusers']}",
+				imgResourceService  : "/service/dms/proxy/",
+				applicationContext  : SF.config.contextPath
+			});
+		</script>
+	</h:panelGroup>
+
+</ui:composition>

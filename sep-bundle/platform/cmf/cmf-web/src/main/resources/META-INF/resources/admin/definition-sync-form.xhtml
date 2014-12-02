@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:rich="http://richfaces.org/rich">
+	
+	<div class="synchronization" >
+		<label for="synchMenu">#{label['cmf.administration.definitions.synching']}</label>
+		
+		<h:selectOneMenu  id="synchMenu" value="#{administration.serverGroup}" onchange="CMF.onchangeHandlers.selectChange(this,'.synchro-button');submit()" 
+		 valueChangeListener="#{administration.preloadServerGroup}">	
+			<f:selectItem itemValue="" itemLabel="" noSelectionOption="true" />
+				<f:selectItem itemValue="cases" itemLabel="#{label['cmf.administration.definitions.caseslabel']}"  />
+				<f:selectItem itemValue="documents" itemLabel="#{label['cmf.administration.definitions.documentslabel']}"  />
+				<f:selectItem itemValue="workflows" itemLabel="#{label['cmf.administration.definitions.workflowlabel']}"  />
+		</h:selectOneMenu>
+	</div>
+	
+	<div class="buttons-panel sync-buttons">
+	  <h:commandButton styleClass="btn btn-default standard-button synchro-button" action="#{administration.refreshServerGroup}" 
+	  	value="#{label['cmf.administration.definitions.synchButton']}" 
+	  	disabled="#{administration.serverGroup == null}"
+	  	onmousedown="EMF.config.pageBlockerOFF = true" />
+	</div>
+	
+	
+</ui:composition>	

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich">
+
+	<h:panelGroup id="itemListToolbar" layout="block" styleClass="item-list-toolbar clearfix">
+
+		<div style="width: 33%; float: left; visibility: hidden;">&#160;</div>
+
+		<h:panelGroup layout="block" styleClass="cmf-datascroller-wrapper">
+			<rich:dataScroller for="caseMasterTable" scrollListener="#{caseSearchAction.onScroll}"
+				maxPages="#{configurationProvider.getContextParam('maxPages')}" ignoreDupResponses="true" boundaryControls="hide"
+				fastControls="hide" styleClass="cmf-datatable-scroller" renderIfSinglePage="false" />
+		</h:panelGroup>
+
+		<h:panelGroup id="itemListSortingBar" layout="block" styleClass="item-list-sorting-bar">
+
+			<span>
+				<a4j:outputPanel id="sortingOptionsMenuWrapper" ajaxRendered="true">
+					<ui:include src="/common/select-one.xhtml">
+						<ui:param name="activatorLinkValue"
+							value="#{label['cmf.case.search.args.'.concat(caseSearchAction.searchData.sorter.sortField)]}" />
+						<ui:param name="itemsList" value="#{caseSearchAction.sortActions}" />
+						<ui:param name="action" value="#{caseSearchAction}" />
+						<ui:param name="allowClear" value="false" />
+					</ui:include>
+				</a4j:outputPanel>
+			</span>
+
+			<a4j:commandLink id="sortingOrderButton" value="" action="#{caseSearchAction.switchOrder()}" render="@form"
+				styleClass="btn btn-default btn-sm glyphicon switch-order-btn blockUI #{(caseSearchAction.sortOrderAscending) ? 'glyphicon-sort-by-alphabet-alt' : 'glyphicon-sort-by-alphabet'}">
+				<h:outputText value=" " />
+			</a4j:commandLink>
+		</h:panelGroup>
+
+	</h:panelGroup>
+
+</ui:composition>
