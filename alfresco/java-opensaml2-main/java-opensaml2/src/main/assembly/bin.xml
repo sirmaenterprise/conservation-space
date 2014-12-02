@@ -1,0 +1,68 @@
+<!-- Binary distribution, along with dependency jar files -->
+<assembly>
+    <id>bin</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+    
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <excludes>
+                <exclude>org.apache.xerces:*</exclude>
+                <exclude>org.apache.xalan:*</exclude>
+                <exclude>org.opensaml:opensaml:*</exclude>
+            </excludes>
+            <includes>
+                <include>*:jar:*</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/endorsed</outputDirectory>
+            <includes>
+                <include>org.apache.xerces:*</include>
+                <include>org.apache.xalan:*</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+    
+    <fileSets>
+        <fileSet>
+            <includes>
+                <include>RELEASE-NOTES*</include>
+                <include>LICENSE*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- Documentation -->
+        <fileSet>
+            <directory>doc/</directory>
+            <outputDirectory>/doc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/site/apidocs</directory>
+            <outputDirectory>/doc/api</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/site/style</directory>
+            <outputDirectory>/doc/style</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/site/unitTest</directory>
+            <outputDirectory>/doc/unitTest</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/site/xref</directory>
+            <outputDirectory>/doc/src-xref</outputDirectory>
+        </fileSet>
+    </fileSets>
+    
+</assembly>
