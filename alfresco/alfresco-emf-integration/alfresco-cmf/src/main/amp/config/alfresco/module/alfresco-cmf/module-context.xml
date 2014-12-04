@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+	<bean id="ServiceProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>com.sirma.itt.cmf.integration.ServiceProxy</value>
+		</property>
+		<property name="target">
+			<ref bean="serviceProxy" />
+		</property>
+	</bean>
+	<bean id="serviceProxy" class="com.sirma.itt.cmf.integration.Alfresco4ServiceProxy">
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+	</bean>
+	<import resource="classpath:alfresco/module/alfresco-cmf/context/cmfModels-context.xml" />
+	<import resource="classpath:alfresco/module/alfresco-cmf/context/workflow-context.xml" />
+	<import resource="classpath:alfresco/module/alfresco-cmf/context/cmf-services-context.xml" />
+	<import resource="classpath:alfresco/module/alfresco-cmf/context/cmf-webscripts-context.xml" />
+</beans>

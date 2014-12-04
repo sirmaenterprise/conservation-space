@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="cmfwf:workflowmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+		<import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm" />
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+	</imports>
+
+	<namespaces>
+		<namespace uri="http://www.sirmaitt.com/model/workflow/cmf/1.0" prefix="cmfwf" />
+	</namespaces>
+
+	<types>
+
+		<type name="cmfwf:submitTask">
+			<parent>bpm:startTask</parent>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<type name="cmfwf:randomTask">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>
+		<type name="cmfwf:userTask">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>
+		<type name="cmfwf:multiInstanceTask">
+			<parent>cmfwf:randomTask</parent>
+			<properties>
+				<property name="cmfwf:rejectCount">
+					<title>Reject Count</title>
+					<type>d:int</type>
+				</property>
+				<property name="cmfwf:approveCount">
+					<title>Approve Count</title>
+					<type>d:int</type>
+				</property>
+				<property name="cmfwf:requiredPercent">
+					<title>Required approve percent</title>
+					<type>d:float</type>
+				</property>
+				<property name="cmfwf:multiInstanceCount">
+					<title>Count of created tasks</title>
+					<type>d:int</type>
+				</property>
+			</properties>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>
+		<type name="cmfwf:randomStartEndTask">
+			<parent>cmfwf:decisionTask</parent>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+		<type name="cmfwf:decisionTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+			<properties>
+				<property name="cmfwf:taskOutcome">
+					<type>d:text</type>
+					<default>Next</default>
+				</property>
+			</properties>
+			<overrides>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+				<property name="bpm:outcomePropertyName">
+					<!-- should be one row -->
+					<default>{http://www.sirmaitt.com/model/workflow/cmf/1.0}taskOutcome</default>
+				</property>
+			</overrides>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<!-- POOL TASKS -->
+		<type name="cmfwf:randomTaskPool">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+			<mandatory-aspects>
+				<aspect>bpm:groupAssignee</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<type name="cmfwf:randomTaskMixedPool">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+			<!-- mandatory-aspects>
+				<aspect>cmfwf:multiAssignees</aspect>
+			</mandatory-aspects -->
+		</type>
+		<!-- STANDALONE TASKS -->
+
+		<type name="cmfwf:standaloneTask">
+			<parent>cmfwf:decisionTask</parent>
+			<overrides>
+				<property name="cmfwf:taskOutcome">
+					<default>Complete</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+				<property name="bpm:outcomePropertyName">
+					<!-- should be one row -->
+					<default>{http://www.sirmaitt.com/model/workflow/cmf/1.0}taskOutcome</default>
+				</property>
+			</overrides>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+	</types>
+
+	<aspects>
+	   <aspect name="cmfwf:multiAssignees">
+            <associations>
+                <association name="cmfwf:multiAssignees">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:authority</class>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
+		<aspect name="cmfwf:auditable">
+			<title>Task Auditable data</title>
+			<properties>
+				<property name="cmfwf:modified">
+					<title>Modified On</title>
+					<type>d:date</type>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmfwf:dmsTask">
+			<title>Dms Stored Task</title>
+			<properties>
+				<property name="cmfwf:state">
+					<title>State</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:pooledActors">
+					<title>Assigned Pooled Actors</title>
+					<type>d:text</type>
+					<multiple>true</multiple>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:pooledGroups">
+					<title>Assigned Pooled Actors</title>
+					<type>d:text</type>
+					<multiple>true</multiple>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:package">
+					<type>d:text</type>
+				</property>
+				<property name="cmfwf:assignee">
+					<type>d:text</type>
+				</property>
+				<property name="cmfwf:contextType">
+					<title>Context Type</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:contextId">
+					<title>Context Type</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmfwf:dmsWorkflow">
+			<title>Dms Stored Task</title>
+			<properties>
+
+			</properties>
+		</aspect>
+		<aspect name="cmfwf:dmsArchivedWorkflow">
+			<title>Dms Archived Case Workflow</title>
+			<properties>
+				<property name="cmfwf:archiveReason">
+					<title>Case Workflow Archive Reason</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+
+			</properties>
+		</aspect>
+	</aspects>
+
+</model>

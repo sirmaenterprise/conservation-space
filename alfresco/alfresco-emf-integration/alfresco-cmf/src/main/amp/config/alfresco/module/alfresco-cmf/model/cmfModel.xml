@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="cmf:cmfmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<description>CMF Model</description>
+	<author>Sirma ITT</author>
+	<version>1.0</version>
+
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0"
+			prefix="d" />
+		<import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+		<import uri="http://www.alfresco.org/model/site/1.0" prefix="st" />
+		<import uri="http://www.sirmaitt.com/model/emf/1.0" prefix="emf" />
+	</imports>
+
+	<namespaces>
+		<namespace uri="http://www.sirmaitt.com/model/cmf/1.0"
+			prefix="cmf" />
+	</namespaces>
+	<constraints>
+
+	</constraints>
+
+	<types>
+		<type name="cmf:casedefinitionspace">
+			<title>CMF Case Definitions Space</title>
+			<parent>cm:folder</parent>
+		</type>
+		<type name="cmf:documentdefinitionspace">
+			<title>CMF Document Definitions Space</title>
+			<parent>cm:folder</parent>
+		</type>
+		<type name="cmf:workflowdefinitionspace">
+			<title>CMF Workflow Definitions Space</title>
+			<parent>cm:folder</parent>
+		</type>
+		<type name="cmf:taskdefinitionspace">
+			<title>CMF Tasks Definitions Space</title>
+			<parent>cm:folder</parent>
+		</type>
+
+		<type name="cmf:caseinstancesspace">
+			<title>CMF Case Instances Space</title>
+			<parent>cm:folder</parent>
+		</type>
+
+		<type name="cmf:casespace">
+			<title>CMF Case Container</title>
+			<parent>cm:folder</parent>
+			<mandatory-aspects>
+				<aspect>cmf:case</aspect>
+			</mandatory-aspects>
+		</type>
+		<type name="cmf:sectionspace">
+			<title>CMF Case Section Container</title>
+			<parent>cm:folder</parent>
+		</type>
+
+		<type name="cmf:templatedefinitionspace">
+			<title>Template Definitions Space</title>
+			<parent>cm:folder</parent>
+		</type>
+
+		<type name="cmf:genericdefinitionspace">
+			<title>CMF Generic Definitions Space</title>
+			<parent>cm:folder</parent>
+		</type>
+
+	</types>
+	<!-- Aspects -->
+	<aspects>
+		<!-- Definitions: case, document, etc -->
+		<aspect name="cmf:caseDefinition">
+			<title>CMF aspect for case definitions</title>
+		</aspect>
+		<aspect name="cmf:documentDefinition">
+			<title>CMF aspect for document definitions</title>
+		</aspect>
+		<!-- Definitions: task and workflows -->
+		<aspect name="cmf:tasksDefinition">
+			<title>Definition for tasks</title>
+		</aspect>
+		<aspect name="cmf:workflowDefinition">
+			<title>Definition for workflows</title>
+		</aspect>
+		<aspect name="cmf:templateDefinition">
+			<title>Document template</title>
+			<properties>
+				<property name="cmf:primarytemplate">
+					<title>Primary template</title>
+					<type>d:boolean</type>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmf:genericDefinition">
+			<title>Generic definition</title>
+		</aspect>
+
+		<aspect name="cmf:case">
+			<title>CMF aspect for case</title>
+			<properties>
+				<property name="cmf:archivedId">
+					<title>Case archived id</title>
+					<type>d:text</type>
+				</property>
+				<property name="cmf:archivedOn">
+					<title>Case archiving date</title>
+					<type>d:datetime</type>
+				</property>
+				<property name="cmf:archivedBy">
+					<title>Case archived by</title>
+					<type>d:text</type>
+				</property>
+				<property name="cmf:closedReason">
+					<title>Reason for closing</title>
+					<type>d:text</type>
+				</property>
+				<property name="cmf:closedOn">
+					<title>Case closing date</title>
+					<type>d:datetime</type>
+				</property>
+				<property name="cmf:closedBy">
+					<title>Case closed by</title>
+					<type>d:text</type>
+				</property>
+			</properties>
+		</aspect>
+
+		<aspect name="cmf:commonDocument">
+			<title>CMF document to case</title>
+			<properties>
+				<property name="cmf:documentKind">
+					<title>Document kind</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+
+				<property name="cmf:fileSize">
+					<title>File size</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>false</tokenised>
+					</index>
+				</property>
+				<property name="cmf:signed">
+					<title>Document Sign date</title>
+					<type>d:datetime</type>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmf:attachedDocument">
+			<title>Attached document to case</title>
+			<properties>
+				<property name="cmf:documentType">
+					<title>Document Type</title>
+					<type>d:text</type>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmf:checklist">
+			<title>Checklist data</title>
+		</aspect>
+		<!--  TODO remove it to egov patch -->
+		<aspect name="cmf:structuredDocument">
+			<title>Structured document to case</title>
+			<properties>
+				<property name="cmf:uniqueDocumentNumber">
+					<title>Unique document identifier</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+			</properties>
+		</aspect>
+	</aspects>
+
+</model>

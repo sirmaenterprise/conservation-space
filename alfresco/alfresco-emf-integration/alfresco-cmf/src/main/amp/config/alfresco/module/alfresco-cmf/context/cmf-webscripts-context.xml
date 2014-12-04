@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN 2.0//EN'
+  'http://www.springframework.org/dtd/spring-beans-2.0.dtd'>
+
+<beans>
+	<!-- cmf instances -->
+	<bean id="webscript.com.sirma.itt.cmf.instance.crud.post" class="com.sirma.itt.cmf.integration.webscript.CaseInstancesScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<!-- cmf attachments -->
+	<bean id="webscript.com.sirma.itt.cmf.instance.attachment.post" class="com.sirma.itt.cmf.integration.webscript.AttachmentScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="policyBehaviourFilter">
+			<ref bean="policyBehaviourFilter" />
+		</property>
+	</bean>
+	<!-- cmf initialization -->
+	<bean id="webscript.com.sirma.itt.cmf.init.cmfinit.post" class="com.sirma.itt.cmf.integration.webscript.InitCMFScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<bean id="webscript.com.sirma.itt.cmf.definition.search.post" class="com.sirma.itt.cmf.integration.webscript.DefinitionSearchScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+
+	<bean id="webscript.com.sirma.itt.cmf.dms.cmfsearch.post" class="com.sirma.itt.cmf.integration.webscript.SearchScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+
+	<bean id="webscript.com.sirma.itt.cmf.workflow.info.post" class="com.sirma.itt.cmf.integration.workflow.WorkflowScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<bean id="webscript.com.sirma.itt.cmf.workflow.instance.post" class="com.sirma.itt.cmf.integration.workflow.WorkflowInstanceScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+
+	<bean id="webscript.com.sirma.itt.cmf.dms.nodeop.post" class="com.sirma.itt.cmf.integration.webscript.NodeOperation" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<!-- transform -->
+	<bean id="webscript.com.sirma.itt.cmf.dms.transform.get" class="com.sirma.itt.cmf.integration.webscript.ContentTransformScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="sysAdminParams" ref="sysAdminParams" />
+		<property name="repository" ref="repositoryHelper" />
+	</bean>
+	<!-- Admin -->
+	<bean id="webscript.com.sirma.itt.cmf.admin.admin.post" class="com.sirma.itt.cmf.integration.webscript.AdministrationScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="dictionaryDAO">
+			<ref bean="dictionaryDAO" />
+		</property>
+	</bean>
+	<bean id="webscript.com.sirma.itt.cmf.admin.model.get" class="com.sirma.itt.cmf.integration.webscript.ModelsAdministrationScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="dictionaryDAO">
+			<ref bean="dictionaryDAO" />
+		</property>
+	</bean>
+	<bean id="webscript.com.sirma.itt.cmf.workflow.task-instances.get" class="com.sirma.itt.cmf.integration.workflow.alfresco4.CMFTaskInstancesGet"
+		parent="webscript" depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<!-- Security update -->
+	<bean id="webscript.com.sirma.itt.cmf.model.securityupdate.post" class="com.sirma.itt.cmf.integration.webscript.SecuirtyOperationScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<!-- custom authorities scripts -->
+	<bean id="webscript.com.sirma.itt.cmf.permissions.authorities.get" class="com.sirma.itt.cmf.integration.webscript.AuthoritiesScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="chainingUserRegistrySynchronizer" ref="userRegistrySynchronizer"/>
+	</bean>
+</beans>
+
+
+

@@ -1,0 +1,1145 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+
+   <bean id="fileContentStore" class="org.alfresco.repo.content.filestore.FileContentStore">
+      <constructor-arg>
+         <value>${dir.contentstore}</value>
+      </constructor-arg>
+
+      <!-- Uncomment the property below to add content filesize limit.
+      <property name="contentLimitProvider" ref="defaultContentLimitProvider"/>
+      -->
+   </bean>
+
+   <!-- This content limit provider is used above and also in the Thor module. -->
+   <bean id="defaultContentLimitProvider" class="org.alfresco.repo.content.ContentLimitProvider$SimpleFixedLimitProvider">
+       <property name="sizeLimitString" value="${system.content.maximumFileSizeLimit}"/>
+   </bean>
+
+   <!-- deleted content will get pushed into this store, where it can be cleaned up at will -->
+   <bean id="deletedContentStore" class="org.alfresco.repo.content.filestore.FileContentStore">
+      <constructor-arg>
+         <value>${dir.contentstore.deleted}</value>
+      </constructor-arg>
+   </bean>
+   <!-- bean to move deleted content into the the backup store -->
+   <bean id="deletedContentBackupListener" class="org.alfresco.repo.content.cleanup.DeletedContentBackupCleanerListener" >
+      <property name="store">
+         <ref bean="deletedContentStore" />
+      </property>
+   </bean>
+
+   <!-- A list of content deletion listeners.  This is split out for re-use. -->
+   <bean id="deletedContentBackupListeners" class="java.util.ArrayList">
+      <constructor-arg>
+         <list>
+            <ref bean="deletedContentBackupListener" />
+         </list>
+      </constructor-arg>
+   </bean>
+
+   <!-- Performs the content cleanup -->
+   <bean id="contentStoreCleaner" class="org.alfresco.repo.content.cleanup.ContentStoreCleaner" init-method="init">
+      <property name="protectDays" >
+         <value>${system.content.orphanProtectDays}</value>
+      </property>
+      <property name="deletionFailureAction" >
+         <value>${system.content.deletionFailureAction}</value>
+      </property>
+      <property name="eagerContentStoreCleaner" >
+         <ref bean="eagerContentStoreCleaner" />
+      </property>
+      <property name="jobLockService">
+         <ref bean="jobLockService" />
+      </property>
+      <property name="contentDataDAO">
+           <ref bean="contentDataDAO"/>
+      </property>
+      <property name="dictionaryService">
+         <ref bean="dictionaryService" />
+      </property>
+      <property name="contentService" >
+         <ref bean="contentService" />
+      </property>
+      <property name="avmNodeDAO">
+            <ref bean="newAvmNodeDAO"/>
+      </property>
+      <property name="transactionService" >
+         <ref bean="transactionService" />
+      </property>
+   </bean>
+
+   <bean id="eagerContentStoreCleaner" class="org.alfresco.repo.content.cleanup.EagerContentStoreCleaner" init-method="init">
+      <property name="eagerOrphanCleanup" >
+         <value>${system.content.eagerOrphanCleanup}</value>
+      </property>
+      <property name="stores" ref="contentStoresToClean" />
+      <property name="listeners" >
+         <ref bean="deletedContentBackupListeners" />
+      </property>
+   </bean>
+
+   <bean id="contentStoresToClean" class="java.util.ArrayList" >
+      <constructor-arg>
+         <list>
+            <ref bean="fileContentStore" />
+         </list>
+      </constructor-arg>
+   </bean>
+
+   <!-- Abstract bean definition defining base definition for content service -->
+   <bean id="baseContentService" class="org.alfresco.repo.content.ContentServiceImpl" abstract="true" init-method="init">
+      <property name="retryingTransactionHelper">
+          <ref bean="retryingTransactionHelper"/>
+      </property>
+      <property name="dictionaryService">
+          <ref bean="dictionaryService" />
+      </property>
+      <property name="nodeService">
+          <ref bean="nodeService" />
+      </property>
+      <property name="transformerRegistry">
+          <ref bean="contentTransformerRegistry" />
+      </property>
+      <property name="policyComponent">
+          <ref bean="policyComponent" />
+      </property>
+      <property name="mimetypeService">
+         <ref bean="mimetypeService"/>
+      </property>
+      <property name="avmService">
+          <ref bean="avmService"/>
+      </property>
+      <property name="imageMagickContentTransformer">
+         <ref bean="transformer.ImageMagick" />
+      </property>
+      <property name="eagerContentStoreCleaner" >
+         <ref bean="eagerContentStoreCleaner" />
+      </property>
+      <property name="ignoreEmptyContent" >
+         <value>${policy.content.update.ignoreEmpty}</value>
+      </property>
+      <property name="transformerFailover" >
+         <value>${content.transformer.failover}</value>
+      </property>
+      <property name="transformerDebug">
+         <ref bean="transformerDebug" />
+      </property>
+   </bean>
+
+   <bean id="contentService" parent="baseContentService">
+      <property name="store">
+          <ref bean="fileContentStore" />
+      </property>
+   </bean>
+
+    <!-- Our common Tika configuration -->
+    <bean id="tikaConfig" class="org.apache.tika.config.TikaConfig"
+          factory-method="getDefaultConfig" />
+
+    <!-- Characterset decoder -->
+    <bean id="charset.finder" class="org.alfresco.repo.content.encoding.ContentCharsetFinder">
+      <property name="defaultCharset">
+         <value>UTF-8</value>
+      </property>
+      <property name="mimetypeService">
+         <ref bean="mimetypeService"/>
+      </property>
+      <property name="charactersetFinders">
+         <list>
+            <bean class="org.alfresco.encoding.GuessEncodingCharsetFinder" />
+            <bean class="org.alfresco.encoding.TikaCharsetFinder" />
+         </list>
+      </property>
+    </bean>
+
+    <bean id="mimetypeConfigService" class="org.springframework.extensions.config.xml.XMLConfigService" init-method="init">
+        <constructor-arg>
+            <bean class="org.alfresco.util.ResourceFinderConfigSource">
+                <property name="resourceFinder">
+                    <ref bean="resourceFinder" />
+                </property>
+                <property name="locations">
+                    <list>
+                        <value>classpath:alfresco/mimetype/mimetype-map.xml</value>
+                        <value>classpath:alfresco/mimetype/mimetype-map-openoffice.xml</value>
+                        <value>classpath*:alfresco/module/*/mimetype-map*.xml</value>
+                        <value>classpath*:alfresco/extension/mimetype/*-map.xml</value>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+   <bean id="mimetypeService" class="org.alfresco.repo.content.MimetypeMap" init-method="init" >
+      <property name="configService">
+         <ref bean="mimetypeConfigService" />
+      </property>
+      <property name="contentCharsetFinder">
+         <ref bean="charset.finder"/>
+      </property>
+      <property name="tikaConfig">
+         <ref bean="tikaConfig"/>
+      </property>
+   </bean>
+
+   <bean id="contentFilterLanguagesConfigService" class="org.springframework.extensions.config.xml.XMLConfigService" init-method="init">
+      <constructor-arg>
+         <bean class="org.springframework.extensions.config.source.UrlConfigSource">
+            <constructor-arg>
+               <list>
+                  <value>classpath:alfresco/ml/content-filter-lang.xml</value>
+               </list>
+            </constructor-arg>
+         </bean>
+      </constructor-arg>
+   </bean>
+
+   <bean id="contentFilterLanguagesService" class="org.alfresco.repo.model.ml.ContentFilterLanguagesMap" init-method="init" >
+      <property name="configService">
+         <ref bean="contentFilterLanguagesConfigService" />
+      </property>
+   </bean>
+
+   <!-- Metadata Extraction Registry -->
+   <bean id="metadataExtracterRegistry" class="org.alfresco.repo.content.metadata.MetadataExtracterRegistry" />
+
+   <!-- Abstract bean definition defining base definition for all metadata extracters -->
+   <bean id="baseMetadataExtracter"
+         class="org.alfresco.repo.content.metadata.AbstractMetadataExtracter"
+         abstract="true"
+         init-method="register">
+      <property name="registry">
+         <ref bean="metadataExtracterRegistry" />
+      </property>
+      <property name="mimetypeService">
+         <ref bean="mimetypeService" />
+      </property>
+      <property name="dictionaryService">
+         <ref bean="dictionaryService" />
+      </property>
+      <property name="properties">
+         <ref bean="global-properties" />
+      </property>
+   </bean>
+
+   <!-- For coordination between OOoDirect and OOoJodconverter subsystems -->
+   <bean id="jodConfig"
+        class="org.alfresco.repo.management.subsystems.SubsystemProxyFactory">
+      <property name="sourceApplicationContextFactoryName">
+         <value>OOoJodconverter</value>
+      </property>
+      <property name="sourceBeanName">
+         <value>jodConfig</value>
+      </property>
+      <property name="interfaces">
+         <list>
+            <value>org.alfresco.util.JodConfig</value>
+         </list>
+      </property>
+      <property name="defaultBean">
+         <bean class="org.alfresco.util.JodConfigImpl">
+            <property name="enabled">
+               <value>false</value>
+            </property>
+         </bean>
+      </property>
+   </bean>
+
+   <!-- Import the OpenOffice extractor worker from the OOoDirect subsystem -->
+   <bean id="extracter.worker.OpenOffice" class="org.alfresco.repo.management.subsystems.SubsystemProxyFactory">
+      <property name="sourceApplicationContextFactory">
+         <ref bean="OOoDirect" />
+      </property>
+      <property name="sourceBeanName">
+         <value>extracter.worker.OpenOffice</value>
+      </property>
+      <property name="interfaces">
+         <list>
+            <value>org.alfresco.repo.content.metadata.OpenOfficeMetadataWorker</value>
+         </list>
+      </property>
+   </bean>
+
+   <!-- Content Metadata Extractors -->
+   <!-- The last one listed for any mimetype will be used if available -->
+   <!-- As such, the Tika auto-detect fallback should be listed first -->
+   <bean id="extracter.TikaAuto"       class="org.alfresco.repo.content.metadata.TikaAutoMetadataExtracter"     parent="baseMetadataExtracter">
+      <constructor-arg><ref bean="tikaConfig"/></constructor-arg>
+   </bean>
+   <bean id="extracter.PDFBox"        class="org.alfresco.repo.content.metadata.PdfBoxMetadataExtracter"        parent="baseMetadataExtracter" />
+   <bean id="extracter.Poi"           class="org.alfresco.repo.content.metadata.PoiMetadataExtracter"           parent="baseMetadataExtracter" />
+   <bean id="extracter.Office"        class="org.alfresco.repo.content.metadata.OfficeMetadataExtracter"        parent="baseMetadataExtracter" />
+   <bean id="extracter.Mail"          class="org.alfresco.repo.content.metadata.MailMetadataExtracter"          parent="baseMetadataExtracter" />
+   <bean id="extracter.Html"          class="org.alfresco.repo.content.metadata.HtmlMetadataExtracter"          parent="baseMetadataExtracter" />
+   <bean id="extracter.OpenDocument"  class="org.alfresco.repo.content.metadata.OpenDocumentMetadataExtracter"  parent="baseMetadataExtracter" />
+   <bean id="extracter.DWG"           class="org.alfresco.repo.content.metadata.DWGMetadataExtracter"           parent="baseMetadataExtracter" />
+   <bean id="extracter.RFC822"        class="org.alfresco.repo.content.metadata.RFC822MetadataExtracter"        parent="baseMetadataExtracter" >
+      <property name="supportedDateFormats">
+         <list>
+            <value>EEE, d MMM yyyy HH:mm:ss Z</value>
+            <value>EEE, d MMM yy HH:mm:ss Z</value>
+            <value>d MMM yyyy HH:mm:ss Z</value>
+         </list>
+      </property>
+   </bean>
+   <bean id="extracter.MP3" class="org.alfresco.repo.content.metadata.MP3MetadataExtracter" parent="baseMetadataExtracter">
+      <property name="tikaConfig" ref="tikaConfig"/>
+   </bean>
+   <bean id="extracter.Audio" class="org.alfresco.repo.content.metadata.TikaAudioMetadataExtracter" parent="baseMetadataExtracter">
+      <property name="tikaConfig" ref="tikaConfig"/>
+   </bean>
+   <bean id="extracter.OpenOffice" class="org.alfresco.repo.content.metadata.OpenOfficeMetadataExtracter" parent="baseMetadataExtracter">
+      <property name="worker">
+         <ref bean="extracter.worker.OpenOffice" />
+      </property>
+   </bean>
+
+   <!-- Selects the transformer to be used -->
+   <bean id="transformerSelector" class="org.alfresco.repo.content.transform.TransformerSelectorImpl" />
+
+   <!-- Content Transformation Regisitry -->
+   <bean id="contentTransformerRegistry" class="org.alfresco.repo.content.transform.ContentTransformerRegistry" >
+      <constructor-arg>
+         <ref bean="transformerSelector"/>
+      </constructor-arg>
+   </bean>
+
+   <!-- Transformation Debug -->
+   <bean id="transformerDebug" class="org.alfresco.repo.content.transform.TransformerDebug">
+      <constructor-arg>
+         <ref bean="nodeService"/>
+      </constructor-arg>
+      <constructor-arg>
+         <ref bean="mimetypeService"/>
+      </constructor-arg>
+   </bean>
+
+   <!-- Abstract bean definition defining base definition for all transformers -->
+   <bean id="baseContentTransformer"
+         class="org.alfresco.repo.content.transform.AbstractContentTransformer2"
+         abstract="true"
+         init-method="register"
+         parent="unregisteredBaseContentTransformer">
+      <property name="registry">
+         <ref bean="contentTransformerRegistry" />
+      </property>
+   </bean>
+
+   <!-- Abstract bean definition defining base definition for all transformer that are not registered -->
+   <bean id="unregisteredBaseContentTransformer"
+         class="org.alfresco.repo.content.transform.AbstractContentTransformer2"
+         abstract="true"
+         init-method="register">
+      <property name="mimetypeService">
+         <ref bean="mimetypeService" />
+      </property>
+      <property name="transformerDebug">
+         <ref bean="transformerDebug" />
+      </property>
+      <property name="timeoutMs"><value>${content.transformer.default.timeoutMs}</value></property>
+      <property name="readLimitTimeMs"><value>${content.transformer.default.readLimitTimeMs}</value></property>
+      <property name="maxSourceSizeKBytes"><value>${content.transformer.default.maxSourceSizeKBytes}</value></property>
+      <property name="readLimitKBytes"><value>${content.transformer.default.readLimitKBytes}</value></property>
+      <property name="pageLimit"><value>${content.transformer.default.pageLimit}</value></property>
+      <property name="maxPages"><value>${content.transformer.default.maxPages}</value></property>
+      <property name="properties">
+         <ref bean="global-properties" />
+      </property>
+   </bean>
+
+   <!-- Abstract bean definition defining base definition for all complex transformers -->
+   <bean id="baseComplexContentTransformer"
+         class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+         abstract="true"
+         init-method="register"
+         parent="baseContentTransformer">
+      <property name="contentService">
+         <ref bean="contentService" />
+      </property>
+   </bean>
+
+   <!-- Content Transformations -->
+   <bean id="transformer.StringExtracter"
+         class="org.alfresco.repo.content.transform.StringExtractingContentTransformer"
+         parent="baseContentTransformer" />
+
+   <bean id="transformer.BinaryPassThrough"
+         class="org.alfresco.repo.content.transform.BinaryPassThroughContentTransformer"
+         parent="baseContentTransformer" />
+
+   <bean id="transformer.iWorksQuicklooks"
+         class="org.alfresco.repo.content.transform.AppleIWorksContentTransformer"
+         parent="baseContentTransformer" >
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.keynote</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.pages</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.numbers</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.keynote</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.pages</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.numbers</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.OOXMLThumbnail"
+         class="org.alfresco.repo.content.transform.OOXMLThumbnailContentTransformer"
+         parent="baseContentTransformer" >
+   </bean>
+
+   <bean id="transformer.PdfBox"
+         class="org.alfresco.repo.content.transform.PdfBoxContentTransformer"
+         parent="baseContentTransformer" >
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>text/plain</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean  id="transformer.double.ImageMagick"
+      class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+      parent="unregisteredBaseContentTransformer">
+      <property name="transformers">
+         <list>
+            <ref bean="transformer.ImageMagick" />
+            <ref bean="transformer.ImageMagick" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>image/png</value>
+         </list>
+      </property>
+   </bean>
+
+   <!-- Supports the same transformations as the previous version by using either a single
+        ImageMagick transformation to png or two ImageMagick transformation via png. -->
+   <bean id="transformer.complex.PDF.Image"
+        class="org.alfresco.repo.content.transform.FailoverContentTransformer"
+        parent="baseContentTransformer" >
+      <property name="supportedTransformations">
+         <list>
+            <!-- Requires a single ImageMagick transformation.
+                 Not used unless called as part of another transformer as
+                 the ImageMagick transformation declares this as EXPLICIT
+                 so takes priority. -->
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+            <!-- Requires a double ImageMagick transformation via png -->
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>application/eps</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/jp2</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/vnd.adobe.photoshop</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/vnd.adobe.premiere</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/cgm</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/gif</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/ief</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/bmp</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-portable-bitmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-portable-graymap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-portable-anymap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-portable-pixmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-cmu-raster</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/tiff</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-xbitmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-xpixmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-xwindowdump</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-dwg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/x-dwt</value></property>
+            </bean>
+         </list>
+      </property>
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/gif</value></property>
+            </bean>
+         </list>
+      </property>
+     <property name="transformers">
+        <list>
+           <ref bean="transformer.ImageMagick"/>
+           <ref bean="transformer.double.ImageMagick"/>
+        </list>
+     </property>
+   </bean>
+
+   <!-- Adobe Illustrator files are, in fact, PDF files -->
+   <!-- Supports the same transformations as the previous version by using either a single
+        ImageMagick transformation to png or two ImageMagick transformation via png. -->
+   <bean id="transformer.complex.AdobeIllustrator.Image"
+        class="org.alfresco.repo.content.transform.FailoverContentTransformer"
+        parent="baseContentTransformer" >
+      <property name="supportedTransformations">
+         <list>
+            <!-- Requires a single ImageMagick transformation.
+                 Not used unless called as part of another transformer as
+                 the ImageMagick transformation declares this as EXPLICIT
+                 so takes priority. -->
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+            <!-- Requires a double ImageMagick transformation via png -->
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>application/eps</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/jp2</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/vnd.adobe.photoshop</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/vnd.adobe.premiere</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/cgm</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/gif</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/ief</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/bmp</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-portable-bitmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-portable-graymap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-portable-anymap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-portable-pixmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-cmu-raster</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/tiff</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-xbitmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-xpixmap</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-xwindowdump</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-dwg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/x-dwt</value></property>
+            </bean>
+         </list>
+      </property>
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/jpeg</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/gif</value></property>
+            </bean>
+         </list>
+      </property>
+     <property name="transformers">
+        <list>
+           <ref bean="transformer.ImageMagick"/>
+           <ref bean="transformer.double.ImageMagick"/>
+        </list>
+     </property>
+   </bean>
+
+   <bean id="transformer.complex.iWorks.Image"
+         class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+         parent="baseContentTransformer">
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.keynote</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.numbers</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/vnd.apple.pages</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+         </list>
+      </property>
+      <property name="transformers">
+         <list>
+            <ref bean="transformer.iWorksQuicklooks" />
+            <ref bean="transformer.ImageMagick" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>image/jpeg</value>
+         </list>
+      </property>
+   </bean>
+
+   <!-- This was called transformer.complex.OOXML.Image, but now the first stage
+        is any transformer to allow fail over when there is no embedded thumbnail. -->
+   <bean id="transformer.complex.Any.Image"
+         class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+         parent="baseComplexContentTransformer">
+      <property name="transformers">
+         <list>
+            <null />
+            <ref bean="transformer.ImageMagick" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>image/jpeg</value>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.complex.OpenOffice.Image"
+        class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+        parent="baseComplexContentTransformer" >
+      <property name="transformers">
+         <list>
+            <ref bean="transformer.OpenOffice.2Pdf" />
+            <ref bean="transformer.complex.PDF.Image" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>application/pdf</value>
+         </list>
+      </property>
+      <!-- Note: there are maxSourceSizeKBytes limits on transformer.OpenOffice transforming to pdf
+           which may cause this transformer not to be selected because it is too slow. -->
+   </bean>
+
+   <bean id="transformer.PdfBox.TextToPdf"
+         class="org.alfresco.repo.content.transform.TextToPdfContentTransformer"
+         parent="baseContentTransformer" >
+      <property name="supportedTransformations">
+         <list>
+            <!--  Using OpenOffice/JOD for text to PDF (slower but better and supports non western fonts) -->
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>text/csv</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>text/xml</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+         </list>
+      </property>
+      <property name="maxSourceSizeKBytes"><value>${content.transformer.PdfBox.TextToPdf.maxSourceSizeKBytes}</value></property>
+   </bean>
+
+   <bean id="transformer.complex.Text.Image"
+        class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+        parent="baseComplexContentTransformer" >
+      <property name="transformers">
+         <list>
+            <null />
+            <ref bean="transformer.complex.PDF.Image" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>application/pdf</value>
+         </list>
+      </property>
+      <property name="supportedTransformations">
+         <list>
+            <!--  Using OpenOffice/JOD for text to Image (slower but better and supports non western fonts) -->
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>text/csv</value></property>
+                <!-- targetMimetype any -->
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>text/xml</value></property>
+                <!-- targetMimetype any -->
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.TikaAuto"
+         class="org.alfresco.repo.content.transform.TikaAutoContentTransformer"
+         parent="baseContentTransformer">
+      <constructor-arg><ref bean="tikaConfig"/></constructor-arg>
+   </bean>
+
+   <!-- This one does excel only -->
+   <bean id="transformer.Poi"
+         class="org.alfresco.repo.content.transform.PoiHssfContentTransformer"
+         parent="baseContentTransformer" />
+
+   <!-- This one does the other office formats, like word and powerpoint -->
+   <bean id="transformer.Office"
+         class="org.alfresco.repo.content.transform.PoiContentTransformer"
+         parent="baseContentTransformer" />
+
+   <!-- This one handles the ooxml office formats, such as .xlsx and .docx -->
+   <bean id="transformer.OOXML"
+         class="org.alfresco.repo.content.transform.PoiOOXMLContentTransformer"
+         parent="baseContentTransformer" />
+
+   <bean id="transformer.TextMining"
+         class="org.alfresco.repo.content.transform.TextMiningContentTransformer"
+         parent="baseContentTransformer" >
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/msword</value></property>
+                <property name="targetMimetype"><value>text/plain</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.HtmlParser"
+         class="org.alfresco.repo.content.transform.HtmlParserContentTransformer"
+         parent="baseContentTransformer" >
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>text/html</value></property>
+                <property name="targetMimetype"><value>text/plain</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.MediaWikiParser"
+         class="org.alfresco.repo.content.transform.MediaWikiContentTransformer"
+         parent="baseContentTransformer">
+      <property name="nodeService">
+         <ref bean="NodeService" />
+      </property>
+      <property name="fileFolderService">
+         <ref bean="FileFolderService" />
+      </property>
+   </bean>
+
+   <!-- Import the OpenOffice transformer worker from the OOoDirect subsystem -->
+   <bean id="transformer.worker.OpenOffice" class="org.alfresco.repo.management.subsystems.SubsystemProxyFactory">
+      <property name="sourceApplicationContextFactory">
+         <ref bean="OOoDirect" />
+      </property>
+      <property name="sourceBeanName">
+         <value>transformer.worker.OpenOffice</value>
+      </property>
+      <property name="interfaces">
+         <list>
+            <value>org.alfresco.repo.content.transform.ContentTransformerWorker</value>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.OpenOffice" class="org.alfresco.repo.content.transform.ProxyContentTransformer" parent="baseContentTransformer">
+      <property name="worker">
+         <ref bean="transformer.worker.OpenOffice" />
+      </property>
+      <property name="mimetypeLimits">
+         <ref bean="transformer.OpenOffice.mimetypeLimits"/>
+      </property>
+      <property name="unsupportedTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>text/html</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <!-- Don't use for anything to text as there are better options (TikaAuto, TextMining) -->
+   <!-- Don't use for text to pdf (and onwards to swf) if too large -->
+   <!-- doc and dot use the same mimetype -->
+   <!-- Can only read Microsoft Office 2007 types with the 3.2 version of OpenOffice.  -->
+   <bean id="transformer.OpenOffice.mimetypeLimits" class="org.alfresco.service.cmr.repository.TransformationOptionLimitsMap">
+      <constructor-arg>
+         <value>
+            *    txt  maxSourceSizeKBytes 0 ;
+
+            txt  pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.txt.pdf.maxSourceSizeKBytes}  ;
+            doc  pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.doc.pdf.maxSourceSizeKBytes}  ;
+            docx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.docx.pdf.maxSourceSizeKBytes} ;
+            docm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.docm.pdf.maxSourceSizeKBytes} ;
+            dotx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.dotx.pdf.maxSourceSizeKBytes} ;
+            dotm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.dotm.pdf.maxSourceSizeKBytes} ;
+            ppt  pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.ppt.pdf.maxSourceSizeKBytes}  ;
+            pptx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.pptx.pdf.maxSourceSizeKBytes} ;
+            pptm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.pptm.pdf.maxSourceSizeKBytes} ;
+            ppsx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.ppsx.pdf.maxSourceSizeKBytes} ;
+            ppsm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.ppsm.pdf.maxSourceSizeKBytes} ;
+            potx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.potx.pdf.maxSourceSizeKBytes} ;
+            potm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.potm.pdf.maxSourceSizeKBytes} ;
+            ppam pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.ppam.pdf.maxSourceSizeKBytes} ;
+            sldx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.sldx.pdf.maxSourceSizeKBytes} ;
+            sldm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.sldm.pdf.maxSourceSizeKBytes} ;
+            vsd  pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.vsd.pdf.maxSourceSizeKBytes}  ;
+            xls  pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xls.pdf.maxSourceSizeKBytes}  ;
+            xlsx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xlsx.pdf.maxSourceSizeKBytes} ;
+            xltx pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xltx.pdf.maxSourceSizeKBytes} ;
+            xlsm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xlsm.pdf.maxSourceSizeKBytes} ;
+            xltm pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xltm.pdf.maxSourceSizeKBytes} ;
+            xlam pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xlam.pdf.maxSourceSizeKBytes} ;
+            xlsb pdf  maxSourceSizeKBytes ${content.transformer.OpenOffice.mimeTypeLimits.xlsb.pdf.maxSourceSizeKBytes} ;
+
+            *    docx maxSourceSizeKBytes 0 ;
+            *    docm maxSourceSizeKBytes 0 ;
+            *    dotx maxSourceSizeKBytes 0 ;
+            *    dotm maxSourceSizeKBytes 0 ;
+            *    pptx maxSourceSizeKBytes 0 ;
+            *    pptm maxSourceSizeKBytes 0 ;
+            *    ppsx maxSourceSizeKBytes 0 ;
+            *    ppsm maxSourceSizeKBytes 0 ;
+            *    potx maxSourceSizeKBytes 0 ;
+            *    potm maxSourceSizeKBytes 0 ;
+            *    ppam maxSourceSizeKBytes 0 ;
+            *    sldx maxSourceSizeKBytes 0 ;
+            *    sldm maxSourceSizeKBytes 0 ;
+            *    xlsx maxSourceSizeKBytes 0 ;
+            *    xltx maxSourceSizeKBytes 0 ;
+            *    xlsm maxSourceSizeKBytes 0 ;
+            *    xltm maxSourceSizeKBytes 0 ;
+            *    xlam maxSourceSizeKBytes 0 ;
+            *    xlsb maxSourceSizeKBytes 0
+         </value>
+      </constructor-arg>
+      <constructor-arg>
+         <ref bean="mimetypeService" />
+      </constructor-arg>
+   </bean>
+
+   <bean id="transformer.complex.OpenOffice.PdfBox"
+        class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+        parent="baseComplexContentTransformer" >
+      <property name="transformers">
+         <list>
+            <ref bean="transformer.OpenOffice.2Pdf" />
+            <ref bean="transformer.PdfBox" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>application/pdf</value>
+         </list>
+      </property>
+      <property name="mimetypeLimits">
+         <ref bean="transformer.complex.OpenOffice.PdfBox.mimetypeLimits"/>
+      </property>
+      <!-- Note: there are maxSourceSizeKBytes limits on transformer.OpenOffice transforming to pdf
+           which may cause this transformer not to be selected because it is too slow. -->
+   </bean>
+
+   <!-- Don't use for text to text as there are better options -->
+   <!-- Don't use for Microsoft formats to text as there are better options -->
+   <bean id="transformer.complex.OpenOffice.PdfBox.mimetypeLimits" class="org.alfresco.service.cmr.repository.TransformationOptionLimitsMap">
+      <constructor-arg>
+         <value>
+            txt  txt  maxSourceSizeKBytes 0 ;
+            doc  txt  maxSourceSizeKBytes 0 ;
+            docx txt  maxSourceSizeKBytes 0 ;
+            docm txt  maxSourceSizeKBytes 0 ;
+            dotx txt  maxSourceSizeKBytes 0 ;
+            dotm txt  maxSourceSizeKBytes 0 ;
+            ppt  txt  maxSourceSizeKBytes 0 ;
+            pptx txt  maxSourceSizeKBytes 0 ;
+            pptm txt  maxSourceSizeKBytes 0 ;
+            ppsx txt  maxSourceSizeKBytes 0 ;
+            ppsm txt  maxSourceSizeKBytes 0 ;
+            potx txt  maxSourceSizeKBytes 0 ;
+            potm txt  maxSourceSizeKBytes ${content.transformer.OpenOffice.PdfBox.mimeTypeLimits.potm.txt.maxSourceSizeKBytes} ;
+            ppam txt  maxSourceSizeKBytes 0 ;
+            sldx txt  maxSourceSizeKBytes 0 ;
+            sldm txt  maxSourceSizeKBytes 0 ;
+            xls  txt  maxSourceSizeKBytes 0 ;
+            xlsx txt  maxSourceSizeKBytes 0 ;
+            xltx txt  maxSourceSizeKBytes 0 ;
+            xlsm txt  maxSourceSizeKBytes 0 ;
+            xltm txt  maxSourceSizeKBytes 0 ;
+            xlam txt  maxSourceSizeKBytes 0 ;
+            xlsb txt  maxSourceSizeKBytes ${content.transformer.OpenOffice.PdfBox.mimeTypeLimits.xlsb.txt.maxSourceSizeKBytes}
+         </value>
+      </constructor-arg>
+      <constructor-arg>
+         <ref bean="mimetypeService" />
+      </constructor-arg>
+   </bean>
+
+   <!--
+    This transformer exists because OpenOffice and LibreOffice have a problem
+    going directly from HTML to PDF. Going via ODT appears a much better option.
+    For example <sub> tags hang the soffice process. ALF-14035
+     -->
+   <bean id="transformer.OpenOffice.2Pdf"
+        class="org.alfresco.repo.content.transform.FailoverContentTransformer"
+        parent="unregisteredBaseContentTransformer" >
+     <property name="transformers">
+        <list>
+           <ref bean="transformer.OpenOffice"/>
+           <ref bean="transformer.OpenOffice.Html2Pdf"/>
+        </list>
+     </property>
+      <property name="supportedTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.OpenOffice.Html2Pdf"
+        class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+        parent="baseComplexContentTransformer" >
+      <property name="transformers">
+         <list>
+            <ref bean="transformer.OpenOffice" />
+            <ref bean="transformer.OpenOffice" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>application/vnd.oasis.opendocument.text</value>
+         </list>
+      </property>
+      <property name="supportedTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.SupportedTransformation" >
+                <property name="sourceMimetype"><value>text/html</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+         </list>
+      </property>
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>text/html</value></property>
+                <property name="targetMimetype"><value>application/pdf</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.OutlookMsg"
+         class="org.alfresco.repo.content.transform.MailContentTransformer"
+         parent="baseContentTransformer" />
+
+   <bean id="transformer.complex.OutlookMsg2Image"
+        class="org.alfresco.repo.content.transform.ComplexContentTransformer"
+        parent="baseContentTransformer" >
+      <property name="transformers">
+         <list>
+            <ref bean="transformer.OutlookMsg" />
+            <ref bean="transformer.complex.Text.Image" />
+         </list>
+      </property>
+      <property name="intermediateMimetypes">
+         <list>
+            <value>text/plain</value>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.RFC822"
+         class="org.alfresco.repo.content.transform.EMLTransformer"
+         parent="baseContentTransformer" />
+
+   <!-- Import the ImageMagick transformer from the third party subsystem -->
+   <bean id="transformer.worker.ImageMagick" class="org.alfresco.repo.management.subsystems.SubsystemProxyFactory">
+      <property name="sourceApplicationContextFactory">
+         <ref bean="thirdparty" />
+      </property>
+      <property name="sourceBeanName">
+         <value>transformer.worker.ImageMagick</value>
+      </property>
+      <property name="interfaces">
+         <list>
+            <value>org.alfresco.repo.content.transform.ContentTransformerWorker</value>
+         </list>
+      </property>
+   </bean>
+
+   <bean id="transformer.ImageMagick" class="org.alfresco.repo.content.transform.ProxyContentTransformer" parent="baseContentTransformer">
+      <property name="worker">
+         <ref bean="transformer.worker.ImageMagick" />
+      </property>
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>image/png</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/pdf</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/illustrator</value></property>
+                <property name="targetMimetype"><value>image/png</value></property>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
+   <!-- This transformer allows for the indexing and therefore searching of zip files. -->
+   <bean id="transformer.Archive"
+         class="org.alfresco.repo.content.transform.ArchiveContentTransformer"
+         parent="baseContentTransformer" >
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+                <property name="sourceMimetype"><value>application/zip</value></property>
+                <property name="targetMimetype"><value>text/plain</value></property>
+            </bean>
+         </list>
+      </property>
+      <property name="includeContents" value="${transformer.Archive.includeContents}" />
+      <property name="tikaConfig">
+         <ref bean="tikaConfig"/>
+      </property>
+   </bean>
+	<!-- custom eGov -->
+	<bean id="transformer.RFC822.PDF" class="org.alfresco.repo.content.transform.EmailToPDFContentTransformer" parent="baseContentTransformer">
+		<property name="htmlMode">
+			<value>${emltopdf.htmlMode}</value>
+		</property>
+		<property name="htmlToPdfConvertorLocation">
+			<value>${emltopdf.htmlToPdfConvertorLocation}</value>
+		</property>
+		<property name="worker">
+			<ref bean="transformer.worker.OpenOffice" />
+		</property>
+	</bean>
+</beans>

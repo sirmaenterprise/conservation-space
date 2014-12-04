@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-access="field">
+
+   <class name="com.sirma.itt.migration.dto.FileRegistryEntry" table="sirma_file_register" node="register" 
+   			entity-name="com.sirma.itt.migration.dto.FileRegistryEntry">
+   			
+   		<id name="crc" column="content_crc" node="@crc" type="string" />
+   		
+   		<property name="sourcePath" column="source_path" node="sourcePath" type="string" length="512" not-null="true" />
+   		<property name="targetPath" column="destination_path" node="targetPath" type="string" length="512" not-null="false"  />
+   		<property name="fileName" column="file_name" node="fileName" type="string" length="100" not-null="true"  />
+   		<property name="destFileName" column="dest_file_name" node="destFileName" type="string" length="100" not-null="false"  />
+   		<property name="status" column="status" node="status" type="integer" not-null="true" />
+   		<property name="modifiedBy" column="modified_by" node="modifiedBy" type="string" length="50" not-null="true" />
+   		<property name="modifiedDate" column="modified_date" node="modifiedDate" type="timestamp" not-null="true" />
+   		<property name="nodeId" column="node_id" node="nodeId" type="string" length="50" not-null="false"  />
+   </class>
+   
+   <resultset name="registerSet">
+	   <return alias="register" class="com.sirma.itt.migration.dto.FileRegistryEntry">
+	   			<return-property name="sourcePath" column="sourcePath" />
+	   			<return-property name="targetPath" column="targetPath" />
+	   			<return-property name="fileName" column="fileName" />
+	   			<return-property name="destFileName" column="destFileName" />
+	   			<return-property name="crc" column="crc" />
+	   			<return-property name="status" column="status" />
+	   			<return-property name="modifiedBy" column="modifiedBy" />
+	   			<return-property name="modifiedDate" column="modifiedDate" />
+	   			<return-property name="nodeId" column="nodeId" />
+	   </return>
+   </resultset>
+   
+   <sql-query name="find_by_crc" read-only="true" resultset-ref="registerSet">
+   		SELECT register.source_path as sourcePath,
+   			   register.destination_path as targetPath,
+   			   register.file_name as fileName,
+   			   register.dest_file_name as destFileName,
+   			   register.content_crc as crc,
+   			   register.status as status,
+   			   register.modified_by as modifiedBy,
+   			   register.modified_date as modifiedDate,
+   			   register.node_id as nodeId
+   		FROM sirma_file_register register where register.content_crc = :crc
+	</sql-query>
+  		
+	<sql-query name="change_status" read-only="false">
+		UPDATE sirma_file_register SET status = :status, modified_by = :modified_by, modified_date = :modified_date WHERE content_crc = :crc
+	</sql-query>
+	
+	<sql-query name="batch_get_by_crc" read-only="true" resultset-ref="registerSet">
+   		SELECT register.source_path as sourcePath,
+   			   register.destination_path as targetPath,
+   			   register.file_name as fileName,
+   			   register.dest_file_name as destFileName,
+   			   register.content_crc as crc,
+   			   register.status as status,
+   			   register.modified_by as modifiedBy,
+   			   register.modified_date as modifiedDate,
+   			   register.node_id as nodeId
+   		FROM sirma_file_register register where register.content_crc in (:crc)
+	</sql-query>
+
+	<sql-query name="file_moved" read-only="false">
+		UPDATE sirma_file_register 
+		SET modified_by = :modified_by, modified_date = :modified_date, destination_path = :destination_path , dest_file_name = :destFileName
+		WHERE node_id = :old_node_id
+	</sql-query>
+	
+	<sql-query name="folder_moved" read-only="false">
+		UPDATE sirma_file_register 
+		SET modified_by = :modified_by, modified_date = :modified_date, destination_path = replace(destination_path, :old_destination_path, :destination_path)
+		WHERE destination_path like :old_dest_path
+	</sql-query>
+	
+	<sql-query name="file_deleted" read-only="false">
+		UPDATE sirma_file_register 
+		SET status = :status, modified_by = :modified_by, modified_date = :modified_date, node_id = null, destination_path = null, dest_file_name = null
+		WHERE node_id = :old_node_id
+	</sql-query>
+	
+	<sql-query name="find_by_node_id" read-only="true" resultset-ref="registerSet">
+   		SELECT register.source_path as sourcePath,
+   			   register.destination_path as targetPath,
+   			   register.file_name as fileName,
+   			   register.dest_file_name as destFileName,
+   			   register.content_crc as crc,
+   			   register.status as status,
+   			   register.modified_by as modifiedBy,
+   			   register.modified_date as modifiedDate,
+   			   register.node_id as nodeId
+   		FROM sirma_file_register register where register.node_id = :node_id
+	</sql-query>
+</hibernate-mapping>

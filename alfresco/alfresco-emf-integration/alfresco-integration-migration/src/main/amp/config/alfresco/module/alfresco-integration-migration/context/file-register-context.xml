@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+	<!-- 					   -->
+	<!-- FILE REGISTER SERVICE -->
+	<!-- 					   -->
+	<bean id="fileRegisterService" class="com.sirma.itt.migration.register.FileRegisterServiceImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="authenticationService" ref="AuthenticationService" />
+	</bean>
+	
+	<!-- Register Get script -->
+	<bean id="webscript.com.sirma.itt.migration.register.fileregister.get" 
+			class="com.sirma.itt.migration.register.FileRegisterGetScript" parent="webscript">
+		<property name="fileRegisterService" ref="fileRegisterService" />
+	</bean>
+	
+	<bean id="webscript.com.sirma.itt.migration.register.fileregisterfix.get" 
+			class="com.sirma.itt.migration.register.FileRegisterFixGetScript" parent="webscript">
+		<property name="fileRegisterService" ref="fileRegisterService" />
+		<property name="nodeService" ref="nodeService" />
+		<property name="baseService" ref="baseService" />
+		<property name="checkBuilder" ref="checkBuilder" />
+	</bean>
+	
+	<!-- Register Post script -->
+	<bean id="webscript.com.sirma.itt.migration.register.fileregister.post" 
+			class="com.sirma.itt.migration.register.FileRegisterPostScript" parent="webscript">
+		<property name="fileRegisterService" ref="fileRegisterService" />
+	</bean>
+	
+	<!-- Register Post script -->
+	<bean id="webscript.com.sirma.itt.migration.register.batchfileregister.post" 
+			class="com.sirma.itt.migration.register.BatchFileRegisterPostScript" parent="webscript">
+		<property name="fileRegisterService" ref="fileRegisterService" />
+	</bean>
+
+	
+	<bean id="checkBuilder" class="com.sirma.itt.migration.register.CheckBuilder">
+		<property name="nodeService" ref="nodeService" />
+		<property name="contentService" ref="contentService" />
+	</bean>
+	
+	<bean id="fileRegisterPolicy" class="com.sirma.itt.policies.FileRegisterPolicy" init-method="init">
+		<property name="policyComponent" ref="policyComponent" />
+		<property name="nodeService" ref="nodeService" />
+		<property name="baseService" ref="baseService" />
+		<property name="fileRegisterService" ref="fileRegisterService" />
+		<property name="permissionService" ref="permissionService" />
+		<property name="dictionaryService" ref="dictionaryService" />
+	</bean>
+	
+</beans>

@@ -1,0 +1,653 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<!-- CUSTOM CACHE CONFIGS -->
+<!-- Configuration of shared (cross-transaction) caches. The in-transaction caches are defined in tx-cache-context.xml -->
+<beans>
+	<bean name="cacheInformationRegistry" class="com.sirma.itt.emf.repo.cache.CacheInformationRegistryImpl">
+		<property name="infoTimeout" value="${cache.registry.infoTimeout}">
+		</property>
+	</bean>
+	<!-- ===================================== -->
+	<!-- Property Values Cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Property entities -->
+
+	<bean name="propertyValueSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertyValueCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertyValueSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<bean name="propertySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertyCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<bean name="propertyClassSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertyClassCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertyClassSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<bean name="propertyDateValueSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertyDateValueCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertyDateValueSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<bean name="propertyStringValueSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertyStringValueCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertyStringValueSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<bean name="propertyDoubleValueSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertyDoubleValueCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertyDoubleValueSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<bean name="propertySerializableValueSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.propertySerializableValueCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="propertySerializableValueSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- ID lookup for ContentData entities -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for ContentData -->
+
+	<bean name="contentDataSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.contentDataSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="contentDataSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- ID lookup for general, shared, immutable entities -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for immutable entities -->
+
+	<bean name="immutableEntitySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.immutableEntitySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="immutableEntitySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Root Nodes lookup -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Root Nodes -->
+
+	<bean name="node.rootNodesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+
+		<constructor-arg index="0" type="java.lang.String" value="${cache.node.rootNodesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="node.rootNodesSharedCache" />
+
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for Root Nodes -->
+
+	<bean name="node.allRootNodesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.node.allRootNodesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="node.allRootNodesSharedCache" />
+
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+	<!-- ===================================== -->
+	<!-- Nodes lookup -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Nodes -->
+
+	<bean name="node.nodesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.node.nodesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="node.nodesSharedCache" />
+
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Node Aspect lookup -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Node Aspects -->
+
+	<bean name="node.aspectsSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.node.aspectsSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="node.aspectsSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Node Properties lookup -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Node Properties -->
+
+	<bean name="node.propertiesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.node.propertiesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="node.propertiesSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+
+	<!-- ===================================== -->
+	<!-- Child by cm:name lookup for nodes -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Child-by-name -->
+
+	<bean name="node.childByNameSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.node.childByNameSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="node.childByNameSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Rules lookup for nodes -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Node Rules -->
+
+	<bean name="nodeRulesSharedCache" class="org.alfresco.repo.cache.NullCache" />
+
+	<!-- ===================================== -->
+	<!-- Authority container look up for users -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for User Authorities -->
+
+	<bean name="userToAuthoritySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.userToAuthoritySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="userToAuthoritySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for User Authentication -->
+
+	<bean name="authenticationSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.authenticationSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="authenticationSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ====================================== -->
+	<!-- NodeRef lookup for authority containers -->
+	<!-- ====================================== -->
+
+	<!-- The cross-transaction shared cache for authority containers -->
+
+	<bean name="authoritySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.authoritySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="authoritySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ================================================ -->
+	<!-- Authority NodeRef lookup to ChildAssociationRefs -->
+	<!-- ================================================ -->
+
+	<!-- The cross-transaction shared cache for authority containers -->
+
+	<bean name="authorityToChildAuthoritySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.authorityToChildAuthoritySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="authorityToChildAuthoritySharedCache" />
+		<property name="maxItems" value="${cache.authorityToChildAuthoritySharedCache.maxItems}" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+
+	<!-- =========================== -->
+	<!-- Authority BridgeTable cache -->
+	<!-- =========================== -->
+
+	<!-- The cross-transaction shared cache for authority bridge -->
+
+	<bean name="authorityBridgeTableByTenantSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.authorityBridgeTableByTenantSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="authorityBridgeTableByTenantSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ================================================ -->
+	<!-- Zone lookup to ChildAssociationRefs -->
+	<!-- ================================================ -->
+
+	<!-- The cross-transaction shared cache for authority containers -->
+
+	<bean name="zoneToAuthoritySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.zoneToAuthoritySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="zoneToAuthoritySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Permissions access cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Permissions -->
+
+	<bean name="permissionsAccessSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.permissionsAccessSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="permissionsAccessSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- ACL Readers cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for ACL readers -->
+
+	<bean name="readersSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.readersSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="readersSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- ACL Readers Denied cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for ACL denied readers -->
+
+	<bean name="readersDeniedSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.readersDeniedSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="readersDeniedSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+
+	<!-- ===================================== -->
+	<!-- Node owner cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Node Ownership -->
+
+	<bean name="nodeOwnerSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.nodeOwnerSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="nodeOwnerSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Person username to NodeRef cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Person -->
+
+	<bean name="personSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.personSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="personSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Authentication Ticket Cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for In-Memory Tickets -->
+
+	<bean name="ticketsCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.ticketsCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="ticketsCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Lookup for AVM entities -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for AVM Store entities -->
+
+	<bean name="avmStoreSharedCache" class="org.alfresco.repo.cache.NullCache" />
+
+
+	<!-- The cross-transaction shared cache for AVM entities (various - using cache region) -->
+
+	<bean name="avmEntitySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.avmEntitySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="avmEntitySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for AVM VersionRoot entities -->
+
+	<bean name="avmVersionRootEntitySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.avmVersionRootEntitySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="avmVersionRootEntitySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for AVM Node entities -->
+
+	<bean name="avmNodeSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.avmNodeSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="avmNodeSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for AVM Node Aspects entities -->
+
+	<bean name="avmNodeAspectsSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.avmNodeAspectsSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="avmNodeAspectsSharedCache" />
+		<property name="maxItems" value="${cache.avmNodeAspectsSharedCache.maxItems}" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- WebServices Query Session Cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for WebService query sessions -->
+
+	<bean name="webServicesQuerySessionSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.webServicesQuerySessionSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="webServicesQuerySessionSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+
+	<!-- ===================================== -->
+	<!-- ACL cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Acls -->
+
+	<bean name="aclSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.aclSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="aclSharedCache" />
+		<property name="maxItems" value="${cache.aclSharedCache.maxItems}" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- ACL Entity cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for ACL entities -->
+
+	<bean name="aclEntitySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.aclEntitySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="aclEntitySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Authority Entity cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Authority entities -->
+
+	<bean name="authorityEntitySharedCache" class="org.alfresco.repo.cache.NullCache" />
+
+
+	<!-- ===================================== -->
+	<!-- Permission Entity cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Permission entities -->
+
+	<bean name="permissionEntitySharedCache" class="org.alfresco.repo.cache.NullCache" />
+
+
+	<!-- ===================================== -->
+	<!-- Messages Caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for In-Memory ResourceBundleBaseNames -->
+
+	<bean name="resourceBundleBaseNamesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.resourceBundleBaseNamesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="resourceBundleBaseNamesSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for In-Memory LoadedResourceBundles -->
+
+	<bean name="loadedResourceBundlesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.loadedResourceBundlesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="loadedResourceBundlesSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for In-Memory Messages -->
+
+	<bean name="messagesSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.messagesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="messagesSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+
+	<!-- ===================================== -->
+	<!-- Dictionary / Namespace Caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Dictionary Models -->
+
+	<bean name="compiledModelsCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.compiledModelsSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="compiledModelsCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- The cross-transaction shared cache for Dictionary Namespaces -->
+
+	<bean name="prefixesCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.prefixesSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="prefixesCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Web Scripts Caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for In-Memory WebScripts Registry -->
+
+	<bean name="webScriptsRegistryCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.webScriptsRegistrySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="webScriptsRegistryCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- RoutingContentStore caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for AbstractRoutingContentStore -->
+
+	<bean name="routingContentStoreSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.routingContentStoreSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="routingContentStoreSharedCache" />
+		<property name="maxItems" value="${cache.routingContentStoreSharedCache.maxItems}" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Executing Actions caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for Executing Actions -->
+
+	<bean name="executingActionsCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.executingActionsCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="executingActionsCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- TagScope Summary caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for tagscope summary properties -->
+
+	<bean name="tagscopeSummarySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.tagscopeSummarySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="tagscopeSummarySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- IMAP caches -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for IMAP messages -->
+
+	<bean name="imapMessageSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.imapMessageSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="imapMessageSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Tenant Entity Cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for in-memory Tenants -->
+
+	<bean name="tenantEntitySharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.tenantEntitySharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="tenantEntitySharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- ===================================== -->
+	<!-- Immutable Singleton Cache -->
+	<!-- ===================================== -->
+
+	<!-- The cross-transaction shared cache for immutable (tenant-aware) singletons -->
+
+	<bean name="immutableSingletonSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.immutableSingletonSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="immutableSingletonSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+	<!-- Remote Alfresco Ticket Cache, cross-transaction shared cache -->
+	<bean name="remoteAlfrescoTicketService.ticketsCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.remoteAlfrescoTicketService.ticketsCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="remoteAlfrescoTicketService.ticketsCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+	<bean name="contentDiskDriver.fileInfoCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.contentDiskDriver.fileInfoCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="contentDiskDriver.fileInfoCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+
+
+	<bean name="globalConfigSharedCache" class="com.sirma.itt.emf.repo.cache.DefaultSimpleCacheEMF">
+		<constructor-arg index="0" type="java.lang.String" value="${cache.globalConfigSharedCache.maxItems}" />
+		<constructor-arg index="1" type="java.lang.String" value="globalConfigSharedCache" />
+		<property name="cacheInformationRegistry">
+			<ref bean="cacheInformationRegistry" />
+		</property>
+	</bean>
+</beans>

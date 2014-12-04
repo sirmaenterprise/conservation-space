@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN 2.0//EN'
+  'http://www.springframework.org/dtd/spring-beans-2.0.dtd'>
+
+<beans>
+	<bean id="cmfLockService" class="com.sirma.itt.cmf.integration.service.CMFLockService">
+		<property name="repository" ref="repositoryHelper" />
+		<property name="lockService" ref="LockService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+	<bean id="cmfBaseService" class="com.sirma.itt.cmf.integration.service.CMFService">
+		<property name="repository" ref="repositoryHelper" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+	</bean>
+</beans>
+
+
+

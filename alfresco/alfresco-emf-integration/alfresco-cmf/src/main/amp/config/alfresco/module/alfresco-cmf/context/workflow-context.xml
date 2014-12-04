@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+
+	<!-- -->
+	<!-- Workflow Service Implementation -->
+	<!-- -->
+
+	<bean id="cmfWorkflowDeployer"
+		class="com.sirma.itt.cmf.integration.workflow.alfresco4.CMFWorkflowDeployer">
+		<property name="transactionService" ref="transactionService" />
+		<property name="authenticationContext" ref="authenticationContext" />
+		<property name="workflowService" ref="WorkflowService" />
+		<property name="workflowAdminService" ref="workflowAdminService" />
+		<property name="dictionaryDAO" ref="dictionaryDAO" />
+		<property name="nodeService" ref="NodeService" />
+		<property name="tenantService" ref="tenantService" />
+		<property name="workflowDefinitions">
+			<list>
+			</list>
+		</property>
+	</bean>
+	<bean id="webscript.com.sirma.itt.cmf.workflow.search.post"
+		class="com.sirma.itt.cmf.integration.workflow.alfresco4.CMFTaskInstancesGet"
+		parent="webscript" depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+	</bean>
+
+	<bean id="webscript.com.sirma.itt.cmf.workflow.workflow-deployer.get"
+		class="com.sirma.itt.cmf.integration.workflow.alfresco4.CMFWorkflowDeployerScript"
+		parent="webscript" depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="cmfWorkflowDeployer" ref="cmfWorkflowDeployer" />
+	</bean>
+
+
+	<bean id="taskReportService" class="org.alfresco.repo.workflow.WorkflowReportServiceImpl"
+		init-method="init" depends-on="searchService">
+		<property name="nodeService" ref="NodeService" />
+		<!--<property name="taskCache"> <ref bean="reportTaskCache" /> </property> -->
+		<property name="registry" ref="ServiceRegistry" />
+		<property name="repository" ref="repositoryHelper" />
+		<property name="workflowService" ref="workflowServiceImpl" />
+		<property name="enabled" value="true" />
+	</bean>
+
+</beans>
