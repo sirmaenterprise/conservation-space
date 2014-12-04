@@ -1,0 +1,135 @@
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.activiti.engine.impl.bpmn.behavior;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.activiti.engine.delegate.Expression;
+import org.activiti.engine.impl.pvm.PvmProcessDefinition;
+import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
+import org.activiti.engine.impl.rules.RulesAgendaFilter;
+import org.activiti.engine.impl.rules.RulesHelper;
+import org.drools.KnowledgeBase;
+import org.drools.runtime.StatefulKnowledgeSession;
+
+
+// TODO: Auto-generated Javadoc
+/**
+ * activity implementation of the BPMN 2.0 business rule task.
+ * 
+ * @author Tijs Rademakers
+ */
+public class BusinessRuleTaskActivityBehavior extends TaskActivityBehavior {
+  
+  /** The variables input expressions. */
+  protected Set<Expression> variablesInputExpressions = new HashSet<Expression>();
+  
+  /** The rules expressions. */
+  protected Set<Expression> rulesExpressions = new HashSet<Expression>();
+  
+  /** The exclude. */
+  protected boolean exclude = false;
+  
+  /** The result variable. */
+  protected String resultVariable;
+
+  /**
+   * Instantiates a new business rule task activity behavior.
+   */
+  public BusinessRuleTaskActivityBehavior() {}
+  
+  /* (non-Javadoc)
+   * @see org.activiti.engine.impl.bpmn.behavior.FlowNodeActivityBehavior#execute(org.activiti.engine.impl.pvm.delegate.ActivityExecution)
+   */
+  public void execute(ActivityExecution execution) throws Exception {
+    PvmProcessDefinition processDefinition = execution.getActivity().getProcessDefinition();
+    String deploymentId = processDefinition.getDeploymentId();
+    
+    KnowledgeBase knowledgeBase = RulesHelper.findKnowledgeBaseByDeploymentId(deploymentId); 
+    StatefulKnowledgeSession ksession = knowledgeBase.newStatefulKnowledgeSession();
+    
+    if (variablesInputExpressions != null) {
+      Iterator<Expression> itVariable = variablesInputExpressions.iterator();
+      while (itVariable.hasNext()) {
+        Expression variable = itVariable.next();
+        ksession.insert(variable.getValue(execution));
+      }
+    }
+    
+    if (rulesExpressions.size() > 0) {
+      RulesAgendaFilter filter = new RulesAgendaFilter();
+      Iterator<Expression> itRuleNames = rulesExpressions.iterator();
+      while (itRuleNames.hasNext()) {
+        Expression ruleName = itRuleNames.next();
+        filter.addSuffic(ruleName.getValue(execution).toString());
+      }
+      filter.setAccept(!exclude);
+      ksession.fireAllRules(filter);
+      
+    } else {
+      ksession.fireAllRules();
+    }
+    
+    Collection<Object> ruleOutputObjects = ksession.getObjects();
+    if (ruleOutputObjects != null && ruleOutputObjects.size() > 0) {
+      Collection<Object> outputVariables = new ArrayList<Object>();
+      for (Object object : ruleOutputObjects) {
+        outputVariables.add(object);
+      }
+      execution.setVariable(resultVariable, outputVariables);
+    }
+    ksession.dispose();
+    leave(execution);
+  }
+  
+  /**
+   * Adds the rule variable input id expression.
+   *
+   * @param inputId the input id
+   */
+  public void addRuleVariableInputIdExpression(Expression inputId) {
+    this.variablesInputExpressions.add(inputId);
+  }
+  
+  /**
+   * Adds the rule id expression.
+   *
+   * @param inputId the input id
+   */
+  public void addRuleIdExpression(Expression inputId) {
+    this.rulesExpressions.add(inputId);
+  }
+  
+  /**
+   * Sets the exclude.
+   *
+   * @param exclude the new exclude
+   */
+  public void setExclude(boolean exclude) {
+    this.exclude = exclude;
+  }
+  
+  /**
+   * Sets the result variable.
+   *
+   * @param resultVariableName the new result variable
+   */
+  public void setResultVariable(String resultVariableName) {
+    this.resultVariable = resultVariableName;
+  }
+  
+}
