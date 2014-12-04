@@ -1,6 +1,6 @@
 #!/bin/bash
 work_dir=$(readlink -f $(dirname "$0"))
-home_dir=eval echo ~$USER
+home_dir=$(getent passwd $SUDO_USER | cut -d: -f6)
 
 #install owlim jars
 cd ${work_dir}/third-party
@@ -33,29 +33,3 @@ mvn install -P unit-test
 #package deployables
 cd ${work_dir}/cs
 mvn package
-
-#Alfresco + custom extensions
-
-#copy settings.xml
-cp ${work_dir}/alfresco/settings.xml ${home_dir}
-
-#build dependencies
-cd ${work_dir}/alfresco/dependencies
-mvn install
-
-cd ${work_dir}/alfresco/activiti-engine
-mvn install
-
-cd ${work_dir}/afresco/java-opensaml2-main
-mvn install -DskipTests
-
-#build and package alfresco.war
-cd ${work_dir}/alfresco/alfresco-emf-integration/alfresco-integration-api
-mvn install
-
-cd ${work_dir}/alfresco/alfresco-emf-integration/alfresco-integration-impl
-mvn install
-
-cd ${work_dir}/alfresco/alfresco-emf-integration
-mvn install
-
