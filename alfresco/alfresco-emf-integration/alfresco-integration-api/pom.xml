@@ -32,11 +32,11 @@
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
-			<!-- This will import the dependencyManagement for all artifacts in the
-				selected Alfresco plaftorm (see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies)
-				NOTE: You still need to define dependencies in your POM, but you can omit
-				version as it's enforced by this dependencyManagement. NOTE: It defaults
-				to the latest version this SDK pom has been tested with, but alfresco version
+			<!-- This will import the dependencyManagement for all artifacts in the 
+				selected Alfresco plaftorm (see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies) 
+				NOTE: You still need to define dependencies in your POM, but you can omit 
+				version as it's enforced by this dependencyManagement. NOTE: It defaults 
+				to the latest version this SDK pom has been tested with, but alfresco version 
 				can/should be overridden in your project's pom -->
 			<dependency>
 				<groupId>${alfresco.groupId}</groupId>
@@ -65,6 +65,68 @@
 			<uniqueVersion>false</uniqueVersion>
 		</snapshotRepository>
 	</distributionManagement>
+	<repositories>
+		<!-- This repository is only needed to retrieve Alfresco parent POM. NOTE: 
+			This can be removed when/if Alfresco will be on Maven Central -->
+		<repository>
+			<id>alfresco-public</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>alfresco-public-snapshots</id>
+			<url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>shib-release</id>
+			<url>https://build.shibboleth.net/nexus/content/groups/public</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>shib-snapshot</id>
+			<url>https://build.shibboleth.net/nexus/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>main</id>
+			<name>main</name>
+			<url>http://repo1.maven.org/maven/</url>
+		</repository>
+		<repository>
+			<id>wso2</id>
+			<name>wos2</name>
+			<url>http://dist.wso2.net/maven2</url>
+		</repository>
+		<repository>
+			<id>activiti</id>
+			<name>Activiti</name>
+			<url>https://maven.alfresco.com/nexus/content/repositories/activiti/</url>
+		</repository>
+
+		<repository>
+			<id>alfresco-releases</id>
+			<url>https://maven.alfresco.com/nexus/content/repositories/releases/</url>
+		</repository>
+		<repository>
+			<id>shibboleth.internet2.edu</id>
+			<name>Internet2</name>
+			<layout>default</layout>
+			<url>http://shibboleth.internet2.edu/downloads/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
 	<build>
 		<resources>
 			<resource>
