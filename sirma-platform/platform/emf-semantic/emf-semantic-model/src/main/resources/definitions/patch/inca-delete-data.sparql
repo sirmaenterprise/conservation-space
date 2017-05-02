@@ -1,0 +1,31 @@
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX ptop:<http://www.ontotext.com/proton/protontop#>
+PREFIX xml:<http://www.w3.org/XML/1998/namespace>
+PREFIX dcterms:<http://purl.org/dc/terms/>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX psys:<http://proton.semanticweb.org/protonsys#>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX luc:<http://www.ontotext.com/owlim/lucene4#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sesame:<http://www.openrdf.org/schema/sesame#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX emf:<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+
+DELETE DATA {
+ptop:Organization emf:isSearchable "true"^^xsd:boolean .
+emf:Vendor emf:isSearchable "true"^^xsd:boolean .
+emf:Department emf:isSearchable "true"^^xsd:boolean .
+emf:DomainUser emf:isSearchable "true"^^xsd:boolean .
+emf:Company emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+ptop:Person emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+emf:DocumentSection emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+
+
+ptop:producedBy 	rdf:type 	owl:ObjectProperty .
+ptop:producedBy 	rdfs:domain 	ptop:ProductModel 	.
+ptop:producedBy 	rdfs:range 	ptop:Agent 	.
+ptop:producedBy 	rdfs:comment 	"A relation between a company and its ProductModel"@en 	.
+ptop:producedBy 	rdfs:label 	"Produced by"@en .
+}

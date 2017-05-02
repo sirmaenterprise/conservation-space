@@ -43,26 +43,22 @@ public class SecuirtyOperationScript extends BaseAlfrescoScript {
 				String[] propertiesToCopy = null;
 				if (request.has(KEY_NODEID)) {
 					if (!request.has(KEY_COPYABLE_PROPS)) {
-						throw new WebScriptException(404, "Missing '" + KEY_COPYABLE_PROPS
-								+ "' property in model");
+						throw new WebScriptException(404, "Missing '" + KEY_COPYABLE_PROPS + "' property in model");
 					}
 					String copyable = request.getString(KEY_COPYABLE_PROPS);
-					propertiesToCopy = (copyable == null || copyable.isEmpty() || "null"
-							.equals(copyable)) ? new String[0] : copyable.split(",");
+					propertiesToCopy = (copyable == null || copyable.isEmpty() || "null".equals(copyable))
+							? new String[0] : copyable.split(",");
 
 					NodeRef updateable = getCaseService().getNodeRef(request.getString(KEY_NODEID));
 					if (updateable == null) {
-						throw new WebScriptException(404, "Case: " + request.getString(KEY_NODEID)
-								+ " not found!");
+						throw new WebScriptException(404, "Case: " + request.getString(KEY_NODEID) + " not found!");
 					}
-					Map<QName, Serializable> updateMap = new HashMap<QName, Serializable>(
-							propertiesToCopy.length);
+					Map<QName, Serializable> updateMap = new HashMap<QName, Serializable>(propertiesToCopy.length);
 					// retrieve info
 					for (String key : propertiesToCopy) {
 						QName property = QName.resolveToQName(getNamespaceService(), key);
 						if (property != null) {
-							updateMap.put(property,
-									getNodeService().getProperty(updateable, property));
+							updateMap.put(property, getNodeService().getProperty(updateable, property));
 						} else {
 							debug("Property:", key, " is not resolved");
 						}
@@ -87,8 +83,7 @@ public class SecuirtyOperationScript extends BaseAlfrescoScript {
 
 					NodeRef updateable = getCaseService().getNodeRef(request.getString(KEY_NODEID));
 					if (updateable == null) {
-						throw new WebScriptException(404, "Case: " + request.getString(KEY_NODEID)
-								+ " not found!");
+						throw new WebScriptException(404, "Case: " + request.getString(KEY_NODEID) + " not found!");
 					}
 					if (request.has(KEY_PROPERTIES)) {
 						Map<QName, Serializable> map = toMap(request.getJSONObject(KEY_PROPERTIES));
@@ -101,7 +96,7 @@ public class SecuirtyOperationScript extends BaseAlfrescoScript {
 			model.put("results", value);
 		} catch (Exception e) {
 			if (e.getMessage() != null) {
-				throw new WebScriptException(500, e.getMessage());
+				throw new WebScriptException(500, e.getMessage(), e);
 			}
 			throw new WebScriptException(500, "Erorr during update", e);
 		}

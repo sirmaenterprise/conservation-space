@@ -1,0 +1,19 @@
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+INSERT {
+    ?class sec:hasPermission ?instance .
+    ?class sec:isManagerOf ?instance .
+} WHERE {
+    ?class a owl:Class .
+    ?class emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+    ?instance a ?class .
+    ?instance emf:isDeleted "false"^^xsd:boolean .
+    filter(not exists{
+            ?class sec:hasPermission ?instance
+        }).
+    filter(not exists{
+            ?class sec:isManagerOf ?instance
+        }).
+}

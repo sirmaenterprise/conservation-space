@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-fragment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-fragment_3_1.xsd" id="camunda_webapp"
+	version="3.1" metadata-complete="false">
+	<!-- development web.xml -->
+	<display-name>camunda bpm webapp</display-name>
+
+	<!-- cockpit bootstrap listener -->
+	<listener>
+		<listener-class>org.camunda.bpm.cockpit.impl.web.bootstrap.CockpitContainerBootstrap</listener-class>
+	</listener>
+
+	<!-- admin bootstrap listener -->
+	<listener>
+		<listener-class>org.camunda.bpm.admin.impl.web.bootstrap.AdminContainerBootstrap</listener-class>
+	</listener>
+
+	<!-- tasklist bootstrap listener -->
+	<listener>
+		<listener-class>org.camunda.bpm.tasklist.impl.web.bootstrap.TasklistContainerBootstrap</listener-class>
+	</listener>
+
+	<!-- welcome bootstrap listener -->
+	<listener>
+		<listener-class>org.camunda.bpm.welcome.impl.web.bootstrap.WelcomeContainerBootstrap</listener-class>
+	</listener>
+
+	<!-- engines filter -->
+	<filter>
+		<filter-name>Engines Filter</filter-name>
+		<filter-class>org.camunda.bpm.webapp.impl.engine.ProcessEnginesFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>Engines Filter</filter-name>
+		<url-pattern>/app/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>CamundaAuthenticationFilter</filter-name>
+		<filter-class>com.sirmaenterprise.sep.bpm.camunda.web.filter.CamundaAuthenticationFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CamundaAuthenticationFilter</filter-name>
+		<url-pattern>/api/tasklist/*</url-pattern>
+		<url-pattern>/api/engine/*</url-pattern>
+		<url-pattern>/api/cockpit/*</url-pattern>
+		<url-pattern>/api/admin/*</url-pattern>
+		<url-pattern>/api/welcome/*</url-pattern>
+		<url-pattern>/app/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+
+
+
+</web-fragment>

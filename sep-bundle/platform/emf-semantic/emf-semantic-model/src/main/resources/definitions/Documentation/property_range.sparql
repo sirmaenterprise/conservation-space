@@ -1,8 +1,0 @@
-	select ?property (group_concat(distinct ?data ; separator = ", ") AS ?range)
-	{
-		?property rdfs:range ?range1 .
-		bind(if(contains(str(?range1), "#"), STRAFTER(str(?range1), "#"), if(contains(str(?range1), "dc/terms"), replace(str(?range1), "http://purl.org/dc/terms/", ""),replace(str(?range1), "http://purl.org/dc/elements/1.1/", ""))) as ?label) .
-		bind(if(contains(str(?range1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?range1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?range1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?range1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?range1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?range1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
-		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?data) .
-	}
-	group by ?property

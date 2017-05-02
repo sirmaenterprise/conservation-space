@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<definition id="instanceQueries" type="query">
+	<fields>
+	    <field name="markInstanceGraphForDeleted" type="an..200" displayType="system">
+	    	<!-- The first part of the UNION statement fetches all instances that are part of the sub tree for the given objectUri.
+	    			The query filters out any attached instances, revisions and latest revisions.
+	    		 The second part is mapping for the root instance itself because it's not included in the first part. -->
+            <value><![CDATA[delete {
+					    GRAPH <{dataGraph}> {
+					       ?instance emf:isDeleted "false"^^xsd:boolean.
+					    }
+					}
+					insert {
+					    GRAPH <{dataGraph}> {
+					        ?instance emf:transactionId {transactionId};
+					                  emf:isDeleted "true"^^xsd:boolean.
+					    }
+					}
+					where {
+						{
+					         {objectUri} emf:hasChild ?instance.
+					         ?instance emf:isDeleted "false"^^xsd:boolean.
+					         OPTIONAL {?parent emf:hasChild ?instance; ptop:partOf {objectUri} .
+							        ?parent emf:hasAttachment ?instance.
+							            ?instance emf:isDeleted ?hasChildCheck1 .
+					         }
+					         FILTER (! BOUND(?hasChildCheck1)) . 
+					         OPTIONAL {?parent emf:hasChild ?instance; ptop:partOf {objectUri} .
+							        ?parent emf:hasAttachment ?myParent. ?myParent emf:hasChild ?instance.
+							        ?instance emf:isDeleted ?hasChildCheck2 .
+					         }
+					         FILTER (! BOUND(?hasChildCheck2)) . 
+					         OPTIONAL{ ?parent emf:hasAttachment ?instance . ?instance emf:isDeleted ?checkAttachment1 .} .
+					         FILTER (! BOUND(?checkAttachment1)) .      
+					         OPTIONAL { ?instance emf:revisionType emf:revision. ?instance emf:isDeleted ?checkRevisionType1 .}
+					         FILTER (! BOUND(?checkRevisionType1)) .
+					         OPTIONAL { ?instance emf:revisionType emf:latestRevision. ?instance emf:isDeleted ?checkRevisionType2 .}
+					         FILTER (! BOUND(?checkRevisionType2)) .
+						} UNION {
+					        BIND ({objectUri} as ?instance).
+					 	}
+					}]]>
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="queryParam" name="objectUri" />
+				<control-param id="queryParam" name="transactionId" />
+				<control-param id="queryParam" name="dataGraph"><![CDATA[http://ittruse.ittbg.com/data/enterpriseManagementFramework]]></control-param>
+			</control>
+        </field>
+	    <field name="markInstanceTopicsGraphForDeleted" type="an..200" displayType="system">
+	    	<!-- The first part of the UNION statement fetches all topics on instances that are part of the sub tree for the given objectUri.
+	    			The query filters out any attached instances, revisions and latest revisions.
+	    		 The second part fetches the topics of the root instance. -->
+            <value><![CDATA[delete {
+					    GRAPH <{dataGraph}> {
+					       ?instance emf:isDeleted "false"^^xsd:boolean.
+					    }
+					}
+					insert {
+					    GRAPH <{dataGraph}> {
+					        ?instance emf:transactionId {transactionId};
+					                  emf:isDeleted "true"^^xsd:boolean;
+					                  emf:deletedOn ?deletedOn.
+					    }
+					}
+					where {
+						{
+					         {objectUri} emf:hasChild ?anInstance.
+					         ?anInstance emf:isDeleted "false"^^xsd:boolean.
+					         ?instance emf:commentsOn ?anInstance.
+					         ?instance emf:isDeleted "false"^^xsd:boolean.
+					         OPTIONAL {?parent emf:hasChild ?anInstance; ptop:partOf {objectUri} .
+							        ?parent emf:hasAttachment ?anInstance.
+							            ?anInstance emf:isDeleted ?hasChildCheck1 .
+					         }
+					         FILTER (! BOUND(?hasChildCheck1)) . 
+					         OPTIONAL {?parent emf:hasChild ?anInstance; ptop:partOf {objectUri} .
+							        ?parent emf:hasAttachment ?myParent. ?myParent emf:hasChild ?anInstance.
+							        ?anInstance emf:isDeleted ?hasChildCheck2 .
+					         }
+					         FILTER (! BOUND(?hasChildCheck2)) . 
+					         OPTIONAL{ ?parent emf:hasAttachment ?anInstance . ?anInstance emf:isDeleted ?checkAttachment1 .} .
+					         FILTER (! BOUND(?checkAttachment1)) .      
+					         OPTIONAL { ?anInstance emf:revisionType emf:revision. ?anInstance emf:isDeleted ?checkRevisionType1 .}
+					         FILTER (! BOUND(?checkRevisionType1)) .
+					         OPTIONAL { ?anInstance emf:revisionType emf:latestRevision. ?anInstance emf:isDeleted ?checkRevisionType2 .}
+					         FILTER (! BOUND(?checkRevisionType2)) .
+						} UNION {
+							?instance emf:commentsOn {objectUri}.
+       						?instance emf:isDeleted "false"^^xsd:boolean.
+					 	}
+					 	BIND(now() as ?deletedOn).
+					}]]>
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="queryParam" name="objectUri" />
+				<control-param id="queryParam" name="transactionId" />
+				<control-param id="queryParam" name="dataGraph"><![CDATA[http://ittruse.ittbg.com/data/enterpriseManagementFramework]]></control-param>
+			</control>
+        </field>
+        <field name="getDeletedInstances" type="an..200" displayType="system">
+            <value>select ?instance ?instanceType where {
+					    ?objectUri emf:hasChild ?instance.
+					    ?instance emf:transactionId ?transactionId.
+					    ?instance emf:instanceType ?instanceType.
+					    OPTIONAL { ?instance emf:deletedOn ?date. ?instance emf:isDeleted ?checkDeletedOn1 .}
+				        FILTER (! BOUND(?checkDeletedOn1)) .
+					}
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="config" name="maxSize">50</control-param>
+				<control-param id="binding" name="objectUri" />
+				<control-param id="binding" name="transactionId" />
+			</control>
+        </field>
+        <field name="countDeletedInstances" type="an..200" displayType="system">
+            <value>select (count(distinct ?instance) as ?count) where {
+					    ?objectUri emf:hasChild ?instance.
+					    ?instance emf:transactionId ?transactionId.
+					    ?instance emf:instanceType ?instanceType.
+					    OPTIONAL { ?instance emf:deletedOn ?date. ?instance emf:isDeleted ?checkDeletedOn1 .}
+				        FILTER (! BOUND(?checkDeletedOn1)) .
+					}
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">true</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="objectUri" />
+				<control-param id="binding" name="transactionId" />
+			</control>
+        </field>
+        <field name="loadInstanceContent" type="an..200" displayType="system">
+            <value>select ?instance ?instanceType ?content where {
+					    ?instance emf:instanceType ?instanceType.
+					    ?instance emf:content ?content.
+					}
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="instance" />
+			</control>
+        </field>
+         <field name="getDefaultLocations" type="an..200" displayType="system">
+         	<!-- Extracts the default locations (projects). If the project instance have property defaultLocation, it is returned. -->
+            <value>SELECT DISTINCT ?instance ?instanceType ?isDefaultLocation WHERE {
+    				    ?instance a emf:Project;
+        				emf:isDeleted "false"^^xsd:boolean;
+						emf:modifiedOn ?modifiedOn;
+        				emf:instanceType ?instanceType.
+    			   OPTIONAL { 
+    			   			  ?instance emf:isDefaultLocation ?locationParam.
+							  ?instance emf:isDefaultLocation ?isDefaultLocation.
+    			    		}
+				   } ORDER BY DESC(?modifiedOn)
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="locationParam" />
+			</control>
+        </field>
+	</fields>
+</definition>

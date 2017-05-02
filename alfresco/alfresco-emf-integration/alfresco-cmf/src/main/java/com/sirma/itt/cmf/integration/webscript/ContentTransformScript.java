@@ -1,3 +1,4 @@
+
 package com.sirma.itt.cmf.integration.webscript;
 
 import java.awt.image.BufferedImage;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
@@ -24,6 +26,7 @@ import org.alfresco.repo.content.transform.RuntimeExecutableContentTransformerOp
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.model.FileFolderService;
+import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentReader;
@@ -35,6 +38,11 @@ import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.GUID;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.AutoDetectParser;
 import org.springframework.extensions.surf.util.URLEncoder;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -45,11 +53,12 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.sirma.itt.cmf.integration.ServiceProxy;
+import com.sirma.itt.cmf.integration.exception.SEIPRuntimeException;
 import com.sirma.itt.cmf.integration.model.CMFModel;
+import com.sirma.itt.cmf.integration.service.CMFService;
 
 /**
- * Gets a node provided by the request and returns the pdf content child url.
- * First is created if not.
+ * Gets a node provided by the request and returns the pdf content child url. First is created if not.
  *
  * {@link BaseAlfrescoScript}
  *
@@ -57,7 +66,7 @@ import com.sirma.itt.cmf.integration.model.CMFModel;
  */
 public class ContentTransformScript extends BaseAlfrescoScript {
 	/** The Constant CONTENT_DOWNLOAD_PROP_URL. */
-	private final static String CONTENT_PROP_URL = "/d/d/{0}/{1}/{2}/{3}?property={4}";
+	private static final String CONTENT_PROP_URL = "/d/d/{0}/{1}/{2}/{3}?property={4}";
 
 	/** The Constant DOWNLOAD_URL. */
 	private static final String DOWNLOAD_URL = "downloadURL";
@@ -85,13 +94,12 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	/** The transformer service. */
 	private DocumentsTransformerService transformerService;
 
-	private NodeRef versionedPreviewSpace;
-
 	private Repository repository;
 
+	private Map<String, NodeRef> versionedPreviewSpaces = new TreeMap<String, NodeRef>();
+
 	/**
-	 * Creates a temporary node with unique name that will service for temporary
-	 * usage by the content transformer.
+	 * Creates a temporary node with unique name that will service for temporary usage by the content transformer.
 	 *
 	 * @param nodeToCopy
 	 *            is the node to create temporary for
@@ -100,16 +108,14 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	private NodeRef addTempPrintNode(NodeRef nodeToCopy) {
 		if ("versionStore".equals(nodeToCopy.getStoreRef().getProtocol())) {
 			NodeRef previewSpace = getVersionedPreviewSpace();
-			Serializable version = nodeService.getProperty(nodeToCopy,
-					ContentModel.PROP_VERSION_LABEL);
-			NodeRef nodeSpace = nodeService.getChildByName(previewSpace,
-					ContentModel.ASSOC_CONTAINS, nodeToCopy.getId());
+			Serializable version = nodeService.getProperty(nodeToCopy, ContentModel.PROP_VERSION_LABEL);
+			NodeRef nodeSpace = nodeService.getChildByName(previewSpace, ContentModel.ASSOC_CONTAINS,
+					nodeToCopy.getId());
 			NodeRef versionNode = null;
 			if (nodeSpace == null) {
 				nodeSpace = createNode(previewSpace, nodeToCopy.getId(), ContentModel.TYPE_FOLDER);
 			} else {
-				versionNode = nodeService.getChildByName(nodeSpace, ContentModel.ASSOC_CONTAINS,
-						version.toString());
+				versionNode = nodeService.getChildByName(nodeSpace, ContentModel.ASSOC_CONTAINS, version.toString());
 			}
 			if (versionNode == null) {
 				versionNode = createNode(nodeSpace, version, ContentModel.TYPE_THUMBNAIL);
@@ -134,9 +140,10 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	private NodeRef createNode(NodeRef parent, Serializable name, QName type) {
 		Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
 		props.put(ContentModel.PROP_NAME, name);
-		return nodeService.createNode(parent, ContentModel.ASSOC_CONTAINS,
-				QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name.toString()), type,
-				props).getChildRef();
+		return nodeService
+				.createNode(parent, ContentModel.ASSOC_CONTAINS,
+						QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name.toString()), type, props)
+				.getChildRef();
 	}
 
 	/**
@@ -180,9 +187,8 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		}
 
 		/**
-		 * The method checks the mimetype of the document and if it is not pdf
-		 * transform it to. For images is 2 step process: convert to jpeg, add
-		 * to pdf.
+		 * The method checks the mimetype of the document and if it is not pdf transform it to. For images is 2 step
+		 * process: convert to jpeg, add to pdf.
 		 *
 		 * @param transformableNode
 		 *            is the node to transform to pdf
@@ -203,8 +209,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		}
 
 		/**
-		 * Transforms node to pdf by relaying on the direct transforming. The
-		 * result node is the same
+		 * Transforms node to pdf by relaying on the direct transforming. The result node is the same
 		 *
 		 * @param transformableNode
 		 *            is the node to transform
@@ -220,18 +225,16 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 			options.setTargetContentProperty(ContentModel.PROP_CONTENT);
 			options.setTargetNodeRef(transformableNode);
 
-			ContentTransformer transformer = proxy.getTransformer(sourceMimetype,
-					APP_PDF_MIME_TYPE, options);
+			ContentTransformer transformer = proxy.getTransformer(sourceMimetype, APP_PDF_MIME_TYPE, options);
 			// if we don't have a transformer, throw an error
 			if (transformer == null) {
 				throw new WebScriptException(500, "Unable to locate transformer");
 			}
 			// establish a content reader (from source)
-			ContentReader contentReader = getContentService().getReader(transformableNode,
-					ContentModel.PROP_CONTENT);
+			ContentReader contentReader = getContentService().getReader(transformableNode, ContentModel.PROP_CONTENT);
 			// establish a content writer (to destination)
-			ContentWriter contentWriter = getContentService().getWriter(transformableNode,
-					ContentModel.PROP_CONTENT, true);
+			ContentWriter contentWriter = getContentService().getWriter(transformableNode, ContentModel.PROP_CONTENT,
+					true);
 			contentWriter.setMimetype(APP_PDF_MIME_TYPE);
 			// do the transformation
 			transformer.transform(contentReader, contentWriter, options);
@@ -260,23 +263,21 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 					}
 				}
 				newName = name.replaceAll(ext, ".pdf");
-				registry.getNodeService().setProperty(stampablePDFNode, ContentModel.PROP_NAME,
-						newName);
+				registry.getNodeService().setProperty(stampablePDFNode, ContentModel.PROP_NAME, newName);
 			} catch (Exception e) {
 				//
 			}
 		}
 
 		/**
-		 * Creates a pdf from image: 1. create a jpeg image (pdf box works with
-		 * it) from the document 2. add the jpeg image to a new pdf .
+		 * Creates a pdf from image: 1. create a jpeg image (pdf box works with it) from the document 2. add the jpeg
+		 * image to a new pdf .
 		 *
 		 * @param document
 		 *            is the document to print - some image
 		 * @param sourceMimetype
 		 *            is the source mimetype
-		 * @return the created pdf node if the image is created successfully,
-		 *         null otherwise
+		 * @return the created pdf node if the image is created successfully, null otherwise
 		 */
 		private NodeRef transformFromImage(NodeRef document, String sourceMimetype) {
 
@@ -285,15 +286,14 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		}
 
 		/**
-		 * Creates a pdf from image: 1. create a jpeg image (pdf box works with
-		 * it) from the document 2. add the jpeg image to a new pdf .
+		 * Creates a pdf from image: 1. create a jpeg image (pdf box works with it) from the document 2. add the jpeg
+		 * image to a new pdf .
 		 *
 		 * @param document
 		 *            is the document to print - some image
 		 * @param sourceMimetype
 		 *            is the mimetype of the document
-		 * @return the created pdf node if the image is created successfully,
-		 *         null otherwise
+		 * @return the created pdf node if the image is created successfully, null otherwise
 		 */
 		private NodeRef transformFromPdf(NodeRef document, String sourceMimetype) {
 
@@ -303,29 +303,25 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		}
 
 		/**
-		 * Try to convert image to jpeg and add the resulted image to pdf. When
-		 * converting to jpeg image is resized as well to fit A4.
+		 * Try to convert image to jpeg and add the resulted image to pdf. When converting to jpeg image is resized as
+		 * well to fit A4.
 		 *
 		 * @param document
 		 *            is the input node - the image
 		 * @param targetNode
-		 *            - is the node to contain the image as pdf - might be the
-		 *            same as input
+		 *            - is the node to contain the image as pdf - might be the same as input
 		 * @param sourceMimetype
 		 *            is the source mimetype
 		 * @return the created pdf document
 		 */
-		public Document createPDFFromImage(NodeRef document, NodeRef targetNode,
-				String sourceMimetype) {
+		public Document createPDFFromImage(NodeRef document, NodeRef targetNode, String sourceMimetype) {
 			Document pdf = null;
 			File pngFile = null;
 			try {
 				int marginOffset = 40;
 				// convert to jpeg
-				ContentReader contentReader = getContentService().getReader(document,
-						ContentModel.PROP_CONTENT);
-				BufferedInputStream streamInput = new BufferedInputStream(
-						contentReader.getContentInputStream());
+				ContentReader contentReader = getContentService().getReader(document, ContentModel.PROP_CONTENT);
+				BufferedInputStream streamInput = new BufferedInputStream(contentReader.getContentInputStream());
 				Image image = null;
 				if (IMAGE_PNG_MIME_TYPE.equals(sourceMimetype)) {
 					BufferedImage read = ImageIO.read(streamInput);
@@ -333,8 +329,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 					ImageIO.write(read, "jpeg", pngFile);
 					image = Image.getInstance(pngFile.getAbsolutePath());
 				} else {
-					image = Image.getInstance(convertInputStreamToByteStream(streamInput)
-							.toByteArray());
+					image = Image.getInstance(convertInputStreamToByteStream(streamInput).toByteArray());
 				}
 				Rectangle pageSizeA4 = PageSize.A4;
 				// calculate sizes
@@ -358,8 +353,8 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 					}
 				}
 
-				ContentWriter contentWriter = getContentService().getWriter(targetNode,
-						ContentModel.PROP_CONTENT, true);
+				ContentWriter contentWriter = getContentService().getWriter(targetNode, ContentModel.PROP_CONTENT,
+						true);
 				contentWriter.setMimetype(APP_PDF_MIME_TYPE);
 				// new pdf
 				pdf = new Document(pageSizeA4);
@@ -393,10 +388,8 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		 * @throws IOException
 		 *             on io error
 		 */
-		private ByteArrayOutputStream convertInputStreamToByteStream(InputStream streamInput)
-				throws IOException {
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-					streamInput.available());
+		private ByteArrayOutputStream convertInputStreamToByteStream(InputStream streamInput) throws IOException {
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(streamInput.available());
 			int read = 0;
 			while ((read = streamInput.read()) != -1) {
 				byteArrayOutputStream.write(read);
@@ -410,8 +403,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		 * @param document
 		 *            is the input node - the email
 		 * @param targetNode
-		 *            - is the node to contain the email as pdf - might be the
-		 *            same as input
+		 *            - is the node to contain the email as pdf - might be the same as input
 		 * @param sourceMimetype
 		 *            is the mimetype
 		 * @return the created pdf document
@@ -419,11 +411,9 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		public NodeRef createPDFFromMail(NodeRef document, NodeRef targetNode, String sourceMimetype) {
 			NodeRef plainTextNode = convertEmailToPlain(document, targetNode, sourceMimetype);
 
-			ContentReader contentReader = getContentService().getReader(plainTextNode,
-					ContentModel.PROP_CONTENT);
+			ContentReader contentReader = getContentService().getReader(plainTextNode, ContentModel.PROP_CONTENT);
 			// establish a content writer (to destination)
-			ContentWriter contentWriter = getContentService().getWriter(plainTextNode,
-					ContentModel.PROP_CONTENT, true);
+			ContentWriter contentWriter = getContentService().getWriter(plainTextNode, ContentModel.PROP_CONTENT, true);
 			contentWriter.setMimetype(APP_PDF_MIME_TYPE);
 
 			TransformationOptions options = new TransformationOptions();
@@ -432,8 +422,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 			options.setSourceNodeRef(plainTextNode);
 			options.setTargetContentProperty(ContentModel.PROP_CONTENT);
 			options.setTargetNodeRef(plainTextNode);
-			ContentTransformer transformer = proxy.getTransformer(PLAIN_TEXT_MIME_TYPE,
-					APP_PDF_MIME_TYPE, options);
+			ContentTransformer transformer = proxy.getTransformer(PLAIN_TEXT_MIME_TYPE, APP_PDF_MIME_TYPE, options);
 			if (transformer == null) {
 				throw new WebScriptException(500, "Unable to locate plain text transformer");
 			}
@@ -453,8 +442,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		 *            is the mimetype of input
 		 * @return the created plain text node
 		 */
-		private NodeRef convertEmailToPlain(NodeRef document, NodeRef plainTextNode,
-				String sourceMimetype) {
+		private NodeRef convertEmailToPlain(NodeRef document, NodeRef plainTextNode, String sourceMimetype) {
 
 			TransformationOptions options = new TransformationOptions();
 
@@ -463,18 +451,15 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 			options.setSourceNodeRef(document);
 			options.setTargetContentProperty(ContentModel.PROP_CONTENT);
 			options.setTargetNodeRef(plainTextNode);
-			ContentTransformer transformer = proxy.getTransformer(sourceMimetype,
-					PLAIN_TEXT_MIME_TYPE, options);
+			ContentTransformer transformer = proxy.getTransformer(sourceMimetype, PLAIN_TEXT_MIME_TYPE, options);
 			// if we don't have a transformer, throw an error
 			if (transformer == null) {
 				throw new WebScriptException(500, "Unable to locate email transformer");
 			}
 			// establish a content reader (from source)
-			ContentReader contentReader = getContentService().getReader(document,
-					ContentModel.PROP_CONTENT);
+			ContentReader contentReader = getContentService().getReader(document, ContentModel.PROP_CONTENT);
 			// establish a content writer (to destination)
-			ContentWriter contentWriter = getContentService().getWriter(plainTextNode,
-					ContentModel.PROP_CONTENT, true);
+			ContentWriter contentWriter = getContentService().getWriter(plainTextNode, ContentModel.PROP_CONTENT, true);
 			contentWriter.setMimetype(PLAIN_TEXT_MIME_TYPE);
 			// do the transformation
 			transformer.transform(contentReader, contentWriter, options);
@@ -558,46 +543,48 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	 * @return the store
 	 */
 	private NodeRef getVersionedPreviewSpace() {
+		synchronized (versionedPreviewSpaces) {
 
-		// if (versionedPreviewSpace != null) {
-		// return versionedPreviewSpace;
-		// }
-
-		List<ChildAssociationRef> childAssocs = getNodeService().getChildAssocs(
-				repository.getRootHome());
-		NodeRef systemNode = null;
-		for (ChildAssociationRef childAssociationRef : childAssocs) {
-			if (CMFModel.SYSTEM_QNAME.equals(childAssociationRef.getQName())) {
-				systemNode = childAssociationRef.getChildRef();
-				break;
+			String tenantId = CMFService.getTenantId();
+			NodeRef versionedPreviewSpace = versionedPreviewSpaces.get(tenantId);
+			if (versionedPreviewSpace != null) {
+				return versionedPreviewSpace;
 			}
-		}
-		if (systemNode == null) {
-			throw new RuntimeException("System space not found!");
-		}
-		String previewNodeName = "versionedNodesPreviewSpace";
-		versionedPreviewSpace = cmfService.getChildContainerByName(systemNode, previewNodeName);
-		QName versionNodeName = QName.createQName(CMFModel.CMF_MODEL_1_0_URI, previewNodeName);
-		if (versionedPreviewSpace == null) {
-			childAssocs = getNodeService().getChildAssocs(systemNode);
+
+			List<ChildAssociationRef> childAssocs = getNodeService().getChildAssocs(repository.getRootHome());
+			NodeRef systemNode = null;
 			for (ChildAssociationRef childAssociationRef : childAssocs) {
-				if (versionNodeName.equals(childAssociationRef.getQName())) {
-					versionedPreviewSpace = childAssociationRef.getChildRef();
+				if (CMFModel.SYSTEM_QNAME.equals(childAssociationRef.getQName())) {
+					systemNode = childAssociationRef.getChildRef();
 					break;
 				}
 			}
+			if (systemNode == null) {
+				throw new SEIPRuntimeException("System space not found!");
+			}
+			String previewNodeName = "versionedNodesPreviewSpace";
+			versionedPreviewSpace = cmfService.getChildContainerByName(systemNode, previewNodeName);
+			QName versionNodeName = QName.createQName(CMFModel.CMF_MODEL_1_0_URI, previewNodeName);
+			if (versionedPreviewSpace == null) {
+				childAssocs = getNodeService().getChildAssocs(systemNode);
+				for (ChildAssociationRef childAssociationRef : childAssocs) {
+					if (versionNodeName.equals(childAssociationRef.getQName())) {
+						versionedPreviewSpace = childAssociationRef.getChildRef();
+						break;
+					}
+				}
 
+			}
+
+			if (versionedPreviewSpace == null) {
+				Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
+				props.put(ContentModel.PROP_NAME, previewNodeName);
+				versionedPreviewSpace = nodeService.createNode(systemNode, ContentModel.ASSOC_CHILDREN, versionNodeName,
+						ContentModel.TYPE_FOLDER, props).getChildRef();
+			}
+			versionedPreviewSpaces.put(tenantId, versionedPreviewSpace);
+			return versionedPreviewSpace;
 		}
-
-		if (versionedPreviewSpace == null) {
-			Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
-			props.put(ContentModel.PROP_NAME, previewNodeName);
-			versionedPreviewSpace = nodeService.createNode(systemNode, ContentModel.ASSOC_CHILDREN,
-					versionNodeName, ContentModel.TYPE_FOLDER, props).getChildRef();
-		}
-
-		return versionedPreviewSpace;
-
 	}
 
 	/**
@@ -632,8 +619,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 		if ((transformable == null) || !nodeService.exists(transformable)) {
 			throw new WebScriptException(404, "Unable to locate document");
 		}
-		String targetMimetype = req.getParameter("mimetype") == null ? APP_PDF_MIME_TYPE : req
-				.getParameter("mimetype");
+		String targetMimetype = req.getParameter("mimetype") == null ? APP_PDF_MIME_TYPE : req.getParameter("mimetype");
 		Map<String, Object> model = new HashMap<String, Object>(1);
 		NodeRef newNodeRef = null;
 		String lockUser = null;
@@ -659,8 +645,8 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 					options.setSourceNodeRef(transformable);
 					options.setTargetContentProperty(ContentModel.PROP_CONTENT);
 					options.setIncludeEmbedded(Boolean.TRUE);
-					ContentTransformer transformer = getServiceProxy().getTransformer(
-							sourceMimetype, targetMimetype, options);
+					ContentTransformer transformer = getServiceProxy().getTransformer(sourceMimetype, targetMimetype,
+							options);
 					// if we don't have a transformer, throw an error
 					if (transformer == null) {
 						if (sourceMimetype.startsWith("image/")) {
@@ -668,14 +654,13 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 							newNodeRef = addTempPrintNode(transformable);
 							options.setTargetNodeRef(newNodeRef);
 							// alaways pdf as fallback
-							newNodeRef = transformNodeToImage(transformable, newNodeRef,
-									sourceMimetype);
+							newNodeRef = transformNodeToImage(transformable, newNodeRef, sourceMimetype);
 							if (newNodeRef == null) {
 								throw new WebScriptException(500, "Unable to convert from image");
 							}
 						} else {
-							throw new WebScriptException(204, "Unable to locate transformer for "
-									+ sourceMimetype + " to " + targetMimetype);
+							throw new WebScriptException(204,
+									"Unable to locate transformer for " + sourceMimetype + " to " + targetMimetype);
 						}
 					} else {
 						// create the new node
@@ -695,11 +680,9 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 			} else {
 				newNodeRef = transformable;
 			}
-			String url = MessageFormat.format(
-					CONTENT_PROP_URL,
-					new Object[] { newNodeRef.getStoreRef().getProtocol(),
-							newNodeRef.getStoreRef().getIdentifier(), newNodeRef.getId(),
-							URLEncoder.encode(getName(newNodeRef)),
+			String url = MessageFormat.format(CONTENT_PROP_URL,
+					new Object[] { newNodeRef.getStoreRef().getProtocol(), newNodeRef.getStoreRef().getIdentifier(),
+							newNodeRef.getId(), URLEncoder.encode(getName(newNodeRef)),
 							URLEncoder.encode(ContentModel.PROP_CONTENT.toString()) });
 			model.put(DOWNLOAD_URL, getBasePath() + url);
 			model.put(KEY_NODEID, newNodeRef.toString());
@@ -724,20 +707,17 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	 */
 	private NodeRef findVersionNodePreview(NodeRef versionNode) {
 		NodeRef previewSpace = getVersionedPreviewSpace();
-		Serializable version = nodeService
-				.getProperty(versionNode, ContentModel.PROP_VERSION_LABEL);
-		NodeRef nodeSpace = nodeService.getChildByName(previewSpace, ContentModel.ASSOC_CONTAINS,
-				versionNode.getId());
+		Serializable version = nodeService.getProperty(versionNode, ContentModel.PROP_VERSION_LABEL);
+		NodeRef nodeSpace = nodeService.getChildByName(previewSpace, ContentModel.ASSOC_CONTAINS, versionNode.getId());
 		if (nodeSpace == null) {
 			return null;
 		}
-		return nodeService.getChildByName(nodeSpace, ContentModel.ASSOC_CONTAINS,
-				version.toString());
+		return nodeService.getChildByName(nodeSpace, ContentModel.ASSOC_CONTAINS, version.toString());
 	}
 
 	/**
-	 * Creates a pdf from image: 1. create a jpeg image (pdf box works with it)
-	 * from the printedDocument 2. add the jpeg image to a new pdf .
+	 * Creates a pdf from image: 1. create a jpeg image (pdf box works with it) from the printedDocument 2. add the jpeg
+	 * image to a new pdf .
 	 *
 	 * @param printedDocument
 	 *            is the document to print - some image
@@ -745,13 +725,11 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	 *            the new node ref
 	 * @param sourceMimetype
 	 *            is the source mimetype
-	 * @return the created pdf node if the image is created successfully, null
-	 *         otherwise
+	 * @return the created pdf node if the image is created successfully, null otherwise
 	 */
-	private NodeRef transformNodeToImage(NodeRef printedDocument, NodeRef newNodeRef,
-			String sourceMimetype) {
-		Document createPDFFromImage = getTransformService().createPDFFromImage(printedDocument,
-				newNodeRef, sourceMimetype);
+	private NodeRef transformNodeToImage(NodeRef printedDocument, NodeRef newNodeRef, String sourceMimetype) {
+		Document createPDFFromImage = getTransformService().createPDFFromImage(printedDocument, newNodeRef,
+				sourceMimetype);
 		return createPDFFromImage != null ? newNodeRef : null;
 	}
 
@@ -827,26 +805,30 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	}
 
 	/**
-	 * get the filename of node using {@link FileFolderService}.
-	 *
-	 * @param nodeRef
-	 *            is the node
-	 * @return the filename
-	 */
-	protected String getFilename(NodeRef nodeRef) {
-		return getFileService().getFileInfo(nodeRef).getName();
-	}
-
-	/**
 	 * get the mimetype of node using {@link MimetypeService}.
 	 *
 	 * @param nodeRef
-	 *            is the node
-	 * @return the mimetype
+	 *            is the node to check
+	 * @return the mimetype or on uknown return the tika detected from content mimetype
 	 */
 	protected String guessMimetype(NodeRef nodeRef) {
-		String filename = getFilename(nodeRef);
-		return getMimetypeService().guessMimetype(filename);
+		FileInfo fileInfo = getFileService().getFileInfo(nodeRef);
+		String filename = fileInfo.getName();
+		String guessMimetype = getMimetypeService().guessMimetype(filename);
+		if ("application/octet-stream".equals(guessMimetype)) {
+			try {
+				ContentData contentData = fileInfo.getContentData();
+				ContentReader rawReader = getContentService().getRawReader(contentData.getContentUrl());
+				TikaInputStream tikaInputStream = TikaInputStream.get(rawReader.getContentInputStream());
+				Metadata metadata = new Metadata();
+				metadata.set(TikaCoreProperties.IDENTIFIER, filename);
+				MediaType detect = new AutoDetectParser().getDetector().detect(tikaInputStream, metadata);
+				return detect.toString();
+			} catch (Exception e) {
+				getLogger().warn("Mimetype could not be detected: " + e.getMessage(), e);
+			}
+		}
+		return guessMimetype;
 	}
 
 	/**
@@ -880,8 +862,7 @@ public class ContentTransformScript extends BaseAlfrescoScript {
 	 */
 	private DocumentsTransformerService getTransformService() {
 		if (transformerService == null) {
-			transformerService = new DocumentsTransformerService(getServiceProxy(),
-					getServiceRegistry());
+			transformerService = new DocumentsTransformerService(getServiceProxy(), getServiceRegistry());
 		}
 		return transformerService;
 	}

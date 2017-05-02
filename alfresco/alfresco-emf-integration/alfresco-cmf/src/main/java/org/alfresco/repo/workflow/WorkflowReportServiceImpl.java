@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
@@ -61,7 +61,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
+import com.sirma.itt.cmf.integration.exception.SEIPRuntimeException;
 import com.sirma.itt.cmf.integration.model.CMFModel;
+import com.sirma.itt.cmf.integration.service.CMFService;
 
 /**
  * Extension of {@link org.alfresco.repo.workflow.jbpm.QviJBPMEngine} to support
@@ -74,6 +76,7 @@ import com.sirma.itt.cmf.integration.model.CMFModel;
  */
 @SuppressWarnings("synthetic-access")
 public class WorkflowReportServiceImpl implements WorkflowReportService {
+	/** Root path for task storage. */
 	public static final String SYSTEM_TASK_INDEXES_SPACE = "/sys:system/cmfwf:taskIndexesSpace//*";
 	/**
 	 * MAX size of cache.
@@ -101,10 +104,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	private ServiceRegistry registry;
 
 	/** The task node. */
-	private NodeRef taskSpaceNode;
-
-	/** The system node. */
-	private NodeRef systemNode;
+	private Map<String, NodeRef> taskSpaceNodes = new HashMap<String, NodeRef>();
 
 	/** The Constant UPDATED_DATA. */
 	private static final Map<QName, QName> UPDATED_DATA = new HashMap<QName, QName>();
@@ -112,7 +112,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	private static final Set<QName> SKIPPED_DATA = new HashSet<QName>();
 
 	/** semaphore lock. */
-	private final ReentrantReadWriteLock taskAddingLock = new ReentrantReadWriteLock(true);
+	private final Map<String, ReentrantLock> taskAddingLock = new HashMap<String, ReentrantLock>();
 
 	/** The cache size. */
 	private int cacheSize = getCacheSize();
@@ -121,9 +121,8 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	private MemoryCache<String, NodeRef> taskCache = new MemoryCache<String, NodeRef>(cacheSize);
 	private PersonService personService;
 	private AuthorityService authorityService;
-	private String baseQuery = "PATH:\""
-			+ SYSTEM_TASK_INDEXES_SPACE
-			+ "\" AND ASPECT: \"{http://www.sirmaitt.com/model/workflow/cmf/1.0}dmsTask\" AND cm:name:\"";
+	private String baseQuery = "PATH:\"" + SYSTEM_TASK_INDEXES_SPACE + "\" AND ASPECT: \""
+			+ CMFModel.ASPECT_TASK_NODE.toString() + "\" AND cm:name:\"";
 
 	/**
 	 * Gets the cache size from config or fallback to default of
@@ -142,7 +141,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 				size = Integer.valueOf(object.toString());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new SEIPRuntimeException("Fail to config task cache size!", e);
 		}
 		return size;
 	}
@@ -154,8 +153,6 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		//
 		UPDATED_DATA.put(WorkflowModel.TYPE_PACKAGE, WorkflowReportConstants.PROP_PACKAGE);
 		UPDATED_DATA.put(WorkflowModel.ASSOC_ASSIGNEE, WorkflowReportConstants.PROP_ASSIGNED);
-		// UPDATED_DATA.put(WorkflowModel.ASSOC_ASSIGNEES,
-		// WorkflowReportConstants.PROP_POOLED_ACTORS);
 		SKIPPED_DATA.add(WorkflowModel.ASSOC_POOLED_ACTORS);
 	}
 
@@ -174,17 +171,6 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		updateTask(endedTask);
 	}
 
-	/**
-	 * Adds new task to the system in specific container, so the task to be
-	 * stored as node.<br>
-	 * <strong> This method should be invoked for new workflows only with one
-	 * task</strong><br>
-	 * Code is executed as {@link AuthenticationUtil#getSystemUserName()} to
-	 * prevent update problems
-	 *
-	 * @param workflowPath
-	 *            is the workflow path to get the first task for.
-	 */
 	@Override
 	public void addTask(final WorkflowPath workflowPath) {
 		if (!isEnabled()) {
@@ -193,35 +179,37 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (DEBUG_ENABLED) {
 			LOGGER.debug("ADD TASK FOR PATH " + workflowPath.getId());
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
+			WorkflowInstance instance = workflowPath.getInstance();
+			final List<WorkflowTask> queryTasks = listTasks(null, instance.getId());
 			AuthenticationUtil.runAs(new RunAsWork<NodeRef>() {
 
 				@Override
 				public NodeRef doWork() throws Exception {
-					WorkflowInstance instance = workflowPath.getInstance();
-					WorkflowTaskQuery taskQuery = new WorkflowTaskQuery();
-					taskQuery.setProcessId(instance.getId());
-					List<WorkflowTask> queryTasks = workflowService.queryTasks(taskQuery, true);
 					WorkflowTask task = queryTasks.get(0);
 					return addTaskInternal(task);
 
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.alfresco.repo.workflow.WorkflowReportService#addTask(org.alfresco
-	 * .service.cmr.workflow.WorkflowTask)
-	 */
+	private ReentrantLock acquireLock(String id) {
+		synchronized (WorkflowReportServiceImpl.class) {
+			String lockId = StringUtils.isBlank(id) ? "ReentrantLockDefaultLockId" : id;
+			if (!taskAddingLock.containsKey(lockId)) {
+				taskAddingLock.put(lockId, new ReentrantLock(true));
+			}
+			return taskAddingLock.get(lockId);
+		}
+	}
+
 	@Override
 	public NodeRef addTask(final WorkflowTask task) {
 		if (!isEnabled()) {
@@ -230,24 +218,23 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (DEBUG_ENABLED) {
 			LOGGER.debug("ADD TASK " + task.getId());
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
+			final List<WorkflowTask> queryTasks = listTasks(task.getId(), null);
 			return AuthenticationUtil.runAs(new RunAsWork<NodeRef>() {
 
 				@Override
 				public NodeRef doWork() throws Exception {
-					WorkflowTaskQuery taskQuery = new WorkflowTaskQuery();
-					taskQuery.setTaskId(task.getId());
-					List<WorkflowTask> queryTasks = workflowService.queryTasks(taskQuery, true);
 					WorkflowTask task = queryTasks.get(0);
 					return addTaskInternal(task);
 
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 		return null;
 	}
@@ -260,27 +247,43 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (DEBUG_ENABLED) {
 			LOGGER.debug("ADD TASK FOR STANDALONE " + taskId);
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
+			final List<WorkflowTask> queryTasks = listTasks(taskId, null);
 			return AuthenticationUtil.runAs(new RunAsWork<NodeRef>() {
 
 				@Override
 				public NodeRef doWork() throws Exception {
-					WorkflowTaskQuery taskQuery = new WorkflowTaskQuery();
-					taskQuery.setTaskId(taskId);
-					List<WorkflowTask> queryTasks = workflowService.queryTasks(taskQuery, true);
 					WorkflowTask task = queryTasks.get(0);
 					task.getProperties().putAll(props);
 					return addTaskInternal(task);
 
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 		return null;
+	}
+
+	private List<WorkflowTask> listTasks(final String taskId, final String processId) {
+		return AuthenticationUtil.runAs(new RunAsWork<List<WorkflowTask>>() {
+
+			@Override
+			public List<WorkflowTask> doWork() throws Exception {
+				WorkflowTaskQuery taskQuery = new WorkflowTaskQuery();
+				if (taskId != null) {
+					taskQuery.setTaskId(taskId);
+				}
+				if (processId != null) {
+					taskQuery.setProcessId(processId);
+				}
+				return workflowService.queryTasks(taskQuery, true);
+			}
+		}, AuthenticationUtil.getSystemUserName());
 	}
 
 	/**
@@ -303,8 +306,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (DEBUG_ENABLED) {
 			LOGGER.debug("WorkflowReportServiceImpl.addTaskInternal() " + properties);
 		}
-		NodeRef createNode = createNode(workfklowSpace,
-				QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI, id),
+		NodeRef createNode = createNode(workfklowSpace, QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI, id),
 				ContentModel.ASSOC_CONTAINS, ContentModel.TYPE_CONTENT, properties);
 
 		if (taskCache.getKeys().size() > cacheSize) {
@@ -317,26 +319,11 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		// put the id
 		task.getProperties().put(ContentModel.PROP_NODE_UUID, createNode.getId());
 		taskCache.put(id, createNode);
-		// try {
-		// // to set the dummy id
-		// getWorkflowService().updateTask(id, task.getProperties(), null,
-		// null);
-		// } catch (Exception e) {
-		// LOGGER.error(e);
-		// }
+
 		return createNode;
 
 	}
 
-	/**
-	 * Updates tasks by getting all information for it and setting the node
-	 * properties for this task to the new ones.<br>
-	 * Code is executed as {@link AuthenticationUtil#getSystemUserName()} to
-	 * prevent update problems
-	 *
-	 * @param workflowInstance
-	 *            is the task to update
-	 */
 	@Override
 	public void cancelWorkflow(final WorkflowInstance workflowInstance) {
 		if (!isEnabled()) {
@@ -345,39 +332,26 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (DEBUG_ENABLED) {
 			LOGGER.debug("CANCEL WORKFLOW (task) " + workflowInstance.getId());
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
 			AuthenticationUtil.runAs(new RunAsWork<Void>() {
 
 				@Override
 				public Void doWork() throws Exception {
-					fixWorkflowMetadata(
-							null,
-							workflowInstance,
-							CANCELLED,
-							getWorkflowItems(workflowInstance.getWorkflowPackage(),
-									CMFModel.PROP_TYPE));
+					fixWorkflowMetadata(null, workflowInstance, CANCELLED,
+							getWorkflowItems(workflowInstance.getWorkflowPackage(), CMFModel.PROP_TYPE));
 					return null;
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
 			LOGGER.error(e);
 			// just print and skip
-			e.printStackTrace();
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 	}
 
-	/**
-	 * Updates tasks by getting all information for it and setting the node
-	 * properties for this task to the new ones.<br>
-	 * Code is executed as {@link AuthenticationUtil#getSystemUserName()} to
-	 * prevent update problems
-	 *
-	 * @param updatedTask
-	 *            is the task to update
-	 */
 	@Override
 	public void updateTask(final WorkflowTask updatedTask) {
 		if (!isEnabled()) {
@@ -386,7 +360,8 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (DEBUG_ENABLED) {
 			LOGGER.debug("UPDATE TASK (task) " + updatedTask.getId());
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
 			AuthenticationUtil.runAs(new RunAsWork<Void>() {
 
@@ -395,31 +370,27 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 
 					final String id = updatedTask.getId();
 					if (!taskCache.contains(id)) {
-						ResultSet query = registry.getSearchService().query(
-								StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
-								SearchService.LANGUAGE_SOLR_FTS_ALFRESCO,
-								buildTaskQuery(updatedTask));
+						ResultSet query = registry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
+								SearchService.LANGUAGE_SOLR_FTS_ALFRESCO, buildTaskQuery(updatedTask));
 						List<NodeRef> nodeRefs = query.getNodeRefs();
 						if ((nodeRefs == null) || nodeRefs.isEmpty()) {
 							addTaskInternal(updatedTask);
 						} else {
-							nodeService.addProperties(nodeRefs.get(0),
-									extractTaskProperties(updatedTask));
+							nodeService.addProperties(nodeRefs.get(0), extractTaskProperties(updatedTask));
 						}
 						query = null;
 					} else {
-						nodeService.addProperties(taskCache.get(id),
-								extractTaskProperties(updatedTask));
+						nodeService.addProperties(taskCache.get(id), extractTaskProperties(updatedTask));
 					}
 
 					return null;
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
 			// just print and skip
 			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 	}
 
@@ -453,8 +424,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	private NodeRef getTaskSpecificSpace(String name) {
 		NodeRef workflowNode = getChildFolderByName(getTaskSpace(), name);
 		if (workflowNode == null) {
-			workflowNode = createNode(getTaskSpace(),
-					QName.createQName(NamespaceService.SYSTEM_MODEL_1_0_URI, name),
+			workflowNode = createNode(getTaskSpace(), QName.createQName(NamespaceService.SYSTEM_MODEL_1_0_URI, name),
 					ContentModel.ASSOC_CONTAINS, ContentModel.TYPE_FOLDER);
 		}
 		Calendar instance = Calendar.getInstance();
@@ -464,8 +434,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		String subspaceName = "tasks_" + year + "_" + month;
 		NodeRef taskSpace = getChildFolderByName(workflowNode, subspaceName);
 		if (taskSpace == null) {
-			taskSpace = createNode(workflowNode,
-					QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI, subspaceName),
+			taskSpace = createNode(workflowNode, QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI, subspaceName),
 					ContentModel.ASSOC_CONTAINS, ContentModel.TYPE_FOLDER);
 		}
 		return taskSpace;
@@ -506,37 +475,34 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	 *            are the properties for the node
 	 * @return the created node.
 	 */
-	private NodeRef createNode(final NodeRef parent, final QName name, final QName assoc,
-			final QName type, final Map<QName, Serializable> properties) {
+	private NodeRef createNode(final NodeRef parent, final QName name, final QName assoc, final QName type,
+			final Map<QName, Serializable> properties) {
 		boolean newTransaction = AlfrescoTransactionSupport.getTransactionReadState() != TxnReadState.TXN_READ_WRITE;
 		if (newTransaction) {
-			return registry.getRetryingTransactionHelper().doInTransaction(
-					new RetryingTransactionCallback<NodeRef>() {
+			return registry.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionCallback<NodeRef>() {
 
-						@Override
-						public NodeRef execute() throws Throwable {
-							NodeRef childByName = nodeService.getChildByName(parent,
-									ContentModel.ASSOC_CONTAINS, name.getLocalName());
-							if (childByName != null) {
-								return childByName;
-							}
-							properties.put(ContentModel.PROP_NAME, name.getLocalName());
-							NodeRef childRef = nodeService.createNode(parent, assoc, name, type,
-									properties).getChildRef();
-							if (!ContentModel.TYPE_FOLDER.equals(type)) {
-								nodeService.addAspect(childRef, CMFModel.ASPECT_TASK_NODE, null);
-							}
-							return childRef;
-						}
-					}, false, newTransaction);
+				@Override
+				public NodeRef execute() throws Throwable {
+					NodeRef childByName = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS,
+							name.getLocalName());
+					if (childByName != null) {
+						return childByName;
+					}
+					properties.put(ContentModel.PROP_NAME, name.getLocalName());
+					NodeRef childRef = nodeService.createNode(parent, assoc, name, type, properties).getChildRef();
+					if (!ContentModel.TYPE_FOLDER.equals(type)) {
+						nodeService.addAspect(childRef, CMFModel.ASPECT_TASK_NODE, null);
+					}
+					return childRef;
+				}
+			}, false, newTransaction);
 		}
 		properties.put(ContentModel.PROP_NAME, name.getLocalName());
 		if (TRACE_ENABLED) {
-			LOGGER.trace("WorkflowReportServiceImpl.createNode() " + parent + " " + assoc + " "
-					+ name + " " + type + " " + properties);
+			LOGGER.trace("WorkflowReportServiceImpl.createNode() " + parent + " " + assoc + " " + name + " " + type
+					+ " " + properties);
 		}
-		NodeRef childRef = nodeService.createNode(parent, assoc, name, type, properties)
-				.getChildRef();
+		NodeRef childRef = nodeService.createNode(parent, assoc, name, type, properties).getChildRef();
 		if (!ContentModel.TYPE_FOLDER.equals(type)) {
 			nodeService.addAspect(childRef, CMFModel.ASPECT_TASK_NODE, null);
 		}
@@ -557,11 +523,11 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			NodeRef ref = new NodeRef(stringValue.toString());
 			if (nodeService.exists(ref)) {
 				if (ContentModel.TYPE_AUTHORITY_CONTAINER.equals(nodeService.getType(ref))) {
-					return new Pair<NodeRef, String>(ref, (String) getNodeService().getProperty(
-							ref, ContentModel.PROP_AUTHORITY_NAME));
+					return new Pair<NodeRef, String>(ref,
+							(String) getNodeService().getProperty(ref, ContentModel.PROP_AUTHORITY_NAME));
 				}
-				return new Pair<NodeRef, String>(ref, (String) getNodeService().getProperty(ref,
-						ContentModel.PROP_USERNAME));
+				return new Pair<NodeRef, String>(ref,
+						(String) getNodeService().getProperty(ref, ContentModel.PROP_USERNAME));
 			}
 		} else if (value instanceof String) {
 			// could be collision
@@ -593,6 +559,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	 *
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Map<QName, Serializable> prepareTaskProperties(WorkflowTask task,
 			Map<QName, Serializable> propertiesCurrent) {
 		Map<QName, Serializable> taskProperties = new HashMap<QName, Serializable>();
@@ -602,8 +569,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			LOGGER.debug("Metadata of '" + task.getId() + "' is :" + propertiesCurrent);
 		}
 		if (propertiesCurrent.get(WorkflowModel.ASSOC_POOLED_ACTORS) instanceof Collection) {
-			Collection<?> pooledActors = (Collection<?>) propertiesCurrent
-					.remove(WorkflowModel.ASSOC_POOLED_ACTORS);
+			Collection<?> pooledActors = (Collection<?>) propertiesCurrent.remove(WorkflowModel.ASSOC_POOLED_ACTORS);
 			// process if actually there is data
 			if (pooledActors.size() > 0) {
 				LinkedHashSet<String> pooledUsers = new LinkedHashSet<String>();
@@ -622,14 +588,12 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			}
 		}
 		if (propertiesCurrent.get(WorkflowModel.ASSOC_ASSIGNEES) instanceof Collection) {
-			Collection<?> pooledActors = (Collection<?>) propertiesCurrent
-					.get(WorkflowModel.ASSOC_ASSIGNEES);
+			Collection<?> pooledActors = (Collection<?>) propertiesCurrent.get(WorkflowModel.ASSOC_ASSIGNEES);
 
 			taskProperties.put(WorkflowModel.ASSOC_ASSIGNEES, (Serializable) pooledActors);
 		}
 		if (propertiesCurrent.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE) != null) {
-			String pooledGroup = propertiesCurrent.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE)
-					.toString();
+			String pooledGroup = propertiesCurrent.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE).toString();
 			String actorId = getActor(pooledGroup).getSecond();
 			taskProperties.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, actorId);
 		}
@@ -667,8 +631,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (nodeRef != null && !nodeRef.toString().trim().isEmpty()) {
 			NodeRef nodeRefCreated = new NodeRef(nodeRef.toString());
 			if (nodeService.exists(nodeRefCreated)) {
-				Pair<String, String> workflowItems = getWorkflowItems(nodeRefCreated,
-						CMFModel.PROP_TYPE);
+				Pair<String, String> workflowItems = getWorkflowItems(nodeRefCreated, CMFModel.PROP_TYPE);
 				taskProperties.put(CMFModel.PROP_WF_CONTEXT_TYPE, workflowItems.getFirst());
 				taskProperties.put(CMFModel.PROP_WF_CONTEXT_ID, workflowItems.getSecond());
 			}
@@ -681,11 +644,10 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		}
 
 		WorkflowInstance instance = workflowPath.getInstance();
-		taskProperties.put(WorkflowModel.PROP_WORKFLOW_DEFINITION_ID, workflowPath.getInstance()
-				.getDefinition().getId());
+		taskProperties.put(WorkflowModel.PROP_WORKFLOW_DEFINITION_ID,
+				workflowPath.getInstance().getDefinition().getId());
 
-		taskProperties.put(WorkflowModel.PROP_WORKFLOW_DEFINITION_NAME, instance.getDefinition()
-				.getName());
+		taskProperties.put(WorkflowModel.PROP_WORKFLOW_DEFINITION_NAME, instance.getDefinition().getName());
 		taskProperties.put(WorkflowModel.PROP_WORKFLOW_INSTANCE_ID, instance.getId());
 
 		String definitionId = task.getDefinition().getNode().getName();
@@ -694,11 +656,9 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		}
 		// fix priority if not set
 		if (!propertiesCurrent.containsKey(WorkflowModel.PROP_PRIORITY)) {
-			taskProperties.put(WorkflowModel.PROP_PRIORITY, workflowPath.getInstance()
-					.getPriority());
+			taskProperties.put(WorkflowModel.PROP_PRIORITY, workflowPath.getInstance().getPriority());
 		} else {
-			taskProperties.put(WorkflowModel.PROP_PRIORITY,
-					propertiesCurrent.get(WorkflowModel.PROP_PRIORITY));
+			taskProperties.put(WorkflowModel.PROP_PRIORITY, propertiesCurrent.get(WorkflowModel.PROP_PRIORITY));
 		}
 		return taskProperties;
 	}
@@ -717,8 +677,8 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	 * @param packageItems
 	 *            are the attached documents.
 	 */
-	private void fixWorkflowMetadata(Map<QName, Serializable> taskProperties,
-			WorkflowInstance workflow, String status, Pair<String, String> packageItems) {
+	private void fixWorkflowMetadata(Map<QName, Serializable> taskProperties, WorkflowInstance workflow, String status,
+			Pair<String, String> packageItems) {
 		NodeRef workflowPackage = workflow.getWorkflowPackage();
 		if (workflowPackage == null) {
 			return;
@@ -728,26 +688,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			// what is the task
 			Serializable taskName = taskProperties.get(WorkflowModel.PROP_WORKFLOW_DEFINITION_ID);
 			if (DEBUG_ENABLED) {
-				LOGGER.debug("fixWorkflowMetadata()  " + taskName + " " + workflow.getEndDate()
-						+ " " + taskProperties);
-			}
-			if (taskName != null) {
-				// this should be handled by the other
-				// // TODO endDate?
-				// if (COMPLETITION_TASKS.containsKey(taskName)) {
-				// Pair<QName, String> pair = COMPLETITION_TASKS.get(taskName);
-				// Serializable propValue = taskProperties.get(pair.getFirst());
-				// if (pair.getSecond().equalsIgnoreCase(propValue.toString()))
-				// {
-				// }
-				// } else if (CANCELLATION_TASKS.containsKey(taskName)) {
-				// Pair<QName, String> pair = CANCELLATION_TASKS.get(taskName);
-				// Serializable propValue = taskProperties.get(pair.getFirst());
-				// if (pair.getSecond().equalsIgnoreCase(propValue.toString()))
-				// {
-				// statusLocal = CANCELLED;
-				// }
-				// }
+				LOGGER.debug("fixWorkflowMetadata()  " + taskName + " " + workflow.getEndDate() + " " + taskProperties);
 			}
 		}
 		Map<QName, Serializable> newProps = new HashMap<QName, Serializable>(8);
@@ -783,8 +724,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			}
 			if (workflow.getEndDate() != null) {
 				newProps.put(WorkflowModel.PROP_COMPLETION_DATE, workflow.getEndDate());
-			} else if (CANCELLED.equalsIgnoreCase(statusLocal)
-					|| COMPLETED.equalsIgnoreCase(statusLocal)) {
+			} else if (CANCELLED.equalsIgnoreCase(statusLocal) || COMPLETED.equalsIgnoreCase(statusLocal)) {
 				newProps.put(WorkflowModel.PROP_COMPLETION_DATE, new Date());
 			}
 
@@ -814,31 +754,23 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	private Pair<String, String> getWorkflowItems(NodeRef nodeRef, QName property) {
 		List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(nodeRef);
 		String result = "";
-		String nodes = "";
-		// if (subTypes == null) {
-		// subTypes =
-		// getRegistry().getDictionaryService().getSubTypes(ContentModel.TYPE_CONTENT,
-		// false);
-		// subTypes.add(ContentModel.TYPE_CONTENT);
-		// }
+		StringBuilder nodes = new StringBuilder(60);
+
 		for (ChildAssociationRef childAssociationRef : childAssocs) {
 			NodeRef childRef = childAssociationRef.getChildRef();
-			// QName type = nodeService.getType(childRef);
 			Serializable caseType = nodeService.getProperty(childRef, property);
 			if (caseType != null) {
-				// if (subTypes.contains(type)) {
 				if (result.length() > 0) {
 					result += "|";
 				}
 				result += caseType;
-				// }
 			}
 			if (nodes.length() > 0) {
-				nodes += "|";
+				nodes.append("|");
 			}
-			nodes += childRef.toString();
+			nodes.append(childRef);
 		}
-		return new Pair<String, String>(result, nodes);
+		return new Pair<String, String>(result, nodes.toString());
 	}
 
 	/**
@@ -847,43 +779,41 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	 * @return the task space initialized lazy
 	 */
 	private NodeRef getTaskSpace() {
-
+		String tenantId = CMFService.getTenantId();
+		NodeRef taskSpaceNode = taskSpaceNodes.get(tenantId);
 		if (taskSpaceNode != null) {
 			return taskSpaceNode;
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
 
 			// for optimization lock here and check the node again
+			taskSpaceNode = taskSpaceNodes.get(tenantId);
 			if (taskSpaceNode != null) {
 				return taskSpaceNode;
 			}
-			List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(repository
-					.getRootHome());
+			List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(repository.getRootHome());
+			NodeRef systemNode = null;
 			for (ChildAssociationRef childAssociationRef : childAssocs) {
 				if (CMFModel.SYSTEM_QNAME.equals(childAssociationRef.getQName())) {
 					systemNode = childAssociationRef.getChildRef();
 					break;
 				}
 			}
-			taskSpaceNode = getChildContainerByName(systemNode,
-					WorkflowReportConstants.TASK_SPACE_ID);
+			taskSpaceNode = getChildContainerByName(systemNode, WorkflowReportConstants.TASK_SPACE_ID);
 			if (taskSpaceNode == null) {
 				taskSpaceNode = createNode(systemNode,
-						QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI,
-								WorkflowReportConstants.TASK_SPACE_ID),
+						QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI, WorkflowReportConstants.TASK_SPACE_ID),
 						ContentModel.ASSOC_CHILDREN, ContentModel.TYPE_FOLDER);
 			}
-			String taskSpacePath = nodeService.getPath(taskSpaceNode).toPrefixString(
-					registry.getNamespaceService());
-			baseQuery = "PATH:\"" + taskSpacePath + "//*\" AND ASPECT: \""
-					+ CMFModel.ASPECT_TASK_NODE.toString() + "\" AND cm:name:\"";
 
+			taskSpaceNodes.put(tenantId, taskSpaceNode);
 			return taskSpaceNode;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 		return null;
 	}
@@ -924,24 +854,20 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	}
 
 	/**
-	 * Updates tasks by getting all information for it and setting the node
-	 * properties for this task to the new ones.<br>
-	 * Code is executed as {@link AuthenticationUtil#getSystemUserName()} to
-	 * prevent update problems
-	 *
-	 * @param updatedTask
-	 *            is the task to update
+	 * Deletes task corresponding node
+	 * 
+	 * @param task
+	 *            the task to delete
 	 */
-	private void deleteTask(final WorkflowTask updatedTask) {
+	private void deleteTask(final WorkflowTask task) {
 		if (!isEnabled()) {
 			return;
 		}
 		if (DEBUG_ENABLED) {
-			LOGGER.debug("DELETE TASK (task) " + updatedTask);
+			LOGGER.debug("DELETE TASK (task) " + task);
 		}
-		ResultSet query = registry.getSearchService().query(
-				StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_SOLR_FTS_ALFRESCO,
-				buildTaskQuery(updatedTask));
+		ResultSet query = registry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
+				SearchService.LANGUAGE_SOLR_FTS_ALFRESCO, buildTaskQuery(task));
 		List<NodeRef> nodeRefs = query.getNodeRefs();
 		if (nodeRefs != null) {
 			for (NodeRef nodeRef : nodeRefs) {
@@ -962,15 +888,15 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (!isEnabled()) {
 			return;
 		}
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
 			AuthenticationUtil.runAs(new RunAsWork<Void>() {
 
 				@Override
 				public Void doWork() throws Exception {
 					try {
-						List<WorkflowPath> workflowById = workflowService
-								.getWorkflowPaths(workflowId);
+						List<WorkflowPath> workflowById = workflowService.getWorkflowPaths(workflowId);
 						for (WorkflowPath workflowPath : workflowById) {
 							List<WorkflowTask> tasksForWorkflowPath = workflowService
 									.getTasksForWorkflowPath(workflowPath.getId());
@@ -980,17 +906,15 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 						}
 					} catch (Exception e) {
 						// just print and skip so not to break alfresco code
-						LOGGER.error(e.getLocalizedMessage());
-						e.printStackTrace();
+						LOGGER.error(e);
 					}
 					return null;
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
-			// just print and skip
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 	}
 
@@ -1009,8 +933,9 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 		if (checkTaskIfExists(createdTask)) {
 			return;
 		}
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
 		// use the same lock as in write mode
-		taskAddingLock.writeLock().lock();
+		acquiredLock.lock();
 		try {
 			// check again after lock of this node because of thread issues
 			if (checkTaskIfExists(createdTask)) {
@@ -1022,8 +947,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			AuthenticationUtil.runAs(new RunAsWork<Void>() {
 				@Override
 				public Void doWork() throws Exception {
-					ResultSet query = registry.getSearchService().query(
-							StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
+					ResultSet query = registry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
 							SearchService.LANGUAGE_SOLR_FTS_ALFRESCO, buildTaskQuery(createdTask));
 					List<NodeRef> nodeRefs = query.getNodeRefs();
 					if ((nodeRefs == null) || nodeRefs.isEmpty()) {
@@ -1032,11 +956,11 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 					query = null;
 					return null;
 				}
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 	}
 
@@ -1051,7 +975,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	public boolean checkTaskIfExists(WorkflowTask createdTask) {
 		// gets lock in this transaction - wait for init in write
 		// transaction
-		if (taskSpaceNode == null) {
+		if (taskSpaceNodes.get(CMFService.getTenantId()) == null) {
 			return true;
 		}
 
@@ -1072,20 +996,22 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	 * @return the string
 	 */
 	private String buildTaskQuery(final WorkflowTask task) {
+		// for all tenants it is the same
 		String query = new StringBuffer(baseQuery).append(task.getId()).append("\"").toString();
 		return query;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.alfresco.repo.workflow.WorkflowReportService#getTaskNode(org.alfresco
 	 * .service.cmr.workflow.WorkflowTask)
 	 */
 	@Override
 	public NodeRef getTaskNode(final WorkflowTask task) {
-		taskAddingLock.writeLock().lock();
+		ReentrantLock acquiredLock = acquireLock(CMFService.getTenantId());
+		acquiredLock.lock();
 		try {
 			if (taskCache.contains(task.getId())) {
 				return taskCache.get(task.getId());
@@ -1093,8 +1019,7 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 			return AuthenticationUtil.runAs(new RunAsWork<NodeRef>() {
 				@Override
 				public NodeRef doWork() throws Exception {
-					ResultSet query = registry.getSearchService().query(
-							StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
+					ResultSet query = registry.getSearchService().query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
 							SearchService.LANGUAGE_SOLR_FTS_ALFRESCO, buildTaskQuery(task));
 					List<NodeRef> nodeRefs = query.getNodeRefs();
 					if ((nodeRefs == null) || nodeRefs.size() != 1) {
@@ -1104,40 +1029,14 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 					return nodeRefs.get(0);
 				}
 
-			}, AuthenticationUtil.getSystemUserName());
+			}, CMFService.getSystemUser());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} finally {
-			taskAddingLock.writeLock().unlock();
+			acquiredLock.unlock();
 		}
 		return null;
 
-	}
-
-	/**
-	 * Person service cached.
-	 *
-	 * @return the person service
-	 */
-	@SuppressWarnings("unused")
-	private PersonService getPersonService() {
-		if (personService == null) {
-			personService = registry.getPersonService();
-		}
-		return personService;
-	}
-
-	/**
-	 * Get the authority service cached.
-	 *
-	 * @return the authority service
-	 */
-	@SuppressWarnings("unused")
-	private AuthorityService getAuthorityService() {
-		if (authorityService == null) {
-			authorityService = registry.getAuthorityService();
-		}
-		return authorityService;
 	}
 
 	/**
@@ -1234,4 +1133,5 @@ public class WorkflowReportServiceImpl implements WorkflowReportService {
 	public boolean isEnabled() {
 		return enabled;
 	}
+
 }

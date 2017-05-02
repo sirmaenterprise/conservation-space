@@ -1,0 +1,34 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+insert data {
+
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Help
+        emf:Help rdf:type owl:Class ;
+            rdfs:label "Help"@en ,
+                "Ръководство"@bg ;
+            rdfs:subClassOf ptop:Object ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            dc:creator "Nikolay Velkov"@en ;
+            skos:definition "Help data"@en ;
+            emf:definitionId "objectinstance" ;
+            emf:classCategory "help" .
+            
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#helpTarget
+        emf:helpTarget rdf:type owl:DatatypeProperty;
+            rdfs:label "Help target"@en ,
+                "Ръководство за"@bg ;
+            skos:definition "Target of the help"@en ;
+            dc:creator "Nikolay Velkov"@en ;
+            rdfs:domain emf:Help .
+    }
+}

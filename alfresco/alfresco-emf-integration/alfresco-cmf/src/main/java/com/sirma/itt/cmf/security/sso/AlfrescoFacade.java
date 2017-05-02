@@ -31,6 +31,8 @@ import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.web.app.servlet.FacesHelper;
 import org.alfresco.web.bean.repository.User;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -38,7 +40,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * The Class AlfrescoFacade.
  */
 public class AlfrescoFacade {
-
+	/** The logger. */
+	private static final Log LOGGER = LogFactory.getLog(AlfrescoFacade.class);
 	/** The sessions. */
 	private Map<String, HttpSession> sessions = new WeakHashMap<String, HttpSession>();
 
@@ -83,8 +86,7 @@ public class AlfrescoFacade {
 	 */
 	public AlfrescoFacade(ServletContext servletContext) {
 		this.servletContext = servletContext;
-		WebApplicationContext ctx = WebApplicationContextUtils
-				.getRequiredWebApplicationContext(servletContext);
+		WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 		ServiceRegistry serviceRegistry = (ServiceRegistry) ctx.getBean("ServiceRegistry");
 		transactionService = serviceRegistry.getTransactionService();
 		nodeService = serviceRegistry.getNodeService();
@@ -92,8 +94,7 @@ public class AlfrescoFacade {
 		authService = ((MutableAuthenticationService) ctx.getBean("AuthenticationService"));
 		personService = ((PersonService) ctx.getBean("personService"));
 		permissionService = ((PermissionService) ctx.getBean("permissionService"));
-		authenticationService = ((MutableAuthenticationService) ctx
-				.getBean("authenticationService"));
+		authenticationService = ((MutableAuthenticationService) ctx.getBean("authenticationService"));
 
 		authorityService = ((AuthorityService) ctx.getBean("authorityService"));
 		transactionalHelper = new TransactionalHelper(transactionService);
@@ -113,7 +114,6 @@ public class AlfrescoFacade {
 	 *            the http session
 	 * @param userName
 	 *            the user name
-	 * 
 	 * @param populateSession
 	 *            whether to force session updated
 	 */
@@ -124,8 +124,7 @@ public class AlfrescoFacade {
 			AuthenticationUtil.setFullyAuthenticatedUser(userName);
 			authComponent.setCurrentUser(userName);
 			ticketComponent.clearCurrentTicket();
-			transactionalHelper.doInTransaction(new LoginTransaction(userName, httpSession,
-					request, response));
+			transactionalHelper.doInTransaction(new LoginTransaction(userName, httpSession, request, response));
 		}
 	}
 
@@ -290,8 +289,7 @@ public class AlfrescoFacade {
 			}
 			NodeRef guestRef = personService.getPerson("guest");
 			User user = new User("guest", authService.getCurrentTicket(), guestRef);
-			NodeRef guestHomeRef = (NodeRef) nodeService.getProperty(guestRef,
-					ContentModel.PROP_HOMEFOLDER);
+			NodeRef guestHomeRef = (NodeRef) nodeService.getProperty(guestRef, ContentModel.PROP_HOMEFOLDER);
 			user.setHomeSpaceId(guestHomeRef.getId());
 			session.setAttribute("_alfAuthTicket", user);
 			return null;
@@ -344,8 +342,7 @@ public class AlfrescoFacade {
 		public Object execute() {
 			NodeRef homeSpaceRef = null;
 			if (!personService.personExists(userName)) {
-				throw new IllegalArgumentException("The requested user " + userName
-						+ " does not exits");
+				throw new IllegalArgumentException("The requested user " + userName + " does not exits");
 			}
 			NodeRef person = personService.getPerson(userName);
 			User user = new User(userName, authService.getCurrentTicket(), person);
@@ -441,8 +438,7 @@ public class AlfrescoFacade {
 			properties.put(ContentModel.PROP_LASTNAME, lastName);
 			properties.put(ContentModel.PROP_EMAIL, getNullSafe(email));
 			NodeRef newPerson = personService.createPerson(properties);
-			permissionService.setPermission(newPerson, username,
-					permissionService.getAllPermission(), true);
+			permissionService.setPermission(newPerson, username, permissionService.getAllPermission(), true);
 			authenticationService.setAuthenticationEnabled(username, true);
 			return null;
 		}

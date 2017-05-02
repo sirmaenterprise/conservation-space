@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet author="mradkov (generated)" id="1392898506568-1">
+		<createTable tableName="cls_codelist">
+			<column autoIncrement="true" name="id" type="BIGSERIAL">
+				<constraints primaryKey="true" primaryKeyName="cls_codelist_pkey" />
+			</column>
+			<column name="created_on" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="extra1" type="VARCHAR(255)" />
+			<column name="extra2" type="VARCHAR(255)" />
+			<column name="extra3" type="VARCHAR(255)" />
+			<column name="extra4" type="VARCHAR(255)" />
+			<column name="extra5" type="VARCHAR(255)" />
+			<column name="master_value" type="VARCHAR(255)" />
+			<column name="valid_from" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="valid_to" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="value" type="VARCHAR(255)" />
+			<column name="display_type" type="VARCHAR(255)" />
+			<column name="sort_by" type="VARCHAR(255)" />
+		</createTable>
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-3">
+		<createTable tableName="cls_codelistdescription">
+			<column autoIncrement="true" name="id" type="BIGSERIAL">
+				<constraints primaryKey="true" primaryKeyName="cls_codelistdescription_pkey" />
+			</column>
+			<column name="comment" type="VARCHAR(5120)" />
+			<column name="description" type="VARCHAR(1024)" />
+			<column name="language" type="VARCHAR(3)" />
+			<column name="codeid" type="INT8" />
+		</createTable>
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-4">
+		<createTable tableName="cls_codevalue">
+			<column autoIncrement="true" name="id" type="BIGSERIAL">
+				<constraints primaryKey="true" primaryKeyName="cls_codevalue_pkey" />
+			</column>
+			<column name="created_on" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="extra1" type="VARCHAR(255)" />
+			<column name="extra2" type="VARCHAR(255)" />
+			<column name="extra3" type="VARCHAR(255)" />
+			<column name="extra4" type="VARCHAR(255)" />
+			<column name="extra5" type="VARCHAR(255)" />
+			<column name="master_value" type="VARCHAR(255)" />
+			<column name="valid_from" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="valid_to" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="value" type="VARCHAR(255)" />
+			<column name="codelistid" type="VARCHAR(255)" />
+			<column name="ordyr" type="INT4" />
+		</createTable>
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-5">
+		<createTable tableName="cls_codevaluedescription">
+			<column autoIncrement="true" name="id" type="BIGSERIAL">
+				<constraints primaryKey="true" primaryKeyName="cls_codevaluedescription_pkey" />
+			</column>
+			<column name="comment" type="VARCHAR(5120)" />
+			<column name="description" type="VARCHAR(1024)" />
+			<column name="language" type="VARCHAR(3)" />
+			<column name="codeid" type="INT8" />
+		</createTable>
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-6">
+		<createTable tableName="cls_datatypedefinition">
+			<column autoIncrement="true" name="id" type="BIGSERIAL">
+				<constraints primaryKey="true" primaryKeyName="cls_datatypedefinition_pkey" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-11">
+		<addForeignKeyConstraint baseColumnNames="codeid"
+			baseTableName="cls_codelistdescription" constraintName="fk25114c3c71783eda"
+			deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+			onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="cls_codelist" />
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-12">
+		<addForeignKeyConstraint baseColumnNames="codeid"
+			baseTableName="cls_codevaluedescription" constraintName="fk5432dded35303945"
+			deferrable="false" initiallyDeferred="false" onDelete="NO ACTION"
+			onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="cls_codevalue" />
+	</changeSet>
+	<changeSet author="mradkov (generated)" id="1392898506568-13">
+		<createIndex indexName="codevalue" tableName="cls_codelist"
+			unique="false">
+			<column name="value" />
+		</createIndex>
+	</changeSet>
+
+</databaseChangeLog>

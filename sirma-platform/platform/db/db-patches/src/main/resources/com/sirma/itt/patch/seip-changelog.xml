@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="seip-1.10.0-23" author="vtishev">
+		<preConditions onFail="MARK_RAN" onFailMessage="SEIP Instance Entity table is not yet created.">
+			<tableExists tableName="seip_instanceEntity" />
+			<sqlCheck expectedResult="1">select count(*) from emf_datatypedefinition where name='taskinstance';</sqlCheck>
+		</preConditions>
+		<comment>Migrates the context path of old workflow tasks if not present</comment>
+		<sql endDelimiter=";">
+			UPDATE seip_instanceEntity
+			   SET contextPath = id || '/' || owningInstanceId
+			WHERE instancetype = (SELECT dataTypeDefinition.id
+			                      FROM emf_dataTypeDefinition dataTypeDefinition
+			                      WHERE dataTypeDefinition.name = 'taskinstance')
+			AND   (contextPath IS NULL OR contextPath = '');
+		</sql>
+	</changeSet>
+
+</databaseChangeLog>

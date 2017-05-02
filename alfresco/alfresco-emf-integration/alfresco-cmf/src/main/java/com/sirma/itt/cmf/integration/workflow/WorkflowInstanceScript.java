@@ -69,7 +69,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 	@Override
 	protected Map<String, Object> executeInternal(WebScriptRequest req) {
 		Map<String, Object> model = new HashMap<String, Object>(2);
-		model.put(KEY_MODE, "unknown");
+		model.put(KEY_WORKING_MODE, "unknown");
 		String servicePath = req.getServicePath();
 		try {
 			JSONObject jsonObject = new JSONObject(req.getContent().getContent());
@@ -93,7 +93,8 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 		} catch (WebScriptException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new WebScriptException(500, e.getMessage(), e);
+			throw new WebScriptException(500,
+					"Unexpected error occurred during workflow/task operation: " + e.getMessage(), e);
 		}
 		return model;
 	}
@@ -109,7 +110,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 	 *             the jSON exception
 	 */
 	private void cancelWorkflow(Map<String, Object> model, JSONObject data) throws JSONException {
-		model.put(KEY_MODE, "cancel");
+		model.put(KEY_WORKING_MODE, "cancel");
 		String workflowId = data.getString(KEY_WORKFLOW_ID);
 		JSONObject currentStateData = data.has(CURRENT_STATE_PROP_MAP) ? data
 				.getJSONObject(CURRENT_STATE_PROP_MAP) : null;
@@ -144,7 +145,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 	 *             on cancel error
 	 */
 	private void cancelTask(Map<String, Object> model, JSONObject data) throws Exception {
-		model.put("mode", "transition");
+		model.put(KEY_WORKING_MODE, "transition");
 		Map<QName, Serializable> props = data.has(KEY_PROPERTIES) ? toConvertedMap(data
 				.getJSONObject(KEY_PROPERTIES)) : null;
 		WorkflowTask task = createStartTaskWizard().cancelTask(data.getString(KEY_TASK_ID), props);
@@ -169,7 +170,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 		String taskType = data.getString(KEY_TASK_TYPE);
 		String parentId = data.has(KEY_PARENT_TASK_ID) ? data.getString(KEY_PARENT_TASK_ID) : null;
 		String elementId = data.has(KEY_REFERENCE_ID) ? data.getString(KEY_REFERENCE_ID) : null;
-		model.put(KEY_MODE, "starttask");
+		model.put(KEY_WORKING_MODE, "starttask");
 		StandaloneTaskWizard taskWizard = createStartTaskWizard();
 		taskWizard.init(taskType, elementId, parentId);
 		Map<QName, Serializable> props = toConvertedMap(data.getJSONObject(KEY_PROPERTIES));
@@ -197,7 +198,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 	private void updateTask(Map<String, Object> model, JSONObject jsonObject) throws Exception {
 
 		model.put("currentTasks", Collections.emptyList());
-		model.put("mode", "update");
+		model.put(KEY_WORKING_MODE, "update");
 		String taskId = jsonObject.getString(KEY_TASK_ID);
 
 		WorkflowTask taskById = getWorkflowService().getTaskById(taskId);
@@ -274,7 +275,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 	private void navigateTask(Map<String, Object> model, JSONObject jsonObject) throws Exception {
 
 		model.put("currentTasks", Collections.emptyList());
-		model.put("mode", "transition");
+		model.put(KEY_WORKING_MODE, "transition");
 		String taskId = jsonObject.getString(KEY_TASK_ID);
 		String tranisitionId = null;// jsonObject.has(KEY_TRANITION) ?
 		// jsonObject.getString(KEY_TRANITION) :
@@ -444,7 +445,8 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 							}
 						} else {
 							if (resolvedToQName.getLocalName().startsWith("assignee")) {
-								if (value.toString().trim().startsWith("[")|| resolvedToQName.getLocalName().startsWith("assignees")) {
+								if (value.toString().trim().startsWith("[")
+										|| resolvedToQName.getLocalName().startsWith("assignees")) {
 									Serializable convertedValue = (Serializable) DefaultTypeConverter.INSTANCE
 											.convert(Collection.class, checkJSONMultivalue(value));
 									map.put(resolvedToQName, convertedValue);
@@ -558,7 +560,7 @@ public class WorkflowInstanceScript extends BaseAlfrescoScript {
 	 */
 	private void startWorkflow(Map<String, Object> model, JSONObject data) throws Exception {
 
-		model.put(KEY_MODE, "start");
+		model.put(KEY_WORKING_MODE, "start");
 		StartWorkflowWizard workflowWizard = createStartWorkflowWizard();
 		workflowWizard.init(data.getString(KEY_WORKFLOW_ID), data.getString(KEY_REFERENCE_ID));
 		Map<QName, Serializable> props = toConvertedMap(data.getJSONObject(KEY_PROPERTIES));

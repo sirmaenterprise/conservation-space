@@ -1,0 +1,91 @@
+PREFIX dc-terms:<http://purl.org/dc/terms/description>
+PREFIX emf:<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xml:<http://www.w3.org/XML/1998/namespace>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX ptop:<http://www.ontotext.com/proton/protontop#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX chd:<http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#>
+PREFIX pdm:<http://www.sirma.com/ontologies/2013/10/pdmConfiguration#>
+
+
+
+select distinct ?hierarchyDiagram 
+where 
+{
+OPTIONAL {
+select (group_concat(distinct ?superClassesHierarchy; separator = "\n") AS ?classDescription)
+where 
+{{
+select ?class (group_concat(distinct ?label ; separator = "\n ") AS ?superClassesHierarchy)
+	{
+		?class rdfs:subClassOf ?class1 .
+		?class1 rdfs:label ?class1Label .
+		?class rdfs:label ?classLabel .
+		
+		bind(if(lang(?classLabel) = '', "en", lang(?classLabel)) as ?classLabelLang) .
+    	filter(contains(?classLabelLang, "en")) .
+		
+		bind(if(lang(?class1Label) = '', "en", lang(?class1Label)) as ?class1LabelLang) .
+    	filter(contains(?class1LabelLang, "en")) .
+		
+		bind(if(contains(str(?class), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?class), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?class), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?class), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?class), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?class), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
+		
+		bind(if(contains(str(?class1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?class1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?class1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?class1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?class1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?class1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?pageClass1) .
+		
+		bind(concat(if(contains(str(?class1), "enterpriseManagementFramework"), "emf:", if(contains(str(?class1), "proton"), "ptop:", if(contains(str(?class1), "skos"), "skos:", if(contains(str(?class1), "dc"), "dc:", if(contains(str(?class1), "culturalHeritageDomain"), "chd:", if(contains(str(?class1), "pdmConfiguration"), "pdm:", "")))))), ?class1Label) as ?class1LabelFull) .
+		
+		bind(concat(if(contains(str(?class), "enterpriseManagementFramework"), "emf:", if(contains(str(?class), "proton"), "ptop:", if(contains(str(?class), "skos"), "skos:", if(contains(str(?class), "dc"), "dc:", if(contains(str(?class), "culturalHeritageDomain"), "chd:", if(contains(str(?class), "pdmConfiguration"), "pdm:", "")))))), ?classLabel) as ?classLabelFull) .
+		
+		bind(str(md5(str(?class))) as ?classStrId) .
+		bind(str(md5(str(?class1))) as ?class1StrId) .
+		
+		bind(concat("Class \"", ?class1LabelFull, "\" as ", ?class1StrId) as ?class1Definition) .
+		bind(concat("Class \"", ?classLabelFull, "\" as ", ?classStrId) as ?classDefinition) .
+		
+		bind(concat("url for ", ?classStrId, " is [", ?page,"#Class ", ?classLabel, "]") as ?classUrl) .
+		bind(concat("url for ", ?class1StrId, " is [", ?pageClass1, "#Class ", ?class1Label, "]") as ?class1Url) .
+		
+		bind(concat(?classDefinition, "\n", ?class1Definition, "\n", ?class1StrId, " <|-- ", ?classStrId, "\n", ?classUrl, "\n", ?class1Url, "\n") as ?label) .
+		filter (?class != ?class1)
+	}
+	group by ?class
+} UNION {
+select ?class (group_concat(distinct ?label ; separator = "\n ") AS ?superClassesHierarchy)
+	{
+		?class a owl:Class .
+		?class rdfs:label ?classLabel .
+		{
+			select (group_concat(distinct ?classLabel ; separator = "\n ") AS ?tempLabel) where {
+			?class a owl:Class .
+			?class rdfs:label ?classLabel .
+			?class rdfs:subClassOf ?class1 .
+			  filter(?class != ?class1).
+			}	
+		}
+		filter(!contains(?tempLabel, ?classLabel)) .
+		
+		bind(if(contains(str(?class), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?class), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?class), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?class), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?class), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?class), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
+		
+		bind(concat(if(contains(str(?class), "enterpriseManagementFramework"), "emf:", if(contains(str(?class), "proton"), "ptop:", if(contains(str(?class), "skos"), "skos:", if(contains(str(?class), "dc"), "dc:", if(contains(str(?class), "culturalHeritageDomain"), "chd:", if(contains(str(?class), "pdmConfiguration"), "pdm:", "")))))), ?classLabel) as ?classLabelFull) .
+		
+		bind(str(md5(str(?class))) as ?classStrId) .
+		
+		bind(concat("Class \"", ?classLabelFull, "\" as ", ?classStrId) as ?classDefinition) .
+		
+		bind(concat("url for ", ?classStrId, " is [", ?page,"#Class ", ?classLabel, "]") as ?classUrl) .
+		
+		bind(concat(?classDefinition, "\n", ?classUrl, "\n") as ?label) .
+	}
+	group by ?class
+}}
+}
+
+bind(concat("{plantuml}\n@startuml\nhide empty attributes\nhide empty methods", 
+	"\n",
+	"skinparam class {\nArrowColor #436CA6\nBorderColor #436CA6\n}\n",
+	?classDescription, "\n", "@enduml\n{plantuml}")  as ?hierarchyDiagram) .
+}

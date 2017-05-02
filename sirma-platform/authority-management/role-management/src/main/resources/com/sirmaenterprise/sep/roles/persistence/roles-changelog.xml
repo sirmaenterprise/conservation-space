@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="roles-2.6.0-1" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="sep_action" />
+			</not>
+		</preConditions>
+		<comment>Create sep_action table</comment>
+		<createTable tableName="sep_action">
+			<column name="id" type="varchar(100)">
+				<constraints primaryKey="true" primaryKeyName="sep_action_id_pk"
+					nullable="false" unique="true" uniqueConstraintName="sep_action_id_u" />
+			</column>
+			<column name="action_type" type="varchar(100)">
+				<constraints nullable="false" />
+			</column>
+			<column name="is_enabled" type="int2" defaultValueNumeric="2"> <!-- defaults to false -->
+				<constraints nullable="false" />
+			</column>
+			<column name="is_user_defined" type="int2" defaultValueNumeric="2"> <!-- defaults to false -->
+				<constraints nullable="false" />
+			</column>
+			<column name="is_immediate" type="int2" defaultValueNumeric="2" /> <!-- defaults to false -->
+			<column name="is_visible" type="int2" defaultValueNumeric="1" /> <!-- defaults to true -->
+			<column name="image_path" type="varchar(512)" />
+		</createTable>
+	</changeSet>
+	<changeSet id="roles-2.6.0-2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="sep_role" />
+			</not>
+		</preConditions>
+		<comment>Create sep_role table</comment>
+		<createTable tableName="sep_role">
+			<column name="id" type="varchar(100)">
+				<constraints primaryKey="true" primaryKeyName="sep_role_id_pk"
+					nullable="false" unique="true" uniqueConstraintName="sep_role_id_u" />
+			</column>
+			<column name="role_order" type="int4">
+				<constraints nullable="false" />
+			</column>
+			<column name="is_enabled" type="int2" defaultValueNumeric="2"> <!-- defaults to false -->
+				<constraints nullable="false" />
+			</column>
+			<column name="can_write" type="int2" defaultValueNumeric="2"> <!-- defaults to false -->
+				<constraints nullable="false" />
+			</column>
+			<column name="can_read" type="int2" defaultValueNumeric="2"> <!-- defaults to false -->
+				<constraints nullable="false" />
+			</column>
+			<column name="is_user_defined" type="int2" defaultValueNumeric="2" /> <!-- defaults to false -->
+			<column name="is_internal" type="int2" defaultValueNumeric="2" /> <!-- defaults to false -->
+		</createTable>
+	</changeSet>
+	<changeSet id="roles-2.6.0-3" author="bbonev">
+		<preConditions>
+			<not>
+				<tableExists tableName="sep_role_actions" />
+			</not>
+		</preConditions>
+		<comment>Create sep_role_actions table</comment>
+		<createTable tableName="sep_role_actions">
+			<column name="id" type="bigserial" autoIncrement="true">
+				<constraints primaryKey="true" primaryKeyName="sep_rolact_id_pk" nullable="false"/>
+			</column>
+			<column name="is_enabled" type="int2" defaultValueNumeric="2"> <!-- defaults to false -->
+				<constraints nullable="false" />
+			</column>
+			<column name="active_filters" type="varchar(4096)" />
+			<column name="action_id" type="varchar(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="role_id" type="varchar(100)">
+				<constraints nullable="false"/>
+			</column>
+		</createTable>
+	</changeSet>
+</databaseChangeLog>

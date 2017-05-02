@@ -1,0 +1,23 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+DELETE {
+    emf:publishedBy rdf:type emf:DefinitionDataProperty ;
+        rdf:type owl:DatatypeProperty .
+    emf:loggedBy rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty .
+    emf:modifiedBy rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty .
+}
+INSERT {
+    GRAPH<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        emf:publishedBy emf:isSearchable "true"^^xsd:boolean ;
+            emf:isSystemProperty "true"^^xsd:boolean ;
+            rdf:type emf:DefinitionObjectProperty ;
+            rdf:type emf:DefinitionProperty ;
+            rdf:type owl:ObjectProperty .
+        emf:loggedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty .
+    }
+}
+WHERE {
+}

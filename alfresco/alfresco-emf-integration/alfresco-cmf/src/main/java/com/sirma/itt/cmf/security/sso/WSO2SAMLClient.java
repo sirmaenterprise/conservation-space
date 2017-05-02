@@ -4,15 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -61,10 +59,11 @@ import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
-import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+
+import com.sirma.itt.cmf.integration.exception.SEIPRuntimeException;
 
 /**
  * The Class WSO2SAMLClient responsible to handles credential requests. The
@@ -74,158 +73,32 @@ import org.xml.sax.SAXException;
  */
 public class WSO2SAMLClient {
 
+	private static final String SAML_KEY_SUBJECT = "Subject";
+
+	private static final String SAML_KEY_RESPONSE = "SAMLResponse";
+
+	private static final String SAML_KEY_REQUEST = "SAMLRequest";
+
 	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.getLogger(WSO2SAMLClient.class);
-	/** The Constant KEY_RETURN_URL. */
+
+	private static final String KEY_SESSION_INDEX = "SessionIndex";
 	private static final String KEY_RETURN_URL = "returnURL";
-
-	/** The auth req random id. */
-	private String authReqRandomId = Integer.toHexString(new Double(Math.random()).intValue());
-
 	/** The relay state. */
-	private String relayState = "/alfresco";
+	private static final String RELAY_STATE_URL = "/alfresco";
 
 	/** The idp url. */
 	private String idpUrl = null;
 
-	/** The attrib index. */
-	private String attribIndex = null;
-
 	/** The debug enabled. */
 	private boolean debugEnabled;
-	/** the read global properties from file. */
-	private static Properties globalProperties;
-	/** the retrieved cache. */
-	private static String chiper;
-
-	/** The allowed audience list. */
-	private static List<String> allowedAudienceList;
-
-	/** Do we use time constraint for requests?. */
-	private static Boolean useTimeConstraints;
-	/** Is request expected to be encrypted. */
-	private static Boolean requestEncrypted;
-
-	/** The alfresco facade. */
-	private AlfrescoFacade alfrescoFacade;
 
 	static {
 		try {
 			// to set default configs.
 			DefaultBootstrap.bootstrap();
 		} catch (ConfigurationException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Checks if is sSO enabled.
-	 *
-	 * @return true, if is sSO enabled
-	 */
-	public static boolean isSSOEnabled() {
-		readGlobalProps();
-		Object object = globalProperties.get("security.sso.enabled");
-		return object == null ? true : Boolean.valueOf(object.toString()).booleanValue();
-	}
-
-	/**
-	 * Retrieve <strong>security.sso.idpUrl</strong> from properties file.
-	 *
-	 * @param req
-	 *            is the current request
-	 *
-	 * @return the url of idp or <code>https://127.0.0.1:9448/samlsso</code> as
-	 *         fallback
-	 */
-	public static String getIdpURL(HttpServletRequest req) {
-		readGlobalProps();
-		Object object = globalProperties.get("security.sso.idpUrl." + req.getLocalAddr());
-		return object == null || object.toString().trim().isEmpty() ? "https://127.0.0.1:9448/samlsso"
-				: object.toString();
-	}
-
-	/**
-	 * Retrieve <strong>cmf.encrypt.key</strong> from properties file.
-	 *
-	 *
-	 * @return the chiper key or the default value of none is found
-	 */
-	public static String getChipherKey() {
-		// cache for optimization
-		if (chiper == null) {
-			readGlobalProps();
-			Object object = globalProperties.get("cmf.encrypt.key");
-			chiper = object == null || object.toString().trim().isEmpty() ? "somePassword" : object
-					.toString();
-		}
-		return chiper;
-	}
-
-	/**
-	 * Gets the allowed audience list ip addresses that are allowed to request
-	 * saml2 tokens. use <code>security.sso.list.allowed.audience</code> to set
-	 * it with , separation
-	 *
-	 * @return the allowed audience list or default <code>127.0.0.1</code>
-	 */
-	public static List<String> getAllowedAudienceList() {
-		// cache for optimization
-		if (allowedAudienceList == null) {
-			readGlobalProps();
-			Object object = globalProperties.get("security.sso.list.allowed.audience");
-			allowedAudienceList = (object == null || object.toString().trim().isEmpty()) ? Collections
-					.singletonList("127.0.0.1") : Arrays.asList(object.toString().split(","));
-		}
-		return allowedAudienceList;
-	}
-
-	/**
-	 * Gets the allowed audience list ip addresses that are allowed to request
-	 * saml2 tokens. use <code>security.sso.list.allowed.audience</code> to set
-	 * it with , separation
-	 *
-	 * @return the allowed audience list or default <code>127.0.0.1</code>
-	 */
-	public static boolean isUsingTimeConstraints() {
-		// cache for optimization
-		if (useTimeConstraints == null) {
-			readGlobalProps();
-			Object object = globalProperties.get("security.sso.useTimeConstraints");
-			useTimeConstraints = (object == null || object.toString().trim().isEmpty()) ? Boolean.FALSE
-					: Boolean.valueOf(object.toString());
-		}
-		return useTimeConstraints;
-	}
-
-	/**
-	 * Checks if is request encrypted.
-	 *
-	 * @return true, if is request encrypted
-	 */
-	public static boolean isRequestEncrypted() {
-		// cache for optimization
-		if (requestEncrypted == null) {
-			readGlobalProps();
-			Object object = globalProperties.get("security.sso.request.encrypted");
-			requestEncrypted = (object == null || object.toString().trim().isEmpty()) ? Boolean.FALSE
-					: Boolean.valueOf(object.toString());
-		}
-		return requestEncrypted;
-	}
-
-	/**
-	 * Read and cache global properties as map.
-	 */
-	private synchronized static void readGlobalProps() {
-		if (globalProperties == null) {
-			ClassPathResource globalProps = new ClassPathResource("alfresco-global.properties");
-			try {
-				globalProperties = new Properties();
-				globalProperties.load(globalProps.getInputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			throw new SEIPRuntimeException("Failed to configure SAML module!", e);
 		}
 	}
 
@@ -241,11 +114,9 @@ public class WSO2SAMLClient {
 	 * @throws Exception
 	 *             the exception
 	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response,
-			AlfrescoFacade alfrescoFacade) throws Exception {
-		this.alfrescoFacade = alfrescoFacade;
-		String responseMessage = request.getParameter("SAMLResponse");
-		// String relayState = request.getParameter("RelayState");
+	public void doPost(HttpServletRequest request, HttpServletResponse response, AlfrescoFacade alfrescoFacade)
+			throws Exception {
+		String responseMessage = request.getParameter(SAML_KEY_RESPONSE);
 		if (responseMessage != null) { /* response from the identity provider */
 
 			LOGGER.info("SAMLResponse received from IDP");
@@ -255,28 +126,24 @@ public class WSO2SAMLClient {
 			if (result == null) {
 				// lets logout the user
 				request.getSession().invalidate();
-				response.sendRedirect("/alfresco");
+				response.sendRedirect(RELAY_STATE_URL);
 			} else if (result.size() == 2 || result.size() == 1) {
 				/*
 				 * No user attributes are returned, so just goto the default
 				 * home page.
 				 */
 
-				alfrescoFacade.setAuthenticatedUser(request, response, request.getSession(),
-						result.get("Subject"), true);
-				// Object attribute = relayState == null ?
-				// request.getSession().getAttribute(
-				// KEY_RETURN_URL) : relayState;
+				alfrescoFacade.setAuthenticatedUser(request, response, request.getSession(), getSubject(result), true);
 				Object attribute = request.getSession().getAttribute(KEY_RETURN_URL);
 				if (attribute != null && !attribute.toString().startsWith("/alfresco/ServiceLogin")) {
 					response.sendRedirect(attribute.toString());
 				} else {
 					// set to home if no preference exists
-					response.sendRedirect("/alfresco");
+					response.sendRedirect(RELAY_STATE_URL);
 				}
-				String sessionIndex = result.get("SessionIndex");
+				String sessionIndex = result.get(KEY_SESSION_INDEX);
 				if (sessionIndex != null) {
-					request.getSession().setAttribute("SessionIndex", sessionIndex);
+					request.getSession().setAttribute(KEY_SESSION_INDEX, sessionIndex);
 					alfrescoFacade.registerSession(sessionIndex, request.getSession());
 				}
 				request.getSession().removeAttribute(KEY_RETURN_URL);
@@ -302,18 +169,27 @@ public class WSO2SAMLClient {
 				response.sendRedirect("index.jsp");
 			}
 
-		} else if (request.getParameter("SAMLRequest") != null) {
-			String samlRequest = request.getParameter("SAMLRequest");
-			processRequestMessage(samlRequest, request, response);
+		} else if (request.getParameter(SAML_KEY_REQUEST) != null) {
+			String samlRequest = request.getParameter(SAML_KEY_REQUEST);
+			processRequestMessage(samlRequest, alfrescoFacade);
 		} else {
 			/* time to create the authentication request or logout request */
 			try {
 				String requestMessage = buildRequestMessage(request);
 				response.sendRedirect(requestMessage);
 			} catch (IOException e) {
-				LOGGER.error("SAML Message processing error:" + e.getMessage(), e);
+				LOGGER.error("SAML Message processing error: " + e.getMessage(), e);
 			}
 		}
+	}
+
+	private String getSubject(Map<String, String> result) {
+		String subject = result.get(SAML_KEY_SUBJECT);
+		int realmSplit = -1;
+		if ((realmSplit = subject.indexOf('/')) > 1 && realmSplit < subject.length()) {
+			subject = subject.substring(realmSplit + 1);
+		}
+		return subject;
 	}
 
 	/**
@@ -325,17 +201,21 @@ public class WSO2SAMLClient {
 	 *            the request
 	 * @param response
 	 *            the response
+	 * @param alfrescoFacade
+	 *            is the alfresco auth facade
+	 * @throws UnsupportedEncodingException
+	 *             on decode error
 	 */
-	private void processRequestMessage(String encodedRequestMessage, HttpServletRequest request,
-			HttpServletResponse response) {
-		LogoutRequest processSAMLRequest = processSAMLRequest(new String(
-				Base64.decode(encodedRequestMessage)));
+	private void processRequestMessage(String encodedRequestMessage, AlfrescoFacade alfrescoFacade)
+			throws UnsupportedEncodingException {
+		LogoutRequest processSAMLRequest = processSAMLRequest(
+				new String(Base64.decode(encodedRequestMessage), SAMLSSOConfigurations.UTF_8));
 		if (processSAMLRequest != null && processSAMLRequest.getSessionIndexes() != null) {
 			for (SessionIndex nextSession : processSAMLRequest.getSessionIndexes()) {
 				String sessionIndex = nextSession.getSessionIndex();
 				HttpSession session = alfrescoFacade.getSession(sessionIndex);
 				if (session != null) {
-					LOGGER.debug("Automatic end of session " + sessionIndex);
+					debug("Automatic end of session ", sessionIndex);
 					session.invalidate();
 				}
 			}
@@ -350,7 +230,7 @@ public class WSO2SAMLClient {
 	 *            is the current request
 	 */
 	public WSO2SAMLClient(HttpServletRequest req) {
-		idpUrl = getIdpURL(req);
+		idpUrl = SAMLSSOConfigurations.getIdpURLInternal(req.getLocalAddr());
 		debugEnabled = LOGGER.isDebugEnabled();
 
 	}
@@ -383,8 +263,8 @@ public class WSO2SAMLClient {
 	 * @param request
 	 *            the request
 	 * @return redirectionUrl<dependency> <groupId>org.opensaml</groupId>
-	 *         <artifactId>opensaml</artifactId> <version>2.2.3</version>
-	 *         </dependency>
+	 *         <artifactId>opensaml</artifactId>
+	 *         <version>2.2.3</version> </dependency>
 	 */
 	public String buildRequestMessage(HttpServletRequest request) {
 
@@ -423,8 +303,14 @@ public class WSO2SAMLClient {
 	 * @return the string
 	 */
 	public String requestMessage(String encodedRequestMessage) {
+		StringBuilder requestBuilder = new StringBuilder(idpUrl.length() + encodedRequestMessage.length() + 50);
+		requestBuilder.append(idpUrl);
+		requestBuilder.append("?SAMLRequest=");
+		requestBuilder.append(encodedRequestMessage);
+		requestBuilder.append("&RelayState=");
+		requestBuilder.append(RELAY_STATE_URL);
 		/* SAML2 Authentication Request is appended to IP's URL */
-		return idpUrl + "?SAMLRequest=" + encodedRequestMessage + "&RelayState=" + relayState;
+		return requestBuilder.toString();
 	}
 
 	/**
@@ -437,7 +323,7 @@ public class WSO2SAMLClient {
 	 * @return the logout request
 	 */
 	private LogoutRequest buildLogoutRequest(String user, HttpServletRequest request) {
-		Object sessionIndex = request.getSession().getAttribute("SessionIndex");
+		Object sessionIndex = request.getSession().getAttribute(KEY_SESSION_INDEX);
 		LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
 		logoutReq.setID(Util.createID());
 
@@ -456,8 +342,7 @@ public class WSO2SAMLClient {
 		logoutReq.setNameID(nameId);
 
 		SessionIndex sessionIndexAttr = new SessionIndexBuilder().buildObject();
-		sessionIndexAttr.setSessionIndex(sessionIndex != null ? sessionIndex.toString() : UUID
-				.randomUUID().toString());
+		sessionIndexAttr.setSessionIndex(sessionIndex != null ? sessionIndex.toString() : UUID.randomUUID().toString());
 		logoutReq.getSessionIndexes().add(sessionIndexAttr);
 
 		logoutReq.setReason("urn:oasis:names:tc:SAML:2.0:logout:user");
@@ -476,20 +361,19 @@ public class WSO2SAMLClient {
 
 		/* Building Issuer object */
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
-		Issuer issuer = issuerBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:assertion",
-				"Issuer", "samlp");
+		Issuer issuer = issuerBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer", "samlp");
 		issuer.setValue(getIssuerId(request));
 		/* NameIDPolicy */
 		NameIDPolicyBuilder nameIdPolicyBuilder = new NameIDPolicyBuilder();
 		NameIDPolicy nameIdPolicy = nameIdPolicyBuilder.buildObject();
-		nameIdPolicy.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:persistent");
-		nameIdPolicy.setSPNameQualifier("Isser");
-		nameIdPolicy.setAllowCreate(new Boolean(true));
+		nameIdPolicy.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:entity");
+		nameIdPolicy.setSPNameQualifier("Issuer");
+		nameIdPolicy.setAllowCreate(Boolean.TRUE);
 
 		/* AuthnContextClass */
 		AuthnContextClassRefBuilder authnContextClassRefBuilder = new AuthnContextClassRefBuilder();
-		AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder.buildObject(
-				"urn:oasis:names:tc:SAML:2.0:assertion", "AuthnContextClassRef", "saml");
+		AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder
+				.buildObject("urn:oasis:names:tc:SAML:2.0:assertion", "AuthnContextClassRef", "saml");
 		authnContextClassRef
 				.setAuthnContextClassRef("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
 
@@ -503,21 +387,23 @@ public class WSO2SAMLClient {
 
 		/* Creation of AuthRequestObject */
 		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
-		AuthnRequest authRequest = authRequestBuilder.buildObject(
-				"urn:oasis:names:tc:SAML:2.0:protocol", "AuthnRequest", "samlp");
-		authRequest.setForceAuthn(new Boolean(false));
-		authRequest.setIsPassive(new Boolean(false));
+		AuthnRequest authRequest = authRequestBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:protocol",
+				"AuthnRequest", "samlp");
+		authRequest.setForceAuthn(Boolean.FALSE);
+		authRequest.setIsPassive(Boolean.FALSE);
 		authRequest.setIssueInstant(issueInstant);
 		authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
 		authRequest.setAssertionConsumerServiceURL(buildURLForRedirect(request));
 		authRequest.setIssuer(issuer);
 		authRequest.setNameIDPolicy(nameIdPolicy);
 		authRequest.setRequestedAuthnContext(requestedAuthnContext);
-		authRequest.setID(authReqRandomId);
+		authRequest.setID(Util.createID());
 		authRequest.setVersion(SAMLVersion.VERSION_20);
-
+		Integer attributeIndex = SAMLSSOConfigurations.getAttributeIndex();
 		/* Requesting Attributes. This Index value is registered in the IDP */
-		if (attribIndex != null && !attribIndex.equals("")) {
+		if (attributeIndex != null) {
+			authRequest.setAssertionConsumerServiceIndex(attributeIndex);
+		} else {
 			authRequest.setAttributeConsumingServiceIndex(1011238544);
 		}
 		return authRequest;
@@ -531,9 +417,7 @@ public class WSO2SAMLClient {
 	 * @return the issuer id
 	 */
 	private String getIssuerId(HttpServletRequest request) {
-		String issuerID = request.getServerName() + "_" + request.getServerPort();
-		debug("Issuer ID", issuerID);
-		return issuerID;
+		return request.getServerName() + "_" + request.getServerPort();
 	}
 
 	/**
@@ -544,17 +428,21 @@ public class WSO2SAMLClient {
 	 * @return the string
 	 */
 	protected String buildURLForRedirect(HttpServletRequest request) {
-		String serverURL = request.getScheme() + "://" + request.getServerName() + ":"
-				+ request.getServerPort();
+		StringBuilder requestBuilder = new StringBuilder(60);
+		requestBuilder.append(request.getScheme());
+		requestBuilder.append("://");
+		requestBuilder.append(request.getServerName());
+		requestBuilder.append(':');
+		requestBuilder.append(request.getServerPort());
 		String alfrescoContext = request.getContextPath();
 		HttpSession session = request.getSession();
-		debug("RETURN URL: ", session.getAttribute(KEY_RETURN_URL));
 		if (session.getAttribute(KEY_RETURN_URL) == null) {
 			String requestURI = request.getRequestURI();
 			session.setAttribute(KEY_RETURN_URL, requestURI);
 		}
-		String urlOfIssuer = serverURL + alfrescoContext + "/ServiceLogin";
-		debug("ISSUER URL: ", urlOfIssuer);
+		String urlOfIssuer = requestBuilder.append(alfrescoContext).append("/ServiceLogin").toString();
+		debug("ISSUER URL: ", urlOfIssuer, ", RETURN URL: ", session.getAttribute(KEY_RETURN_URL));
+		requestBuilder = null;
 		return urlOfIssuer;
 	}
 
@@ -569,27 +457,23 @@ public class WSO2SAMLClient {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private String encodeRequestMessage(RequestAbstractType requestMessage)
-			throws MarshallingException, IOException {
+	private String encodeRequestMessage(RequestAbstractType requestMessage) throws MarshallingException, IOException {
 
-		Marshaller marshaller = org.opensaml.xml.Configuration.getMarshallerFactory()
-				.getMarshaller(requestMessage);
+		Marshaller marshaller = org.opensaml.xml.Configuration.getMarshallerFactory().getMarshaller(requestMessage);
 		Element authDOM = marshaller.marshall(requestMessage);
 
 		Deflater deflater = new Deflater(Deflater.DEFLATED, true);
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream,
-				deflater);
+		DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
 
 		StringWriter rspWrt = new StringWriter();
 		XMLHelper.writeNode(authDOM, rspWrt);
-		deflaterOutputStream.write(rspWrt.toString().getBytes());
+		deflaterOutputStream.write(rspWrt.toString().getBytes(SAMLSSOConfigurations.UTF_8));
 		deflaterOutputStream.close();
 
 		/* Encoding the compressed message */
-		String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(),
-				Base64.DONT_BREAK_LINES);
-		return URLEncoder.encode(encodedRequestMessage, "UTF-8").trim();
+		String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+		return URLEncoder.encode(encodedRequestMessage, SAMLSSOConfigurations.UTF_8).trim();
 	}
 
 	/**
@@ -604,7 +488,7 @@ public class WSO2SAMLClient {
 		XMLObject responseXmlObj = null;
 
 		try {
-			responseXmlObj = unmarshall(responseMessage, isRequestEncrypted());
+			responseXmlObj = unmarshall(responseMessage, SAMLSSOConfigurations.isEncryptedRequest());
 
 		} catch (ConfigurationException e) {
 			LOGGER.error("SAML response parsing error:" + e.getMessage(), e);
@@ -665,12 +549,12 @@ public class WSO2SAMLClient {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			documentBuilderFactory.setNamespaceAware(true);
 			DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
-			ByteArrayInputStream is = new ByteArrayInputStream(decodedRequestMessage.getBytes());
+			ByteArrayInputStream is = new ByteArrayInputStream(
+					decodedRequestMessage.getBytes(SAMLSSOConfigurations.UTF_8));
 
 			Document document = docBuilder.parse(is);
 			Element element = document.getDocumentElement();
-			UnmarshallerFactory unmarshallerFactory = org.opensaml.xml.Configuration
-					.getUnmarshallerFactory();
+			UnmarshallerFactory unmarshallerFactory = org.opensaml.xml.Configuration.getUnmarshallerFactory();
 			Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
 			XMLObject unmarshalled = unmarshaller.unmarshall(element);
 			if (unmarshalled instanceof RequestAbstractType) {
@@ -709,9 +593,8 @@ public class WSO2SAMLClient {
 	 * @throws UnmarshallingException
 	 *             the unmarshalling exception
 	 */
-	private XMLObject unmarshall(String responseMessage, boolean encrypted)
-			throws ConfigurationException, ParserConfigurationException, SAXException, IOException,
-			UnmarshallingException {
+	private XMLObject unmarshall(String responseMessage, boolean encrypted) throws ConfigurationException,
+			ParserConfigurationException, SAXException, IOException, UnmarshallingException {
 
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);
@@ -720,14 +603,13 @@ public class WSO2SAMLClient {
 		if (encrypted) {
 			bytes = Base64.decode(responseMessage);
 		} else {
-			bytes = responseMessage.getBytes();
+			bytes = responseMessage.getBytes(SAMLSSOConfigurations.UTF_8);
 		}
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 
 		Document document = docBuilder.parse(is);
 		Element element = document.getDocumentElement();
-		UnmarshallerFactory unmarshallerFactory = org.opensaml.xml.Configuration
-				.getUnmarshallerFactory();
+		UnmarshallerFactory unmarshallerFactory = org.opensaml.xml.Configuration.getUnmarshallerFactory();
 
 		Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
 		return unmarshaller.unmarshall(element);
@@ -752,7 +634,6 @@ public class WSO2SAMLClient {
 		}
 
 		Response response = (Response) responseXmlObj;
-		debug("SAML Response: ", response);
 
 		Assertion assertion = response.getAssertions().get(0);
 		Map<String, String> resutls = new HashMap<String, String>(1, 10);
@@ -764,7 +645,7 @@ public class WSO2SAMLClient {
 		if (assertion != null) {
 
 			String subject = assertion.getSubject().getNameID().getValue();
-			resutls.put("Subject", subject); // get the subject
+			resutls.put(SAML_KEY_SUBJECT, subject); // get the subject
 
 			List<AttributeStatement> attributeStatementList = assertion.getAttributeStatements();
 
@@ -785,7 +666,7 @@ public class WSO2SAMLClient {
 				List<AuthnStatement> authnStatements = assertion.getAuthnStatements();
 				if (authnStatements != null && !authnStatements.isEmpty()) {
 					AuthnStatement authnStatement = authnStatements.get(0);
-					resutls.put("SessionIndex", authnStatement.getSessionIndex());
+					resutls.put(KEY_SESSION_INDEX, authnStatement.getSessionIndex());
 				}
 			}
 		}
@@ -807,7 +688,7 @@ public class WSO2SAMLClient {
 		}
 		Map<String, Object> resutls = new HashMap<String, Object>();
 		Response response = (Response) responseXmlObj;
-		debug("SAML Response: ", response);
+
 		resutls.put("ResponseIssueInstant", response.getIssueInstant());
 		Assertion assertion = response.getAssertions().get(0);
 
@@ -817,10 +698,7 @@ public class WSO2SAMLClient {
 		 */
 		if (assertion != null) {
 			String subject = assertion.getSubject().getNameID().getValue();
-			resutls.put("Subject", subject); // get the subject
-			// resutls.put("Audiance",
-			// assertion.getConditions().getAudienceRestrictions().get(0)
-			// .getAudiences().get(0).getAudienceURI());
+			resutls.put(SAML_KEY_SUBJECT, subject); // get the subject
 			resutls.put("NotBefore", assertion.getConditions().getNotBefore());
 			resutls.put("NotOnOrAfter", assertion.getConditions().getNotOnOrAfter());
 		}
@@ -830,18 +708,20 @@ public class WSO2SAMLClient {
 	/**
 	 * Debug a message.
 	 *
-	 * @param strings
+	 * @param msgs
 	 *            the strings
 	 */
-	public void debug(Object... strings) {
+	public void debug(Object... msgs) {
 		if (debugEnabled) {
-			if (strings != null) {
-				StringBuilder result = new StringBuilder();
-				for (Object string : strings) {
-					result.append(string);
+			if (msgs != null) {
+				StringBuilder result = new StringBuilder(1024);
+				for (Object msg : msgs) {
+					result.append(msg);
 				}
 				LOGGER.debug(result.toString());
+				result = null;
 			}
 		}
 	}
+
 }

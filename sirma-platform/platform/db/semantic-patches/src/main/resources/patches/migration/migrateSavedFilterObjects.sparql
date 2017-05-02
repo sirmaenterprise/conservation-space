@@ -1,0 +1,17 @@
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+delete{
+    ?instance emf:defaultTemplate "savedFilter";
+        emf:definitionId "savedFilter" ;
+        a emf:SavedFilter
+}
+INSERT
+{
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework>{
+        ?instance a emf:SavedSearch;
+            emf:defaultTemplate "savedSearch";
+            emf:definitionId "savedSearch"
+    }
+} where {
+    ?instance a emf:SavedFilter
+}

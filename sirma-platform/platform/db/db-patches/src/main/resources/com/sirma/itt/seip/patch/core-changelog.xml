@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+     
+     <changeSet id="seip-1.10.1-1" author="bbonev">
+    	<preConditions onFail="MARK_RAN">
+    		<not>
+    			<tableExists tableName="emf_serializablevalue"/>
+    		</not>
+    	</preConditions>
+		<createTable tableName="emf_serializablevalue">
+			<column autoIncrement="true" name="id" type="bigserial">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="emf_serializablevalue_pkey" />
+			</column>
+			<column name="serializable" type="bytea">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet id="seip-1.10.1-2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+    		<not>
+    			<tableExists tableName="emf_schedulerentity"/>
+    		</not>
+    	</preConditions>
+		<comment>Added scheduler entity table</comment>
+		<createTable tableName="emf_schedulerentity">
+			<column autoIncrement="true" name="id" type="bigserial">
+				<constraints nullable="false" primaryKey="true"
+					primaryKeyName="emf_schedulerentity_pkey" />
+			</column>
+			<column name="type" type="integer" />
+			<column name="status" type="integer" />
+			<column name="nextscheduletime" type="TIMESTAMP WITH TIME ZONE" />
+			<column name="actionclassid" type="integer" />
+			<column name="actionname" type="varchar(150)" />
+			<column name="retries" type="integer" />
+			<column name="eventclassid" type="integer" />
+			<column name="targetclassid" type="integer" />
+			<column name="targetid" type="varchar(100)" />
+			<column name="operation" type="varchar(150)" />
+			<column name="contextdata_id" type="int8" />
+			<column name="identifier" type="varchar(128)">
+				<constraints unique="true" nullable="false"/>
+			</column>
+		</createTable>
+		<addForeignKeyConstraint baseColumnNames="contextdata_id"
+			baseTableName="emf_schedulerentity" baseTableSchemaName="public"
+			constraintName="emf_scheden_2_sv" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION"
+			referencedColumnNames="id" referencedTableName="emf_serializablevalue"
+			referencedTableSchemaName="public" referencesUniqueColumn="false" />
+		<createIndex tableName="emf_schedulerentity" indexName="idx_sche_tsn">
+			<column name="type" />
+			<column name="status" />
+			<column name="nextscheduletime" />
+		</createIndex>
+		<createIndex tableName="emf_schedulerentity" indexName="idx_sche_tsett">
+			<column name="type" />
+			<column name="status" />
+			<column name="eventclassid" />
+			<column name="targetclassid" />
+			<column name="targetid" />
+			<column name="operation" />
+		</createIndex>
+		<createIndex tableName="emf_schedulerentity" indexName="idx_sche_ident" unique="true">
+			<column name="identifier" />
+		</createIndex>
+	</changeSet>
+
+	<changeSet id="seip-2.5.0-1" author="hlungov">
+		<comment>Fix event scheduler columns</comment>
+		<dropColumn tableName="emf_schedulerentity" columnName="targetclassid"/>
+		<addColumn tableName="emf_schedulerentity">
+			<column name="targetclass" type="VARCHAR(150)" />
+			<column name="user_operation" type="VARCHAR(150)"/>
+		</addColumn>
+	</changeSet>
+</databaseChangeLog>

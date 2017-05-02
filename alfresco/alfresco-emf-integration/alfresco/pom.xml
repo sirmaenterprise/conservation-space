@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.
-	See the NOTICE file distributed with this work for additional information regarding copyright ownership.
-	The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may not
-	use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-	Unless required by applicable law or agreed to in writing, software distributed under the License is
-	distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and limitations under the License. -->
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -14,16 +17,14 @@
 	<name>Alfresco Repository and Explorer Client</name>
 	<packaging>war</packaging>
 	<description>Alfresco Repository and Explorer Client</description>
-
 	<parent>
 		<groupId>com.sirma.itt</groupId>
 		<artifactId>alfresco-emf-integration</artifactId>
-		<version>1.70.0-SNAPSHOT</version>
+		<version>2.6.0-SNAPSHOT</version>
 	</parent>
 	<properties>
 		<amp.storage.dir>${project.build.directory}/amps</amp.storage.dir>
 		<webapp.storage.dir>${project.build.directory}/webapp</webapp.storage.dir>
-		<integration-impl.version>1.0.1-SNAPSHOT</integration-impl.version>
 		<amp.included.modules>alfresco-cmf,alfresco-pmf,alfresco-obj</amp.included.modules>
 	</properties>
 	<dependencies>
@@ -59,19 +60,40 @@
 		</dependency>
 		<dependency>
 			<groupId>org.opensaml</groupId>
+			<artifactId>openws</artifactId>
+			<version>1.5.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.opensaml</groupId>
 			<artifactId>opensaml</artifactId>
-			<version>CMF-SNAPSHOT</version>
+			<version>2.6.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.opensaml</groupId>
 			<artifactId>xmltooling</artifactId>
-			<version>CMF-SNAPSHOT</version>
+			<version>1.4.4</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>bcprov-jdk14</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-engine</artifactId>
-			<version>5.10-emf-SNAPSHOT</version>
+			<version>5.10</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.bull.javamelody</groupId>
+			<artifactId>javamelody-core</artifactId>
+			<version>1.56.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jrobin</groupId>
+			<artifactId>jrobin</artifactId>
+			<version>1.5.9</version>
 		</dependency>
 	</dependencies>
 
@@ -114,7 +136,7 @@
 								<artifactItem>
 									<groupId>org.activiti</groupId>
 									<artifactId>activiti-engine</artifactId>
-									<version>5.10-emf-SNAPSHOT</version>
+									<version>5.10</version>
 									<type>jar</type>
 									<overWrite>false</overWrite>
 									<outputDirectory>${webapp.storage.dir}/WEB-INF/lib</outputDirectory>
@@ -180,11 +202,12 @@
 					</execution>
 				</executions>
 				<configuration>
-					<dependentWarExcludes>servlet-api-2.5.jar,slf4j-api-1.5.0.jar,commons-lang-2.1.jar</dependentWarExcludes>
-					<!-- Here is can control the order of overlay of your (WAR, AMP, etc.) dependencies | NOTE: At least
-						one WAR dependency must be uncompressed first | NOTE: In order to have a dependency effectively added
-						to the WAR you need to | explicitly mention it in the overlay section. | NOTE: First-win resource strategy
-						is used by the WAR plugin -->
+					<dependentWarExcludes>servlet-api-2.5.jar,slf4j-api-1.5.0.jar,commons-lang-2.1.jar,bcprov-jdk14-1.38.jar</dependentWarExcludes>
+					<!-- Here is can control the order of overlay of your (WAR, AMP, etc.) 
+						dependencies | NOTE: At least one WAR dependency must be uncompressed first 
+						| NOTE: In order to have a dependency effectively added to the WAR you need 
+						to | explicitly mention it in the overlay section. | NOTE: First-win resource 
+						strategy is used by the WAR plugin -->
 					<warSourceDirectory>${webapp.storage.dir}</warSourceDirectory>
 					<overlays>
 						<!-- Current project customizations -->

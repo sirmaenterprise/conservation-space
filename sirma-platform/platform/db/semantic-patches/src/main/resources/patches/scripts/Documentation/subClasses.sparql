@@ -1,0 +1,11 @@
+select (group_concat(distinct ?data ; separator = ", ") AS ?subClasses)
+	{
+		?class1 rdfs:subClassOf ?class .
+		?class1 rdfs:label ?label .
+		bind(if(lang(?label) = '', "en", lang(?label)) as ?class1LabelLang) .
+		filter(contains(?class1LabelLang, "en")) .
+		bind(if(contains(str(?class1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?class1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?class1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?class1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?class1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?class1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
+		bind(concat("[", ?label,  "|", ?page, "#Class " , ?label, "]") as ?data) .
+		filter (?class != ?class1)
+	}
+	group by ?class

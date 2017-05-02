@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="entity-management-patches-2.4.0-1-1" author="amitev" runAlways="false" failOnError="true">
+		<preConditions onFail="MARK_RAN">
+	   		<tableExists tableName="sep_entity_permission" />
+	   		<not>
+	    		<sqlCheck expectedResult="0">select count(*) from sep_entity_permission</sqlCheck>
+	   		</not>
+	   		<sqlCheck expectedResult="0">select count(*) from databasechangelog where id='entity-management-patches-2.4.0-1'</sqlCheck>
+		</preConditions>
+		<comment>Remove explicitly assigned permissions in libraries for admin and admin group</comment>
+		<customChange class="com.sirma.itt.objects.patch.RemoveLibrariesAdminAssignmentsPatch" />
+	</changeSet>
+
+</databaseChangeLog>

@@ -63,7 +63,7 @@ public class CMFLockService {
 	 *            the node id
 	 */
 	public void lockNode(final NodeRef nodeID) {
-		lockNode(nodeID, AuthenticationUtil.getSystemUserName());
+		lockNode(nodeID, CMFService.getSystemUser());
 	}
 
 	/**
@@ -150,8 +150,7 @@ public class CMFLockService {
 	 * @return the locked owner
 	 */
 	public String getLockedOwner(NodeRef nodeRef) {
-		Serializable lockOwner = serviceRegistry.getNodeService().getProperty(nodeRef,
-				ContentModel.PROP_LOCK_OWNER);
+		Serializable lockOwner = serviceRegistry.getNodeService().getProperty(nodeRef, ContentModel.PROP_LOCK_OWNER);
 		if (lockOwner == null) {
 			return "";
 		}

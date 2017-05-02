@@ -1,0 +1,18 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+DELETE {
+    ?user emf:instanceType ?type.
+    ?group emf:instanceType ?type.
+} INSERT {
+    GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework>   {
+        ?user emf:instanceType "user".
+        ?group emf:instanceType "group".
+    } 
+} where {
+    {
+        ?user emf:instanceType "emfuser".
+        ?user emf:instanceType ?type.
+    } UNION{
+        ?group emf:instanceType "emfgroup".
+        ?group emf:instanceType ?type.
+    }
+}

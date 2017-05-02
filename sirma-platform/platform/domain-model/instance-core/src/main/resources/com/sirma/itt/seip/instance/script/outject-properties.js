@@ -1,0 +1,1 @@
+// should contain operations related for properties outject functionality

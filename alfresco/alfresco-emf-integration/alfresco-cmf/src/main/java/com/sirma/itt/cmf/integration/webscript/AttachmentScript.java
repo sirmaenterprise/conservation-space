@@ -75,6 +75,7 @@ import org.springframework.extensions.webscripts.servlet.FormData;
 import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 
 import com.sirma.itt.cmf.integration.model.CMFModel;
+import com.sirma.itt.cmf.integration.service.CMFService;
 
 /**
  * Script for woriking with dms attachments.
@@ -102,30 +103,33 @@ public class AttachmentScript extends BaseFormScript {
 	/** The action service. */
 	private ActionService actionService;
 
+	/** The site service. */
 	private static SiteService siteService;
 
 	/** The thumbnail service. */
 	private ThumbnailService thumbnailService;
 
+	/** The timout time. */
 	private long timoutTime = Long.valueOf(readProperty("preview.thumbnail.asynch.startafter", "10000"));
 
 	/** semaphore lock. */
 	private static final ReentrantReadWriteLock ADD_CHILD_LOCK = new ReentrantReadWriteLock(true);
+
+	/** The temporary synch storage. */
 	private MemoryCache<String, NodeRef> temporarySynchStorage = new MemoryCache<String, NodeRef>(1000);
 
 	/**
-	 * Enum for allowed types for thubmnail generation of documents
-	 * 
+	 * Enum for allowed types for thubmnail generation of documents.
+	 *
 	 * @author bbanchev
 	 */
 	private enum ThumbnailGenerationMode {
 		/** asynch after time. */
-		ASYNCH("asynch"),
-		/** synch during upload. */
-		SYNCH("synch"),
-		/** none. */
+		ASYNCH("asynch"), /** synch during upload. */
+		SYNCH("synch"), /** none. */
 		NONE("none");
 
+		/** The id. */
 		private String id;
 
 		/**
@@ -140,32 +144,59 @@ public class AttachmentScript extends BaseFormScript {
 		}
 
 		/**
-		 * Get the mode for this id
-		 * 
+		 * Get the mode for this id.
+		 *
 		 * @param id
 		 *            is the toString of the enum or the mode id
 		 * @return the found mode or asynch as default
 		 */
-		public static ThumbnailGenerationMode getMode(String id) {
+		static ThumbnailGenerationMode getMode(String id) {
 			if (id == null || id.trim().isEmpty()) {
 				return ASYNCH;
 			}
 			ThumbnailGenerationMode directType = valueOf(id);
 			if (directType != null) {
 				return directType;
-			}
-			if (ASYNCH.id.equals(id.toLowerCase())) {
+			} else if (ASYNCH.id.equals(id.toLowerCase())) {
 				return ASYNCH;
-			}
-			if (SYNCH.id.equals(id.toLowerCase())) {
+			} else if (SYNCH.id.equals(id.toLowerCase())) {
 				return SYNCH;
-			}
-			if (NONE.id.equals(id.toLowerCase())) {
+			} else if (NONE.id.equals(id.toLowerCase())) {
 				return NONE;
 			}
 			return ASYNCH;
 		}
 
+	}
+
+	/**
+	 * Upload mode to use.
+	 *
+	 * @author bbanchev
+	 */
+	enum DocumentUploadMode {
+
+		/** Dms custom mode. */
+		CUSTOM, /** Direct upload. */
+		DIRECT;
+
+		/**
+		 * Gets the mode.
+		 *
+		 * @param id
+		 *            the id
+		 * @return the mode
+		 */
+		public static DocumentUploadMode getMode(String id) {
+			if (id == null || id.trim().isEmpty()) {
+				return DIRECT;
+			}
+			DocumentUploadMode directType = valueOf(id);
+			if (directType != null) {
+				return directType;
+			}
+			return DIRECT;
+		}
 	}
 
 	/**
@@ -179,12 +210,11 @@ public class AttachmentScript extends BaseFormScript {
 	protected Map<String, Object> executeInternal(WebScriptRequest req) {
 		Map<String, Object> model = new HashMap<String, Object>(2);
 		List<NodeRef> value = new ArrayList<NodeRef>(1);
-		model.put("mode", "unknown");
+		model.put(KEY_WORKING_MODE, "unknown");
 		Boolean securityEnabled = Boolean.valueOf(req.getHeader("security.enabled"));
 		model.put(SECURITY_ENABLED, securityEnabled);
 		try {
 			String serverPath = req.getServicePath();
-			// TODO enum
 			if (serverPath.endsWith("/cmf/instance/attach")) {
 				attachRequest(req, model, value);
 			} else if (serverPath.endsWith("/cmf/instance/dettach")) {
@@ -208,22 +238,18 @@ public class AttachmentScript extends BaseFormScript {
 			} else if (serverPath.endsWith("/cmf/document/revert")) {
 				revertRequest(req, model, value);
 			}
-			// else if (serverPath.endsWith("/cmf/documents/preview")) {
-			// previewRequest(req, model, value);
-			// }
 			model.put("results", value);
 		} catch (ContentQuotaException e) {
 			throw createStatus(413, "org.alfresco.service.cmr.usage.ContentQuotaException");
 		} catch (WebScriptException e) {
-			e.printStackTrace();
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			// capture exception, annotate it accordingly and re-throw
 			if (e.getMessage() != null) {
-				throw new WebScriptException(500, e.getMessage(), e);
+				throw new WebScriptException(500,
+						"Unexpected error occurred during document operation: " + e.getMessage(), e);
 			} else {
-				throw createStatus(500, "Unexpected error occurred during upload of new content.");
+				throw createStatus(500, "Unexpected error occurred during document operation!");
 
 			}
 		} finally {
@@ -254,9 +280,10 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void checkinRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException, IOException {
+	private void checkinRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
 		// delete a case attachment
-		model.put("mode", "unlock");
+		model.put(KEY_WORKING_MODE, "unlock");
 		boolean authChanged = false;
 		try {
 			JSONObject request = new JSONObject(req.getContent().getContent());
@@ -287,13 +314,14 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void unlockRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException, IOException {
+	private void unlockRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
 		// delete a case attachment
-		model.put("mode", "unlock");
+		model.put(KEY_WORKING_MODE, "unlock");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		if (request.has(KEY_ATTACHMENT_ID)) {
 			NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
-			String lockUser = AuthenticationUtil.getSystemUserName();
+			String lockUser = CMFService.getSystemUser();
 			if (updateable != null) {
 				cmfLockService.unlockNode(updateable, lockUser);
 				value.add(updateable);
@@ -315,12 +343,13 @@ public class AttachmentScript extends BaseFormScript {
 	 *             on some parse error
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
-	 *             {@link org.alfresco.service.cmr.coci.CheckOutCheckInService#checkout(NodeRef)} .
+	 *             {@link org.alfresco.service.cmr.coci.CheckOutCheckInService#checkout(NodeRef)}
+	 *             .
 	 */
-	private Map<String, Object> checkoutRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException,
-			IOException {
+	private Map<String, Object> checkoutRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
 		// delete a case attachment
-		model.put("mode", "lock");
+		model.put(KEY_WORKING_MODE, "lock");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		if (request.has(KEY_ATTACHMENT_ID)) {
 			NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
@@ -348,8 +377,9 @@ public class AttachmentScript extends BaseFormScript {
 	 *             Signals that an I/O exception has occurred.
 	 *             {@link org.alfresco.service.cmr.coci.CheckOutCheckInService#cancelCheckout(NodeRef)}
 	 */
-	private void cancelCheckoutRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException, IOException {
-		model.put("mode", "unlock");
+	private void cancelCheckoutRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
+		model.put(KEY_WORKING_MODE, "unlock");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		if (request.has(KEY_ATTACHMENT_ID)) {
 			NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
@@ -376,13 +406,14 @@ public class AttachmentScript extends BaseFormScript {
 	 *             Signals that an I/O exception has occurred.
 	 *             {@link com.sirma.itt.cmf.integration.service.CMFLockService#lockNode(NodeRef, String)}
 	 */
-	private Map<String, Object> lockRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException, IOException {
+	private Map<String, Object> lockRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
 		// delete a case attachment
-		model.put("mode", "lock");
+		model.put(KEY_WORKING_MODE, "lock");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		if (request.has(KEY_ATTACHMENT_ID)) {
 			NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
-			String lockUser = AuthenticationUtil.getSystemUserName();
+			String lockUser = CMFService.getSystemUser();
 			if (updateable != null) {
 				cmfLockService.lockNode(updateable, lockUser);
 				value.add(updateable);
@@ -406,8 +437,9 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private Map<String, Object> detachRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException, IOException {
-		model.put("mode", "dettach");
+	private Map<String, Object> detachRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
+		model.put(KEY_WORKING_MODE, "dettach");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		NodeRef caseNode = null;
 		if (request.has(KEY_ATTACHMENT_ID)) {
@@ -415,7 +447,7 @@ public class AttachmentScript extends BaseFormScript {
 			if (updateable != null) {
 				caseNode = cmfService.getNodeRef(request.getString(KEY_NODEID));
 				if (caseNode == null) {
-					throw createStatus(404, "Document is not attached to specific case!");
+					throw createStatus(404, "document is not attached to specific case!");
 				}
 				prepareParent(model, caseNode);
 				Pair<NodeRef, NodeRef> contentSubContainer = findContentSubContainer(updateable);
@@ -447,14 +479,15 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws Exception
 	 *             on some error {@link #attachFile(FormData, Map)}
 	 */
-	private Map<String, Object> attachRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws Exception {
-		model.put("mode", "attach");
+	private Map<String, Object> attachRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws Exception {
+		model.put(KEY_WORKING_MODE, "attach");
 		FormData data = extractFormData(req);
 		if (data != null) {
 			// process the attach
 			attachFile(data, model);
 
-			NodeRef attachFile = (NodeRef) model.get(DOCUMENT);
+			NodeRef attachFile = (NodeRef) model.get(KEY_DOCUMENT);
 			if (attachFile != null) {
 				value.add(attachFile);
 				debug(attachFile, " version:", model.get("version"));
@@ -464,8 +497,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Moving of document method. Source and target destinations are locked/unlocked during
-	 * operation and new name is calculated using
+	 * Moving of document method. Source and target destinations are
+	 * locked/unlocked during operation and new name is calculated using
 	 * 
 	 * @param req
 	 *            the req to process
@@ -477,8 +510,9 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws Exception
 	 *             on any error
 	 */
-	private Map<String, Object> copyRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws Exception {
-		model.put("mode", "copy");
+	private Map<String, Object> copyRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws Exception {
+		model.put(KEY_WORKING_MODE, "copy");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		NodeRef moveable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
 		if (moveable != null) {
@@ -495,7 +529,7 @@ public class AttachmentScript extends BaseFormScript {
 			// for read permission unlock is needed only in dest node.
 			FileInfo attachFile = getServiceRegistry().getFileFolderService().copy(moveable, newParent, filename);
 			if (attachFile != null) {
-				model.put(DOCUMENT, attachFile);
+				model.put(KEY_DOCUMENT, attachFile);
 				// set the versioning aspect
 				ensureVersioningEnabled(attachFile.getNodeRef(), true, false);
 				model.put("versionProperties", populateProperties(attachFile.getNodeRef(), true));
@@ -514,8 +548,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Moving of document method. Source and target destinations are locked/unlocked during
-	 * operation and new name is calculated using
+	 * Moving of document method. Source and target destinations are
+	 * locked/unlocked during operation and new name is calculated using
 	 * 
 	 * @param req
 	 *            the req to process
@@ -527,8 +561,9 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws Exception
 	 *             on any error
 	 */
-	private Map<String, Object> moveRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws Exception {
-		model.put("mode", "move");
+	private Map<String, Object> moveRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws Exception {
+		model.put(KEY_WORKING_MODE, "move");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		NodeRef moveable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
 		if (moveable != null) {
@@ -549,11 +584,14 @@ public class AttachmentScript extends BaseFormScript {
 			String lockOwner = cmfLockService.getLockedOwner(parentRefOld);
 			// unlock the original parent before move
 			prepareParent(model, parentRefOld, false);
+
+			newParent = getParentForNode(model, newParent);
+
 			ChildAssociationRef moveNode = nodeService.moveNode(moveable, newParent, parentAssocs.getTypeQName(),
 					QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, localName));
 			NodeRef attachFile = moveNode.getChildRef();
 			if (attachFile != null) {
-				model.put(DOCUMENT, attachFile);
+				model.put(KEY_DOCUMENT, attachFile);
 
 				// cmfLockService.lockNode(attachFile);
 				model.put("versionProperties", populateProperties(attachFile, false));
@@ -570,9 +608,20 @@ public class AttachmentScript extends BaseFormScript {
 
 	}
 
+	private NodeRef getParentForNode(Map<String, Object> model, NodeRef newParent) {
+		QName type = getNodeService().getType(newParent);
+		boolean isParentContent = getDataDictionaryService().isSubClass(type, ContentModel.TYPE_CONTENT);
+		if (isParentContent) {
+			newParent = findFileToFileContainer(model, newParent);
+		} else {
+			newParent = findDestinitionContainer(newParent, DocumentUploadMode.DIRECT);
+		}
+		return newParent;
+	}
+
 	/**
-	 * Populate properties in the model for the provided node. Properties are keyed by shorted qname
-	 * as string
+	 * Populate properties in the model for the provided node. Properties are
+	 * keyed by shorted qname as string
 	 * 
 	 * @param nodeRef
 	 *            the node ref to get properties for
@@ -614,19 +663,21 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws JSONException
 	 *             on parse error
 	 * @throws IOException
-	 *             on io error {@link #getNameForDuplicateChild(String, NodeRef, NodeRef)} so no
-	 *             duplicate child exception occurs.
+	 *             on io error
+	 *             {@link #getNameForDuplicateChild(String, NodeRef, NodeRef)}
+	 *             so no duplicate child exception occurs.
 	 */
-	private Map<String, Object> historicVersionRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException,
-			IOException {
-		model.put("mode", "version");
+	private Map<String, Object> historicVersionRequest(WebScriptRequest req, Map<String, Object> model,
+			List<NodeRef> value) throws JSONException, IOException {
+		model.put(KEY_WORKING_MODE, "version");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		if (request.has(KEY_ATTACHMENT_ID)) {
 			NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
 			if (updateable != null) {
 				if (request.has("version")) {
 					try {
-						Version version = serviceRegistry.getVersionService().getVersionHistory(updateable).getVersion(request.getString("version"));
+						Version version = serviceRegistry.getVersionService().getVersionHistory(updateable)
+								.getVersion(request.getString("version"));
 						NodeRef frozenStateNodeRef = version.getFrozenStateNodeRef();
 						value.add(frozenStateNodeRef);
 						model.put("versionProperties", populateProperties(frozenStateNodeRef, false));
@@ -636,7 +687,7 @@ public class AttachmentScript extends BaseFormScript {
 				}
 			}
 		} else {
-			throw createStatus(500, "Invalid request. Document is not provided!");
+			throw createStatus(500, "Invalid request. document is not provided!");
 		}
 		return model;
 
@@ -655,11 +706,13 @@ public class AttachmentScript extends BaseFormScript {
 	 * @throws JSONException
 	 *             on parse error
 	 * @throws IOException
-	 *             on io error {@link #getNameForDuplicateChild(String, NodeRef, NodeRef)} so no
-	 *             duplicate child exception occurs.
+	 *             on io error
+	 *             {@link #getNameForDuplicateChild(String, NodeRef, NodeRef)}
+	 *             so no duplicate child exception occurs.
 	 */
-	private Map<String, Object> revertRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value) throws JSONException, IOException {
-		model.put("mode", "revert");
+	private Map<String, Object> revertRequest(WebScriptRequest req, Map<String, Object> model, List<NodeRef> value)
+			throws JSONException, IOException {
+		model.put(KEY_WORKING_MODE, "revert");
 		JSONObject request = new JSONObject(req.getContent().getContent());
 		if (request.has(KEY_ATTACHMENT_ID)) {
 			NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
@@ -667,12 +720,14 @@ public class AttachmentScript extends BaseFormScript {
 				if (request.has("version")) {
 					try {
 						System.out.println(nodeService.getProperties(updateable));
-						Version version = serviceRegistry.getVersionService().getVersionHistory(updateable).getVersion(request.getString("version"));
+						Version version = serviceRegistry.getVersionService().getVersionHistory(updateable)
+								.getVersion(request.getString("version"));
 						serviceRegistry.getVersionService().revert(updateable, version);
 						// checkout and checkin to create a new version
 						updateable = serviceRegistry.getCheckOutCheckInService().checkout(updateable);
 						// model for update should exists - no has() check
-						updateable = checkin(request.getBoolean(MAJORVERSION), request.getString(DESCRIPTION), updateable);
+						updateable = checkin(request.getBoolean(MAJORVERSION), request.getString(DESCRIPTION),
+								updateable);
 						value.add(updateable);
 						model.put("versionProperties", populateProperties(updateable, false));
 					} catch (VersionDoesNotExistException e) {
@@ -681,7 +736,7 @@ public class AttachmentScript extends BaseFormScript {
 				}
 			}
 		} else {
-			throw createStatus(500, "Invalid request. Document is not provided!");
+			throw createStatus(500, "Invalid request. document is not provided!");
 		}
 		return model;
 
@@ -699,8 +754,10 @@ public class AttachmentScript extends BaseFormScript {
 	private NodeRef checkinRequest(JSONObject request) throws JSONException {
 		NodeRef updateable = cmfService.getNodeRef(request.getString(KEY_ATTACHMENT_ID));
 		if (updateable != null) {
-			String description = request.has(DESCRIPTION) ? request.getString(DESCRIPTION) : "Automatic checkin comment";
-			Boolean majorVersion = request.has(MAJORVERSION) ? Boolean.valueOf(request.getString(MAJORVERSION)) : Boolean.TRUE;
+			String description = request.has(DESCRIPTION) ? request.getString(DESCRIPTION)
+					: "Automatic checkin comment";
+			Boolean majorVersion = request.has(MAJORVERSION) ? Boolean.valueOf(request.getString(MAJORVERSION))
+					: Boolean.TRUE;
 			if (nodeService.hasAspect(updateable, ContentModel.ASPECT_WORKING_COPY)) {
 				NodeRef checkin = checkin(majorVersion, description, updateable);
 				// update with some props
@@ -809,8 +866,8 @@ public class AttachmentScript extends BaseFormScript {
 
 			if ((reader != null) && reader.exists()) {
 				try {
-					return (contentData.getEncoding() == null) ? new InputStreamReader(reader.getContentInputStream()) : new InputStreamReader(
-							reader.getContentInputStream(), contentData.getEncoding());
+					return (contentData.getEncoding() == null) ? new InputStreamReader(reader.getContentInputStream())
+							: new InputStreamReader(reader.getContentInputStream(), contentData.getEncoding());
 				} catch (IOException e) {
 					// NOTE: fall-through
 				}
@@ -827,7 +884,7 @@ public class AttachmentScript extends BaseFormScript {
 		public void setContent(String content) {
 			ContentWriter writer = getContentService().getWriter(nodeRef, property, true);
 			// use existing mimetype value
-			writer.setMimetype(getMimetype()); 
+			writer.setMimetype(getMimetype());
 			writer.putContent(content);
 
 			// update cached variables after putContent()
@@ -853,11 +910,12 @@ public class AttachmentScript extends BaseFormScript {
 		 * @param content
 		 *            ScriptContent to set
 		 * @param applyMimetype
-		 *            If true, apply the mimetype from the Content object, else leave the original
-		 *            mimetype
+		 *            If true, apply the mimetype from the Content object, else
+		 *            leave the original mimetype
 		 * @param guessEncoding
-		 *            If true, guess the encoding from the underlying input stream, else use
-		 *            encoding set in the Content object as supplied.
+		 *            If true, guess the encoding from the underlying input
+		 *            stream, else use encoding set in the Content object as
+		 *            supplied.
 		 */
 		public void write(Content content, boolean applyMimetype, boolean guessEncoding) {
 			ContentWriter writer = getContentService().getWriter(nodeRef, property, true);
@@ -1004,8 +1062,8 @@ public class AttachmentScript extends BaseFormScript {
 		}
 
 		/**
-		 * Guess the mimetype for the given filename - uses the extension to match on system
-		 * mimetype map.
+		 * Guess the mimetype for the given filename - uses the extension to
+		 * match on system mimetype map.
 		 * 
 		 * @param filename
 		 *            the filename
@@ -1017,9 +1075,9 @@ public class AttachmentScript extends BaseFormScript {
 		}
 
 		/**
-		 * Guess the character encoding of a file. For non-text files UTF-8 default is applied,
-		 * otherwise the appropriate encoding (such as UTF-16 or similar) will be appiled if
-		 * detected.
+		 * Guess the character encoding of a file. For non-text files UTF-8
+		 * default is applied, otherwise the appropriate encoding (such as
+		 * UTF-16 or similar) will be appiled if detected.
 		 */
 		public void guessEncoding() {
 			setEncoding(guessEncoding(getInputStream(), true));
@@ -1038,7 +1096,8 @@ public class AttachmentScript extends BaseFormScript {
 			String encoding = UTF_8;
 			try {
 				if (in != null) {
-					Charset charset = serviceRegistry.getMimetypeService().getContentCharsetFinder().getCharset(in, getMimetype());
+					Charset charset = serviceRegistry.getMimetypeService().getContentCharsetFinder().getCharset(in,
+							getMimetype());
 					encoding = charset.name();
 				}
 			} finally {
@@ -1081,7 +1140,7 @@ public class AttachmentScript extends BaseFormScript {
 			Set<String> aspects = new TreeSet<String>();
 			Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
 			// If a filename clashes for a versionable
-			boolean overwrite = true; 
+			boolean overwrite = true;
 
 			// Update specific
 			String updateNodeRef = null;
@@ -1090,6 +1149,8 @@ public class AttachmentScript extends BaseFormScript {
 
 			// Parse file attributes
 			ThumbnailGenerationMode thumbGenerationMode = ThumbnailGenerationMode.ASYNCH;
+
+			DocumentUploadMode uploadMode = DocumentUploadMode.DIRECT;
 			FormField[] fields = formdata.getFields();
 			for (FormField field : fields) {
 				String fieldValue = field.getValue();
@@ -1129,16 +1190,21 @@ public class AttachmentScript extends BaseFormScript {
 					overwrite = Boolean.valueOf(field.getValue()).booleanValue();
 				} else if ("thumbnail".equals(field.getName())) {
 					thumbGenerationMode = ThumbnailGenerationMode.getMode(field.getValue());
+				} else if ("uploadMode".equals(field.getName())) {
+					uploadMode = DocumentUploadMode.getMode(field.getValue());
 				}
 			}
-			debug("[filename=", filename, ", content=", content, ", mimetype=", mimetype, ", siteId=", siteId, ", containerId=", containerId,
-					", destination=", destination, ", updateNodeRef=", updateNodeRef, ", uploadDirectory=", uploadDirectory, ", description=",
-					description, ", contentType=", contentType, ", aspects=", aspects, ", properties=", properties, ", overwrite=", overwrite,
-					", majorVersion=", majorVersion, ", description=", description, ", thumbnail=", thumbGenerationMode.id, "]");
+			debug("[filename=", filename, ", content=", content, ", mimetype=", mimetype, ", siteId=", siteId,
+					", containerId=", containerId, ", destination=", destination, ", updateNodeRef=", updateNodeRef,
+					", uploadDirectory=", uploadDirectory, ", description=", description, ", contentType=", contentType,
+					", aspects=", aspects, ", properties=", properties, ", overwrite=", overwrite, ", majorVersion=",
+					majorVersion, ", description=", description, ", thumbnail=", thumbGenerationMode, ", mode=",
+					uploadMode, "]");
 			// Ensure mandatory file attributes have been located. Need either
 			// destination, or site + container or updateNodeRef
 			if (((filename == null) || (content == null))
-					|| ((destination == null) && ((siteId == null) || (containerId == null)) && (updateNodeRef == null) && (uploadDirectory == null))) {
+					|| ((destination == null) && ((siteId == null) || (containerId == null)) && (updateNodeRef == null)
+							&& (uploadDirectory == null))) {
 				throw createStatus(400, "Required parameters are missing");
 			}
 
@@ -1147,8 +1213,8 @@ public class AttachmentScript extends BaseFormScript {
 			 */
 			if ((siteId != null) && (siteId.length() > 0)) {
 				/**
-				 * Site mode. Need valid site and container. Try to create container if it doesn't
-				 * exist.
+				 * Site mode. Need valid site and container. Try to create
+				 * container if it doesn't exist.
 				 */
 				site = siteService.getSite(siteId);
 				if (site == null) {
@@ -1189,16 +1255,8 @@ public class AttachmentScript extends BaseFormScript {
 					throw createStatus(404, "Destination (" + destination + ") not found.");
 				}
 
-				QName type = AttachmentScript.nodeService.getType(destNode);
-
-				boolean isParentContent = cmfService.getServiceRegistry().getDictionaryService().isSubClass(type, ContentModel.TYPE_CONTENT);
-				if (isParentContent) {
-					destNode = findFileToFileContainer(model, destNode);
-				} else if (isDestinationDocumentLibrary(destNode)) {
-					destNode = cmfService.getWorkingDir(destNode);
-				}
+				destNode = getParentForNode(model, destNode);
 			}
-
 			/**
 			 * Update existing or Upload new?
 			 */
@@ -1212,18 +1270,21 @@ public class AttachmentScript extends BaseFormScript {
 				if (properties != null) {
 					nodeService.addProperties(updatable, properties);
 				}
-				updatable = updateExisting(updatable, filename, content, majorVersion, description, thumbGenerationMode);
+				updatable = updateExisting(updatable, filename, content, majorVersion, description,
+						thumbGenerationMode);
 				// Record the file details ready for generating the response
-				model.put(DOCUMENT, updatable);
+				model.put(KEY_DOCUMENT, updatable);
 				model.put("properties", convertPropeties(nodeService.getProperties(updatable)));
 			} else {
 				/**
-				 * Upload new file to destNode (calculated earlier) + optional subdirectory
+				 * Upload new file to destNode (calculated earlier) + optional
+				 * subdirectory
 				 */
 				if (uploadDirectory != null) {
 					List<NodeRef> destNodeLocal = cmfService.getNodesByXPath(uploadDirectory);
 					if ((destNodeLocal == null) || (destNodeLocal.size() != 1)) {
-						throw createStatus(404, "Cannot upload file since upload directory '" + uploadDirectory + "' does not exist.");
+						throw createStatus(404,
+								"Cannot upload file since upload directory '" + uploadDirectory + "' does not exist.");
 					}
 					destNode = destNodeLocal.get(0);
 				}
@@ -1237,11 +1298,12 @@ public class AttachmentScript extends BaseFormScript {
 					// File already exists, decide what to do
 					if (nodeService.hasAspect(existingFile, ContentModel.ASPECT_VERSIONABLE) && overwrite) {
 
-						existingFile = updateExisting(existingFile, filename, content, majorVersion, description, thumbGenerationMode);
+						existingFile = updateExisting(existingFile, filename, content, majorVersion, description,
+								thumbGenerationMode);
 						// Record the file details ready for generating the
 						// response
-						model.put(DOCUMENT, existingFile);
-						model.put("properties", convertPropeties(nodeService.getProperties(existingFile)));
+						model.put(KEY_DOCUMENT, existingFile);
+						model.put(KEY_PROPERTIES, convertPropeties(nodeService.getProperties(existingFile)));
 						putVersionInModel(model, majorVersion, existingFile);
 						return;
 					} else {
@@ -1264,7 +1326,8 @@ public class AttachmentScript extends BaseFormScript {
 
 					// Ensure that we are performing a specialise
 					DictionaryService dictionaryService = serviceRegistry.getDictionaryService();
-					if ((nodeType.equals(contenTypeQname) == false) && (dictionaryService.isSubClass(contenTypeQname, nodeType) == true)) {
+					if ((nodeType.equals(contenTypeQname) == false)
+							&& (dictionaryService.isSubClass(contenTypeQname, nodeType) == true)) {
 						contenTypeQname = nodeType;
 					}
 				}
@@ -1279,48 +1342,48 @@ public class AttachmentScript extends BaseFormScript {
 				final Content contentFinal = content;
 				final Map<QName, Serializable> propertiesFinal = properties;
 				final Set<String> aspectsFinal = aspects;
-				ContentDataHelper data = retryingTransactionHelper.doInTransaction(new RetryingTransactionCallback<ContentDataHelper>() {
+				ContentDataHelper data = retryingTransactionHelper
+						.doInTransaction(new RetryingTransactionCallback<ContentDataHelper>() {
 
-					@Override
-					public ContentDataHelper execute() throws Throwable {
-						NodeRef newFile = serviceRegistry
-								.getFileFolderService()
-								.create(destNodeFinal, filenameFinal, contenTypeQnameFinal == null ? ContentModel.TYPE_CONTENT : contenTypeQnameFinal)
-								.getNodeRef();
-						MimetypeService mimetypeService = serviceRegistry.getMimetypeService();
-						String mimetypeDetected = mimetypeService.guessMimetype(filenameFinal);
-						ContentDataHelper data = new ContentDataHelper(newFile, new ContentData(null, mimetypeDetected, 0L, UTF_8));
-						data.write(contentFinal, false, true);
-						// Additional aspects?
-						// custom - add properties
-						if (propertiesFinal != null) {
-							nodeService.addProperties(newFile, propertiesFinal);
-						}
-						if (aspectsFinal.size() > 0) {
-							for (String aspect : aspectsFinal) {
-								QName aspectQName = QName.resolveToQName(namespaceService, aspect);
-								if (ContentModel.ASPECT_VERSIONABLE.equals(aspectQName)) {
-									ensureVersioningEnabled(newFile, true, false);
-								} else {
-									nodeService.addAspect(newFile, aspectQName, null);
+							@Override
+							public ContentDataHelper execute() throws Throwable {
+								NodeRef newFile = serviceRegistry.getFileFolderService().create(destNodeFinal,
+										filenameFinal,
+										contenTypeQnameFinal == null ? ContentModel.TYPE_CONTENT : contenTypeQnameFinal)
+										.getNodeRef();
+								MimetypeService mimetypeService = serviceRegistry.getMimetypeService();
+								String mimetypeDetected = mimetypeService.guessMimetype(filenameFinal);
+								ContentDataHelper data = new ContentDataHelper(newFile,
+										new ContentData(null, mimetypeDetected, 0L, UTF_8));
+								data.write(contentFinal, false, true);
+								// Additional aspects?
+								// custom - add properties
+								if (propertiesFinal != null) {
+									nodeService.addProperties(newFile, propertiesFinal);
 								}
-							}
-						}
+								for (String aspect : aspectsFinal) {
+									QName aspectQName = QName.resolveToQName(namespaceService, aspect);
+									if (ContentModel.ASPECT_VERSIONABLE.equals(aspectQName)) {
+										ensureVersioningEnabled(newFile, true, false);
+									} else {
+										nodeService.addAspect(newFile, aspectQName, null);
+									}
+								}
 
-						// Extract the metadata
-						extractMetadata(newFile);
-						return data;
-					}
-				}, false, true);
+								// Extract the metadata
+								extractMetadata(newFile);
+								return data;
+							}
+						}, false, true);
 				NodeRef newFile = data.nodeRef;
 
 				createThumbnail(data, "doclib", thumbGenerationMode);
 				// Record the file details ready for generating the response
-				model.put(DOCUMENT, newFile);
-				model.put("properties", convertPropeties(nodeService.getProperties(newFile)));
+				model.put(KEY_DOCUMENT, newFile);
+				model.put(KEY_PROPERTIES, convertPropeties(nodeService.getProperties(newFile)));
 			}
-			if (model.containsKey(DOCUMENT)) {
-				putVersionInModel(model, majorVersion, (NodeRef) model.get(DOCUMENT));
+			if (model.containsKey(KEY_DOCUMENT)) {
+				putVersionInModel(model, majorVersion, (NodeRef) model.get(KEY_DOCUMENT));
 			}
 			// final cleanup of temporary resources created during request
 			// processing
@@ -1336,9 +1399,35 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
+	 * Find destinition container.
+	 *
+	 * @param destNode
+	 *            the dest node
+	 * @param uploadMode
+	 *            the upload mode
+	 * @return the node ref
+	 */
+	private NodeRef findDestinitionContainer(final NodeRef destNode, final DocumentUploadMode uploadMode) {
+		return serviceRegistry.getRetryingTransactionHelper()
+				.doInTransaction(new RetryingTransactionCallback<NodeRef>() {
+
+					@Override
+					public NodeRef execute() throws Throwable {
+						if (uploadMode == DocumentUploadMode.CUSTOM) {
+							return cmfService.getWorkingDir(destNode);
+						} else if (isDestinationdocumentLibrary(destNode)) {
+							return cmfService.getWorkingDir(destNode);
+						}
+						return destNode;
+					}
+				}, false, true);
+	}
+
+	/**
 	 * Convert propeties.
 	 *
-	 * @param props the props
+	 * @param props
+	 *            the props
 	 * @return the map
 	 */
 	private Map<String, String> convertPropeties(Map<QName, Serializable> props) {
@@ -1362,14 +1451,14 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Check if the destination is the document library for this site and generates the hierarchy
-	 * structure
-	 * 
+	 * Check if the destination is the document library for this site and
+	 * generates the hierarchy structure.
+	 *
 	 * @param destNode
 	 *            is the node to check
 	 * @return true if this is the document library
 	 */
-	private boolean isDestinationDocumentLibrary(NodeRef destNode) {
+	private boolean isDestinationdocumentLibrary(NodeRef destNode) {
 		SiteInfo site = getSiteService().getSite(destNode);
 		if (site != null) {
 			NodeRef library = getSiteService().getContainer(site.getShortName(), "documentLibrary");
@@ -1381,8 +1470,9 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Add a file as e child of another file. The code actually is creating a new folder with the id
-	 * of the parent file and upload the child file into it.
+	 * Add a file as e child of another file. The code actually is creating a
+	 * new folder with the id of the parent file and upload the child file into
+	 * it.
 	 * 
 	 * @param model
 	 *            current model for the response
@@ -1391,7 +1481,7 @@ public class AttachmentScript extends BaseFormScript {
 	 * @return the destination node to create node into
 	 */
 	private NodeRef findFileToFileContainer(final Map<String, Object> model, NodeRef destNode) {
-		final NodeRef destinationParent = destNode;
+		NodeRef destinationParent = destNode;
 		try {
 			ADD_CHILD_LOCK.writeLock().lock();
 			Pair<NodeRef, NodeRef> findContentSubContainer = findContentSubContainer(destinationParent);
@@ -1401,21 +1491,24 @@ public class AttachmentScript extends BaseFormScript {
 			final String nodeId = destinationParent.getId();
 			if (childByName == null) {
 				if (!temporarySynchStorage.contains(nodeId)) {
-					destNode = serviceRegistry.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionCallback<NodeRef>() {
+					destinationParent = serviceRegistry.getRetryingTransactionHelper()
+							.doInTransaction(new RetryingTransactionCallback<NodeRef>() {
 
-						@Override
-						public NodeRef execute() throws Throwable {
-							final Map<QName, Serializable> props = Collections.singletonMap(ContentModel.PROP_NAME, (Serializable) nodeId);
-							return nodeService.createNode(parentRef, ContentModel.ASSOC_CONTAINS,
-									QName.createQName(CMFModel.EMF_MODEL_1_0_URI, nodeId), ContentModel.TYPE_FOLDER, props).getChildRef();
-						}
-					}, false, true);
+								@Override
+								public NodeRef execute() throws Throwable {
+									final Map<QName, Serializable> props = Collections
+											.singletonMap(ContentModel.PROP_NAME, (Serializable) nodeId);
+									return nodeService.createNode(parentRef, ContentModel.ASSOC_CONTAINS,
+											QName.createQName(CMFModel.EMF_MODEL_1_0_URI, nodeId),
+											ContentModel.TYPE_FOLDER, props).getChildRef();
+								}
+							}, false, true);
 					temporarySynchStorage.put(nodeId, destNode);
 				} else {
-					destNode = temporarySynchStorage.get(nodeId);
+					destinationParent = temporarySynchStorage.get(nodeId);
 				}
 			} else {
-				destNode = childByName;
+				destinationParent = childByName;
 				// now is visible in the new transaction so remove it
 				temporarySynchStorage.remove(nodeId);
 			}
@@ -1423,10 +1516,12 @@ public class AttachmentScript extends BaseFormScript {
 		} finally {
 			ADD_CHILD_LOCK.writeLock().unlock();
 		}
-		return destNode;
+		return destinationParent;
 	}
 
 	/**
+	 * Find content sub container.
+	 *
 	 * @param destNode
 	 *            is the content node
 	 * @return Pair(destnode parent, destnode files container)
@@ -1435,13 +1530,13 @@ public class AttachmentScript extends BaseFormScript {
 		ChildAssociationRef primaryParent = nodeService.getPrimaryParent(destNode);
 		NodeRef parentRef = primaryParent.getParentRef();
 		String nodeId = destNode.getId();
-		NodeRef childByName = AttachmentScript.nodeService.getChildByName(parentRef, ContentModel.ASSOC_CONTAINS, nodeId);
+		NodeRef childByName = getNodeService().getChildByName(parentRef, ContentModel.ASSOC_CONTAINS, nodeId);
 		return new Pair<NodeRef, NodeRef>(parentRef, childByName);
 	}
 
 	/**
-	 * Creates the thumbnail based on the content data provided
-	 * 
+	 * Creates the thumbnail based on the content data provided.
+	 *
 	 * @param contentData
 	 *            the content data used as wrapper for needed params
 	 * @param thumbnailName
@@ -1450,7 +1545,8 @@ public class AttachmentScript extends BaseFormScript {
 	 *            the mode for generating thumbnail
 	 * @return the script thumbnail
 	 */
-	private NodeRef createThumbnail(ContentDataHelper contentData, String thumbnailName, ThumbnailGenerationMode thumbnailMode) {
+	private NodeRef createThumbnail(ContentDataHelper contentData, String thumbnailName,
+			ThumbnailGenerationMode thumbnailMode) {
 		if (thumbnailMode == ThumbnailGenerationMode.NONE) {
 			return null;
 		}
@@ -1463,9 +1559,10 @@ public class AttachmentScript extends BaseFormScript {
 			throw new ScriptException("The thumbnail name '" + thumbnailName + "' is not registered");
 		}
 
-		if (!registry.isThumbnailDefinitionAvailable(contentData.contentData.getContentUrl(), contentData.getMimetype(), contentData.getSize(),
-				nodeRef, details)) {
-			debug("Unable to create thumbnail '", details.getName(), "' for ", contentData.getMimetype(), " as no transformer is currently available");
+		if (!registry.isThumbnailDefinitionAvailable(contentData.contentData.getContentUrl(), contentData.getMimetype(),
+				contentData.getSize(), nodeRef, details)) {
+			debug("Unable to create thumbnail '", details.getName(), "' for ", contentData.getMimetype(),
+					" as no transformer is currently available");
 			return null;
 		}
 
@@ -1475,12 +1572,14 @@ public class AttachmentScript extends BaseFormScript {
 				return getThumbnailService().createThumbnail(nodeRef, ContentModel.PROP_CONTENT, details.getMimetype(),
 						details.getTransformationOptions(), details.getName());
 			} catch (Exception e) {
-				LOGGER.error(e);
+				getLogger().error(e);
 			}
 		}
 		final Action action = ThumbnailHelper.createCreateThumbnailAction(details, serviceRegistry);
-		action.getActionCondition(0).getParameterValues().put(NodeEligibleForRethumbnailingEvaluator.PARAM_RETRY_PERIOD, 10L);
-		action.getActionCondition(0).getParameterValues().put(NodeEligibleForRethumbnailingEvaluator.PARAM_RETRY_COUNT, 10);
+		action.getActionCondition(0).getParameterValues().put(NodeEligibleForRethumbnailingEvaluator.PARAM_RETRY_PERIOD,
+				10L);
+		action.getActionCondition(0).getParameterValues().put(NodeEligibleForRethumbnailingEvaluator.PARAM_RETRY_COUNT,
+				10);
 		// action.getActionCondition(0).setInvertCondition(true);
 		final String runAsUser = AuthenticationUtil.getRunAsUser();
 
@@ -1528,8 +1627,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Gets the name for duplicate child if child already exists. _{d} suffix counter is incremented
-	 * untile empty slot is found.
+	 * Gets the name for duplicate child if child already exists. _{d} suffix
+	 * counter is incremented untile empty slot is found.
 	 * 
 	 * @param filename
 	 *            the filename
@@ -1571,8 +1670,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Simultaneous check for duplicate name of working copy and original node, based on new node
-	 * name.
+	 * Simultaneous check for duplicate name of working copy and original node,
+	 * based on new node name.
 	 * 
 	 * @param filename
 	 *            is the initial filename
@@ -1584,7 +1683,8 @@ public class AttachmentScript extends BaseFormScript {
 	 *            is the label for working copy to look for.
 	 * @return pair of the new calculated names (name,working copy name)
 	 */
-	private Pair<String, String> getNameForDuplicateWorkingCopyChild(String filename, NodeRef destNode, NodeRef existingFile, String workingCopyLabel) {
+	private Pair<String, String> getNameForDuplicateWorkingCopyChild(String filename, NodeRef destNode,
+			NodeRef existingFile, String workingCopyLabel) {
 		// Upload component was configured to find a new unique
 		// name for clashing filenames
 		int counter = 0;
@@ -1631,7 +1731,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Prepare parent by unlocking if needed and adding in model for later re lock.
+	 * Prepare parent by unlocking if needed and adding in model for later re
+	 * lock.
 	 * 
 	 * @param model
 	 *            the model
@@ -1643,7 +1744,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Prepare parent by unlocking if needed and adding in model for later re lock.
+	 * Prepare parent by unlocking if needed and adding in model for later re
+	 * lock.
 	 * 
 	 * @param model
 	 *            the model
@@ -1706,8 +1808,8 @@ public class AttachmentScript extends BaseFormScript {
 	 *            is the thumbnail mode to generate
 	 * @return the node ref updated
 	 */
-	private NodeRef updateExisting(final NodeRef updateNode, String filename, Content content, boolean majorVersion, String description,
-			ThumbnailGenerationMode thumbGenerationMode) {
+	private NodeRef updateExisting(final NodeRef updateNode, String filename, Content content, boolean majorVersion,
+			String description, ThumbnailGenerationMode thumbGenerationMode) {
 		/**
 		 * Update existing file specified in updateNodeRef
 		 */
@@ -1717,7 +1819,8 @@ public class AttachmentScript extends BaseFormScript {
 		}
 		if (cmfLockService.isLocked(existingNode)) {
 			// We cannot update a locked document
-			throw createStatus(404, "Cannot update locked document '" + existingNode + "', supply a reference to its working copy instead.");
+			throw createStatus(404, "Cannot update locked document '" + existingNode
+					+ "', supply a reference to its working copy instead.");
 		}
 
 		if (!nodeService.hasAspect(existingNode, ContentModel.ASPECT_WORKING_COPY)) {
@@ -1730,7 +1833,8 @@ public class AttachmentScript extends BaseFormScript {
 		}
 		String mimetypeDetected = serviceRegistry.getMimetypeService().guessMimetype(filename);
 		fixExtension(existingNode, filename);
-		ContentDataHelper data = new ContentDataHelper(existingNode, new ContentData(null, mimetypeDetected, 0L, UTF_8));
+		ContentDataHelper data = new ContentDataHelper(existingNode,
+				new ContentData(null, mimetypeDetected, 0L, UTF_8));
 		data.write(content);
 		data.guessMimetype(filename);
 		data.guessEncoding();
@@ -1740,7 +1844,7 @@ public class AttachmentScript extends BaseFormScript {
 		// ---------------------------------------------------
 		// Extract the metadata
 		// (The overwrite policy controls which if any parts of
-		// the document's properties are updated from this)
+		// the DOCUMENT's properties are updated from this)
 		extractMetadata(existingNode);
 		return existingNode;
 
@@ -1767,9 +1871,11 @@ public class AttachmentScript extends BaseFormScript {
 			}
 			// String updateExtensionName = name + newName.getSecond();
 			String afterCheckinName = name.substring(0, name.length() - (workingCopyLabel.length() + 1));
-			Pair<String, String> nameForDuplicateWorkingCopyChild = getNameForDuplicateWorkingCopyChild(afterCheckinName + "." + newName.getSecond(),
+			Pair<String, String> nameForDuplicateWorkingCopyChild = getNameForDuplicateWorkingCopyChild(
+					afterCheckinName + "." + newName.getSecond(),
 					nodeService.getPrimaryParent(existingNode).getParentRef(), existingNode, workingCopyLabel);
-			getNodeService().setProperty(existingNode, ContentModel.PROP_NAME, nameForDuplicateWorkingCopyChild.getSecond());
+			getNodeService().setProperty(existingNode, ContentModel.PROP_NAME,
+					nameForDuplicateWorkingCopyChild.getSecond());
 		}
 	}
 
@@ -1827,7 +1933,8 @@ public class AttachmentScript extends BaseFormScript {
 	 *            the description
 	 * @param updateNode
 	 *            the update node
-	 * @return the working copy node {@link org.alfresco.service.cmr.coci.CheckOutCheckInService}
+	 * @return the working copy node
+	 *         {@link org.alfresco.service.cmr.coci.CheckOutCheckInService}
 	 */
 	private NodeRef checkin(boolean majorVersion, String description, final NodeRef updateNode) {
 		// checkin--------------------------------------
@@ -1909,8 +2016,8 @@ public class AttachmentScript extends BaseFormScript {
 	}
 
 	/**
-	 * Gets the site service cached
-	 * 
+	 * Gets the site service cached.
+	 *
 	 * @return the site service instance
 	 */
 	private SiteService getSiteService() {

@@ -20,22 +20,20 @@ package com.sirma.itt.cmf.security.sso;
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 /**
  * Servlet implementation class SAML2ConsumerServlet.
  */
 public class SAML2ServiceLogin extends HttpServlet {
-
+	private static final Logger LOGGER = Logger.getLogger(SAML2ServiceLogin.class);
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -7143296520344698617L;
-
-	/** The servelet context. */
-	private ServletContext serveletContext;
 
 	/** The alfresco facade. */
 	private AlfrescoFacade alfrescoFacade;
@@ -56,9 +54,8 @@ public class SAML2ServiceLogin extends HttpServlet {
 	 */
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		serveletContext = config.getServletContext();
-		alfrescoFacade = new AlfrescoFacade(serveletContext);
-		ssoEnabled = WSO2SAMLClient.isSSOEnabled();
+		alfrescoFacade = new AlfrescoFacade(config.getServletContext());
+		ssoEnabled = SAMLSSOConfigurations.isSSOEnabled();
 	}
 
 	/**
@@ -103,7 +100,7 @@ public class SAML2ServiceLogin extends HttpServlet {
 				client = new WSO2SAMLClient(request);
 				client.doPost(request, response, alfrescoFacade);
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error("Failed to process SAML request!", e);
 			}
 		}
 	}

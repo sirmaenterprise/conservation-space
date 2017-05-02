@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="shortcut icon" href="images/favicon/favicon.png" type="image/x-icon"/>
+  <link rel="icon" href="images/favicon/favicon.png" type="image/x-icon"/>
+  <link rel="stylesheet" type="text/css" href="style/main.css"/>
+
+  <script src="jspm_packages/es6-module-loader.js"></script>
+  <script src="jspm_packages/system.js"></script>
+  <script src="config.js"></script>
+  <script src="common/lib/plugin-registry.js"></script>
+  <script src="plugins.js"></script>
+</head>
+<!--x-ms-format-detection="none" is used so Edge doesn't think random numbers are telephone numbers-->
+<body class="menu-on-top fixed-header" x-ms-format-detection="none">
+<script type="text/javascript">
+  System.config({
+    "paths": {
+      "*": "*.js"
+    }
+  });
+
+  // entrypoint
+
+  if (location.search && location.search.indexOf("debug") != -1) {
+    window.prod = false;
+    System.config({
+      bundles: undefined
+    });
+  }
+
+  System.import('main');
+</script>
+
+</body>
+</html>

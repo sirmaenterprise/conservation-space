@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<definition id="relationQueries" type="query">
+	<fields>
+	    <field name="copyRelationsFromOneInstanceToOther" type="an..200" displayType="system">
+            <value><![CDATA[insert {
+								graph <{dataGraph}> {
+									?newRelation a emf:Relation;
+										emf:source ?instance;
+										emf:destination {newDestination};
+										emf:relationType ?relationType;
+										emf:createdBy ?createdBy ;
+										emf:createdOn {startDate};
+										{endDate}
+										emf:isActive "true"^^xsd:boolean.
+									
+									?instance ?relationType {newDestination}.
+										
+									?newInverseRelation a emf:Relation;
+										emf:source {newDestination};
+										emf:destination ?instance;
+										emf:relationType ?inverseRelationType;
+										emf:createdBy ?createdBy ;
+										emf:createdOn {startDate};
+										{endDate}
+										emf:isActive "true"^^xsd:boolean;
+										emf:inverseRelation ?newRelation.
+								}
+							} where {
+								?relation a emf:Relation;
+									emf:source ?instance;
+									emf:destination {currentDestination};
+									emf:relationType ?relationType;
+									emf:isActive "true"^^xsd:boolean;
+									emf:inverseRelation ?inverseRelation;
+									emf:createdBy ?createdBy.
+								
+								optional{?relation emf:createdOn ?createdOn}.
+									
+								?inverseRelation emf:relationType ?inverseRelationType.
+									
+								bind(now() as ?currentTime).
+								bind(IRI(concat("http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#",(sha1(concat(str(?instance), str({newDestination}), str(?relationType)))))) as ?newRelation) .
+								bind(IRI(concat("http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#",(sha1(concat(str({newDestination}), str(?instance), str(?inverseRelationType)))))) as ?newInverseRelation) .
+						        OPTIONAL { ?relation emf:relationType emf:isRevisionOf. ?instance emf:isActive ?checkRelationType1 .}
+					         	FILTER (! BOUND(?checkRelationType1)) .
+							}]]>
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">60</control-param>
+				<control-param id="queryParam" name="currentDestination" />
+				<control-param id="queryParam" name="newDestination" />
+				<control-param id="queryParam" name="dataGraph"><![CDATA[http://ittruse.ittbg.com/data/enterpriseManagementFramework]]></control-param>
+				<control-param id="queryParam" name="startDate"><![CDATA[?createdOn]]></control-param>
+				<control-param id="queryParam" name="endDate"><![CDATA[emf:endDate ?currentTime;]]></control-param>
+			</control>
+        </field>
+	</fields>
+</definition>

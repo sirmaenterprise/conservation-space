@@ -1,0 +1,27 @@
+SELECT DISTINCT ?instance ?instanceType ?hasBody ?content ?createdBy ?createdOn ?modifiedBy ?modifiedOn ?replyTo ?status WHERE {
+	     {
+	    	?instance a oa:Annotation ;
+	             emf:instanceType ?instanceType ;
+	             emf:modifiedBy ?modifiedBy ;
+	             emf:modifiedOn ?modifiedOn ;
+	             emf:createdBy ?createdBy ;
+	             emf:createdOn ?createdOn ;
+	             emf:content ?content ;
+	             oa:hasBody ?hasBody ;
+	             emf:isDeleted "false"^^xsd:boolean ;
+            	 emf:replyTo ?replyTo;
+            	 emf:status ?status.
+	     } UNION {
+	    	?replyTo a oa:Annotation ;
+	             emf:instanceType ?instanceType ;
+	             emf:modifiedBy ?modifiedBy ;
+	             emf:modifiedOn ?modifiedOn ;
+	             emf:createdBy ?createdBy ;
+	             emf:createdOn ?createdOn ;
+	             emf:content ?content ;
+	             oa:hasBody ?hasBody ;
+	             emf:isDeleted "false"^^xsd:boolean;
+            	 emf:status ?status.
+	   	 BIND(?replyTo as ?instance).
+	     }
+	  }

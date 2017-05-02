@@ -56,7 +56,6 @@ public class StartWorkflowWizard extends ActivitiWizards {
 	/** The start task node. */
 	protected Node startTaskNode;
 
-
 	/** The item to workflow. */
 	private NodeRef itemToWorkflow;
 
@@ -104,7 +103,8 @@ public class StartWorkflowWizard extends ActivitiWizards {
 		}
 		QName type = getNodeService().getType(itemToWorkflow);
 		if (!getDictionaryService().isSubClass(type, ContentModel.TYPE_FOLDER)) {
-			throw new WebScriptException(404, "Object to attach to workflow is not the required type!");
+			throw new WebScriptException(404,
+					"Object to attach to workflow is not the required type!");
 		}
 		createModel();
 
@@ -121,19 +121,14 @@ public class StartWorkflowWizard extends ActivitiWizards {
 	 */
 	public Pair<WorkflowTask, WorkflowInstance> start(Map<QName, Serializable> properties)
 			throws Exception {
-		// TODO: Deal with workflows that don't require any data
 
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Starting workflow: " + selectedWorkflow);
-		}
+		debug("Starting workflow: ", selectedWorkflow);
 
 		// prepare the parameters from the current state of the property sheet
 		Map<QName, Serializable> params = WorkflowUtil.prepareTaskParams(startTaskNode);
 		// first set initial properties and then continue set them
 		params.putAll(properties);
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Starting workflow with parameters: " + params);
-		}
+		debug("Starting workflow with parameters: ", params);
 
 		// create a workflow package for the attached items and add them
 		NodeRef workflowPackage = getWorkflowService().createPackage(null);
@@ -157,9 +152,7 @@ public class StartWorkflowWizard extends ActivitiWizards {
 		}
 
 		params.putAll(properties);
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Workflow Params " + params);
-		}
+		debug("Workflow Params ", params);
 		WorkflowTask endedTask = null;
 		// start the workflow to get access to the start task
 		WorkflowPath path = getWorkflowService().startWorkflow(workflowDefinition.getId(), params);
@@ -178,9 +171,7 @@ public class StartWorkflowWizard extends ActivitiWizards {
 			List<WorkflowTask> tasks = getWorkflowService().getTasksForWorkflowPath(path.getId());
 			if (tasks.size() == 1) {
 				WorkflowTask startTask = tasks.get(0);
-				if (DEBUG_ENABLED) {
-					LOGGER.debug("Found start task:" + startTask);
-				}
+				debug("Found start task:", startTask);
 
 				endedTask = getWorkflowService().endTask(startTask.getId(), null);
 
@@ -194,9 +185,7 @@ public class StartWorkflowWizard extends ActivitiWizards {
 				getNodeService().removeAspect(workflowPackage, CMFModel.ASPECT_AUDITABLE);
 			}
 
-			if (DEBUG_ENABLED) {
-				LOGGER.debug("Started workflow: " + selectedWorkflow);
-			}
+			debug("Started workflow: ", selectedWorkflow);
 			return new Pair<WorkflowTask, WorkflowInstance>(endedTask, path.getInstance());
 		}
 		return null;
@@ -207,15 +196,11 @@ public class StartWorkflowWizard extends ActivitiWizards {
 	 */
 	public void createModel() {
 
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Selected workflow: " + selectedWorkflow);
-		}
+		debug("Selected workflow: ", selectedWorkflow);
 
 		WorkflowTaskDefinition taskDef = workflowDefinition.getStartTaskDefinition();
 		if (taskDef != null) {
-			if (DEBUG_ENABLED) {
-				LOGGER.debug("Start task definition: " + taskDef);
-			}
+			debug("Start task definition: ", taskDef);
 
 			// create an instance of a task from the data dictionary
 			startTaskNode = TransientNode.createNew(registry, taskDef.getMetadata(), "task_"

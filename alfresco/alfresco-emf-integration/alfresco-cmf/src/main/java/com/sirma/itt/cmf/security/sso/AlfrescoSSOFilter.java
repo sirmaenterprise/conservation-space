@@ -14,16 +14,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.web.app.servlet.AuthenticationHelper;
 import org.alfresco.web.app.servlet.AuthenticationStatus;
 import org.alfresco.web.app.servlet.BaseServlet;
 import org.alfresco.web.bean.repository.User;
+import org.apache.log4j.Logger;
 
 /**
  * The Class AlfrescoOpenSSOFilter.
  */
 public class AlfrescoSSOFilter implements Filter {
-
+	/** The logger. */
+	private static final Logger LOGGER = Logger.getLogger(AlfrescoSSOFilter.class);
+	private static final String ALFRESCO_SERVICE = "/alfresco/service/";
+	private static final String ALFRESCO_SERVICE_SHORT = "/alfresco/s/";
 	/** The alfresco facade. */
 	private AlfrescoFacade alfrescoFacade;
 
@@ -36,26 +41,28 @@ public class AlfrescoSSOFilter implements Filter {
 	/** is sso enabled?. */
 	private boolean ssoEnabled = true;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.Filter#destroy()
-	 */
 	@Override
 	public void destroy() {
+		// nothing
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-	 * javax.servlet.ServletResponse, javax.servlet.FilterChain)
-	 */
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+		String requestURI = httpRequest.getRequestURI();
+		if (requestURI.startsWith(ALFRESCO_SERVICE) || requestURI.startsWith(ALFRESCO_SERVICE_SHORT)) {
+			if (AuthenticationUtil.getRunAsUser() == null) {
+				chain.doFilter(httpRequest, httpResponse);
+				return;
+			} else {
+				AuthenticationUtil.clearCurrentSecurityContext();
+				chain.doFilter(httpRequest, httpResponse);
+				return;
+			}
+		}
 		if (ssoEnabled) {
 			HttpSession httpSession = httpRequest.getSession();
 			try {
@@ -74,21 +81,21 @@ public class AlfrescoSSOFilter implements Filter {
 						Object attribute = httpSession.getAttribute("_alfAuthTicket");
 						if (attribute instanceof User) {
 							String userName = ((User) attribute).getUserName();
-							getAlfrescoFacade().setAuthenticatedUser(httpRequest, httpResponse,
-									httpSession, userName, false);
+							getAlfrescoFacade().setAuthenticatedUser(httpRequest, httpResponse, httpSession, userName,
+									false);
 						}
 					}
 
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error("Failed to check authenticated user!", e);
 			}
 			chain.doFilter(httpRequest, httpResponse);
 		} else {
 			// allow the login page to proceed
 			if (!httpRequest.getRequestURI().endsWith("/alfresco/faces/jsp/login.jsp")) {
-				AuthenticationStatus status = AuthenticationHelper.authenticate(servletContext,
-						httpRequest, httpResponse, false);
+				AuthenticationStatus status = AuthenticationHelper.authenticate(servletContext, httpRequest,
+						httpResponse, false);
 
 				if (status == AuthenticationStatus.Success || status == AuthenticationStatus.Guest) {
 					// continue filter chaining
@@ -130,15 +137,10 @@ public class AlfrescoSSOFilter implements Filter {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
-	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 		this.servletContext = config.getServletContext();
-		ssoEnabled = WSO2SAMLClient.isSSOEnabled();
+		ssoEnabled = SAMLSSOConfigurations.isSSOEnabled();
 	}
 
 	/**

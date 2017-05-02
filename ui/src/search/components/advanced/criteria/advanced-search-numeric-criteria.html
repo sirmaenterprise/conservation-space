@@ -1,0 +1,26 @@
+<div class="advanced-search-numeric-criteria"
+     ng-switch on="advancedSearchNumericCriteria.criteria.operator">
+
+  <div class="numeric-single-input" ng-switch-default>
+    <input class="form-control"
+           placeholder="{{ 'search.numeric.placeholder' | translate }}"
+           ng-disabled="advancedSearchNumericCriteria.config.disabled"
+           ng-model="advancedSearchNumericCriteria.numberModel">
+  </div>
+
+  <div class="numeric-double-input" ng-switch-when="between">
+    <input class="form-control"
+           placeholder="{{ 'search.numeric.placeholder' | translate }}"
+           ng-disabled="advancedSearchNumericCriteria.config.disabled"
+           ng-model="advancedSearchNumericCriteria.numberModel[0]">
+    <input class="form-control"
+           placeholder="{{ 'search.numeric.placeholder' | translate }}"
+           ng-disabled="advancedSearchNumericCriteria.config.disabled"
+           ng-model="advancedSearchNumericCriteria.numberModel[1]">
+  </div>
+
+  <seip-advanced-search-boolean-criteria ng-switch-when="empty"
+                                         config="::advancedSearchNumericCriteria.config"
+                                         criteria="advancedSearchNumericCriteria.criteria">
+  </seip-advanced-search-boolean-criteria>
+</div>

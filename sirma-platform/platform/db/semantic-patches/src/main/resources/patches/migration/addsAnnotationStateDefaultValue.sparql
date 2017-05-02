@@ -1,0 +1,16 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+INSERT {
+    GRAPH<http://www.sirma.com/data/annotations> {
+        ?instance emf:status "OPEN".
+    }
+}WHERE{
+    GRAPH<http://www.sirma.com/data/annotations> {
+        ?instance a oa:Annotation.
+        optional {
+            ?instance emf:status ?status.
+            ?instance emf:isDeleted ?check.
+        }
+        FILTER(! BOUND(?check)).
+    }
+}

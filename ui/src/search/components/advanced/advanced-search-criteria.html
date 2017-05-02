@@ -1,0 +1,28 @@
+<div class="advanced-search-criteria">
+
+  <div class="criteria-group criteria-level-{{advancedSearchCriteria.criteriaLevel}}"
+       ng-if="::!advancedSearchCriteria.isRule()">
+    <seip-advanced-search-criteria-controls config="::advancedSearchCriteria.config"
+                                            criteria="::advancedSearchCriteria.criteria"
+                                            criteria-level="::advancedSearchCriteria.criteriaLevel">
+    </seip-advanced-search-criteria-controls>
+
+    <seip-advanced-search-criteria ng-repeat="criteria in advancedSearchCriteria.criteria.rules"
+                                   config="::advancedSearchCriteria.config"
+                                   context="::advancedSearchCriteria.context"
+                                   criteria="::criteria"
+                                   properties="::advancedSearchCriteria.properties"
+                                   criteria-level="::advancedSearchCriteria.getNextLevel()">
+    </seip-advanced-search-criteria>
+  </div>
+
+  <div class="criteria-level-{{advancedSearchCriteria.criteriaLevel-1}}"
+       ng-if="::advancedSearchCriteria.isRule()">
+    <seip-advanced-search-criteria-row config="::advancedSearchCriteria.config"
+                                       context="::advancedSearchCriteria.context"
+                                       criteria="::advancedSearchCriteria.criteria"
+                                       properties="::advancedSearchCriteria.properties">
+    </seip-advanced-search-criteria-row>
+  </div>
+
+</div>

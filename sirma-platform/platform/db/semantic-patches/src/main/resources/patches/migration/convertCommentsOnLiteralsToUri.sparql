@@ -1,0 +1,21 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+delete {
+    GRAPH <http://www.sirma.com/data/annotations> {
+        ?instance emf:commentsOn ?comment .
+    }
+}
+insert{
+    GRAPH <http://www.sirma.com/data/annotations> {
+        ?instance emf:commentsOn ?newCommentOn .
+    }
+}
+WHERE {
+    GRAPH <http://www.sirma.com/data/annotations> {
+        ?instance a oa:Annotation .
+        ?instance emf:commentsOn ?comment .
+        FILTER(isLiteral(?comment))
+        bind(URI(CONCAT("http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#", ENCODE_FOR_URI(?comment))) as ?newCommentOn).
+    }
+}

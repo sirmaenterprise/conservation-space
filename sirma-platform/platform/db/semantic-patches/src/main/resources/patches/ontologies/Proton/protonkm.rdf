@@ -1,0 +1,220 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE owl [ 
+    <!ENTITY rdf  'http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+    <!ENTITY rdfs 'http://www.w3.org/2000/01/rdf-schema#'>
+    <!ENTITY owl  'http://www.w3.org/2002/07/owl#' >
+    <!ENTITY xsd  'http://www.w3.org/2001/XMLSchema#' >
+    <!ENTITY psys  'http://proton.semanticweb.org/2006/05/protons#'>
+    <!ENTITY ptop  'http://proton.semanticweb.org/2006/05/protont#'>    
+    <!ENTITY pkm 'http://proton.semanticweb.org/2006/05/protonkm#'>
+]>
+ 
+<rdf:RDF 
+    xmlns:owl="&owl;"
+    xmlns:rdf="&rdf;"
+    xmlns:rdfs="&rdfs;"
+    xmlns:psys="&psys;"
+    xmlns:ptop="&ptop;"
+    xmlns:pkm="&pkm;"
+	xmlns ="&pkm;"
+>
+
+
+<owl:Ontology rdf:about="">
+  <rdfs:comment>PROTON Knowledge Management Ontology</rdfs:comment>
+  <!-- THESE IMPORTS NEED TO BE with NAMESPACES when D E P L O Y E D to a public web server -->
+
+  <owl:imports rdf:resource="protons.owl"/>
+  <owl:imports rdf:resource="protont.owl"/>
+  <owl:imports rdf:resource="protonu.owl"/>
+  
+  <owl:versionInfo>0.5</owl:versionInfo>
+</owl:Ontology>
+
+
+
+<owl:Class rdf:about="&pkm;SoftwareAgent"
+	 rdfs:label="Software Agent">
+	<rdfs:subClassOf rdf:resource="&ptop;Agent"/>
+	<rdfs:comment>An artificial agent which operates in a software environment.</rdfs:comment>
+</owl:Class>
+
+
+
+<owl:Class rdf:about="&pkm;User"
+	 rdfs:label="User">
+	<rdfs:subClassOf rdf:resource="&ptop;Agent"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;Profile"
+	 rdfs:label="Profile">
+	<rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;UserProfile"
+	 rdfs:label="User Profile">
+	<rdfs:subClassOf rdf:resource="&pkm;Profile"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;UserProfile"
+	 rdfs:label="User Profile">
+	<rdfs:subClassOf rdf:resource="&pkm;Profile"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;InformationSpace"
+	 rdfs:label="Information Space">
+	<rdfs:subClassOf rdf:resource="&ptop;Agent"/>
+</owl:Class>
+
+
+<owl:Class rdf:about="&pkm;InformationSpaceProfile"
+	 rdfs:label="Information Space Profile">
+	<rdfs:subClassOf rdf:resource="&pkm;Profile"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;Device"
+	 rdfs:label="Device">
+	<rdfs:subClassOf rdf:resource="&ptop;ProductModel"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;WeightedTerm"
+	 rdfs:label="WeightedTerm">
+	<rdfs:subClassOf rdf:resource="&psys;LexicalResource"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;Mention"
+	 rdfs:label="Mention">
+	<rdfs:subClassOf rdf:resource="&psys;LexicalResource"/>
+</owl:Class>
+
+<owl:Class rdf:about="&pkm;Section"
+             rdfs:label="Section">
+    <rdfs:comment xml:lang="en">
+		An area of a document that can be considered a document in itself.
+		Compare with protonkm:Mention, which is also an area of a document.
+		Imported from the iSIM ontology.
+	</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&ptop;InformationResource"/>
+</owl:Class>
+
+<owl:DatatypeProperty rdf:about="&pkm;hasStartOffset"
+	 rdfs:label="hasStartOffset">
+	<rdfs:domain rdf:resource="&pkm;Mention"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="&pkm;hasEndOffset"
+	 rdfs:label="hasEndOffset">
+	<rdfs:domain rdf:resource="&pkm;Mention"/>
+</owl:DatatypeProperty>
+
+<owl:DatatypeProperty rdf:about="&pkm;hasString"
+	 rdfs:label="hasString">
+	<rdfs:domain rdf:resource="&pkm;Mention"/>
+</owl:DatatypeProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;occursIn"
+	 rdfs:label="occursIn">
+	<rdfs:domain rdf:resource="&pkm;Mention"/>
+	<rdfs:range rdf:resource="&ptop;InformationResource"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;mentions"
+	 rdfs:label="mentions">
+	<rdfs:domain rdf:resource="&ptop;InformationResource"/>
+	<rdfs:range rdf:resource="&psys;Entity"/>
+	<rdfs:comment>
+		A direct link between an information resource, like a document or a section and an entity.
+	</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasSection"
+                      rdfs:label="has Section">
+    <rdfs:domain rdf:resource="&ptop;Document"/>
+    <rdfs:range rdf:resource="&pkm;Section"/>
+	<rdfs:comment>
+		Natural relation between documents and sections. Imported from the iSIM ontology.
+	</rdfs:comment>	
+</owl:ObjectProperty>
+  
+<owl:ObjectProperty rdf:about="&pkm;refersInstance"
+	 rdfs:label="refersInstance">
+	<rdfs:domain rdf:resource="&pkm;Mention"/>
+	<rdfs:range rdf:resource="&psys;Entity"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasUserProfile"
+	 rdfs:label="hasUserProfile">
+	<rdfs:comment>a relation between an User and its Profile</rdfs:comment>
+	<rdfs:domain rdf:resource="&pkm;User"/>
+	<rdfs:range rdf:resource="&pkm;UserProfile"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasISProfile"
+	 rdfs:label="hasISProfile">
+	<rdfs:comment>a relation between an Information Space and its Profile</rdfs:comment>
+	<rdfs:domain rdf:resource="&pkm;InformationSpace"/>
+	<rdfs:range rdf:resource="&pkm;InformationSpaceProfile"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasLocation"
+	 rdfs:label="hasLocation">
+	<rdfs:domain rdf:resource="&pkm;UserProfile"/>
+	<rdfs:range rdf:resource="&ptop;Location"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasDevice"
+	 rdfs:label="hasDevice">
+	<rdfs:domain rdf:resource="&pkm;UserProfile"/>
+	<rdfs:range rdf:resource="&pkm;Device"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasRole"
+	 rdfs:label="hasRole">
+	<rdfs:domain rdf:resource="&pkm;UserProfile"/>
+	<rdfs:range rdf:resource="&ptop;Role"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;isInterestedIn"
+	 rdfs:label="isInterestedIn">
+	<rdfs:domain rdf:resource="&pkm;UserProfile"/>
+	<rdfs:range rdf:resource="&ptop;Topic"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;isCurrentlyInterestedIn"
+	 rdfs:label="isCurrentlyInterestedIn">
+	<rdfs:domain rdf:resource="&pkm;UserProfile"/>
+	<rdfs:range rdf:resource="&ptop;Topic"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasWeightedTerm"
+	 rdfs:label="hasWeightedTerm">
+	<rdfs:domain rdf:resource="&ptop;Topic"/>
+	<rdfs:range rdf:resource="&pkm;WeightedTerm"/>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="&pkm;hasTerm"
+	 rdfs:label="hasTerm">
+	<rdfs:domain rdf:resource="&pkm;WeightedTerm"/>
+	<rdfs:range rdf:resource="&ptop;GeneralTerm"/>
+</owl:ObjectProperty>
+
+<owl:DatatypeProperty rdf:about="&pkm;hasWeight"
+	 rdfs:label="hasWeight">
+	<rdfs:domain rdf:resource="&pkm;WeightedTerm"/>
+</owl:DatatypeProperty>
+
+
+<owl:ObjectProperty rdf:about="&pkm;isInterestedIn"
+	 rdfs:label="isInterestedIn">
+	<rdfs:domain rdf:resource="&pkm;InformationSpaceProfile"/>
+	<rdfs:range rdf:resource="&ptop;Topic"/>
+</owl:ObjectProperty>
+
+
+<owl:DatatypeProperty rdf:about="&pkm;hasCapabilities"
+	 rdfs:label="hasCapabilities">
+	<rdfs:domain rdf:resource="&pkm;Device"/>
+</owl:DatatypeProperty>
+
+
+</rdf:RDF>

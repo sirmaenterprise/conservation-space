@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.alfresco.repo.dictionary.DictionaryDAO;
 import org.alfresco.repo.dictionary.M2Model;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.site.SiteInfo;
@@ -22,8 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.Content;
-import org.springframework.extensions.webscripts.Cache;
-import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.servlet.FormData;
@@ -44,23 +40,8 @@ public class AdministrationScript extends BaseFormScript {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.springframework.extensions.webscripts.DeclarativeWebScript#executeImpl
-	 * (org.springframework.extensions.webscripts.WebScriptRequest,
-	 * org.springframework.extensions.webscripts.Status,
-	 * org.springframework.extensions.webscripts.Cache)
-	 */
-	@Override
-	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
-		return executeInternal(req);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * com.sirma.itt.cmf.integration.webscript.BaseAlfrescoScript#executeInternal
+	 * @see com.sirma.itt.cmf.integration.webscript.BaseAlfrescoScript#
+	 * executeInternal
 	 * (org.springframework.extensions.webscripts.WebScriptRequest)
 	 */
 	@Override
@@ -72,8 +53,7 @@ public class AdministrationScript extends BaseFormScript {
 			try {
 				String content = req.getContent().getContent();
 				JSONObject request = new JSONObject(content);
-				Boolean all = request.has("all") ? Boolean.valueOf(request.getString("all"))
-						: Boolean.FALSE;
+				Boolean all = request.has("all") ? Boolean.valueOf(request.getString("all")) : Boolean.FALSE;
 
 				// if site/s are provided
 				if (request.has(KEY_SITES_IDS)) {
@@ -86,34 +66,26 @@ public class AdministrationScript extends BaseFormScript {
 							if (request.has("containers")) {
 								JSONArray jsonArray = request.getJSONArray("containers");
 								for (int i = 0; i < jsonArray.length(); i++) {
-									deleteContainer(currentUser, all, siteInfo,
-											jsonArray.getString(i));
+									deleteContainer(currentUser, all, siteInfo, jsonArray.getString(i));
 								}
 							}
 						}
 					}
 				} else // if node is provided
-				if (request.has(KEY_NODEID) || request.has(KEY_PARENT_NODEID)) {
-					try {
-						AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil
-								.getSystemUserName());
-						NodeRef nodeId = cmfService.getNodeRef(request.has(KEY_NODEID) ? request
-								.getString(KEY_NODEID) : request.getString(KEY_PARENT_NODEID));
-						if (nodeId != null) {
-							List<ChildAssociationRef> childAssocs = nodeService
-									.getChildAssocs(nodeId);
-							for (ChildAssociationRef childAssociationRef : childAssocs) {
-								final NodeRef childRef = childAssociationRef.getChildRef();
-								deleteNode(all, childRef);
-							}
-							// if node s provided - delete it as well.
-							// otherwise, all children
-							if (request.has(KEY_NODEID)) {
-								deleteNode(all, nodeId);
-							}
+					if (request.has(KEY_NODEID) || request.has(KEY_PARENT_NODEID)) {
+					NodeRef nodeId = cmfService.getNodeRef(request.has(KEY_NODEID) ? request.getString(KEY_NODEID)
+							: request.getString(KEY_PARENT_NODEID));
+					if (nodeId != null) {
+						List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(nodeId);
+						for (ChildAssociationRef childAssociationRef : childAssocs) {
+							final NodeRef childRef = childAssociationRef.getChildRef();
+							deleteNode(all, childRef);
 						}
-					} finally {
-						AuthenticationUtil.setFullyAuthenticatedUser(currentUser);
+						// if node s provided - delete it as well.
+						// otherwise, all children
+						if (request.has(KEY_NODEID)) {
+							deleteNode(all, nodeId);
+						}
 					}
 
 				}
@@ -160,24 +132,19 @@ public class AdministrationScript extends BaseFormScript {
 	 * @param container
 	 *            the container type qname
 	 */
-	private void deleteContainer(String currentUser, Boolean all, SiteInfo siteInfo,
-			String container) {
-		NodeRef cmfSpace = cmfService.getCMFSpace(
-				QName.resolveToQName(getNamespaceService(), container), siteInfo.getNodeRef());
+	private void deleteContainer(String currentUser, Boolean all, SiteInfo siteInfo, String container) {
+		NodeRef cmfSpace = cmfService.getCMFSpace(QName.resolveToQName(getNamespaceService(), container),
+				siteInfo.getNodeRef());
 		if (cmfSpace == null) {
 			return;
 		}
 		List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(cmfSpace);
 
-		try {
-			AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
-			for (ChildAssociationRef childAssociationRef : childAssocs) {
-				final NodeRef childRef = childAssociationRef.getChildRef();
-				deleteNode(all, childRef);
-			}
-		} finally {
-			AuthenticationUtil.setFullyAuthenticatedUser(currentUser);
+		for (ChildAssociationRef childAssociationRef : childAssocs) {
+			final NodeRef childRef = childAssociationRef.getChildRef();
+			deleteNode(all, childRef);
 		}
+
 	}
 
 	/**
@@ -193,14 +160,7 @@ public class AdministrationScript extends BaseFormScript {
 		if (all || "DELETED".equals(nodeService.getProperty(childRef, CMFModel.PROP_STATUS))) {
 			cmfLockService.unlockNode(childRef);
 
-			AuthenticationUtil.runAs(new RunAsWork<Void>() {
-
-				@Override
-				public Void doWork() throws Exception {
-					nodeService.deleteNode(childRef);
-					return null;
-				}
-			}, AuthenticationUtil.getSystemUserName());
+			nodeService.deleteNode(childRef);
 
 		}
 	}

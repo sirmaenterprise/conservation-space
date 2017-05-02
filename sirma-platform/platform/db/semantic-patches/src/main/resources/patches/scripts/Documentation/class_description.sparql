@@ -1,0 +1,23 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+
+
+select ?class ?description where {
+?class a owl:Class .
+?class rdfs:comment|skos:definition ?comment .
+?class rdfs:label ?label .
+bind(if(lang(?label) = '', "en", lang(?label)) as ?classLabelLang) .
+filter(contains(?classLabelLang, "en")) .
+
+filter ( contains(str(?class), ?ontology)) .
+
+bind(concat(
+    "h2. Class ", ?label, "\n",
+    "\n",
+    "Namespace: ", str(?class), "\n", 
+    "h4. Description", "\n", 
+    ?comment, "\n",
+    "\n") as ?description)
+} order by ?class

@@ -1,0 +1,31 @@
+<div class="advanced-search-date-criteria"
+     ng-switch on="advancedSearchDateCriteria.criteria.operator">
+
+  <seip-datetime-picker ng-switch-default
+                        config="::advancedSearchDateCriteria.singlePickerConfig"
+                        ng-model="advancedSearchDateCriteria.criteria.value"></seip-datetime-picker>
+
+  <seip-datetime-picker ng-switch-when="is"
+                        config="::advancedSearchDateCriteria.singleDayRangePicker"></seip-datetime-picker>
+
+  <div class="date-range" ng-switch-when="between">
+    <seip-datetime-picker class="date-from"
+                          config="::advancedSearchDateCriteria.linkedPickersConfig.from"
+                          ng-model="advancedSearchDateCriteria.criteria.value[0]"></seip-datetime-picker>
+
+    <seip-datetime-picker class="date-to"
+                          config="::advancedSearchDateCriteria.linkedPickersConfig.to"
+                          ng-model="advancedSearchDateCriteria.criteria.value[1]"></seip-datetime-picker>
+  </div>
+
+  <dynamic-date-range ng-switch-when="within"
+                      config="advancedSearchDateCriteria.config"
+                      date-step="advancedSearchDateCriteria.criteria.value[0]"
+                      date-offset="advancedSearchDateCriteria.criteria.value[1]"
+                      date-offset-type="advancedSearchDateCriteria.criteria.value[2]"></dynamic-date-range>
+
+  <seip-advanced-search-boolean-criteria ng-switch-when="empty"
+                                         config="::advancedSearchDateCriteria.config"
+                                         criteria="advancedSearchDateCriteria.criteria">
+  </seip-advanced-search-boolean-criteria>
+</div>

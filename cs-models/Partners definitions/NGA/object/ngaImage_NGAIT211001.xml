@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<definition id="NGAIT211001" parentId="ngaImage" type="object"> <!-- Published Image-->
+	<fields>
+		<!-- headers and tooltip-->
+		<field name="default_header" type="ANY" label="NGAIT211001_DEFAULT_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="compact_header" type="an..4096" label="NGAIT211001_COMPACT_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="breadcrumb_header" type="an..4096" label="NGAIT211001_BREADCRUMB_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		
+		<field name="type" type="an..50" codelist="CL211">
+			<value>NGAIT211001</value>
+		</field>
+		<field name="widthOfSubject" type="n..10,5" label="widthOfSubject" displayType="system" uri="emf:widthOfSubject" />
+		<field name="heightOfSubject" type="n..10,5" label="heightOfSubject" displayType="system" uri="emf:heightOfSubject" />
+			
+	</fields>
+	<regions>
+		<region id="ngaPublishImage" order="1" displayType="editable" label="NGAMT210001.ngaPublishImage.region.label">
+			<fields>
+				<field name="viewType" type="an..180" label="NGAIT211001.viewType.label" tooltip="NGAIT211001.viewType.tooltip" displayType="editable" mandatory="true"  codelist="CL337" uri="nga:viewType" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>	
+				<field name="widthOfSubject" type="n..10,3" label="ngaImage.widthOfSubject.label" tooltip="ngaImage.widthOfSubject.tooltip" displayType="editable" uri="emf:widthOfSubject" > 
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('false')</condition>
+				</field>
+				<field name="heightOfSubject" type="n..10,3" displayType="editable" label="ngaImage.heightOfSubject.label" tooltip="ngaImage.heightOfSubject.tooltip" uri="emf:heightOfSubject">
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+					<condition id="mandatoryField1" renderAs="MANDATORY">[integrated] IN ('false')</condition>
+				</field>	
+			</fields>
+		</region>
+	</regions>	
+	
+	<labels>	
+		<label id="NGAIT211001_DEFAULT_HEADER_NGA">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])}==false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+				<span>
+					<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>,&nbsp;
+					<span data-property="type">${CL([type])}</span>&nbsp;-&nbsp;
+					<span data-property="viewType">${CL([viewType])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+				</span><br />
+				${if(${get([status])}<>FOR_IMP).then(
+					<span class="truncate-element">
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])}==true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])}==true).then(<span>(Deleted)</span> )}		
+							${if(${get([integrated])}<>false).then(<span data-property="title">${get([title])}</span>)}
+							${if(${get([integrated])}<>false).then(${if(${get([title])}<>null).then(&nbsp;/&nbsp;)})}
+							${if(${get([integrated])}<>true).then(${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)})}
+							<span data-property="name">${get([name])}</span>&nbsp;
+						</a>
+					</span>
+					).else(			
+						${if(${get([title])}<>null).then(<span data-property="title">${get([title])}</span>)}
+						${if(${get([title])}<>null).then(&nbsp;/&nbsp;)}
+						<span data-property="name">${get([name])}</span>&nbsp;
+					)}
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					${if(${get([chc:depicts])}<>null).then(<br />Depics:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
+					${if(${get([emf:isPrimaryImageOf])}<>null).then(<br />Primary&nbsp;image&nbsp;of:<span data-property="emf:isPrimaryImageOf">${objectProperty(${get([emf:isPrimaryImageOf])})}</span>)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>	
+			</span>)}]]></value>
+		</label>
+		
+		<label id="NGAIT211001_COMPACT_HEADER_NGA">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<span class="truncate-element">
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="name">${get([name])}</span>
+				</a>
+				</span>
+				${if(${get([viewType])}<>null).then(&nbsp;<span data-property="viewType">${CL([viewType])}</span>)}
+				${if(${var.isVersion}).then(
+					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+				)}
+				</span>
+			</span>)}]]></value>
+		</label>
+		
+		<label id="NGAIT211001_BREADCRUMB_HEADER_NGA">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<span class="truncate-element">
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="name">${get([name])}</span>
+				</a>
+				</span>
+			</span>)}]]></value>
+		</label>
+	</labels>
+</definition>

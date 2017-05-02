@@ -1,0 +1,21 @@
+<div class="table-view">
+  <div class="table-header">
+    <div ng-repeat="header in tableView.headers" class="header-cell" data-header-cell-name="{{::header.name}}"
+         ng-style="::{ 'width': tableView.config.styles.columns[header.name].width }">
+      <div class="title-cell">
+        <span><b>{{ ::tableView.getColumnHeaderLabel(header) }}</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-body">
+    <seip-form-wrapper ng-repeat="row in tableView.formConfig" config="tableView.config"
+                       form-config="row"></seip-form-wrapper>
+  </div>
+
+  <div class="table-footer" ng-if="tableView.formConfig.length > 0 && tableView.config.showFooter">
+      <span class="results-count">
+          {{::'widget.aggregated.table.total' | translate}} <em>{{tableView.total}}</em>
+      </span>
+  </div>
+</div>

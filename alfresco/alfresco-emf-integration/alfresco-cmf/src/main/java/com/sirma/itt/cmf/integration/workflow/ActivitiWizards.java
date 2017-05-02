@@ -23,8 +23,8 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Pair;
 import org.alfresco.web.bean.repository.Repository;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import com.sirma.itt.cmf.integration.model.CMFModel;
 import com.sirma.itt.cmf.integration.service.CMFService;
@@ -35,12 +35,12 @@ import com.sirma.itt.cmf.integration.service.CMFService;
 public class ActivitiWizards {
 
 	/** The Constant LOGGER. */
-	protected static final Log LOGGER = LogFactory.getLog(ActivitiWizards.class);
+	private static final Logger LOGGER = Logger.getLogger(ActivitiWizards.class);
 
 	/** The Constant DEBUG_ENABLED. */
 	protected static final boolean DEBUG_ENABLED = LOGGER.isDebugEnabled();
 
-	/** is initialized? */
+	/** is initialized?. */
 	private static Boolean initialized;
 
 	/** The workflow report service. */
@@ -61,10 +61,13 @@ public class ActivitiWizards {
 	/** The activiti workflow manager. */
 	private static ActivitiWorkflowManager activitiWorkflowManager;
 
+	/** The person service. */
 	private static PersonService personService;
 
+	/** The service registry. */
 	private static ServiceRegistry serviceRegistry;
 
+	/** The workflow service. */
 	private WorkflowService workflowService;
 
 	/** The unprotected node service. */
@@ -72,6 +75,7 @@ public class ActivitiWizards {
 	/** The registry. */
 	protected ServiceRegistry registry;
 
+	/** The case service. */
 	protected CMFService caseService;
 
 	/**
@@ -118,7 +122,7 @@ public class ActivitiWizards {
 				serviceRegistry = registry;
 				initialized = Boolean.TRUE;
 			} catch (Exception e) {
-				LOGGER.error(e);
+				LOGGER.error("Error during beans initialize!", e);
 				initialized = Boolean.FALSE;
 			}
 		}
@@ -139,8 +143,7 @@ public class ActivitiWizards {
 				setActivitiUtil((ActivitiUtil) declaredField.get(workflowEngine));
 				declaredField.setAccessible(false);
 			} catch (Exception e) {
-				LOGGER.error("Changed API! Please Check ActivitiWorkflowEngine class");
-				e.printStackTrace();
+				LOGGER.error("Changed API! Please Check ActivitiWorkflowEngine class", e);
 			}
 		}
 		return activitiUtil;
@@ -171,8 +174,7 @@ public class ActivitiWizards {
 				setTypeConverter((ActivitiTypeConverter) declaredField.get(workflowEngine));
 				declaredField.setAccessible(false);
 			} catch (Exception e) {
-				LOGGER.error("Changed API! Please Check ActivitiWorkflowEngine class");
-				e.printStackTrace();
+				LOGGER.error("Changed API! Please Check ActivitiWorkflowEngine class", e);
 			}
 		}
 		return typeConverter;
@@ -225,8 +227,7 @@ public class ActivitiWizards {
 				setObjectFactory((WorkflowObjectFactory) declaredField.get(workflowEngine));
 				declaredField.setAccessible(false);
 			} catch (Exception e) {
-				LOGGER.error("Changed API! Please Check ActivitiWorkflowEngine class");
-				e.printStackTrace();
+				LOGGER.error("Changed API! Please Check ActivitiWorkflowEngine class", e);
 			}
 		}
 		return objectFactory;
@@ -270,7 +271,7 @@ public class ActivitiWizards {
 	}
 
 	/**
-	 * Gets the service registry of alfresco
+	 * Gets the service registry of alfresco.
 	 *
 	 * @return the service registry
 	 */
@@ -350,5 +351,56 @@ public class ActivitiWizards {
 			}
 		}
 		return new Pair<List<String>, List<String>>(userAssignees, groupAssignees);
+	}
+
+	/**
+	 * Log using arbitrary provided logger.
+	 *
+	 * @param level
+	 *            is the log level
+	 * @param error
+	 *            the exception to log
+	 * @param message
+	 *            the messages to print as message
+	 */
+	protected void log(Level level, Throwable error, Object... message) {
+		if (getLogger().isEnabledFor(level)) {
+			StringBuilder builder = new StringBuilder();
+			for (Object string : message) {
+				builder.append(string);
+			}
+			if (error != null) {
+				getLogger().log(level, builder.toString(), error);
+			} else {
+				getLogger().log(level, builder.toString());
+			}
+		}
+	}
+	
+	protected void debug(Object... message) {
+		if (DEBUG_ENABLED) {
+			log(Level.DEBUG, message);
+		}
+	}
+
+	/**
+	 * Gets the logger.
+	 *
+	 * @return the logger
+	 */
+	private Logger getLogger() {
+		return LOGGER;
+	}
+
+	/**
+	 * Log using arbitrary provided logger.
+	 *
+	 * @param level
+	 *            is the log level
+	 * @param message
+	 *            the messages to print as message
+	 */
+	protected void log(Level level, Object... message) {
+		log(level, null, message);
 	}
 }

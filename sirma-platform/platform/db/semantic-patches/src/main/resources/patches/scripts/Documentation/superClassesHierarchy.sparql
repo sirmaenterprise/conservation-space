@@ -1,0 +1,13 @@
+select ?class (group_concat(distinct ?data ; separator = "\n ") AS ?superClassesHierarchy)
+	{
+		?class rdfs:subClassOf ?class1 .
+		?class1 rdfs:label ?label .
+		bind(if(lang(?label) = '', "en", lang(?label)) as ?class1LabelLang) .
+		filter(contains(?class1LabelLang, "en")) .
+		?class rdfs:label ?classLabel .
+		bind(if(lang(?classLabel) = '', "en", lang(?classLabel)) as ?classLabelLang) .
+		filter(contains(?classLabelLang, "en")) .
+		bind(concat("\"", ?label, "\" <|-- \"", ?classLabel, "\"") as ?data) .
+		filter (?class != ?class1)
+	}
+	group by ?class

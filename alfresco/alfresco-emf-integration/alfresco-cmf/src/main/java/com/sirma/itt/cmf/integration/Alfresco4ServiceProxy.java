@@ -145,6 +145,7 @@ public class Alfresco4ServiceProxy implements ServiceProxy {
 	 * 
 	 * @return the serviceRegistry
 	 */
+	@Override
 	public ServiceRegistry getServiceRegistry() {
 		return serviceRegistry;
 	}
@@ -155,6 +156,7 @@ public class Alfresco4ServiceProxy implements ServiceProxy {
 	 * @param serviceRegistry
 	 *            the serviceRegistry to set
 	 */
+	@Override
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
@@ -181,7 +183,7 @@ public class Alfresco4ServiceProxy implements ServiceProxy {
 				// remove obsolete
 				getNodeService().removeChildAssociation(childAssocs.get(0));
 			}
-		} else if (childAssocs.size() > 0) {
+		} else {
 			// remove the obsolete data.
 			for (ChildAssociationRef childAssociationRef : childAssocs) {
 				getNodeService().removeChildAssociation(childAssociationRef);

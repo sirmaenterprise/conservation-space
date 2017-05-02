@@ -1,0 +1,64 @@
+<project name="Build alfresco and alfresco" default="build" basedir=".">
+
+	<!-- init alfresco.dir if the current build.xml is called standalone -->
+	<property name="alfresco.dir" value="${basedir}/alfresco" />
+
+	<!-- init alfresco buiild properties -->
+	<property name="alfresco.build.dir" value="${alfresco.dir}/ant/build" />
+	<property name="alfresco.build.lib" value="${alfresco.dir}/ant/lib" />
+	<property name="alfresco.dist.dir" value="${alfresco.dir}/ant/dist" />
+	<property name="base.version" value="4" />
+	<property name="patch.src.dir" value="${alfresco.dir}/src/alfresco" />
+	<!-- clean up dirs -->
+	<target name="prepare">
+		<delete dir="${alfresco.build.dir}" />
+		<delete dir="${alfresco.dist.dir}" />
+		<delete dir="${alfresco.dir}/alfresco" />
+
+		<mkdir dir="${alfresco.build.dir}" />
+		<mkdir dir="${alfresco.dist.dir}" />
+		<mkdir dir="${alfresco.dir}/alfresco" />
+	</target>
+
+	<target name="build" depends="prepare">
+
+		<unzip src="${alfresco.war.path}" dest="${alfresco.dir}\alfresco" />
+		<copy todir="${alfresco.dir}\alfresco">
+			<fileset dir="${alfresco.dir}/web/alfresco${base.version}">
+			</fileset>
+		</copy>
+		<path id="class.path">
+			<fileset dir="${alfresco.dir}/WebContent/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${alfresco.dir}/alfresco/WEB-INF/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${alfresco.dir}/ant/lib">
+				<include name="**/*.jar" />
+			</fileset>
+			<!--  also include our class files -->
+			<fileset dir="${alfresco.dir}/alfresco/WEB-INF/classes">
+				<include name="**/*.class" />
+			</fileset>
+		</path>
+		<javac classpathref="class.path" srcdir="${patch.src.dir}" destdir="${alfresco.dir}/alfresco/WEB-INF/classes">
+		</javac>
+		<copy todir="${alfresco.dir}/alfresco/WEB-INF/classes">
+			<fileset dir="${patch.src.dir}">
+				<include name="**/*.TTF" />
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+		<zip destfile="${alfresco.dist.dir}/alfresco.war">
+			<fileset dir="${alfresco.dir}\alfresco">
+			</fileset>
+		</zip>
+		<copy file="${alfresco.war.path}" tofile="${alfresco.dist.dir}/alfresco.war">
+		</copy>
+		<ant antfile="${alfresco.dir}/ant/ampAlfresco${base.version}.xml" target="update-war">
+			<property name="war.file" value="${alfresco.dist.dir}/alfresco.war" />
+		</ant>
+	</target>
+
+</project>

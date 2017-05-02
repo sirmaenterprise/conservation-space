@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<definition id="groupDefinition" parentId="groupDefinitionBase" type="group">
+	<fields>
+		<field name="default_header" type="ANY" label="GROUP_DEFAULT_HEADER_CIA" />
+        <field name="compact_header" type="an..4096" label="GROUP_COMPACT_HEADER_CIA" />
+        <field name="breadcrumb_header" type="an..4096" label="GROUP_BREADCRUMB_HEADER_CIA" />
+        <field name="tooltip_header" type="an..4096" label="GROUP_TOOLTIP_HEADER_CIA" />
+
+		<!-- all properties from the generic definition will be organized in regions --> 
+ 		<field name="identifier" type="an..180" displayType="system" />
+		<field name="type" type="an..180" displayType="system" />
+		<field name="title" type="an..150" displayType="system" />
+		<field name="email" type="an..35" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" /> 
+		
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri"  displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+	</fields>
+	<regions>
+		<region id="groupDetails" order="10" displayType="editable" label="cia.groupDetails.region.label" >
+			<fields>
+				<field name="title" 		type="an..100" order="100" displayType="readonly" label="cia.title.label" tooltip="cia.title.tooltip" uri="dcterms:title"  />
+				<field name="email" 		type="an..35" 	order="105" label="cia.email.label" tooltip="cia.email.tooltip" displayType="editable" uri="emf:email" />
+			</fields>	
+		</region>
+		<region id="systemData" order="20" displayType="editable" label="cia.systemData.region.label">
+			<fields>
+				<field name="type" type="an..20" label="cia.type.label" tooltip="cia.type.tooltip" codelist="CL3" displayType="hidden" order="200" uri="emf:type" dmsType="FORBIDDEN">
+					<value>FC236013</value>
+				</field>
+				<field name="emf:version" type="an..10" order="201" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/> 	  
+				<field name="hasMember" type="uri" displayType="readOnly" order="205" label="cia.hasMember.label" tooltip="cia.isMemberOf.tooltip" multiValued="true" previewEmpty="false" dmsType="FORBIDDEN" uri="ptop:hasMember" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<!--<field name="isSupervisorOf" type="uri" displayType="readOnly" order="210" label="cia.isSupervisorOf.label" tooltip="cia.isSupervisorOf.tooltip" multiValued="true" previewEmpty="false" dmsType="FORBIDDEN" uri="chc:isSupervisorOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,cia:Survey,emf:Task</control-param>
+					</control>
+				</field>
+				<field name="involvedIn" type="uri" displayType="readOnly" order="215" label="cia.involvedIn.label" tooltip="cia.involvedIn.tooltip" multiValued="true" previewEmpty="false" dmsType="FORBIDDEN" uri="ptop:involvedIn" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,cia:Survey,emf:Task</control-param>
+					</control>
+				</field>-->
+				<field name="parentOf" type="uri"  displayType="readOnly" order="240"  label="cia.parentOf.label" tooltip="cia.parentOf.tooltip" multiValued="true" previewEmpty="false" dmsType="FORBIDDEN" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey</control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" order="250" label="cia.hasChild.label" tooltip="cia.hasChild.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" label="cia.partOf.label" tooltip="cia.partOf.tooltip" mandatory="false" displayType="readOnly" order="245" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+
+    <transitions>
+		<transition id="editDetails" order="10" />
+		<transition id="print" label="print.label" tooltip="print.tooltip" order="20" eventId="print" purpose="print" />
+		<transition id="printTab" label="printTab.label" tooltip="printTab.tooltip" order="21" eventId="printTab" purpose="printTab" />
+		<transition id="exportPDF" label="exportPDF.label" tooltip="exportPDF.tooltip" order="22" eventId="exportPDF" purpose="exportPDF" />
+		<transition id="exportTabPDF" label="exportTabPDF.label" tooltip="exportTabPDF.tooltip" order="23" eventId="exportTabPDF" purpose="exportTabPDF" />
+		<transition id="exportWord" label="exportWord.label" order="24" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" />
+		<transition id="exportTabWord" label="exportTabWord.label" order="25" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" />
+		<transition id="lock" order="35" />
+		<transition id="unlock" order="40" />
+		<transition id="addThumbnail" order="50" />
+		<transition id="saveAsTemplate" order="55" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="*" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
+
+		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="print" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE" />		
+		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE"/>		           
+        <stateTransition from="ACTIVE" transition="exportPDF" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="exportWord" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>		           
+        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE"/>
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="addUser" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="removeUser" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="delete" to="INACTIVE" />
+
+		<stateTransition from="*" transition="delete" to="INACTIVE" />
+	</stateTransitions>
+	<labels>
+		<label id="GROUP_TOOLTIP_HEADER_CIA">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					${if(${get([email])}<>null).then(
+						<span class="tooltip-row">
+							<label>Email: </label>
+							<span data-property="email">${get([email])}</span>
+						</span>
+					)}
+				</span>
+			)})}]]></value>
+		</label>
+        <label id="GROUP_DEFAULT_HEADER_CIA">
+            <value lang="en"><![CDATA[${eval(
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+              <span><img src="${thumbnailUri(64)}"/></span>
+                <span>
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+							<span data-property="title">${get([title])}</span>
+						</a>
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}
+					</span>
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]>
+			</value>
+        </label>
+        <label id="GROUP_COMPACT_HEADER_CIA">
+            <value lang="en"><![CDATA[${eval(
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span><img src="${thumbnailUri(16)}"/></span>
+                <span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+							<span data-property="title">${get([title])}</span>
+						</a>
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}
+					</span>
+					<br />
+				</span>)}]]>
+			</value>
+        </label>
+        <label id="GROUP_BREADCRUMB_HEADER_CIA">
+            <value lang="en"><![CDATA[${eval(
+                <span><img src="${thumbnailUri(16)}"/></span>
+                <span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>)}]]>
+			</value>
+        </label>
+	</labels>
+</definition>

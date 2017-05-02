@@ -25,6 +25,8 @@ import javax.servlet.ServletConfig;
  * The Class Util.
  */
 public class Util {
+	private Util() {
+	}
 
 	/**
 	 * Generates a unique Id for Authentication Requests.
@@ -35,10 +37,10 @@ public class Util {
 
 		byte[] bytes = new byte[20]; // 160 bit
 
-		new Random().nextBytes(bytes);
-
-		char[] charMapping = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-				'n', 'o', 'p' };
+		Random random = new Random();
+		random.nextBytes(bytes);
+		
+		char[] charMapping = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p' };
 
 		char[] chars = new char[40];
 
@@ -48,6 +50,8 @@ public class Util {
 			chars[i * 2] = charMapping[left];
 			chars[i * 2 + 1] = charMapping[right];
 		}
+		random = null;
+		bytes = null;
 
 		return String.valueOf(chars);
 	}

@@ -1,0 +1,80 @@
+<roles>
+    <role name="COLLABORATOR" priority="15">
+        <include>collaborator_external</include>
+		<include>collaborator_annotation</include>
+    </role>
+    <role name="collaborator_external" external="false">
+        <permission name="create">
+            <actions>
+				<action name="import" />
+				<action name="updateInt" />
+            </actions>
+        </permission>
+        <permission name="edit">
+            <actions>
+                <action name="editDetails" />
+			</actions>
+        </permission>
+		<permission name="common_action">
+		     <actions>
+                <action name="uploadNewVersion" />
+                <action name="move" />
+				<action name="clone" />
+            </actions>
+        </permission>
+        <permission name="transition">
+            <actions>
+				<action name="achive" />
+				<action name="start" />     
+        		<action name="suspend" />	
+        		<action name="restart" />	
+				<action name="reopen" />				
+				<action name="stop" />
+				<action name="complete" />
+				<action name="revoke" />
+				<action name="approve" />
+				<action name="publish" >
+					<filter value="IS_UPLOADED" />
+				</action>
+				<action name="publishAsPdf" >
+					<filter value="IS_CREATED" />
+				</action>
+				<action name="revertVersion_collaborator" local="true" bind="revertVersion">
+                    <filter value="CREATEDBY" />
+                </action>
+            </actions>
+        </permission>
+        <permission name="custom_action">
+            <actions>
+                <action name="addPrimaryImage" />
+                <action name="addDepiction" />
+                <action name="addAttachment" />				
+				<action name="addThumbnail" />
+				<action name="reassign" />
+            </actions>
+        </permission>
+        <permission name="lock">
+            <actions>
+				<action name="lock" />
+                <action name="unlock" />
+            </actions>
+        </permission>
+    </role>
+	<permission name="delete">
+            <actions>
+                <action name="delete_collaborator" local="true" bind="delete">
+                    <filter value="CREATEDBY" />
+                </action>
+            </actions>
+        </permission>
+	 <role name="collaborator_annotation" external="false">
+		<permission name="transition">
+			<actions applyTo="annotation">
+				<action name="editComment"/>
+				<action name="deleteComment" />
+				<action name="suspendComment" />
+				<action name="restartComment" />			
+			</actions>
+		</permission>
+	</role>
+</roles>

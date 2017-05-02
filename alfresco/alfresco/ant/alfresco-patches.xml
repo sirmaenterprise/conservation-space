@@ -1,0 +1,129 @@
+<project name="Alfresco Install" default="patch" basedir="/">
+
+	<property name="alfresco.version" value="${alfresco.version}" />
+	
+	<target name="patch" description="Patches alfresco original jars">
+		<!-- 
+		<!- -  module DataModel - - >
+		<mkdir dir="${alfresco.build.dir}/alfresco-data-model" />
+		<!- -  Unzip - - >
+		<unzip dest="${alfresco.build.dir}/alfresco-data-model" src="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-data-model-${alfresco.version}.jar" />
+		<!- -  Compile and apply patch - - >
+		<javac srcdir="${alfresco.dir}/dm/src" destdir="${alfresco.build.dir}/alfresco-data-model" debug="on" encoding="UTF-8" nowarn="yes">
+			<classpath>
+				<path>
+					<fileset dir="${alfresco.dir}/ant/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.dir}/WebContent/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.build.dir}/alfresco/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+				</path>
+			</classpath>
+		</javac>
+		<!- -  zip new jar and override the existing - - >
+		<zip destfile="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-data-model-${alfresco.version}.jar">
+			<zipfileset dir="${alfresco.build.dir}/alfresco-data-model" />
+			<fileset dir="${alfresco.dir}/dm/src">
+				<include name="**/*.properties" />
+			</fileset>
+		</zip>
+		<delete dir="${alfresco.build.dir}/alfresco-data-model" />
+-->
+
+
+		<!--  alfresco repository -->
+		<mkdir dir="${alfresco.build.dir}/alfresco-repository" />
+		<!--  Unzip -->
+		<unzip dest="${alfresco.build.dir}/alfresco-repository" src="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-repository-${alfresco.version}.jar" />
+		<!--  Compile and apply patch -->
+		<javac srcdir="${alfresco.dir}/repo/src" destdir="${alfresco.build.dir}/alfresco-repository" debug="on" encoding="UTF-8" nowarn="yes">
+			<classpath>
+				<path>
+					<fileset dir="${alfresco.dir}/ant/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.dir}/WebContent/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.build.dir}/alfresco/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<!--  also include our class files -->
+					<fileset dir="${alfresco.build.dir}/alfresco/WEB-INF/classes">
+						<include name="**/*.class" />
+					</fileset>
+
+				</path>
+			</classpath>
+		</javac>
+
+		<!--  zip new jar and override the existing -->
+		<zip destfile="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-repository-${alfresco.version}.jar">
+			<zipfileset dir="${alfresco.build.dir}/alfresco-repository" />
+			<fileset dir="${alfresco.dir}/repo/src">
+				<include name="**/*.xml" />
+				<include name="**/*.txt" />
+			</fileset>
+		</zip>
+
+		<delete dir="${alfresco.build.dir}/alfresco-repository" />
+		<!--
+
+		<!- -  module dod5015 - - >
+		<mkdir dir="${alfresco.build.dir}/alfresco-dod5015" />
+		<!- -  Unzip - - >
+		<unzip dest="${alfresco.build.dir}/alfresco-dod5015" src="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-dod5015-${alfresco.version}.jar" />
+		<!- -  Compile and apply patch - - >
+		<javac srcdir="${alfresco.dir}/dod5015/src" destdir="${alfresco.build.dir}/alfresco-dod5015" debug="on" encoding="UTF-8" nowarn="yes">
+			<classpath>
+				<path>
+					<fileset dir="${alfresco.dir}/WebContent/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.build.dir}/alfresco/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.dir}/ant/lib">
+						<include name="**/*.jar" />
+					</fileset>
+				</path>
+			</classpath>
+		</javac>
+		<!- -  zip new jar and override the existing - - >
+		<zip destfile="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-dod5015-${alfresco.version}.jar">
+			<zipfileset dir="${alfresco.build.dir}/alfresco-dod5015" />
+		</zip>
+		<delete dir="${alfresco.build.dir}/alfresco-dod5015" />
+
+		<!- -  module Remote API - - >
+		<mkdir dir="${alfresco.build.dir}/alfresco-remote-api" />
+		<!- -  Unzip - - >
+		<unzip dest="${alfresco.build.dir}/alfresco-remote-api" src="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-remote-api-${alfresco.version}.jar" />
+		<!- -  Compile and apply patch - - >
+		<javac srcdir="${alfresco.dir}/remote_api/src" destdir="${alfresco.build.dir}/alfresco-remote-api" debug="on" encoding="UTF-8" nowarn="yes">
+			<classpath>
+				<path>
+					<fileset dir="${alfresco.build.dir}/alfresco/WEB-INF/lib">
+						<include name="**/*.jar" />
+					</fileset>
+					<fileset dir="${alfresco.dir}/ant/lib">
+						<include name="**/*.jar" />
+					</fileset>
+				</path>
+			</classpath>
+		</javac>
+		<!- -  zip new jar and override the existing - - >
+		<zip destfile="${alfresco.build.dir}/alfresco/WEB-INF/lib/alfresco-remote-api-${alfresco.version}.jar">
+			<zipfileset dir="${alfresco.build.dir}/alfresco-remote-api" />
+		</zip>
+		<delete dir="${alfresco.build.dir}/alfresco-remote-api" />
+
+		<!- -  replace repository.properties - - >
+		<copy file="${parent.dir}/config/alfresco/repository.properties" todir="${alfresco.build.dir}/alfresco/WEB-INF/classes/alfresco" overwrite="true" />
+	-->
+	</target>
+</project>

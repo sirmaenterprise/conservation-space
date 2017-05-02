@@ -1,0 +1,1 @@
+// Should contain functions related to mail sending operations from server side JavaScript

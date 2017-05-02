@@ -1,0 +1,8 @@
+select (count(DISTINCT ?annotation) as ?count) WHERE {
+    ?annotation a oa:Annotation.
+    ?annotation emf:commentsOn ?commentsOn.
+    ?annotation oa:hasTarget ?hasTarget.
+    FILTER(NOT EXISTS{
+            ?annotation emf:replyTo ?reply.
+        })
+}

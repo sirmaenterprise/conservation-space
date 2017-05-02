@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.site.SiteInfo;
 import org.alfresco.service.namespace.QName;
@@ -17,6 +16,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 import com.sirma.itt.cmf.integration.model.CMFModel;
+import com.sirma.itt.cmf.integration.service.CMFService;
 import com.sirma.itt.cmf.integration.webscript.CaseInstancesScript;
 import com.sirma.itt.object.integration.service.DOMService;
 
@@ -44,7 +44,7 @@ public class ObjectInstancesScript extends CaseInstancesScript {
 		String serverPath = req.getServicePath();
 		try {
 			String content = req.getContent().getContent();
-			debug("Project request: ", serverPath, " data: ", content);
+			debug("DOM request: ", serverPath, " data: ", content);
 			if (serverPath.contains("/dom/objectinstance/create")) {
 				requestPath = createRequest(value, requestPath, content);
 				model.put("parent", requestPath);
@@ -54,11 +54,10 @@ public class ObjectInstancesScript extends CaseInstancesScript {
 				deleteRequest(value, content);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new WebScriptException(e.getMessage());
+			throw new WebScriptException("Error during object operation: " + e.getMessage(), e);
 		}
 		model.put("results", value);
-		debug("Project request: ", serverPath, " response: ", model);
+		debug("DOM request: ", serverPath, " response: ", model);
 		return model;
 	}
 
@@ -75,15 +74,13 @@ public class ObjectInstancesScript extends CaseInstancesScript {
 	 * @throws JSONException
 	 *             the jSON exception
 	 */
-	private NodeRef createRequest(ArrayList<NodeRef> value, NodeRef requestPath, String content)
-			throws JSONException {
+	private NodeRef createRequest(ArrayList<NodeRef> value, NodeRef requestPath, String content) throws JSONException {
 		JSONObject request = new JSONObject(content);
 		// TODO
 		if (request.has(KEY_START_PATH)) {
 			requestPath = domService.getCMFObjectInstanceSpace(request.getString(KEY_START_PATH));
 		} else if (request.has(KEY_SITE_ID)) {
-			SiteInfo site = serviceRegistry.getSiteService()
-					.getSite(request.getString(KEY_SITE_ID));
+			SiteInfo site = serviceRegistry.getSiteService().getSite(request.getString(KEY_SITE_ID));
 			if (site != null) {
 				requestPath = domService.getCMFObjectInstanceSpace(site.getNodeRef());
 			}
@@ -101,12 +98,12 @@ public class ObjectInstancesScript extends CaseInstancesScript {
 		// try use the provided cm:name
 		if (properties.get(ContentModel.PROP_NAME) == null) {
 			// do a mapping
-			String projectName = properties.get(CMFModel.PROP_IDENTIFIER) != null ? properties.get(
-					CMFModel.PROP_IDENTIFIER).toString() : "object_" + GUID.generate();
+			String projectName = properties.get(CMFModel.PROP_IDENTIFIER) != null
+					? properties.get(CMFModel.PROP_IDENTIFIER).toString() : "object_" + GUID.generate();
 			properties.put(ContentModel.PROP_NAME, projectName);
 		}
 		NodeRef createdProjectSpace = domService.createCMFObjectSpace(requestPath, properties);
-		getOwnableService().setOwner(createdProjectSpace, AuthenticationUtil.getSystemUserName());
+		getOwnableService().setOwner(createdProjectSpace, CMFService.getSystemUser());
 
 		cmfLockService.lockNode(createdProjectSpace);
 		return createdProjectSpace;
@@ -127,8 +124,7 @@ public class ObjectInstancesScript extends CaseInstancesScript {
 		JSONObject request = new JSONObject(content);
 		Map<QName, Serializable> properties = toMap(request.getJSONObject(KEY_PROPERTIES));
 		if (request.has(KEY_NODEID)) {
-			NodeRef updateNode = updateNode(properties,
-					domService.getNodeRef(request.getString(KEY_NODEID)));
+			NodeRef updateNode = updateNode(properties, domService.getNodeRef(request.getString(KEY_NODEID)));
 			if (updateNode != null) {
 				value.add(updateNode);
 			}
@@ -148,23 +144,18 @@ public class ObjectInstancesScript extends CaseInstancesScript {
 	private void deleteRequest(ArrayList<NodeRef> value, String content) throws JSONException {
 		JSONObject request = new JSONObject(content);
 		if (request.has(KEY_NODEID)) {
-			boolean force = request.has(KEY_FORCE) ? Boolean.valueOf(request.getString(KEY_FORCE))
-					: Boolean.FALSE;
+			boolean force = request.has(KEY_FORCE) ? Boolean.valueOf(request.getString(KEY_FORCE)) : Boolean.FALSE;
 			NodeRef deletable = domService.getNodeRef(request.getString(KEY_NODEID));
 			if (deletable != null) {
 				if (force) {
 					// if force just delete all
-					try {
-						AuthenticationUtil.pushAuthentication();
-						AuthenticationUtil.setRunAsUserSystem();
-						NodeRef parentRef = nodeService.getPrimaryParent(deletable).getParentRef();
-						// delete
-						nodeService.deleteNode(deletable);
-						// on delete add the parent
-						value.add(parentRef);
-					} finally {
-						AuthenticationUtil.popAuthentication();
-					}
+
+					NodeRef parentRef = nodeService.getPrimaryParent(deletable).getParentRef();
+					// delete
+					nodeService.deleteNode(deletable);
+					// on delete add the parent
+					value.add(parentRef);
+
 				} else {
 					// do delete operation
 					// archiveNode(value, request, deletable,

@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<project name="CMF AMP Build File" default="package-amp" basedir=".">
+
+	<property name="project.dir" value="${basedir}/alfresco" />
+	<property name="build.dir" value="${project.dir}/cmfbuild" />
+	<property name="src.dir" value="${project.dir}/src/cmf" />
+	<property name="config.dir" value="${project.dir}/config" />
+	<property name="jar.file" value="${build.dir}/lib/alfresco-cmf-module.jar" />
+	<property name="amp.file" value="${build.dir}/dist/alfresco-cmf-module.amp" />
+
+	<target name="mkdirs">
+		<delete dir="${build.dir}" />
+		<mkdir dir="${build.dir}/dist" />
+		<mkdir dir="${build.dir}/lib" />
+		<mkdir dir="${build.dir}/config" />
+		<mkdir dir="${build.dir}/classes" />
+	</target>
+
+	<path id="class.path">
+		<dirset dir="${build.dir}" />
+		<fileset dir="${project.dir}/WebContent/WEB-INF/lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${project.dir}/alfresco/WEB-INF/lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${project.dir}/ant/lib">
+			<include name="**/*.jar" />
+		 </fileset>
+		<!--  also include our class files -->
+		<fileset dir="${project.dir}/alfresco/WEB-INF/classes">
+			<include name="**/*.class" />
+		</fileset>
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${build.dir}/classes" />
+		<javac classpathref="class.path" srcdir="${src.dir}" destdir="${build.dir}/classes">
+			<exclude name="**/*4ServiceProxy.java" />
+			<exclude name="**/alfresco4/**" />
+		</javac>
+		<copy todir="${build.dir}/config/alfresco">
+			<fileset dir="${src.dir}/alfresco">
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="package-jar" depends="compile">
+		<copy todir="${build.dir}/lib/">
+			<fileset dir="${project.dir}/WebContent/WEB-INF/lib/" />
+		</copy>
+		<jar destfile="${jar.file}">
+			<fileset dir="${build.dir}/classes" excludes="**/custom*,**/*Test*" />
+		</jar>
+	</target>
+
+	<target name="package-amp" depends="mkdirs, package-jar" description="Package the Module">
+		<zip destfile="${amp.file}">
+			<fileset dir="${build.dir}" includes="lib/*.jar" />
+			<fileset dir="${build.dir}"  includes="config/**/*.*"  />
+			<fileset dir="${project.dir}" includes="config/alfresco/module/cmfAlfresco3/*.*" excludes="**/module.properties" />
+			<fileset dir="${project.dir}/config/alfresco/module/cmfAlfresco3" includes="module.properties" />
+		</zip>
+	</target>
+
+	<target name="update-war" depends="package-amp" description="Update the WAR file.  Set -Dwar.file=...">
+		<echo>Installing CMF AMP into WAR</echo>
+		<java dir="." fork="true" classname="org.alfresco.repo.module.tool.ModuleManagementTool">
+			<classpath refid="class.path" />
+			<arg line="install ${amp.file} ${war.file} -force -verbose" />
+		</java>
+	</target>
+
+</project>

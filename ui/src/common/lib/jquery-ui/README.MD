@@ -1,0 +1,1 @@
+Contains only draggable and resizable with no theme

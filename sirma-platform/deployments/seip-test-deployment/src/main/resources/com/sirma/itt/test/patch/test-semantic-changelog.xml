@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<!-- Using customChange tasks for updating the ontologies. 
+	The class that executes	the task is com.sirma.itt.emf.semantic.patch.UpdateSemanticTask. 
+	it has three parameters: 
+		- fileName - List of files to be executed on the repository separated with ';' 
+		- fileType - type of the files provided by the parameter fileName. all files must be of the same type - RDF, SPARQL or NAMESPACES file - -->
+		
+	<changeSet id="1.0.1" author="kpenev" runOnChange="true" runAlways="true">
+		<comment>Initially insert ontologies</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/TestCulturalHeritageDomain/culturalHeritageDomain.ttl" />
+			<param name="fileType" value="RDF" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="test-1.10.0-1" author="kpenev" runOnChange="true">
+		<comment>Add test fields for tests of mandatory fieds logic</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/patch/addTestMandatoryFields.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="test-2.0.0-NAMESPACES" author="kpenev" runOnChange="true">
+		<comment>Initially insert namespaces</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName"
+				value="definitions/namespaces/defaultTestNamespaces.ns" />
+			<param name="fileType" value="NAMESPACES" />
+		</customChange>
+	</changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="bbonev (generated)" id="1378129100604-1">
+        <createTable tableName="cmf_assignedusertasks">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_assignedusertasks_pkey"/>
+            </column>
+            <column name="active" type="int2"/>
+            <column name="contextreferenceid" type="VARCHAR(50)"/>
+            <column name="owninginstanceid" type="VARCHAR(50)"/>
+            <column name="taskinstanceid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userid" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contextreferencetype" type="int8"/>
+            <column name="owninginstancetype" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-2">
+        <createTable tableName="cmf_caseentity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_caseentity_pkey"/>
+            </column>
+            <column name="cdid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="caserevision" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="container" type="VARCHAR(100)"/>
+            <column name="cmid" type="VARCHAR(100)"/>
+            <column name="dmid" type="VARCHAR(100)"/>
+            <column name="owninginstanceid" type="VARCHAR(50)"/>
+            <column name="version" type="int8"/>
+            <column name="owninginstancetype" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-3">
+        <createTable tableName="cmf_documententity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_documententity_pkey"/>
+            </column>
+            <column name="copyof" type="int8"/>
+            <column name="documentdmsid" type="VARCHAR(100)"/>
+            <column name="documentid" type="VARCHAR(100)"/>
+            <column name="documentrefid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="linkfrom" type="int8"/>
+            <column name="owningreferenceid" type="VARCHAR(50)"/>
+            <column name="parentpath" type="VARCHAR(200)"/>
+            <column name="purpose" type="VARCHAR(50)"/>
+            <column name="revision" type="int8"/>
+            <column name="structured" type="int2">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owningreferencetype" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-4">
+        <createTable tableName="cmf_section_document">
+            <column name="caseentity_id" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="document_id" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="section_id" type="int8">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-5">
+        <createTable tableName="cmf_sectionentity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_sectionentity_pkey"/>
+            </column>
+            <column name="sectionid" type="VARCHAR(100)"/>
+            <column name="caseentity_id" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-6">
+        <createTable tableName="cmf_taskentity">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_taskentity_pkey"/>
+            </column>
+            <column name="container" type="VARCHAR(100)"/>
+            <column name="cmid" type="VARCHAR(100)"/>
+            <column name="definitionid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dmsid" type="VARCHAR(100)"/>
+            <column name="dmid" type="VARCHAR(100)"/>
+            <column name="owninginstanceid" type="VARCHAR(50)"/>
+            <column name="parentpath" type="VARCHAR(200)"/>
+            <column name="revision" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="int4"/>
+            <column name="version" type="int8"/>
+            <column name="workflowinstanceid" type="VARCHAR(100)"/>
+            <column name="owninginstancetype" type="int8"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-7">
+        <createTable tableName="cmf_workflowinstance">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_workflowinstance_pkey"/>
+            </column>
+            <column name="active" type="int2"/>
+            <column name="container" type="VARCHAR(100)"/>
+            <column name="dmid" type="VARCHAR(100)"/>
+            <column name="owningreferenceeid" type="VARCHAR(50)"/>
+            <column name="revision" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="int8"/>
+            <column name="workflowdefid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="workflowinstanceid" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owningreferencetype" type="int8"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="bbonev (generated)" id="1378129100604-29">
+        <addPrimaryKey columnNames="caseentity_id, document_id, section_id" constraintName="cmf_section_document_pkey" tableName="cmf_section_document"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-30">
+        <addUniqueConstraint columnNames="id, caseentity_id" constraintName="cmf_sectionentity_id_key" deferrable="false" disabled="false" initiallyDeferred="false" tableName="cmf_sectionentity"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-32">
+        <addForeignKeyConstraint baseColumnNames="contextreferencetype" baseTableName="cmf_assignedusertasks" baseTableSchemaName="public" constraintName="fk44841412e06b6ada" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-33">
+        <addForeignKeyConstraint baseColumnNames="owninginstancetype" baseTableName="cmf_assignedusertasks" baseTableSchemaName="public" constraintName="fk44841412a0eab50f" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-34">
+        <addForeignKeyConstraint baseColumnNames="owninginstancetype" baseTableName="cmf_caseentity" baseTableSchemaName="public" constraintName="fke3891e16a0eab50f" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-35">
+        <addForeignKeyConstraint baseColumnNames="owningreferencetype" baseTableName="cmf_documententity" baseTableSchemaName="public" constraintName="fkda4fee41dd6d570d" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-36">
+        <addForeignKeyConstraint baseColumnNames="document_id" baseTableName="cmf_section_document" baseTableSchemaName="public" constraintName="fk81dd75d83ffcc59b" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="cmf_documententity" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-37">
+        <addForeignKeyConstraint baseColumnNames="caseentity_id" baseTableName="cmf_sectionentity" baseTableSchemaName="public" constraintName="fk60d54965ee0e2df8" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="cmf_caseentity" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-38">
+        <addForeignKeyConstraint baseColumnNames="owninginstancetype" baseTableName="cmf_taskentity" baseTableSchemaName="public" constraintName="fk59cf04aba0eab50f" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-39">
+        <addForeignKeyConstraint baseColumnNames="owningreferencetype" baseTableName="cmf_workflowinstance" baseTableSchemaName="public" constraintName="fk5a9fa217dd6d570d" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+    </changeSet>
+
+    <changeSet author="bbonev (generated)" id="1378129100604-52">
+        <createIndex indexName="idx_aut_contextid" tableName="cmf_assignedusertasks" unique="false">
+            <column name="contextreferenceid"/>
+            <column name="contextreferencetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-53">
+        <createIndex indexName="idx_aut_ownref" tableName="cmf_assignedusertasks" unique="false">
+            <column name="owninginstanceid"/>
+            <column name="owninginstancetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-54">
+        <createIndex indexName="idx_aut_user_ref_nu_a" tableName="cmf_assignedusertasks" unique="false">
+            <column name="userid"/>
+            <column name="owninginstanceid"/>
+            <column name="owninginstancetype"/>
+            <column name="active"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-55">
+        <createIndex indexName="idx_ce_cdid" tableName="cmf_caseentity" unique="false">
+            <column name="cdid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-56">
+        <createIndex indexName="idx_ce_cdid_rev" tableName="cmf_caseentity" unique="false">
+            <column name="cdid"/>
+            <column name="caserevision"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-57">
+        <createIndex indexName="idx_ce_cmid" tableName="cmf_caseentity" unique="false">
+            <column name="cmid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-58">
+        <createIndex indexName="idx_ce_dmid" tableName="cmf_caseentity" unique="false">
+            <column name="dmid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-59">
+        <createIndex indexName="idx_ce_ownref" tableName="cmf_caseentity" unique="false">
+            <column name="owninginstanceid"/>
+            <column name="owninginstancetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-60">
+        <createIndex indexName="idx_de_dmsid" tableName="cmf_documententity" unique="false">
+            <column name="documentdmsid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-61">
+        <createIndex indexName="idx_de_ownref" tableName="cmf_documententity" unique="false">
+            <column name="owningreferenceid"/>
+            <column name="owningreferencetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-62">
+        <createIndex indexName="idx_de_revision_path" tableName="cmf_documententity" unique="false">
+            <column name="revision"/>
+            <column name="parentpath"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-63">
+        <createIndex indexName="idx_tske_cmid" tableName="cmf_taskentity" unique="false">
+            <column name="cmid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-64">
+        <createIndex indexName="idx_tske_def" tableName="cmf_taskentity" unique="false">
+            <column name="definitionid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-65">
+        <createIndex indexName="idx_tske_def_rev" tableName="cmf_taskentity" unique="false">
+            <column name="definitionid"/>
+            <column name="revision"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-66">
+        <createIndex indexName="idx_tske_dmid" tableName="cmf_taskentity" unique="false">
+            <column name="dmid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-67">
+        <createIndex indexName="idx_tske_ownref" tableName="cmf_taskentity" unique="false">
+            <column name="owninginstanceid"/>
+            <column name="owninginstancetype"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-68">
+        <createIndex indexName="idx_wic_ownref" tableName="cmf_workflowinstance" unique="false">
+            <column name="owningreferencetype"/>
+            <column name="owningreferenceeid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="bbonev (generated)" id="1378129100604-69">
+        <createIndex indexName="idx_wic_workflowinsid" tableName="cmf_workflowinstance" unique="false">
+            <column name="workflowinstanceid"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

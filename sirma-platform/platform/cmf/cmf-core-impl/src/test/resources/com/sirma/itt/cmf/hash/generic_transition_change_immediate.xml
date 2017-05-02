@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<definition id="generic_field" type="case">
+	<transitions>
+		<transition id="startWorkflow" displayType="editable"
+			label="startTask.startWorkflow.btn.title" tooltip="startTask.startWorkflow.btn.title"
+			eventId="START_WORKFLOW" nextPrimaryState="nextPrimaryState"
+			nextSecondaryState="nextSecondaryState" defaultTransition="true"
+			immediate="false" purpose="action" order="1" confirmation="confirmation"
+			disabledReason="disabledReason" />
+		<transition id="startWorkflow" label="startTask.startWorkflow.btn.title"
+			eventId="START_WORKFLOW">
+			<condition id="startWorkflow" renderAs="ENABLED">+[assignee]
+			</condition>
+			<fields>
+				<field name="onWorkflowStart" type="an10">
+					<value>changeProcessingDocumentsState(root, 'toReview',
+						'processingInstanceBackupState')</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">before
+						</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+	</transitions>
+</definition>

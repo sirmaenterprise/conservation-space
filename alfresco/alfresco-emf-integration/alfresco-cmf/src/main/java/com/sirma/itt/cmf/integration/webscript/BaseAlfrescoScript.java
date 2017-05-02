@@ -9,13 +9,17 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.tenant.TenantService;
 import org.alfresco.repo.transaction.AlfrescoTransactionSupport;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.repo.workflow.WorkflowReportService;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -32,6 +36,8 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,9 +61,9 @@ import com.sirma.itt.cmf.integration.service.CMFService;
  */
 public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 
-	protected static final Properties globalProperties = readGlobalProps();
+	private static final Properties SYSTEM_PROPERTIES = readGlobalProps();
 	/** the logger. */
-	protected static final Logger LOGGER = Logger.getLogger(BaseAlfrescoScript.class);
+	private static final Logger LOGGER = Logger.getLogger(BaseAlfrescoScript.class);
 	/** The Constant debugEnabled. */
 	protected boolean debugEnabled = getLogger().isDebugEnabled();
 	/** Comment for UTF_8. */
@@ -101,53 +107,47 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	/** lock owner. */
 	public static final String KEY_LOCK_OWNER = "lockOwner";
 	/** the template processing mode. */
-	public static final String KEY_MODE = "mode";
+	public static final String KEY_WORKING_MODE = "mode";
 	/** The Constant DOCUMENT. */
-	public static final String DOCUMENT = "document";
+	public static final String KEY_DOCUMENT = "document";
 	/** The Constant KEY_QUERY. */
 	public static final String KEY_QUERY = "query";
 
+	private static final String KEY_TENANT_ADMIN_BASENAME = "alfresco_user_store.tenant.adminusername";
 	/** The search service. */
-	protected static SearchService searchService;
+	protected SearchService searchService;
 	/** the node service. */
-	protected static NodeService nodeService;
+	protected NodeService nodeService;
 	/** the lock service. */
-	protected static CMFLockService cmfLockService;
+	protected CMFLockService cmfLockService;
 	/** the service registry. */
-	protected static ServiceRegistry serviceRegistry;
+	protected ServiceRegistry serviceRegistry;
 	/** the case service. */
-	protected static CMFService cmfService;
+	protected CMFService cmfService;
 	/** the proxy for services. */
-	private static ServiceProxy serviceProxy;
+	private ServiceProxy serviceProxy;
 	/** The ownable service. */
-	private static OwnableService ownableService;
+	private OwnableService ownableService;
 	/** The namespace service. */
-	private static NamespaceService namespaceService;
+	private NamespaceService namespaceService;
 	/** The person service. */
-	private static PersonService personService;
+	private PersonService personService;
 	/** The dictionary service. */
-	private static DictionaryService dictionaryService;
+	private DictionaryService dictionaryService;
 	/** The authentication service. */
-	private static MutableAuthenticationService authenticationService;
+	private MutableAuthenticationService authenticationService;
 	/** The workflow service. */
-	private static WorkflowService workflowService;
-	private static WorkflowReportService workflowReportService;
-	private static AuthorityService authorityService;
+	private WorkflowService workflowService;
+	private WorkflowReportService workflowReportService;
+	private AuthorityService authorityService;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.extensions.webscripts.DeclarativeWebScript#executeImpl
-	 * (org.springframework.extensions.webscripts.WebScriptRequest,
-	 * org.springframework.extensions.webscripts.Status,
-	 * org.springframework.extensions.webscripts.Cache)
-	 */
 	@Override
 	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
+		String runAsUser = AuthenticationUtil.getRunAsUser();
 		try {
+			String systemUser = CMFService.getSystemUser(runAsUser);
 			AuthenticationUtil.pushAuthentication();
-			AuthenticationUtil.setRunAsUserSystem();
+			AuthenticationUtil.setRunAsUser(systemUser);
 			return executeInternal(req);
 		} finally {
 			AuthenticationUtil.popAuthentication();
@@ -185,10 +185,8 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 				currentLKey = keys.next().toString();
 				QName resolvedToQName = QName.resolveToQName(getNamespaceService(), currentLKey);
 				if (resolvedToQName != null) {
-					PropertyDefinition property = getDataDictionaryService().getProperty(
-							resolvedToQName);
-					debug("convert ", property == null ? "" : property.getName(), " for: ",
-							resolvedToQName.toString());
+					PropertyDefinition property = getDataDictionaryService().getProperty(resolvedToQName);
+					debug("convert ", property == null ? "!missing!" : property.getName(), " for: ", resolvedToQName.toString());
 					if (property != null) {
 						if (Date.class.getName().equals(property.getDataType().getJavaClassName())) {
 							map.put(resolvedToQName, (V) new Date(jsonObject.getLong(currentLKey)));
@@ -203,16 +201,13 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 								}
 								Object converted = null;
 								if (property.isMultiValued()) {
-									converted = DefaultTypeConverter.INSTANCE.convert(
-											Collection.class, value);
+									converted = DefaultTypeConverter.INSTANCE.convert(Collection.class, value);
 								} else {
-									converted = DefaultTypeConverter.INSTANCE.convert(
-											property.getDataType(), value);
+									converted = DefaultTypeConverter.INSTANCE.convert(property.getDataType(), value);
 								}
 								map.put(resolvedToQName, (V) converted);
 							} catch (Exception e) {
-								warn(e, "Error while processing. Skipping to default! ",
-										currentLKey);
+								warn(e, "Error while processing. Skipping to default! ", currentLKey);
 								map.put(resolvedToQName, (V) value);
 							}
 						}
@@ -226,8 +221,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
-			debug(e, "Error for: ", currentLKey);
+			log(Level.ERROR, e, "Error for: ", currentLKey);
 		}
 		return map;
 	}
@@ -259,15 +253,16 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *             on error
 	 */
 	protected Object checkJSONMultivalue(Object value) throws JSONException {
-		if (value instanceof JSONArray) {
-			JSONArray arr = (JSONArray) value;
-			ArrayList<Object> collection = new ArrayList<Object>(arr.length());
+		Object valueLocal = value;
+		if (valueLocal instanceof JSONArray) {
+			JSONArray arr = (JSONArray) valueLocal;
+			List<Object> collection = new ArrayList<Object>(arr.length());
 			for (int i = 0; i < arr.length(); i++) {
 				collection.add(arr.get(i));
 			}
-			value = collection;
+			valueLocal = collection;
 		}
-		return value;
+		return valueLocal;
 	}
 
 	/**
@@ -277,21 +272,30 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the properties map
 	 * @param updateable
 	 *            is the node to update
-	 * @return the updateable on sucess or null
+	 * @return the updateable on success or null
 	 */
-	protected NodeRef updateNodeAndSetOwner(Map<QName, Serializable> properties, NodeRef updateable) {
+	protected NodeRef updateNodeAndSetOwner(final Map<QName, Serializable> properties, final NodeRef updateable) {
 		if (updateable != null) {
-			String lockOwner = cmfLockService.unlockNode(updateable);
-			nodeService.addProperties(updateable, properties);
-			if (lockOwner != null) {
-				getOwnableService().setOwner(updateable, lockOwner);
-			} else {
-				getOwnableService().setOwner(updateable, AuthenticationUtil.getSystemUserName());
+			RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionCallback<NodeRef>() {
+
+				@Override
+				public NodeRef execute() throws Throwable {
+					String lockOwner = cmfLockService.unlockNode(updateable);
+					nodeService.addProperties(updateable, properties);
+					if (lockOwner != null) {
+						getOwnableService().setOwner(updateable, lockOwner);
+					} else {
+						getOwnableService().setOwner(updateable, CMFService.getSystemUser());
+					}
+					if (lockOwner != null) {
+						cmfLockService.lockNode(updateable, lockOwner);
+					}
+					return updateable;
+				}
+			};
+			if (doInTransaction(callback)) {
+				return updateable;
 			}
-			if (lockOwner != null) {
-				cmfLockService.lockNode(updateable, lockOwner);
-			}
-			return updateable;
 		}
 		return null;
 	}
@@ -307,22 +311,30 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the owner to set
 	 * @return the node ref
 	 */
-	protected NodeRef updateNodeAndSetOwner(Map<QName, Serializable> properties,
-			NodeRef updateable, String lockUser) {
+	protected NodeRef updateNodeAndSetOwner(final Map<QName, Serializable> properties, final NodeRef updateable, final String lockUser) {
 		if (updateable != null) {
-			String lockOwner = null;
-			try {
-				lockOwner = cmfLockService.unlockNode(updateable);
-				nodeService.addProperties(updateable, properties);
-				if (lockOwner != null) {
-					getOwnableService().setOwner(updateable, lockOwner);
-				} else {
-					getOwnableService().setOwner(updateable, lockUser);
+			RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionCallback<NodeRef>() {
+
+				@Override
+				public NodeRef execute() throws Throwable {
+					String lockOwner = null;
+					try {
+						lockOwner = cmfLockService.unlockNode(updateable);
+						nodeService.addProperties(updateable, properties);
+						if (lockOwner != null) {
+							getOwnableService().setOwner(updateable, lockOwner);
+						} else {
+							getOwnableService().setOwner(updateable, lockUser);
+						}
+					} finally {
+						cmfLockService.lockNode(updateable, lockUser);
+					}
+					return updateable;
 				}
-			} finally {
-				cmfLockService.lockNode(updateable, lockUser);
+			};
+			if (doInTransaction(callback)) {
+				return updateable;
 			}
-			return updateable;
 		}
 		return null;
 	}
@@ -336,18 +348,49 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the updateable
 	 * @return the node ref
 	 */
-	protected NodeRef updateNode(Map<QName, Serializable> properties, NodeRef updateable) {
+	protected NodeRef updateNode(final Map<QName, Serializable> properties, final NodeRef updateable) {
 		if (updateable != null) {
-			String lockOwner = null;
-			try {
-				lockOwner = cmfLockService.unlockNode(updateable);
-				nodeService.addProperties(updateable, properties);
+			RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionCallback<NodeRef>() {
+
+				@Override
+				public NodeRef execute() throws Throwable {
+					String lockOwner = null;
+					try {
+						lockOwner = cmfLockService.unlockNode(updateable);
+						nodeService.addProperties(updateable, properties);
+					} finally {
+						cmfLockService.lockNode(updateable, lockOwner);
+					}
+					return updateable;
+				}
+			};
+			if (doInTransaction(callback)) {
 				return updateable;
-			} finally {
-				cmfLockService.lockNode(updateable, lockOwner);
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Do in transaction.
+	 * 
+	 * @param callback
+	 *            the callback
+	 */
+	public boolean doInTransaction(RetryingTransactionCallback<?> callback) {
+		try {
+			RetryingTransactionHelper transactionHelper = serviceRegistry.getRetryingTransactionHelper();
+			transactionHelper.setMaxRetries(5);
+			transactionHelper.setMaxRetryWaitMs(5000);
+			transactionHelper.setMinRetryWaitMs(1000);
+			transactionHelper.setRetryWaitIncrementMs(1000);
+			transactionHelper.setForceWritable(true);
+			transactionHelper.doInTransaction(callback, false, true);
+			return true;
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
+			return false;
+		}
 	}
 
 	/**
@@ -361,8 +404,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 * @throws JSONException
 	 *             the jSON exception
 	 */
-	protected Object getObjectProperty(JSONObject jsonObject, String propertyName)
-			throws JSONException {
+	protected Object getObjectProperty(JSONObject jsonObject, String propertyName) throws JSONException {
 		if (jsonObject.has(propertyName)) {
 			return jsonObject.get(propertyName);
 		}
@@ -380,8 +422,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 * @throws JSONException
 	 *             the jSON exception
 	 */
-	protected String getStringProperty(JSONObject jsonObject, String propertyName)
-			throws JSONException {
+	protected String getStringProperty(JSONObject jsonObject, String propertyName) throws JSONException {
 		if (jsonObject.has(propertyName)) {
 			return jsonObject.getString(propertyName);
 		}
@@ -398,9 +439,6 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 * @return the web script exception
 	 */
 	protected WebScriptException createStatus(int error, String msg) {
-		// status.setCode(error);
-		// status.setMessage(msg);
-		// status.setRedirect(true);
 		return new WebScriptException(error, msg);
 	}
 
@@ -417,7 +455,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getTransactionCacheObject(String prefix, NodeRef nodeRef) {
-		return (T) AlfrescoTransactionSupport.getResource(prefix + nodeRef.toString());
+		return (T) AlfrescoTransactionSupport.getResource(prefix + String.valueOf(nodeRef));
 	}
 
 	/**
@@ -435,7 +473,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 */
 	public <T> T setTransactionCacheUserObject(String prefix, NodeRef nodeRef, T value) {
 		String user = AuthenticationUtil.getRunAsUser();
-		AlfrescoTransactionSupport.bindResource(prefix + nodeRef.toString() + user, value);
+		AlfrescoTransactionSupport.bindResource(prefix + String.valueOf(nodeRef) + user, value);
 		return value;
 	}
 
@@ -453,7 +491,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	@SuppressWarnings("unchecked")
 	public <T> T getTransactionCacheUserObject(String prefix, NodeRef nodeRef) {
 		String user = AuthenticationUtil.getRunAsUser();
-		return (T) AlfrescoTransactionSupport.getResource(prefix + nodeRef.toString() + user);
+		return (T) AlfrescoTransactionSupport.getResource(prefix + String.valueOf(nodeRef) + user);
 
 	}
 
@@ -471,7 +509,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 * @return the t
 	 */
 	public <T> T setTransactionCacheObject(String prefix, NodeRef nodeRef, T value) {
-		AlfrescoTransactionSupport.bindResource(prefix + nodeRef.toString(), value);
+		AlfrescoTransactionSupport.bindResource(prefix + String.valueOf(nodeRef), value);
 		return value;
 	}
 
@@ -487,8 +525,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 		if (result != null) {
 			return result;
 		}
-		return setTransactionCacheObject("nodeAspects", nodeRef,
-				getNodeService().getAspects(nodeRef));
+		return setTransactionCacheObject("nodeAspects", nodeRef, getNodeService().getAspects(nodeRef));
 
 	}
 
@@ -501,8 +538,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the properties to set for node
 	 * @return the current cached properties for node
 	 */
-	protected Map<QName, Serializable> updateProperties(NodeRef nodeRef,
-			Map<QName, Serializable> properties) {
+	protected Map<QName, Serializable> updateProperties(NodeRef nodeRef, Map<QName, Serializable> properties) {
 		return setTransactionCacheObject("nodeProperties", nodeRef, properties);
 	}
 
@@ -553,7 +589,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the searchService to set
 	 */
 	public void setSearchService(SearchService searchService) {
-		BaseAlfrescoScript.searchService = searchService;
+		this.searchService = searchService;
 	}
 
 	/**
@@ -572,7 +608,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the nodeService to set
 	 */
 	public void setNodeService(NodeService nodeService) {
-		BaseAlfrescoScript.nodeService = nodeService;
+		this.nodeService = nodeService;
 	}
 
 	/**
@@ -591,7 +627,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the serviceRegistry to set
 	 */
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
-		BaseAlfrescoScript.serviceRegistry = serviceRegistry;
+		this.serviceRegistry = serviceRegistry;
 	}
 
 	/**
@@ -604,13 +640,13 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	}
 
 	/**
-	 * Sets the cmf lock service.
+	 * Setter method for cmfLockService.
 	 *
 	 * @param cmfLockService
 	 *            the cmfLockService to set
 	 */
 	public void setCmfLockService(CMFLockService cmfLockService) {
-		BaseAlfrescoScript.cmfLockService = cmfLockService;
+		this.cmfLockService = cmfLockService;
 	}
 
 	/**
@@ -641,8 +677,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 */
 	public ServiceProxy getServiceProxy() {
 		if (serviceProxy == null) {
-			serviceProxy = (ServiceProxy) serviceRegistry.getService(QName.createQName(
-					NamespaceService.ALFRESCO_URI, "ServiceProxy"));
+			serviceProxy = (ServiceProxy) serviceRegistry.getService(QName.createQName(NamespaceService.ALFRESCO_URI, "ServiceProxy"));
 		}
 		return serviceProxy;
 	}
@@ -654,7 +689,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the serviceProxy to set
 	 */
 	public void setServiceProxy(ServiceProxy serviceProxy) {
-		BaseAlfrescoScript.serviceProxy = serviceProxy;
+		this.serviceProxy = serviceProxy;
 	}
 
 	/**
@@ -664,7 +699,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the cmfService to set
 	 */
 	public void setCaseService(CMFService cmfService) {
-		BaseAlfrescoScript.cmfService = cmfService;
+		this.cmfService = cmfService;
 	}
 
 	/**
@@ -746,8 +781,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 */
 	public WorkflowReportService getWorkflowReportService() {
 		if (workflowReportService == null) {
-			workflowReportService = (WorkflowReportService) serviceRegistry
-					.getService(CMFModel.TASK_REPORT_SERVICE_URI);
+			workflowReportService = (WorkflowReportService) serviceRegistry.getService(CMFModel.TASK_REPORT_SERVICE_URI);
 		}
 		return workflowReportService;
 	}
@@ -755,16 +789,12 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	/**
 	 * Debug.
 	 *
-	 * @param message
-	 *            the message
+	 * @param msgs
+	 *            the messages
 	 */
-	protected void debug(Object... message) {
+	protected void debug(Object... msgs) {
 		if (debugEnabled) {
-			StringBuilder builder = new StringBuilder();
-			for (Object string : message) {
-				builder.append(string);
-			}
-			getLogger().debug(builder.toString());
+			log(Level.DEBUG, null, msgs);
 		}
 
 	}
@@ -772,19 +802,56 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	/**
 	 * Debug.
 	 *
-	 * @param message
-	 *            the message
-	 * @param e
-	 *            the exception
+	 * @param msgs
+	 *            the messages
+	 * @param error
+	 *            the exception to log
 	 */
-	protected void debug(Throwable e, Object... message) {
+	protected void debug(Throwable error, Object... msgs) {
 		if (debugEnabled) {
-			StringBuilder builder = new StringBuilder();
-			for (Object string : message) {
-				builder.append(string.toString());
-			}
-			getLogger().debug(builder.toString(), e);
+			log(Level.DEBUG, error, msgs);
 		}
+	}
+
+	/**
+	 * Log using arbitrary provided logger.
+	 *
+	 * @param level
+	 *            is the log level
+	 * @param error
+	 *            the exception to log
+	 * @param message
+	 *            the messages to print as message
+	 */
+	protected void log(Level level, Throwable error, Object... message) {
+		if (getLogger().isEnabledFor(level)) {
+			StringBuilder builder = new StringBuilder(1024);
+			if (message == null) {
+				builder.append(error.getMessage());
+			} else {
+				for (Object msgPart : message) {
+					builder.append(msgPart);
+				}
+			}
+			if (error != null) {
+				getLogger().log(level, builder.toString(), error);
+			} else {
+				getLogger().log(level, builder.toString());
+			}
+			builder = null;
+		}
+	}
+
+	/**
+	 * Log using arbitrary provided logger.
+	 *
+	 * @param level
+	 *            is the log level
+	 * @param message
+	 *            the messages to print as message
+	 */
+	protected void log(Level level, Object... message) {
+		log(level, null, message);
 	}
 
 	/**
@@ -796,11 +863,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the message
 	 */
 	protected void warn(Throwable e, Object... message) {
-		StringBuilder builder = new StringBuilder();
-		for (Object string : message) {
-			builder.append(string.toString());
-		}
-		getLogger().warn(builder.toString(), e);
+		log(Level.WARN, e, message);
 	}
 
 	/**
@@ -810,11 +873,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            the message
 	 */
 	protected void warn(Object... message) {
-		StringBuilder builder = new StringBuilder();
-		for (Object string : message) {
-			builder.append(string.toString());
-		}
-		getLogger().warn(builder.toString());
+		log(Level.WARN, null, message);
 	}
 
 	/**
@@ -832,7 +891,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *
 	 * @return the loaded or empty properties
 	 */
-	private synchronized static Properties readGlobalProps() {
+	private static synchronized Properties readGlobalProps() {
 
 		ClassPathResource globalProps = new ClassPathResource("alfresco-global.properties");
 		try {
@@ -840,7 +899,7 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 			globalProperties.load(globalProps.getInputStream());
 			return globalProperties;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Properties could not be read!", e);
 		}
 		return new Properties();
 
@@ -855,12 +914,23 @@ public abstract class BaseAlfrescoScript extends DeclarativeWebScript {
 	 *            is the default property if property is not found
 	 * @return the default or found property
 	 */
-	protected synchronized static String readProperty(String key, String defaultValue) {
-		if (globalProperties.containsKey(key)) {
-			return globalProperties.getProperty(key);
+	protected static synchronized String readProperty(String key, String defaultValue) {
+		if (SYSTEM_PROPERTIES.containsKey(key)) {
+			return SYSTEM_PROPERTIES.getProperty(key);
 		} else {
-			globalProperties.put(key, defaultValue);
+			SYSTEM_PROPERTIES.put(key, defaultValue);
 			return defaultValue;
 		}
+	}
+
+	protected String getTenantAdmin() {
+		String readProperty = readProperty(KEY_TENANT_ADMIN_BASENAME, AuthenticationUtil.getAdminUserName());
+		if (readProperty != null) {
+			String tenantId = CMFService.getTenantId();
+			if (StringUtils.isNotBlank(tenantId)) {
+				return readProperty + TenantService.SEPARATOR + tenantId;
+			}
+		}
+		return readProperty;
 	}
 }

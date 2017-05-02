@@ -30,6 +30,8 @@ import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.task.Task;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.security.SEIPTenantIntegration;
+import org.alfresco.repo.tenant.MultiTServiceImpl;
 import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.repo.workflow.WorkflowReportConstants;
 import org.alfresco.repo.workflow.activiti.ActivitiConstants;
@@ -97,10 +99,16 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 		this.parentId = parentId;
 		startTaskNode = null;
 		this.selectedTaskId = selectedTaskId;
-		taskDefinition = new WorkflowTaskDefinition(null, null, getObjectFactory()
-				.getTaskTypeDefinition(selectedTaskId, false));
+		String multiTenantDomainName = MultiTServiceImpl.getMultiTenantDomainName(selectedTaskId);
+		String domain = SEIPTenantIntegration.getTenantId();
+		if (!domain.equals(multiTenantDomainName)) {
+			throw new WebScriptException(401, "Task provided is not part of the '" + domain + "' domain!");
+		}
+		this.selectedTaskId = getObjectFactory().clearFullDomainTaskId(this.selectedTaskId, domain);
+		taskDefinition = new WorkflowTaskDefinition(null, null,
+				getObjectFactory().getTaskTypeDefinition(this.selectedTaskId, false));
 		if (taskDefinition == null) {
-			throw new WebScriptException(404, "No task definition found for: " + selectedTaskId);
+			throw new WebScriptException(404, "No task definition found for: " + this.selectedTaskId);
 		}
 		populateItemToTaskId(itemToTaskId);
 		createModel();
@@ -121,8 +129,7 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 			}
 			QName type = getNodeService().getType(itemToTask);
 			if (!getDictionaryService().isSubClass(type, ContentModel.TYPE_FOLDER)) {
-				throw new WebScriptException(404,
-						"Object to attach to workflow is not the required type!");
+				throw new WebScriptException(404, "Object to attach to workflow is not the required type!");
 			}
 		}
 	}
@@ -132,17 +139,13 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 */
 	public void createModel() {
 
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Selected task: " + selectedTaskId);
-		}
+		debug("Selected task: ", selectedTaskId);
 
 		if (taskDefinition != null) {
-			if (DEBUG_ENABLED) {
-				LOGGER.debug("Start task definition: " + taskDefinition);
-			}
+			debug("Start task definition: ", taskDefinition);
 			// create an instance of a task from the data dictionary
-			startTaskNode = TransientNode.createNew(registry, taskDefinition.getMetadata(), "task_"
-					+ System.currentTimeMillis(), null);
+			startTaskNode = TransientNode.createNew(registry, taskDefinition.getMetadata(),
+					"task_" + System.currentTimeMillis(), null);
 		} else {
 			throw new WebScriptException(404, "No start task found for: " + taskDefinition);
 		}
@@ -159,17 +162,13 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	public Map<QName, Serializable> prepareData(Map<QName, Serializable> properties) {
 		// TODO: Deal with workflows that don't require any data
 
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Starting task: " + selectedTaskId);
-		}
+		debug("Starting task: ", selectedTaskId);
 
 		// prepare the parameters from the current state of the property sheet
 		Map<QName, Serializable> params = WorkflowUtil.prepareTaskParams(startTaskNode);
 		// first set initial properties and then continue set them
 		params.putAll(properties);
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Starting task with parameters: " + params);
-		}
+		debug("Starting task with parameters: ", params);
 
 		// create a workflow package for the attached items and add them
 		NodeRef workflowPackage = getWorkflowService().createPackage(null);
@@ -186,9 +185,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 		// }
 
 		params.putAll(properties);
-		if (DEBUG_ENABLED) {
-			LOGGER.debug("Task Params " + params);
-		}
+
+		debug("Task Params ", params);
 		return params;
 	}
 
@@ -202,8 +200,7 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 */
 	private void attachItemsToTaskPackage(NodeRef workflowPackage, boolean removeOld) {
 		if (removeOld) {
-			List<ChildAssociationRef> childAssocs = getUnprotectedNodeService().getChildAssocs(
-					workflowPackage);
+			List<ChildAssociationRef> childAssocs = getUnprotectedNodeService().getChildAssocs(workflowPackage);
 			for (ChildAssociationRef childAssociationRef : childAssocs) {
 				if (WorkflowModel.ASSOC_PACKAGE_CONTAINS.equals(childAssociationRef.getTypeQName())) {
 					getUnprotectedNodeService().removeChildAssociation(childAssociationRef);
@@ -212,12 +209,10 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 		}
 		if (itemToTask != null) {
 
-			QName childName = QName.createQName(
-					NamespaceService.CONTENT_MODEL_1_0_URI,
-					QName.createValidLocalName((String) getNodeService().getProperty(itemToTask,
-							ContentModel.PROP_NAME)));
-			getUnprotectedNodeService().addChild(workflowPackage, itemToTask,
-					WorkflowModel.ASSOC_PACKAGE_CONTAINS, childName);
+			QName childName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName
+					.createValidLocalName((String) getNodeService().getProperty(itemToTask, ContentModel.PROP_NAME)));
+			getUnprotectedNodeService().addChild(workflowPackage, itemToTask, WorkflowModel.ASSOC_PACKAGE_CONTAINS,
+					childName);
 		}
 	}
 
@@ -233,10 +228,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	@SuppressWarnings("unchecked")
 	public WorkflowTask startTask(Map<QName, Serializable> variablesDefault) throws Exception {
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Starting task of type: " + selectedTaskId + "with assignee: "
-					+ variablesDefault.get(WorkflowModel.ASSOC_ASSIGNEE));
-		}
+		debug("Starting task of type: ", selectedTaskId, "with assignee: ",
+				variablesDefault.get(WorkflowModel.ASSOC_ASSIGNEE));
 		// new task with internal id
 		TaskService taskService = getActivitiUtil().getTaskService();
 		TaskEntity task = (TaskEntity) taskService.newTask();
@@ -253,17 +246,14 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 		Serializable multiAssignees = variablesDefault.get(CMFModel.ASSOC_TASK_MULTI_ASSIGNEES);
 		if (multiAssignees != null) {
 			Pair<List<String>, List<String>> extractMultiAssignees = extractMultiAssignees(multiAssignees);
-			variablesDefault.put(WorkflowModel.ASSOC_ASSIGNEES,
-					(Serializable) extractMultiAssignees.getFirst());
-			variablesDefault.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES,
-					(Serializable) extractMultiAssignees.getSecond());
+			variablesDefault.put(WorkflowModel.ASSOC_ASSIGNEES, (Serializable) extractMultiAssignees.getFirst());
+			variablesDefault.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, (Serializable) extractMultiAssignees.getSecond());
 		}
 		// set as pooled task if data is provided
 		Serializable users = variablesDefault.get(WorkflowModel.ASSOC_ASSIGNEES);
 		if (users != null) {
 
-			Collection<String> convertedUsers = DefaultTypeConverter.INSTANCE.convert(
-					Collection.class, users);
+			Collection<String> convertedUsers = DefaultTypeConverter.INSTANCE.convert(Collection.class, users);
 			for (String userId : convertedUsers) {
 				taskService.addCandidateUser(taskInstance.getId(), userId);
 				// taskService.addCandidateGroup(taskId, groupId);
@@ -276,8 +266,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 			for (Object actor : convertedGroups) {
 				String groupId = null;
 				if (actor instanceof NodeRef) {
-					groupId = getUnprotectedNodeService().getProperty((NodeRef) actor,
-							ContentModel.PROP_AUTHORITY_NAME).toString();
+					groupId = getUnprotectedNodeService().getProperty((NodeRef) actor, ContentModel.PROP_AUTHORITY_NAME)
+							.toString();
 				} else {
 					groupId = actor.toString();
 				}
@@ -288,24 +278,20 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 			// assign to group
 			Serializable group = variablesDefault.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE);
 			if (group != null) {
-				taskService.addCandidateGroup(
-						taskInstance.getId(),
-						(String) getUnprotectedNodeService().getProperty((NodeRef) group,
-								ContentModel.PROP_AUTHORITY_NAME));
+				taskService.addCandidateGroup(taskInstance.getId(), (String) getUnprotectedNodeService()
+						.getProperty((NodeRef) group, ContentModel.PROP_AUTHORITY_NAME));
 			}
 		}
 
 		taskService.saveTask(taskInstance);
 		WorkflowTask convertStandalone = getTypeConverter().convertStandalone(task);
-		NodeRef addTask = getWorkflowReportService().addStandaloneTask(convertStandalone.getId(),
-				variablesDefault);
+		NodeRef addTask = getWorkflowReportService().addStandaloneTask(convertStandalone.getId(), variablesDefault);
 		String url = null;
 		if (addTask != null) {
 			url = addTask.toString();
 		}
 		// add the attachment info with dummy map
-		getPropertyConverter().updateMetadataAttachment(task.getId(),
-				new HashMap<QName, Serializable>(), url);
+		getPropertyConverter().updateMetadataAttachment(task.getId(), new HashMap<QName, Serializable>(), url);
 		// load it again
 		task = (TaskEntity) getActivitiUtil().getTaskInstance(task.getId());
 		// convert and return the started task
@@ -325,8 +311,7 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 * @throws Exception
 	 *             the exception
 	 */
-	private Task updateTaskMetadata(Map<QName, Serializable> variablesDefault, Task task)
-			throws Exception {
+	private Task updateTaskMetadata(Map<QName, Serializable> variablesDefault, Task task) throws Exception {
 		if (task == null || variablesDefault == null) {
 			return null;
 		}
@@ -352,8 +337,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 		if (dueDate != null) {
 			task.setDueDate((Date) dueDate);
 		}
-		task.setName(DefaultTypeConverter.INSTANCE.convert(String.class,
-				variablesDefault.remove(ContentModel.PROP_NAME)));
+		task.setName(
+				DefaultTypeConverter.INSTANCE.convert(String.class, variablesDefault.remove(ContentModel.PROP_NAME)));
 		return task;
 	}
 
@@ -366,16 +351,14 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	private void updateUserData(Map<QName, Serializable> variablesDefault) {
 		if (variablesDefault.containsKey(WorkflowModel.ASSOC_ASSIGNEE)) {
 			NodeRef person = getPerson(variablesDefault.get(WorkflowModel.ASSOC_ASSIGNEE));
-			String assignee = getNodeService().getProperty(person, ContentModel.PROP_USERNAME)
-					.toString();
+			String assignee = getNodeService().getProperty(person, ContentModel.PROP_USERNAME).toString();
 			variablesDefault.put(WorkflowModel.ASSOC_ASSIGNEE, assignee);
 		}
 		if (variablesDefault.containsKey(ContentModel.PROP_OWNER)) {
 			NodeRef person = getPerson(variablesDefault.get(ContentModel.PROP_OWNER));
 			String assignee = null;
 			if (person != null) {
-				assignee = getNodeService().getProperty(person, ContentModel.PROP_USERNAME)
-						.toString();
+				assignee = getNodeService().getProperty(person, ContentModel.PROP_USERNAME).toString();
 			}
 			variablesDefault.put(ContentModel.PROP_OWNER, assignee);
 		}
@@ -420,8 +403,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 * @throws Exception
 	 *             any expected/unexpected event
 	 */
-	public WorkflowTask updateTask(String taskId, Map<QName, Serializable> props,
-			String itemToTaskId) throws Exception {
+	public WorkflowTask updateTask(String taskId, Map<QName, Serializable> props, String itemToTaskId)
+			throws Exception {
 		WorkflowTask updateTask = updateTask(taskId, props, itemToTaskId, false);
 
 		return updateTask;
@@ -443,10 +426,9 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 * @throws Exception
 	 *             the exception
 	 */
-	private WorkflowTask updateTask(String taskId, Map<QName, Serializable> props,
-			String itemToTaskId, boolean finalState) throws Exception {
-		String localId = WorkflowUtil.getActivitiWorkflowManager().getWorkflowEngine()
-				.createLocalId(taskId);
+	private WorkflowTask updateTask(String taskId, Map<QName, Serializable> props, String itemToTaskId,
+			boolean finalState) throws Exception {
+		String localId = WorkflowUtil.getActivitiWorkflowManager().getWorkflowEngine().createLocalId(taskId);
 		TaskEntity taskInstance = (TaskEntity) getActivitiUtil().getTaskInstance(localId);
 		Task task = updateTaskMetadata(props, taskInstance);
 		TaskService taskService = getActivitiUtil().getTaskService();
@@ -457,16 +439,13 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 
 		WorkflowTask converted = getTypeConverter().convertStandalone(task);
 		if (itemToTaskId != null) {
-			String nodeId = (String) converted.getProperties().get(
-					WorkflowReportConstants.PROP_PACKAGE);
+			String nodeId = (String) converted.getProperties().get(WorkflowReportConstants.PROP_PACKAGE);
 
 			populateItemToTaskId(itemToTaskId);
-			QName attachmentId = QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI,
-					"attachmentID");
+			QName attachmentId = QName.createQName(CMFModel.CMF_WORKFLOW_MODEL_1_0_URI, "attachmentID");
 			if (this.itemToTask != null) {
 				Serializable oldAttachment = converted.getProperties().get(attachmentId);
-				if (oldAttachment == null
-						|| !oldAttachment.toString().contains(this.itemToTask.toString())) {
+				if (oldAttachment == null || !oldAttachment.toString().contains(this.itemToTask.toString())) {
 					NodeRef workflowPackage = caseService.getNodeRef(nodeId);
 					attachItemsToTaskPackage(workflowPackage, true);
 					props.put(attachmentId, this.itemToTask.toString());
@@ -474,8 +453,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 			}
 		}
 		taskService.saveTask(task);
-		Map<QName, Serializable> prepareTaskProperties = getWorkflowReportService()
-				.prepareTaskProperties(converted, props);
+		Map<QName, Serializable> prepareTaskProperties = getWorkflowReportService().prepareTaskProperties(converted,
+				props);
 		getPropertyConverter().updateMetadataAttachment(localId, prepareTaskProperties, null);
 		return getTypeConverter().convertStandalone(task);
 	}
@@ -493,8 +472,7 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 *             the exception on any error
 	 */
 	public WorkflowTask cancelTask(String taskId, Map<QName, Serializable> props) throws Exception {
-		String localId = WorkflowUtil.getActivitiWorkflowManager().getWorkflowEngine()
-				.createLocalId(taskId);
+		String localId = WorkflowUtil.getActivitiWorkflowManager().getWorkflowEngine().createLocalId(taskId);
 		if (props != null) {
 			props.put(WorkflowModel.PROP_COMPLETION_DATE, new Date());
 			updateTask(taskId, props, null, true);
@@ -505,8 +483,8 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 		if (taskById != null) {
 			throw new RuntimeException("Task is not deleted! " + taskById);
 		}
-		HistoricTaskInstance singleResult = getActivitiUtil().getHistoryService()
-				.createHistoricTaskInstanceQuery().taskId(localId).singleResult();
+		HistoricTaskInstance singleResult = getActivitiUtil().getHistoryService().createHistoricTaskInstanceQuery()
+				.taskId(localId).singleResult();
 		WorkflowTask convert = getTypeConverter().convert(singleResult);
 		getWorkflowReportService().endTask(convert);
 		return convert;
@@ -524,14 +502,12 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 * @throws Exception
 	 *             the exception on any error
 	 */
-	public WorkflowTask completeTask(String taskId, Map<QName, Serializable> props)
-			throws Exception {
+	public WorkflowTask completeTask(String taskId, Map<QName, Serializable> props) throws Exception {
 		if (props != null) {
 			props.put(WorkflowModel.PROP_COMPLETION_DATE, new Date());
 			updateTask(taskId, props, null, true);
 		}
-		WorkflowTask endTask = WorkflowUtil.getActivitiWorkflowManager().getWorkflowEngine()
-				.endTask(taskId, null);
+		WorkflowTask endTask = WorkflowUtil.getActivitiWorkflowManager().getWorkflowEngine().endTask(taskId, null);
 		// update the reporting
 		getWorkflowReportService().endTask(endTask);
 		return endTask;
@@ -549,21 +525,19 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 	 * @throws Exception
 	 *             on any error
 	 */
-	private void setOutcome(Task task, String transition, Map<QName, Serializable> updates)
-			throws Exception {
+	private void setOutcome(Task task, String transition, Map<QName, Serializable> updates) throws Exception {
 		String outcomeValue = ActivitiConstants.DEFAULT_TRANSITION_NAME;
 
 		boolean isDefaultTransition = (transition == null)
 				|| ActivitiConstants.DEFAULT_TRANSITION_NAME.equals(transition);
 
-		Map<QName, Serializable> properties = getPropertyConverter()
-				.collectPropertiesForStandaloneTask(task);
+		Map<QName, Serializable> properties = getPropertyConverter().collectPropertiesForStandaloneTask(task);
 		QName outcomePropName = (QName) properties.get(WorkflowModel.PROP_OUTCOME_PROPERTY_NAME);
 		if (outcomePropName != null) {
 			if (isDefaultTransition == false) {
 				outcomeValue = transition;
-				Serializable transitionValue = getPropertyConverter().convertValueToPropertyType(
-						task, transition, outcomePropName);
+				Serializable transitionValue = getPropertyConverter().convertValueToPropertyType(task, transition,
+						outcomePropName);
 				updates.put(outcomePropName, transitionValue);
 			} else {
 				Serializable rawOutcome = updates.get(outcomePropName);
@@ -572,8 +546,7 @@ public class StandaloneTaskWizard extends ActivitiWizards {
 				} else {
 					rawOutcome = properties.get(outcomePropName);
 					if (rawOutcome != null) {
-						outcomeValue = DefaultTypeConverter.INSTANCE.convert(String.class,
-								rawOutcome);
+						outcomeValue = DefaultTypeConverter.INSTANCE.convert(String.class, rawOutcome);
 					}
 				}
 			}

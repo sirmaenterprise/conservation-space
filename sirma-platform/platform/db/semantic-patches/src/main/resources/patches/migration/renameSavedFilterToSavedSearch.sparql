@@ -1,0 +1,59 @@
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+delete {
+    emf:SavedFilter ?p ?o.
+    emf:filterCriteria ?p ?o.
+    emf:filterType ?p ?o .
+    emf:mutable skos:definition ?o.
+    emf:mutable rdfs:domain ?o.
+} insert {
+    graph<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework>{
+        emf:SavedSearch rdf:type owl:Class ;
+            rdfs:label "Saved Search"@en ,
+                "Запазено търсене"@bg ;
+            rdfs:subClassOf ptop:Object ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Nikolay Velkov"@en ;
+            skos:definition "Saved search data"@en ;
+            emf:definitionId "objectinstance" ;
+            emf:classCategory "savedsearch" .
+        emf:searchCriteria rdf:type owl:DatatypeProperty;
+            rdfs:label "Search Criteria"@en ;
+            skos:definition "Criterias of the search"@en ;
+            dc:creator "Nikolay Velkov"@en ;
+            rdfs:domain emf:SavedSearch .
+        emf:searchType rdf:type owl:DatatypeProperty;
+            rdfs:label "Search Type"@en ;
+            dc:creator "Nikolay Velkov"@en ;
+            skos:definition "Type of the search - basic or advanced"@en ;
+            rdfs:domain emf:SavedSearch .
+        emf:mutable skos:definition "Mutable property of Saved search"@en ;
+            rdfs:domain emf:SavedSearch .
+        emf:searchOrderBy rdf:type owl:DatatypeProperty ;
+            rdfs:label "Order by"@en ;
+            dc:creator "Tsvetomir Dimitrov"@en;
+            skos:definition "The order of the saved search"@en ;
+            rdfs:domain emf:SavedSearch .
+        emf:searchOrderDirection rdf:type owl:DatatypeProperty;
+            rdfs:label "Order direction"@en ;
+            dc:creator "Tsvetomir Dimitrov"@en ;
+            skos:definition "Saved search order direction"@en ;
+            rdfs:domain emf:SavedSearch .
+    }
+} where {
+    {
+        emf:filterCriteria ?p ?o
+    } union {
+        emf:filterType ?p ?o
+    } union {
+        emf:mutable ?p ?o
+    } union {
+        emf:SavedFilter ?p ?o
+    }
+}

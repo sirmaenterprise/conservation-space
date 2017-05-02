@@ -1,0 +1,360 @@
+PREFIX dc-terms:<http://dublincore.org/documents/dcmi-terms/>
+PREFIX emf:<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xml:<http://www.w3.org/XML/1998/namespace>
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX ptop:<http://www.ontotext.com/proton/protontop#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX chd:<http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#>
+
+select distinct ?label 
+	from <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework>
+where {
+
+OPTIONAL {
+select (group_concat(distinct ?classDescription ; separator = "\n") AS ?classDescription)
+
+{
+	select distinct ?classDescription
+	where {
+	?class a owl:Class .
+	?class rdfs:comment|skos:definition ?comment .
+	?class rdfs:label ?label1 .
+	filter ( contains(str(?class), "proton"))
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = ", ") AS ?superClasses)
+	{
+		?class rdfs:subClassOf ?class1 .
+		?class1 rdfs:label ?label .
+		bind(if(contains(str(?class1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?class1), "proton"), "Proton Base Ontology Model", if(contains(str(?class1), "skos"), "SKOS", if(contains(str(?class1), "dc"), "Dublin Core", if(contains(str(?class1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?label) .
+		filter (?class != ?class1)
+	}
+	group by ?class
+	}
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = "\n ") AS ?superClassesHierarchy)
+	{
+		?class rdfs:subClassOf ?class1 .
+		?class1 rdfs:label ?label .
+		?class rdfs:label ?classLabel .
+		bind(concat("\"", ?label, "\" <|-- \"", ?classLabel, "\"") as ?label) .
+		filter (?class != ?class1)
+	}
+	group by ?class
+	}
+
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = ", ") AS ?subClasses)
+	{
+		?class1 rdfs:subClassOf ?class .
+		?class1 rdfs:label ?label .
+		bind(if(contains(str(?class1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?class1), "proton"), "Proton Base Ontology Model", if(contains(str(?class1), "skos"), "SKOS", if(contains(str(?class1), "dc"), "Dublin Core", if(contains(str(?class1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label,  "|", ?page, "#Class " , ?label, "]") as ?label) .
+		filter (?class != ?class1)
+	}
+	group by ?class
+	} 
+	
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = "\n") AS ?subClassesHierarchy)
+	{
+		?class1 rdfs:subClassOf ?class .
+		?class1 rdfs:label ?label .
+		?class rdfs:label ?classLabel .
+		bind(concat("\"", ?classLabel, "\" <|-- \"", ?label, "\"") as ?label) .
+		filter (?class != ?class1)
+	}
+	group by ?class
+	} 
+	
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = ", ") AS ?objectProperties)
+	{
+		?property rdfs:domain ?class .
+		?property a owl:ObjectProperty .
+		bind(if(contains(str(?property), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property), "proton"), "Proton Base Ontology Model", if(contains(str(?property), "skos"), "SKOS", if(contains(str(?property), "dc"), "Dublin Core", if(contains(str(?property), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(STRAFTER(str(?property), "#") as ?label) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+	}
+	group by ?class
+	} 
+	
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = "\n") AS ?objectPropertiesRelations)
+	{
+		?property rdfs:domain ?class .
+		?property rdfs:range ?otherClass .
+		?class rdfs:label ?classLabel .
+		?otherClass rdfs:label ?otherClassLabel .
+		?property a owl:ObjectProperty .
+		#bind(if(contains(str(?property), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property), "proton"), "Proton Base Ontology Model", if(contains(str(?property), "skos"), "SKOS", if(contains(str(?property), "dc"), "Dublin Core", if(contains(str(?property), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(STRAFTER(str(?property), "#") as ?label) .
+		bind(concat("\"", ?otherClassLabel, "\" o-- \"", ?classLabel, "\": ", ?label, "") as ?label) .
+	}
+	group by ?class
+	} 
+
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = ", ") AS ?dataProperties)
+	{
+		?property rdfs:domain ?class .
+		?property a owl:DatatypeProperty .
+		bind(if(contains(str(?property), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property), "proton"), "Proton Base Ontology Model", if(contains(str(?property), "skos"), "SKOS", if(contains(str(?property), "dc"), "Dublin Core", if(contains(str(?property), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(STRAFTER(str(?property), "#") as ?label) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+	}
+	group by ?class
+	}
+
+	OPTIONAL 
+	{
+	select ?class (group_concat(distinct ?label ; separator = ", ") AS ?inheritedObjectProperties)
+	{
+		?property rdfs:domain ?class1 .
+		?class rdfs:subClassOf+ ?class1 .
+		?property a owl:ObjectProperty .
+		filter(?class != ?class1).
+		bind(if(contains(str(?property), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property), "proton"), "Proton Base Ontology Model", if(contains(str(?property), "skos"), "SKOS", if(contains(str(?property), "dc"), "Dublin Core", if(contains(str(?property), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(STRAFTER(str(?property), "#") as ?label) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+	}
+	group by ?class
+	}
+
+	OPTIONAL
+	{
+	select ?class (group_concat(distinct ?label ; separator = ", ") AS ?inheritedDataProperties)
+	{
+		?property rdfs:domain ?class1 .
+		?class rdfs:subClassOf+ ?class1 .
+		?property a owl:DatatypeProperty .
+		filter(?class != ?class1).
+		bind(if(contains(str(?property), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property), "proton"), "Proton Base Ontology Model", if(contains(str(?property), "skos"), "SKOS", if(contains(str(?property), "dc"), "Dublin Core", if(contains(str(?property), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(STRAFTER(str(?property), "#") as ?label) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+	}
+	group by ?class
+	} 
+
+	bind(concat(
+	"h2. Class ", ?label1, "\n",
+	"\n",
+	"Namespace: ", str(?class), "\n", 
+	"h3. Description", "\n", 
+	?comment, "\n",
+	"\n",
+	"h3. Parent", "\n",
+	?superClasses , "\n",
+	"h3. Subclasses", "\n",
+	?subClasses, "\n",
+	"h3. Hierarchy", "\n",
+	"{plantuml}\n@startuml\nhide empty attributes\nhide empty methods", "\n",
+	"skinparam class {\nArrowColor #436CA6\nBorderColor #436CA6\n}\n",
+	?superClassesHierarchy, "\n", ?subClassesHierarchy, "\n",
+	"@enduml\n{plantuml}", "\n",
+	"h3. Object properties", "\n",
+	?objectProperties, "\n",
+	if(STRLEN(?objectPropertiesRelations) > 5, concat(
+	"h3. Relations", "\n",
+	"{plantuml}\n@startuml\nhide empty attributes\nhide empty methods", "\n",
+	"skinparam class {\nArrowColor #436CA6\nBorderColor #436CA6\n}\n",
+	?objectPropertiesRelations, "\n",
+	"@enduml\n{plantuml}"), " "), "\n", 
+	"h3. Inherited Object properties", "\n",
+	?inheritedObjectProperties, "\n",
+	"h3. Data Properties", "\n",
+	?dataProperties, "\n", 
+	"h3. Inherited Data properties", "\n",
+	?inheritedDataProperties, "\n",
+	"----"
+	) as ?classDescription).
+	bind("" as ?subClasses)
+	} order by ?class
+	}
+}
+
+OPTIONAL {
+select (group_concat(distinct ?objectPropertiesDescription ; separator = "\n") AS ?objectPropertiesDescription)
+{
+	select distinct ?objectPropertiesDescription 
+	where {
+	?property a owl:ObjectProperty .
+	?property rdfs:comment|skos:definition ?comment .
+	bind(STRAFTER(str(?property), "#") as ?label1) .
+	filter ( contains(str(?property), "proton"))
+
+	OPTIONAL
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?superProperties)
+	{
+		?property rdfs:subPropertyOf ?property1 .
+		bind(STRAFTER(str(?property1), "#") as ?label) .
+		bind(if(contains(str(?property1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property1), "proton"), "Proton Base Ontology Model", if(contains(str(?property1), "skos"), "SKOS", if(contains(str(?property1), "dc"), "Dublin Core", if(contains(str(?property1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+		filter (?property != ?property1)
+	}
+	group by ?property
+	}
+
+	OPTIONAL
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?subProperties)
+	{
+		?property1 rdfs:subPropertyOf ?property .
+		bind(STRAFTER(str(?property1), "#") as ?label) .
+		bind(if(contains(str(?property1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property1), "proton"), "Proton Base Ontology Model", if(contains(str(?property1), "skos"), "SKOS", if(contains(str(?property1), "dc"), "Dublin Core", if(contains(str(?property1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+		filter (?property != ?property1)
+	}
+	group by ?property
+	}
+
+	OPTIONAL 
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?domain)
+	{
+		?property rdfs:domain ?domain1 .
+		bind(STRAFTER(str(?domain1), "#") as ?label) .
+		bind(if(contains(str(?domain1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?domain1), "proton"), "Proton Base Ontology Model", if(contains(str(?domain1), "skos"), "SKOS", if(contains(str(?domain1), "dc"), "Dublin Core", if(contains(str(?domain1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?label) .
+	}
+	group by ?property
+	}
+
+	OPTIONAL 
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?range)
+	{
+		?property rdfs:range ?range1 .
+		bind(STRAFTER(str(?range1), "#") as ?label) .
+		bind(if(contains(str(?range1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?range1), "proton"), "Proton Base Ontology Model", if(contains(str(?range1), "skos"), "SKOS", if(contains(str(?range1), "dc"), "Dublin Core", if(contains(str(?range1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?label) .
+	}
+	group by ?property
+	}
+
+	bind(concat(
+	"h2. Property ", ?label1, "\n",
+	"\n",
+	"Namespace: ", str(?property), "\n", 
+	"h3. Description", "\n", 
+	?comment, "\n",
+	"\n",
+	"h3. Parent", "\n",
+	?superProperties , "\n",
+	"h3. Subproperties", "\n",
+	?subProperties, "\n",
+	"h3. Domain", "\n",
+	if(bound(?domain), str(?domain), ""), "\n",
+	"h3. Range", "\n",
+	if(bound(?range), str(?range), ""), "\n",
+	"----"
+	) as ?objectPropertiesDescription).
+	} order by ?property
+
+	}
+}
+
+OPTIONAL {
+select (group_concat(distinct ?dataPropertiesDescription ; separator = "\n") AS ?dataPropertiesDescription)
+{
+	select distinct ?dataPropertiesDescription 
+	where {
+	?property a owl:DatatypeProperty .
+	?property rdfs:comment|skos:definition ?comment .
+	bind(STRAFTER(str(?property), "#") as ?label1) .
+	filter ( contains(str(?property), "proton"))
+
+	OPTIONAL
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?superProperties)
+	{
+		?property rdfs:subPropertyOf ?property1 .
+		bind(STRAFTER(str(?property1), "#") as ?label) .
+		bind(if(contains(str(?property1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property1), "proton"), "Proton Base Ontology Model", if(contains(str(?property1), "skos"), "SKOS", if(contains(str(?property1), "dc"), "Dublin Core", if(contains(str(?property1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+		filter (?property != ?property1)
+	}
+	group by ?property
+	}
+
+	OPTIONAL
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?subProperties)
+	{
+		?property1 rdfs:subPropertyOf ?property .
+		bind(STRAFTER(str(?property1), "#") as ?label) .
+		bind(if(contains(str(?property1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?property1), "proton"), "Proton Base Ontology Model", if(contains(str(?property1), "skos"), "SKOS", if(contains(str(?property1), "dc"), "Dublin Core", if(contains(str(?property1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Property ", ?label, "]") as ?label) .
+		filter (?property != ?property1)
+	}
+	group by ?property
+	}
+
+	OPTIONAL 
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?domain)
+	{
+		?property rdfs:domain ?domain1 .
+		bind(STRAFTER(str(?domain1), "#") as ?label) .
+		bind(if(contains(str(?domain1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?domain1), "proton"), "Proton Base Ontology Model", if(contains(str(?domain1), "skos"), "SKOS", if(contains(str(?domain1), "dc"), "Dublin Core", if(contains(str(?domain1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?label) .
+	}
+	group by ?property
+	}
+
+	OPTIONAL 
+	{
+	select ?property (group_concat(distinct ?label ; separator = ", ") AS ?range)
+	{
+		?property rdfs:range ?range1 .
+		bind(STRAFTER(str(?range1), "#") as ?label) .
+		bind(if(contains(str(?range1), "enterpriseManagementFramework"), "Enterprise Management Framework Model", if(contains(str(?range1), "proton"), "Proton Base Ontology Model", if(contains(str(?range1), "skos"), "SKOS", if(contains(str(?range1), "dc"), "Dublin Core", if(contains(str(?range1), "culturalHeritageDomain"), "Cultural Heritage Domain Model", ""))))) as ?page) .
+		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?label) .
+	}
+	group by ?property
+	}
+
+	bind(concat(
+	"h2. Property ", ?label1, "\n",
+	"\n",
+	"Namespace: ", str(?property), "\n", 
+	"h3. Description", "\n", 
+	?comment, "\n",
+	"\n",
+	"h3. Parent", "\n",
+	?superProperties , "\n",
+	"h3. Subproperties", "\n",
+	?subProperties, "\n",
+	"h3. Domain", "\n",
+	if(bound(?domain), str(?domain), ""), "\n",
+	"h3. Range", "\n",
+	if(bound(?range), str(?range), ""), "\n",
+	"----"
+	) as ?dataPropertiesDescription).
+	} order by ?property
+	}
+}
+
+
+
+bind(concat(
+	"h1. Classes ", "\n",
+	?classDescription, "\n",
+	"h1. Object properties ", "\n",
+	?objectPropertiesDescription, "\n",
+	"h1. Data properties ", "\n", 
+	?dataPropertiesDescription, "\n"
+	) as ?label)
+}

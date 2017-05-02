@@ -1,0 +1,39 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+insert data {
+
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+    
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DataImportSource
+        emf:DataImportSource rdf:type owl:Class ;
+            rdfs:label "Data Import Source"@en, "Данни за импортиране"@bg ;
+            rdfs:subClassOf emf:Document ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            emf:isCreateable "false"^^xsd:boolean ;
+            emf:isUploadable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            skos:definition "Will use for importing data from spreadsheet in the system"@en ;
+            dc:creator "Kiril Penev"@en ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+            
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DataImportReport
+        emf:DataImportReport rdf:type owl:Class ;
+            rdfs:label "Data Import Report"@en , "Резултат от валидация на данните"@bg ;
+            rdfs:subClassOf emf:Document ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isUploadable "false"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            skos:definition "Will receive information for the data validation"@en ;
+            dc:creator "Kiril Penev"@en ;
+            sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+    }
+}

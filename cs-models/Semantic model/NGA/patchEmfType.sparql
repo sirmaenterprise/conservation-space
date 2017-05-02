@@ -1,0 +1,20 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#>
+PREFIX nga: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/NGA#>
+delete {
+    ?instance emf:type ?type .
+} insert {
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?instance emf:type ?newTypeValue .
+        ?instance nga:subClassification ?type
+    }
+} where {
+    VALUES (?rdfType ?newTypeValue) {
+        ( emf:Project "NGAPRJ")
+        ( emf:Task "NGATSK")
+        ( chc:ConservationActivity "NGACA")
+    }
+    
+    ?instance a ?rdfType .
+    ?instance emf:type ?type .
+}

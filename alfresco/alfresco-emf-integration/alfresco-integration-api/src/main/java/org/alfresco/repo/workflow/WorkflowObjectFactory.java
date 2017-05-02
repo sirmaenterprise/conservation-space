@@ -80,16 +80,22 @@ public class WorkflowObjectFactory {
 	/**
 	 * Instantiates a new workflow object factory.
 	 *
-	 * @param qNameConverter the q name converter
-	 * @param tenantService the tenant service
-	 * @param messageService the message service
-	 * @param dictionaryService the dictionary service
-	 * @param engineId the engine id
-	 * @param defaultStartTaskType the default start task type
+	 * @param qNameConverter
+	 *            the q name converter
+	 * @param tenantService
+	 *            the tenant service
+	 * @param messageService
+	 *            the message service
+	 * @param dictionaryService
+	 *            the dictionary service
+	 * @param engineId
+	 *            the engine id
+	 * @param defaultStartTaskType
+	 *            the default start task type
 	 */
-	public WorkflowObjectFactory(WorkflowQNameConverter qNameConverter,
-			TenantService tenantService, MessageService messageService,
-			DictionaryService dictionaryService, String engineId, QName defaultStartTaskType) {
+	public WorkflowObjectFactory(WorkflowQNameConverter qNameConverter, TenantService tenantService,
+			MessageService messageService, DictionaryService dictionaryService, String engineId,
+			QName defaultStartTaskType) {
 		this.tenantService = tenantService;
 		this.messageService = messageService;
 		this.dictionaryService = dictionaryService;
@@ -101,7 +107,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Builds the global id.
 	 *
-	 * @param localId the local id
+	 * @param localId
+	 *            the local id
 	 * @return the string
 	 */
 	public String buildGlobalId(String localId) {
@@ -111,7 +118,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the local engine id.
 	 *
-	 * @param globalId the global id
+	 * @param globalId
+	 *            the global id
 	 * @return the local engine id
 	 */
 	public String getLocalEngineId(String globalId) {
@@ -121,7 +129,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Checks if is global id.
 	 *
-	 * @param globalId the global id
+	 * @param globalId
+	 *            the global id
 	 * @return true, if is global id
 	 */
 	public boolean isGlobalId(String globalId) {
@@ -131,8 +140,10 @@ public class WorkflowObjectFactory {
 	/**
 	 * Create a new {@link WorkflowDeployment}.
 	 *
-	 * @param wfDef the wf def
-	 * @param problems the problems
+	 * @param wfDef
+	 *            the wf def
+	 * @param problems
+	 *            the problems
 	 * @return the workflow deployment
 	 */
 	public WorkflowDeployment createDeployment(WorkflowDefinition wfDef, String... problems) {
@@ -143,16 +154,22 @@ public class WorkflowObjectFactory {
 	/**
 	 * Create a new {@link WorkflowDefinition}.
 	 *
-	 * @param defId the def id
-	 * @param defName the def name
-	 * @param version the version
-	 * @param defaultTitle the default title
-	 * @param defaultDescription the default description
-	 * @param startTaskDef the start task def
+	 * @param defId
+	 *            the def id
+	 * @param defName
+	 *            the def name
+	 * @param version
+	 *            the version
+	 * @param defaultTitle
+	 *            the default title
+	 * @param defaultDescription
+	 *            the default description
+	 * @param startTaskDef
+	 *            the start task def
 	 * @return the workflow definition
 	 */
-	public WorkflowDefinition createDefinition(String defId, String defName, int version,
-			String defaultTitle, String defaultDescription, WorkflowTaskDefinition startTaskDef) {
+	public WorkflowDefinition createDefinition(String defId, String defName, int version, String defaultTitle,
+			String defaultDescription, WorkflowTaskDefinition startTaskDef) {
 		checkDomain(defName);
 		String actualDefName = buildGlobalId(tenantService.getBaseName(defName));
 		String actualId = buildGlobalId(defId);
@@ -162,14 +179,14 @@ public class WorkflowObjectFactory {
 		String displayId = getProcessKey(defName) + ".workflow";
 		String title = getLabel(displayId, TITLE_LABEL, defaultTitle);
 		String description = getLabel(displayId, DESC_LABEL, defaultDescription, title);
-		return new WorkflowDefinition(actualId, actualDefName, actualVersion, title, description,
-				startTaskDef);
+		return new WorkflowDefinition(actualId, actualDefName, actualVersion, title, description, startTaskDef);
 	}
 
 	/**
 	 * Gets the workflow definition name.
 	 *
-	 * @param defName the def name
+	 * @param defName
+	 *            the def name
 	 * @return the workflow definition name
 	 */
 	public String getWorkflowDefinitionName(String defName) {
@@ -181,24 +198,28 @@ public class WorkflowObjectFactory {
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param definition the definition
-	 * @param variables the variables
-	 * @param isActive the is active
-	 * @param startDate the start date
-	 * @param endDate the end date
+	 * @param id
+	 *            the id
+	 * @param definition
+	 *            the definition
+	 * @param variables
+	 *            the variables
+	 * @param isActive
+	 *            the is active
+	 * @param startDate
+	 *            the start date
+	 * @param endDate
+	 *            the end date
 	 * @return the workflow instance
 	 */
-	public WorkflowInstance createInstance(String id, WorkflowDefinition definition,
-			Map<String, Object> variables, boolean isActive, Date startDate, Date endDate) {
+	public WorkflowInstance createInstance(String id, WorkflowDefinition definition, Map<String, Object> variables,
+			boolean isActive, Date startDate, Date endDate) {
 		String actualId = buildGlobalId(id);
 
-		String description = (String) getVariable(variables,
-				WorkflowModel.PROP_WORKFLOW_DESCRIPTION);
+		String description = (String) getVariable(variables, WorkflowModel.PROP_WORKFLOW_DESCRIPTION);
 
 		NodeRef initiator = null;
-		ScriptNode initiatorSN = (ScriptNode) getVariable(variables,
-				WorkflowConstants.PROP_INITIATOR);
+		ScriptNode initiatorSN = (ScriptNode) getVariable(variables, WorkflowConstants.PROP_INITIATOR);
 		if (initiatorSN != null) {
 			initiator = initiatorSN.getNodeRef();
 		}
@@ -206,11 +227,10 @@ public class WorkflowObjectFactory {
 		NodeRef context = getNodeVariable(variables, WorkflowModel.PROP_CONTEXT);
 		NodeRef workflowPackage = getNodeVariable(variables, WorkflowModel.ASSOC_PACKAGE);
 
-		WorkflowInstance workflowInstance = new WorkflowInstance(actualId, definition, description,
-				initiator, workflowPackage, context, isActive, startDate, endDate);
+		WorkflowInstance workflowInstance = new WorkflowInstance(actualId, definition, description, initiator,
+				workflowPackage, context, isActive, startDate, endDate);
 
-		workflowInstance.priority = (Integer) getVariable(variables,
-				WorkflowModel.PROP_WORKFLOW_PRIORITY);
+		workflowInstance.priority = (Integer) getVariable(variables, WorkflowModel.PROP_WORKFLOW_PRIORITY);
 		Date dueDate = (Date) getVariable(variables, WorkflowModel.PROP_WORKFLOW_DUE_DATE);
 		if (dueDate != null) {
 			workflowInstance.dueDate = dueDate;
@@ -222,14 +242,17 @@ public class WorkflowObjectFactory {
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param wfInstance the wf instance
-	 * @param node the node
-	 * @param isActive the is active
+	 * @param id
+	 *            the id
+	 * @param wfInstance
+	 *            the wf instance
+	 * @param node
+	 *            the node
+	 * @param isActive
+	 *            the is active
 	 * @return the workflow path
 	 */
-	public WorkflowPath createPath(String id, WorkflowInstance wfInstance, WorkflowNode node,
-			boolean isActive) {
+	public WorkflowPath createPath(String id, WorkflowInstance wfInstance, WorkflowNode node, boolean isActive) {
 		String actualId = buildGlobalId(id);
 		return new WorkflowPath(actualId, wfInstance, node, isActive);
 	}
@@ -237,18 +260,24 @@ public class WorkflowObjectFactory {
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param name the name
-	 * @param definitionName the definition name
-	 * @param defaultTitle the default title
-	 * @param defaultDescription the default description
-	 * @param type the type
-	 * @param isTaskNode the is task node
-	 * @param transitions the transitions
+	 * @param name
+	 *            the name
+	 * @param definitionName
+	 *            the definition name
+	 * @param defaultTitle
+	 *            the default title
+	 * @param defaultDescription
+	 *            the default description
+	 * @param type
+	 *            the type
+	 * @param isTaskNode
+	 *            the is task node
+	 * @param transitions
+	 *            the transitions
 	 * @return the workflow node
 	 */
-	public WorkflowNode createNode(String name, String definitionName, String defaultTitle,
-			String defaultDescription, String type, boolean isTaskNode,
-			WorkflowTransition... transitions) {
+	public WorkflowNode createNode(String name, String definitionName, String defaultTitle, String defaultDescription,
+			String type, boolean isTaskNode, WorkflowTransition... transitions) {
 		String displayId = definitionName + ".node." + name;
 		String title = getLabel(displayId, TITLE_LABEL, defaultTitle);
 		String description = getLabel(displayId, DESC_LABEL, defaultDescription, title);
@@ -258,15 +287,20 @@ public class WorkflowObjectFactory {
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param defaultTitle the default title
-	 * @param defaultDescription the default description
-	 * @param isDefault the is default
-	 * @param baseLabelKeys the base label keys
+	 * @param id
+	 *            the id
+	 * @param defaultTitle
+	 *            the default title
+	 * @param defaultDescription
+	 *            the default description
+	 * @param isDefault
+	 *            the is default
+	 * @param baseLabelKeys
+	 *            the base label keys
 	 * @return the workflow transition
 	 */
-	public WorkflowTransition createTransition(String id, String defaultTitle,
-			String defaultDescription, boolean isDefault, String... baseLabelKeys) {
+	public WorkflowTransition createTransition(String id, String defaultTitle, String defaultDescription,
+			boolean isDefault, String... baseLabelKeys) {
 		String title = getLabel(baseLabelKeys, TITLE_LABEL, defaultTitle);
 		String description = getLabel(baseLabelKeys, TITLE_LABEL, defaultDescription);
 		return new WorkflowTransition(id, title, description, isDefault);
@@ -275,14 +309,17 @@ public class WorkflowObjectFactory {
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param node the node
-	 * @param typeName the type name
-	 * @param isStart the is start
+	 * @param id
+	 *            the id
+	 * @param node
+	 *            the node
+	 * @param typeName
+	 *            the type name
+	 * @param isStart
+	 *            the is start
 	 * @return the workflow task definition
 	 */
-	public WorkflowTaskDefinition createTaskDefinition(String id, WorkflowNode node,
-			String typeName, boolean isStart) {
+	public WorkflowTaskDefinition createTaskDefinition(String id, WorkflowNode node, String typeName, boolean isStart) {
 		TypeDefinition metaData = getTaskTypeDefinition(typeName, isStart);
 		if (id == null) {
 			id = qNameConverter.mapQNameToName(metaData.getName());
@@ -293,67 +330,84 @@ public class WorkflowObjectFactory {
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param taskDef the task def
-	 * @param name the name
-	 * @param defaultTitle the default title
-	 * @param defaultDescription the default description
-	 * @param state the state
-	 * @param path the path
-	 * @param properties the properties
+	 * @param id
+	 *            the id
+	 * @param taskDef
+	 *            the task def
+	 * @param name
+	 *            the name
+	 * @param defaultTitle
+	 *            the default title
+	 * @param defaultDescription
+	 *            the default description
+	 * @param state
+	 *            the state
+	 * @param path
+	 *            the path
+	 * @param properties
+	 *            the properties
 	 * @return the workflow task
 	 */
-	public WorkflowTask createTask(String id, WorkflowTaskDefinition taskDef, String name,
-			String defaultTitle, String defaultDescription, WorkflowTaskState state,
-			WorkflowPath path, Map<QName, Serializable> properties) {
+	public WorkflowTask createTask(String id, WorkflowTaskDefinition taskDef, String name, String defaultTitle,
+			String defaultDescription, WorkflowTaskState state, WorkflowPath path,
+			Map<QName, Serializable> properties) {
 		String defName = path.getInstance().getDefinition().getName();
 		String actualId = buildGlobalId(id);
 
 		String processKey = getProcessKey(defName) + ".task." + name;
 		TypeDefinition metadata = taskDef.getMetadata();
 		String title = getLabel(processKey, TITLE_LABEL, metadata.getTitle(), defaultTitle, name);
-		String description = getLabel(processKey, DESC_LABEL, metadata.getDescription(),
-				defaultDescription, title);
-		return new WorkflowTask(actualId, taskDef, name, title, description, state, path,
-				properties);
+		String description = getLabel(processKey, DESC_LABEL, metadata.getDescription(), defaultDescription, title);
+		return new WorkflowTask(actualId, taskDef, name, title, description, state, path, properties);
 	}
 
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param taskDef the task def
-	 * @param name the name
-	 * @param defaultTitle the default title
-	 * @param defaultDescription the default description
-	 * @param state the state
-	 * @param defName the def name
-	 * @param properties the properties
+	 * @param id
+	 *            the id
+	 * @param taskDef
+	 *            the task def
+	 * @param name
+	 *            the name
+	 * @param defaultTitle
+	 *            the default title
+	 * @param defaultDescription
+	 *            the default description
+	 * @param state
+	 *            the state
+	 * @param defName
+	 *            the def name
+	 * @param properties
+	 *            the properties
 	 * @return the workflow task
 	 */
-	public WorkflowTask createTask(String id, WorkflowTaskDefinition taskDef, String name,
-			String defaultTitle, String defaultDescription, WorkflowTaskState state,
-			String defName, Map<QName, Serializable> properties) {
+	public WorkflowTask createTask(String id, WorkflowTaskDefinition taskDef, String name, String defaultTitle,
+			String defaultDescription, WorkflowTaskState state, String defName, Map<QName, Serializable> properties) {
 		String actualId = buildGlobalId(id);
 
 		String processKey = getProcessKey(defName) + ".task." + name;
 		TypeDefinition metadata = taskDef.getMetadata();
 		String title = getLabel(processKey, TITLE_LABEL, metadata.getTitle(), defaultTitle, name);
-		String description = getLabel(processKey, DESC_LABEL, metadata.getDescription(),
-				defaultDescription, title);
-		return new WorkflowTask(actualId, taskDef, name, title, description, state, null,
-				properties);
+		String description = getLabel(processKey, DESC_LABEL, metadata.getDescription(), defaultDescription, title);
+		return new WorkflowTask(actualId, taskDef, name, title, description, state, null, properties);
 	}
 
 	/**
 	 * Creates a new WorkflowObject object.
 	 *
-	 * @param id the id
-	 * @param name the name
-	 * @param error the error
-	 * @param dueDate the due date
-	 * @param workflowPath the workflow path
-	 * @param workflowTask the workflow task
+	 * @param id
+	 *            the id
+	 * @param name
+	 *            the name
+	 * @param error
+	 *            the error
+	 * @param dueDate
+	 *            the due date
+	 * @param workflowPath
+	 *            the workflow path
+	 * @param workflowTask
+	 *            the workflow task
 	 * @return the workflow timer
 	 */
 	public WorkflowTimer createWorkflowTimer(String id, String name, String error, Date dueDate,
@@ -365,7 +419,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the process key.
 	 *
-	 * @param defName the def name
+	 * @param defName
+	 *            the def name
 	 * @return the process key
 	 */
 	public String getProcessKey(String defName) {
@@ -379,7 +434,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the domain process key.
 	 *
-	 * @param defName the def name
+	 * @param defName
+	 *            the def name
 	 * @return the domain process key
 	 */
 	public String getDomainProcessKey(String defName) {
@@ -393,14 +449,17 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the task title.
 	 *
-	 * @param typeDefinition the type definition
-	 * @param defName the def name
-	 * @param defaultTitle the default title
-	 * @param name the name
+	 * @param typeDefinition
+	 *            the type definition
+	 * @param defName
+	 *            the def name
+	 * @param defaultTitle
+	 *            the default title
+	 * @param name
+	 *            the name
 	 * @return the task title
 	 */
-	public String getTaskTitle(TypeDefinition typeDefinition, String defName, String defaultTitle,
-			String name) {
+	public String getTaskTitle(TypeDefinition typeDefinition, String defName, String defaultTitle, String name) {
 		String displayId = getProcessKey(defName) + ".task." + name;
 		return getLabel(displayId, TITLE_LABEL, defaultTitle, typeDefinition.getTitle(), name);
 	}
@@ -408,14 +467,18 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the task description.
 	 *
-	 * @param typeDefinition the type definition
-	 * @param defName the def name
-	 * @param defaultDescription the default description
-	 * @param title the title
+	 * @param typeDefinition
+	 *            the type definition
+	 * @param defName
+	 *            the def name
+	 * @param defaultDescription
+	 *            the default description
+	 * @param title
+	 *            the title
 	 * @return the task description
 	 */
-	public String getTaskDescription(TypeDefinition typeDefinition, String defName,
-			String defaultDescription, String title) {
+	public String getTaskDescription(TypeDefinition typeDefinition, String defName, String defaultDescription,
+			String title) {
 		String displayId = getProcessKey(defName) + ".task." + title;
 		return getLabel(displayId, DESC_LABEL, defaultDescription);
 	}
@@ -423,9 +486,12 @@ public class WorkflowObjectFactory {
 	/**
 	 * Get an I18N Label for a workflow item.
 	 *
-	 * @param displayId message resource id lookup
-	 * @param labelKey label to lookup (title or description)
-	 * @param defaults the defaults
+	 * @param displayId
+	 *            message resource id lookup
+	 * @param labelKey
+	 *            label to lookup (title or description)
+	 * @param defaults
+	 *            the defaults
 	 * @return the label
 	 */
 	private String getLabel(String displayId, String labelKey, String... defaults) {
@@ -438,9 +504,12 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the label.
 	 *
-	 * @param locations the locations
-	 * @param labelKey the label key
-	 * @param defaults the defaults
+	 * @param locations
+	 *            the locations
+	 * @param labelKey
+	 *            the label key
+	 * @param defaults
+	 *            the defaults
 	 * @return the label
 	 */
 	private String getLabel(String[] locations, String labelKey, String... defaults) {
@@ -456,8 +525,10 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the default label.
 	 *
-	 * @param label the label
-	 * @param defaults the defaults
+	 * @param label
+	 *            the label
+	 * @param defaults
+	 *            the defaults
 	 * @return the default label
 	 */
 	private String getDefaultLabel(String label, String... defaults) {
@@ -472,8 +543,10 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the node variable.
 	 *
-	 * @param variables the variables
-	 * @param qName the q name
+	 * @param variables
+	 *            the variables
+	 * @param qName
+	 *            the q name
 	 * @return the node variable
 	 */
 	private NodeRef getNodeVariable(Map<String, Object> variables, QName qName) {
@@ -485,16 +558,17 @@ public class WorkflowObjectFactory {
 			ScriptNode scriptNode = (ScriptNode) obj;
 			return scriptNode.getNodeRef();
 		}
-		String message = "Variable " + qName + " should be of type ScriptNode but was "
-				+ obj.getClass();
+		String message = "Variable " + qName + " should be of type ScriptNode but was " + obj.getClass();
 		throw new WorkflowException(message);
 	}
 
 	/**
 	 * Gets the variable.
 	 *
-	 * @param variables the variables
-	 * @param qName the q name
+	 * @param variables
+	 *            the variables
+	 * @param qName
+	 *            the q name
 	 * @return the variable
 	 */
 	private Object getVariable(Map<String, Object> variables, QName qName) {
@@ -508,8 +582,10 @@ public class WorkflowObjectFactory {
 	/**
 	 * Gets the variable.
 	 *
-	 * @param variables the variables
-	 * @param key the key
+	 * @param variables
+	 *            the variables
+	 * @param key
+	 *            the key
 	 * @return the variable
 	 */
 	private Object getVariable(Map<String, Object> variables, String key) {
@@ -522,7 +598,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Throws exception if domain mismatch.
 	 *
-	 * @param defName the def name
+	 * @param defName
+	 *            the def name
 	 */
 	public void checkDomain(String defName) {
 		if (tenantService.isEnabled()) {
@@ -537,13 +614,15 @@ public class WorkflowObjectFactory {
 	/**
 	 * Filter by domain.
 	 *
-	 * @param <T> the generic type
-	 * @param values the values
-	 * @param processKeyGetter the process key getter
+	 * @param <T>
+	 *            the generic type
+	 * @param values
+	 *            the values
+	 * @param processKeyGetter
+	 *            the process key getter
 	 * @return the list
 	 */
-	public <T extends Object> List<T> filterByDomain(Collection<T> values,
-			final Function<T, String> processKeyGetter) {
+	public <T extends Object> List<T> filterByDomain(Collection<T> values, final Function<T, String> processKeyGetter) {
 		final String currentDomain = tenantService.getCurrentUserDomain();
 		return CollectionUtils.filter(values, new Filter<T>() {
 			@Override
@@ -556,8 +635,39 @@ public class WorkflowObjectFactory {
 	}
 
 	/**
-	 * Returns an anonymous {@link TypeDefinition} for the given name with all the mandatory aspects
-	 * applied.
+	 * Gets the full domain task id.
+	 *
+	 * @param taskId
+	 *            the task id
+	 * @param domain
+	 *            the domain
+	 * @return the full domain task id
+	 */
+	public String getFullDomainTaskId(String taskId, String domain) {
+		StringBuilder taskIdBuilder = new StringBuilder();
+		taskIdBuilder.append("@");
+		taskIdBuilder.append(domain);
+		taskIdBuilder.append("@");
+		taskIdBuilder.append(taskId);
+		return taskIdBuilder.toString();
+	}
+
+	/**
+	 * Clear full domain task id - get the actual task id without domain info.
+	 *
+	 * @param fullTaskId
+	 *            the full task id
+	 * @param domain
+	 *            the domain
+	 * @return the string
+	 */
+	public String clearFullDomainTaskId(String fullTaskId, String domain) {
+		return fullTaskId.replace("@" + domain + "@", "");
+	}
+
+	/**
+	 * Returns an anonymous {@link TypeDefinition} for the given name with all
+	 * the mandatory aspects applied.
 	 *
 	 * @param name
 	 *            the name of the task definition.
@@ -586,12 +696,10 @@ public class WorkflowObjectFactory {
 			typeDef = dictionaryService.getType(typeName);
 		}
 		if (typeDef == null) {
-			QName defaultTypeName = isStart ? defaultStartTaskType
-					: WorkflowModel.TYPE_WORKFLOW_TASK;
+			QName defaultTypeName = isStart ? defaultStartTaskType : WorkflowModel.TYPE_WORKFLOW_TASK;
 			typeDef = dictionaryService.getType(defaultTypeName);
 			if (typeDef == null) {
-				String msg = messageService.getMessage(
-						"workflow.get.task.definition.metadata.error", name);
+				String msg = messageService.getMessage("workflow.get.task.definition.metadata.error", name);
 				throw new WorkflowException(msg);
 			}
 		}
@@ -601,7 +709,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Map QName to jBPM variable name.
 	 *
-	 * @param name QName
+	 * @param name
+	 *            QName
 	 * @return jBPM variable name
 	 */
 	public String mapQNameToName(QName name) {
@@ -611,7 +720,8 @@ public class WorkflowObjectFactory {
 	/**
 	 * Map QName to jBPM variable name.
 	 *
-	 * @param name QName
+	 * @param name
+	 *            QName
 	 * @return jBPM variable name
 	 */
 	public QName mapNameToQName(String name) {
@@ -637,9 +747,11 @@ public class WorkflowObjectFactory {
 	/**
 	 * Sets the node service.
 	 *
-	 * @param nodeService the new node service
+	 * @param nodeService
+	 *            the new node service
 	 */
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
 	}
+
 }

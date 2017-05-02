@@ -1,0 +1,22 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+DELETE {
+    ?oldURI ?s ?p .
+    ?a ?o ?oldURI .
+}
+INSERT {
+    GRAPH <http://ittruse.ittbg.com/data/enterpriseManagementFramework#> {
+        ?newURI ?s ?p .
+        ?a ?o ?newURI .
+    }
+} WHERE {
+    {
+        ?oldURI a emf:User.
+		?oldURI ?s ?p .
+    }  UNION {
+        ?a ?o ?oldURI .
+        ?oldURI a emf:User .
+    }
+    FILTER REGEX(STR(?oldURI), "@") .
+    BIND (URI(REPLACE(STR(?oldURI), "@", "-")) AS ?newURI) .
+}

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="cmfwf:workflowmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+		<import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm" />
+	</imports>
+
+	<namespaces>
+		<namespace uri="http://www.sirmaitt.com/model/workflow/cmf/1.0" prefix="cmfwf" />
+	</namespaces>
+
+	<types>
+
+		<type name="cmfwf:submitTask">
+			<parent>bpm:startTask</parent>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<type name="cmfwf:randomTask">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>
+		<type name="cmfwf:userTask">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">
+					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>
+		<type name="cmfwf:randomStartEndTask">
+			<parent>cmfwf:decisionTask</parent>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+		<type name="cmfwf:decisionTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+			<properties>
+				<property name="cmfwf:taskOutcome">
+					<type>d:text</type>
+					<default>Next</default>
+				</property>
+			</properties>
+			<overrides>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_package_item_actions</default>
+				</property>
+				<property name="bpm:outcomePropertyName">
+					<!-- should be one row -->
+					<default>{http://www.sirmaitt.com/model/workflow/cmf/1.0}taskOutcome</default>
+				</property>
+			</overrides>
+			<mandatory-aspects>
+				<aspect>bpm:assignee</aspect>
+			</mandatory-aspects>
+		</type>
+
+	</types>
+
+	<aspects>
+		<aspect name="cmfwf:auditable">
+			<title>Task Auditable data</title>
+			<properties>
+				<property name="cmfwf:modified">
+					<title>Modified On</title>
+					<type>d:date</type>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmfwf:dmsTask">
+			<title>Dms Stored Task</title>
+			<properties>
+				<property name="cmfwf:taskState">
+					<title>State</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:taskStatus">
+					<title>Status</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:taskType">
+					<title>Task Type</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+				<property name="cmfwf:taskDescription">
+					<title>Task Description</title>
+					<type>d:text</type>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmfwf:dmsWorkflow">
+			<title>Dms Stored Task</title>
+			<properties>
+				<property name="cmfwf:caseType">
+					<title>Case Type</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+			</properties>
+		</aspect>
+		<aspect name="cmfwf:dmsArchivedWorkflow">
+			<title>Dms Archived Case Workflow</title>
+			<properties>
+				<property name="cmfwf:archiveReason">
+					<title>Case Workflow Archive Reason</title>
+					<type>d:text</type>
+					<index enabled="true">
+						<atomic>true</atomic>
+						<stored>false</stored>
+						<tokenised>both</tokenised>
+					</index>
+				</property>
+			</properties>
+		</aspect>
+	</aspects>
+
+</model>

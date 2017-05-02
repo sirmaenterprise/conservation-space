@@ -1,0 +1,18 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX pdm: <http://www.sirma.com/ontologies/2013/10/pdmConfiguration#>
+DELETE {
+    ?s emf:imported ?o .
+    emf:imported ?p1 ?o1 .
+} 
+INSERT {
+    GRAPH <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?s pdm:importedFromDMSToSEIP ?o .
+    }
+}
+WHERE {
+    {
+        ?s emf:imported ?o .
+    } UNION {
+        emf:imported ?p1 ?o1 .
+    }
+}

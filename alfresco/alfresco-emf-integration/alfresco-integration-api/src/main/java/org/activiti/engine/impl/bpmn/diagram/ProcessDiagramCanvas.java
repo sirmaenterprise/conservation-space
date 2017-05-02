@@ -198,7 +198,6 @@ public class ProcessDiagramCanvas {
 	 *            the height
 	 */
 	public ProcessDiagramCanvas(int width, int height) {
-		System.out.println("ProcessDiagramCanvas.ProcessDiagramCanvas()");
 		this.canvasWidth = width;
 		this.canvasHeight = height;
 		this.processDiagram = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

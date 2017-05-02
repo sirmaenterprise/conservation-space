@@ -130,7 +130,28 @@
 		<property name="serviceRegistry" ref="ServiceRegistry" />
 		<property name="cmfLockService" ref="cmfLockService" />
 		<property name="caseService" ref="cmfBaseService" />
-		<property name="chainingUserRegistrySynchronizer" ref="userRegistrySynchronizer"/>
+	</bean>
+	
+	<!-- tenant scripts -->
+	<bean id="webscript.com.sirma.itt.cmf.tenant.tenant.post" class="com.sirma.itt.cmf.integration.webscript.TenantIntegrationScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="tenantAdminService" ref="tenantAdminService"/>
+		<property name="contentRoot" value="${dir.root}"/>
+	</bean>
+	<bean id="webscript.com.sirma.itt.cmf.tenant.tenant.get" class="com.sirma.itt.cmf.integration.webscript.TenantIntegrationScript" parent="webscript"
+		depends-on="repositoryHelper">
+		<property name="nodeService" ref="nodeService" />
+		<property name="searchService" ref="searchService" />
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+		<property name="cmfLockService" ref="cmfLockService" />
+		<property name="caseService" ref="cmfBaseService" />
+		<property name="tenantAdminService" ref="tenantAdminService"/>
+		<property name="contentRoot" value="${dir.root}"/>
 	</bean>
 </beans>
 

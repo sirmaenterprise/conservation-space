@@ -1,0 +1,782 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix tcrm: <http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2014/07/tcrmConfiguration> .
+
+<http://www.sirma.com/ontologies/2014/07/tcrmConfiguration> rdf:type owl:Ontology ;
+                                                            
+                                                            rdfs:label "Trade and Customer Relationship Management Model"@en ;
+                                                            
+                                                            owl:versionInfo "v 1.0" ;
+                                                            
+                                                            dc:creator "Lidiya Dimitrova" ;
+                                                            
+                                                            skos:definition """Trade and Customer Relationship Management
+TCRM Ontology"""@en ;
+                                                            
+                                                            dc:subject "Trade and Customer Relationship Management Model"@en ;
+                                                            
+                                                            owl:imports <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+###  http://purl.org/dc/terms/creator
+
+dcterms:creator rdf:type owl:AnnotationProperty .
+
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#hasContactPerson
+
+tcrm:hasContactPerson rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:label "has contact person"@en ;
+                      
+                      skos:definition "Company contact person"@en ;
+                      
+                      dcterms:creator "Lidiya Dimitrova"@en ;
+                      
+                      rdfs:range emf:DomainUser ;
+                      
+                      rdfs:domain ptop:Agent .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#hasFactory
+
+tcrm:hasFactory rdf:type owl:ObjectProperty ;
+                
+                rdfs:label "has factory"@en ;
+                
+                dc:creator "Lidiya Dimitrova"@en ;
+                
+                skos:definition "The relation between vendor and factories."@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#hasResponsibleEmployee
+
+tcrm:hasResponsibleEmployee rdf:type owl:ObjectProperty ;
+                            
+                            rdfs:label "has responsible employee"@en ;
+                            
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            
+                            skos:definition "The relation between the ordering company and the responsible employee"@en ;
+                            
+                            rdfs:domain emf:Customer ;
+                            
+                            rdfs:range emf:DomainUser .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#isContactPersonOf
+
+tcrm:isContactPersonOf rdf:type owl:ObjectProperty ;
+                       
+                       rdfs:label "is contact person of "@en ;
+                       
+                       skos:definition "Company contact person"@en ;
+                       
+                       dcterms:creator "Lidiya Dimitrova"@en ;
+                       
+                       rdfs:domain emf:DomainUser ;
+                       
+                       rdfs:range ptop:Agent ;
+                       
+                       owl:inverseOf tcrm:hasContactPerson .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#isFactoryOf
+
+tcrm:isFactoryOf rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label "is factory of"@en ;
+                 
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 
+                 skos:definition "The relation between vendor and factories."@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#isOfferedBy
+
+tcrm:isOfferedBy rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label "is offered by"@en ;
+                 
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 
+                 skos:definition "The relation between products and vendors."@en ;
+                 
+                 rdfs:range emf:Vendor ;
+                 
+                 rdfs:domain tcrm:Product ;
+                 
+                 owl:inverseOf tcrm:offers .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#isOrderBy
+
+tcrm:isOrderBy rdf:type owl:ObjectProperty ;
+               
+               rdfs:label "is order by"@en ;
+               
+               dc:creator "Lidiya Dimitrova" ;
+               
+               skos:definition "Relationship between Product and Customer. The product is ordered by customer."@en ;
+               
+               rdfs:range emf:Customer ;
+               
+               rdfs:domain tcrm:Product ;
+               
+               owl:inverseOf tcrm:sendsAnOrderFor .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#isProducedBy
+
+tcrm:isProducedBy rdf:type owl:ObjectProperty ;
+                  
+                  rdfs:label "produced by"@en ;
+                  
+                  dc:creator "Lidiya Dimitrova" ;
+                  
+                  skos:definition "Relationship between Product and Factory. The product is produced by factory."@en ;
+                  
+                  rdfs:range tcrm:Factory ;
+                  
+                  rdfs:domain tcrm:Product ;
+                  
+                  owl:inverseOf tcrm:produces .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#isResponsibleEmployeeFor
+
+tcrm:isResponsibleEmployeeFor rdf:type owl:ObjectProperty ;
+                              
+                              rdfs:label "is responsible employee for"@en ;
+                              
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              
+                              skos:definition "The relation between the ordering company and the responsible employee"@en ;
+                              
+                              rdfs:range emf:Customer ;
+                              
+                              rdfs:domain emf:DomainUser ;
+                              
+                              owl:inverseOf tcrm:hasResponsibleEmployee .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#offers
+
+tcrm:offers rdf:type owl:ObjectProperty ;
+            
+            rdfs:label "offers"@en ;
+            
+            dc:creator "Lidiya Dimitrova"@en ;
+            
+            skos:definition "The relation between products and vendors."@en ;
+            
+            rdfs:domain emf:Vendor ;
+            
+            rdfs:range tcrm:Product .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#produces
+
+tcrm:produces rdf:type owl:ObjectProperty ;
+              
+              rdfs:label "produces"@en ;
+              
+              dc:creator "Lidiya DImitrova" ;
+              
+              skos:definition "Relationship between Factory and Product. The product is produced by a factory."@en ;
+              
+              rdfs:domain tcrm:Factory ;
+              
+              rdfs:range tcrm:Product .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#sendsAnOrderFor
+
+tcrm:sendsAnOrderFor rdf:type owl:ObjectProperty ;
+                     
+                     rdfs:label "sends an order for"@en ;
+                     
+                     dc:creator "Lidiya DImitrova" ;
+                     
+                     skos:definition "Relationship between Product and Customer. The product is ordered by customer."@en ;
+                     
+                     rdfs:domain emf:Customer ;
+                     
+                     rdfs:range tcrm:Product .
+
+
+
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#address
+
+tcrm:address rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Address"@en ;
+             
+             skos:definition "(Wikipedia) An address is a collection of information, presented in a mostly fixed format, used for describing the location of a building, apartment, or other structure or a plot of land, generally using political boundaries and street names as references, along with other identifiers such as house or apartment numbers. "@en ;
+             
+             dc:creator "Lidiya Dimitrova"@en ;
+             
+             rdfs:domain ptop:Agent .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#articleNumber
+
+tcrm:articleNumber rdf:type owl:DatatypeProperty ;
+                   
+                   rdfs:label "Article Number"@en ;
+                   
+                   dc:creator "Lidiya Dimitrova" ;
+                   
+                   skos:definition "Unique product identifier"@en ;
+                   
+                   rdfs:domain tcrm:Product .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#country
+
+tcrm:country rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Country"@en ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             skos:definition "(Wikipedia) A country is a region identified as a distinct entity in political geography."@en ;
+             
+             rdfs:domain ptop:Agent .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#customerArticleNumber
+
+tcrm:customerArticleNumber rdf:type owl:DatatypeProperty ;
+                           
+                           rdfs:label "Customer Article Number"@en ;
+                           
+                           dc:creator "Lidiya Dimitrova" ;
+                           
+                           skos:definition "Unique product identifier provided by Customer."@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#dateOfDispatch
+
+tcrm:dateOfDispatch rdf:type owl:DatatypeProperty ;
+                    
+                    rdfs:label "Date of dispatch"@en ;
+                    
+                    dcterms:creator "Lidiya Dimitrova" ;
+                    
+                    skos:definition "Date of dispatch"@en ;
+                    
+                    rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#dateOfShipment
+
+tcrm:dateOfShipment rdf:type owl:DatatypeProperty ;
+                    
+                    rdfs:label "Date of shipment"@en ;
+                    
+                    dcterms:creator "Lidiya Dimitrova" ;
+                    
+                    skos:definition "Date of shipment "@en ;
+                    
+                    rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#dueDate
+
+tcrm:dueDate rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Due date"@en ;
+             
+             dcterms:creator "Lidiya Dimitrova"@en ;
+             
+             skos:definition "The date on which something is planned or expected to happen, for example when money must be paid or when a pregnant woman expects to have her baby"@en ;
+             
+             rdfs:domain tcrm:ProductOrder ;
+             
+             rdfs:range xsd:dateTime .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#issueDate
+
+tcrm:issueDate rdf:type owl:DatatypeProperty ;
+               
+               rdfs:label "Issue date"@en ;
+               
+               skos:definition "Date on which an order is issued. "@en ;
+               
+               dcterms:creator "Lidiya Dimitrova"@en ;
+               
+               rdfs:domain tcrm:Order ;
+               
+               rdfs:range xsd:dateTime .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#lineItem
+
+tcrm:lineItem rdf:type owl:DatatypeProperty ;
+              
+              rdfs:label "Line Item"@en ;
+              
+              dcterms:creator "Lidiya Dimitrova"@en ;
+              
+              skos:definition "Line Item"@en ;
+              
+              rdfs:domain tcrm:ProductOrder .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#meansOfTransport
+
+tcrm:meansOfTransport rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:label "Means of Transport "@en ;
+                      
+                      dcterms:creator "Lidiya Dimitrova" ;
+                      
+                      skos:definition "Means of Transport "@en ;
+                      
+                      rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#orderedVolume
+
+tcrm:orderedVolume rdf:type owl:DatatypeProperty ;
+                   
+                   rdfs:label "Ordered volume"@en ;
+                   
+                   dcterms:creator "Lidiya Dimitrova"@en ;
+                   
+                   skos:definition "Ordered volume"@en ;
+                   
+                   rdfs:domain tcrm:ProductOrder .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#packing
+
+tcrm:packing rdf:type owl:DatatypeProperty ;
+             
+             rdfs:label "Cartons/Cases/pc"@en ;
+             
+             dcterms:creator "Lidiya Dimitrova"@en ;
+             
+             skos:definition "Type of packing: Cartons/Cases/pc"@en ;
+             
+             rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#placeOfDispatch
+
+tcrm:placeOfDispatch rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "Place of dispatch"@en ;
+                     
+                     dcterms:creator "Lidiya Dimitrova"@en ;
+                     
+                     skos:definition "Place of dispatch"@en ;
+                     
+                     rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#placeOfShipment
+
+tcrm:placeOfShipment rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "Place of shipment"@en ;
+                     
+                     dcterms:creator "Lidiya Dimitrova"@en ;
+                     
+                     skos:definition "Place of shipment"@en ;
+                     
+                     rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#poNumber
+
+tcrm:poNumber rdf:type owl:DatatypeProperty ;
+              
+              rdfs:label "PO Number"@en ;
+              
+              dcterms:creator "Lidiya Dimitrova"@en ;
+              
+              skos:definition "Purchase order unique identifier"@en ;
+              
+              rdfs:domain tcrm:Order .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#productType
+
+tcrm:productType rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Product type"@en ;
+                 
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 
+                 skos:definition "Product type: metal parts, bins..."@en ;
+                 
+                 rdfs:domain tcrm:Product .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#shippingNetVolume
+
+tcrm:shippingNetVolume rdf:type owl:DatatypeProperty ;
+                       
+                       rdfs:label "Shipping Net Volume"@en ;
+                       
+                       dcterms:creator "Lidiya Dimitrova" ;
+                       
+                       skos:definition "Shipping Net Volume"@en ;
+                       
+                       rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#shippingNetWeight
+
+tcrm:shippingNetWeight rdf:type owl:DatatypeProperty ;
+                       
+                       rdfs:label "Shipping Net Weight/kg"@en ;
+                       
+                       dcterms:creator "Lidiya Dimitrova"@en ;
+                       
+                       skos:definition "Shipping Net Weight/kg"@en ;
+                       
+                       rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#termsOfDelivery
+
+tcrm:termsOfDelivery rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:label "Terms of Delivery"@en ;
+                     
+                     dcterms:creator "Lidiya Dimitrova"@en ;
+                     
+                     skos:definition "Terms of Delivery "@en ;
+                     
+                     rdfs:domain tcrm:Shipment .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#tradeRegisterNumber
+
+tcrm:tradeRegisterNumber rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:label "Trade Register N°"@en ;
+                         
+                         skos:definition "Company Trade Register N°"@en ;
+                         
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         
+                         rdfs:domain ptop:Agent .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#unitPrice
+
+tcrm:unitPrice rdf:type owl:DatatypeProperty ;
+               
+               rdfs:label "Unit price"@en ;
+               
+               skos:definition "A price for a service or commodity that includes all extra costs incidental to the item."@en ;
+               
+               dcterms:creator "Lidiya Dimitrova"@en ;
+               
+               rdfs:domain tcrm:ProductOrder .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#volume
+
+tcrm:volume rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Volume (m3)"@en ;
+            
+            dc:creator "Lidiya Dimitrova"@en ;
+            
+            skos:definition "The amount of space occupied by a three-dimensional object as measured in cubic units (as quarts or liters)"@en ;
+            
+            rdfs:domain tcrm:Product .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#weight
+
+tcrm:weight rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Weight (kg)"@en ;
+            
+            skos:definition "A measurement that indicates how heavy a person or thing is."@en ;
+            
+            dc:creator "Lidiya Dimitrova"@en ;
+            
+            rdfs:domain tcrm:Product .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Customer
+
+emf:Customer emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DomainUser
+
+emf:DomainUser emf:isSearchable "true"^^xsd:boolean ;
+               
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Vendor
+
+emf:Vendor emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#CustomerOrder
+
+tcrm:CustomerOrder rdf:type owl:Class ;
+                   
+                   rdfs:label "Customer Order"@en ;
+                   
+                   rdfs:subClassOf tcrm:Order ;
+                   
+                   emf:isSearchable "true"^^xsd:boolean ;
+                   
+                   emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                   
+                   skos:definition "(Wikipedia) A purchase order (PO) is a commercial document and first official offer issued by a buyer to a seller, indicating types, quantities, and agreed prices for products or services. "@en ;
+                   
+                   dcterms:creator "Lidiya Dimitrova"@en ;
+                   
+                   emf:definitionId "objectinstance"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#Factory
+
+tcrm:Factory rdf:type owl:Class ;
+             
+             rdfs:label "Factory"@en ;
+             
+             rdfs:subClassOf ptop:Agent ,
+                             tcrm:TCRMDomainObject ;
+             
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             
+             emf:isSearchable "true"^^xsd:boolean ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             skos:definition "(Merriam-Webster.com) Factory is the seat of some kind of production"@en ;
+             
+             emf:definitionId "objectinstance"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#Order
+
+tcrm:Order rdf:type owl:Class ;
+           
+           rdfs:label "Order" ;
+           
+           rdfs:subClassOf tcrm:TCRMDomainObject ;
+           
+           dc:creator "Kiril Penev" ;
+           
+           skos:definition "Customer or Product order for purchase"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#Product
+
+tcrm:Product rdf:type owl:Class ;
+             
+             rdfs:label "Product"@en ;
+             
+             rdfs:subClassOf tcrm:TCRMDomainObject ;
+             
+             emf:isSearchable "true"^^xsd:boolean ;
+             
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             
+             skos:definition "(Wikipedia) A product is anything that can be offered to a market that might satisfy a want or need."@en ;
+             
+             dc:creator "Lidiya Dimitrova" ;
+             
+             emf:definitionId "objectinstance"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#ProductOrder
+
+tcrm:ProductOrder rdf:type owl:Class ;
+                  
+                  rdfs:label "Product Order"@en ;
+                  
+                  rdfs:subClassOf tcrm:Order ;
+                  
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  
+                  skos:definition "The order of one product."@en ;
+                  
+                  emf:definitionId "objectinstance"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#Shipment
+
+tcrm:Shipment rdf:type owl:Class ;
+              
+              rdfs:label "Shipment"@en ;
+              
+              rdfs:subClassOf tcrm:TCRMDomainObject ;
+              
+              emf:isSearchable "true"^^xsd:boolean ;
+              
+              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+              
+              dcterms:creator "Lidiya Dimitrova" ;
+              
+              skos:definition "The action of shipping goods." ;
+              
+              emf:definitionId "objectinstance"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#TCRMDomainObject
+
+tcrm:TCRMDomainObject rdf:type owl:Class ;
+                      
+                      rdfs:label "TCRM Domain Object"@en ;
+                      
+                      rdfs:subClassOf emf:DomainObject ;
+                      
+                      dc:creator "Lidiya Dimitrova" ;
+                      
+                      skos:definition "Main Class for the TCRM Domain model"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#Trader
+
+tcrm:Trader rdf:type owl:Class ;
+            
+            rdfs:label "Trader"@en ;
+            
+            rdfs:subClassOf ptop:Agent ,
+                            tcrm:TCRMDomainObject ;
+            
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            
+            emf:isSearchable "true"^^xsd:boolean ;
+            
+            dc:creator "Lidiya Dimitrova" ;
+            
+            skos:definition "(Merriam-Webster.com/) Trader is a person who buys, sells, or exchanges goods"@en ;
+            
+            emf:definitionId "objectinstance"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/07/tcrmConfiguration#TransportCompany
+
+tcrm:TransportCompany rdf:type owl:Class ;
+                      
+                      rdfs:label "Transport Company"@en ;
+                      
+                      rdfs:subClassOf ptop:Agent ,
+                                      tcrm:TCRMDomainObject ;
+                      
+                      emf:isSearchable "true"^^xsd:boolean ;
+                      
+                      emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                      
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      
+                      skos:definition "Transport Company is a company providing transportation of goods."@en ;
+                      
+                      emf:definitionId "objectinstance"@en .
+
+
+
+
+###  Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net
+

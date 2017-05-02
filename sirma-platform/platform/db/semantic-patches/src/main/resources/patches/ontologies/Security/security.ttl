@@ -1,0 +1,210 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2014/11/security> .
+
+<http://www.sirma.com/ontologies/2014/11/security> rdf:type owl:Ontology ;
+                                                   
+                                                   rdfs:label "Enterprise Management Framework Security Model"@en ;
+                                                   
+                                                   owl:versionInfo "0.2"@en ;
+                                                   
+                                                   dc:subject "Enterprise Management Framework Security Model"@en ;
+                                                   
+                                                   dc:creator "Kiril Penev"@en ;
+                                                   
+                                                   rdfs:comment "Main ontology for representing the Security model and the relations between Users/Groups with the instances in the SEIP Application"@en ;
+                                                   
+                                                   dc:rights "What rights?"@en .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+###  http://purl.org/dc/elements/1.1/creator
+
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+
+###  http://www.w3.org/2004/02/skos/core#definition
+
+skos:definition rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#allowInheritParentPermissions
+
+sec:allowInheritParentPermissions rdf:type owl:AnnotationProperty ;
+         
+         rdfs:label "Allow inherit parent permissions"@en,
+					"Позволи наследяване на права от родителя"@bg;
+         
+         skos:definition "Indicates if the class should inherit the permissions from its direct parent"@en ;
+         
+         dc:creator "Vilizar Tsonev"@en ;
+         
+         rdfs:range xsd:boolean .
+		 
+		 
+###  http://www.sirma.com/ontologies/2014/11/security#allowInheritLibraryPermissions
+
+sec:allowInheritLibraryPermissions rdf:type owl:AnnotationProperty ;
+         
+         rdfs:label "Allow inherit library permissions"@en,
+					"Позволи наследяване на права от библиотеката"@bg;
+         
+         skos:definition "Indicates if the class should inherit the permissions from the library it belongs to"@en ;
+         
+         dc:creator "Vilizar Tsonev"@en ;
+         
+         rdfs:range xsd:boolean .
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#hasPermission
+
+sec:hasPermission rdf:type owl:ObjectProperty ,
+                          owl:TransitiveProperty ;
+                 
+                 rdfs:label "Has permission"@en ;
+                 
+                 skos:definition "Indicates that the Role has permission on the instance"@en ;
+                 
+                 emf:isSystemProperty "true"^^xsd:boolean ;
+                 
+                 dc:creator "Kiril Penev"@en .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#assignedTo
+
+sec:assignedTo rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label "Has role"@en ;
+                 
+                 skos:definition "Assigns a User to a Role of an Entity. Assigning a user to a Role gives permissions to the Entity that is related with this role. These permissions depend on the role type"@en ;
+                 
+                 emf:isSystemProperty "true"^^xsd:boolean ;
+                 
+                 dc:creator "Kiril Penev"@en .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#hasRoleType
+
+sec:hasRoleType rdf:type owl:ObjectProperty ;
+                  
+                 rdfs:label "Has role type"@en ;
+                 
+                 skos:definition "Specified the type of the role"@en ;
+                 
+                 emf:isSystemProperty "true"^^xsd:boolean ;
+                 
+                 dc:creator "Kiril Penev"@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#isManagerOf
+
+sec:isManagerOf rdf:type owl:ObjectProperty ,
+                          owl:TransitiveProperty ;
+               
+               rdfs:label "Is Manager of"@en ;
+               
+               emf:isSystemProperty "true"^^xsd:boolean ;
+               
+               dc:creator "Kiril Penev"@en ;
+               
+               skos:definition "Specifies which Role is the Manager of the instance"@en .
+               
+               
+
+###  http://www.sirma.com/ontologies/2014/11/security#allowPermissionOverride
+
+sec:allowPermissionOverride rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Allow permission override"@en ;
+            
+            skos:definition "Allow permission override for automatically assigned permissions"@en ;
+            
+            dc:creator "Borislav Bonev"@en ;
+            
+            rdfs:domain owl:ObjectProperty ;
+            
+            rdfs:range xsd:boolean .
+
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#autoAssignParentPermissionRole
+
+sec:autoAssignParentPermissionRole rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Automatic parent permission role"@en ;
+            
+            skos:definition "The role to assign of linked user to the parent of an instance"@en ;
+            
+            dc:creator "Borislav Bonev"@en ;
+            
+            rdfs:domain owl:ObjectProperty ;
+            
+            rdfs:range xsd:string .
+
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#autoAssignPermissionRole
+
+sec:autoAssignPermissionRole rdf:type owl:DatatypeProperty ;
+            
+            rdfs:label "Automatic permission role"@en ;
+            
+            skos:definition "The role to assign of linked user to a instance"@en ;
+            
+            dc:creator "Borislav Bonev"@en ;
+            
+            rdfs:domain owl:ObjectProperty ;
+            
+            rdfs:range xsd:string .
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#Role
+
+sec:Role rdf:type owl:Class ;
+             
+             rdfs:label "Security Role"@en ;
+             
+             rdfs:subClassOf ptop:Abstract ;
+             
+             skos:definition "Security role with assigned permissions on a given Entity"@en ;
+             
+             dc:creator "Kiril Penev"@en .
+
+
+
+###  Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net
+

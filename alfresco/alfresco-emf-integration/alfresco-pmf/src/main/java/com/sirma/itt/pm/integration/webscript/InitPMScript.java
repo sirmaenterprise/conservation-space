@@ -1,7 +1,7 @@
 package com.sirma.itt.pm.integration.webscript;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -13,8 +13,7 @@ import com.sirma.itt.cmf.integration.webscript.InitCMFScript;
 import com.sirma.itt.pm.integration.service.PMService;
 
 /**
- * The InitPMScript extends cmf initialization by adding specific project
- * structures.
+ * The InitPMScript extends cmf initialization by adding specific project structures.
  */
 public class InitPMScript extends InitCMFScript {
 
@@ -24,13 +23,12 @@ public class InitPMScript extends InitCMFScript {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * com.sirma.itt.cmf.integration.webscript.InitCMFScript#initSpecificStructures
-	 * (ArrayList, JSONObject, NodeRef)
+	 * @see com.sirma.itt.cmf.integration.webscript.InitCMFScript#initSpecificStructures (ArrayList, JSONObject,
+	 * NodeRef)
 	 */
 	@Override
-	protected boolean initSpecificStructures(ArrayList<NodeRef> results, JSONObject request,
-			NodeRef basePath) throws JSONException {
+	protected boolean initSpecificStructures(List<NodeRef> results, JSONObject request, NodeRef basePath)
+			throws JSONException {
 		JSONObject projectDefinitions = null;
 		if (request.has("project")) {
 			projectDefinitions = request.getJSONObject("project");
@@ -42,14 +40,12 @@ public class InitPMScript extends InitCMFScript {
 		Map<QName, Serializable> tempMap = null;
 		if (projectDefinitions != null) {
 			tempMap = toMap(projectDefinitions.getJSONObject(KEY_PROPERTIES));
-			NodeRef createdCMFProjectSpace = getPmService().createCMFProjectDefinitionSpace(
-					basePath, tempMap);
+			NodeRef createdCMFProjectSpace = getPmService().createCMFProjectDefinitionSpace(basePath, tempMap);
 			results.add(createdCMFProjectSpace);
 		}
 		if (projectInstances != null) {
 			tempMap = toMap(projectInstances.getJSONObject(KEY_PROPERTIES));
-			NodeRef createdCMFProjectInstanceSpace = getPmService().createCMFProjectInstancesSpace(
-					basePath, tempMap);
+			NodeRef createdCMFProjectInstanceSpace = getPmService().createCMFProjectInstancesSpace(basePath, tempMap);
 			results.add(createdCMFProjectInstanceSpace);
 		}
 		return true;

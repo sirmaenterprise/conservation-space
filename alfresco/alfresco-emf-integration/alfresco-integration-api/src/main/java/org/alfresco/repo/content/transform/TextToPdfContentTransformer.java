@@ -125,7 +125,8 @@ public class TextToPdfContentTransformer extends AbstractContentTransformer2 {
 			if (pdf != null) {
 				try {
 					pdf.close();
-				} catch (Throwable e) {// skip
+				} catch (Throwable e) {
+					// skip
 				}
 			}
 			IOUtils.closeQuietly(is);

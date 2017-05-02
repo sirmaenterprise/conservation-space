@@ -48,26 +48,11 @@ public class SSOAuthWebScript extends Login {
 		return this.authenticationService;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.alfresco.repo.web.scripts.bean.Login#setAuthenticationService(org
-	 * .alfresco.service.cmr.security.AuthenticationService)
-	 */
 	@Override
 	public void setAuthenticationService(AuthenticationService authenticationService) {
 		this.authenticationService = authenticationService;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.alfresco.repo.web.scripts.bean.Login#executeImpl(org.springframework
-	 * .extensions.webscripts.WebScriptRequest,
-	 * org.springframework.extensions.webscripts.Status)
-	 */
 	@Override
 	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status) {
 
@@ -80,12 +65,4 @@ public class SSOAuthWebScript extends Login {
 			this.authenticationService.clearCurrentSecurityContext();
 		}
 	}
-
 }
-
-/*
- * Location:
- * W:\CMF\test\WebContent\WEB-INF\lib\alfresco-opensso-webclient-0.8.jar
- * Qualified Name: com.sourcesense.alfresco.webscript.OpenSSOAuthWebScript
- * JD-Core Version: 0.6.0
- */

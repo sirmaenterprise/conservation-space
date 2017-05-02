@@ -1,0 +1,75 @@
+/*
+ * Copyright [2006] [University Corporation for Advanced Internet Development, Inc.]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.opensaml.xml.encryption.impl;
+
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.encryption.AgreementMethod;
+import org.opensaml.xml.encryption.KANonce;
+import org.opensaml.xml.encryption.OriginatorKeyInfo;
+import org.opensaml.xml.encryption.RecipientKeyInfo;
+import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.util.XMLConstants;
+import org.w3c.dom.Attr;
+
+/**
+ * A thread-safe Unmarshaller for {@link org.opensaml.xml.encryption.AgreementMethod} objects.
+ */
+public class AgreementMethodUnmarshaller extends AbstractXMLEncryptionUnmarshaller {
+
+    /** Constructor. */
+    public AgreementMethodUnmarshaller() {
+        super(XMLConstants.XMLENC_NS, AgreementMethod.DEFAULT_ELEMENT_LOCAL_NAME);
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param targetNamespaceURI namespace URI
+     * @param targetLocalName local name
+     */
+    public AgreementMethodUnmarshaller(String targetNamespaceURI, String targetLocalName) {
+        super(targetNamespaceURI, targetLocalName);
+    }
+
+    /** {@inheritDoc} */
+    protected void processAttribute(XMLObject xmlObject, Attr attribute) throws UnmarshallingException {
+        AgreementMethod am = (AgreementMethod) xmlObject;
+
+        if (attribute.getLocalName().equals(AgreementMethod.ALGORITHM_ATTRIBUTE_NAME)) {
+            am.setAlgorithm(attribute.getValue());
+        } else {
+            super.processAttribute(xmlObject, attribute);
+        }
+    }
+
+    /** {@inheritDoc} */
+    protected void processChildElement(XMLObject parentXMLObject, XMLObject childXMLObject)
+            throws UnmarshallingException {
+        AgreementMethod am = (AgreementMethod) parentXMLObject;
+
+        if (childXMLObject instanceof KANonce) {
+            am.setKANonce((KANonce) childXMLObject);
+        } else if (childXMLObject instanceof OriginatorKeyInfo) {
+            am.setOriginatorKeyInfo((OriginatorKeyInfo) childXMLObject);
+        } else if (childXMLObject instanceof RecipientKeyInfo) {
+            am.setRecipientKeyInfo((RecipientKeyInfo) childXMLObject);
+        } else {
+            am.getUnknownXMLObjects().add(childXMLObject);
+        }
+    }
+
+}

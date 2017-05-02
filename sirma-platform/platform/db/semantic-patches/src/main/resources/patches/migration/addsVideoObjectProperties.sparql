@@ -1,0 +1,18 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+DELETE {
+	emf:Document emf:acceptDataTypePattern ?documentPattern.
+	emf:Video emf:acceptDataTypePattern ?videoPattern.
+} INSERT {
+	GRAPH<http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+		emf:Document emf:acceptDataTypePattern "^(?!audio.+|video.+|image.+|application/x-shockwave-flash.+|application/mp4.+).+".
+		emf:Video emf:acceptDataTypePattern "^video/|^application/x-shockwave-flash|^application/mp4".
+	}
+
+} WHERE {
+	{
+		emf:Document emf:acceptDataTypePattern ?documentPattern.
+	} UNION {
+		emf:Video emf:acceptDataTypePattern ?videoPattern.
+	}
+}

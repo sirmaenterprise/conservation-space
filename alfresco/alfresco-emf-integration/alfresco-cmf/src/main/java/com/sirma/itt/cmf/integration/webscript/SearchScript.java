@@ -4,6 +4,7 @@
 package com.sirma.itt.cmf.integration.webscript;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.ModelUtil;
 import org.alfresco.util.Pair;
+import org.apache.log4j.Level;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,8 +44,8 @@ public class SearchScript extends BaseAlfrescoScript {
 	 */
 	@Override
 	protected Map<String, Object> executeInternal(WebScriptRequest req) {
-		Map<String, Object> model = new HashMap<String, Object>(2);
-		model.put("mode", "list");
+		Map<String, Object> model = new HashMap<String, Object>(3);
+		model.put(KEY_WORKING_MODE, "list");
 		Pair<List<NodeRef>, Map<String, Object>> nodesData = null;
 		List<NodeRef> nodeRefs = null;
 		try {
@@ -53,107 +55,63 @@ public class SearchScript extends BaseAlfrescoScript {
 			String servicePath = req.getServicePath();
 			Pair<String, String> context = null;
 			if (servicePath.endsWith("/cmf/search")) {
-				// general search
-				JSONObject paging = null;
-				debug("Request: ", request);
-				if (request.has("paging")) {
-					paging = request.getJSONObject("paging");
-				}
-				JSONObject additional = null;
-				if (request.has("keywords")) {
-					additional = new JSONObject();
-					additional.put("keywords", request.get("keywords"));
-				}
-				JSONArray sort = null;
-				if (request.has("sort")) {
-					sort = request.getJSONArray("sort");
-				}
-				// context restriction
-				context = getContexteParam(request);
-
-				nodesData = cmfService.search(context, request.getString(KEY_QUERY), paging, sort,
-						additional);
+				nodesData = generalSearch(request);
 			} else if (servicePath.contains("/cmf/search/instances")) {
 				nodeRefs = searchByAspect(request, CMFModel.ASPECT_CMF_CASE_INSTANCE);
 			} else if (servicePath.contains("/cmf/search/containers/cmf")) {
 				// specific search for definitions
-				List<NodeRef> nodeRefsSpaces = cmfService
-						.search("PATH:\"/app:company_home/st:sites//*\" AND TYPE:\""
-								+ CMFModel.TYPE_CMF_CASE_INSTANCES_SPACE.toString() + "\"");
+				List<NodeRef> nodeRefsSpaces = cmfService.search("PATH:\"/app:company_home/st:sites//*\" AND TYPE:\""
+						+ CMFModel.TYPE_CMF_CASE_INSTANCES_SPACE + "\"");
 				nodeRefs = new ArrayList<NodeRef>(nodeRefsSpaces.size());
 				SiteService siteService = getServiceRegistry().getSiteService();
 				for (NodeRef nodeRef : nodeRefsSpaces) {
 					nodeRefs.add(siteService.getSite(nodeRef).getNodeRef());
 				}
 			} else if (servicePath.contains("/cmf/search/case/documents")) {
-				// // case document search
-				// JSONObject paging = null;
-				// // if (request.has("paging")) {
-				// // paging = request.getJSONObject("paging");
-				// // }
-				// JSONArray sort = null;
-				// if (request.has("sort")) {
-				// sort = request.getJSONArray("sort");
-				// }
-				// // get first pass nodes
-				// Pair<List<NodeRef>, Integer> nodesData = caseService.search(
-				// request.getString(KEY_QUERY), paging, sort, null);
-				// String parentQuery = nodeRefs.toString().replaceAll(", ",
-				// "\" OR PARENT:\"");
-				// parentQuery = parentQuery.replace("[",
-				// "PARENT:\"").replace("]", "\"");
-				// // if (request.has("keywords")) {
-				// // model.put("mode", "map");
-				// // JSONObject additional = new JSONObject();
-				// // additional.put("keywords", request.get("keywords"));
-				// // nodeRefs = caseService.search(parentQuery +
-				// // " AND TYPE:\"cmf:\" ", paging,
-				// // sort, additional);
-				// // } else {
-				// Pair<List<NodeRef>, Integer> nodesData = caseService.search(
-				// request.getString(KEY_QUERY), paging, sort, null);
-				// // }
-				//
-				// model.put("results", nodeRefs);
+				// skip
 			} else {
-				// general search
-				JSONObject paging = null;
-				debug("Request: ", request);
-				if (request.has("paging")) {
-					paging = request.getJSONObject("paging");
-				}
-				JSONObject additional = null;
-				if (request.has("keywords")) {
-					additional = new JSONObject();
-					additional.put("keywords", request.get("keywords"));
-				}
-				JSONArray sort = null;
-				if (request.has("sort")) {
-					sort = request.getJSONArray("sort");
-				}
-				// context restriction
-				context = getContexteParam(request);
-
-				nodesData = cmfService.search(context, request.getString(KEY_QUERY), paging, sort,
-						additional);
+				nodesData = generalSearch(request);
 			}
 			if (nodesData == null) {
+				if (nodeRefs == null) {
+					nodeRefs = Collections.emptyList();
+				}
 				nodesData = new Pair<List<NodeRef>, Map<String, Object>>(nodeRefs,
 						ModelUtil.buildPaging(nodeRefs.size(), -1, 0));
 			}
 			model.put("results", nodesData.getFirst());
 			model.put("paging", nodesData.getSecond());
 		} catch (Exception e) {
-			// StringWriter out = new StringWriter();
-			// e.printStackTrace(new PrintWriter(out));
-			throw new WebScriptException(e.getMessage(), e);
+			throw new WebScriptException("Search error: " + e.getMessage(), e);
 		}
 		return model;
 	}
 
+	private Pair<List<NodeRef>, Map<String, Object>> generalSearch(JSONObject request) throws JSONException {
+		Pair<String, String> context;
+		// general search
+		JSONObject paging = null;
+		debug("Request: ", request);
+		if (request.has("paging")) {
+			paging = request.getJSONObject("paging");
+		}
+		JSONObject additional = null;
+		if (request.has("keywords")) {
+			additional = new JSONObject();
+			additional.put("keywords", request.get("keywords"));
+		}
+		JSONArray sort = null;
+		if (request.has("sort")) {
+			sort = request.getJSONArray("sort");
+		}
+		// context restriction
+		context = getContexteParam(request);
+
+		return cmfService.search(context, request.getString(KEY_QUERY), paging, sort, additional);
+	}
+
 	/**
-	 * Generate path for context id, if argument is provided, return null if
-	 * site is invalid or not provided
+	 * Generate path for context id, if argument is provided, return null if site is invalid or not provided
 	 *
 	 * @param request
 	 *            is the http request
@@ -167,16 +125,15 @@ public class SearchScript extends BaseAlfrescoScript {
 		}
 		String siteId = request.getString(KEY_CONTEXT);
 		String path = null;
-		if (CACHED_PATHS.containsKey(CACHED_PATHS)) {
+		if (CACHED_PATHS.containsKey(siteId)) {
 			path = CACHED_PATHS.get(siteId);
 		} else {
 			SiteInfo site = getServiceRegistry().getSiteService().getSite(siteId);
 			if (site == null) {
-				LOGGER.error("Invalid context: " + siteId + ". Should be valid site");
+				log(Level.ERROR, "Invalid context: ", siteId, ". Should be valid site");
 				return null;
 			} else {
-				path = nodeService.getPath(site.getNodeRef()).toPrefixString(
-						serviceRegistry.getNamespaceService());
+				path = nodeService.getPath(site.getNodeRef()).toPrefixString(serviceRegistry.getNamespaceService());
 				path = cmfService.enrichPath(path);
 			}
 			CACHED_PATHS.put(siteId, path);
@@ -207,9 +164,11 @@ public class SearchScript extends BaseAlfrescoScript {
 				SiteInfo siteInfo = getServiceRegistry().getSiteService().getSite(site);
 				if (siteInfo != null) {
 					// add each site
-					paths.add(nodeService.getPath(siteInfo.getNodeRef()).toPrefixString(
-							serviceRegistry.getNamespaceService())
-							+ "/*/*");// append one dir deeper
+					paths.add(nodeService.getPath(siteInfo.getNodeRef())
+							.toPrefixString(serviceRegistry.getNamespaceService()) + "/*/*");// append
+																								// one
+																								// dir
+																								// deeper
 				}
 			}
 		}
@@ -218,11 +177,9 @@ public class SearchScript extends BaseAlfrescoScript {
 			query = " ( " + request.getString(KEY_QUERY) + " ) AND ";
 		}
 		if (!paths.isEmpty()) {
-			nodeRefs = getCaseService().searchNodes(query + "ASPECT:\"" + aspect.toString() + "\"",
-					paths);
+			nodeRefs = getCaseService().searchNodes(query + "ASPECT:\"" + aspect.toString() + "\"", paths);
 		} else {
-			nodeRefs = getCaseService().searchNodes(query + "ASPECT:\"" + aspect.toString() + "\"",
-					null);
+			nodeRefs = getCaseService().searchNodes(query + "ASPECT:\"" + aspect.toString() + "\"", null);
 		}
 		return nodeRefs;
 	}

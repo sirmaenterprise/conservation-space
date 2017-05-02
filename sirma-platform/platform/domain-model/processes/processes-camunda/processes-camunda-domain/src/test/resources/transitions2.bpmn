@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.4.0">
+  <bpmn:process id="EREXPRAWF001" name="Employee Expense Review and Approval" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_review">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="totalAmount" type="long" />
+          <camunda:formField id="createdBy" type="string" />
+          <camunda:formField id="processes" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_0kkpilq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="EXPWFTS01CEO" name="Review by CEO" camunda:assignee="emf:System-banchev.gd">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>skip_ceo</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0b86z8c</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="EXPWFTS02CFO" name="Review by CFO" camunda:assignee="emf:System-banchev.gd">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>skip_cfo</bpmn:incoming>
+      <bpmn:incoming>approve_ceo</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0qjhng1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0eh29ch">
+      <bpmn:incoming>SequenceFlow_0kkpilq</bpmn:incoming>
+      <bpmn:incoming>complete</bpmn:incoming>
+      <bpmn:outgoing>skip_ceo</bpmn:outgoing>
+      <bpmn:outgoing>skip_cfo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0kkpilq" sourceRef="StartEvent_review" targetRef="ExclusiveGateway_0eh29ch">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string>emf:processes</camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>UNDER_REVIEW</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="skip_ceo" name="${totalAmount &#62;= 5000}" sourceRef="ExclusiveGateway_0eh29ch" targetRef="EXPWFTS01CEO">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${totalAmount >= 5000}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="skip_cfo" name="${totalAmount &#60; 5000}" sourceRef="ExclusiveGateway_0eh29ch" targetRef="EXPWFTS02CFO">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${totalAmount < 5000}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="EXPWFTS03APA" name="Review by Accounts Payable Admin" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="assignee" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>approve_cfo</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0yhwtt4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_17ncq9t">
+      <bpmn:incoming>SequenceFlow_0b86z8c</bpmn:incoming>
+      <bpmn:outgoing>decline_ceo</bpmn:outgoing>
+      <bpmn:outgoing>approve_ceo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0b86z8c" sourceRef="EXPWFTS01CEO" targetRef="ExclusiveGateway_17ncq9t">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0j6gvg3">
+      <bpmn:incoming>SequenceFlow_0qjhng1</bpmn:incoming>
+      <bpmn:outgoing>decline_cfo</bpmn:outgoing>
+      <bpmn:outgoing>approve_cfo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0qjhng1" sourceRef="EXPWFTS02CFO" targetRef="ExclusiveGateway_0j6gvg3" />
+    <bpmn:sequenceFlow id="decline_cfo" name="Decline" sourceRef="ExclusiveGateway_0j6gvg3" targetRef="EXPWFTS04UPD">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome == 'decline'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="decline_ceo" name="Decline" sourceRef="ExclusiveGateway_17ncq9t" targetRef="EXPWFTS04UPD">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome == 'decline'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="approve_ceo" name="Approve" sourceRef="ExclusiveGateway_17ncq9t" targetRef="EXPWFTS02CFO">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome == 'approve'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="approve_cfo" name="Approve" sourceRef="ExclusiveGateway_0j6gvg3" targetRef="EXPWFTS03APA">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome == 'approve'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="approve_accpAdmin" name="Approve" sourceRef="ExclusiveGateway_04c8n5g" targetRef="EndEvent_1xnifq3">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string>emf:processes</camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>APPROVED</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome == 'approve'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_04c8n5g">
+      <bpmn:incoming>SequenceFlow_0yhwtt4</bpmn:incoming>
+      <bpmn:outgoing>approve_accpAdmin</bpmn:outgoing>
+      <bpmn:outgoing>decline_accpAdmin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0yhwtt4" sourceRef="EXPWFTS03APA" targetRef="ExclusiveGateway_04c8n5g" />
+    <bpmn:sequenceFlow id="decline_accpAdmin" name="Decline" sourceRef="ExclusiveGateway_04c8n5g" targetRef="EXPWFTS04UPD">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome == 'decline'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="EXPWFTS04UPD" name="Update request">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="assignee">${createdBy}</camunda:inputParameter>
+          <camunda:inputParameter name="totalAmount">${totalAmount}</camunda:inputParameter>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+          <camunda:outputParameter name="totalAmount">${totalAmount}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>decline_cfo</bpmn:incoming>
+      <bpmn:incoming>decline_ceo</bpmn:incoming>
+      <bpmn:incoming>decline_accpAdmin</bpmn:incoming>
+      <bpmn:outgoing>complete</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="complete" name="Complete" sourceRef="EXPWFTS04UPD" targetRef="ExclusiveGateway_0eh29ch">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="leavingObjectState" value="RESOLVED" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_1xnifq3">
+      <bpmn:incoming>approve_accpAdmin</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="EREXPRAWF001">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_review">
+        <dc:Bounds x="132" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="150" y="168" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_158cwx5_di" bpmnElement="EXPWFTS01CEO">
+        <dc:Bounds x="305" y="-16" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0in8bt9_di" bpmnElement="EXPWFTS02CFO">
+        <dc:Bounds x="305" y="256" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0eh29ch_di" bpmnElement="ExclusiveGateway_0eh29ch" isMarkerVisible="true">
+        <dc:Bounds x="231" y="125" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="256" y="175" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0kkpilq_di" bpmnElement="SequenceFlow_0kkpilq">
+        <di:waypoint xsi:type="dc:Point" x="168" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="231" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="200" y="135" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1weyal8_di" bpmnElement="skip_ceo">
+        <di:waypoint xsi:type="dc:Point" x="256" y="125" />
+        <di:waypoint xsi:type="dc:Point" x="256" y="24" />
+        <di:waypoint xsi:type="dc:Point" x="305" y="24" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="162" y="58.5" width="85" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_06uulfv_di" bpmnElement="skip_cfo">
+        <di:waypoint xsi:type="dc:Point" x="256" y="175" />
+        <di:waypoint xsi:type="dc:Point" x="256" y="296" />
+        <di:waypoint xsi:type="dc:Point" x="305" y="296" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="176" y="230.5" width="79" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_07gyvcv_di" bpmnElement="EXPWFTS03APA">
+        <dc:Bounds x="692" y="256" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_17ncq9t_di" bpmnElement="ExclusiveGateway_17ncq9t" isMarkerVisible="true">
+        <dc:Bounds x="492" y="-1" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="517" y="49" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0b86z8c_di" bpmnElement="SequenceFlow_0b86z8c">
+        <di:waypoint xsi:type="dc:Point" x="405" y="24" />
+        <di:waypoint xsi:type="dc:Point" x="449" y="24" />
+        <di:waypoint xsi:type="dc:Point" x="449" y="24" />
+        <di:waypoint xsi:type="dc:Point" x="492" y="24" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="464" y="24" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0j6gvg3_di" bpmnElement="ExclusiveGateway_0j6gvg3" isMarkerVisible="true">
+        <dc:Bounds x="492" y="271" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="517" y="321" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0qjhng1_di" bpmnElement="SequenceFlow_0qjhng1">
+        <di:waypoint xsi:type="dc:Point" x="405" y="296" />
+        <di:waypoint xsi:type="dc:Point" x="492" y="296" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="449" y="281" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gapmiq_di" bpmnElement="decline_cfo">
+        <di:waypoint xsi:type="dc:Point" x="517" y="271" />
+        <di:waypoint xsi:type="dc:Point" x="517" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="528" y="225.5" width="36" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_06oy8kl_di" bpmnElement="decline_ceo">
+        <di:waypoint xsi:type="dc:Point" x="517" y="49" />
+        <di:waypoint xsi:type="dc:Point" x="517" y="110" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="521" y="65.5" width="36" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0w9nk22_di" bpmnElement="approve_ceo">
+        <di:waypoint xsi:type="dc:Point" x="517" y="-1" />
+        <di:waypoint xsi:type="dc:Point" x="517" y="-41" />
+        <di:waypoint xsi:type="dc:Point" x="110" y="-41" />
+        <di:waypoint xsi:type="dc:Point" x="110" y="369" />
+        <di:waypoint xsi:type="dc:Point" x="332" y="369" />
+        <di:waypoint xsi:type="dc:Point" x="332" y="336" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="291" y="-55.754041554682146" width="41" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0p4o6gc_di" bpmnElement="approve_cfo">
+        <di:waypoint xsi:type="dc:Point" x="542" y="296" />
+        <di:waypoint xsi:type="dc:Point" x="692" y="296" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="585" y="292" width="41" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_15vziaz_di" bpmnElement="approve_accpAdmin">
+        <di:waypoint xsi:type="dc:Point" x="767" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="820" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="820" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="882" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="784" y="132" width="41" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_04c8n5g_di" bpmnElement="ExclusiveGateway_04c8n5g" isMarkerVisible="true">
+        <dc:Bounds x="717" y="125" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="742" y="175" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0yhwtt4_di" bpmnElement="SequenceFlow_0yhwtt4">
+        <di:waypoint xsi:type="dc:Point" x="742" y="256" />
+        <di:waypoint xsi:type="dc:Point" x="742" y="216" />
+        <di:waypoint xsi:type="dc:Point" x="742" y="175" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="757" y="236" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1hdhfl0_di" bpmnElement="decline_accpAdmin">
+        <di:waypoint xsi:type="dc:Point" x="717" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="644" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="644" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="567" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="674" y="132" width="36" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0yay3os_di" bpmnElement="EXPWFTS04UPD">
+        <dc:Bounds x="467" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1yiuyko_di" bpmnElement="complete">
+        <di:waypoint xsi:type="dc:Point" x="467" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="375" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="375" y="150" />
+        <di:waypoint xsi:type="dc:Point" x="281" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="367" y="150" width="46" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1xnifq3_di" bpmnElement="EndEvent_1xnifq3">
+        <dc:Bounds x="882" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="900" y="168" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

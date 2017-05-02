@@ -13,18 +13,18 @@ import org.alfresco.service.namespace.QName;
  */
 public interface CMFModel {
 	/** CMF Model URI. */
-	public static String EMF_MODEL_1_0_URI = "http://www.sirmaitt.com/model/emf/1.0";
+	String EMF_MODEL_1_0_URI = "http://www.sirmaitt.com/model/emf/1.0";
 	/** CMF Model URI. */
 	/** The cmf model prefix. */
-	public static String EMF_MODEL_PREFIX = "emf";
+	String EMF_MODEL_PREFIX = "emf";
 	/** CMF Model URI. */
-	public static String CMF_MODEL_1_0_URI = "http://www.sirmaitt.com/model/cmf/1.0";
+	String CMF_MODEL_1_0_URI = "http://www.sirmaitt.com/model/cmf/1.0";
 	/** CMF Model URI. */
-	public static String CMF_WORKFLOW_MODEL_1_0_URI = "http://www.sirmaitt.com/model/workflow/cmf/1.0";
+	String CMF_WORKFLOW_MODEL_1_0_URI = "http://www.sirmaitt.com/model/workflow/cmf/1.0";
 	/** The cmf model prefix. */
-	public static String CMF_MODEL_PREFIX = "cmf";
+	String CMF_MODEL_PREFIX = "cmf";
 	/** CMF Model URI. */
-	public static String CMF_WORKFLOW_MODEL_PREFIX = "cmfwf";
+	String CMF_WORKFLOW_MODEL_PREFIX = "cmfwf";
 
 	QName TASK_REPORT_SERVICE_URI = QName.createQName(NamespaceService.ALFRESCO_URI,
 			"taskReportService");
@@ -55,6 +55,8 @@ public interface CMFModel {
 
 	QName TYPE_CMF_GENERIC_DEF_SPACE = QName.createQName(CMF_MODEL_1_0_URI,
 			"genericdefinitionspace");
+	QName TYPE_CMF_PERMISSIONS_DEF_SPACE = QName.createQName(CMF_MODEL_1_0_URI,
+			"permissiondefinitionspace");
 	/** The type cmf instance space. */
 	QName TYPE_CMF_CASE_INSTANCES_SPACE = QName
 			.createQName(CMF_MODEL_1_0_URI, "caseinstancesspace");
@@ -72,6 +74,8 @@ public interface CMFModel {
 	QName ASPECT_CMF_TEMPLATE_DEFINITION = QName.createQName(CMF_MODEL_1_0_URI,
 			"templateDefinition");
 	QName ASPECT_CMF_GENERIC_DEFINITION = QName.createQName(CMF_MODEL_1_0_URI, "genericDefinition");
+	QName ASPECT_CMF_PERMISSIONS_DEFINITION = QName.createQName(CMF_MODEL_1_0_URI,
+			"permissionDefinition");
 	// ############## Type containers ###############
 	/** The type cmf case. */
 	QName TYPE_CMF_CASE_SPACE = QName.createQName(CMF_MODEL_1_0_URI, "casespace");

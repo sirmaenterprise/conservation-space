@@ -94,7 +94,7 @@ public interface ServiceProxy {
 	 * 
 	 * @return the serviceRegistry
 	 */
-	public ServiceRegistry getServiceRegistry();
+	ServiceRegistry getServiceRegistry();
 
 	/**
 	 * Sets the service registry.
@@ -102,7 +102,7 @@ public interface ServiceProxy {
 	 * @param serviceRegistry
 	 *            the serviceRegistry to set
 	 */
-	public void setServiceRegistry(ServiceRegistry serviceRegistry);
+	void setServiceRegistry(ServiceRegistry serviceRegistry);
 
 	/**
 	 * Creates the pdf preview if none is existing (it is not checked)

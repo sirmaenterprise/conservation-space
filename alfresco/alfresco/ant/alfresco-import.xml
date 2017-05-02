@@ -1,0 +1,17 @@
+<project name="Alfresco Install" default="install" basedir="./../">
+
+	<target name="install" depends="clean" description="Unzips alfresco.war in share subfolder">
+		<unzip src="${alfresco.war.path}" dest="${basedir}/alfresco" />
+
+		<!-- patch alfresco jars -->
+		<ant antfile="${basedir}/ant/alfresco-patches.xml">
+			<property name="alfresco.build.dir" value="${basedir}" />
+			<property name="alfresco.dir" value="${basedir}" />
+		</ant>
+	</target>
+
+	<target name="clean" description="Recreates alfresco dir">
+		<delete dir="${basedir}/alfresco" />
+		<mkdir dir="${basedir}/alfresco" />
+	</target>
+</project>

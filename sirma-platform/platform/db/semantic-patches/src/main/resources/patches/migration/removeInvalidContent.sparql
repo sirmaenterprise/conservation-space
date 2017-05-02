@@ -1,0 +1,14 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+delete {
+    GRAPH <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+    	?instance emf:content ?content
+    }
+} where {
+    ?instance emf:content ?content.
+    ?instance emf:isDeleted ?any.
+    FILTER(NOT EXISTS{ ?instance emf:contentId ?contentId }).
+    FILTER(STRSTARTS(?content, "{")).
+    FILTER(NOT EXISTS{ ?instance a oa:Annotation }).
+    FILTER(NOT EXISTS{ ?instance a emf:Document }).
+}

@@ -1,7 +1,7 @@
 package com.sirma.itt.object.integration.webscript;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -20,14 +20,9 @@ public class InitDOMScript extends InitCMFScript {
 	/** The pm service. */
 	private DOMService domService;
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.sirma.itt.cmf.integration.webscript.InitCMFScript#initSpecificStructures (ArrayList,
-	 * JSONObject, NodeRef)
-	 */
 	@Override
-	protected boolean initSpecificStructures(ArrayList<NodeRef> results, JSONObject request,
-			NodeRef basePath) throws JSONException {
+	protected boolean initSpecificStructures(List<NodeRef> results, JSONObject request, NodeRef basePath)
+			throws JSONException {
 		JSONObject objectDefinitions = null;
 		// definition space
 		if (request.has("objects")) {
@@ -41,14 +36,12 @@ public class InitDOMScript extends InitCMFScript {
 		Map<QName, Serializable> tempMap = null;
 		if (objectDefinitions != null) {
 			tempMap = toMap(objectDefinitions.getJSONObject(KEY_PROPERTIES));
-			NodeRef createdCMFObjectSpace = getDomService().createCMFObjectDefinitionSpace(
-					basePath, tempMap);
+			NodeRef createdCMFObjectSpace = getDomService().createCMFObjectDefinitionSpace(basePath, tempMap);
 			results.add(createdCMFObjectSpace);
 		}
 		if (objectInstances != null) {
 			tempMap = toMap(objectInstances.getJSONObject(KEY_PROPERTIES));
-			NodeRef createdCMFObjectInstanceSpace = getDomService().createCMFObjectInstancesSpace(
-					basePath, tempMap);
+			NodeRef createdCMFObjectInstanceSpace = getDomService().createCMFObjectInstancesSpace(basePath, tempMap);
 			results.add(createdCMFObjectInstanceSpace);
 		}
 		return true;

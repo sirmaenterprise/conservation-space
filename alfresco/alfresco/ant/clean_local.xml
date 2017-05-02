@@ -1,0 +1,19 @@
+<project name="Build alfresco and share" default="build" basedir=".">
+
+	<target name="build">
+		<!--<delete dir="${alf_data.path}/contentstore" />
+		<delete dir="${alf_data.path}/contentstore.deleted" />
+	    <delete dir="${alf_data.path}/lucene-indexes" />-->
+
+		<sql url="jdbc:mysql://localhost:3306/alfresco_cmf" userid="alfresco" password="admin" driver="com.mysql.jdbc.Driver">
+			<transaction>
+						DROP DATABASE alfresco_cmf;
+						CREATE DATABASE alfresco_cmf;
+					</transaction>
+			<classpath>
+				<fileset dir="${basedir}/lib" includes="*.jar" />
+			</classpath>
+		</sql>
+	</target>
+
+</project>

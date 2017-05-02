@@ -1,0 +1,17 @@
+SELECT ?instance ?instanceType ?hasBody ?content ?createdBy ?createdOn ?modifiedBy ?modifiedOn ?replyTo ?status WHERE {
+    ?instance a oa:Annotation ;
+        emf:instanceType ?instanceType ;
+        emf:modifiedBy ?modifiedBy ;
+        emf:modifiedOn ?modifiedOn ;
+        emf:createdBy ?createdBy ;
+        emf:createdOn ?createdOn ;
+        emf:content ?content ;
+        oa:hasBody ?hasBody ;
+        emf:isDeleted "false"^^xsd:boolean;
+        emf:status ?status.
+    ?instance oa:hasTarget ?hasTarget.
+    ?instance emf:commentsOn ?commentsOn.
+    optional {
+        ?instance emf:replyTo ?replyTo.
+    }
+}

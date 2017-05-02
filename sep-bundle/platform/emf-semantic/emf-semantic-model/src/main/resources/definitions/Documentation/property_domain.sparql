@@ -1,8 +1,0 @@
-	select ?property (group_concat(distinct ?data ; separator = ", ") AS ?domain)
-	{
-		?property rdfs:domain ?domain1 .
-		bind(if(contains(str(?domain1), "#"), STRAFTER(str(?domain1), "#"), if(contains(str(?domain1), "dc/terms"), replace(str(?domain1), "http://purl.org/dc/terms/", ""),replace(str(?domain1), "http://purl.org/dc/elements/1.1/", ""))) as ?label) .
-		bind(if(contains(str(?domain1), "enterpriseManagementFramework"), "Enterprise Ontology - Classes and Properties", if(contains(str(?domain1), "proton"), "Proton Ontology - Classes and Properties", if(contains(str(?domain1), "skos"), "SKOS Ontology - Classes and Properties", if(contains(str(?domain1), "dc"), "Dublin Core Ontology - Classes and Properties", if(contains(str(?domain1), "culturalHeritageDomain"), "Cultural Object Ontology - Classes and Properties", if(contains(str(?domain1), "pdmConfiguration"), "Product Data Model Ontology - Classes and Properties", "")))))) as ?page) .
-		bind(concat("[", ?label, "|", ?page, "#Class ", ?label, "]") as ?data) .
-	}
-	group by ?property

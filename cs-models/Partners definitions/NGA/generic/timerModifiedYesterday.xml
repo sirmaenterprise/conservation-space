@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<definition id="timerModifiedYesterday" type="timer" isAbstract="false">
+	<fields>
+		<field name="timerModifiedYesterday" type="an..200" displayType="system">
+			<value><![CDATA[
+					// process all objects
+				    // ['NOT_YET_STARTED', 'NOT_STARTED', 'IN_PROGRESS', 'ON_HOLD', 'DRAFT', 'PENDING_APPROVAL'];
+					var arguments = new com.sirma.itt.seip.context.Context();
+					arguments.put('todayMinus', 1);
+					arguments.put('statement', '{?instance emf\\:status \"IN_PROGRESS\" . } UNION {?instance emf\\:status \"NOT_YET_STARTED\" . } UNION { ?instance emf\\:status \"ON_HOLD\" . } UNION { ?instance emf\\:status \"PENDING_APPROVAL\".} UNION {?instance emf\\:status \"NOT_STARTED\" . }');
+					var allObject = search.with(search.buildArgumentsForPredefinedQuery('ngaQueries/getModifiedInstancesYesterday', arguments));
+					var creatorProperties = ['hasWatcher','emf:hasWatcher'];
+										
+					for(var i=0; i < allObject.length; i++){
+						var subject ='(Edit) ';
+						var recipients = tasks.getTaskAssignees(allObject[i] ,creatorProperties);
+						if(allObject[i].get('rdf:type') == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'){
+							subject += codelist.getDescription(234, allObject[i].get('type'), 'en');
+							}else{
+								if(allObject[i].get('rdf:type') == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'){
+								subject += codelist.getDescription(243, allObject[i].get('subType'), 'en');
+								}else{
+									subject += allObject[i].get('title');									
+						}}
+						mail.sendNotifications(allObject[i], security.getCurrentLoggedUser(), subject, "email_edit_object", recipients, null);
+					}					
+				]]>
+			</value>
+			<control id="schedulerConfiguration">
+				<!-- To be executed each day at 00:00 -->
+				<control-param id="config" name="cronExpression">0 0 0 1/1 * ? *</control-param>
+				<control-param id="config" name="persistent">true</control-param>
+			</control>
+		</field>
+	</fields>
+</definition>

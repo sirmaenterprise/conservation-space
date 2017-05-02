@@ -29,7 +29,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.repo.workflow.WorkflowReportServiceImpl;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -42,8 +41,6 @@ import org.alfresco.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.ISO8601DateFormat;
-import org.springframework.extensions.webscripts.Cache;
-import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.util.StringUtils;
@@ -111,34 +108,6 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 	/** The task comparator. */
 	private WorkflowTaskDueAscComparator taskComparator = new WorkflowTaskDueAscComparator();
 
-	// protected AuthorityService authorityService;
-	// protected WorkflowService workflowService;
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.extensions.webscripts.DeclarativeWebScript#executeImpl
-	 * (org.springframework.extensions.webscripts.WebScriptRequest,
-	 * org.springframework.extensions.webscripts.Status,
-	 * org.springframework.extensions.webscripts.Cache)
-	 */
-	@Override
-	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
-		try {
-			AuthenticationUtil.pushAuthentication();
-			AuthenticationUtil.setRunAsUserSystem();
-			return executeInternal(req, status, cache);
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-	}
-
-	@Override
-	protected Map<String, Object> executeInternal(WebScriptRequest req) {
-		return null;
-	}
-
 	/**
 	 * Execute internal. Wrapper for system user action.
 	 *
@@ -150,18 +119,17 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 	 *            the used cache
 	 * @return the updated model
 	 */
-	private Map<String, Object> executeInternal(WebScriptRequest req, Status status, Cache cache) {
-		WorkflowModelBuilder modelBuilder = new WorkflowModelBuilder(getNamespaceService(),
-				nodeService, getAuthenticationService(), getPersonService(), getWorkflowService(),
-				getWorkflowReportService());
+	protected Map<String, Object> executeInternal(WebScriptRequest req) {
+		WorkflowModelBuilder modelBuilder = new WorkflowModelBuilder(getNamespaceService(), nodeService,
+				getAuthenticationService(), getPersonService(), getWorkflowService(), getWorkflowReportService());
 		Map<String, Object> model = new HashMap<String, Object>();
 		String content = null;
 		try {
-			model.put("mode", "default");
+			model.put(KEY_WORKING_MODE, "default");
 			// specific search for cases
 			String servicePath = req.getServicePath();
 			if (servicePath.contains("/cmf/search/task")) {
-				model.put("mode", "light");
+				model.put(KEY_WORKING_MODE, "light");
 				content = req.getContent().getContent();
 				JSONObject request = new JSONObject(content);
 				debug("Task Search Request ", request);
@@ -183,26 +151,28 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 				}
 				if (!org.apache.commons.lang.StringUtils.isBlank(query)) {
 					StringBuilder stringBuilder = new StringBuilder();
-					stringBuilder.append("PATH:\"").append(WorkflowReportServiceImpl.SYSTEM_TASK_INDEXES_SPACE).append("\"");
+					stringBuilder.append("PATH:\"").append(WorkflowReportServiceImpl.SYSTEM_TASK_INDEXES_SPACE)
+							.append("\"");
 					additional = new JSONObject();
 					additional.put("FILTER", stringBuilder.toString());
 				}
-				Pair<List<NodeRef>, Map<String, Object>> nodeRefs = cmfService.search(context,
-						query, paging, sort, additional);
+				Pair<List<NodeRef>, Map<String, Object>> nodeRefs = cmfService.search(context, query, paging, sort,
+						additional);
 
 				model.put("results", nodeRefs.getFirst());
 				model.put("paging", nodeRefs.getSecond());
 				return model;
 
 			} else {
-				return buildModel(modelBuilder, req, status, cache);
+				return buildModel(modelBuilder, req);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			if (e.getMessage() != null) {
-				throw new WebScriptException(500, e.getMessage());
+				throw new WebScriptException(500,
+						"Unexpected error occurred during task search operation: " + e.getMessage());
 			}
-			throw new WebScriptException(500, e.getClass().getName());
+			throw new WebScriptException(500,
+					"Unexpected error occurred during task search operation: " + e.getClass().getName(), e);
 		}
 	}
 
@@ -221,18 +191,13 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 	 * @param filters
 	 *            Map of filters to add the date to
 	 */
-	protected void processDateFilter(WebScriptRequest req, String paramName,
-			Map<String, Object> filters) {
-		// TODO: support other keywords i.e. today, tomorrow
-
+	protected void processDateFilter(WebScriptRequest req, String paramName, Map<String, Object> filters) {
 		String dateParam = req.getParameter(paramName);
 		if (dateParam != null) {
 			Object date = EMPTY;
-
 			if (!EMPTY.equals(dateParam) && !NULL.equals(dateParam)) {
 				date = getDateParameter(req, paramName);
 			}
-
 			filters.put(paramName, date);
 		}
 	}
@@ -321,8 +286,8 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 		if ((maxItems != DEFAULT_MAX_ITEMS) || (skipCount != DEFAULT_SKIP_COUNT)) {
 			// maxItems or skipCount parameter was provided so we need to
 			// include paging into response
-			model.put("paging", ModelUtil.buildPaging(totalItems,
-					maxItems == DEFAULT_MAX_ITEMS ? totalItems : maxItems, skipCount));
+			model.put("paging", ModelUtil.buildPaging(totalItems, maxItems == DEFAULT_MAX_ITEMS ? totalItems : maxItems,
+					skipCount));
 		}
 
 		return model;
@@ -340,8 +305,8 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 	 *            the count of elements that should be skipped
 	 * @return List of paginated results
 	 */
-	protected List<Map<String, Object>> applyPagination(List<Map<String, Object>> results,
-			int maxItems, int skipCount) {
+	protected List<Map<String, Object>> applyPagination(List<Map<String, Object>> results, int maxItems,
+			int skipCount) {
 		if ((maxItems == DEFAULT_MAX_ITEMS) && (skipCount == DEFAULT_SKIP_COUNT)) {
 			// no need to make pagination
 			return results;
@@ -467,15 +432,10 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 	 * @param modelBuilder
 	 *            the model builder
 	 * @param req
-	 *            the req
-	 * @param status
-	 *            the status
-	 * @param cache
-	 *            the cache
-	 * @return the map
+	 *            the req from script
+	 * @return the model map
 	 */
-	protected Map<String, Object> buildModel(WorkflowModelBuilder modelBuilder,
-			WebScriptRequest req, Status status, Cache cache) {
+	protected Map<String, Object> buildModel(WorkflowModelBuilder modelBuilder, WebScriptRequest req) {
 		Map<String, String> params = req.getServiceMatch().getTemplateVars();
 		Map<String, Object> filters = new HashMap<String, Object>(4);
 		long start = System.currentTimeMillis();
@@ -669,8 +629,7 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 			if (filterValue != null) {
 				if (key.equals(PARAM_EXCLUDE)) {
 					ExcludeFilter excludeFilter = (ExcludeFilter) filterValue;
-					String type = task.getDefinition().getMetadata().getName()
-							.toPrefixString(getNamespaceService());
+					String type = task.getDefinition().getMetadata().getName().toPrefixString(getNamespaceService());
 					if (excludeFilter.isMatch(type)) {
 						result = false;
 						break;
@@ -690,8 +649,8 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 						break;
 					}
 				} else if (key.equals(PARAM_PRIORITY)) {
-					if (!filterValue.toString().equals(
-							task.getProperties().get(WorkflowModel.PROP_PRIORITY).toString())) {
+					if (!filterValue.toString()
+							.equals(task.getProperties().get(WorkflowModel.PROP_PRIORITY).toString())) {
 						result = false;
 						break;
 					}
@@ -709,7 +668,7 @@ public class CMFTaskInstancesGet extends BaseAlfrescoScript {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		@Override

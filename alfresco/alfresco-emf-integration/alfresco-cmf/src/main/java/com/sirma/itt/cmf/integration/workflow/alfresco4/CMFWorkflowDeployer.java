@@ -251,9 +251,7 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 			authenticationContext.setSystemUserAsCurrentUser();
 		}
 		if (!transactionService.getAllowWrite()) {
-			if (logger.isWarnEnabled())
-				logger.warn("Repository is in read-only mode; not deploying workflows.");
-
+			logger.warn("Repository is in read-only mode; not deploying workflows.");
 			return;
 		}
 
@@ -281,7 +279,7 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 			}
 
 			userTransaction.commit();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			// rollback the transaction
 			try {
 				if (userTransaction != null) {
@@ -336,9 +334,8 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 				if (!redeploy
 						&& workflowService.isDefinitionDeployed(engineId,
 								workflowResource.getInputStream(), mimetype)) {
-					if (logger.isDebugEnabled())
-						logger.debug("Workflow deployer: Definition '" + location
-								+ "' already deployed");
+					logger.debug("Workflow deployer: Definition '" + location
+							+ "' already deployed");
 				} else {
 					WorkflowDeployment deployment = workflowService.deployDefinition(engineId,
 							workflowResource.getInputStream(), mimetype,
@@ -351,9 +348,8 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 				}
 			}
 		} else {
-			if (logger.isDebugEnabled())
-				logger.debug("Workflow deployer: Definition '" + location
-						+ "' not deployed as the '" + engineId + "' engine is disabled");
+			logger.debug("Workflow deployer: Definition '" + location + "' not deployed as the '"
+					+ engineId + "' engine is disabled");
 		}
 		return null;
 	}
@@ -383,9 +379,7 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 
 			if (workflowAdminService.isEngineEnabled(engineId)) {
 				if (!redeploy && workflowService.isDefinitionDeployed(nodeRef)) {
-					if (logger.isDebugEnabled())
-						logger.debug("Workflow deployer: Definition '" + nodeRef
-								+ "' already deployed");
+					logger.debug("Workflow deployer: Definition '" + nodeRef + "' already deployed");
 				} else {
 					// deploy / re-deploy
 					WorkflowDeployment deployment = workflowService.deployDefinition(nodeRef);
@@ -405,8 +399,7 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 						// problems / warnings
 						if (deployment.getProblems().length > 0) {
 							for (String problem : deployment.getProblems()) {
-								if (logger.isWarnEnabled())
-									logger.warn(problem);
+								logger.warn(problem);
 							}
 						}
 						getDefinitionToWorkflowMapping().put(def, nodeRef);
@@ -415,9 +408,8 @@ public class CMFWorkflowDeployer extends AbstractLifecycleBean
 					}
 				}
 			} else {
-				if (logger.isDebugEnabled())
-					logger.debug("Workflow deployer: Definition '" + nodeRef
-							+ "' not deployed as the '" + engineId + "' engine is disabled");
+				logger.debug("Workflow deployer: Definition '" + nodeRef
+						+ "' not deployed as the '" + engineId + "' engine is disabled");
 			}
 		}
 

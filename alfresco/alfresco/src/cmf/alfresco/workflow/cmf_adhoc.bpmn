@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://alfresco.org">
+  <process id="WFUTA" name="Unlimited Task Assignment Workflow (UTA WF)" isExecutable="true">
+    <startEvent id="TSTYPE97" name="Стартиране на работен процес" activiti:formKey="cmfwf:submitTask"></startEvent>
+    <exclusiveGateway id="reviewDecision" name="Process Decision"></exclusiveGateway>
+    <userTask id="TSTYPE99" name="Задача за приключване/ продължаване на работен процес" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="cmfwf:randomStartEndTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string>if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.sirma.itt.cmf.integration.workflow.alfresco4.DecisionTaskHandler"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="end" name="End"></endEvent>
+    <userTask id="TSTYPE98" name="Задача за изпълнение" activiti:assignee="${bpm_assignee.properties.userName}" activiti:formKey="cmfwf:randomTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.sirma.itt.cmf.integration.workflow.alfresco4.BaseTaskHandler"></activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.sirma.itt.cmf.integration.workflow.alfresco4.DecisionTaskHandler"></activiti:taskListener>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string>if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate
+                        if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="RT0099" name="Работен процес стартиран" sourceRef="TSTYPE97" targetRef="TSTYPE98"></sequenceFlow>
+    <sequenceFlow id="RT0095" name="Възлагане на нова задача" sourceRef="reviewDecision" targetRef="TSTYPE98">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${cmfwf_taskOutcome == 'RT0095'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="RT0096" name="Приключване на работен процес" sourceRef="reviewDecision" targetRef="end"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="TSTYPE99" targetRef="reviewDecision"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow7" name="Резултат" sourceRef="TSTYPE98" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="RT0098" name="Отказ от изпълнение" sourceRef="exclusivegateway1" targetRef="TSTYPE99">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${cmfwf_taskOutcome == 'RT0098'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="RT0097" name="Успешно изпълнена" sourceRef="exclusivegateway1" targetRef="TSTYPE99"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_WFUTA">
+    <bpmndi:BPMNPlane bpmnElement="WFUTA" id="BPMNPlane_WFUTA">
+      <bpmndi:BPMNShape bpmnElement="reviewDecision" id="BPMNShape_reviewDecision">
+        <omgdc:Bounds height="40.0" width="40.0" x="430.0" y="175.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="35.0" width="35.0" x="500.0" y="178.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="TSTYPE98" id="BPMNShape_TSTYPE98">
+        <omgdc:Bounds height="55.0" width="131.0" x="20.0" y="290.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="TSTYPE99" id="BPMNShape_TSTYPE99">
+        <omgdc:Bounds height="76.0" width="161.0" x="247.0" y="158.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="TSTYPE97" id="BPMNShape_TSTYPE97">
+        <omgdc:Bounds height="35.0" width="35.0" x="68.0" y="194.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="199.0" y="297.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="408.0" y="196.0"></omgdi:waypoint>
+        <omgdi:waypoint x="430.0" y="195.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="151.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="199.0" y="317.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="-15.0" y="14.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="RT0098" id="BPMNEdge_RT0098">
+        <omgdi:waypoint x="239.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="327.0" y="317.0"></omgdi:waypoint>
+        <omgdi:waypoint x="327.0" y="234.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-66.0" y="-61.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="RT0097" id="BPMNEdge_RT0097">
+        <omgdi:waypoint x="219.0" y="297.0"></omgdi:waypoint>
+        <omgdi:waypoint x="218.0" y="196.0"></omgdi:waypoint>
+        <omgdi:waypoint x="247.0" y="196.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-58.0" y="-37.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="RT0099" id="BPMNEdge_RT0099">
+        <omgdi:waypoint x="85.0" y="229.0"></omgdi:waypoint>
+        <omgdi:waypoint x="85.0" y="290.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-82.0" y="-23.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="RT0096" id="BPMNEdge_RT0096">
+        <omgdi:waypoint x="470.0" y="195.0"></omgdi:waypoint>
+        <omgdi:waypoint x="500.0" y="195.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-29.0" y="11.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="RT0095" id="BPMNEdge_RT0095">
+        <omgdi:waypoint x="450.0" y="215.0"></omgdi:waypoint>
+        <omgdi:waypoint x="449.0" y="382.0"></omgdi:waypoint>
+        <omgdi:waypoint x="268.0" y="382.0"></omgdi:waypoint>
+        <omgdi:waypoint x="85.0" y="382.0"></omgdi:waypoint>
+        <omgdi:waypoint x="85.0" y="345.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="18.0" y="-45.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

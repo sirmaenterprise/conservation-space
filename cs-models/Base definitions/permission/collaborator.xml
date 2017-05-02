@@ -1,0 +1,95 @@
+<roles>
+    <role name="COLLABORATOR" priority="15">
+        <include>collaborator_external</include>
+        <include>collaborator_annotation</include>
+    </role>
+    <role name="collaborator_external" external="false">
+        <permission name="create">
+            <actions>
+                <action name="create" />
+            </actions>
+        </permission>
+        <permission name="edit">
+            <actions>
+                <action name="editDetails" />
+                <action name="download" />
+                <action name="uploadNewVersion" />
+                <action name="move" />           
+                <action name="addThumbnail_collaborator" local="true" bind="addThumbnail">
+                    <filter value="CREATEDBY" />
+                </action>
+                <action name="saveAsTemplate" />
+            </actions>
+        </permission>
+        <permission name="transition">
+            <actions>
+            	<action name="claim_collaborator" local="true" bind="claim">
+            		<filter value="IS_CLAIMED" />
+            	</action>
+            	<action name="release_collaborator" local="true" bind="release">
+            		<filter value="IS_RELEASED" />
+            	</action>
+                <action name="approve_collaborator" local="true" bind="approve">
+                    <filter value="CREATEDBY" />
+                </action>
+                <action name="reject" />
+                <action name="complete_collaborator" local="true" bind="complete">
+                    <filter value="ASSIGNEE" />
+                </action>
+                <action name="re-open_collaborator" local="true" bind="re-open">
+                    <filter value="ASSIGNEE" />
+                </action>
+                <action name="start_collaborator" local="true" bind="start">
+                    <filter value="ASSIGNEE" />
+                </action>
+                <action name="restart_collaborator" local="true" bind="restart">
+                    <filter value="ASSIGNEE" />
+                </action>
+                <action name="suspend_collaborator" local="true" bind="suspend">
+                    <filter value="ASSIGNEE" />
+                </action>
+                <action name="stop_collaborator" local="true" bind="stop">
+                    <filter value="ASSIGNEE" />
+                </action>
+                <action name="reassign_collaborator" local="true" bind="reassign">
+                    <filter value="ASSIGNEE" />
+                </action>
+				<action name="publish_collaborator" local="true" bind="publish">
+        			 <filter value="CREATOR_AND_IS_UPLOADED" />
+        		</action>
+        		<action name="publishAsPdf_collaborator" local="true" bind="publishAsPdf">
+        			 <filter value="CREATOR_AND_IS_CREATED" />
+        		</action>         
+                <action name="revertVersion_collaborator" local="true" bind="revertVersion">
+                    <filter value="CREATEDBY" />
+                </action>
+        		                                     
+            </actions>
+        </permission>
+        <permission name="lock">
+            <actions>
+                <action name="lock" />
+                <action name="unlock_collaborator" local="true" bind="unlock">
+                    <filter value="LOCKEDBY" />
+                </action>
+            </actions>
+        </permission>
+        <permission name="delete">
+            <actions>
+                <action name="delete_collaborator" local="true" bind="delete">
+                    <filter value="CREATEDBY" />
+                </action>
+            </actions>
+        </permission>
+    </role>
+    <role name="collaborator_annotation" external="false">
+		<permission name="transition">
+			<actions applyTo="annotation">
+				<action name="editComment"/>
+				<action name="deleteComment" />
+				<action name="suspendComment" />
+				<action name="restartComment" />			
+			</actions>
+		</permission>
+	</role>
+</roles>

@@ -1,0 +1,180 @@
+{
+  "models": {
+    "default": {
+      "definitionId": "definitionId",
+      "instanceId": "emf:123456",
+      "instanceType": "documentInstance",
+      "headers": {
+        "default_header": "<span>Default header</span>",
+        "compact_header": "<span>Compact header</span>",
+        "breadcrumb_header": "<span>Breadcrumb header</span>"
+      },
+      "viewModel": {
+        "fields": [
+          {
+            "identifier": "field1",
+            "dataType": "text",
+            "displayType": "EDITABLE",
+            "label": "Field 1 (instance service data)",
+            "maxLength": 40,
+            "previewEmpty": true,
+            "isMandatory": false,
+            "validators": [
+              {
+                "level": "error",
+                "context": {
+                  "pattern": "[\\s\\S]{1,40}"
+                },
+                "id": "regex",
+                "message": "Invalid format. Use letters and digits only up to 40 signs."
+              }
+            ]
+          },
+          {
+            "identifier": "field2",
+            "dataType": "text",
+            "displayType": "EDITABLE",
+            "label": "Field 2",
+            "maxLength": 40,
+            "previewEmpty": true,
+            "isMandatory": false,
+            "validators": [
+              {
+                "level": "error",
+                "context": {
+                  "pattern": "[\\s\\S]{1,40}"
+                },
+                "id": "regex",
+                "message": "Invalid format. Use letters and digits only up to 40 signs."
+              },
+              {
+                "id": "condition",
+                "rules": [
+                  {
+                    "id": "mandatory",
+                    "renderAs": "MANDATORY",
+                    "expression": "+[field1]"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "identifier": "checkboxTrigger",
+            "dataType": "boolean",
+            "displayType": "EDITABLE",
+            "label": "Checkbox field",
+            "previewEmpty": true,
+            "isMandatory": false,
+            "disabled": false,
+            "validators": []
+          },
+          {
+            "identifier": "field3",
+            "dataType": "text",
+            "displayType": "EDITABLE",
+            "label": "Field 3",
+            "maxLength": 40,
+            "previewEmpty": true,
+            "isMandatory": true,
+            "validators": [
+              {
+                "level": "error",
+                "context": {
+                  "pattern": "[\\s\\S]{1,40}"
+                },
+                "id": "regex",
+                "message": "Invalid format. Use letters and digits only up to 40 signs."
+              },
+              {
+                "level": "error",
+                "id": "mandatory",
+                "message": "The field is mandatory!"
+              },
+              {
+                "id": "condition",
+                "rules": [
+                  {
+                    "id": "optional",
+                    "renderAs": "OPTIONAL",
+                    "expression": "[checkboxTrigger] IN ('false')"
+                  },
+                  {
+                    "id": "hidden",
+                    "renderAs": "HIDDEN",
+                    "expression": "[checkboxTrigger] IN ('false')"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "identifier": "region1",
+            "label": "Region 1",
+            "displayType": "EDITABLE",
+            "validators": [
+              {
+                "id": "condition",
+                "rules": [
+                  {
+                    "id": "hidden",
+                    "renderAs": "HIDDEN",
+                    "expression": "[checkboxTrigger] IN ('false')"
+                  }
+                ]
+              }
+            ],
+            "fields": [
+              {
+                "identifier": "regionField1",
+                "dataType": "text",
+                "displayType": "EDITABLE",
+                "label": "Region field 1",
+                "maxLength": 40,
+                "previewEmpty": true,
+                "isMandatory": false,
+                "validators": [
+                  {
+                    "level": "error",
+                    "context": {
+                      "pattern": "[\\s\\S]{1,40}"
+                    },
+                    "id": "regex",
+                    "message": "Invalid format. Use letters and digits only up to 40 signs."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "validationModel": {
+        "field1": {
+          "defaultValue": "",
+          "value": "",
+          "messages": []
+        },
+        "field2": {
+          "defaultValue": "",
+          "value": "",
+          "messages": []
+        },
+        "checkboxTrigger": {
+          "defaultValue": false,
+          "value": false,
+          "messages": []
+        },
+        "field3": {
+          "defaultValue": "",
+          "value": "",
+          "messages": []
+        },
+        "regionField1": {
+          "defaultValue": "",
+          "value": "",
+          "messages": []
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+<definition id="userDefinitionBase" isAbstract="true" type="user">
+	<fields>
+		<field name="default_header" type="ANY" label="USER_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+        <field name="compact_header" type="an..4096" label="USER_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+        <field name="breadcrumb_header" type="an..4096" label="USER_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+        <field name="tooltip_header" type="an..4096" label="USER_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		
+		<field name="rdf:type" 		type="URI" 		displayType="system" uri="rdf:type" dmsType="FORBIDDEN"><value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User</value></field>
+		<field name="type"  		type="an..20"  codelist="CL3" mandatory="false" displayType="system" uri="emf:type" dmsType="FORBIDDEN"> <value>FC236008</value></field>
+		<field name="status" 		type="an..10" 	displayType="system" uri="emf:status" codelist="CL12" dmsType="FORBIDDEN"/> 
+	    <field name="createdOn" 	type="dateTime" displayType="system" label="createdOn.label" uri="emf:createdOn" dmsType="FORBIDDEN"/>
+	    <field name="createdBy" 	type="uri" 	displayType="system" label="createdBy.label" uri="emf:createdBy" dmsType="FORBIDDEN">
+	    	<control id="PICKER">
+	    		<control-param id="range" name="range">emf:User</control-param>
+	    	</control>
+	    </field>
+	    <field name="emf:version" 	type="an..10" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/> 	    
+	    <field name="modifiedOn"  	type="dateTime" displayType="system" label="modifiedOn.label" uri="emf:modifiedOn" dmsType="FORBIDDEN"/>
+	    <field name="modifiedBy"    type="uri" 	displayType="system" label="modifiedBy.label" uri="emf:modifiedBy" dmsType="FORBIDDEN">
+	    	<control id="PICKER">
+	    		<control-param id="range" name="range">emf:User</control-param>
+	    	</control>
+	    </field>	    
+	    <field name="emf:isDeleted" type="boolean"  displayType="system" uri="emf:isDeleted" dmsType="FORBIDDEN"><value>false</value></field>
+		<field name="emf:isActive"  type="boolean"  displayType="system" uri="emf:isActive" dmsType="FORBIDDEN"><value>true</value></field>
+		<field name="userId" 		type="an..35" 	displayType="readonly" label="userDefinition.userId" uri="ptop:title" />
+		<field name="avatar" 		type="an..200" 	displayType="readonly" label="userDefinition.avatar" uri="emf:avatar" />
+		<field name="title" 		type="an..100"  displayType="readonly" label="userDefinition.title" uri="dcterms:title" />
+	    <field name="firstName" 	type="an..35" 	displayType="readonly" label="userDefinition.firstName" uri="ptop:firstName" />
+	    <field name="lastName" 		type="an..35" 	displayType="readonly" label="userDefinition.lastName" uri="ptop:lastName" />   
+	    <field name="email" 		type="an..50" 	displayType="readonly" label="userDefinition.email" uri="emf:email" />
+		<field name="country" 		type="an..50" 	displayType="editable" label="userDefinition.country" uri="emf:countryName" dmsType="FORBIDDEN" />
+		<field name="address" 		type="an..100" 	displayType="editable" label="userDefinition.address" uri="emf:address" dmsType="FORBIDDEN" />
+		<field name="telephone" 	type="an..50" 	displayType="editable" label="userDefinition.telephone" uri="emf:phoneNumber" dmsType="FORBIDDEN" />
+		<field name="mobile" 		type="an..100" 	displayType="editable" label="userDefinition.mobile" uri="emf:mobileNumber" dmsType="FORBIDDEN" />
+		<field name="im" 			type="an..100" 	displayType="editable" label="userDefinition.im" uri="emf:instantMessengerId" dmsType="FORBIDDEN" />
+	    
+	    <field name="organization" 	type="an..100" 	displayType="editable" label="userDefinition.organization" uri="emf:organizationName" dmsType="FORBIDDEN" />
+		<field name="jobtitle" 		type="an..50" 	displayType="editable" label="userDefinition.jobtitle" uri="emf:jobTitle" dmsType="FORBIDDEN" /> 
+	    <field name="language" 		type="an..50" 	displayType="editable" label="userDefinition.language" uri="dcterms:language" codelist="CL13" dmsType="FORBIDDEN"/>
+		
+		<field name="ownedBy" type="uri" label="ownedBy" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:ownedBy" dmsType="FORBIDDEN">
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Task</control-param>
+			</control>
+		</field>
+		<field name="parentOf" type="uri" label="parentOf" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" dmsType="FORBIDDEN" >
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group,emf:Library</control-param>
+			</control>
+		</field>
+		<field name="hasParent" type="uri" label="hasParent" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasParent" dmsType="FORBIDDEN">
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group,emf:Library</control-param>
+			</control>
+		</field>
+		<field name="partOf" type="uri" label="partOf.label" mandatory="false" displayType="system" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+     		<control id="PICKER">
+      			<control-param id="range" name="range"></control-param>
+     		</control>
+    	</field>
+    	<field name="hasChild" type="uri" label="hasChild.label" mandatory="false" displayType="system" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+     		<control id="PICKER">
+      			<control-param id="range" name="range"></control-param>
+     		</control>
+    	</field> 
+		<field name="hasThumbnail" type="uri" label="hasThumbnail" mandatory="false" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail" dmsType="FORBIDDEN" >
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Image</control-param>
+			</control>
+		</field>
+		<field name="isAssigneeOf" type="uri" label="isAssigneeOf" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isAssigneeOf" dmsType="FORBIDDEN">
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Task</control-param>
+			</control>
+		</field>
+		<field name="hasTemplate" type="uri" label="hasTemplate" mandatory="false" displayType="system" multiValued="false" previewEmpty="false" uri="emf:hasTemplate"/>
+	</fields>
+
+    <transitions>
+		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
+<!--    Disabled until such actions are needed. 
+	 	 	<transition id="delete" label="userDefinition.delete.btn.title" eventId="delete" purpose="transition" immediate="true" confirmation="confirmation.action" />
+			<transition id="activate" label="userDefinition.activate.btn.title" eventId="activate" purpose="transition" immediate="true" confirmation="confirmation.action" />		
+-->		<transition id="saveAsTemplate" label="saveAsTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" /> 
+        <transition id="addThumbnail" label="addThumbnail.label" eventId="addThumbnail" purpose="addThumbnail"  tooltip="addThumbnail.tooltip" />
+        <transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" />
+		<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" />
+		<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="*" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
+
+		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="delete" to="DELETED" />
+		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />		
+		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>		           
+        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="lock" to="ACTIVE"/>
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+        <stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
+		
+		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
+		<stateTransition from="INACTIVE" transition="delete" to="DELETED" />
+		<stateTransition from="*" transition="delete" to="DELETED" />
+	</stateTransitions>
+	<labels>
+		<label id="USER_TOOLTIP_HEADER">
+    			<value lang="en"><![CDATA[${eval(
+                    <span class="thumbnail-content">
+                        <img class="thumbnail" src="${thumbnailUri(64)}" />
+                    </span>
+                    <span class="tooltip-data">
+                        <span class="tooltip-header">
+                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}">
+                                <span data-title="${get([title])}">${get([title])}</span>
+                            </a>
+                        </span>
+                        <span class="tooltip-row">
+                            <label>First name:</label>
+                            <span data-property="firstName">${get([firstName])}</span>
+                        </span>
+                        <span class="tooltip-row">
+                            <label>Last name: </label>
+                            <span data-property="lastName">${get([lastName])}</span>
+                        </span>
+                        <span class="tooltip-row">
+                            <label>Job title: </label>
+                            <span data-property="jobtitle">${get([jobtitle])}</span>
+                        </span>
+                    </span>
+                )}]]></value>
+                <value lang="bg"><![CDATA[${eval(
+                    <span class="thumbnail-content">
+                        <img class="thumbnail" src="${thumbnailUri(64)}" />
+                    </span>
+                    <span class="tooltip-data">
+                        <span class="tooltip-header">
+                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}">
+                                <span data-title="${get([title])}">${get([title])}</span>
+                            </a>
+                        </span>
+                         <span class="tooltip-row">
+                            <label>Име:</label>
+                            <span data-property="firstName">${get([firstName])}</span>
+                        </span>
+                        <span class="tooltip-row">
+                            <label>Фамилия: </label>
+                            <span data-property="lastName">${get([lastName])}</span>
+                        </span>
+                        <span class="tooltip-row">
+                            <label>Длъжност: </label>
+                            <span data-property="jobtitle">${get([jobtitle])}</span>
+                        </span>
+                    </span>
+                )}]]></value>
+    		</label>
+            <label id="USER_DEFAULT_HEADER">
+                <value lang="en"><![CDATA[${eval(
+			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span ><img src="${thumbnailUri(64)}"/></span>
+                <span>
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+							<b>
+								<span data-property="title">${get([title])}</span>&nbsp;
+								${if(${var.isVersion}).then(
+									<span data-property="emf:version">${get([emf:version])}</span>
+								)}
+							</b>
+						</a>
+					</span> 
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]></value>
+                <value lang="bg"><![CDATA[${eval(
+			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span><img src="${thumbnailUri(64)}"/></span>
+                <span>
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+							<b>
+								<span data-property="title">${get([title])}</span>&nbsp;
+								${if(${var.isVersion}).then(
+									<span data-property="emf:version">${get([emf:version])}</span>
+								)}
+							</b>
+						</a>
+					</span> 
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]></value>
+            </label>
+            <label id="USER_COMPACT_HEADER">
+                <value lang="en"><![CDATA[${eval(
+			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				<span class="truncate-element">
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+							<span data-property="title">${get([title])}</span>&nbsp;
+							${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+					</a>
+				</span>
+				<br />
+				)}]]></value>
+                <value lang="bg"><![CDATA[${eval(
+			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				<span class="truncate-element">
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+							<span data-property="title">${get([title])}</span>&nbsp;
+							${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+					</a>
+				</span>
+				<br />
+				)}]]></value>
+            </label>
+            <label id="USER_BREADCRUMB_HEADER">
+                <value lang="bg"><![CDATA[${eval(
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				<span>
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>)}]]></value>
+                <value lang="en"><![CDATA[${eval(
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+                <span>
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>)}]]></value>
+        </label>
+		<label id="userDefinition.firstName">
+			<value lang="bg">Име</value>
+			<value lang="en">First name</value>
+		</label>
+		<label id="userDefinition.lastName">
+			<value lang="bg">Фамилия</value>
+			<value lang="en">Last name</value>
+		</label>
+		<label id="userDefinition.userId">
+			<value lang="bg">Номер на потребител</value>
+			<value lang="en">User ID</value>
+		</label>
+		<label id="userDefinition.title">
+			<value lang="bg">Потребител</value>
+			<value lang="en">User</value>
+		</label>
+		<label id="userDefinition.avatar">
+			<value lang="bg">Аватар</value>
+			<value lang="en">Avatar</value>
+		</label>
+		<label id="userDefinition.email">
+			<value lang="bg">Имейл</value>
+			<value lang="en">Email</value>
+		</label>
+		<label id="userDefinition.jobtitle">
+			<value lang="bg">Длъжност</value>
+			<value lang="en">Job Title</value>
+		</label>		
+		<label id="userDefinition.country">
+			<value lang="bg">Държава</value>
+			<value lang="en">Country</value>
+		</label>
+		<label id="userDefinition.address">
+			<value lang="bg">Адрес</value>
+			<value lang="en">Address</value>
+		</label>
+		<label id="userDefinition.telephone">
+			<value lang="bg">Телефон</value>
+			<value lang="en">Telephone</value>
+		</label>
+		<label id="userDefinition.mobile">
+			<value lang="bg">Мобилен телефон</value>
+			<value lang="en">Mobile</value>
+		</label>
+		<label id="userDefinition.organization">
+			<value lang="bg">Търговско предприятие</value>
+			<value lang="en">Organization</value>
+		</label>
+		<label id="userDefinition.im">
+			<value lang="bg">IM</value>
+			<value lang="en">IM</value>
+		</label>
+		<label id="userDefinition.language">
+			<value lang="bg">Език</value>
+			<value lang="en">Language</value>
+		</label>
+<!--
+		<label id="userDefinition.delete.btn.title">
+			<value lang="bg">Деактивирай</value>
+			<value lang="en">Deactivate</value>
+		</label>
+		<label id="userDefinition.activate.btn.title">
+			<value lang="bg">Активирай</value>
+			<value lang="en">Activate</value>
+		</label>		
+-->
+	</labels>
+</definition>

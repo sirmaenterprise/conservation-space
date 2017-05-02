@@ -1,0 +1,1 @@
+angular.module('permissions', [ 'ui.select2']);

@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<definition id="customQueries" type="query">
+	<fields>
+	    <field name="countAssosiations" type="an..200" displayType="system">
+            <value>select (count(distinct ?instance) as ?count) where {
+           				?relation a emf:Relation;
+           					emf:source ?objectUri;
+           					emf:destination ?instance;
+           					emf:isActive "true"^^xsd:boolean.
+                    	?instance a ?countedType.
+                    	?instance emf:isDeleted "false"^^xsd:boolean.
+					}</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">true</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="objectUri" />
+				<control-param id="binding" name="countedType" />
+			</control>
+        </field>
+        <field name="countSimpleAssosiations" type="an..200" displayType="system">
+            <value>select (count(distinct ?instance) as ?count) where {
+                    	?objectUri ?p ?instance.
+                    	?instance a ?countedType.
+                    	?instance emf:isDeleted "false"^^xsd:boolean.
+					}</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">true</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="objectUri" />
+				<control-param id="binding" name="countedType" />
+			</control>
+        </field>
+        <field name="projectinstance_rootFilter" type="an..200" displayType="system">
+            <value>(status:(IN_PROGRESS OR APPROVED OR ON_HOLD OR SUBMITTED) AND (rdfType:"http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project" ) AND
+            (owner:"{userid}" OR assignee:"{userid}"  ) {term} ) </value>
+            <control id="query">
+				<control-param id="config" name="dialect">SOLR</control-param>
+				<control-param id="queryParam" name="userid" />
+				<control-param id="queryParam" name="term"></control-param>
+			</control>
+        </field>
+        <field name="projectinstance_allAvailableFilter" type="an..200" displayType="system">
+            <value>(status:(IN_PROGRESS OR APPROVED OR ON_HOLD OR SUBMITTED) AND (rdfType:"http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project" ) {term} ) </value>
+            <control id="query">
+				<control-param id="config" name="dialect">SOLR</control-param>
+				<control-param id="queryParam" name="term"></control-param>
+			</control>
+        </field>
+        <field name="caseinstance_rootFilter" type="an..200" displayType="system">
+            <value>(status:(IN_PROGRESS OR APPROVED OR ON_HOLD OR SUBMITTED) AND rdfType:"http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Case" AND (createdBy:"{userid}" OR ({!join from=partOfRelation to=_sort_uri}assignee:"{userid}" AND {!join from=partOfRelation to=_sort_uri}rdfType:*Task AND {!join from=partOfRelation to=_sort_uri}isActive:"true") ) {term} )</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SOLR</control-param>
+				<control-param id="queryParam" name="userid" />
+				<control-param id="queryParam" name="term"></control-param>
+			</control>
+        </field>
+        <field name="getRevisions" type="an..200" displayType="system">
+            <value>SELECT distinct ?instance ?instanceType WHERE {
+						    {
+						        ?objectUri emf:hasRevision ?instance.    
+						        ?instance emf:revisionNumber ?revision.
+						    } UNION {
+						        ?i emf:hasRevision ?objectUri.
+						        ?i emf:hasRevision ?instance.
+						        ?instance emf:revisionNumber ?revision.
+						    } UNION {
+						        ?objectUri emf:hasRevision ?i.  
+						        BIND(?objectUri as ?instance).
+						        BIND("{draftRevision}" as ?revision).
+						    } UNION {
+						        ?instance emf:hasRevision ?objectUri.
+						        BIND("{draftRevision}" as ?revision).
+						    }
+												    
+						    ?instance emf:isDeleted "false"^^xsd:boolean.
+						    ?instance emf:instanceType ?instanceType.
+					} order by {orderDirection}(xsd:decimal(?revision))
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="objectUri" />
+				<control-param id="queryParam" name="orderDirection">ASC</control-param>
+				<control-param id="queryParam" name="draftRevision">0.0</control-param>
+			</control>
+        </field>
+        <field name="processedByWorkflows" type="an..200" displayType="system">
+            <value>select ?instance ?instanceType ?definitionId where {
+					    ?instance a emf:BusinessProcess;
+					        emf:processes ?objectUri;
+					        emf:type ?definitionId;
+					        emf:status "IN_PROGRESS";
+					        emf:isDeleted "false"^^xsd:boolean;
+					        emf:instanceType ?instanceType.
+					}
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="objectUri" />
+			</control>
+        </field>
+        <field name="getAllResources" type="an..200" displayType="system">
+            <value>select ?instance ?instanceType where {
+					    ?instance a ?resourceType;
+					        emf:isDeleted "false"^^xsd:boolean;
+					        emf:instanceType ?instanceType.
+					}
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="config" name="maxSize">-1</control-param>
+				<control-param id="binding" name="resourceType" />
+			</control>
+        </field>
+        <field name="getActiveWorkflowTasks" type="an..200" displayType="system">
+            <value>SELECT DISTINCT ?instance ?instanceType WHERE {
+					    ?instance emf:isActive "true"^^xsd:boolean .
+					    ?instance emf:isDeleted "false"^^xsd:boolean .
+					    ?instance emf:bpmnState emf:inProgress .
+					    ?instance emf:instanceType ?instanceType .
+					    {
+					        ?instance a emf:BusinessProcessTask .
+					    } UNION {
+					        ?instance a emf:Task .
+					    }
+					    {
+					        ?currentInstance ?relationType ?instance .
+					    } UNION {
+					        ?relation a emf:Relation .
+					        ?relation emf:relationType ?relationType .
+					        ?relation emf:source ?instance .
+					        ?relation emf:destination ?currentInstance .
+					        ?relation emf:isActive "true"^^xsd:boolean .
+					    }
+					}
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">5</control-param>
+				<control-param id="binding" name="currentInstance" />
+			</control>
+        </field>
+	</fields>
+</definition>
