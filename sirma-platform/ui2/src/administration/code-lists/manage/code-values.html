@@ -1,0 +1,88 @@
+<div class="code-values table-responsive">
+
+  <strong class="code-values-header">
+    {{ ::'code.lists.manage.header.values' | translate }}
+    <button class="btn text-success code-value-add-btn btn-borderless pull-right" ng-if="!codeValues.isPreviewMode()"
+            ng-click="::codeValues.addCodeValue()">
+      <i class="fa fa-plus"></i>
+      {{ ::'code.lists.manage.add.value' | translate }}
+    </button>
+  </strong>
+
+  <table class="table table-hover table-condensed panel">
+    <thead>
+    <tr>
+      <th class="col-md-1">{{ ::'code.lists.manage.id' | translate }}</th>
+      <th class="col-md-2">{{ ::'code.lists.manage.name' | translate }}</th>
+      <th class="col-md-3">{{ ::'code.lists.manage.comment' | translate }}</th>
+      <th class="col-md-2">{{ ::'code.lists.manage.extra' | translate }} 1</th>
+      <th class="col-md-2">{{ ::'code.lists.manage.extra' | translate }} 2</th>
+      <th class="col-md-2">{{ ::'code.lists.manage.extra' | translate }} 3</th>
+      <!-- Actions/buttons columns -->
+      <th class="col-sm text-center">{{ ::'code.lists.manage.active' | translate }}</th>
+      <th class="col-sm text-center">{{ ::'code.lists.manage.actions' | translate }}</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr class="code-value"
+        ng-repeat="value in codeValues.codeList.values | paginate: codeValues.paginationConfig">
+      <td ng-class="{'has-error': codeValues.isIdInvalid(value)}">
+        <input class="form-control input-sm code-id" type="text" ng-readonly="!value.isNew || codeValues.isPreviewMode()"
+               ng-model="::value.id" ng-change="codeValues.onModelChange(value)">
+        <code-validation-messages ng-if="value.isNew && codeValues.isIdInvalid(value)"
+                                  validation-field="value.validationModel['id']"></code-validation-messages>
+      </td>
+      <td ng-class="{'has-error': codeValues.isNameInvalid(value)}">
+        <textarea class="form-control input-sm code-name" rows="1" ng-change="codeValues.onModelChange(value)"
+                  ng-readonly="codeValues.isPreviewMode()" ng-model="::value.description.name"></textarea>
+        <code-validation-messages ng-if="!codeValues.isPreviewMode() && codeValues.isNameInvalid(value)"
+                                  validation-field="value.description.validationModel['name']"></code-validation-messages>
+      </td>
+      <td>
+        <textarea class="form-control input-sm code-comment" rows="1"
+                  ng-readonly="codeValues.isPreviewMode()" ng-model="::value.description.comment"></textarea>
+      </td>
+      <td>
+        <textarea class="form-control input-sm code-extra-1" rows="1"
+                  ng-readonly="codeValues.isPreviewMode()" ng-model="::value.extras['1']"></textarea>
+      </td>
+      <td>
+        <textarea class="form-control input-sm code-extra-2" rows="1"
+                  ng-readonly="codeValues.isPreviewMode()" ng-model="::value.extras['2']"></textarea>
+      </td>
+      <td>
+        <textarea class="form-control input-sm code-extra-3" rows="1"
+                  ng-readonly="codeValues.isPreviewMode()" ng-model="::value.extras['3']"></textarea>
+      </td>
+      <td class="text-center">
+        <label class="checkbox code-active-ctrl"
+               ng-class="{'code-active-disabled-ctrl': codeValues.isPreviewMode()}">
+          <input type="checkbox" ng-model="value.active"
+                 ng-disabled="codeValues.isPreviewMode()"/>
+          <i title="{{ ::'code.lists.manage.active.tooltip' | translate }}"></i>
+        </label>
+      </td>
+      <td class="text-center">
+        <div class="code-value-action-btns">
+          <code-descriptions-button class="btn btn-default code-value-btn" code="value"
+                                    mode="codeValues.mode"
+                                    on-close="codeValues.onModelChange(value)"
+                                    on-change="codeValues.onModelChange(value)"></code-descriptions-button>
+          <button class="btn btn-default code-value-btn code-value-remove-btn" ng-if="value.isNew"
+                  ng-click="codeValues.removeNewValue(value)"
+                  title="{{ ::'code.lists.manage.remove.tooltip' | translate }}">
+            <span class="fa fa-close text-danger"></span>
+          </button>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <seip-pagination total="codeValues.paginationConfig.total"
+                   page="codeValues.paginationConfig.page"
+                   config="::codeValues.paginationConfig">
+  </seip-pagination>
+
+</div>

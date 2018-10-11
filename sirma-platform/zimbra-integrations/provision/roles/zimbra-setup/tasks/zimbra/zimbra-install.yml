@@ -1,0 +1,50 @@
+- name: Download and Unpacking Zimbra Collaboration - Open Source Edition
+  run_once: true
+  unarchive:
+    validate_certs: no
+    src: '{{ zmurl }}{{ zmpkg }}.tgz'
+    dest: /tmp/
+    remote_src: Yes
+
+- name: Copy install keystroke file
+  run_once: true
+  copy:
+    src: 'install-keystrokes'
+    dest: /tmp/install-keystrokes
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy zimbra configurations template file
+  run_once: true
+  no_log: true
+  template:
+    src: 'zimbra-configurations.j2'
+    dest: /tmp/zimbra-configurations
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Installing Zimbra collaboration's packages
+  run_once: true
+  shell: ./install.sh -s < /tmp/install-keystrokes
+  args:
+    chdir: '/tmp/{{ zmpkg }}/'
+
+- name: Configuring the server with the provided configuraitons. This will take a while...
+  run_once: true
+  no_log: true
+  shell: ./zmsetup.pl -c /tmp/zimbra-configurations
+  args:
+    chdir: /opt/zimbra/libexec/
+
+- name: Clean up configuration file
+  no_log: true
+  file:
+    state: absent
+    path: /tmp/zimbra-configurations
+
+- name: Clean up installation files
+  file:
+    state: absent
+    path: '/tmp/{{ zmpkg }}/'

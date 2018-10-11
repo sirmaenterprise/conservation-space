@@ -1,0 +1,30 @@
+package:
+  postgresql:
+    installed: true
+
+process:
+  postgres:
+    running: true
+
+addr:
+  tcp://0.0.0.0:5432:
+    reachable: true
+
+mount:
+  "/var/lib/postgresql/data":
+    exists: true
+
+file:
+  /var/lib/postgresql/data/:
+    exists: true
+    owner: dockeru
+  /var/lib/postgresql/data/pg_initialized:
+    exists: true
+  /run/postgresql:
+    exists: true
+    owner: dockeru
+  /etc/postgresql/000-defaults.conf:
+    exists: true
+    contains:
+    - max_connections = 300
+    - listen_addresses = '*'

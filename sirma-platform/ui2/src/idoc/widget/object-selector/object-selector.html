@@ -1,0 +1,47 @@
+<div class="object-selector" ng-switch="objectSelector.config.selectObjectMode">
+  <div class="inline-group" ng-if="::objectSelector.config.renderOptions">
+    <label class="radio" ng-if="::objectSelector.showOption('current')">
+      <input type="radio" class="form-control" name="selectObject" value="current"
+             ng-model="objectSelector.config.selectObjectMode">
+      {{::'object.selector.select.object.current' | translate}}
+      <i></i>
+    </label>
+
+    <label class="radio" ng-if="::objectSelector.showOption('automatically')">
+      <input type="radio" class="form-control" name="selectObject" value="automatically"
+             ng-model="objectSelector.config.selectObjectMode">
+      {{::'object.selector.select.object.automatically' | translate}}
+      <i></i>
+    </label>
+
+    <label class="radio" ng-if="::objectSelector.showOption('manually')">
+      <input type="radio" class="form-control" name="selectObject" value="manually"
+             ng-model="objectSelector.config.selectObjectMode">
+      {{::'object.selector.select.object.manually' | translate}}
+      <i></i>
+    </label>
+
+  </div>
+
+  <div>
+    <label class="checkbox include-current-object" ng-show="objectSelector.isAutomatically() && objectSelector.config.showIncludeCurrent">
+      <input type="checkbox" class="form-control" ng-model="objectSelector.config.includeCurrent" />
+      {{::'object.selector.select.object.automatically.includeCurrent' | translate}}
+      <i></i>
+    </label>
+  </div>
+
+  <div ng-switch-when="current" class="current-object-header">
+    <seip-static-instance-header ng-if="objectSelector.currentObject"
+                                 header-type="'default_header'"
+                                 header="objectSelector.currentObject.getHeader('default_header')"
+                                 is-disabled="objectSelector.currentObject.isPersisted()">
+    </seip-static-instance-header>
+  </div>
+
+  <seip-search ng-switch-when="automatically" config="objectSelector.searchConfig"
+               context="objectSelector.context"></seip-search>
+
+  <seip-extensions-panel ng-switch-default config="objectSelector.pickerConfig"
+                         context="objectSelector.context"></seip-extensions-panel>
+</div>

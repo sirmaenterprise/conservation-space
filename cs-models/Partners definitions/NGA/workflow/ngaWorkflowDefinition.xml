@@ -5,11 +5,15 @@
 		<field name="default_header" type="ANY" label="WORKFLOW_DEFAULT_HEADER_NGA" />
 		<field name="compact_header" type="an..4096" label="WORKFLOW_COMPACT_HEADER_NGA" />
 		<field name="breadcrumb_header" type="an..4096" label="WORKFLOW_BREADCRUMB_HEADER_NGA" />
-		<field name="tooltip_header" type="an..4096" label="WORKFLOW_TOOLTIP_HEADER_NGA" />
+		<field name="tooltip_header" type="ANY" label="WORKFLOW_TOOLTIP_HEADER_NGA" />
 
 		<field name="identifier" displayType="system" />
 		<field name="type" displayType="system" />
-		<field name="title" type="an..1024" mandatory="false" codelist="CL234" displayType="system" ><value>Workflow</value></field>
+		<field name="title" type="an..1024" mandatory="false" displayType="system" >
+			<control id="DEFAULT_VALUE_PATTERN">
+				<control-param type="default_value_pattern" id="template" name="template">$[emf:type]</control-param>
+			</control>
+		</field>
 		<field name="status" displayType="system" />
 		<field name="description" displayType="system" />
 		<field name="createdOn" displayType="system" />
@@ -19,13 +23,16 @@
 		<field name="emf:version" displayType="system" />
 		<field name="emf:revisionNumber" displayType="system" />
 		<field name="assignee" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri" displayType="system" />
 		<field name="plannedEndDate" type="date" displayType="system" />
 		<field name="plannedStartDate" type="date" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true" />
+		<field name="hasChild" type="uri" displayType="system" />
 		<!-- workflow fields -->
 		<field name="priority" displayType="system" />
 		<field name="stopReason" displayType="system" />
@@ -33,45 +40,50 @@
 	<regions>
 		<region id="generalWorkflowInformation" order="10" displayType="editable" label="ngaWorkflow.generalWorkflowInformation.region.label">
 			<fields>
-				<field name="type" type="an..50" order="110" codelist="CL3" label="GEO10001.type" tooltip="nga.type.tooltip" mandatory="false" displayType="readonly" dmsType="emf:type" >
+				<field name="type" type="an..50" order="110" codelist="CL7" label="nga.subType.label" tooltip="nga.subType.label" mandatory="false" displayType="readonly" >
 					<value>NGAWF</value>
 				</field>
-				<field name="department" type="an..1024" mandatory="true" codelist="CL245" order="111" label="nga.department.label" tooltip="nga.department.tooltip" multiValued="true" displayType="editable"  previewEmpty="false" filters="ngaConservationDepartment2" uri="emf:departmentName" />	
-
-				<field name="description" type="an..1000" order="112" label="GEO10001.description" tooltip="nga.description.tooltip" displayType="editable"  previewEmpty="false" dmsType="cm:description" uri="dcterms:description" />
-				<field name="priority" type="an..20" displayType="editable" codelist="CL208" order="116" label="standaloneCommonTask.priority" tooltip="nga.priority.tooltip" mandatory="false" previewEmpty="false" dmsType="bpm:priority" rnc="${to.dmsConvert(CL208,value,extra1)}|${from.dmsConvert(CL208,extra1,value)}" uri="emf:priority">
+				<field name="department" type="an..1024" mandatory="true" codelist="CL245" order="111" label="nga.department.label" tooltip="nga.department.tooltip" multiValued="true" displayType="editable"  previewEmpty="false" filters="ngaConservationDepartment2" uri="emf:departmentName" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
+						<control-param type="default_value_pattern" id="propertyNameBinding" name="emf:createdBy.department" />
+					</control>
+				</field>
+				<field name="description" type="an..1000" order="112" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable"  previewEmpty="false" uri="dcterms:description" />
+				<field name="priority" type="an..20" displayType="editable" codelist="CL29" order="116" label="priority.label" tooltip="nga.priority.tooltip" mandatory="false" previewEmpty="false" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority">
 					<value>0006-000084</value>
 				</field>
-				<field name="plannedStartDate" type="date" displayType="editable" order="117" label="nga.plannedStartDate.label" tooltip="nga.plannedStartDate.tooltip" pdmsType="FORBIDDEN" uri="emf:plannedStartDate">
+				<field name="plannedStartDate" type="date" displayType="editable" order="117" label="nga.plannedStartDate.label" tooltip="nga.plannedStartDate.tooltip" uri="emf:plannedStartDate">
 					<condition id="readonlyField" renderAs="READONLY">[status] IN ('IN_PROGRESS')</condition>
 					<value>${today}</value>
 				</field>
-				<field name="plannedEndDate" type="date" displayType="editable" order="118"  label="nga.plannedEndDate.label" tooltip="nga.plannedEndDate.tooltip" previewEmpty="false" dmsType="bpm:dueDate" uri="emf:plannedEndDate">
+				<field name="plannedEndDate" type="date" displayType="editable" order="118" label="nga.plannedEndDate.label" tooltip="nga.plannedEndDate.tooltip" previewEmpty="false" uri="emf:plannedEndDate">
 					<condition id="readonlyField" renderAs="READONLY">[status] IN ('IN_PROGRESS')</condition>
 				</field>
-				<field name="stopReason" type="an..250" order="119" displayType="hidden" label="nga.stopReason.label" tooltip="nga.stopReason.tooltip"  previewEmpty="false" uri="emf:stopReason" />
+				<field name="stopReason" type="an..250" order="119" displayType="hidden" label="nga.stopReason.label" tooltip="nga.stopReason.tooltip" previewEmpty="false" uri="emf:stopReason" />
 			</fields>
 		</region>
 		<region id="systemInformation" order="30" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="identifier" type="an..50" order="300" label="nga.identifier.label" tooltip="nga.identifier.tooltip" displayType="readOnly" dmsType="emf:identifier" rnc="${eval(WF${seq({+wfSequence})})}" uri="dcterms:identifier">
+				<field name="identifier" type="an..50" order="300" label="nga.identifier.label" tooltip="nga.identifier.tooltip" displayType="readOnly" rnc="${eval(WF${seq({+wfSequence})})}" uri="dcterms:identifier">
 					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NEW')</condition>
 				</field>
-				<field name="status" type="an..50"  order="305" codelist="CL101" label="nga.status.label" tooltip="nga.status.tooltip" mandatory="false" displayType="readOnly" previewEmpty="false" dmsType="emf:status" uri="emf:status" />
-				<field name="emf:version" type="an..10" order="310" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" dmsType="FORBIDDEN" uri="emf:version"/>
-				<field name="createdOn" type="dateTime" order="315" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" order="320" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readonly" dmsType="-cm:creator" uri="emf:createdBy" >
+				<field name="status" type="an..50"  order="305" codelist="CL9" label="nga.status.label" tooltip="nga.status.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:status" />
+				<field name="emf:version" type="an..10" order="310" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" uri="emf:version"/>
+				<field name="integrated" type="boolean" label="emf.integrated.label" displayType="hidden" order="311" uri="emf:integrated" />
+				<field name="createdOn" type="dateTime" order="315" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" order="320" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readonly" uri="emf:createdBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" order="325" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" dmsType="-cm:modified" uri="emf:modifiedOn" />
-				<field name="modifiedBy" type="uri" order="330" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
+				<field name="modifiedOn" type="datetime" order="325" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedOn" />
+				<field name="modifiedBy" type="uri" order="330" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedBy">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="lockedBy" type="uri" order="335" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" dmsType="FORBIDDEN" previewEmpty="false">
+				<field name="lockedBy" type="uri" order="335" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
@@ -81,43 +93,50 @@
 		</region>
 		<region id="ngaActivityDefinitionRelationships" order="40" displayType="editable" label="nga.relationships.region.label">
 			<fields>
-				<field name="attachmentOf" type="uri" label="nga.attachmentOf.label" tooltip="nga.attachmentOf.tooltip" mandatory="false" displayType="editable" multiValued="true" order="400" previewEmpty="false" uri="chc:attachmentOf" >
+				<field name="attachmentOf" type="uri" label="nga.attachmentOf.label" tooltip="nga.attachmentOf.tooltip" displayType="editable" multiValued="true" order="400" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasAttachment" type="uri" label="nga.hasAttachment.label" tooltip="nga.hasAttachment.tooltip" mandatory="false" displayType="editable" multiValued="true" order="402" previewEmpty="false" uri="chc:hasAttachment" >
+				<field name="hasAttachment" type="uri" label="nga.hasAttachment.label" tooltip="nga.hasAttachment.tooltip" displayType="editable" multiValued="true" order="402" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" mandatory="false" displayType="editable" order="404" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
-					<condition id="readonlyField" renderAs="READONLY">[status] IN ('IN_PROGRESS')</condition>
+				<field name="hasWatcher" type="uri" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" displayType="editable" order="404" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" mandatory="false" displayType="readOnly" order="406" previewEmpty="false" uri="emf:hasThumbnail" >
+				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" displayType="readOnly" order="406" previewEmpty="false" uri="emf:hasThumbnail" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 				</field>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" mandatory="false" displayType="readOnly" multiValued="true" order="408" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" order="410" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" mandatory="false" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User,emf:BusinessProcess</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" order="415" label="nga.partOf.label" tooltip="nga.partOf.tooltip" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" order="408" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" order="420" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasParent" type="uri" order="410" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" order="412" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" order="414" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" order="416" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -126,13 +145,13 @@
 		</region>
 	</regions>
 	<transitions>
-		<transition id="editDetails" order="10" />
-		<transition id="start" order="11" label="nga.start.wf.action.label" tooltip="nga.start.wf.action.tooltip" eventId="start" purpose="bpmStart" immediate="true"  >
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="start" order="15" label="nga.start.wf.action.label" tooltip="nga.start.wf.action.tooltip" eventId="start" purpose="bpmStart" immediate="true" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
-							var type = codelist.getDescription(234, root.getProperties().get('type'), 'en');
+							var type = codelist.getDescription(10, root.get('type'), 'en');
 							var subject = '(Started) Workflow: ' + type;
 							
 							//extract warchers and crearedBy users
@@ -152,17 +171,16 @@
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
 						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="stop" order="12" label="nga.stop.wf.action.label" tooltip="nga.stop.wf.action.tooltip"  eventId="stop" purpose="bpmStop" immediate="true" >
+		<transition id="stop" order="20" label="nga.stop.wf.action.label" tooltip="nga.stop.wf.action.tooltip"  eventId="stop" purpose="bpmStop" immediate="true" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
-							var type = codelist.getDescription(234, root.getProperties().get('type'), 'en');
+							var type = codelist.getDescription(10, root.get('type'), 'en');
 							var subject = '(Stopped) Workflow: ' + type;
 							
 							//extract warchers and crearedBy users
@@ -182,42 +200,61 @@
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
 						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="addAttachment" order="18" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" >
+		
+		<group id="add" order="25" label="add.group.label" type="menu" />
+		<transition id="addAttachment" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
 			<fields>
-				<field name="attachToConfig" type="an10">
+				<field name="attachToConfig" type="json">
 					<value>
 						{
 							"predefinedTypes" : ["emf:Project","chc:ConservationActivity","emf:Document","emf:Media","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","emf:BusinessProcess"],
 							"selection" : "multiple",
-							"relation" : ["chc:hasAttachment"],
-							"implicitParams" : {
-								"removeExisting" : false
-							}
+							"relation" : ["chc:hasAttachment"]
 						}
 					</value>
 					<control id="configuration" />
 				</field>
 			</fields>
 		</transition>
-		<!-- not used, only lable is change as the actions are visible in manage actions per roles -->
-		<transition id="print" order="18" label="nga.print.label"/>
-		<transition id="exportPDF" order="20" label="nga.exportPDF.label"/> 
-		<transition id="exportWord" order="22" label="nga.exportWord.label"/>
-		<!-- **************************************************************** -->
-		<transition id="printTab" order="21" label="print.label" />
-		<transition id="exportTabPDF" order="22" label="exportPDF.label" />
-		<transition id="exportTabWord" order="25" label="exportWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" />
-		<transition id="move" order="26" label="move.label" eventId="move" purpose="move" tooltip="move.tooltip" >
+		<transition id="addThumbnail" group="add" />	
+		<transition id="addWatchers" group="add" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="addAttachmentConfig" type="json">
+					<value>						
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasWatcher"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		
+		<transition id="printTab" order="55" />
+		
+		<group id="template" order="60" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="nga.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="nga.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="65" label="more.group.label" type="menu" />
+		<transition id="move" label="move.label" eventId="move" purpose="move" tooltip="move.tooltip" group="more" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
-							var type = codelist.getDescription(234, root.getProperties().get('type'), 'en');
+							var type = codelist.getDescription(10, root.get('type'), 'en');
 							var subject = '(Moved) Workflow: ' + type;
 							
 							//extract warchers and crearedBy users
@@ -237,39 +274,20 @@
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
 						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="lock" order="30" />
-		<transition id="unlock" order="32" />
-		<transition id="addWatchers" order="33" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" >
+		<transition id="lock" group="more" />
+		<transition id="unlock" actionPath="/" group="more"  />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="100" confirmation="deleteCS.confirm" >
 			<fields>
-				<field name="addAttachmentConfig" type="an10">
-					<value>						
-						{
-							"predefinedTypes" : ["emf:User"],
-							"selection" : "multiple",
-							"relation" : ["emf:hasWatcher"],
-							"implicitParams" : {
-								"removeExisting" : false
-							}
-						}
-					</value>
-					<control id="configuration" />
-				</field>
-			</fields>
-		</transition>
-		<transition id="addThumbnail" order="35" />	
-		<transition id="saveAsTemplate" order="38" />	
-		<transition id="managePermissions" order="40" />			
-		<transition id="delete" order="42" confirmation="deleteCS.confirm" >
-			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
-							var type = codelist.getDescription(234, root.getProperties().get('type'), 'en');
+							var type = codelist.getDescription(10, root.get('type'), 'en');
 							var subject = '(Deleted) Workflow: ' + type;
 							
 							
@@ -298,33 +316,32 @@
 					</value>
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
+						<control-param id="async" name="async">false</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
 	</transitions>
 	<stateTransitions>
-		<stateTransition from="INIT" transition="create" to="NOT_STARTED" />
+		<stateTransition from="INIT" transition="create" to="NOT_YET_STARTED" />
 
-		<stateTransition from="NOT_STARTED" transition="editDetails" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="start" to="IN_PROGRESS" />
-		<stateTransition from="NOT_STARTED" transition="addAttachment" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="printTab" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="exportTabPDF" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="exportTabWord" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="move" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="lock" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="unlock" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="addWatchers" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="addThumbnail" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="saveAsTemplate" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="managePermissions" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="createInContext" to="NOT_STARTED" />
-		<stateTransition from="NOT_STARTED" transition="delete" to="NOT_STARTED" >
-			<condition id="requiredFields" renderAs="REQUIRED">[stopReason]</condition>
-		</stateTransition>
+		<stateTransition from="NOT_YET_STARTED" transition="editDetails" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="start" to="IN_PROGRESS" />
+		<stateTransition from="NOT_YET_STARTED" transition="addAttachment" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="printTab" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="exportTabPDF" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="exportTabWord" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="move" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="lock" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="unlock" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="addWatchers" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="addThumbnail" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="saveAsTemplate" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="changeTemplate" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="updateTemplate" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="managePermissions" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="createInContext" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="delete" to="NOT_YET_STARTED" />
 
 		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED">
@@ -334,10 +351,11 @@
 		<stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="exportTabWord" to="IN_PROGRESS" />
-		<stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESSD" />
+		<stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS" />
@@ -349,12 +367,21 @@
 
 		<stateTransition from="COMPLETED" transition="printTab" to="COMPLETED" />
 		<stateTransition from="COMPLETED" transition="exportTabPDF" to="COMPLETED" />
-		<stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED" />
 		<stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED" />
 		<stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED" />
-
-		<stateTransition from="*" transition="delete" to="DELETED" />
 	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="NGASAMPLE"/>
+		<child type="object" id="ngaAudio"/>
+		<child type="object" id="ngaVideo"/>
+		<child type="object" id="NGAIT211001"/>
+		<child type="object" id="NGAIT211002"/>
+		<child type="object" id="NGAIT211003"/>
+		<child type="task" id="all"/>
+	</allowedChildren>
+	
 	<labels>
 		<label id="WORKFLOW_TOOLTIP_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(
@@ -373,17 +400,17 @@
                     </span>
                     <span class="tooltip-row">
                         <label>System Created by: </label>
-                        <span data-property="assignee">${user(${get([createdBy])})}</span>
+                        <span data-property="createdBy">${user(${get([createdBy])})}</span>
                     </span>
                     ${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
-							<label>Planned end date: </label>
-							<span data-property="plannedEndDate">${date([plannedEndDate]).format(MM.dd.yyyy)}</span>
+							<label>End date: </label>
+							<span data-property="plannedEndDate">${date([plannedEndDate]).format(YYYY-MM-dd)}</span>
 						</span>
 					)}
 					${if(${get([stopReason])}<>null).then(
 						<span class="tooltip-row">
-							<label>Stop Reason: </label>
+							<label>Stop reason: </label>
 							<span data-property="stopReason">${get([stopReason])}</span>
 						</span>
 					)}
@@ -406,7 +433,7 @@
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 							<span data-property="type">${CL([type])}</span>
 					</a>
-					${if(${get([plannedEndDate])} <> null).then(,&nbsp;Planned end date: <span>${date([plannedEndDate]).format(MM.dd.yyyy)}</span>)}
+					${if(${get([plannedEndDate])} <> null).then(,&nbsp;End date: <span>${date([plannedEndDate]).format(YYYY-MM-dd)}</span>)}
 					${if(${var.isVersion}).then(
 						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
 					)}
@@ -435,7 +462,7 @@
 			<span>
 				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>)}
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>
 				 </a>
 			</span>	)}]]></value>

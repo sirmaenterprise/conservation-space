@@ -1,0 +1,7 @@
+SELECT DISTINCT ?instance ?instanceType where {
+	?targetId ?relationType ?instance.
+	?instance emf:isDeleted "false"^^xsd:boolean .
+	?instance a ?type.
+	?instance emf:instanceType ?instanceType.
+	?relationType a ?definitionObjectProperty.
+	FILTER(?definitionObjectProperty = emf:DefinitionObjectProperty || ?relationType = emf:parentOf).

@@ -1,0 +1,232 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sirma.itt.seip</groupId>
+		<artifactId>seip-platform-parent</artifactId>
+		<version>2.10.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>rest-api-documentation</artifactId>
+	<packaging>pom</packaging>
+	<description>Module for generating the SEP Rest API documentation
+
+The module could generate HTML documentation of the REST API using a remote service that provides a json file in swagger format or from code's javadoc using custom doclet.
+
+There are 2 profiles defined: uri2html(active by default) and javadoc2Html
+
+uri2html 
+Defines a property 'swagger.location' that can be used to override the default location
+mvn -Dswagger.location=http://localhost/remote/api/api-docs/swagger.json package</description>
+
+	<repositories>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
+			<id>jcenter-releases</id>
+			<name>jcenter</name>
+			<url>https://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
+	
+	<profiles>
+		<profile>
+			<id>uri2html</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<properties>
+				<swagger.location>http://localhost:8080/emf/api/api-docs/swagger.json</swagger.location>
+			</properties>
+
+			<build>
+				<plugins>
+
+					<plugin>
+						<groupId>io.github.swagger2markup</groupId>
+						<artifactId>swagger2markup-maven-plugin</artifactId>
+						<version>1.2.0</version>
+
+						<dependencies>
+							<dependency>
+								<groupId>io.github.swagger2markup</groupId>
+								<artifactId>swagger2markup</artifactId>
+								<version>1.3.0</version>
+							</dependency>
+							<dependency>
+								<groupId>nl.jworks.markdown_to_asciidoc</groupId>
+								<artifactId>markdown_to_asciidoc</artifactId>
+								<version>1.0</version>
+							</dependency>
+							<dependency>
+								<groupId>ch.netzwerg</groupId>
+								<artifactId>paleo-core</artifactId>
+								<version>0.10.2</version>
+							</dependency>
+						</dependencies>
+
+						<executions>
+							<execution>
+								<id>gen-asciidoc</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>convertSwagger2markup</goal>
+								</goals>
+								<configuration>
+									<swaggerInput>${swagger.location}</swaggerInput>
+									<outputDir>${project.basedir}/target/apidocs-rest/asciidoc</outputDir>
+									<markupLanguage>asciidoc</markupLanguage>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctor-maven-plugin</artifactId>
+						<version>1.5.2</version>
+						<executions>
+							<execution>
+								<id>generate-docs</id>
+								<phase>package</phase>
+								<goals>
+									<goal>process-asciidoc</goal>
+								</goals>
+								<configuration>
+									<sourceDirectory>${project.basedir}/docs/asciidoc</sourceDirectory>
+									<sourceDocumentName>index.adoc</sourceDocumentName>
+									<outputDirectory>${project.basedir}/target/apidocs-rest/output</outputDirectory>
+									<backend>html5</backend>
+									<attributes>
+										<!-- List of attributes: https://github.com/asciidoctor/asciidoctorj/blob/master/asciidoctorj-core/src/main/java/org/asciidoctor/Attributes.java -->
+										<toc />
+										<generated>${project.basedir}/target/apidocs-rest/asciidoc</generated>
+									</attributes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>javadoc2Html</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>generate-service-docs</id>
+								<phase>generate-resources</phase>
+								<configuration>
+									<doclet>com.tenxerconsulting.swagger.doclet.ServiceDoclet</doclet>
+									<docletArtifact>
+										<groupId>com.tenxerconsulting</groupId>
+										<artifactId>swagger-doclet</artifactId>
+										<version>1.0.7</version>
+									</docletArtifact>
+
+									<subpackages>com.sirma.itt.seip.rest.resources.instances</subpackages>
+									<detectOfflineLinks>false</detectOfflineLinks>
+									<offlineLinks>
+										<offlineLink>
+											<url>../javadocs</url>
+											<location>${project.basedir}/../target/site/apidocs</location>
+										</offlineLink>
+									</offlineLinks>
+
+									<reportOutputDirectory>${project.basedir}/target/apidocs-rest/swagger</reportOutputDirectory>
+									<useStandardDocletOptions>false</useStandardDocletOptions>
+									<additionalparam> -skipUiFiles -apiVersion 1 -subpackages
+										com.sirma.itt.seip.rest.resources.instances -docBasePath
+										/apidocs -apiBasePath http://localhost:8080/remote/api
+										-apiInfoFile ${project.basedir}/docs/swagger/apiinfo.json</additionalparam>
+								</configuration>
+								<goals>
+									<goal>javadoc</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>io.github.swagger2markup</groupId>
+						<artifactId>swagger2markup-maven-plugin</artifactId>
+						<version>1.2.0</version>
+
+						<dependencies>
+							<dependency>
+								<groupId>io.github.swagger2markup</groupId>
+								<artifactId>swagger2markup</artifactId>
+								<version>1.3.0</version>
+							</dependency>
+							<dependency>
+								<groupId>nl.jworks.markdown_to_asciidoc</groupId>
+								<artifactId>markdown_to_asciidoc</artifactId>
+								<version>1.0</version>
+							</dependency>
+							<dependency>
+								<groupId>ch.netzwerg</groupId>
+								<artifactId>paleo-core</artifactId>
+								<version>0.10.2</version>
+							</dependency>
+						</dependencies>
+
+						<executions>
+							<execution>
+								<id>gen-asciidoc</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>convertSwagger2markup</goal>
+								</goals>
+								<configuration>
+									<swaggerInput>${project.basedir}/target/apidocs-rest/swagger/apidocs/service.json</swaggerInput>
+									<outputDir>${project.basedir}/target/apidocs-rest/asciidoc</outputDir>
+									<markupLanguage>asciidoc</markupLanguage>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctor-maven-plugin</artifactId>
+						<version>1.5.2</version>
+						<executions>
+							<execution>
+								<id>generate-docs</id>
+								<phase>package</phase>
+								<goals>
+									<goal>process-asciidoc</goal>
+								</goals>
+								<configuration>
+									<sourceDirectory>${project.basedir}/docs/asciidoc</sourceDirectory>
+									<sourceDocumentName>index.adoc</sourceDocumentName>
+									<outputDirectory>${project.basedir}/target/apidocs-rest/output</outputDirectory>
+									<backend>html5</backend>
+									<attributes>
+										<!-- List of attributes: https://github.com/asciidoctor/asciidoctorj/blob/master/asciidoctorj-core/src/main/java/org/asciidoctor/Attributes.java -->
+										<toc />
+										<generated>${project.basedir}/target/apidocs-rest/asciidoc</generated>
+									</attributes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

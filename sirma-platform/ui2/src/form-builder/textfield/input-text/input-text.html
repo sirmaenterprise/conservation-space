@@ -1,0 +1,27 @@
+<div class="form-group input-text-wrapper">
+  <label for="{{ ::inputText.fieldViewModel.identifier }}">
+    {{ ::inputText.fieldViewModel.label }}
+    <sup class="mandatory-mark">*</sup>
+  </label>
+
+  <div class="form-field-wrapper">
+    <seip-hint
+      hint-text="::inputText.fieldViewModel.tooltip"
+      hint-class="::inputText.widgetConfig.hintClass"
+      hint-visible="::inputText.showTooltip()"></seip-hint>
+    <input id="{{ ::inputText.fieldViewModel.identifier }}"
+           name="{{ ::inputText.fieldViewModel.identifier }}"
+           class="form-control edit-field input-text" type="text"
+           autocomplete="off"
+           ng-model="inputText.validationModel[inputText.fieldViewModel.identifier].value"
+           placeholder="{{ ::inputText.getPlaceholder() }}" contenteditable="true"/>
+    <span id="{{ ::inputText.fieldViewModel.identifier }}"
+          class="form-field preview-field input-text">{{ inputText.validationModel[inputText.fieldViewModel.identifier].value }}</span>
+    <span id="{{ ::inputText.fieldViewModel.identifier }}"
+          class="form-field print-field input-text">{{ ::inputText.validationModel[inputText.fieldViewModel.identifier].value }}</span>
+    <seip-validation-message
+      validation-model="::inputText.validationModel[inputText.fieldViewModel.identifier]"
+      field-ctrl="::inputText.form[inputText.fieldViewModel.identifier]"
+      view-model="::inputText.fieldViewModel"></seip-validation-message>
+  </div>
+</div>

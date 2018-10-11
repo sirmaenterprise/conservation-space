@@ -1,0 +1,188 @@
+<div class="permissions">
+  <div class="permissions-header">
+
+    <table class="table table-bordered manage-inheritance" ng-if="::permissions.classInstance">
+      <thead>
+      <th class="whitesmoke">{{::'idoc.permissions.manage.inheritance' | translate }}</th>
+      <th>
+        <div class="header-container">
+          <div class="permissions-checkbox"><label class="checkbox state-disabled">
+            <input type="checkbox" disabled
+                   ng-model="permissions.inheritParentPermissions"/>
+            <i class="result-select"></i>
+          </label>
+          </div>
+          <div class="column-header">{{::'idoc.permissions.inherit.parent' | translate}}</div>
+        </div>
+      </th>
+      <th>
+        <div class="header-container">
+          <div class="permissions-checkbox"><label class="checkbox state-disabled">
+            <input type="checkbox" disabled
+                   ng-model="permissions.inheritLibraryPermissions"/>
+            <i class="result-select"></i>
+          </label>
+          </div>
+          <div class="column-header">{{::'idoc.permissions.inherit.library' | translate}}</div>
+        </div>
+      </th>
+      </thead>
+    </table>
+
+    <div class="permissions-toolbar">
+      <seip-contextual-help target="'idoc.tab.permissions'"></seip-contextual-help>
+      <div class="permissions-actions">
+        <span ng-if="permissions.editMode">
+          <button ng-if="::!permissions.classInstance" class="btn btn-default btn-sm restore-children-permissions"
+                  ng-click="permissions.restoreChildrenPermissions()"
+                  ng-disabled="!permissions.restoreChildrenPermissionsEnabled">
+            {{::'idoc.permissions.restore.children' | translate }}
+          </button>
+          <button class="btn btn-primary btn-sm save-permissions" ng-click="permissions.savePermissions(false)">
+            {{::'idoc.permissions.save.permissions' | translate }}
+          </button>
+          <button class="btn btn-default btn-sm cancel" ng-click="permissions.cancelEdit()">
+            {{::'idoc.permissions.cancel.save' | translate }}
+          </button>
+        </span>
+        <span>
+          <button ng-if="!permissions.editMode" class="btn btn-primary btn-sm edit-permissions"
+                  ng-click="permissions.editPermissions()"
+                  ng-disabled="!permissions.editAllowed">
+            {{::'idoc.permissions.edit.permissions' | translate }}
+          </button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="permissions-view">
+    <table class="table table-bordered permissions-table">
+      <thead class="permissions-table-head">
+      <tr>
+        <th class="caption" colspan="6">
+          <div class="caption-container">
+            <div class="criteria-row">
+              <div class="criteria-field input-group">
+                <input type="text" class="criteria-field-fts form-control"
+                       ng-model="permissions.filter" placeholder="{{ 'search.keyword.placeholder' | translate}}">
+              </div>
+            </div>
+            <div class="add-user" ng-show="permissions.editMode" ng-click="permissions.addNewAuthority()">
+              <i class="fa fa-plus-circle" aria-hidden="true"></i> {{::'idoc.permissions.add.user' | translate }}
+            </div>
+          </div>
+        </th>
+      </tr>
+      <tr>
+        <th>
+          <div class="header-container">
+            <div class="column-header">{{::'idoc.permissions.user' | translate }}</div>
+            <div class="arrows">
+              <div class="up" ng-if="permissions.reverse"><i class="fa fa-angle-up"
+                                                             ng-click="permissions.toggleReverse()"
+                                                             aria-hidden="true"></i></div>
+              <div class="down" ng-if="!permissions.reverse"><i class="fa fa-angle-down"
+                                                                ng-click="permissions.toggleReverse()"
+                                                                aria-hidden="true"></i></div>
+            </div>
+          </div>
+        </th>
+
+        <th>
+          <div class="header-container">
+            <div class="column-header">{{::'idoc.permissions.active' | translate }}</div>
+          </div>
+        </th>
+        <th>
+          <div class="header-container">
+            <div class="column-header">{{::'idoc.permissions.special' | translate }}</div>
+          </div>
+        </th>
+        <th>
+          <div class="header-container">
+            <div class="permissions-checkbox"><label class="checkbox "><input type="checkbox"
+                                                                              ng-model="permissions.inheritedPermissionsEnabled"
+                                                                              ng-checked="permissions.inheritedPermissionsEnabled"
+                                                                              ng-click="permissions.clickCheckbox()"
+                                                                              ng-disabled="!permissions.editAllowed||!permissions.editMode"/>
+              <i class="result-select"></i>
+            </label>
+            </div>
+            <div class="column-header">{{::'idoc.permissions.parent' | translate }}</div>
+          </div>
+        </th>
+        <th>
+          <div class="header-container">
+            <div class="permissions-checkbox"><label class="checkbox "><input type="checkbox"
+                                                                              ng-model="permissions.inheritedLibraryPermissions"
+                                                                              ng-checked="permissions.inheritedLibraryPermissions"
+                                                                              ng-click="permissions.clickCheckbox()"
+                                                                              ng-disabled="!permissions.editAllowed||!permissions.editMode"/>
+              <i class="result-select"></i>
+            </label>
+            </div>
+            <div class="column-header">{{::'idoc.permissions.library' | translate }}</div>
+          </div>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="new-user" ng-repeat="newAuthority in permissions.newAuthorities"
+          ng-if="permissions.editMode && permissions.newAuthorities">
+        <td>
+          <div class="table-item-container">
+            <div class="icon"><img ng-src="{{::permissions.authorityIcon}}"/></div>
+            <div class="table-item">
+              <div class="select-user">
+                <seip-resource-select ng-model="newAuthority.id"
+                                      config="permissions.authoritySelectConfig"></seip-resource-select>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>{{newAuthority.newSpecialPermission}}</td>
+        <td>
+          <div class="special-permissions-container" ng-if="permissions.editMode">
+            <div class="select-special">
+              <seip-select ng-model="newAuthority.newSpecialPermission"
+                           config="permissions.roleLabelsConfig"></seip-select>
+            </div>
+          </div>
+        </td>
+        <td ng-class="{'whitesmoke': !permissions.inheritedPermissionsEnabled}"></td>
+        <td ng-class="{'whitesmoke': !permissions.inheritedLibraryPermissions}"></td>
+        <td></td>
+      </tr>
+      <tr class="user-row"
+          ng-repeat="authority in permissions.authorities | filter:permissions.filter"
+          ng-if="authority.show">
+        <td>
+          <div class="table-item-container">
+            <div class="icon">
+              <img ng-src="{{::authority.userIcon}}"/>
+            </div>
+            <div class="table-item">
+              {{authority.name}}
+            </div>
+          </div>
+        </td>
+        <td>{{permissions.calculateActive(authority)}}</td>
+        <td>
+          <div class="special-permissions-container" ng-if="permissions.editMode">
+            <div class="select-special">
+              <seip-select ng-model="authority.newSpecialPermission"
+                           config="permissions.roleLabelsConfig"></seip-select>
+            </div>
+          </div>
+          <div class="single-permission" ng-if="!permissions.editMode">{{authority.special}}</div>
+        </td>
+        <td ng-class="{'whitesmoke': !permissions.inheritedPermissionsEnabled}">
+          <div class="single-permission">{{authority.inherited}}</div>
+        </td>
+        <td ng-class="{'whitesmoke': !permissions.inheritedLibraryPermissions}">{{authority.library}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

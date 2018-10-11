@@ -4,9 +4,9 @@
 		<field name="default_header" type="ANY" label="PROJECT_DEFAULT_HEADER_CIA" />
 	   	<field name="compact_header" type="an..4096" label="PROJECT_COMPACT_HEADER_CIA" />
 	    <field name="breadcrumb_header" type="an..4096" label="PROJECT_BREADCRUMB_HEADER_CIA" />
-		<field name="tooltip_header" type="an..4096" label="PROJECT_TOOLTIP_HEADER_CIA" />
+		<field name="tooltip_header" type="ANY" label="PROJECT_TOOLTIP_HEADER_CIA" />
 
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project</value>
 		</field>		
 		
@@ -21,7 +21,6 @@
 		<field name="createdBy" type="uri" displayType="system"/>
 		<field name="modifiedOn" type="datetime" displayType="system"/>
 		<field name="modifiedBy" type="uri" displayType="system"/>
-		<field name="parentOf" type="uri" displayType="system"/>
 		<field name="hasParent" type="uri" displayType="system"/>
 		<field name="hasThumbnail" type="uri" displayType="system"/>
 		<field name="owner" type="uri" displayType="system"/>
@@ -39,101 +38,127 @@
 		<field name="integrated" type="boolean" displayType="system" />
 		<field name="uri" type="an..50" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" /> 
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
+		<field name="ownedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true" />
 	</fields>
 	<regions>
 		<region id="projectDetails" order="10" displayType="editable" label="cia.generalProjectInformation.region.label">
 			<fields>
-				<field name="title" type="an..1000" displayType="editable" mandatory="true" order="115" label="cia.title.label" tooltip="cia.title.tooltip" dmsType="cm:title" uri="dcterms:title" />
-				<field name="description" type="an..1024" displayType="editable" order="130" label="cia.description.label" tooltip="cia.description.tooltip" dmsType="cm:description" uri="dcterms:description" />
-				<field name="assignee" type="uri" displayType="editable" order="135" label="cia.assignee.label" tooltip="cia.assignee.tooltip" mandatory="true" previewEmpty="false" dmsType="bpm:assignee" uri="emf:hasAssignee">
+				<field name="title" type="an..1000" displayType="editable" mandatory="true" label="cia.title.label" tooltip="cia.title.tooltip" uri="dcterms:title" />
+				<field name="description" type="an..1024" displayType="editable" label="cia.description.label" tooltip="cia.description.tooltip" uri="dcterms:description" />
+				<field name="activityCode" type="an..50" displayType="editable" label="cia.activityCode.label" tooltip="cia.activityCode.tooltip" previewEmpty="false" uri="cia:activityCode" />
+				<field name="activityYear" type="an..180" displayType="editable" label="cia.activityYear.label" tooltip="cia.activityYear.tooltip" previewEmpty="false" uri="cia:activityYear" />
+				<field name="hasAssignedConservator" type="uri" displayType="editable" mandatory="true" label="cia.hasAssignedConservator.label" tooltip="cia.hasAssignedConservator.tooltip" multiValued="true" previewEmpty="false" uri="cia:hasAssignedConservator" >
 					<condition id="readonlyField" renderAs="READONLY">[identifier] NOTIN ('NO_ID')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 					<value>${currentUser.id}</value>
 				</field>
-				<field name="hasSupervisor" type="uri" displayType="editable" order="136" label="cia.hasSupervisor.label" tooltip="cia.hasSupervisor.tooltip" previewEmpty="false" multiValued="true" uri="chc:hasSupervisor">
+				<field name="hasSupervisor" type="uri" displayType="editable" label="cia.hasSupervisor.label" tooltip="cia.hasSupervisor.tooltip" previewEmpty="false" multiValued="true" uri="chc:hasSupervisor">
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="range" name="range">emf:User,emf:Group</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="hasParticipant" type="uri" displayType="editable" order="137" label="cia.hasParticipant.label" tooltip="cia.hasParticipant.tooltip" previewEmpty="false" multiValued="true" uri="ptop:hasParticipant">
+				<field name="hasParticipant" type="uri" displayType="editable" label="cia.hasParticipant.label" tooltip="cia.hasParticipant.tooltip" previewEmpty="false" multiValued="true" uri="ptop:hasParticipant">
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="range" name="range">emf:User,emf:Group</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="priority" type="an..20" displayType="editable" codelist="CL208" order="140" label="cia.priority.label" tooltip="cia.priority.tooltip"  dmsType="bpm:priority" rnc="${to.dmsConvert(CL208,value,extra1)}|${from.dmsConvert(CL208,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>
-				<field name="plannedStartDate" type="date" displayType="editable"  order="145" label="cia.plannedStartDate.label" tooltip="cia.plannedStartDate.tooltip"  dmsType="FORBIDDEN" uri="emf:plannedStartDate">
+				<field name="plannedStartDate" type="date" displayType="editable" label="cia.plannedStartDate.label" tooltip="cia.plannedStartDate.tooltip" uri="emf:plannedStartDate">
 					<value>${today}</value>
 				</field>
-				<field name="plannedEndDate" type="date" displayType="editable" order="150"  label="cia.plannedEndDate.label" tooltip="cia.plannedEndDate.tooltip"  dmsType="bpm:dueDate" uri="emf:plannedEndDate"/>
-				<field name="estimatedEffortHours" type="n..10" displayType="editable" order="155" label="cia.estimatedEffortHours.label" tooltip="cia.estimatedEffortHours.tooltip" mandatory="false" previewEmpty="false" uri="emf:estimatedEffort"/>
-				<field name="materialCost" type="an..1024" displayType="editable" order="160" label="cia.materialCost.label" tooltip="cia.materialCost.tooltip" uri="cia:materialCost" />
+				<field name="plannedEndDate" type="date" displayType="editable" label="cia.plannedEndDate.label" tooltip="cia.plannedEndDate.tooltip" uri="emf:plannedEndDate"/>
+				<field name="estimatedEffortHours" type="n..10" displayType="editable" label="cia.estimatedEffortHours.label" tooltip="cia.estimatedEffortHours.tooltip" previewEmpty="false" uri="emf:estimatedEffort"/>
+				<field name="materialCost" type="an..1024" displayType="editable" label="cia.materialCost.label" tooltip="cia.materialCost.tooltip" previewEmpty="false" uri="cia:materialCost" />
 			</fields>
 		</region>
 		<region id="systemData" order="20" displayType="editable" label="cia.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL3" order="210" label="cia.type.label" tooltip="cia.type.tooltip" dmsType="emf:type" uri="emf:type" ><value>FC236001</value></field>
-				<field name="identifier" type="an..50" displayType="readOnly" order="215" label="cia.identifier.label" tooltip="cia.identifier.tooltip" rnc="${eval(PRJ${seq({+prjSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50" displayType="readOnly" codelist="CL1" order="220" label="cia.status.label" tooltip="cia.status.tooltip" previewEmpty="false" dmsType="emf:status" uri="emf:status" >
+				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="cia.type.label" tooltip="cia.type.tooltip" uri="emf:type" ><value>FC236001</value></field>
+				<field name="identifier" type="an..50" displayType="readOnly" label="cia.identifier.label" tooltip="cia.identifier.tooltip" rnc="${eval(PRJ${seq({+prjSequence})})}" uri="dcterms:identifier"/>
+				<field name="status" type="an..50" displayType="readOnly" codelist="CL1" label="cia.status.label" tooltip="cia.status.tooltip" previewEmpty="false" uri="emf:status" >
 					<condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
 				</field>
-				<field name="emf:version" type="an..10" displayType="readOnly" order="225" label="cia.version.label" tooltip="cia.version.tooltip" dmsType="FORBIDDEN" uri="emf:version"/> 
+				<field name="emf:version" type="an..10" displayType="readOnly" label="cia.version.label" tooltip="cia.version.tooltip" uri="emf:version"/> 
+				<field name="integrated" type="boolean" label="integrated.label" displayType="hidden" uri="emf:integrated"/>
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly" order="230" label="cia.createdOn.label" tooltip="cia.createdOn.tooltip" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" order="235" label="cia.createdBy.label" tooltip="cia.createdBy.tooltip" dmsType="-cm:creator" uri="emf:createdBy" >
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="cia.createdOn.label" tooltip="cia.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="cia.createdBy.label" tooltip="cia.createdBy.tooltip" uri="emf:createdBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" order="240"  label="cia.modifiedOn.label" tooltip="cia.modifiedOn.tooltip" previewEmpty="false" dmsType="-cm:modified"  uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly"  order="245" label="cia.modifiedBy.label" tooltip="cia.modifiedBy.tooltip" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
+				<field name="modifiedOn" type="datetime" displayType="readOnly" label="cia.modifiedOn.label" tooltip="cia.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="cia.modifiedBy.label" tooltip="cia.modifiedBy.tooltip" previewEmpty="false" uri="emf:modifiedBy">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" order="250" label="cia.lockedBy.label" tooltip="cia.lockedBy.tooltip" dmsType="FORBIDDEN" previewEmpty="false">
+				<field name="lockedBy" type="uri" displayType="readonly" label="cia.lockedBy.label" tooltip="cia.lockedBy.tooltip" previewEmpty="false">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>	
-				<field name="hasThumbnail" type="uri" displayType="readonly" order="265" label="cia.hasThumbnail.label" tooltip="cia.hasThumbnail.tooltip" mandatory="false" multiValued="true" previewEmpty="false" uri="emf:hasThumbnail" >
+				<field name="hasThumbnail" type="uri" displayType="readonly" label="cia.hasThumbnail.label" tooltip="cia.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 				</field>
-				<field name="attachmentOf" type="uri" displayType="editable" order="270" label="cia.attachmentOf.label" tooltip="cia.attachmentOf.tooltip" mandatory="false" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
+				<field name="attachmentOf" type="uri" displayType="editable" label="cia.attachmentOf.label" tooltip="cia.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasAttachment" type="uri" displayType="editable" order="275" label="cia.hasAttachment.label" tooltip="cia.hasAttachment.tooltip" mandatory="false" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
+				<field name="hasAttachment" type="uri" displayType="editable" label="cia.hasAttachment.label" tooltip="cia.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" order="255" label="cia.hasWatcher.label" tooltip="cia.hasWatcher.tooltip" mandatory="false"  multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
+				<field name="hasWatcher" type="uri" displayType="editable" label="cia.hasWatcher.label" tooltip="cia.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" order="295" label="cia.parentOf.label" tooltip="cia.parentOf.tooltip" mandatory="false" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
+				<field name="parentOf" type="uri" displayType="readOnly" label="cia.parentOf.label" tooltip="cia.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey,emf:User</control-param>
+						<control-param id="range" name="range"/>
 					</control>
 				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" order="300" label="cia.hasParent.label" tooltip="cia.hasParent.tooltip" mandatory="false"  previewEmpty="false" uri="emf:hasParent" >
+				<field name="hasParent" type="uri" displayType="readOnly" label="cia.hasParent.label" tooltip="cia.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey,emf:User</control-param>
+						<control-param id="range" name="range"/>
 					</control>
 				</field>
-				<field name="partOf" type="uri" displayType="readOnly" order="400" label="cia.partOf.label" tooltip="cia.partOf.tooltip" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="emf:hasTemplate" type="uri" label="cia.hasTemplate.label" tooltip="cia.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="cia.partOf.label" tooltip="cia.partOf.tooltip" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" order="410" label="cia.hasChild.label" tooltip="cia.hasChild.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasChild" type="uri" displayType="readOnly" label="cia.hasChild.label" tooltip="cia.hasChild.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -145,7 +170,7 @@
 	<transitions>
 		<transition id="create" eventId="create" purpose="create">
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[
 
@@ -156,7 +181,7 @@
 							var subject = '(New assignment) Project: ' + title;
 
 							//extract assignee, supervisors, participants and createdBy
-							var assignee = root.get('assignee');
+							var hasAssignedConservator = root.get('hasAssignedConservator');
 							var supervisors = root.get('hasSupervisor');
 							var participants = root.get('hasParticipant');
 							var createdBy = root.get('createdBy');
@@ -170,15 +195,18 @@
 							   }
 							 }
 
-							 if(participants != null) {
+							if(participants != null) {
 							   for (i = 0; i < participants.length; i++) {
 							   recipients.push(participants[i].toString());
 							   }
-							 }
-
-							if(!includes(recipients, assignee.toString())){
-								recipients.push(assignee.toString());
 							}
+							
+							if(hasAssignedConservator != null) {
+							   for (i = 0; i < hasAssignedConservator.length; i++) {
+							   recipients.push(hasAssignedConservator[i].toString());
+							   }
+							}
+							
 							if(!includes(recipients, createdBy.toString())){
 								recipients.push(createdBy.toString());
 							}
@@ -189,15 +217,88 @@
 					<control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
                         <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">true</control-param>
                     </control>
-				</field>
-			</fields>		
+				</field> 
+			</fields>
 		</transition> 
-		<transition id="editDetails" order="10" />
-		<transition id="reopen" order="13" label="cia.reopen.action.label" tooltip="cia.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" confirmation="reopen.confirm" >
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="reassign" order="15" label="reassign.label" tooltip="reassign.tooltip" eventId="reassign" purpose="addRelation" actionPath="/" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="attachToConfig" type="json">
+					<value>
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["cia:hasAssignedConservator"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+				<field name="afterReasing" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							var title = root.get("title");
+							var subject = '(Reassigned) Project: ' + title;
+							
+							//extract watchers, assignee, createdBy and old assignee
+							var recipients = [];
+							var watchers = root.get('hasWatcher');
+							if(watchers != null){
+								for(var i = 0; i < watchers.length; i++){
+								recipients.push(watchers[i].toString());
+								}
+							}
+							var assignedConservator = root.get('hasAssignedConservator');
+							if(assignedConservator != null){
+								for(var i = 0; i < assignedConservator.length; i++){
+								recipients.push(assignedConservator[i].toString());
+								}
+							}
+							recipients.push(root.get('createdBy').toString());
+							//recipients.push(context.get('previousAsignee'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_reassigned_object_cia", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition> 
+		<transition id="complete" order="20" label="complete.label" tooltip="complete.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" actionPath="/" >
+			<fields>
+                <field name="sendMail" type="an..200" displayType="system" >
+                    <value>
+						<![CDATA[
+							var title = root.get("title");
+							var subject = '(Complete) Project: ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complete_object_cia", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                    </control>
+                </field>
+            </fields>
+		</transition>
+		<transition id="reopen" order="25" label="reopen.action.label" tooltip="cia.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" confirmation="reopen.confirm" actionPath="/" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
 							var title = root.get("title");
@@ -219,119 +320,27 @@
 					</value>
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async " name="async ">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
-					</control>
-				</field>
-			</fields>
-		</transition>
-		<transition id="complete" order="15" label="cia.complete.action.label" tooltip="complete.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" >
-			<fields>
-                <field name="sendMail" type="an..200" displayType="system" mandatory="false">
-                    <value>
-						<![CDATA[
-							var title = root.get("title");
-							var subject = '(Complete) Project: ' + title;
-							
-							//extract warchers and crearedBy users
-							var watchers = root.get('hasWatcher');
-							var createdBy = root.get('createdBy');
-							var recipients = [];
-							var i = 0;
-							if (watchers != null){
-								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
-								}
-							}	
-							recipients.push(createdBy.toString());
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complate_object_cia", recipients, context);
-						]]>
-                    </value>
-                    <control id="SCRIPT">
-                        <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async " name="async ">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
-                    </control>
-                </field>
-            </fields>
-		</transition>
-		<transition id="reassign" order="16" label="cia.reassign.action.label" tooltip="reassign.tooltip" eventId="reassign" purpose="addRelation">
-			<fields>
-				<field name="attachToConfig" type="an10">
-					<value>
-						{
-							"predefinedTypes" : ["emf:User"],
-							"selection" : "single",
-							"relation" : ["emf:hasAssignee"],
-							"implicitParams" : {
-								"removeExisting" : true
-							}
-						}
-					</value>
-					<control id="configuration" />
-				</field>
-				<field name="beforeReasing" type="an..200" displayType="system" mandatory="false">
-					<value>
-						<![CDATA[
-							//add to context old assignee
-							context.put('previousAsignee', root.get('assignee'));
-						]]>
-					</value>
-					<control id="SCRIPT">
-						<control-param id="phase" name="phase">after</control-param>
 						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
-				</field>
-				<field name="afterReasing" type="an..200" displayType="system" mandatory="false">
-					<value>
-						<![CDATA[
-							var type = codelist.getDescription(2, root.get('type'), 'en');
-							var title = root.get("title");
-							var subject = '(Reassigned) Project:' + type + ' - ' + title;
-							
-							//extract watchers, assignee, createdBy and old assignee
-							var recipients = [];
-							var watchers = root.get('hasWatcher');
-							if(watchers != null){
-								for(var i = 0; i < watchers.length; i++){
-								recipients.push(watchers[i].toString());
-								}
-							}
-							recipients.push(root.get('assignee').toString());
-							recipients.push(root.get('createdBy').toString());
-							recipients.push(context.get('previousAsignee'));
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_reassigned_object_cia", recipients, context, null);
-						]]>
-					</value>
-					<control id="SCRIPT">
-						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">false</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
-					</control>
-				</field>
-			</fields>
-		</transition> 
-		<transition id="addAttachment" order="17" label="cia.addAttachment.action.label" tooltip="cia.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation">
-			<fields>
-				<field name="attachToConfig" type="an10">
-					<value>
-						{
-							"predefinedTypes" : ["emf:Project","cia:Survey","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample"],
-							"selection" : "multiple",
-							"relation" : ["chc:hasAttachment"],
-							"implicitParams" : {
-							"removeExisting" : false
-							}
-						}
-					</value>
-					<control id="configuration" />
 				</field>
 			</fields>
 		</transition>
-		<transition id="createTask" order="18" label="cia.createTask.action.label" tooltip="cia.createSubTask.action.tooltip" eventId="createSubTask" purpose="createInstance">
+		<transition id="createDocument" order="35" label="cia.createDocument.action.label" tooltip="cia.createDocument.action.tooltip" eventId="createDoc" purpose="createInstance" actionPath="/" >
       		<fields>
-				<field name="createDocConfig" type="an10">
+				<field name="createDocConfig" type="json">
+					<value>
+   						{ 
+							"predefinedTypes" : ["emf:Document"],  
+							"contextSelectorDisabled": true
+    					}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="createTask" order="40" label="cia.createTask.action.label" tooltip="cia.createSubTask.action.tooltip" eventId="createSubTask" purpose="createInstance">
+      		<fields>
+				<field name="createDocConfig" type="json">
 					<value>
 						{ 
 							"predefinedTypes" : ["emf:Task"],
@@ -342,15 +351,72 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="print" order="20" />
-		<transition id="printTab"  order="21" />
-		<transition id="exportPDF" order="22" />
-		<transition id="exportTabPDF" order="23" />
-		<transition id="exportWord" order="24" />
-		<transition id="exportTabWord" order="25" />
-		<transition id="move" order="30" >
+		<transition id="initiateMultipleAssigneeWorkflow" order="45" label="cia.initiateMultipleAssigneeWorkflow.action.label" tooltip="cia.initiateMultipleAssigneeWorkflow.action.tooltip" eventId="createWorkflow" purpose="createInstance">
+      		<fields>
+				<field name="createDocConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["emf:BusinessProcess"],
+							"predefinedSubTypes" : ["CIAWFLTYPE02"],
+							"contextSelectorDisabled": true
+						}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		
+		<group id="add" order="50" label="add.group.label" type="menu" />
+		<transition id="addAttachment" label="cia.addAttachment.action.label" tooltip="cia.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add">
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="attachToConfig" type="json">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Project","cia:Survey","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","emf:BusinessProcess"],
+							"selection" : "multiple",
+							"relation" : ["chc:hasAttachment"]
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addThumbnail" group="add" />
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+			<fields>
+				<field name="addWatcherConfig" type="json">
+					<value>						
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasWatcher"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="exportAs" order="55" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		<transition id="exportWord" group="exportAs" />
+		
+		<group id="print" order="60" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		<transition id="print" group="print" />
+		
+		<group id="template" order="61" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />	
+		<transition id="updateTemplate" label="updateTemplate.label" tooltip="cia.updateTemplate.action.tooltip"  eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" label="changeTemplate.label" tooltip="cia.changeTemplate.action.tooltip" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		
+		<group id="more" order="65" label="more.group.label" type="menu" />
+		<transition id="move" group="more" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[	
 							var title = root.get("title");
@@ -373,37 +439,18 @@
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
                         <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
                     </control>
                 </field>
 			</fields>
 		</transition>
-		<transition id="clone" order="35" />
-		<transition id="lock" order="40" />
-		<transition id="unlock" order="41" />
-		<transition id="addWatcher" order="45" label="cia.addWatcher.action.label" tooltip="addWatchers.tooltip" eventId="addWatcher" purpose="addRelation">
+		<transition id="clone" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" group="more" actionPath="/" />
+		<transition id="managePermissions" group="more" />
+			
+		<transition id="delete" order="100" >
 			<fields>
-				<field name="addWatcherConfig" type="an10">
-					<value>						
-						{
-							"predefinedTypes" : ["emf:User"],
-							"selection" : "multiple",
-							"relation" : ["emf:hasWatcher"],
-							"implicitParams" : {
-								"removeExisting" : false
-							}
-						}
-					</value>
-					<control id="configuration" />
-				</field>
-			</fields>
-		</transition>
-		<transition id="addThumbnail" order="50" />
-		<transition id="saveAsTemplate" order="55" />	
-		<transition id="managePermissions" order="60" />			
-		<transition id="delete" order="65" >
-			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[	
 							var title = root.get('title');
@@ -425,8 +472,7 @@
                     </value>
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
+                        <control-param id="async" name="async">false</control-param>
                     </control>
                 </field>
 			</fields>
@@ -439,7 +485,7 @@
 		
 		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>
-		<stateTransition from="IN_PROGRESS" transition="reassign" to="COMPLETED"/>
+		<stateTransition from="IN_PROGRESS" transition="reassign" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="addAttachment" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS"/>
@@ -451,14 +497,18 @@
 		<stateTransition from="IN_PROGRESS" transition="clone" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
-		<stateTransition from="IN_PROGRESS" transition="addWatcher" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="addWatchers" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>	
 		<stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>		
+		<stateTransition from="IN_PROGRESS" transition="changeTemplate" to="IN_PROGRESS"/>		
+		<stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS"/>		
 		<stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="createDocument" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="createTask" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="initiateMultipleAssigneeWorkflow" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS"/>
 		
-		<stateTransition from="IN_PROGRESS" transition="delete" to="DELETED"/>
+		<stateTransition from="IN_PROGRESS" transition="delete" to="IN_PROGRESS"/>
 
 		<stateTransition from="COMPLETED" transition="reopen" to="IN_PROGRESS" />
 		<stateTransition from="COMPLETED" transition="print" to="COMPLETED" />
@@ -468,9 +518,19 @@
 		<stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED"/>
 		<stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED"/>
 		<stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED"/>
-				
-		<stateTransition from="*" transition="delete" to="DELETED" />
 	</stateTransitions>		
+	
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="ciaSample"/>
+		<child type="object" id="ciaAudio"/>
+		<child type="object" id="ciaVideo"/>
+		<child type="object" id="ciaImage"/>
+		<child type="task" id="all"/>
+		<child type="workflow" id="CIAWFLTYPE02"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
 	<labels>
 		<label id="PROJECT_TOOLTIP_HEADER_CIA">
 			<value lang="en"><![CDATA[${eval(
@@ -487,12 +547,6 @@
                         <label>Type: </label>
                         <span data-property="type">${CL([type])}</span>
                     </span>
-					${if(${get([priority])}<>null).then(
-						<span class="tooltip-row">
-							<label>Priority: </label>
-							<span data-property="priority">${CL([priority])}</span>
-						</span>
-					)}
 					<span class="tooltip-row">
                         <label>Status: </label>
                         <span data-property="status">${CL([status])}</span>
@@ -511,7 +565,7 @@
 					)}
 					<span class="tooltip-row">
                         <label>System modified by: </label>
-                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                        <span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
                     </span>
 					<span class="tooltip-row">
                         <label>System modified on: </label>

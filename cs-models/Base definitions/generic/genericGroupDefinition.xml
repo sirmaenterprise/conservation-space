@@ -1,105 +1,91 @@
 <?xml version="1.0"?>
-<definition id="groupDefinitionBase" isAbstract="true" type="group">
+<definition id="groupDefinitionBase" parentId="entity" isAbstract="true" type="group">
 	<fields>
-		<field name="default_header" type="ANY" label="GROUP_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="compact_header" type="an..4096" label="GROUP_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="breadcrumb_header" type="an..4096" label="GROUP_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="tooltip_header" type="an..4096" label="GROUP_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-	
-	    <field name="rdf:type" 		type="URI" 	label="userDefinition.language" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-	    	<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group</value>
-	    </field>
-		<field name="status" 		type="an..10" uri="emf:status" displayType="system" codelist="CL12" dmsType="FORBIDDEN"/>
-		<field name="type"  		type="an..20"  mandatory="false" codelist="CL3" displayType="system" uri="emf:type" dmsType="FORBIDDEN"> <value>FC236009</value></field>
-	    <field name="createdOn" 	type="dateTime" label="createdOn.label" displayType="system" uri="emf:createdOn" dmsType="FORBIDDEN"/>
-	    <field name="createdBy" 	type="uri" 	label="createdBy.label" displayType="system" uri="emf:createdBy" dmsType="FORBIDDEN">
-	    	<control id="PICKER">
-	    		<control-param id="range" name="range">emf:User</control-param>
-	    	</control>
-	    </field>	
-	   	<field name="emf:version" 	type="an..10" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>       
-	    <field name="modifiedOn"  	type="dateTime" label="modifiedOn.label" displayType="system" uri="emf:modifiedOn" dmsType="FORBIDDEN"/>
-	    <field name="modifiedBy"    type="uri" 	label="modifiedBy.label" displayType="system" uri="emf:modifiedBy" dmsType="FORBIDDEN">
-	    	<control id="PICKER">
-	    		<control-param id="range" name="range">emf:User</control-param>
-	    	</control>
-	    </field>
-	    <field name="emf:isDeleted" type="boolean"  uri="emf:isDeleted" displayType="system" dmsType="FORBIDDEN"><value>false</value></field>
-	    <field name="emf:isActive"  type="boolean"  displayType="system" uri="emf:isActive" dmsType="FORBIDDEN"><value>true</value></field>
-	    <field name="avatar" 		type="an..200" 	label="groupDefinition.avatar" displayType="system" uri="emf:avatar" />
-	    
-	    
-	    <field name="title" 		type="an..100"  label="groupDefinition.title" displayType="readonly" uri="dcterms:title" />
-	    <field name="email" 		type="an..35" 	label="groupDefinition.email" displayType="editable" uri="emf:email" />
-		
-		<field name="parentOf" type="uri" label="parentOf" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" dmsType="FORBIDDEN">
+		<field name="default_header" type="ANY" label="GROUP_DEFAULT_HEADER" displayType="system"/>
+		<field name="compact_header" type="an..4096" label="GROUP_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="an..4096" label="GROUP_BREADCRUMB_HEADER" displayType="system" />
+		<field name="tooltip_header" type="ANY" label="GROUP_TOOLTIP_HEADER" displayType="system" />
+
+		<field name="rdf:type" 		type="URI" 	label="userDefinition.language" displayType="system" uri="rdf:type">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group</value>
+		</field>
+		<field name="status" type="an..10" codelist="CL12" displayType="system"/>
+		<field name="type" type="an..20" codelist="CL7" displayType="system"><value>FC236009</value></field>
+		<field name="emf:isActive" type="boolean" displayType="system" uri="emf:isActive"><value>true</value></field>
+		<field name="groupId" type="an..50" label="groupDefinition.groupId" displayType="editable" mandatory="true" rnc="^(:?[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+){2,}|[a-zA-Z0-9]{3,}(?:[\-\._][a-zA-Z0-9]+)*)$" uri="ptop:title" unique="true">
+			<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('ACTIVE', 'INACTIVE')</condition>
+		</field>
+		<field name="title" type="an..100" label="groupDefinition.title" unique="true">
+			<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('INACTIVE')</condition>
+		</field>
+		<field name="description" type="an..1024" displayType="system" />
+		<field name="email" type="an..35" label="groupDefinition.email" displayType="editable" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$"  uri="emf:email"/>
+		<field name="hasMember" type="uri" label="hasMember" displayType="editable" multiValued="true" previewEmpty="false" uri="ptop:hasMember" >
+			<condition id="readOnly" renderAs="READONLY">[status] IN ('INACTIVE')</condition>
 			<control id="PICKER">
-				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group,emf:Library</control-param>
+				<control-param id="range" name="range">emf:User</control-param>
+				<control-param id="restrictions" name="restrictions">
+					{"field":"emf:status", "operator":"in", "value": ["ACTIVE"]}
+				</control-param>				
 			</control>
 		</field>
-		<field name="hasParent" type="uri" label="hasParent" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasParent" dmsType="FORBIDDEN">
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group,emf:Library</control-param>
-			</control>
-		</field>
-		<field name="partOf" type="uri" label="partOf.label" mandatory="false" displayType="system" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-     		<control id="PICKER">
-      			<control-param id="range" name="range"></control-param>
-     		</control>
-    	</field>
-    	<field name="hasChild" type="uri" label="hasChild.label" mandatory="false" displayType="system" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-     		<control id="PICKER">
-      			<control-param id="range" name="range"></control-param>
-     		</control>
-    	</field> 
-		<field name="hasThumbnail" type="uri" label="hasThumbnail" mandatory="false" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail" dmsType="FORBIDDEN">
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Image</control-param>
-			</control>
-		</field>
-		<field name="hasTemplate" type="uri" label="hasTemplate" mandatory="false" displayType="system" multiValued="false" previewEmpty="false" uri="emf:hasTemplate"/>
 	</fields>
 
-    <transitions>
-		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
-<!--    <transition id="delete" label="delete.label" eventId="delete" purpose="delete" confirmation="groupDefinition.confirm" />
-		<transition id="addUser" label="groupDefinition.addUser.btn.title" eventId="addUser" purpose="addUser" />
-		<transition id="removeUser" label="groupDefinition.removeUser.btn.title" eventId="removeUser" purpose="removeUser" confirmation="group.removeUser" />
--->		
-		<transition id="saveAsTemplate" label="saveAsTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" /> 
-        <transition id="addThumbnail" label="addThumbnail.label" eventId="addThumbnail" purpose="addThumbnail" tooltip="addThumbnail.tooltip" />
-        <transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" />
-		<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" />
-		<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
-		
+	<transitions>
+		<transition id="assignMember" label="assignMember.action.label" eventId="assignMember" purpose="addRelation" actionPath="/" >
+			<fields>
+				<field name="addAttachmentConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["emf:User"],
+								"selection" : "multiple",
+								"relation" : ["ptop:hasMember"],
+							    "restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="deactivate" eventId="deactivate" purpose="transition" label="deactivate.label" tooltip="deactivateGroup.tooltip" confirmation="confirmation.disableGroup" />
+		<transition id="activate" eventId="activate" purpose="transition" label="activate.label" tooltip="activateGroup.tooltip" />
 	</transitions>
 
 	<stateTransitions>
-		<stateTransition from="*" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="create" to="NOT_CREATED"/>
+		<stateTransition from="NOT_CREATED" transition="create" to="ACTIVE"/>
 		<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
 
-		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>		           
-        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="assignMember" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
 		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE"/>
-        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
-		<stateTransition from="ACTIVE" transition="addUser" to="ACTIVE"/>
-		<stateTransition from="ACTIVE" transition="removeUser" to="ACTIVE"/>
-		<stateTransition from="ACTIVE" transition="delete" to="INACTIVE" />
 		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />
+		<stateTransition from="ACTIVE" transition="addWatchers" to="ACTIVE" />
 
-		<stateTransition from="*" transition="delete" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
 	</stateTransitions>
 	<labels>
 		<label id="GROUP_TOOLTIP_HEADER">
-    			<value lang="en"><![CDATA[${eval(#{eval(
+			<value lang="en"><![CDATA[${eval(#{eval(
                     <span class="thumbnail-content">
                         <img class="thumbnail" src="${thumbnailUri(64)}" />
                     </span>
                     <span class="tooltip-data">
                         <span class="tooltip-header">
-                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}">
+                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}"
+                            	${if(${get([emf:isActive])}==false).then(
+				                      style="color:#a9a9a9;"
+				                      )}>
                                 <span data-title="${get([title])}">${get([title])}</span>
+                                ${if(${get([emf:isActive])}==false).then(
+                 	    		  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+                    			 )}
                             </a>
                         </span>
                         <span class="tooltip-row">
@@ -108,14 +94,42 @@
                     	</span>
                     </span>
                 )})}]]></value>
-                <value lang="bg"><![CDATA[${eval(#{eval(
+			<value lang="de"><![CDATA[${eval(#{eval(
                     <span class="thumbnail-content">
                         <img class="thumbnail" src="${thumbnailUri(64)}" />
                     </span>
                     <span class="tooltip-data">
                         <span class="tooltip-header">
-                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}">
+                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}"
+                            	${if(${get([emf:isActive])}==false).then(
+				                      style="color:#a9a9a9;"
+				                      )}>
                                 <span data-title="${get([title])}">${get([title])}</span>
+                                ${if(${get([emf:isActive])}==false).then(
+                 	    		  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+                    			 )}
+                            </a>
+                        </span>
+                        <span class="tooltip-row">
+	                        <label>Erstellt am: </label>
+	                       	<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    	</span>
+                    </span>
+                )})}]]></value>
+			<value lang="bg"><![CDATA[${eval(#{eval(
+                    <span class="thumbnail-content">
+                        <img class="thumbnail" src="${thumbnailUri(64)}" />
+                    </span>
+                    <span class="tooltip-data">
+                        <span class="tooltip-header">
+                            <a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}"
+								${if(${get([emf:isActive])}==false).then(
+				                      style="color:#a9a9a9;"
+				                      )}>
+                                <span data-title="${get([title])}">${get([title])}</span>
+                                ${if(${get([emf:isActive])}==false).then(
+                 	    		  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+                    			 )}
                             </a>
                         </span>
                         <span class="tooltip-row">
@@ -124,125 +138,267 @@
                     	</span>
                     </span>
                 )})}]]></value>
-    		</label>
-            <label id="GROUP_DEFAULT_HEADER">
-              <value lang="en"><![CDATA[${eval(
+				<value lang="da"><![CDATA[${eval(#{eval(
+					<span class="thumbnail-content">
+						<img class="thumbnail" src="${thumbnailUri(64)}" />
+					</span>
+					<span class="tooltip-data">
+						<span class="tooltip-header">
+							<a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}"
+								${if(${get([emf:isActive])}==false).then(
+									style="color:#a9a9a9;"
+								)}>
+								<span data-title="${get([title])}">${get([title])}</span>
+								${if(${get([emf:isActive])}==false).then(
+									&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+								)}
+							</a>
+						</span>
+						<span class="tooltip-row">
+							<label>Oprettet den: </label>
+							<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						</span>
+					</span>
+				)})}]]></value>
+			</label>
+		<label id="GROUP_DEFAULT_HEADER">
+			<value lang="en"><![CDATA[${eval(
 			  ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
               <span><img src="${thumbnailUri(64)}"/></span>
                 <span>
 					<span class="truncate-element">
-						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+					                  style="color:#a9a9a9;"
+					                )}>
 							<b>
-								<span data-property="title">${get([title])}</span>&nbsp;
+								<span data-property="title">${get([title])}</span>
+								${if(${get([emf:isActive])}==false).then(
+				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+				                )}
 								<span class="document-version"></span>
 								${if(${var.isVersion}).then(
-									<span data-property="emf:version">${get([emf:version])}</span>
+									&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 								)}
 							</b>
 						</a>
-					</span> 
+					</span>
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]></value>
-                <value lang="bg"><![CDATA[${eval(
+			<value lang="de"><![CDATA[${eval(
+			  ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+              <span><img src="${thumbnailUri(64)}"/></span>
+                <span>
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+					                  style="color:#a9a9a9;"
+					                )}>
+							<b>
+								<span data-property="title">${get([title])}</span>
+								${if(${get([emf:isActive])}==false).then(
+				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+				                )}
+								<span class="document-version"></span>
+								${if(${var.isVersion}).then(
+									&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+								)}
+							</b>
+						</a>
+					</span>
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]></value>
+			<value lang="bg"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(64)}"/></span>
                 <span>
 					<span class="truncate-element">
-						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+					                  style="color:#a9a9a9;"
+					                )}>
 							<b>
-								<span data-property="title">${get([title])}</span>&nbsp;
+								<span data-property="title">${get([title])}</span>
+								${if(${get([emf:isActive])}==false).then(
+				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+				                )}
 								<span class="document-version"></span>
 								${if(${var.isVersion}).then(
-									<span data-property="emf:version">${get([emf:version])}</span>
+								  &nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 								)}
 							</b>
 						</a>
-					</span> 
+					</span>
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]></value>
-            </label>
-            <label id="GROUP_COMPACT_HEADER">
-               <value lang="en"><![CDATA[${eval(
+			<value lang="da"><![CDATA[${eval(
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+                <span>
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+								style="color:#a9a9a9;"
+							)}>
+							<b>
+								<span data-property="title">${get([title])}</span>
+								${if(${get([emf:isActive])}==false).then(
+				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+				                )}
+								<span class="document-version"></span>
+								${if(${var.isVersion}).then(
+									&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+								)}
+							</b>
+						</a>
+					</span>
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>
+			)}]]></value>
+		</label>
+		<label id="GROUP_COMPACT_HEADER">
+			<value lang="en"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
                 <span class="truncate-element">
-					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
-							<span data-property="title">${get([title])}</span>&nbsp;
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+						                  style="color:#a9a9a9;"
+						                )}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+			                    &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+			                )}
 							<span class="document-version"></span>
 							${if(${var.isVersion}).then(
-								<span data-property="emf:version">${get([emf:version])}</span>
+								&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 							)}
 					</a>
 				</span>
 				<br />
 				)}]]></value>
-                <value lang="bg"><![CDATA[${eval(
+			<value lang="de"><![CDATA[${eval(
+			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span class="truncate-element">
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+						                  style="color:#a9a9a9;"
+						                )}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+			                    &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+			                )}
+							<span class="document-version"></span>
+							${if(${var.isVersion}).then(
+								&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+					</a>
+				</span>
+				<br />
+				)}]]></value>
+			<value lang="bg"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
                 <span class="truncate-element">
-					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
-							<span data-property="title">${get([title])}</span>&nbsp;
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+						                  style="color:#a9a9a9;"
+						                )}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+			                	&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+			                )}
 							<span class="document-version"></span>
 							${if(${var.isVersion}).then(
-								<span data-property="emf:version">${get([emf:version])}</span>
+								&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 							)}
 					</a>
 				</span>
 				<br />
 				)}]]></value>
-            </label>
-            <label id="GROUP_BREADCRUMB_HEADER">
-                <value lang="bg"><![CDATA[${eval(
-				<span><img src="${thumbnailUri(16)}"/></span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
-				<span>
-					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
-						<span data-property="title">${get([title])}</span>
-					</a>
-				</span>)}]]></value>
-                <value lang="en"><![CDATA[${eval(
+			<value lang="da"><![CDATA[${eval(
+			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
-                <span>
-					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span class="truncate-element">
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+						${if(${get([emf:isActive])}==false).then(
+							style="color:#a9a9a9;"
+						)}>
 						<span data-property="title">${get([title])}</span>
+						${if(${get([emf:isActive])}==false).then(
+							&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+						)}
+						<span class="document-version"></span>
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+					</a>
+				</span>
+			)}]]></value>
+		</label>
+		<label id="GROUP_BREADCRUMB_HEADER">
+			<value lang="bg"><![CDATA[${eval(
+				<span><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<span>
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+						${if(${get([emf:isActive])}==false).then(
+						                  style="color:#a9a9a9;"
+						                )}>
+						<span data-property="title">${get([title])}</span>
+						${if(${get([emf:isActive])}==false).then(
+		                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+		                )}
 					</a>
 				</span>)}]]></value>
-        </label>
-		<label id="groupDefinition.created-on">
-			<value lang="bg">Дата на създаване</value>
-			<value lang="en">Created On</value>
+			<value lang="en"><![CDATA[${eval(
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span>
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+						${if(${get([emf:isActive])}==false).then(
+						                  style="color:#a9a9a9;"
+						                )}>
+						<span data-property="title">${get([title])}</span>
+						${if(${get([emf:isActive])}==false).then(
+		                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+		                )}
+					</a>
+				</span>)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span>
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+						${if(${get([emf:isActive])}==false).then(
+						                  style="color:#a9a9a9;"
+						                )}>
+						<span data-property="title">${get([title])}</span>
+						${if(${get([emf:isActive])}==false).then(
+		                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+		                )}
+					</a>
+				</span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+                <span><img src="${thumbnailUri(16)}"/></span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span>
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+						${if(${get([emf:isActive])}==false).then(
+						    style="color:#a9a9a9;"
+						)}>
+						<span data-property="title">${get([title])}</span>
+						${if(${get([emf:isActive])}==false).then(
+							&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+		                )}
+					</a>
+				</span>
+			)}]]></value>
 		</label>
-		<label id="groupDefinition.created-from">
-			<value lang="bg">Създаден от</value>
-			<value lang="en">Created By</value>
-		</label>
-		<label id="groupDefinition.name">
-			<value lang="bg">Име</value>
-			<value lang="en">Name</value>
-		</label>
-		<label id="groupDefinition.title">
-			<value lang="bg">Име</value>
-			<value lang="en">Name</value>
-		</label>
-		<label id="groupDefinition.avatar">
-			<value lang="bg">Аватар</value>
-			<value lang="en">Avatar</value>
-		</label>
-		<label id="groupDefinition.email">
-			<value lang="bg">Имейл</value>
-			<value lang="en">Email</value>
-		</label>
-<!--	<label id="groupDefinition.addUser.btn.title">
-			<value lang="bg">Добави потребител</value>
-			<value lang="en">Add user</value>
-		</label>
-		<label id="groupDefinition.removeUser.btn.title">
-			<value lang="bg">Премахни потребител</value>
-			<value lang="en">Remove user</value>
-		</label>
--->
 	</labels>
 </definition>

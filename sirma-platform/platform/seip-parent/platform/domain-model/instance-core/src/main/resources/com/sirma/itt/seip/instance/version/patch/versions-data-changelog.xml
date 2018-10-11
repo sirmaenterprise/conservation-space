@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="versions-2.19.0-1" author="smustafov">
+		<comment>Update emf_archivedpropertyvalue to correct System user name</comment>
+		<customChange class="com.sirma.itt.seip.instance.version.patch.ChangeSystemUserVersionsPatch" />
+	</changeSet>
+	<changeSet id="versions-2.21.0-pg" author="bbonev" dbms="postgresql">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="emf_archivedentity" indexName="idx_arce_createdon" columnNames="createdon" />
+			</not>
+		</preConditions>
+		<comment>Create index idx_arce_createdon using postgres specific commands</comment>
+		<sql>CREATE INDEX idx_arce_createdon ON emf_archivedentity USING btree (createdon) WITH (fillfactor = 50)</sql>
+	</changeSet>
+	<changeSet id="versions-2.21.0-generic" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="emf_archivedentity" indexName="idx_arce_createdon" columnNames="createdon" />
+			</not>
+		</preConditions>
+		<comment>Create generic filter if not already created by the specific dbms change</comment>
+		<createIndex tableName="emf_archivedentity" indexName="idx_arce_createdon">
+			<column name="createdon" />
+		</createIndex>
+	</changeSet>
+	<changeSet id="versions-2.21.1-pg" author="bbonev" dbms="postgresql">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="emf_archivedentity" indexName="idx_arce_targetid" columnNames="targetid" />
+			</not>
+		</preConditions>
+		<comment>Create index idx_arce_targetid using postgres specific commands</comment>
+		<sql>CREATE INDEX idx_arce_targetid ON emf_archivedentity USING btree (targetid) WITH (fillfactor = 60)</sql>
+	</changeSet>
+	<changeSet id="versions-2.21.1-generic" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<indexExists tableName="emf_archivedentity" indexName="idx_arce_targetid" columnNames="targetid" />
+			</not>
+		</preConditions>
+		<comment>Create generic filter if not already created by the specific dbms change</comment>
+		<createIndex tableName="emf_archivedEntity" indexName="idx_arce_targetid">
+			<column name="targetid" />
+		</createIndex>
+	</changeSet>
+	<changeSet id="versions-2.22.0-1" author="smustafov" dbms="postgresql">
+		<comment>Update versions table with correct system user id</comment>
+		<customChange class="com.sirma.itt.seip.instance.version.patch.SystemUserVersionsPatch" />
+	</changeSet>
+</databaseChangeLog>

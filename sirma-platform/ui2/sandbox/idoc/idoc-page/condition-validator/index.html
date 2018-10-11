@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo="/>
+  <script src="/jspm_packages/es6-module-loader.js"></script>
+  <script src="/jspm_packages/system.js"></script>
+  <script src='/build/config.js'></script>
+  <script src="/build/common/lib/plugin-registry.js"></script>
+  <script src="/build/plugins.js"></script>
+  <script src="/sandbox/idoc/widget/plugin.js"></script>
+  <script src="/sandbox/sandbox-init.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+  bootstrapSandbox({
+    paths: {
+      'idoc-page-stub': 'sandbox/idoc/idoc-page/idoc-page.stub.js',
+      'sandbox/idoc/idoc-page/idoc-page-stub.data.json': 'sandbox/idoc/idoc-page/condition-validator/idoc-page-stub.data.json',
+      'idoc-page-stub-template': 'sandbox/idoc/idoc-page/idoc-page.stub.html',
+      'adapters/router/state-params-adapter': 'sandbox/idoc/idoc-page/state-params-adapter.stub.js',
+      'adapters/router/router': 'sandbox/idoc/idoc-page/router.stub.js',
+      'idoc/actions/save-idoc-and-preview-action': 'sandbox/idoc/idoc-page/save-idoc-and-preview-action.stub.js',
+      'services/rest/actions-service': 'sandbox/services/rest/actions-service.stub.js',
+      'services/rest/search-service': 'sandbox/services/rest/search-service.stub.js',
+      'services/rest/image-service': 'sandbox/services/rest/image-service.stub.js',
+      'services/identity/user-service': 'sandbox/services/identity/user-service.stub.js',
+      'common/lib/ckeditor/ckeditor': 'build/common/lib/ckeditor/ckeditor.js',
+      'common/uuid': 'build/common/uuid.js',
+      'common/lib/base64': 'build/common/lib/base64.js',
+      'services/rest/definition-service': 'sandbox/services/rest/definition-service.stub.js',
+      'sandbox/services/rest/definition-service.data.json': 'sandbox/idoc/idoc-page/condition-validator/definition-service.data.json',
+      'sandbox/services/rest/instance-service.data.json': 'sandbox/idoc/idoc-page/condition-validator/instance-service.data.json'
+    },
+    modules: ['style/main.css!', 'idoc-page-stub', 'font-awesome', 'idoc/editor/idoc-editor']
+  }).then(function () {
+    CKEDITOR.basePath = `${window.location.protocol}//${window.location.host}/build/common/lib/ckeditor/`;
+  }).catch(function (err) {
+    throw err;
+  });
+</script>
+<br>
+
+<div>
+  <idoc-page-stub></idoc-page-stub>
+</div>
+</body>
+</html>

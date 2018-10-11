@@ -1,0 +1,13 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+DELETE {
+    ?instance ?p ?o.
+    ?s ?p ?instance.
+}  WHERE {
+    {
+        ?instance ?p ?o .
+    } UNION{
+        # not sure if there are any complex relations
+        ?s ?p ?instance .
+    }
+    ?instance emf:revisionType emf:latestRevision.
+}

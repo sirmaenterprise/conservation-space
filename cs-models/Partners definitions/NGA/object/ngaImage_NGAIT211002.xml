@@ -2,15 +2,15 @@
 <definition id="NGAIT211002" parentId="ngaImage" type="object"> <!--Conservation Image-->
     <fields>
 		<!-- headers and tooltip-->
-		<field name="default_header" type="ANY" label="NGAIT211002_DEFAULT_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="compact_header" type="an..4096" label="NGAIT211002_COMPACT_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="breadcrumb_header" type="an..4096" label="NGAIT211002_BREADCRUMB_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="default_header" type="ANY" label="NGAIT211002_DEFAULT_HEADER_NGA" displayType="system" />
+		<field name="compact_header" type="an..4096" label="NGAIT211002_COMPACT_HEADER_NGA" displayType="system" />
+		<field name="breadcrumb_header" type="an..4096" label="NGAIT211002_BREADCRUMB_HEADER_NGA" displayType="system" />
 		
 		<field name="type" type="an..50" codelist="CL211">
 			<value>NGAIT211002</value>
 		</field>
-		<field name="widthOfSubject" type="n..10,5" label="widthOfSubject" displayType="system" uri="emf:widthOfSubject" />
-		<field name="heightOfSubject" type="n..10,5" label="heightOfSubject" displayType="system" uri="emf:heightOfSubject" />
+		<field name="widthOfSubject" type="n..14,10" label="widthOfSubject" displayType="system" uri="emf:widthOfSubject" />
+		<field name="heightOfSubject" type="n..14,10" label="heightOfSubject" displayType="system" uri="emf:heightOfSubject" />
 	</fields>	
 	<regions>
 		<region id="ngaConservationImageInformation" order="1" displayType="editable" label="NGAMT210002.ngaPublishImage.region.label" >
@@ -54,10 +54,10 @@
 				<field name="captureDevice" type="an..180" displayType="editable" label="NGAIT211002.captureDevice.label" tooltip="NGAIT211002.captureDevice.tooltip" uri="nga:captureDevice">
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="widthOfSubject" type="n..10,3" label="ngaImage.widthOfSubject.label" tooltip="ngaImage.widthOfSubject.tooltip" displayType="editable" uri="emf:widthOfSubject" > 
+				<field name="widthOfSubject" type="n..24,20" label="ngaImage.widthOfSubject.label" tooltip="ngaImage.widthOfSubject.tooltip" displayType="editable" uri="emf:widthOfSubject" > 
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="heightOfSubject" type="n..10,3" displayType="editable" label="ngaImage.heightOfSubject.label" tooltip="ngaImage.heightOfSubject.tooltip" uri="emf:heightOfSubject">
+				<field name="heightOfSubject" type="n..24,20" displayType="editable" label="ngaImage.heightOfSubject.label" tooltip="ngaImage.heightOfSubject.tooltip" uri="emf:heightOfSubject">
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
 			</fields>
@@ -94,12 +94,12 @@
 							${if(${get([title])}<>null).then(&nbsp;/&nbsp;)}
 							<span data-property="name">${get([name])}</span>
 					)}
-					${if(${get([imageProductDate])}<>null).then(,&nbsp;Production Date: ${date([imageProductDate]).format(MM.dd.yyyy)})}
+					${if(${get([imageProductDate])}<>null).then(,&nbsp;Production Date: ${date([imageProductDate]).format(YYYY-MM-dd)})}
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
 					${if(${get([description])}<>null).then(<br />Description:&nbsp;<span data-property="description">${get([description])}</span>)}
-					${if(${get([chc:depicts])}<>null).then(<br />Depics:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
+					${if(${get([chc:depicts])}<>null).then(<br />Depicts:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
 					${if(${get([emf:isPrimaryImageOf])}<>null).then(<br />Primary&nbsp;image&nbsp;of:<span data-property="emf:isPrimaryImageOf">${objectProperty(${get([emf:isPrimaryImageOf])})}</span>)}
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>	

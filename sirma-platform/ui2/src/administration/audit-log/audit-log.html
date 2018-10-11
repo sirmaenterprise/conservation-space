@@ -1,0 +1,55 @@
+<div class="seip-audit-log">
+
+  <seip-advanced-search-section config="::auditLog.config"
+                                criteria="auditLog.criteria"
+                                loaders="::auditLog.loaders">
+  </seip-advanced-search-section>
+
+  <div class="audit-controls">
+    <span class="total-results" ng-if="auditLog.config.results.total">
+      {{ ::'audit.results.total' | translate }} <span class="badge">{{auditLog.config.results.total}}</span>
+    </span>
+    <span class="search-buttons">
+      <button class="btn btn-primary seip-search" ng-click="auditLog.search()"
+              ng-disabled="auditLog.config.disabled">
+        {{ ::'search.advanced.search' | translate }}
+      </button>
+      <button class="btn btn-default clear-criteria" ng-click="auditLog.clear()"
+              ng-disabled="auditLog.config.disabled">
+        {{ ::'labels.clear' | translate }}
+      </button>
+    </span>
+  </div>
+
+  <div class="table-responsive audit-table">
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+      <tr>
+        <th ng-repeat="field in auditLog.auditTableFields">
+          {{ field.text }}
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="entry in auditLog.config.results.data">
+        <td class="audit-date">{{::auditLog.parseDate(entry.eventDate) }}</td>
+        <td class="audit-action">{{::entry.action }}</td>
+        <td class="audit-user-name" ng-bind-html="::entry.userDisplayName"></td>
+        <td class="audit-title" ng-bind-html="::entry.objectTitle"></td>
+        <td class="audit-object-id">{{::entry.objectID }}</td>
+        <td class="audit-object-type-label" ng-bind-html="::entry.objectTypeLabel"></td>
+        <td class="audit-sub-type-label">{{::entry.objectSubTypeLabel }}</td>
+        <td class="audit-state-label">{{::entry.objectStateLabel }}</td>
+        <td class="audit-context" ng-bind-html="::entry.context"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <seip-pagination config="::auditLog.config.paginationConfig"
+                   total="auditLog.config.results.total"
+                   page="auditLog.config.paginationConfig.page"
+                   callback="::auditLog.paginationCallback">
+  </seip-pagination>
+
+</div>

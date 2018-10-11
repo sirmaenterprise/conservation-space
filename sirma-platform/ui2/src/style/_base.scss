@@ -1,0 +1,88 @@
+/* Base stylesheet. */
+
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  position: relative;
+  -ms-overflow-style: scrollbar;
+}
+
+body {
+  margin: 0;
+  position: relative;
+  padding: 0;
+  min-height: 100%;
+  direction: ltr;
+  font-family: $font-family-sans-serif;
+  @include media-font-size();
+
+  /* iframes devour pointer events which could break dragging/resizing.
+   To fix this add dragging style to document body when drag/resize start and remove it when it ends */
+  &.dragging iframe {
+    pointer-events: none;
+    position: relative;
+  }
+}
+
+.menu-on-top #layout {
+  margin-left: 0;
+  margin-top: 0;
+}
+
+#layout {
+  padding: 0 0 52px;
+  min-height: 100%;
+  position: relative;
+  #container {
+    height: 100%;
+    width: 100%;
+    .content-body {
+      position: relative;
+      .content-wrapper {
+        position: relative;
+        float: left;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.disabled-link {
+  .instance-link:hover,
+  .instance-link *:hover {
+    text-decoration: none !important;
+    cursor: default;
+  }
+}
+
+/* This overrides the toastr plugin notification panel positioning because it is possible
+ to be passed too long message that might cause the message to be unreadable
+and the close button inaccessible. */
+#toast-container.toast-top-right {
+  position: absolute !important;
+}
+
+/* Component imports */
+
+@import "../idoc/idoc-page";
+
+@media print {
+  @import "print";
+}
+
+.drop-over {
+  animation-duration: 0.5s;
+  animation-name: drop-over-blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+@keyframes drop-over-blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}

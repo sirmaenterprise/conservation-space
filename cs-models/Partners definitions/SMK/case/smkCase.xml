@@ -5,7 +5,7 @@
 		<field name="default_header" type="ANY" label="CASE_DEFAULT_HEADER_SMK" />
 		<field name="compact_header" type="an..4096"  label="CASE_COMPACT_HEADER_SMK" />
 		<field name="breadcrumb_header" type="an..4096" label="CASE_BREADCRUMB_HEADER_SMK" />
-		<field name="tooltip_header" type="an..4096" label="CASE_TOOLTIP_HEADER_SMK" />
+		<field name="tooltip_header" type="ANY" label="CASE_TOOLTIP_HEADER_SMK" />
 
 		<!-- all properties from the generic definition will be organized in regions --> 
 		<field name="identifier" type="an..180" displayType="system" />
@@ -23,106 +23,128 @@
 		<field name="estimatedEffortHours" type="n..10" displayType="system" />
 		<field name="outcome" type="an..50" displayType="system" />
 		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri"  displayType="system" />
 		<field name="integrated" type="boolean" displayType="system" />
 		<field name="uri" type="an..50" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
 	</fields>
 
 	<regions>	
 		<region id="generalData" displayType="editable" order="10" label="smk.generalData.region.label">
 			<fields>
-				<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL200" order="110" label="smk.subType.label" tooltip="smk.subType.tooltip" uri="smk:subType" ><value>SMKCS001</value></field>
-				<field name="departmentName" type="an..180" mandatory="true" displayType="editable" codelist="CL245" multiValued="true" order="115" label="smk.departmentName.label" tooltip="smk.departmentName.tooltip" uri="emf:departmentName" />
-				<field name="activityType" type="an..180" mandatory="true" displayType="editable" codelist="CL239" order="120" label="smk.activityType.label" tooltip="smk.activityType.tooltip" uri="chc:activityType" />
-				<field name="title" type="an..1000" mandatory="true" displayType="editable" order="125" label="smk.title.label" tooltip="smk.title.tooltip" dmsType="cm:title" uri="dcterms:title" />
-				<field name="description" type="an..1024" displayType="editable" order="130" label="smk.description.label" tooltip="smk.description.tooltip" previewEmpty="false" dmsType="cm:description" uri="dcterms:description" />
-				<field name="assignee" type="uri" displayType="editable" order="135" label="smk.assignee.label" tooltip="smk.assignee.tooltip" mandatory="true" previewEmpty="false" dmsType="bpm:assignee" uri="emf:hasAssignee">
+				<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL4" label="smk.subType.label" tooltip="smk.subType.tooltip" uri="smk:subType" ><value>SMKCS001</value></field>
+				<field name="departmentName" type="an..180" mandatory="true" displayType="editable" codelist="CL245" multiValued="true" label="smk.departmentName.label" tooltip="smk.departmentName.tooltip" uri="emf:departmentName" >
+					<control id="RELATED_FIELDS">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
+					</control>	
+				</field>
+				<field name="activityType" type="an..180" mandatory="true" displayType="editable" codelist="CL239" label="smk.activityType.label" tooltip="smk.activityType.tooltip" uri="chc:activityType" />
+				<field name="title" type="an..1000" mandatory="true" displayType="editable" label="smk.title.label" tooltip="smk.title.tooltip" uri="dcterms:title" />
+				<field name="description" type="an..1024" displayType="editable" label="smk.description.label" tooltip="smk.description.tooltip" previewEmpty="false" uri="dcterms:description" />
+				<field name="assignee" type="uri" displayType="editable" label="smk.assignee.label" tooltip="smk.assignee.tooltip" previewEmpty="false" uri="emf:hasAssignee">
 					<condition id="readonlyField" renderAs="READONLY">[identifier] NOTIN ('NO_ID')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
-					<value>${currentUser.id}</value>
 				</field>
-				<field name="hasParticipant" type="uri" displayType="editable" order="140" label="smk.hasParticipant.label" tooltip="smk.hasParticipant.tooltip" previewEmpty="false" multiValued="true" uri="ptop:hasParticipant">
+				<field name="hasParticipant" type="uri" displayType="editable" label="smk.hasParticipant.label" tooltip="smk.hasParticipant.tooltip" previewEmpty="false" multiValued="true" uri="ptop:hasParticipant">
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="range" name="range">emf:User,emf:Group</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="priority" type="an..20" displayType="editable" codelist="CL208" order="145" label="smk.priority.label" tooltip="smk.priority.tooltip" previewEmpty="false" mandatory="false" dmsType="bpm:priority" rnc="${to.dmsConvert(CL208,value,extra1)}|${from.dmsConvert(CL208,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>			
-				<field name="plannedStartDate" type="date" displayType="editable" order="150" label="smk.plannedStartDate.label" tooltip="smk.plannedStartDate.tooltip" previewEmpty="false" dmsType="FORBIDDEN" uri="emf:plannedStartDate">
+				<field name="priority" type="an..20" displayType="editable" codelist="CL29" label="smk.priority.label" tooltip="smk.priority.tooltip" previewEmpty="false" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>			
+				<field name="plannedStartDate" type="date" displayType="editable" label="smk.plannedStartDate.label" tooltip="smk.plannedStartDate.tooltip" previewEmpty="false" uri="emf:plannedStartDate">
 					<value>${today}</value>
 				</field>
-				<field name="plannedEndDate" type="date" displayType="editable" order="155"  label="smk.plannedEndDate.label" tooltip="smk.plannedEndDate.tooltip" previewEmpty="false" dmsType="bpm:dueDate" uri="emf:plannedEndDate"/>
-				<field name="estimatedEffortHours" type="n..10" displayType="editable" order="160" label="smk.estimatedEffortHours.label" tooltip="smk.estimatedEffortHours.tooltip" mandatory="false" previewEmpty="false" uri="emf:estimatedEffort"/>
+				<field name="plannedEndDate" type="date" displayType="editable" label="smk.plannedEndDate.label" tooltip="smk.plannedEndDate.tooltip" previewEmpty="false" uri="emf:plannedEndDate"/>
+				<field name="estimatedEffortHours" type="n..10" displayType="editable" label="smk.estimatedEffortHours.label" tooltip="smk.estimatedEffortHours.tooltip" previewEmpty="false" uri="emf:estimatedEffort"/>
 			</fields>
 		</region>
 		<region id="systemData" order="20" displayType="editable" label="smk.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL3" order="210" label="smk.type.label" tooltip="smk.type.tooltip" dmsType="emf:type" uri="emf:type" ><value>FC236002</value></field>
-				<field name="identifier" type="an..50" displayType="readOnly" order="215" label="smk.identifier.label" tooltip="smk.identifier.tooltip" rnc="${eval(CS${seq({+prjSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50" displayType="readOnly"  codelist="CL106" order="220" label="smk.status.label" tooltip="smk.status.tooltip" previewEmpty="false" dmsType="emf:status" uri="emf:status" >
+				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="smk.type.label" tooltip="smk.type.tooltip" uri="emf:type" ><value>FC236002</value></field>
+				<field name="identifier" type="an..50" displayType="readOnly" label="smk.identifier.label" tooltip="smk.identifier.tooltip" rnc="${eval(CS${seq({+prjSequence})})}" uri="dcterms:identifier"/>
+				<field name="status" type="an..50" displayType="readOnly" codelist="CL3" label="smk.status.label" tooltip="smk.status.tooltip" previewEmpty="false" uri="emf:status" >
 					<condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
 				</field>
-				<field name="emf:version" type="an..10" displayType="readOnly" order="225" label="smk.version.label" tooltip="smk.version.tooltip" dmsType="FORBIDDEN" uri="emf:version"/> 
+				<field name="emf:version" type="an..10" displayType="readOnly" label="smk.version.label" tooltip="smk.version.tooltip" uri="emf:version"/> 
+				<field name="integrated" type="boolean" displayType="hidden" uri="emf:integrated"/>
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly" order="230" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri"  displayType="readOnly" order="235" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" dmsType="-cm:creator" uri="emf:createdBy" >
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri"  displayType="readOnly" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" uri="emf:createdBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" order="240"  label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" previewEmpty="false" dmsType="-cm:modified"  uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" order="245" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
+				<field name="modifiedOn" type="datetime" displayType="readOnly" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" previewEmpty="false" uri="emf:modifiedBy">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" order="250" label="smk.lockedBy.label" tooltip="smk.lockedBy.tooltip" dmsType="FORBIDDEN" previewEmpty="false">
+				<field name="lockedBy" type="uri" displayType="readonly" label="smk.lockedBy.label" tooltip="smk.lockedBy.tooltip" previewEmpty="false">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" displayType="readOnly" order="255" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasThumbnail" >
+				<field name="hasThumbnail" type="uri" displayType="readOnly" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
-					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="hasAttachment" type="uri" displayType="editable" order="260" label="smk.hasAttachment.label" tooltip="smk.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
+				<field name="hasAttachment" type="uri" displayType="editable" label="smk.hasAttachment.label" tooltip="smk.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:Exhibition</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="attachmentOf" type="uri" displayType="editable" order="265" label="smk.attachmentOf.label" tooltip="smk.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
+				<field name="attachmentOf" type="uri" displayType="editable" label="smk.attachmentOf.label" tooltip="smk.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:Exhibition</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" order="270" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
+				<field name="hasWatcher" type="uri" displayType="editable" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" order="275" label="smk.parentOf.label" tooltip="smk.parentOf.tooltip"  multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,emf:User</control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" order="280" label="smk.hasParent.label" tooltip="smk.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,emf:User</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" order="285"  label="smk.partOf.label" tooltip="smk.partOf.tooltip"  multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="parentOf" type="uri" displayType="readOnly" label="smk.parentOf.label" tooltip="smk.parentOf.tooltip"  multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" order="290" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasParent" type="uri" displayType="readOnly" label="smk.hasParent.label" tooltip="smk.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="smk.partOf.label" tooltip="smk.partOf.tooltip"  multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -132,17 +154,17 @@
 	</regions>
 	<transitions>	
 		<transition id="create" eventId="create" purpose="create">
-				<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[
 
 							function includes(arr, k) {
                               return arr.indexOf(k) > -1;
                             }
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
 							var title = root.get('title');
-							var subject = '(New assignment) Case: ' + subType + " - " + title;
+							var subject = '(Ny arbejdsopgave) Sag: ' + subType + " - " + title;
 
 							//extract assignee, participants and createdBy
 							var assignee = root.get('assignee');
@@ -171,152 +193,26 @@
 					<control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
                         <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">true</control-param>
                     </control>
 				</field>
 			</fields>		
 		</transition> 
-		<transition id="editDetails" order="10" />
-		<transition id="suspend" order="11" tooltip="smk.suspend.action.tooltip" confirmation="suspend.confirm"  >
+	
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="reassign" order="15" label="reassign.label" tooltip="smk.reassign.tooltip" eventId="reassign" purpose="addRelation" confirmation="reassign.confirm">
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
-					<value>
-						<![CDATA[						
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
-							var title = root.get('title');
-							var subject = '(Suspended) Case: ' + subType + ' - ' + title;
-							
-							//extract warchers and crearedBy users
-							var watchers = root.get('hasWatcher');
-							var createdBy = root.get('createdBy');
-							var recipients = [];
-							var i = 0;
-							if (watchers != null){
-								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
-								}
-							}	
-							recipients.push(createdBy.toString());
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_suspend_object_smk", recipients, context);
-						]]>
-					</value>
-					<control id="SCRIPT">
-						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
-					</control>
-				</field>
-			</fields>
-		</transition>
-		<transition id="restart" order="12" confirmation="restart.confirm" >
-			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
-					<value>
-						<![CDATA[	
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
-							var title = root.get('title');
-							var subject = '(Restarted) Case: ' + subType + ' - ' + title;
-							
-							//extract warchers and crearedBy users
-							var watchers = root.get('hasWatcher');
-							var createdBy = root.get('createdBy');
-							var recipients = [];
-							var i = 0;
-							if (watchers != null){
-								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
-								}
-							}	
-							recipients.push(createdBy.toString());
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_restart_object_smk", recipients, context);
-						]]>
-					</value>
-					<control id="SCRIPT">
-						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
-					</control>
-				</field>
-			</fields>
-		</transition>
-		<transition id="reopen" order="13" label="smk.reopen.action.label" tooltip="smk.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" confirmation="reopen.confirm" >
-			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
-					<value>
-						<![CDATA[	
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
-							var title = root.get('title');
-							var subject = '(Reopened) Case: ' + subType + ' - ' + title;
-							
-							//extract warchers and crearedBy users
-							var watchers = root.get('hasWatcher');
-							var createdBy = root.get('createdBy');
-							var recipients = [];
-							var i = 0;
-							if (watchers != null){
-								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
-								}
-							}	
-							recipients.push(createdBy.toString());
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_reopen_object_smk", recipients, context);
-						]]>
-					</value>
-					<control id="SCRIPT">
-						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
-					</control>
-				</field>
-			</fields>
-		</transition>
-		<transition id="complete" order="15" label="smk.complete.action.label" tooltip="smk.complete.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" >
-			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
-					<value>
-						<![CDATA[	
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
-							var title = root.get('title');
-							var subject = '(Complete) Case: ' + subType + ' - ' + title;
-							
-							//extract warchers and crearedBy users
-							var watchers = root.get('hasWatcher');
-							var createdBy = root.get('createdBy');
-							var recipients = [];
-							var i = 0;
-							if (watchers != null){
-								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
-								}
-							}
-							recipients.push(createdBy.toString());
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complate_object_smk", recipients, context);
-						]]>
-					</value>
-					<control id="SCRIPT">
-						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
-					</control>
-				</field>
-			</fields>
-		</transition>
-		<transition id="reassign" order="16" label="smk.reassign.action.label" tooltip="smk.reassign.tooltip" eventId="reassign" purpose="addRelation" confirmation="reassign.confirm">
-			<fields>
-				<field name="attachToConfig" type="an10">
+				<field name="attachToConfig" type="json">
 					<value>
 						{
 							"predefinedTypes" : ["emf:User"],
 							"selection" : "single",
 							"relation" : ["emf:hasAssignee"],
-							"implicitParams" : {
-							"removeExisting" : true
-							}
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
 						}
 					</value>
 					<control id="configuration" />
 				</field>
-				<field name="beforeReasing" type="an..200" displayType="system" mandatory="false">
+				<field name="beforeReasing" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[
 							//add to context old assignee
@@ -326,15 +222,14 @@
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">before</control-param>
 						<control-param id="async" name="async">false</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
 				</field>
-				<field name="onAssignTask" type="an..200" displayType="system" mandatory="false">
+				<field name="onAssignTask" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
 							var title = root.get('title');
-							var subject = '(Reassigned) Case: ' + subType + ' - ' + title;
+							var subject = '(Reassigned) Sag: ' + subType + ' - ' + title;
 							
 							//extract watchers
 							var recipients = [];
@@ -354,50 +249,148 @@
 					</value>
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
-						<control-param id="async" name="async">false</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>	
+		<transition id="suspend" order="20" tooltip="smk.suspend.action.tooltip" confirmation="suspend.confirm" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[						
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
+							var title = root.get('title');
+							var subject = '(Suspenderet) Sag: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_suspend_object_smk", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>	
+		<transition id="restart" order="30" confirmation="restart.confirm" actionPath="/" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
+							var title = root.get('title');
+							var subject = '(Genstartet) Sag: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_restart_object_smk", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="addAttachment" order="17" label="smk.addAttachment.action.label" tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation">
+		<transition id="reopen" order="35" label="reopen.label" tooltip="smk.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" confirmation="reopen.confirm" actionPath="/" >
 			<fields>
-				<field name="attachToConfig" type="an10">
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
-						{
-							"predefinedTypes" : ["emf:Project","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","chc:Exhibition"],
-							"selection" : "multiple",
-							"relation" : ["chc:hasAttachment"],
-							"implicitParams" : {
-							"removeExisting" : false
-							}
-						}
+						<![CDATA[	
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
+							var title = root.get('title');
+							var subject = '(Genåbnet) Sag: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_reopen_object_smk", recipients, context);
+						]]>
 					</value>
-					<control id="configuration" />
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
 				</field>
 			</fields>
-		</transition>
-		<transition id="addThumbnail" order="19" />
-		<transition id="addWatcher" order="20" label="smk.addWatcher.action.label" tooltip="addWatchers.tooltip" eventId="addWatcher" purpose="addRelation">
+		</transition>	
+	
+		<transition id="complete" order="45" label="complete.label" tooltip="smk.complete.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" actionPath="/" >
 			<fields>
-				<field name="addAttachmentConfig" type="an10">
-					<value>						
-						{
-							"predefinedTypes" : ["emf:User"],
-							"selection" : "multiple",
-							"relation" : ["emf:hasWatcher"],
-							"implicitParams" : {
-								"removeExisting" : false
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
+							var title = root.get('title');
+							var subject = '(Afsluttet) Sag: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
 							}
-						}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complete_object_smk", recipients, context);
+						]]>
 					</value>
-					<control id="configuration" />
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="createTask" order="21" label="smk.createTask.action.label" tooltip="smk.createSubTask.action.tooltip" eventId="createTask" purpose="createInstance">
+		<transition id="createDocument" order="50" label="smk.createDocument.action.label" tooltip="smk.createDocument.action.tooltip" eventId="createDocument" purpose="createInstance" actionPath="/" >
       		<fields>
-				<field name="createSubTaskConfig" type="an10">
+				<field name="createDocumentConfig" type="json">
+					<value>
+   						{ 
+							"predefinedTypes" : ["emf:Document"],  
+							"contextSelectorDisabled": true
+    					}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="createTask" order="55" label="smk.createTask.action.label" tooltip="smk.createSubTask.action.tooltip" eventId="createTask" purpose="createInstance">
+      		<fields>
+				<field name="createSubTaskConfig" type="json">
 					<value>
 						{ 
 							"predefinedTypes" : ["emf:Task"],
@@ -407,21 +400,64 @@
  		      	  <control id="configuration" />
  		   		</field>
  		   </fields>
-		</transition>
-		<transition id="printTab"  order="30" label="smk.printTab.action.label"  />
-		<transition id="print" order="35" label="smk.print.action.label"  />
-		<transition id="exportTabPDF" order="40"  label="smk.exportTabPDF.action.label" />
-		<transition id="exportPDF" order="45" label="smk.exportPDF.action.label"  />
-		<transition id="exportTabWord" order="50" label="smk.exportTabWord.action.label"  />
-		<transition id="exportWord" order="55"  label="smk.exportWord.action.label" />
-		<transition id="move" order="65" label="smk.move.action.label" confirmation="move.confirm" >
+		</transition>	
+	
+		<group id="add" order="60" label="add.group.label" type="menu" />
+		<transition id="addAttachment" label="smk.addAttachment.action.label" tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" actionPath="/" group="add" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="attachToConfig" type="json">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Project","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","chc:Exhibition","emf:BusinessProcess"],
+							"selection" : "multiple",
+							"relation" : ["chc:hasAttachment"]
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addThumbnail" group="add" />
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+			<fields>
+				<field name="addAttachmentConfig" type="json">
+					<value>						
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasWatcher"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+
+		<group id="exportAs" order="65" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		<transition id="exportWord" group="exportAs" />
+
+		<group id="print" order="70" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		<transition id="print" group="print" />
+
+		<group id="template" order="75" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="smk.updateTemplate.action.tooltip" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" tooltip="smk.changeTemplate.action.tooltip" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		
+		<group id="more" order="80" label="more.group.label" type="menu" />
+		<transition id="move" confirmation="move.confirm" group="more" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
 							var title = root.get('title');
-							var subject = '(Moved) Case: ' + subType + ' - ' + title;
+							var subject = '(Flyttet) Sag: ' + subType + ' - ' + title;
 							
 							//extract warchers and crearedBy users
 							var watchers = root.get('hasWatcher');
@@ -430,7 +466,7 @@
 							var i = 0;
 							if (watchers != null){
 								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
+									recipients.push(watchers[i].toString());
 								}
 							}	
 							recipients.push(createdBy.toString());
@@ -440,24 +476,23 @@
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
 						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="clone" order="70" label="smk.clone.action.label" confirmation="clone.confirm" />
-		<transition id="lock" order="75" />
-		<transition id="unlock" order="80" />
-		<transition id="saveAsTemplate" order="85" label="smk.saveAsTemplate.action.label"/>			
-		<transition id="managePermissions" order="90" label="smk.managePermissions.action.label"/>
-		<transition id="delete" order="95" tooltip="smk.delete.tooltip" >
+		<transition id="clone" confirmation="clone.confirm" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="100" tooltip="smk.delete.tooltip" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[	
-							var subType = codelist.getDescription(200, root.get('subType'), 'en');
+							var subType = codelist.getDescription(4, root.get('subType'), 'da');
 							var title = root.get('title');
-							var subject = '(Deleted) Case: ' + subType + ' - ' + title;
+							var subject = '(Slettet) Sag: ' + subType + ' - ' + title;
 							
 							//extract warchers and crearedBy users
 							var watchers = root.get('hasWatcher');
@@ -466,7 +501,7 @@
 							var i = 0;
 							if (watchers != null){
 								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
+									recipients.push(watchers[i].toString());
 								}
 							}	
 							recipients.push(createdBy.toString());
@@ -475,8 +510,7 @@
                     </value>
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
+                        <control-param id="async" name="async">false</control-param>
                     </control>
                 </field>
 			</fields>
@@ -492,9 +526,10 @@
 		<stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>		
 		<stateTransition from="IN_PROGRESS" transition="reassign" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="addAttachment" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="createDocument" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="createTask" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>	
-		<stateTransition from="IN_PROGRESS" transition="addWatcher" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="addWatchers" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS"/>
@@ -506,18 +541,21 @@
 		<stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>		
+		<stateTransition from="IN_PROGRESS" transition="changeTemplate" to="IN_PROGRESS"/>		
+		<stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS"/>		
 		<stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS"/>
 		<stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS"/>
-		<stateTransition from="IN_PROGRESS" transition="delete" to="DELETED"/>
+		<stateTransition from="IN_PROGRESS" transition="delete" to="IN_PROGRESS"/>
 
 		<!-- on hold-->
 		<stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS" />
 		<stateTransition from="ON_HOLD" transition="reassign" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="addAttachment" to="ON_HOLD" />
+		<stateTransition from="ON_HOLD" transition="createDocument" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="createTask" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="addThumbnail" to="ON_HOLD" />	
-		<stateTransition from="ON_HOLD" transition="addWatcher" to="ON_HOLD"/> 
+		<stateTransition from="ON_HOLD" transition="addWatchers" to="ON_HOLD"/> 
 		<stateTransition from="ON_HOLD" transition="print" to="ON_HOLD"/>
 		<stateTransition from="ON_HOLD" transition="printTab" to="ON_HOLD"/>
 		<stateTransition from="ON_HOLD" transition="exportTabPDF" to="ON_HOLD"/>
@@ -531,6 +569,8 @@
 		<stateTransition from="ON_HOLD" transition="managePermissions" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="createInContext" to="ON_HOLD"/>
 		<stateTransition from="ON_HOLD" transition="saveAsTemplate" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="changeTemplate" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="updateTemplate" to="ON_HOLD"/>
 
 		<stateTransition from="COMPLETED" transition="reopen" to="IN_PROGRESS" />
 		<stateTransition from="COMPLETED" transition="print" to="COMPLETED" />
@@ -541,10 +581,18 @@
 		<stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED" />
 		<stateTransition from="COMPLETED" transition="clone" to="COMPLETED" />
 		<stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED"/>
-
-		<stateTransition from="*" transition="delete" to="DELETED" />
 	</stateTransitions>
 
+	<allowedChildren>
+		<child type="case" id="smkCase"/>
+		<child type="document" id="all"/>
+		<child type="object" id="SMKSAMPLE"/>
+		<child type="object" id="smkAudio"/>
+		<child type="object" id="smkVideo"/>
+		<child type="object" id="smkImage"/>
+		<child type="task" id="all"/>
+	</allowedChildren>
+	
 	<labels>
 		<label id="CASE_TOOLTIP_HEADER_SMK">
     		<value lang="en"><![CDATA[${eval(#{eval(
@@ -601,6 +649,60 @@
 					</span>
 				</span>
 			)})}]]></value>
+			<value lang="da"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Undertype: </label>
+						<span data-property="status">${CL([subType])}</span>
+					</span>
+					<span class="tooltip-row">
+                        <label>Afdeling/enhed: </label>
+                        <span data-property="departmentName">${CL([departmentName])}</span>
+                    </span>
+					<span class="tooltip-row">
+						<label>Aktivitetstype: </label>
+						<span data-property="activityType">${CL([activityType])}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Status: </label>
+						<span data-property="status">${CL([status])}</span>
+					</span>
+					${if(${get([plannedStartDate])}<>null).then(
+					<span class="tooltip-row">
+                        <label>Planlagt startdato: </label>
+                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy)}</span>
+                    </span>
+					)}
+					${if(${get([plannedEndDate])}<>null).then(
+					<span class="tooltip-row">
+                        <label>Planlagt slutdato: </label>
+                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy)}</span>
+                    </span>
+					)}
+					${if(${get([estimatedEffortHours])}<>null).then(
+					<span class="tooltip-row">
+                        <label>Estimeret timeforbrug: </label>
+                        <span data-property="estimatedEffortHours">${get([estimatedEffortHours])}</span>
+                    </span>
+					)}
+					<span class="tooltip-row">
+						<label>Opdateret af: </label>
+						<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Opdateret: </label>
+						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+				</span>
+			)})}]]></value>
     	</label>
 		<label id="CASE_DEFAULT_HEADER_SMK">
 			<value lang="en">
@@ -626,10 +728,53 @@
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
 				</span>
 			)}]]></value>
+			<value lang="da">
+				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							<span data-property="title">${get([title])}</span>
+						</a>&nbsp;
+						(<span data-property="status">${CL([status])}</span>)
+					</span>
+					<br />
+					<span data-property="type">${CL([type])}</span>:&nbsp;
+					<span data-property="subType">${CL([subType])}</span>&nbsp;-&nbsp;
+					<span data-property="activityType">${CL([activityType])}</span>,&nbsp;
+					Afdeling/enhed:&nbsp;<span data-property="departmentName">${CL([departmentName])}</span>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
+				</span>
+			)}]]></value>
 		</label>
 		<label id="CASE_COMPACT_HEADER_SMK">
 			<value lang="en">
 				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					<span class="truncate-element">
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="title">${get([title])}</span> 
+						</a>&nbsp;
+						<span data-property="activityType">${CL([activityType])}</span>&nbsp;
+						${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}
+					</span>
+				</span>
+			)}]]></value>
+		<value lang="da">
+			<![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
@@ -637,7 +782,7 @@
 				<span class="truncate-element">
 					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
 						<span data-property="title">${get([title])}</span> 
 					</a>&nbsp;
 					<span data-property="activityType">${CL([activityType])}</span>&nbsp;
@@ -651,13 +796,25 @@
 		</label>	
 		<label id="CASE_BREADCRUMB_HEADER_SMK">
 			<value lang="en">
-				<![CDATA[${eval(
+			<![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span>
 				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span> 
+				</a>
+			</span>		
+            )}]]></value>
+			<value lang="da">
+			<![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
 					<span data-property="title">${get([title])}</span> 
 				</a>
 			</span>		

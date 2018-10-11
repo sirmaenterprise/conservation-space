@@ -1,0 +1,41 @@
+@import "../../../style/variables";
+@import "../../../style/mixins";
+
+/* set maximum width for text truncation
+   before ellipses are added to the text
+   lower resolutions should truncate text
+   more aggressively compared to higher res */
+$truncation-width-list: (200px, 180px, 150px, 130px, 100px, 70px, 40px);
+
+.results-toolbar {
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  display: flex;
+  height: 30px;
+  align-items: center;
+
+  .message-wrapper {
+    margin: 0;
+    padding-left: 0.5em;
+
+    .overflow-message {
+      @include media-max-width($truncation-width-list);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    .overflow-message:hover {
+      width: auto;
+      max-width: 100%;
+      white-space: normal;
+    }
+
+    .search-type {
+      color: #1abc9c;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<div class="comment" id="{{::comment.commentId}}" ng-click="comment.expandComment()">
+  <div class="comment-header">
+    <div class="icon">
+      <seip-user-avatar user="comment.commentUser" event-emitter="comment.config.eventEmitter" size="42"></seip-user-avatar>
+    </div>
+    <div class="author">{{::comment.comment.getAuthorLabel()}}</div>
+    <div class="date">{{::comment.date}} {{::'comments.status.'+ comment.comment.getStatus() | translate }}</div>
+  </div>
+  <div class="comment-actions">
+    <seip-comment-actions config="comment.config" comment="comment.actionsContext"
+                          ng-if="comment.comment.isOpen() || !comment.comment.isReply()"></seip-comment-actions>
+  </div>
+  <div class="comment-description" ng-bind-html="::comment.comment.getDescription() |toTrustedHtml"></div>
+  <div class="comment-replies" ng-if="comment.expanded">
+    <div ng-repeat="reply in comment.replies track by reply.hash()">
+      <seip-comment class="comment-reply" config="::comment.config" comment="reply"></seip-comment>
+    </div>
+  </div>
+  <div class="comment-reply-toolbar no-print" ng-if="comment.comment.isOpen() && !comment.comment.isReply()">
+    <a class="comment-reply-btn" ng-click="comment.createReply()">
+      <i class="fa fa-reply" aria-hidden="true"></i>{{::'comments.action.reply' | translate}}
+    </a>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+{
+	{
+	    ?currentUser sec:assignedTo ?permissionsRole%suffix%
+	} UNION {
+	    ?currentUser emf:isMemberOf ?group%suffix%  .
+	    ?group%suffix% sec:assignedTo ?permissionsRole%suffix%
+	}
+	{
+		?permissionsRole%suffix% sec:hasPermission %instance% .
+	} UNION {
+		?permissionsRole%suffix% sec:isManagerOf %instance% .
+	}
+}

@@ -1,0 +1,394 @@
+<?xml version="1.0"?>
+<definition id="imaCulturalObject" parentId="GEO10001" isAbstract="true" type="object">
+    <fields>
+		<!-- headers and tooltip -->
+		<field name="default_header" type="ANY" label="CO_DEFAULT_HEADER_IMA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="compact_header" type="an..4096" label="CO_COMPACT_HEADER_IMA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="breadcrumb_header" type="an..4096" label="CO_BREADCRUMB_HEADER_IMA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+            <value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject</value>
+        </field>
+		
+		<!-- system fields -->
+		<field name="identifier" type="an..50" displayType="system" />
+		<field name="title" type="an..40" displayType="system" />
+		<field name="description" type="an..1024" displayType="system" />
+		<field name="type" type="an..50" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />         
+		<field name="createdOn" type="datetime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system" />
+		<field name="modifiedOn" type="datetime" displayType="system" />
+		<field name="modifiedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />	
+		<field name="status" type="an..50" displayType="system" />
+	</fields>
+	
+	<regions>
+		<region id="generalCMSData" order="5" displayType="editable" label="ima.generalCMSData.region.label">
+			<fields>
+				<field name="type" type="an..50" mandatory="true" displayType="readOnly" order="500" codelist="CL7" label="imaCulturalObject.type.label" tooltip="ima.type.tooltip" dmsType="emf:type" uri="emf:type" > 
+					<value>Cultural Object</value>
+					<control id="RELATED_FIELDS">
+						<control-param id="fieldsToRerender" name="RERENDER">subType</control-param>
+						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="HIDDEN">[status] NOTIN ('INIT')</condition>
+				</field>
+				<field name="title" type="an..1000" mandatory="true" displayType="editable" order="502" label="ima.title.label" tooltip="imaCulturalObject.title.tooltip" dmsType="cm:title" uri="dcterms:title" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="objectType" type="an..50" mandatory="true" displayType="editable" order="504" label="imaCulturalObject.objectType.label" tooltip="imaCulturalObject.objectType.tooltip" uri="ima:objectType" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>	
+				<field name="accessionNumber" type="an..50" displayType="readOnly" order="506" label="imaCulturalObject.accessionNumber.label" tooltip="imaCulturalObject.accessionNumber.tooltip" uri="ima:accessionNumber" > 
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+					<condition id="hiddenField" renderAs="HIDDEN">[integrated] IN ('false')</condition>
+				</field>
+				<field name="artistNames" type="an..1024" mandatory="true" displayType="editable" order="508" label="imaCulturalObject.artistNames.label" tooltip="imaCulturalObject.artistNames.tooltip" uri="ima:artistNames" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="creationDates" type="an..180" displayType="editable" order="510" label="imaCulturalObject.creationDates.label" tooltip="imaCulturalObject.creationDates.tooltip" uri="ima:creationDates" > 
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="medium" type="an..1024" displayType="editable" order="512" label="imaCulturalObject.medium.label" tooltip="imaCulturalObject.medium.tooltip" uri="ima:medium" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="inscriptions" type="an..1024" displayType="editable" order="514" label="imaCulturalObject.inscriptions.label" tooltip="imaCulturalObject.inscriptions.tooltip" uri="ima:inscriptions" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="marks" type="an..500" displayType="editable" order="516" label="imaCulturalObject.marks.label" tooltip="imaCulturalObject.marks.tooltip" uri="ima:marks" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="physicalDimensions" type="an..1500" displayType="editable" order="518" label="imaCulturalObject.physicalDimensions.label" tooltip="imaCulturalObject.physicalDimensions.tooltip" uri="ima:physicalDimensions" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="portfolio" type="an..500" displayType="editable" order="520" label="imaCulturalObject.portfolio.label" tooltip="imaCulturalObject.portfolio.tooltip" uri="ima:portfolio" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="homeLocation" type="an..1024" displayType="editable" order="522" label="imaCulturalObject.homeLocation.label" tooltip="imaCulturalObject.homeLocation.tooltip" uri="ima:homeLocation" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="curatorialDepartment" type="an..20" displayType="editable" order="524" codelist="CL249" label="imaCulturalObject.curatorialDepartment.label" tooltip="imaCulturalObject.curatorialDepartment.tooltip" uri="ima:curatorialDepartment" > 
+					<condition id="readonlyField" renderAs="READONLY">[integrated] IN ('true')</condition>
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="conservationStatus" type="an..180" displayType="editable" order="526" codelist="CL400" label="imaCulturalObject.conservationStatus.label" tooltip="imaCulturalObject.conservationStatus.tooltip" uri="ima:conservationStatus" > 
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+				</field>
+			</fields>
+		</region>
+		
+		<region id="generalCSData" order="10" displayType="editable" label="ima.generalCSData.region.label">
+			<fields>
+				<field name="ownerNames" type="an..1024" displayType="editable" order="100" label="imaCulturalObject.ownerNames.label" tooltip="imaCulturalObject.ownerNames.tooltip" uri="ima:ownerNames" > 
+					<condition id="hiddenField" renderAs="HIDDEN">[integrated] IN ('true')</condition>
+				</field>	
+				<field name="structuralPriority" type="an..180" displayType="editable" order="105" codelist="CL401" label="imaCulturalObject.structuralPriority.label" tooltip="imaCulturalObject.structuralPriority.tooltip" uri="ima:structuralPriority" /> 
+				<field name="aestheticPriority" type="an..180" displayType="editable" order="110" codelist="CL402" label="imaCulturalObject.aestheticPriority.label" tooltip="imaCulturalObject.aestheticPriority.tooltip" uri="ima:aestheticPriority" /> 
+				<field name="specialConcerns" type="an..1024" displayType="editable" order="115" label="imaCulturalObject.specialConcerns.label" tooltip="imaCulturalObject.specialConcerns.tooltip" uri="ima:specialConcerns" /> 
+			</fields>
+		</region>
+		
+		<region id="systemData" order="15" displayType="editable" label="ima.systemData.region.label">
+			<fields>
+				<!-- system integration fields -->
+				<field name="integratedSystemId" type="an..1024" displayType="system" uri="chc:ntegratedSystemId" /> 
+				<field name="references" type="an..1200" displayType="system" />
+				<field name="integrated" type="boolean" displayType="system" uri="chc:ntegrated" > 
+					<value>false</value>
+				</field>
+				<field name="sourceSystemId" type="an..50" displayType="readOnly" codelist="CL250" label="ima.sourceSystemId.label" tooltip="ima.sourceSystemId.tooltip" uri="chc:sourceSystemId" > 
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+					<value>IMASR25001</value>
+				</field>
+				 
+				<field name="identifier" type="an..50"  displayType="readOnly"  label="ima.identifier.label" tooltip="ima.identifier.tooltip" rnc="${eval(CO${seq({+coSequence})})}" uri="dcterms:identifier" />
+				<field name="status" type="an..50" displayType="readOnly" codelist="CL10" label="ima.status.label" tooltip="ima.status.tooltip" previewEmpty="false" dmsType="emf:status" uri="emf:status" />
+				<field name="emf:version" type="an..10" displayType="readOnly" label="object.version" tooltip="ima.version.tooltip" dmsType="FORBIDDEN" uri="emf:version" /> 
+					
+				<!-- object properties (relationships) -->	
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="ima.createdOn.label" tooltip="ima.createdOn.tooltip" dmsType="-cm:created" uri="emf:createdOn" /> 
+				<field name="createdBy" type="uri" displayType="readOnly" label="ima.createdBy.label" tooltip="ima.createdBy.tooltip" dmsType="-cm:creator" uri="emf:createdBy" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="datetime" displayType="readOnly" label="ima.modifiedOn.label" tooltip="ima.modifiedOn.tooltip" previewEmpty="false" dmsType="-cm:modified" uri="emf:modifiedOn" /> 
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="ima.modifiedBy.label" tooltip="ima.modifiedBy.tooltip" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" displayType="readOnly" label="ima.lockedBy.label" tooltip="ima.lockedBy.tooltip" previewEmpty="false" dmsType="FORBIDDEN" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="hasDepiction" type="uri" displayType="editable" label="imaCulturalObject.hasDepiction.label" tooltip="imaCulturalObject.hasDepiction.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasDepiction" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="hasPrimaryImage" type="uri" displayType="editable" label="imaCulturalObject.hasPrimaryImage.label" tooltip="imaCulturalObject.hasPrimaryImage.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasPrimaryImage" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="associatedWith" type="uri" displayType="readOnly" label="imaCulturalObject.associatedWith.label" tooltip="imaCulturalObject.associatedWith.tooltip" multiValued="true" previewEmpty="false" uri="ima:associatedWith" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<!-- must add to revoke action in state transitions -->
+				<field name="duplicates" type="uri" displayType="editable" label="imaCulturalObject.duplicates.label" tooltip="imaCulturalObject.duplicates.tooltip" multiValued="true" previewEmpty="false" uri="ima:duplicates" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+					</control>
+				</field>
+				<field name="hasThumbnail" type="uri" displayType="readOnly" label="ima.hasThumbnail.label" tooltip="ima.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+				</field>
+				<field name="attachmentOf" type="uri" displayType="editable" label="ima.attachmentOf.label" tooltip="ima.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity</control-param>
+					</control>
+				</field>
+				<field name="hasAttachment" type="uri" displayType="editable" label="ima.hasAttachment.label" tooltip="ima.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity</control-param>
+					</control>
+				</field>	
+				<field name="hasSample" type="uri" displayType="editable" label="imaCulturalObject.hasSample.label" tooltip="imaCulturalObject.hasSample.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasSample" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:Sample</control-param>
+					</control>
+				</field>
+				<field name="isDocumentedIn" type="uri" displayType="readOnly" label="imaCulturalObject.isDocumentedIn.label" tooltip="imaCulturalObject.isDocumentedIn.tooltip" multiValued="true" previewEmpty="false" uri="chc:isDocumentedIn" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document</control-param>
+					</control>
+				</field>
+				<field name="hasWatcher" type="uri" displayType="editable" label="ima.hasWatcher.label" tooltip="ima.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readOnly" label="ima.parentOf.label" tooltip="ima.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity</control-param>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" displayType="readOnly" label="ima.hasParent.label" tooltip="ima.hasParent.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasParent" > 
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	
+	<transitions>
+		<transition id="editDetails" order="10" />
+		<transition id="addPrimaryImage" order="15" label="imaCulturalObject.addPrimaryImage.action.label" eventId="addPrimaryImage" purpose="addRelation">
+			<fields>
+				<field name="addPrimaryImageConfig" type="an10">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Image"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasPrimaryImage"],
+							"implicitParams" : {
+								"removeExisting" : false
+							 }
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addDepiction" order="20" label="ima.addDepiction.action.label" eventId="addDepiction" purpose="addRelation">
+			<fields>
+				<field name="addDepictionConfig" type="an10">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Image"],
+							"selection" : "multiple",
+							"relation" : ["chc:hasDepiction"],
+							"implicitParams" : {
+								"removeExisting" : false
+							 }
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addThumbnail" order="25" />	
+		<transition id="addAttachment" order="30" label="ima.addAttachment.action.label" eventId="addAttachment" purpose="addRelation">
+			<fields>
+				<field name="addAttachmentConfig" type="an10">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Project","chc:ConservationActivity","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample"],
+							"selection" : "multiple",
+							"relation" : ["chc:hasAttachment"],
+							"implicitParams" : {
+							"removeExisting" : false
+							}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="print" order="35" />
+		<transition id="printTab"  order="40" />
+		<transition id="exportTabPDF" order="45" />
+		<transition id="exportPDF" order="50" />	
+		<transition id="addWatcher" order="55" label="ima.addWatcher.action.label" eventId="addWatcher" purpose="addRelation">
+			<fields>
+				<field name="addWatcherConfig" type="an10">
+					<value>						
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasWatcher"],
+							"implicitParams" : {
+								"removeExisting" : false
+							}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="move" order="60" />
+		<transition id="revoke" order="65" label="imaCulturalObject.revoke.action.label" eventId="revoke" purpose="transition" immediate="true" confirmation="revoke.confirm"/>
+		<transition id="import" order="70" label="ima.import.action.label" eventId="import" purpose="import" confirmation="import.confirm" />
+		<transition id="updateInt" order="75" label="ima.updateInt.action.label" eventId="updateInt" purpose="updateInt" confirmation="update.confirm" />
+		<transition id="lock" order="80" />
+		<transition id="unlock" order="85" />
+		<transition id="saveAsTemplate" order="90" />			
+		<transition id="managePermissions" order="95" />
+		<transition id="delete" order="100" />
+		<transition id="prepareImport" label="ima.prepareImport.action.label" eventId="prepareImport" purpose="prepareImport"  />
+	</transitions>
+	
+	<stateTransitions>			
+		<!-- transitions related to integration with external system (CMS) -->
+		<stateTransition from="INIT" transition="prepareImport" to="FOR_IMP"/>
+		<stateTransition from="INIT" transition="create" to="CURRENT" />		
+		<stateTransition from="FOR_IMP" transition="import" to="CURRENT" />
+		
+		<stateTransition from="CURRENT" transition="updateInt" to="CURRENT" >	
+			<condition renderAs="PROPERTY" id="integrated">true</condition>
+		</stateTransition>	
+		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addThumbnail" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="move" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="lock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="unlock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="managePermissions" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="print" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="exportPDF" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="printTab" to="CURRENT" />
+        <stateTransition from="CURRENT" transition="exportTabPDF" to="CURRENT" />	
+		<stateTransition from="CURRENT" transition="addPrimaryImage" to="CURRENT" />
+        <stateTransition from="CURRENT" transition="addAttachment" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addDepiction" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addWatcher" to="CURRENT" />
+		
+		<stateTransition from="CURRENT" transition="delete" to="DELETED" />	
+		
+		<stateTransition from="CURRENT" transition="revoke" to="OBSOLETE">
+			<condition id="requiredFields" renderAs="REQUIRED">[duplicates]</condition>
+			<condition renderAs="PROPERTY" id="integrated">false</condition>
+		</stateTransition>
+		<stateTransition from="OBSOLETE" transition="print" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportPDF" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="addWatcher" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="saveAsTemplate" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE" />
+		
+		<stateTransition from="OBSOLETE" transition="delete" to="DELETED" />	
+		
+		<stateTransition from="*" transition="delete" to="DELETED" />
+   </stateTransitions>
+   
+    <labels>
+   		<label id="CO_DEFAULT_HEADER_IMA">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])}==false).then(href="${link(currentInstance)}")}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+				<span>
+					<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>&nbsp;
+					<span data-property="type">${CL([type])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					${if(${get([status])}<>FOR_IMP).then(&nbsp;<span class="object-version version badge">${get([emf:version])}</span>)}
+				</span><br />
+				${if(${get([status])}<>FOR_IMP).then(
+					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])}==true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])}==true).then(<span><b>(Deleted)</b></span>)}
+						${if(${get([integrated])}==false).then(#&nbsp;<span data-property="identifier">${get([identifier])}</span>&nbsp;).else(#&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>&nbsp;
+					</a>
+					<span data-property="artistNames">${get([artistNames])}</span>
+				).else(
+					${if(${get([emf:isDeleted])}==true).then(<span><b>(Deleted)</b></span> )}
+					${if(${get([integrated])}==true).then(#&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span>&nbsp;
+					<span data-property="artistNames">${get([artistNames])}</span>
+				)}
+				${if(${get([references])}<>null).then(<br /> Associated with:&nbsp;<span data-property="references">${get([references])}</span>)}
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+			</span>)}]]></value>
+		</label>
+		
+		<label id="CO_COMPACT_HEADER_IMA">
+			<value lang="en"><![CDATA[${eval( 
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>&nbsp;
+				<span data-property="type">${CL([type])}</span>&nbsp;
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span>&nbsp;)}
+					${if(${get([integrated])}==false).then(#&nbsp;<span data-property="identifier">${get([identifier])}</span>&nbsp;).else(#&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;)}
+				</a>
+				<span data-property="title">${get([title])}</span>&nbsp;
+				<span class="object-version version badge">${get([emf:version])}</span>
+				</span>
+			</span>)}]]></value>
+		</label>
+		
+		<label id="CO_BREADCRUMB_HEADER_IMA">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span>&nbsp;)}
+					${if(${get([integrated])}==false).then(&nbsp;#&nbsp;<span data-property="identifier">${get([identifier])}</span>).else(#&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>)}
+				</a>
+			</span>		
+			)}]]></value>
+		</label>
+	</labels>
+</definition>

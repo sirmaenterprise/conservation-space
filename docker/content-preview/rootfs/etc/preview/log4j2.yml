@@ -1,0 +1,48 @@
+# Overrides for usage in a container, adds JSON logging in a rolling file
+
+Configuration:
+  status: warn
+  name: PreviewService
+
+  properties:
+    property:
+      - name: PREVIEW_LOG_PATTERN
+        value: "%d{DEFAULT} %clr{%-5p [%c]} (%t) [u=%X{effective_user}, rqid=%X{request_id}] %m%ex%n"
+      - name: DEFAULT_LOG_PATTERN
+        value: "%d{DEFAULT} %clr{%-5p [%c]} (%t) %m%ex%n"
+
+  appenders:
+    Console:
+      - name: PreviewConsoleAppender
+        PatternLayout:
+          Pattern: ${PREVIEW_LOG_PATTERN}
+      - name: DefaultConsoleAppender
+        PatternLayout:
+          Pattern: ${DEFAULT_LOG_PATTERN}
+
+    RollingFile:
+      - name: PreviewRollingJsonAppender
+        fileName: ${env:PREVIEW_LOGS}/preview.json
+        filePattern: ${env:PREVIEW_LOGS}/preview-%d{yyyy-MM-dd}-%i.json.gz
+        JsonLayout:
+          compact: true
+          eventEol: true
+          properties: true
+        policies:
+          TimeBasedTriggeringPolicy:
+            interval: 1
+            modulate: true
+
+  Loggers:
+    logger:
+      - name: com.sirma.sep.content.preview
+        level: ${env:PREVIEW_LOG_LEVEL}
+        additivity: false
+        AppenderRef:
+          - ref: PreviewConsoleAppender
+          - ref: PreviewRollingJsonAppender
+    Root:
+      level: warn
+      AppenderRef:
+        - ref: DefaultConsoleAppender
+        - ref: PreviewRollingJsonAppender

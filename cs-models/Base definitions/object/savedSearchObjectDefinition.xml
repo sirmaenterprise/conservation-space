@@ -1,90 +1,61 @@
-<?xml version="1.0"?>
-<definition id="savedSearchBase" parentId="GEO10001" isAbstract="true" type="object">
-    <fields>
-		<!-- headers and tooltip -->
-        <field name="default_header" type="ANY" label="SAVED_SEARCH_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="compact_header" type="an..4096" label="SAVED_SEARCH_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="breadcrumb_header" type="an..4096" label="SAVED_SEARCH_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="tooltip_header" type="an..4096" label="SAVED_SEARCH_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="rdf:type" type="URI" order="11" label="savedSearch.type" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-            <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#SavedSearch</value>
-        </field>
-		<field name="emf:isDeleted" type="boolean"  displayType="system" uri="emf:isDeleted" dmsType="FORBIDDEN"><value>false</value></field>
-		<field name="identifier" 	type="an..50" order="30" label="savedSearch.identifier" mandatory="false" displayType="readOnly" dmsType="cm:name" rnc="${seq({+objectSequence})}" uri="dcterms:identifier" />
-        <field name="type" 			type="an..50" order="40" codelist="CL7" label="savedSearch.type" mandatory="false" displayType="system" dmsType="emf:type" uri="emf:type">
-            <value>savedSearch</value>
-        </field>
-		<field name="title" 		type="an..40" order="60" label="savedSearch.title" mandatory="false" displayType="editable" previewEmpty="false" dmsType="cm:title" uri="dcterms:title"/>
-		<field name="description" 	type="an..1024" order="70" label="savedSearch.description" mandatory="false" displayType="editable" previewEmpty="false" dmsType="cm:description" uri="dcterms:description"/>
-		<field name="createdOn" 	type="dateTime" label="savedSearch.created-on" mandatory="false" displayType="hidden" dmsType="-cm:created" uri="emf:createdOn" />
-	    <field name="createdBy" 	type="uri" label="savedSearch.created-by" mandatory="false" displayType="hidden" dmsType="-cm:creator" uri="emf:createdBy" >
-	         <control id="PICKER"/>
-        </field>
-        <field name="modifiedOn" 	type="datetime" order="20" label="modifiedOn.label" mandatory="false" displayType="readOnly" previewEmpty="false" dmsType="-cm:modified"  uri="emf:modifiedOn"/>
-         <field name="modifiedBy" 	type="uri" order="10" label="modifiedBy.label" mandatory="false" displayType="readOnly" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
-            <control id="PICKER"/>
-        </field>
-        <field name="defaultTemplate" type="an..50" order="41" displayType="system" dmsType="dom:defaultTemplate" uri="emf:defaultTemplate">
-            <value>savedSearch</value>
-        </field>
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="savedSearchBase" parentId="baseObject" isAbstract="true" type="object">
+	<fields>
+		<!-- HEADERS AND TOOLTIP -->
+		<field name="default_header" type="ANY" label="SAVED_SEARCH_DEFAULT_HEADER" displayType="system"/>
+		<field name="compact_header" type="an..4096" label="SAVED_SEARCH_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="an..4096" label="SAVED_SEARCH_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="tooltip_header" type="ANY" label="SAVED_SEARCH_TOOLTIP_HEADER" displayType="system"/>
+
+    	<!-- SYSTEM FIELDS -->
+		<field name="rdf:type" type="URI" label="type.label" displayType="system" uri="rdf:type">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#SavedSearch</value>
+		</field>
+		<field name="type" type="an..50" codelist="CL7">
+			<value>savedSearch</value>
+		</field>
+		<field name="defaultTemplate" type="an..50" displayType="system" uri="emf:defaultTemplate">
+			<value>savedSearch</value>
+		</field>
 		<!-- specifies if the saved search is from basic search or from advanced search -->
-		<field name="searchType" type="an..50" order="100" label="savedSearch.searchType" mandatory="false" displayType="system" dmsType="FORBIDDEN" uri="emf:searchType" />
+		<field name="searchType" type="an..50" label="savedSearch.searchType" displayType="system" uri="emf:searchType" />
 		<!-- the criteria -->
-		<field name="searchCriteria" type="an..4096" order="110" label="savedSearch.searchCriteria" mandatory="false" displayType="system" dmsType="FORBIDDEN" uri="emf:searchCriteria" />
+		<field name="searchCriteria" type="an..4096" label="savedSearch.searchCriteria" displayType="system" uri="emf:searchCriteria" />
 		<!-- specifies if the saved search has to be mutable (the criteria set to be editable) -->
-		<field name="mutable" type="boolean" order="120" label="savedSearch.mutable" mandatory="false" displayType="system" dmsType="FORBIDDEN" uri="emf:mutable" />
-		<field name="emf:version" type="an..10" label="savedSearch.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>
-		
-		<field name="parentOf" type="uri" label="parentOf" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group</control-param>
-			</control>
-		</field>
-		<field name="hasParent" type="uri" label="hasParent" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasParent" >
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group</control-param>
-			</control>
-		</field>
-		<field name="hasThumbnail" type="uri" label="hasThumbnail" mandatory="false" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail" >
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Image</control-param>
-			</control>
-		</field>
-		
-    </fields>
- 	<transitions>
-	    <transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
-        <transition id="delete" label="delete.label" eventId="delete" purpose="delete" confirmation="confirmation.action" tooltip="delete.tooltip" />
-        <transition id="addThumbnail" label="addThumbnail.label" eventId="addThumbnail" purpose="addThumbnail" tooltip="addThumbnail.tooltip" />
-        <transition id="open" label="open.label" eventId="open" purpose="open" tooltip="open.tooltip" />
-        <transition id="saveAsTemplate" label="saveAsTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" />
-       	<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" />
-		<transition id="printTab" label="printTab.label" eventId="printTab" purpose="printTab" tooltip="printTab.tooltip" />
-		<transition id="exportTabPDF" label="exportTabPDF.label" eventId="exportTabPDF" purpose="exportTabPDF" tooltip="exportTabPDF.tooltip" />
-       	<transition id="exportPDF" label="exportPDF.label" eventId="exportPDF" purpose="exportPDF" tooltip="exportPDF.tooltip" />
-       	<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" />
-	   	<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" />
-        <transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" />
-    </transitions>
-    <stateTransitions>
-        <stateTransition from="INIT" transition="create" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="editDetails" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="open" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="print" to="APPROVED" />
+		<field name="mutable" type="boolean" displayType="system" uri="emf:mutable" />
+
+    	<!-- GENERAL DATA FIELDS FOR SAVED SEARCH -->
+		<field name="identifier" type="an..50" label="uniqueIdentifier.label" displayType="readOnly" rnc="${seq({+objectSequence})}" uri="dcterms:identifier" />
+	</fields>
+
+	<transitions>
+  		<transition id="open" label="open.label" eventId="open" purpose="open" tooltip="open.tooltip" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="APPROVED" />
+
+		<stateTransition from="APPROVED" transition="editDetails" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="open" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="print" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
-		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />		
-        <stateTransition from="APPROVED" transition="exportPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportPDF" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="exportWord" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="delete" to="DELETED" />
-        <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="createInContext" to="APPROVED"/>
- 		<stateTransition from="APPROVED" transition="revertVersion" to="APPROVED" />
-    </stateTransitions>
-    <labels>
-	    <label id="SAVED_SEARCH_TOOLTIP_HEADER">
+		<stateTransition from="APPROVED" transition="delete" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="createInContext" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="revertVersion" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="updateTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="addWatchers" to="APPROVED" />
+	</stateTransitions>
+
+	<labels>
+		<label id="SAVED_SEARCH_TOOLTIP_HEADER">
 			<value lang="en"><![CDATA[${eval(#{eval(
                 <span class="thumbnail-content">
                     <img class="thumbnail" src="${thumbnailUri(64)}" />
@@ -92,7 +63,7 @@
                 <span class="tooltip-data">
                     <span class="tooltip-header">
                         <a href="${searchLink(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
-                            (<span data-type="${get([type])}">${CL([type])}</span>) 
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
                             <span data-title="${get([title])}">${get([title])}</span>
                         </a>
                     </span>
@@ -106,14 +77,35 @@
                     </span>
                 </span>
             )})}]]></value>
-            <value lang="bg"><![CDATA[${eval(#{eval(
+            <value lang="de"><![CDATA[${eval(#{eval(
                 <span class="thumbnail-content">
                     <img class="thumbnail" src="${thumbnailUri(64)}" />
                 </span>
                 <span class="tooltip-data">
                     <span class="tooltip-header">
                         <a href="${searchLink(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
-                            (<span data-type="${get([type])}">${CL([type])}</span>) 
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
+                            <span data-title="${get([title])}">${get([title])}</span>
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geändert von: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geändert am: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )})}]]></value>
+			<value lang="bg"><![CDATA[${eval(#{eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${searchLink(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
                             <span data-title="${get([title])}">${get([title])}</span>
                         </a>
                     </span>
@@ -127,7 +119,28 @@
                     </span>
                 </span>
             )})}]]></value>
-    		</label>
+			<value lang="da"><![CDATA[${eval(#{eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${searchLink(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
+                            <span data-title="${get([title])}">${get([title])}</span>
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Opdateret af: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Opdateret: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )})}]]></value>
+		</label>
 		<label id="SAVED_SEARCH_DEFAULT_HEADER">
 			<value lang="en"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
@@ -160,9 +173,43 @@
 							</b>
                         </a>
                     </span>
-                    <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)} 
+                    <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
                 </span>)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(64)}"/></span>
+                <span>
+                    <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                        <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+                            ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+                            <b>
+                                Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
+                                (<span data-property="status">${CL([status])}</span>)&nbsp;
+                                (<span data-property="type">${CL([type])}</span>)&nbsp;
+                                <span data-property="title">${get([title])}</span>&nbsp;
+                            </b>
+                            ).else(
+                            <b>
+                                (<span data-property="type">${CL([type])}</span>)&nbsp;
+                                <span data-property="title">${get([title])}</span>&nbsp;
+                                (<span data-property="status">${CL([status])}</span>)&nbsp;
+                            </b>
+                            )}
+							<b>
+							${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+							</b>
+                        </a>
+                    </span>
+                    <br />Zuletzt geändert von: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt von)}${user([lockedBy])}</span>)}
+                </span>)}]]></value>    
 			<value lang="bg"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
@@ -194,18 +241,40 @@
 							</b>
                         </a>
                     </span>
-                    <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)} 
+                    <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
             	</span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span ><img src="${thumbnailUri(64)}"/></span>
+					<span>
+						<span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+							<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+								${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+								(<span data-property="type">${CL([type])}</span>)&nbsp;
+								<span data-property="title">${get([title])}</span>&nbsp;
+								(<span data-property="status">${CL([status])}</span>)&nbsp;
+								${if(${var.isVersion}).then(
+									<span data-property="emf:version">${get([emf:version])}</span>
+								)}
+							</a>
+						</span>
+						<br />Sidste&nbsp;opdateret&nbsp;af:&nbsp;<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
+						${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+                </span>
+			)}]]></value>
 		</label>
-        <label id="SAVED_SEARCH_COMPACT_HEADER">
-            <value lang="en"><![CDATA[${eval(
+		<label id="SAVED_SEARCH_COMPACT_HEADER">
+			<value lang="en"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
             ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
             ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
             <span ><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 			<span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
 				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
@@ -223,13 +292,37 @@
 				</a>
 			</span>
 			)}]]></value>
-            <value lang="bg"><![CDATA[${eval(
+			<value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+            ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+            ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+            <span ><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+					${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+						Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+					).else(
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+					)}
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+			)}]]></value>
+			<value lang="bg"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
             ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
             ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
             <span><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 			<span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
 				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
@@ -247,72 +340,74 @@
 				</a>
 			</span>
 			)}]]></value>
-        </label>
-		 <label id="SAVED_SEARCH_BREADCRUMB_HEADER">
-            <value lang="bg"><![CDATA[${eval(
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+					</a>
+				</span>
+			)}]]></value>
+		</label>
+		<label id="SAVED_SEARCH_BREADCRUMB_HEADER">
+			<value lang="bg"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
             ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
             ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
             <span ><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
             <span>
 				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)} ${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
 					<span data-property="title">${get([title])}</span>
 				</a>
 			</span>)}]]></value>
-            <value lang="en"><![CDATA[${eval(
+			<value lang="en"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
             ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
             ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
             <span ><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
             <span>
 				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)} ${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
 					<span data-property="title">${get([title])}</span>
 				</a>
 			</span>)}]]></value>
-        </label>
-         <label id="savedSearch.searchCriteria">
-            <value lang="bg">Критерия</value>
-            <value lang="en">Criteria</value>
-        </label>
-         <label id="savedSearch.searchType">
-            <value lang="bg">Тип на търсенето</value>
-            <value lang="en">Search Type</value>
-        </label>
-        <label id="savedSearch.type">
-            <value lang="bg">Тип</value>
-            <value lang="en">Type</value>
-        </label>
-          <label id="savedSearch.version">
-            <value lang="bg">Версия</value>
-            <value lang="en">Version</value>
-        </label>
-        <label id="savedSearch.identifier">
-            <value lang="bg">Номер</value>
-            <value lang="en">Unique Identifier</value>
-        </label>
-        <label id="savedSearch.title">
-            <value lang="bg">Наименование</value>
-            <value lang="en">Title</value>
-        </label>
-		<label id="savedSearch.created-on">
-			<value lang="bg">Създадена на</value>
-			<value lang="en">Created on</value>
+			<value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+            ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+            ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+            <span ><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            <span>
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)} ${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+            ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+            ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+            <span ><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            <span>
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)} ${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>)}]]></value>
 		</label>
-		<label id="savedSearch.created-by">
-			<value lang="bg">Създадена от</value>
-			<value lang="en">Created by</value>
-		</label>
-		<label id="savedSearch.description">
-			<value lang="bg">Описание</value>
-			<value lang="en">Description</value>
-		</label>
-		 <label id="open">
-            <value lang="bg">Отвори</value>
-            <value lang="en">Open</value>
-        </label>
-    </labels>
+	</labels>
 </definition>

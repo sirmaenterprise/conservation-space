@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<definition id="imaImage" parentId="image" isAbstract="true" type="object">
+	<fields>
+		<field name="rdf:type" type="an..50" order="11" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image</value>
+		</field>
+		
+		<field name="type" type="an..50" codelist="CL211" label="imaMedia.type.label" order="5" />
+		<field name="title" type="an..40" label="imaMedia.title.label" order="10">
+			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+		</field>
+		<field name="description" type="an..1024" label="GEO10001.description" order="20">
+			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+		</field>	
+
+		<!-- specific integration fields -->
+		<field name="sourceSystemId" type="an..50" order="2" codelist="CL250" label="imaImage.sourceSystemId.label" mandatory="true" displayType="editable" uri="chc:sourceSystemId" >
+			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+			<value>IMASR25001</value>
+		</field>
+		<field name="objectId" type="an..50" order="40" label="imaImage.objectId.label" mandatory="false" displayType="editable" uri="emf:externalID" >
+			<!--<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>-->
+			<!--<condition id="hiddenFields" renderAs="HIDDEN">[integrated] IN ('false')</condition></field>-->
+		</field>
+		<field name="externalCreatedOn" type="dateTime" label="imaImage.externalCreatedOn.label" displayType="readonly" uri="chc:externalCreatedOn" order="45" >
+			<condition id="readonlyFields" renderAs="HIDDEN">[integrated] IN ('false')</condition>
+		</field>
+		<field name="integrated" type="boolean" label="imaImage.integrated.label" mandatory="false" displayType="system" uri="chc:integrated" >
+			<value>false</value>
+		</field>
+		<field name="references" type="an..1200" order="9" label="imaCMSCulturalObject.reference" displayType="system" />
+		<!-- for the integration with the DAM -->
+		<field name="integratedSystemId" type="an..1024" displayType="system" mandatory="false" previewEmpty="true" uri="chc:integratedSystemId"/>
+	</fields>
+	<transitions>
+		<!-- specific actions for integration-->
+		<transition id="import" label="cs.import.btn.title" eventId="import" purpose="action"/>
+		<transition id="prepareImport" label="cs.prepareImport.btn.title" eventId="prepareImport" purpose="action"  />
+		<transition id="updateInt" label="cs.updateInt.btn.title" eventId="updateInt" purpose="action"/>
+	</transitions>	
+		 
+	<stateTransitions>
+		<stateTransition from="INIT" transition="upload" to="DRAFT"/>
+		<!-- state transition for new UI2-->
+		<stateTransition from="INIT" transition="create" to="DRAFT"/>
+		
+		<!-- state transition for integration (only for purposes of importing the cultural objects from CMS) -->
+		<stateTransition from="INIT" transition="prepareImport" to="FOR_IMP"/>
+		<stateTransition from="FOR_IMP" transition="import" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="updateInt" to="DRAFT" />
+		
+		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="download" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="move" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT"/>
+			
+		<stateTransition from="DRAFT" transition="delete" to="DELETED"/>
+		<stateTransition from="*" transition="delete" to="DELETED" />
+	</stateTransitions>
+	<labels>		
+		<label id="imaImage.objectId.label">
+			<value lang="en">DAM identifier</value>
+		</label>
+		<label id="imaImage.integrated.label">
+			<value lang="en">Imported</value>
+		</label>
+		<label id="imaImage.integratedSystemId.label">
+			<value lang="en">Imported from</value>
+		</label>
+		<label id="imaImage.sourceSystemId.label">
+			<value lang="en">System Source</value>
+		</label>
+		<label id="imaImage.externalCreatedOn.label">
+			<value lang="en">Cataloged on</value>
+		</label>
+	</labels>
+</definition>

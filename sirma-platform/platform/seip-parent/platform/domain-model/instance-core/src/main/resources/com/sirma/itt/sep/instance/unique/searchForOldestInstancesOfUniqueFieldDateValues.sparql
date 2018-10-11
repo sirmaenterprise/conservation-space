@@ -1,0 +1,18 @@
+select ?instance ?uniqueValue where {
+    ?instance emf:definitionId ?definitionIdVariable.
+    ?instance emf:isDeleted "false"^^xsd:boolean .
+    ?instance emf:createdOn ?createdOn .
+    ?instance ?fieldUriVariable ?uniqueValue.
+    filter not exists { ?instance emf:isRevisionOf ?revision. }
+    filter (?createdOn = ?minCreatedOn)
+    {
+        select ?dateValue (min(?createdOn) as ?minCreatedOn)  {
+            ?instance emf:createdOn ?createdOn .
+            ?instance emf:isDeleted "false"^^xsd:boolean .
+            ?instance emf:definitionId ?definitionIdVariable.
+            ?instance ?fieldUriVariable ?value.
+            filter not exists { ?instance emf:isRevisionOf ?revision. }
+            bind(CONCAT(STR(MONTH(?value)), "/", STR(DAY(?value)), "/", STR(YEAR(?value))) as ?dateValue) .
+        } group by ?dateValue
+    }
+}

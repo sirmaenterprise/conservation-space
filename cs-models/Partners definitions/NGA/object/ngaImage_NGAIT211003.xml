@@ -1,22 +1,23 @@
 <?xml version="1.0"?>
 <definition id="NGAIT211003" parentId="ngaImage" type="object"> <!-- Other Image -->
 	<fields>
-		<field name="default_header" type="ANY" label="NGAIT211003_DEFAULT_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="compact_header" type="an..4096" label="NGAIT211003_COMPACT_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="breadcrumb_header" type="an..4096" label="NGAIT211003_BREADCRUMB_HEADER_NGA" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="default_header" type="ANY" label="NGAIT211003_DEFAULT_HEADER_NGA" mandatory="false" displayType="system" />
+		<field name="compact_header" type="an..4096" label="NGAIT211003_COMPACT_HEADER_NGA" mandatory="false" displayType="system" />
+		<field name="breadcrumb_header" type="an..4096" label="NGAIT211003_BREADCRUMB_HEADER_NGA" mandatory="false" displayType="system" />
 		
 		<field name="type" type="an..50" codelist="CL211">
 			<value>NGAIT211003</value>
 		</field>
-		<field name="status" type="an..35" codelist="CL14" displayType="readonly" />
+		<field name="status" type="an..35" codelist="CL114" displayType="readonly" />
 		<field name="title" type="an..180" label="nga.title.label" mandatory="true" displayType="editable" />
 		<!-- system fields -->
-		<field name="sourceSystemId" type="an..50" displayType="system" mandatory="false" />
+		<field name="sourceSystemId" type="an..50" displayType="hidden" mandatory="false" uri="chc:sourceSystemId" />
 		<field name="objectId" type="an..50" displayType="system" />
 		<field name="externalCreatedOn" type="dateTime" displayType="system" />
-		<field name="widthOfSubject" type="n..10,5" label="widthOfSubject" displayType="system" />
-		<field name="heightOfSubject" type="n..10,5" label="heightOfSubject" displayType="system" />
+		<field name="widthOfSubject" type="n..24,20" label="widthOfSubject" displayType="system" />
+		<field name="heightOfSubject" type="n..24,20" label="heightOfSubject" displayType="system" />
 	</fields>
+
 	<labels>	
 		<label id="NGAIT211003_DEFAULT_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(
@@ -45,7 +46,7 @@
 					${if(${var.isVersion}).then(
 						<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
-					${if(${get([chc:depicts])}<>null).then(<br />Depics:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
+					${if(${get([chc:depicts])}<>null).then(<br />Depicts:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
 					${if(${get([emf:isPrimaryImageOf])}<>null).then(<br />Primary&nbsp;image&nbsp;of:<span data-property="emf:isPrimaryImageOf">${objectProperty(${get([emf:isPrimaryImageOf])})}</span>)}
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>	
@@ -86,5 +87,5 @@
 			</span>	
 			)}]]></value>
 		</label>
-	</labels>	
+	</labels>
 </definition>

@@ -1,0 +1,89 @@
+@import "../../../style/reusables";
+@import '../../../style/variables';
+
+.rich-text-wrapper {
+  background-color: #fff;
+
+  .cke_editable {
+    color: $input-color;
+    border: 1px solid $input-border;
+
+    &.cke_focus {
+      border-color: $input-border-focus;
+      outline: none;
+    }
+  }
+
+  &.preview-field-wrapper {
+    background-color: transparent;
+    cursor: default;
+
+    .cke_editable {
+      border: none;
+      cursor: default;
+    }
+
+    .cke_wysiwyg_div {
+      padding: 0;
+    }
+  }
+
+  &:not(.preview-field-wrapper) {
+    .cke_editable {
+      padding: 6px 12px;
+    }
+  }
+
+  &.has-error {
+    .cke_editable {
+      border-color: $state-danger-text;
+    }
+
+    &.cke_focus {
+      border-color: darken($state-danger-text, 10%);
+      outline: none;
+    }
+  }
+
+  .cke_wysiwyg_div {
+    overflow-y: auto;
+  }
+}
+
+.with-border {
+  .rich-text-wrapper.preview-field-wrapper {
+    .cke_editable {
+      border: 1px solid $table-border-color;
+    }
+  }
+}
+
+.table-layout {
+  .rich-text-wrapper {
+    .cke_editable {
+      border: 1px solid transparent;
+      padding: 0 12px;
+    }
+
+    .cke_editable.cke_focus {
+      border: 1px solid $input-border-focus;
+    }
+
+    &.preview-field-wrapper {
+      .cke_editable {
+        border: none;
+      }
+    }
+
+    &.has-error {
+      .cke_editable.cke_focus {
+        border-color: darken($state-danger-text, 10%);
+      }
+    }
+  }
+}
+
+/* Overrides the inline editor toolabr styles to make it more visible */
+body > .cke > .cke_inner > .cke_top {
+  box-shadow: 0 0 3px 1px #aaa;
+}

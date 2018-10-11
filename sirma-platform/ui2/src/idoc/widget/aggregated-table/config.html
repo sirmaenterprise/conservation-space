@@ -1,0 +1,98 @@
+<div class="aggregatedtable-widget-config">
+  <div>
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a class="select-object-tab-handler" data-target=".aggregatedtable-widget-config .tab-content > .select-object-tab"
+           data-toggle="tab"
+           href="javascript:void(0)">{{::'widget.config.tab.select.objects' | translate}}</a>
+      </li>
+      <li>
+        <a class="report-configuration-tab-handler" data-target=".aggregatedtable-widget-config .tab-content > .report-configuration-tab"
+           data-toggle="tab"
+           href="javascript:void(0)">{{::'widget.config.tab.report.configuration' | translate}}</a>
+      </li>
+      <li>
+        <a class="display-options-tab-handler" data-target=".aggregatedtable-widget-config .tab-content > .display-options-tab"
+           data-toggle="tab"
+           href="javascript:void(0)">{{::'widget.config.tab.display.options' | translate}}</a>
+      </li>
+    </ul>
+  </div>
+  <div class="tab-content">
+    <section class="select-object-tab tab-pane in active">
+      <seip-object-selector config="aggregatedTableConfig.objectSelectorConfig"
+                            context="aggregatedTableConfig.context"></seip-object-selector>
+    </section>
+    <section class="report-configuration-tab tab-pane">
+      <div class="form-group">
+        <label>{{::'search.select.group.by' | translate}}</label>
+        <seip-instance-select class="group-by-select"
+                              ng-change="aggregatedTableConfig.onGroupByChanged(aggregatedTableConfig.groupBy)"
+                              config="aggregatedTableConfig.groupBySelectorConfig"
+                              ng-model="aggregatedTableConfig.groupBy"></seip-instance-select>
+      </div>
+    </section>
+    <section class="display-options-tab tab-pane">
+      <seip-widget-common-display-configurations config="aggregatedTableConfig.config"></seip-widget-common-display-configurations>
+      <label class="checkbox show-footer-row">
+        <input type="checkbox" ng-model="aggregatedTableConfig.config.showFooter">
+        {{::'widget.aggregated.table.show.footer' | translate}}
+        <i></i>
+      </label>
+      <label class="radio">
+        <input type="radio" name="columnsOrder" value="numbers-first"
+               ng-model="aggregatedTableConfig.config.columnsOrder">
+        {{::'widget.aggregated.table.number.column.first' | translate}}
+        <i></i>
+      </label>
+      <label class="radio">
+        <input type="radio" name="columnsOrder" value="values-first"
+               ng-model="aggregatedTableConfig.config.columnsOrder">
+        {{::'widget.aggregated.table.value.column.first' | translate}}
+        <i></i>
+      </label>
+
+      <div class="form-group panel panel-default grid-panel">
+        <div class="panel-heading">{{::'table.config.grid' | translate}}</div>
+        <div class="panel-body grid-group">
+          <ul>
+            <li>
+              <label class="radio">
+                <input type="radio" name="grid" value="grid-on"
+                       ng-model="aggregatedTableConfig.config.grid">
+                {{::'table.config.grid.on' | translate}}
+                <i></i>
+              </label>
+            </li>
+            <li>
+              <label class="radio">
+                <input type="radio" name="grid" value="grid-off"
+                       ng-model="aggregatedTableConfig.config.grid">
+                {{::'table.config.grid.off' | translate}}
+                <i></i>
+              </label>
+            </li>
+            <li>
+              <label class="radio">
+                <input type="radio" name="grid" value="grid-vertical"
+                       ng-model="aggregatedTableConfig.config.grid">
+                {{::'table.config.grid.vertical' | translate}}
+                <i></i>
+              </label>
+            </li>
+            <li>
+              <label class="radio">
+                <input type="radio" name="grid" value="grid-horizontal"
+                       ng-model="aggregatedTableConfig.config.grid">
+                {{::'table.config.grid.horizontal' | translate}}
+                <i></i>
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+

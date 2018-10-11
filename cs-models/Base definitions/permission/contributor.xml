@@ -1,97 +1,124 @@
 <roles>
-    <role name="CONTRIBUTOR" priority="10">
-        <include>contributor_external</include>
-    </role>
-    <role name="contributor_external" external="false">
-        <permission name="create">
-            <actions>
-                <action name="create" />
-            </actions>
-        </permission>
-        <permission name="clone">
-            <actions>
-                <action name="clone" />
-            </actions>
-        </permission>
-        <permission name="edit">
-            <actions>                                                     
-                <action name="editDetails_contributor" local="true" bind="editDetails">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="createInContext" />
-                <action name="download" />
-                <action name="uploadNewVersion_contributor" local="true" bind="uploadNewVersion">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="move_contributor" local="true" bind="move">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="addThumbnail_contributor" local="true" bind="addThumbnail">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="saveAsTemplate" />
-            </actions>
-        </permission>
-        <permission name="transition">
-            <actions>
-            	<action name="claim_contributor" local="true" bind="claim">
-            		<filter value="IS_CLAIMED" />
-            	</action>
-            	<action name="release_contributor" local="true" bind="release">
-            		<filter value="IS_RELEASED" />
-            	</action>
-                <action name="approve_contributor" local="true" bind="approve">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="reject" />
-                <action name="complete_contributor" local="true" bind="complete">
-                    <filter value="CREATEDBY" />
-                </action>
+	<role name="CONTRIBUTOR" priority="10">
+		<include>contributor_external</include>
+	</role>
+	<role name="contributor_external" external="false">
+		<permission name="create">
+			<actions>
+				<action name="create" />
+			</actions>
+		</permission>
+		<permission name="clone">
+			<actions>
+				<action name="clone" />
+			</actions>
+		</permission>
+		<permission name="edit">
+			<actions>
+				<action name="editDetails_contributor" local="true" bind="editDetails">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="createInContext" />
+				<action name="download" />
+				<action name="composeEmail">
+					<filter value="NOT_MAILBOX_SUPPORTABLE" />
+				</action>
+				<action name="uploadNewVersion_contributor" local="true" bind="uploadNewVersion">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="addThumbnail_contributor" local="true" bind="addThumbnail">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="editOffline_contributor" local="true" bind="editOffline">
+					<filter value="CREATEDBY" />
+				</action>
+			</actions>
+		</permission>
+		<permission name="transition">
+			<actions>
+				<action name="claim_contributor" local="true" bind="claim">
+					<filter value="IS_CLAIMED" />
+				</action>
+				<action name="release_contributor" local="true" bind="release">
+					<filter value="IS_RELEASED" />
+				</action>
+				<action name="approve_contributor" local="true" bind="approve">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="reject" />
+				<action name="completeTask_contributor" local="true" bind="completeTask">
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="complete" />
 				<action name="re-open_contributor" local="true" bind="re-open">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="start_contributor" local="true" bind="start">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="restart_contributor" local="true" bind="restart">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="suspend_contributor" local="true" bind="suspend">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="stop_contributor" local="true" bind="stop">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="reassign_contributor" local="true" bind="reassign">
-                    <filter value="CREATEDBY" />
-                </action>      
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="start_contributor" local="true" bind="start">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="restart_contributor" local="true" bind="restart">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="suspend_contributor" local="true" bind="suspend">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="stop_contributor" local="true" bind="stop">
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="reassign_contributor" local="true" bind="reassign">
+					<filter value="CREATEDBY" />
+				</action>
 				<action name="publish_contributor" local="true" bind="publish">
-        			 <filter value="CREATOR_AND_IS_UPLOADED" />
-           		</action>
-        		<action name="publishAsPdf_contributor" local="true" bind="publishAsPdf">
-        			 <filter value="CREATOR_AND_IS_CREATED" />
-        		</action>     
-        		 <action name="revertVersion_contributor" local="true" bind="revertVersion">
-                    <filter value="CREATEDBY" />
-                </action>
-            </actions>
-        </permission>
-        <permission name="lock">
-            <actions>
-                <action name="lock_contributor" local="true" bind="lock">
-                    <filter value="CREATEDBY" />
-                </action>
-                <action name="unlock_contributor" local="true" bind="unlock">
-                    <filter value="CREATEDBY" />
-                </action>
-            </actions>
-        </permission>
-        <permission name="delete">
-            <actions>
-                <action name="delete_contributor" local="true" bind="delete">
-                    <filter value="CREATEDBY" />
-                </action>
-            </actions>
-        </permission> 
-    </role>
+					<filter value="CREATOR_AND_IS_UPLOADED" />
+				</action>
+				<action name="publishAsPdf_contributor" local="true" bind="publishAsPdf">
+					<filter value="CREATOR_AND_IS_CREATED" />
+				</action>
+				<action name="uploadRevision_contributor" local="true" bind="uploadRevision">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="revertVersion_contributor" local="true" bind="revertVersion">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="changeTemplate_contributor" local="true" bind="changeTemplate">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="updateTemplate_contributor" local="true" bind="updateTemplate">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="reopen_contributor" local="true" bind="reopen">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="resolveIssue_contributor" local="true" bind="resolveIssue">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="clarified_contributor" local="true" bind="clarified">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="clarify_contributor" local="true" bind="clarify">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="startProgress_contributor" local="true" bind="startProgress">
+					<filter value="ASSIGNEE" />
+				</action>
+			</actions>
+		</permission>
+		<permission name="lock">
+			<actions>
+				<action name="lock_contributor" local="true" bind="lock">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="unlock_contributor" local="true" bind="unlock">
+					<filter value="CREATEDBY" />
+				</action>
+			</actions>
+		</permission>
+		<permission name="delete">
+			<actions>
+				<action name="delete_contributor" local="true" bind="delete">
+					<filter value="CREATEDBY" />
+				</action>
+			</actions>
+		</permission>
+	</role>
 </roles>

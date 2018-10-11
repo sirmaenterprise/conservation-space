@@ -1,0 +1,28 @@
+<div class="account-confirmation">
+
+  <h3>{{ ::'account.confirmation.header' | translate }}</h3>
+
+  <div ng-switch="::accountConfirmation.expiredMessage">
+    <div ng-switch-default class="expired-message">
+      {{ ::accountConfirmation.expiredMessage }}
+    </div>
+
+    <div ng-switch-when="undefined" class="confirmation-form">
+      <seip-form-wrapper ng-if="accountConfirmation.config"
+                         config="::accountConfirmation.config"
+                         form-config="::accountConfirmation.formConfig"></seip-form-wrapper>
+
+      <div>
+        <img ng-src="{{ accountConfirmation.captchaLink }}"
+             alt="{{ ::'account.confirmation.captcha.alt' | translate }}"/>
+      </div>
+
+      <button class="btn btn-primary pull-right finish-btn"
+              ng-disabled="accountConfirmation.finishButtonDisabled"
+              ng-click="accountConfirmation.finish()">
+        {{ ::'account.confirmation.finish.btn' | translate }}
+      </button>
+    </div>
+  </div>
+
+</div>

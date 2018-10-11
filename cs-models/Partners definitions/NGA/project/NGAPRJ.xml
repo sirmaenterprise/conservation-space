@@ -1,41 +1,44 @@
 <?xml version="1.0"?>
 <definition id="NGAPRJ" parentId="ngaBaseProject" type="project">
 	<fields>
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project</value>
 		</field>	
 	</fields>
 	<regions>
-		<region id="projectDetails" order="10" displayType="editable" label="genericproject.projectDetails">
+		<region id="projectDetails" order="10" displayType="editable" label="nga.projectDetails.region.label">
 			<fields>
-				<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL2" order="101" label="nga.subType.label" tooltip="nga.subType.tooltip" uri="nga:subClassification" >
+				<!--<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL2" order="105" label="nga.subType.label" tooltip="nga.subType.tooltip" uri="nga:subClassification" >
+					<value>NGAPR001</value>
 					<control id="RELATED_FIELDS">
 						<control-param id="fieldsToRerender" name="RERENDER">department</control-param>
 						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
 						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
 					</control>
-				</field> 
-				<field name="department" type="an..1024" codelist="CL245" mandatory="true" order="106" label="nga.department.label" tooltip="nga.department.tooltip" displayType="editable" multiValued="true" uri="emf:departmentName" >
-				<!--	<control id="RELATED_FIELDS">
-						<control-param id="fieldsToRerender" name="RERENDER">activityPurpose</control-param>
-						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
-					</control>-->
-				</field>  
-
-				<field name="activityPurpose" type="an..1024" codelist="CL241" mandatory="true" order="102" label="NGAPR001.activityPurpose.label" tooltip="NGAPR001.activityPurpose.tooltip" displayType="editable" uri="chc:activityPurpose">
+				</field> -->
+				<field name="activityPurpose" type="an..1024" codelist="CL241" mandatory="true" order="110" label="nga.purpose.label" tooltip="nga.activityPurpose.tooltip" displayType="editable" uri="chc:activityPurpose">
 				</field>	
-				<field name="outgoingLoan" type="an..1024" order="117" label="NGAPR001.outgoingLoan.label" tooltip="NGAPR001.outgoingLoan.tooltip" displayType="editable" uri="nga:outgoingLoanNumber">		
-					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24101')</condition></field>
-				<field name="borrower" type="an..1024" order="118" label="NGAPR001.borrower.label" tooltip="NGAPR001.borrower.tooltip" displayType="editable" uri="nga:borrowerName">
+				<field name="department" type="an..1024" codelist="CL245" mandatory="true" order="115" label="nga.department.label" tooltip="nga.department.tooltip" displayType="editable" multiValued="true" uri="emf:departmentName" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
+					</control>	
+				</field> 
+				<field name="exhibitionId" type="an..1024" order="130" label="NGAPR001.exhibitionId.label" tooltip="NGAPR001.exhibitionId.tooltip" displayType="editable" uri="nga:exhibitionId">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24103')</condition>
+				</field>
+				<field name="nga:exhibitionDescription" type="an..1024" displayType="editable" label="nga.exhibitionDescription.label" tooltip="nga.exhibitionDescription.tooltip" order="132" uri="nga:exhibitionDescription"  />
+				<field name="outgoingLoan" type="an..1024" order="135" label="NGAPR001.outgoingLoan.label" tooltip="NGAPR001.outgoingLoan.tooltip" displayType="editable" uri="nga:outgoingLoanNumber">		
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24101','NGA24102')</condition>
+				</field>
+				<!--<field name="incomingLoanNumb" type="an..1024" order="140" label="NGAPR001.incomingLoanNumb.label" tooltip="NGAPR001.incomingLoanNumb.tooltip" displayType="editable" uri="nga:incomingLoanNumber">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24102')</condition>
+				</field>
+				<field name="borrower" type="an..1024" order="145" label="NGAPR001.borrower.label" tooltip="NGAPR001.borrower.tooltip" displayType="editable" uri="nga:borrowerName">
 					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24101')</condition>
-				</field>				
-				<field name="incomingLoanNumb" type="an..1024" order="119" label="NGAPR001.incomingLoanNumb.label" tooltip="NGAPR001.incomingLoanNumb.tooltip" displayType="editable" uri="nga:incomingLoanNumber">
-					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24102')</condition></field>
-				<field name="lenderName" type="an..1024" order="120" label="NGAPR001.lenderName.label" tooltip="NGAPR001.lenderName.tooltip" displayType="editable" uri="nga:lenderName">
-					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24102')</condition></field>
-				<field name="exhibitionId" type="an..1024" order="121" label="NGAPR001.exhibitionId.label" tooltip="NGAPR001.exhibitionId.tooltip" displayType="editable" uri="nga:exhibitionId">
-					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24103')</condition></field>
+				</field>
+				<field name="lenderName" type="an..1024" order="150" label="NGAPR001.lenderName.label" tooltip="NGAPR001.lenderName.tooltip" displayType="editable" uri="nga:lenderName">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24102')</condition>
+				</field>-->
 				<!--<field name="exhibitionTrackingNumber" type="an..1024" order="122" label="NGAPR001.exhibitionTrackingNumber.label" displayType="editable" uri="chc:exhibitionTrackingNumber">
 					<condition id="hiddenFields" renderAs="HIDDEN">[activityPurpose] NOTIN ('NGA24103')</condition></field>-->
 			</fields>

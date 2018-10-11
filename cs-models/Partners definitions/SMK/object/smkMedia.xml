@@ -5,7 +5,7 @@
 		<field name="default_header" type="ANY" label="MEDIA_DEFAULT_HEADER_SMK" />
 		<field name="compact_header" type="an..4096" label="MEDIA_COMPACT_HEADER_SMK" />
 		<field name="breadcrumb_header" type="an..4096" label="MEDIA_BREADCRUMB_HEADER_SMK" />		
-		<field name="tooltip_header" type="an..4096" label="MEDIA_TOOLTIP_HEADER_SMK" />
+		<field name="tooltip_header" type="ANY" label="MEDIA_TOOLTIP_HEADER_SMK" />
 
 		<!-- all properties from the generic definition will be organized in regions --> 
 		<field name="identifier" type="an..180" displayType="system" />
@@ -24,7 +24,6 @@
 		<field name="outcome" type="an..50" displayType="system" />
 		<field name="completedOn" type="datetime" displayType="system" />
 		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri"  displayType="system" />
 		<field name="integrated" type="boolean" displayType="system" />
@@ -36,49 +35,56 @@
 		<field name="nextRevision" type="uri" displayType="system" />
 		<field name="previousRevision" type="uri" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
 	</fields>
 
 	<regions>	
 		<region id="generalData" displayType="editable" order="10" label="smk.generalData.region.label">
 			<fields>
-				<field name="title" type="an..1000" mandatory="true" displayType="editable" order="115" label="smk.title.label" tooltip="smk.title.tooltip" dmsType="cm:title" uri="dcterms:title" />
-				<field name="description" type="an..1024" displayType="editable" order="130" label="smk.description.label" tooltip="smk.description.tooltip" dmsType="cm:description" uri="dcterms:description" />
+				<field name="title" type="an..1000" mandatory="true" displayType="editable" order="115" label="smk.title.label" tooltip="smk.title.tooltip" uri="dcterms:title" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdOn]/$[emf:type]</control-param>
+					</control>
+				</field>	
+				<field name="description" type="an..1024" displayType="editable" order="130" label="smk.description.label" tooltip="smk.description.tooltip" uri="dcterms:description" />
 			</fields>
 		</region>
 		<region id="systemData" displayType="editable" order="20" label="smk.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" codelist="CL3" order="210" label="smk.type.label" tooltip="smk.type.tooltip" displayType="readonly" dmsType="emf:type" uri="emf:type" />  			
+				<field name="type" type="an..50" codelist="CL7" order="210" label="smk.type.label" tooltip="smk.type.tooltip" displayType="readonly" uri="emf:type" />  			
 				<field name="identifier" type="an..50" order="215" label="smk.identifier.label" tooltip="smk.identifier.tooltip" displayType="readOnly" rnc="${eval(MED${seq({+medSequence})})}" uri="dcterms:identifier"/>
 				<field name="name" type="an..180" order="216" label="smk.name.label" tooltip="smk.name.tooltip" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" displayType="readonly" previewEmpty="false" uri="emf:fileName" />
-				<field name="mimetype" type="an..20" codelist="CL215" order="217" label="smk.mimetype.label" tooltip="smk.mimetype.tooltip" displayType="readOnly" previewEmpty="false" dmsType="-cm:content.mimetype" uri="emf:mimetype"/>
+				<field name="mimetype" type="an..20" codelist="CL30" order="217" label="smk.mimetype.label" tooltip="smk.mimetype.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:mimetype"/>
 				<field name="size" type="n..10" order="218"  label="smk.size.label" tooltip="smk.size.tooltip" displayType="readonly" previewEmpty="false" uri="emf:size" >
 					<control id="BYTE_FORMAT" />
 				</field>
-				<field name="status" type="an..50" codelist="CL14" order="220" label="smk.status.label" tooltip="smk.status.tooltip" displayType="readOnly" previewEmpty="false" dmsType="emf:status" uri="emf:status" >
+				<field name="status" type="an..50" codelist="CL114" order="220" label="smk.status.label" tooltip="smk.status.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:status" >
 					<value>INIT</value>
 				</field>
-				<field name="emf:version" type="an..10" order="225" label="smk.version.label" tooltip="smk.version.tooltip" displayType="readOnly" dmsType="FORBIDDEN" uri="emf:version"/> 
-
+				<field name="emf:version" type="an..10" order="225" label="smk.version.label" tooltip="smk.version.tooltip" displayType="readOnly" uri="emf:version"/> 
+				<field name="integrated" type="boolean" displayType="hidden" order="226" uri="emf:integrated"/>
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" order="230" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" displayType="readOnly" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri"  order="235" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" displayType="readOnly" dmsType="-cm:creator" uri="emf:createdBy" >
+				<field name="createdOn" type="dateTime" order="230" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
+				<field name="createdBy" type="uri"  order="235" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" displayType="readOnly" uri="emf:createdBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" order="240" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" dmsType="-cm:modified"  uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" order="245" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" displayType="readOnly"  previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
+				<field name="modifiedOn" type="datetime" order="240" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" order="245" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" displayType="readOnly"  previewEmpty="false" uri="emf:modifiedBy">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="lockedBy" type="uri" order="250" label="smk.lockedBy.label" tooltip="smk.lockedBy.tooltip" displayType="readOnly" dmsType="FORBIDDEN" previewEmpty="false">
+				<field name="lockedBy" type="uri" order="250" label="smk.lockedBy.label" tooltip="smk.lockedBy.tooltip" displayType="readOnly" previewEmpty="false">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" displayType="readOnly" order="255" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasThumbnail" >
+				<field name="hasThumbnail" type="uri" displayType="readOnly" order="255" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
@@ -86,35 +92,43 @@
 				</field>
 				<field name="hasAttachment" type="uri" displayType="editable" order="260" label="smk.hasAttachment.label" tooltip="smk.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
 				<field name="attachmentOf" type="uri" displayType="editable" order="265" label="smk.attachmentOf.label" tooltip="smk.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
 				<field name="hasWatcher" type="uri" displayType="editable" order="270" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
 				<field name="parentOf" type="uri" displayType="readonly" order="280" label="smk.parentOf.label" tooltip="smk.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition</control-param>
+						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
 				<field name="hasParent" type="uri" displayType="readonly" order="285" label="smk.hasParent.label" tooltip="smk.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition</control-param>
+						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="partOf" type="uri" displayType="readOnly" order="290"  label="smk.partOf.label" tooltip="smk.partOf.tooltip"  multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="emf:hasTemplate" type="uri" order="290" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" order="300"  label="smk.partOf.label" tooltip="smk.partOf.tooltip"  multiValued="true" previewEmpty="false" uri="ptop:partOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" order="295" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasChild" type="uri" displayType="readOnly" order="310" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -124,58 +138,67 @@
 	</regions>
 
 	<transitions>	
-		<transition id="editDetails" order="10" />
-		<transition id="uploadNewVersion" order="12" />
-		<transition id="addAttachment" order="20" label="smk.addAttachment.action.label"  tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation">
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="uploadNewVersion" order="15" />
+		
+		<group id="add" order="20" label="add.group.label" type="menu" />		
+		<transition id="addAttachment" label="smk.addAttachment.action.label" tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
 			<fields>
-				<field name="addAttachmentConfig" type="an10">
+				<field name="addAttachmentConfig" type="json">
 					<value>
-							{
-								"predefinedTypes" : ["emf:Project","emf:Case","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","chc:Exhibition"],
-								"selection" : "multiple",
-								"relation" : ["chc:hasAttachment"],
-								"implicitParams" : {
-								"removeExisting" : false
-								}
-							}
+						{
+							"predefinedTypes" : ["emf:Project","emf:Case","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","chc:Exhibition","emf:BusinessProcess"],
+							"selection" : "multiple",
+							"relation" : ["chc:hasAttachment"]
+						}	
 					</value>
 					<control id="configuration" />
 				</field>
 			</fields>
 		</transition>
-		<transition id="addThumbnail" order="25" label="smk.addThumbnail.action.label"/>	
-		<transition id="addWatcher" order="30" label="smk.addWatcher.action.label" tooltip="smk.addWatcher.action.tooltip"  eventId="addWatcher" purpose="addRelation">
+		<transition id="addThumbnail" group="add" />
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >		
 			<fields>
-				<field name="addWatcherConfig" type="an10">
+				<field name="addWatcherConfig" type="json">
 					<value>						
 							{
 								"predefinedTypes" : ["emf:User"],
 								"selection" : "multiple",
 								"relation" : ["emf:hasWatcher"],
-								"implicitParams" : {
-									"removeExisting" : false
-								}
+								"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
 							}
 					</value>
 					<control id="configuration" />
 				</field>
 			</fields>
 		</transition>
-		<transition id="printTab"  order="35" label="smk.printTab.action.label"  />
-		<transition id="print" order="40" label="smk.print.action.label"  />
-		<transition id="exportTabPDF" order="45"  label="smk.exportTabPDF.action.label" />
-		<transition id="exportPDF" order="50" label="smk.exportPDF.action.label"  />
-		<transition id="exportTabWord" order="55" label="smk.exportTabWord.action.label"  />	
-		<transition id="exportWord" order="60"  label="smk.exportWord.action.label" />
-		<transition id="download" order="65" />
-		<transition id="move" order="70" label="smk.move.action.label" confirmation="move.confirm" >
+		
+		<transition id="download" order="25" actionPath="/" />
+				
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />	
+		<transition id="exportWord" group="exportAs" />
+		
+		<group id="print" order="35" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		<transition id="print" group="print"  />
+		
+		<group id="template" order="36" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />	
+		<transition id="updateTemplate" tooltip="smk.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="smk.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="40" label="more.group.label" type="menu" />
+		<transition id="move" confirmation="move.confirm" group="more" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
 						<![CDATA[	
-							var type = codelist.getDescription(3, root.get('type'), 'en');
+							var type = codelist.getDescription(7, root.get('type'), 'da');
 							var title = root.get('title');
-							var subject = '(Moved) ' + type + ' - ' + title;
+							var subject = '(Flyttet) ' + type + ' - ' + title;
 							
 							//extract warchers and crearedBy users
 							var watchers = root.get('hasWatcher');
@@ -184,7 +207,7 @@
 							var i = 0;
 							if (watchers != null){
 								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
+									recipients.push(watchers[i].toString());
 								}
 							}	
 							recipients.push(createdBy.toString());
@@ -194,25 +217,23 @@
 					<control id="SCRIPT">
 						<control-param id="phase" name="phase">after</control-param>
 						<control-param id="async" name="async">true</control-param>
-						<control-param id="persistent" name="persistent">false</control-param>
 					</control>
 				</field>
 			</fields>
 		</transition>
-		<transition id="clone" order="75" label="smk.clone.action.label" confirmation="clone.confirm"/>
-
-		<transition id="lock" order="80" />
-		<transition id="unlock" order="85" />
-		<transition id="saveAsTemplate" order="90" label="smk.saveAsTemplate.action.label"/>			
-		<transition id="managePermissions" order="95" label="smk.managePermissions.action.label"/>
-		<transition id="delete" order="100" tooltip="smk.delete.tooltip" >
+		<transition id="clone" confirmation="clone.confirm" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" group="more" />
+		<transition id="managePermissions" group="more" />
+				
+		<transition id="delete" order="45" tooltip="smk.delete.tooltip" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[	
-							var type = codelist.getDescription(3, root.get('type'), 'en');
+							var type = codelist.getDescription(7, root.get('type'), 'da');
 							var title = root.get('title');
-							var subject = '(Deleted) ' + type + ' - ' + title;
+							var subject = '(Slettet) ' + type + ' - ' + title;
 							
 							//extract warchers and crearedBy users
 							var watchers = root.get('hasWatcher');
@@ -221,7 +242,7 @@
 							var i = 0;
 							if (watchers != null){
 								for(i = 0; i < watchers.length; i++) {
-									recipients[i] = watchers[i].toString();
+									recipients.push(watchers[i].toString());
 								}
 							}	
 							recipients.push(createdBy.toString());
@@ -230,8 +251,7 @@
                     </value>
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
+                        <control-param id="async" name="async">false</control-param>
                     </control>
                 </field>
 			</fields>
@@ -246,7 +266,7 @@
 		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT"/>
 		<stateTransition from="DRAFT" transition="addAttachment" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="addWatcher" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="print" to="DRAFT"/>
 		<stateTransition from="DRAFT" transition="printTab" to="DRAFT"/>
 		<stateTransition from="DRAFT" transition="exportPDF" to="DRAFT"/>
@@ -259,13 +279,18 @@
 		<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
 		<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>
 		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="changeTemplate" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="updateTemplate" to="DRAFT"/>
 		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT" />
 		
-		<stateTransition from="DRAFT" transition="delete" to="DELETED"/>
-
-		<stateTransition from="*" transition="delete" to="DELETED" />
+		<stateTransition from="DRAFT" transition="delete" to="DRAFT"/>
 	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="document" id="all"/>
+	</allowedChildren>
+	
 	<labels>	
 		<label id="MEDIA_TOOLTIP_HEADER_SMK">
 			<value lang="en">
@@ -284,7 +309,7 @@
 						<span data-property="type">${CL([type])}</span>
 					</span>
 					<span class="tooltip-row">
-						<label>Vision: </label>
+						<label>Version: </label>
 						<span data-property="emf:version">${get([emf:version])}</span>
 					</span>
 					<span class="tooltip-row">
@@ -293,6 +318,34 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
+						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+			</span>)})}]]></value>
+			<value lang="da">
+				<![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Type: </label>
+						<span data-property="type">${CL([type])}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Version: </label>
+						<span data-property="emf:version">${get([emf:version])}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Opdateret af: </label>
+						<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Opdateret: </label>
 						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
 					</span>
 			</span>)})}]]></value>
@@ -318,18 +371,54 @@
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
 				</span>
 			)}]]></value>
+			<value lang="da">
+				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
+							<span data-property="name">${get([name])}</span>
+						</a>
+					</span>
+					<br />
+					<span data-property="type">${CL([type])}</span>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
+				</span>
+			)}]]></value>
 		</label>
-
 		<label id="MEDIA_COMPACT_HEADER_SMK">
 			<value lang="en">
 				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp)}
+						${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
+						<span data-property="name">${get([name])}</span>
+					</a>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+		)}]]></value>
+		<value lang="da">
+			<![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span class="truncate-element">
 				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
-					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp)}
+					${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp)}
 					${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
 					<span data-property="name">${get([name])}</span>
 				</a>
@@ -343,15 +432,27 @@
 		<label id="MEDIA_BREADCRUMB_HEADER_SMK">
 			<value lang="en">
 				<![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-			<span><img src="${thumbnailUri(16)}"/></span>
-			<span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp)}
-					<span data-property="name">${get([name])}</span>
-				</a>
-			</span>		
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp)}
+						<span data-property="name">${get([name])}</span>
+					</a>
+				</span>		
+            )}]]></value>
+			<value lang="da">
+				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp)}
+						<span data-property="name">${get([name])}</span>
+					</a>
+				</span>		
             )}]]></value>
 		</label>		
 	</labels>

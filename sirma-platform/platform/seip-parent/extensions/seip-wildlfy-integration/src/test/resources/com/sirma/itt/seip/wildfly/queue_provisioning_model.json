@@ -1,0 +1,74 @@
+{
+    "operation" : "composite",
+    "steps" : [
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "jms-queue" : "queueName"
+                }
+            ],
+            "entries" : ["java.queueName"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "jms-queue" : "queueName_DLQ"
+                }
+            ],
+            "entries" : ["java.queueName_DLQ"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "jms-queue" : "queueName_EQ"
+                }
+            ],
+            "entries" : ["java.queueName_EQ"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "address-setting" : "java.queueName"
+                }
+            ],
+            "dead-letter-address" : "java.queueName_DLQ",
+            "expiry-address" : "java.queueName_EQ",
+            "page-size-bytes" : 5242880,
+            "message-counter-history-day-limit" : 14,
+            "max-delivery-attempts" : 20,
+            "redelivery-delay" : 1000,
+            "redelivery-multiplier" : 2.0,
+            "max-redelivery-delay" : 86400000,
+            "address-full-policy" : "PAGE",
+            "max-size-bytes" : 10485760
+        }
+    ]
+}

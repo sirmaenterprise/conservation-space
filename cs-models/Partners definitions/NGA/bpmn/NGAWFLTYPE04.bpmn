@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.4.0">
   <bpmn:process id="NGAWFLTYPE04" name="Take Material Sample From Cultural Object Workflow" isExecutable="true">
     <bpmn:startEvent id="StarProcess">
       <bpmn:extensionElements>
@@ -58,7 +58,7 @@
         </camunda:inputOutput>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_start</bpmn:incoming>
-      <bpmn:incoming>amendPhotos</bpmn:incoming>
+      <bpmn:incoming>takeMoreSamples</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_gateway</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:userTask id="ngaStandaloneCommonTask-NGA24334" name="Verify Samples Taken from Cultural Object&#10;" camunda:assignee="${assignee}">
@@ -104,11 +104,11 @@
     <bpmn:exclusiveGateway id="ExclusiveGateway_13pyaqm">
       <bpmn:incoming>SequenceFlow_1dx4b15</bpmn:incoming>
       <bpmn:outgoing>finish_approval</bpmn:outgoing>
-      <bpmn:outgoing>amendPhotos</bpmn:outgoing>
+      <bpmn:outgoing>takeMoreSamples</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1dx4b15" sourceRef="ngaStandaloneCommonTask-NGA24334" targetRef="ExclusiveGateway_13pyaqm" />
-    <bpmn:sequenceFlow id="amendPhotos" name="Amend Photos" sourceRef="ExclusiveGateway_13pyaqm" targetRef="ngaStandaloneCommonTask-NGA24305">
-      <bpmn:documentation><![CDATA[${outcome=='amendPhotos'}]]></bpmn:documentation>
+    <bpmn:sequenceFlow id="takeMoreSamples" name="Take More Samples" sourceRef="ExclusiveGateway_13pyaqm" targetRef="ngaStandaloneCommonTask-NGA24305">
+      <bpmn:documentation><![CDATA[${outcome=='takeMoreSamples'}]]></bpmn:documentation>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="finish_movement" name="Finish" sourceRef="ExclusiveGateway_1bmpipo" targetRef="ngaStandaloneCommonTask-NGA24334">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='finish'}]]></bpmn:conditionExpression>
@@ -188,13 +188,13 @@
           <dc:Bounds x="704" y="154" width="0" height="0" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0p8sexh_di" bpmnElement="amendPhotos">
+      <bpmndi:BPMNEdge id="SequenceFlow_0p8sexh_di" bpmnElement="takeMoreSamples">
         <di:waypoint xsi:type="dc:Point" x="779" y="144" />
         <di:waypoint xsi:type="dc:Point" x="779" y="53" />
         <di:waypoint xsi:type="dc:Point" x="295" y="53" />
         <di:waypoint xsi:type="dc:Point" x="295" y="129" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="501" y="38" width="71" height="12" />
+          <dc:Bounds x="511" y="18" width="55" height="24" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_16j10oi_di" bpmnElement="finish_movement">

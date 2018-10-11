@@ -1,0 +1,101 @@
+{
+  "validationModel": {
+   "type": {
+      "messages": []
+    },
+	"title": {
+      "messages": []
+    },
+     "description": {
+      "messages": []
+    }
+  },
+  "viewModel": {
+    "fields": [
+	  {
+        "previewEmpty": false,
+        "filters": [],
+        "identifier": "type",
+        "displayType": "READ_ONLY",
+        "codelist": 210,
+        "tooltip": "Test tooltip",
+        "validators": [],
+        "dataType": "text",
+        "label": "Type",
+        "maxLength": 180,
+        "isMandatory": false, 
+        "isDataProperty": true,
+        "multivalue": false
+      },
+	  {
+        "previewEmpty": true,
+        "filters": [],
+        "identifier": "title",
+        "displayType": "EDITABLE",
+        "tooltip": "Test tooltip",
+        "validators": [
+          {
+          	"id": "mandatory",
+            "level": "error",
+            "message": "The field is mandatory!",
+            "rules": [{
+            	"id": "mandatoryCondition",
+                "renderAs": "MANDATORY",
+                "expression": "+[field1] AND [field2]"
+            }]
+          },
+          {
+            "level": "error",
+            "context": {
+              "pattern": "[\\s\\S]{1,100}"
+            },
+            "id": "regex",
+            "message": "Invalid format. Use letters and digists only up to 100 signs."
+          }, {
+            "id": "unique",
+            "level": "error"
+          }
+        ],
+        "dataType": "text",
+        "label": "Title",
+        "maxLength": 100,
+        "isMandatory": true, 
+        "isDataProperty": true,
+        "multivalue": false
+      },
+	  {
+		"identifier": "descriptionRegion",
+		"label": "descriptionRegionLabel",
+		"displayType": "EDITABLE",
+		"fields": [
+			{
+			  "previewEmpty": true,
+			  "filters": [],
+			  "identifier": "description",
+			  "displayType": "EDITABLE",
+			  "validators": [
+				  {
+					"level": "error",
+					"context": {
+						"pattern": "[\\s\\S]{1,180}"
+				  },
+					"id": "regex",
+					"message": "Invalid format. Use letters and digists only up to 180 signs."
+				  }
+			  ],
+			  "dataType": "text",
+			  "label": "Description",
+			  "maxLength": 180,
+			  "isMandatory": false, 
+		      "isDataProperty": true,
+		      "multivalue": false
+		    }
+		],
+		"validators":[]
+	  }
+	]
+  },
+  "instanceType": "emfinstance",
+  "definitionId": "testDefinition",
+  "definitionLabel": "testDefinitionLabel"
+}

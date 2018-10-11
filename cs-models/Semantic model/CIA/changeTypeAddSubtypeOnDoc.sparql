@@ -1,0 +1,17 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX cia: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#>
+delete
+{
+    ?instance emf:type ?oldEmfType .
+}
+insert {
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework>
+    {
+        ?instance cia:subType ?oldEmfType .
+        ?instance emf:type "FC236005"^^xsd:string .
+    }
+} where
+{
+    ?instance a emf:Document .
+    ?instance emf:type ?oldEmfType .
+}

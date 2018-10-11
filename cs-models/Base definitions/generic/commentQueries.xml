@@ -2,41 +2,47 @@
 <definition id="commentQueries" type="query">
 	<fields>
 		<field name="topicsForInstance" type="an..200" displayType="system">
-			<value>select (count(distinct ?instance) as ?count) where {
-				?instance a emf:Topic.
-				?instance emf:commentsOn ?objectUri .
-				?instance emf:isDeleted "false"^^xsd:boolean.
-				}
+			<value>select (count(?instance) as ?count) where {
+				select distinct ?instance where {
+					?instance a emf:Topic.
+					?instance emf:commentsOn ?objectUri .
+					# this is needed for permissions clause
+					?instance emf:commentsOn ?object .
+					?instance emf:isDeleted "false"^^xsd:boolean.
+					$permissions_block$object
+				} LIMIT {limit}
+			}
 			</value>
 			<control id="query">
 				<control-param id="config" name="dialect">SPARQL</control-param>
 				<control-param id="config" name="countOnly">true</control-param>
 				<control-param id="config" name="includeInferred">true</control-param>
-				<control-param id="config" name="instanceVariableName">object</control-param>
 				<control-param id="binding" name="objectUri" />
 			</control>
 		</field>
 		<field name="topicsForUser" type="an..200" displayType="system">
-			<value>select (count(distinct ?instance) as ?count) where {
-				?instance a emf:Topic.
-				?instance emf:commentsOn ?object .
-				?instance emf:isDeleted "false"^^xsd:boolean.
-				{
-			        ?instance emf:createdBy ?userUri .
-			    } UNION {
-			        ?comment emf:createdBy ?userUri .
-			        ?comment emf:replyTo ?instance .
-			    } UNION {
-			        ?object emf:createdBy ?userUri .
-			    }
-			    ?object emf:isDeleted "false"^^xsd:boolean  . 
-				}
+			<value>select (count(?instance) as ?count) where {
+				select distinct ?instance where {
+					?instance a emf:Topic.
+					?instance emf:commentsOn ?object .
+					?object emf:isDeleted "false"^^xsd:boolean  . 
+					?instance emf:isDeleted "false"^^xsd:boolean.
+					{
+				        ?instance emf:createdBy ?userUri .
+				    } UNION {
+				        ?comment emf:createdBy ?userUri .
+				        ?comment emf:replyTo ?instance .
+				    } UNION {
+				        ?object emf:createdBy ?userUri .
+				    }
+				    $permissions_block$object
+				} LIMIT {limit}
+			} 
 			</value>
 			<control id="query">
 				<control-param id="config" name="dialect">SPARQL</control-param>
 				<control-param id="config" name="countOnly">true</control-param>
 				<control-param id="config" name="includeInferred">true</control-param>
-				<control-param id="config" name="instanceVariableName">object</control-param>
 				<control-param id="binding" name="userUri" />
 			</control>
 		</field>
@@ -60,27 +66,29 @@
     	?imageAnnotation emf:svgValue ?svgValue ; 
     				 	emf:zoomLevel ?zoomLevel ; 
     				 	emf:viewBox ?viewBox. }
+	$permissions_block$object
 }</value>
 			<control id="query">
 				<control-param id="config" name="dialect">SPARQL</control-param>
 				<control-param id="config" name="countOnly">false</control-param>
 				<control-param id="config" name="includeInferred">false</control-param>
-				<control-param id="config" name="instanceVariableName">object</control-param>
 				<control-param id="binding" name="objectSection" />
 			</control>
 		</field>
 
 		<field name="getCommentById" type="an..200" displayType="system">
 			<value>SELECT distinct ?instance ?instanceType ?content ?createdOn ?createdBy ?parent WHERE {
-    ?instance a emf:Comment ;
-    	emf:instanceType ?instanceType ;
-    	emf:content ?content ;
-        emf:createdBy ?createdBy ;
-        emf:modifiedBy ?modifiedBy ;
-        emf:createdOn ?createdOn ;
-        emf:replyTo ?parent ;
-        emf:isDeleted "false"^^xsd:boolean .
-}</value>
+			    ?instance a emf:Comment ;
+			    	emf:instanceType ?instanceType ;
+			    	emf:content ?content ;
+			        emf:createdBy ?createdBy ;
+			        emf:createdOn ?createdOn ;
+			        emf:replyTo ?parent ;
+			        emf:isDeleted "false"^^xsd:boolean .
+			        OPTIONAL {
+						?instance emf:modifiedBy ?modifiedBy .
+					}
+			}</value>
 			<control id="query">
 				<control-param id="config" name="dialect">SPARQL</control-param>
 				<control-param id="config" name="countOnly">false</control-param>
@@ -109,43 +117,41 @@
     }
     ?object emf:instanceType ?objectType .
     ?object emf:isDeleted "false"^^xsd:boolean .
+    $permissions_block$object
 }</value>
 			<control id="query">
 				<control-param id="config" name="dialect">SPARQL</control-param>
 				<control-param id="config" name="countOnly">false</control-param>
 				<control-param id="config" name="includeInferred">true</control-param>
-				<control-param id="config" name="instanceVariableName">object</control-param>
 				<control-param id="binding" name="owner" />
 			</control>
 		</field>
-
 		<field name="getInstanceSuccessorsTopics" type="an..200"
 			displayType="system">
 			<value>SELECT distinct ?instance ?instanceType ?type ?status ?object ?objectType ?title ?createdOn ?modifiedOn ?createdBy ?content WHERE {
-    ?instance a emf:Topic ;
-    	emf:instanceType ?instanceType ;
-        emf:status ?status ;
-        dcterms:title ?title ;
-        emf:content ?content ;
-        emf:createdOn ?createdOn .
-    ?instance emf:createdBy ?createdBy .
-    ?instance emf:isDeleted "false"^^xsd:boolean .
-    ?instance emf:modifiedOn ?modifiedOn .
-    ?instance emf:commentsOn ?object .
-    ?object emf:isDeleted "false"^^xsd:boolean .
-    ?object emf:instanceType ?objectType .
-    {
-        ?instance emf:commentsOn ?objectParameter .
-    } UNION {
-        ?instance emf:commentsOn ?childInstance .
-        ?childInstance ptop:partOf ?objectParameter .
-		$permissions_block$
-    }
-}</value>
+			    ?instance a emf:Topic ;
+			    	emf:instanceType ?instanceType ;
+			        emf:status ?status ;
+			        dcterms:title ?title ;
+			        emf:content ?content ;
+			        emf:createdOn ?createdOn .
+			    ?instance emf:createdBy ?createdBy .
+			    ?instance emf:isDeleted "false"^^xsd:boolean .
+			    ?instance emf:modifiedOn ?modifiedOn .
+			    ?instance emf:commentsOn ?object .
+			    ?object emf:isDeleted "false"^^xsd:boolean .
+			    ?object emf:instanceType ?objectType .
+			    {
+			        ?instance emf:commentsOn ?objectParameter .
+			    } UNION {
+			        ?instance emf:commentsOn ?childInstance .
+			        ?childInstance ptop:partOf ?objectParameter .
+					$permissions_block$
+			    }
+			}</value>
 			<control id="query">
 				<control-param id="config" name="dialect">SPARQL</control-param>
 				<control-param id="config" name="countOnly">false</control-param>
-				<control-param id="config" name="includeInferred">false</control-param>
 				<control-param id="binding" name="objectParameter" />
 			</control>
 		</field>

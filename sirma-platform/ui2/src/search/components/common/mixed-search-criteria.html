@@ -1,0 +1,37 @@
+<div class="mixed-search-criteria">
+  <search-bar ng-if="!mixedSearchCriteria.config.advancedOnly && mixedSearchCriteria.searchBarConfig"
+              ng-show="mixedSearchCriteria.config.searchMode === 'basic'"
+              config="::mixedSearchCriteria.searchBarConfig"
+              object-type="mixedSearchCriteria.searchBarModel.objectType.value"
+              free-text="mixedSearchCriteria.searchBarModel.freeText.value"
+              selected-context="mixedSearchCriteria.searchBarModel.context"
+              on-free-text-change="::mixedSearchCriteria.onFreeTextChange(freeText)"
+              on-context-change="::mixedSearchCriteria.onContextChange(context)"
+              on-search="::mixedSearchCriteria.onSearch(params)"
+              on-saved-search-selected="::mixedSearchCriteria.loadSavedSearch(savedSearch)"
+              on-search-mode-selected="::mixedSearchCriteria.changeMode(mode)"></search-bar>
+
+  <span ng-if="mixedSearchCriteria.config.searchMode === 'advanced'">
+    <span class="advanced-search-header pull-right">
+      <seip-contextual-help target="'search.advanced'"></seip-contextual-help>
+      <a class="advanced-search-close-btn" href="javascript:void(0)"
+         ng-click="::mixedSearchCriteria.closeAdvancedSearch()">
+        {{ ::'search.advanced.close' | translate}} <span class="fa fa-times"></span>
+      </a>
+    </span>
+    <seip-advanced-search config="::mixedSearchCriteria.config"
+                          context="::mixedSearchCriteria.context"></seip-advanced-search>
+  </span>
+
+  <span ng-if="mixedSearchCriteria.config.searchMode === 'external'">
+    <span class="external-search-header pull-right">
+      <seip-contextual-help target="'search.external'"></seip-contextual-help>
+      <a class="external-search-close-btn" href="javascript:void(0)"
+         ng-click="::mixedSearchCriteria.closeExternalSearch()">
+        {{ ::'search.external.close' | translate}} <span class="fa fa-times"></span>
+      </a>
+    </span>
+    <seip-external-search></seip-external-search>
+  </span>
+
+</div>

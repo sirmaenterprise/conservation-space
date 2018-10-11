@@ -1,0 +1,757 @@
+@import "../style/reusables";
+@import "../style/mixins";
+@import "../style/variables";
+
+/* !!! Important notes about printing !!!
+ * 1. page-break-* doesn't work properly in many cases - see this thread for details
+ *    http://stackoverflow.com/questions/4884380/css-page-break-not-working-in-all-browsers/5314590#5314590
+ * 2. In the current version of Phantomjs v.2.1.1 which we use for exporting/printing the flexbox model is broken and
+ *    special styling needs to be applied in order to fix the layout where the flexbox model is used. Once the Phantomjs
+ *    gets fixed, the workarounds can be removed.
+ */
+
+$form-label-width: 25%;
+$form-field-width: 75%;
+$data-table-cell-min-width: 24px;
+
+@mixin checkboxAndRadio($labelWidth, $field-width, $align) {
+  display: block;
+
+  .checkbox-label {
+    display: $align;
+    width: $labelWidth;
+  }
+
+  .print-field {
+    display: $align;
+    width: $field-width;
+  }
+
+  i {
+    display: none;
+  }
+}
+
+@mixin widget-page-break() {
+  display: inline-block;
+  clear: both;
+}
+
+.no-print {
+  display: none !important;
+}
+
+.idoc-editor {
+  :first-child {
+    margin-top: 0;
+  }
+
+  :last-child {
+    margin-bottom: 0;
+  }
+
+  // Using display: none will bypass page breaking so use height and border 0 instead
+  .cke_pagebreak {
+    display: block !important;
+    // Use as little space as possible to avoid empty pages
+    height: 0 !important;
+    border: 0 !important;
+    opacity: 0;
+  }
+}
+
+//editor area should take up the whole page horizontally when making print/export
+.idoc-editor-area-wrapper {
+  width: 100% !important;
+}
+
+@page {
+  margin: 15mm;
+}
+
+#layout {
+  padding: 0 !important;
+}
+
+blockquote {
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.info-widget-danger {
+  background: #fff8f7 !important;
+  -webkit-print-color-adjust: exact;
+}
+
+.info-widget-warning {
+  background: #fff9d7 !important;
+  -webkit-print-color-adjust: exact;
+}
+
+.info-widget-success {
+  background: #f3f9f4 !important;
+  -webkit-print-color-adjust: exact;
+}
+
+.info-widget-info {
+  background: #fcfcfc !important;
+  -webkit-print-color-adjust: exact;
+}
+
+.instance-box-header {
+  border: none !important;
+  -webkit-print-color-adjust: exact;
+}
+
+.label-warning {
+  background-color: #f0ad4e !important;
+  -webkit-print-color-adjust: exact;
+}
+
+/* Some browsers like to show a border around images. Switch it off */
+img {
+  border: 0;
+}
+
+table {
+  word-wrap: break-word;
+}
+
+a[href^="http://"], a[href^="https://"], a[href^="#/"] {
+  color: $instance-link-color !important;
+  &:after {
+    content: none;
+  }
+  & * {
+    color: $instance-link-color !important;
+  }
+}
+
+.idoc-wrapper .idoc-body {
+  position: static;
+  width: 100%;
+}
+
+.ck-editor-area {
+  padding: 0 !important;
+  min-height: 0 !important;
+  -webkit-print-color-adjust: exact;
+
+  /* Remove widget margin bottom to avoid printing it on a new blank page. Add margin top to next sibling to keep the distance between different parts of the page. */
+  .widget-wrapper {
+    margin-bottom: 0 !important;
+    + * {
+      margin-top: 20px;
+    }
+  }
+}
+
+.idoc-body .tab-content > .tab-pane {
+  display: block;
+  visibility: visible !important;
+  position: relative !important;
+  overflow-y: visible !important;
+  top: 0 !important;
+  left: 0 !important;
+  opacity: 1;
+}
+
+.idoc-body .tab-content .system-tab {
+  display: none !important;
+}
+
+.image-widget {
+  @include widget-page-break();
+
+  // makes annotation fall into their correct place
+  .openseadragon-canvas canvas:last-child {
+    width: 100%;
+    height: 100%;
+  }
+
+  .image-widget-viewer {
+    padding-bottom: 0 !important;
+
+    // scroll view needs to be styled to look like in edit/preview mode
+    .scroll-view {
+      ul {
+        clear: both;
+        list-style: none;
+        padding: 0;
+        white-space: nowrap;
+        overflow-y: hidden;
+
+        li {
+          box-sizing: border-box;
+          margin: 0 0 15px 0;
+          padding: 10px 10px 10px 10px;
+          display: inline-block;
+          img {
+            background-color: #eee;
+            min-height: 25px;
+            min-width: 25px;
+            margin: 0 auto;
+          }
+        }
+      }
+    }
+
+    .image-widget-layout-row, .image-widget-layout-column {
+      padding: 0;
+      margin-right: auto;
+      margin-left: auto;
+    }
+  }
+
+  .comments {
+    margin-left: 0 !important;
+  }
+}
+
+.content-viewer {
+  @include widget-page-break();
+  width: 100%;
+  iframe {
+    /* prevent pdf viewer spanning in two pages when in landscape mode */
+    max-height: 640px;
+    border: none;
+  }
+}
+
+.comments-widget {
+  .comments-widget-content {
+    /* in print mode all comments have to be visible*/
+    max-height: none !important;
+    .comments-widget-body .comments {
+      /* in print mode hide scrolls */
+      overflow-y: hidden !important;
+      overflow-x: hidden !important;
+      /* in print mode all comments have to be visible*/
+      max-height: none !important;
+      .comment-header {
+        width: calc(100% - 20px) !important;
+      }
+    }
+  }
+}
+
+.aggregated-table {
+
+  .icon-16 {
+    > span:not(.header-icon) {
+      width: calc(100% - 25px) !important;
+      display: inline-block !important;
+    }
+  }
+
+  form {
+    @include widget-page-break();
+    border-left: 1px solid $table-border-color;
+    border-right: 1px solid $table-border-color;
+
+    .form-group {
+      padding-bottom: 5px;
+      width: 100%;
+    }
+  }
+
+  .header-cell {
+    width: 100%;
+  }
+
+  .table-footer {
+    border-left: 1px solid $table-border-color;
+    border-right: 1px solid $table-border-color;
+  }
+
+  .table-footer {
+    border-bottom: 1px solid $table-border-color;
+  }
+
+  form:last-child .form-group {
+    border-bottom: 1px solid $table-border-color !important;
+  }
+
+  .grid-off > div {
+    border: none;
+  }
+
+  .grid-vertical > div {
+    border-bottom: none;
+  }
+
+  .grid-horizontal > div {
+    border-right: none;
+  }
+
+  .widget-panel.no-borders {
+    form {
+      border: none;
+    }
+    .table-header {
+      border-left: none;
+      border-right: none;
+    }
+    .table-footer {
+      border-style: none;
+
+    }
+  }
+}
+
+.datatable-widget {
+
+  .table-body {
+
+    &.stripe {
+      .form-wrapper {
+        &:nth-child(even) {
+          background-color: $color-darker-tone-05 !important;
+        }
+      }
+    }
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0px !important;
+  }
+
+  form {
+    @include widget-page-break();
+  }
+
+  form::after {
+    content: '';
+    display: block;
+    height: 0;
+    visibility: hidden;
+  }
+  .grid-on > div {
+    border-right: 1px solid $table-border-color;
+    border-bottom: 1px solid $table-border-color;
+  }
+
+  .grid-off > div {
+    border: none;
+  }
+
+  .grid-vertical > div {
+    border-left: 1px solid $table-border-color;
+    border-right: 1px solid $table-border-color;
+    border-bottom: none;
+  }
+
+  .grid-horizontal > div {
+    border-right: none;
+    border-bottom: 1px solid $table-border-color;
+  }
+  .panel-body {
+    > div {
+      overflow-x: hidden;
+    }
+    .table-body .instance-header-wrapper > span {
+      margin: 0;
+    }
+
+    .table-header {
+      > .header-cell {
+        min-width: $data-table-cell-min-width !important;
+      }
+
+      .sort-icon {
+        display: none;
+      }
+    }
+
+    .instance-header {
+      .instance-data {
+        margin: 0;
+        display: inline;
+        align-items: center;
+
+        .badge {
+          display: inline-flex !important;
+          margin: 0;
+          padding: 0;
+        }
+
+        &.icon-16 > span:not(.header-icon):not(.lock-label) {
+          width: calc(100% - 20px) !important;
+          display: inline !important;
+        }
+        &.icon-64 > span:not(.header-icon):not(.lock-label) {
+          width: calc(100% - 70px) !important;
+          display: inline !important;
+        }
+        span {
+          vertical-align: middle !important;
+        }
+
+        .header-icon {
+          margin: 0;
+          display: inline;
+          vertical-align: middle !important;
+        }
+
+        .label {
+          white-space: normal;
+        }
+      }
+    }
+
+    .checkbox {
+      right: 10px;
+      word-break: break-all;
+      min-width: $data-table-cell-min-width !important;
+
+      .checkbox-label {
+        display: none;
+      }
+    }
+  }
+
+  .widget-panel.no-icons .instance-data {
+    &.icon-64, &.icon-16 {
+      > span:not(.header-icon):not(.lock-label) {
+        width: 100% !important;
+        display: inline !important;
+      }
+    }
+  }
+
+  .widget-panel.no-borders {
+    form {
+      border: none;
+    }
+    .table-header {
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  .instance-selector.preview .instance-box {
+    right: 12px !important;
+  }
+}
+
+.table-view {
+  .table-header {
+    > .header-cell {
+      min-width: $data-table-cell-min-width !important;
+    }
+  }
+}
+
+.object-data-widget {
+  .object-control-wrapper {
+    @include widget-page-break();
+
+    .form-field-wrapper {
+      // force element to be displayed at block level.
+      float: left;
+      .instance-data {
+        display: inline-flex !important;
+      }
+    }
+  }
+
+  label, label.checkbox > span, label.radio > span {
+    color: $form-label-color !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  label.checkbox i:after {
+    color: $icon-font-normal-state !important;
+  }
+
+  label.radio i:after {
+    background-color: $icon-font-normal-state !important;
+  }
+}
+
+.recent-activities {
+  .user-activity-entry {
+    @include word-wrap();
+    width: 100%;
+
+    .activity-details {
+      width: calc(100% - 45px);
+      float: right;
+    }
+
+    .user-avatar {
+      display: inline-block;
+    }
+
+    @include widget-page-break();
+  }
+}
+
+.info-widget {
+  page-break-inside: avoid;
+}
+
+.widget {
+
+  .panel {
+    position: relative;
+    border: none;
+    margin-bottom: 0 !important;
+
+    .panel-body {
+      border: 1px solid $table-border-color;
+      padding-bottom: 0 !important;
+      padding-left: 0 !important;
+    }
+
+    .region {
+      padding: 10px 0 10px 0;
+
+      .panel-body {
+        // force padding for regions.
+        padding-bottom: 0.5em !important;
+        padding-left: 0.5em !important;
+      }
+    }
+
+    .panel-heading {
+      display: block;
+      position: relative;
+      padding-left: 0;
+      min-height: 0;
+      border: none;
+      box-shadow: none;
+      background: none;
+      font-weight: bold;
+
+      .expand-button {
+        border-left: none;
+      }
+
+      .widget-title:first-child {
+        padding-left: 0;
+      }
+
+      i {
+        display: none;
+      }
+
+      &.widget-header {
+        display: flex;
+        min-height: 34px;
+      }
+    }
+
+    .panel-heading {
+      line-height: 34px;
+      padding-left: 11px;
+      justify-content: space-between;
+      border: 1px solid $panel-border-color;
+    }
+
+    &.no-header {
+      > .panel-heading {
+        display: none !important;
+      }
+    }
+
+    &.no-borders {
+      border: none;
+      > .panel-body {
+        border: none;
+      }
+    }
+  }
+
+  .show-more {
+    display: none;
+  }
+}
+
+//when making a print/export, we try to fit all DTW columns into the page, so we reduce the min-width
+.form-wrapper.table-layout {
+  .form-group {
+    min-width: $data-table-cell-min-width !important;
+
+    //the word-break of DTW cells' content gets broken if that one has a min-width and if width is not specified
+    .form-field-wrapper {
+      min-width: 0 !important;
+      width: 100%;
+    }
+
+    .instance-header {
+      @include word-wrap();
+      padding: 2px;
+    }
+
+    .print-field {
+      @include word-wrap();
+      padding: 2px;
+    }
+  }
+  .form-group.ng-hide {
+    min-width: $data-table-cell-min-width;
+  }
+}
+
+/* Many of the styles in form wrapper are fixes for the point 2 in the notes in the beginning of this stylesheet. */
+.form-wrapper {
+
+  .cke_editable {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  .mandatory-mark {
+    display: none;
+  }
+
+  .header-container {
+    @include widget-page-break();
+  }
+
+  &.vertical-layout {
+
+    span:empty {
+      display: none;
+    }
+
+    .object-control-wrapper .instance-selector {
+      .instance-box {
+        margin-bottom: 0;
+      }
+
+      &:after {
+        display: none;
+      }
+    }
+
+    .region > .panel-heading {
+      display: block;
+    }
+
+    & > div,
+    .region > .panel-body {
+      display: block;
+    }
+
+    .form-group:not(.codelist-wrapper):not(.checkbox-wrapper) {
+      display: block;
+
+      &.instance-selector.preview .instance-box {
+        right: 0;
+      }
+
+      &.radiobutton-group-wrapper {
+
+        &.pageDirection, &.lineDirection {
+          .radiobuttons-wrapper {
+            display: inline-block;
+          }
+        }
+      }
+    }
+
+    .label-hidden .form-group {
+      .radiobuttons-wrapper {
+        display: inline-block;
+        margin-left: 4px;
+      }
+    }
+
+    &.checkbox-wrapper {
+      margin-bottom: 4px;
+    }
+
+    .label-left .form-group {
+      position: relative;
+      float: left;
+
+      & > label:not(.checkbox) {
+        display: inline-block;
+        vertical-align: top;
+        width: $form-label-width;
+        padding-right: 0.2em;
+      }
+
+      & > div {
+        display: inline-block;
+        width: $form-field-width;
+      }
+
+      & > label.checkbox {
+        @include checkboxAndRadio($form-label-width, $form-field-width, inline-block);
+        .form-field-wrapper {
+          top: 0;
+          left: -4px;
+        }
+      }
+    }
+
+    .label-text-right .checkbox-field {
+      text-align: left !important;
+    }
+  }
+}
+
+// styles applied for elements within a layout
+.layoutmanager {
+  .container-fluid {
+    padding-left: 10px;
+  }
+  .object-data-widget {
+
+    .panel-body .form-wrapper {
+      padding-left: 5px;
+    }
+  }
+}
+
+// Styles needed for thumbnails preview in image widget
+.listing-thumbs {
+  clear: both;
+  list-style: none;
+  overflow: auto;
+  padding: 0;
+
+  li {
+    display: inline-block;
+    margin: 0 0 15px;
+    padding: 10px;
+
+    img {
+      background-color: #eee;
+      min-height: 25px;
+      min-width: 25px;
+      margin: 0 auto;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    .thumb-label {
+      clear: both;
+      color: #999;
+      font-size: 12px;
+      margin: 0 auto;
+      max-width: 125px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+  }
+}
+
+.header-results {
+  float: right;
+}
+
+/* Don't show notification messages in print/export */
+#toast-container {
+  display: none;
+}

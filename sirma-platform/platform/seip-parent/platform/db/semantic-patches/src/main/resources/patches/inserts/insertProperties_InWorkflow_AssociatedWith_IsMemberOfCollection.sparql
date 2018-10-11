@@ -1,0 +1,35 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+INSERT DATA {
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#associatedWith
+        emf:associatedWith rdf:type owl:ObjectProperty ,
+                owl:SymmetricProperty ;
+            rdfs:label "Associated With"@en ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Lyubomir Marinov"@en ;
+            skos:definition "TBD"@en .
+        
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isMemberOfCollection
+        emf:isMemberOfCollection rdf:type owl:ObjectProperty ;
+            rdfs:label "Is Member of Collection"@en ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            skos:definition "Relates Concept or Collection to a Collection"@en ;
+            dc:creator "Yaldaz Mehmedova"@en ;
+            owl:inverseOf skos:member .
+        
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#inWorkflow
+        emf:inWorkflow rdf:type owl:ObjectProperty ;
+            rdfs:label "Прикачен към работен процес"@bg ,
+                "In Workflow"@en ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            skos:definition "Shows that the item is somehow related to workflow."@en ;
+            dcterms:creator "Yaldaz Mehmedova"@en .
+    }
+}

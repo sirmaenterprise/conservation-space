@@ -1,0 +1,11 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?instance ?title ((if(!bound(?name), "" , ?name)) as ?firstName) ?lastName WHERE { 
+	?instance ptop:title ?title .
+    OPTIONAL{ ?instance ptop:firstName ?name }
+	?instance ptop:lastName ?lastName .
+	?instance a emf:User; 
+	emf:isDeleted "false"^^xsd:boolean;
+}

@@ -1,0 +1,79 @@
+<div class="form-group codelist-list-wrapper">
+    <label class="field-label">
+        {{ ::codelistList.fieldViewModel.label }}
+        <sup class="mandatory-mark">*</sup>
+    </label>
+    <div class="codelistlist-wrapper">
+        <seip-hint
+                hint-text="::codelistList.fieldViewModel.tooltip"
+                hint-class="::codelistList.widgetConfig.hintClass"
+                hint-visible="::codelistList.showTooltip()"></seip-hint>
+        <div class="edit-field">
+            <label ng-class="::codelistList.inputType"
+                   ng-switch on="::codelistList.fieldViewModel.multivalue"
+                   ng-repeat="(key, value) in codelistList.validationModel[codelistList.fieldViewModel.identifier].sharedCodelistData">
+
+                <input ng-switch-when="true" type="checkbox"
+                       class="form-control edit-field"
+                       ng-class="::codelistList.inputType"
+                       value="{{ ::key }}"
+                       ng-change="codelistList.selectValue(key)"
+                       ng-model="codelistList.selectedValues[key]"/>
+
+                <input ng-switch-default type="radio"
+                       class="form-control edit-field"
+                       ng-class="::codelistList.inputType"
+                       value="{{ ::key }}"
+                       ng-model="codelistList.validationModel[codelistList.fieldViewModel.identifier].value"/>
+                <i></i>
+                <span>{{ ::value }}</span>
+            </label>
+        </div>
+        <div class="print-field">
+            <label ng-class="::codelistList.inputType"
+                   ng-switch on="::codelistList.fieldViewModel.multivalue"
+                   ng-repeat="(key, value) in codelistList.validationModel[codelistList.fieldViewModel.identifier].sharedCodelistData">
+
+                <input ng-switch-when="true" type="checkbox"
+                       class="form-control print-field"
+                       ng-class="::codelistList.inputType"
+                       value="{{ ::key }}"
+                       ng-change="::codelistList.selectValue(key)"
+                       ng-model="::codelistList.selectedValues[key]"/>
+
+                <input ng-switch-default type="radio"
+                       class="form-control print-field"
+                       ng-class="::codelistList.inputType"
+                       value="{{ ::key }}"
+                       ng-model="::codelistList.validationModel[codelistList.fieldViewModel.identifier].value"/>
+                <i></i>
+                <span>{{ ::value }}</span>
+            </label>
+        </div>
+        <div class="preview-field">
+            <label ng-class="::codelistList.inputType"
+                   ng-switch on="::codelistList.fieldViewModel.multivalue"
+                   ng-repeat="(key, value) in codelistList.validationModel[codelistList.fieldViewModel.identifier].sharedCodelistData">
+
+                <input ng-switch-when="true" type="checkbox"
+                       class="form-control preview-field"
+                       ng-class="::codelistList.inputType"
+                       value="{{ ::key }}"
+                       ng-change="::codelistList.selectValue(key)"
+                       ng-model="::codelistList.selectedValues[key]"/>
+
+                <input ng-switch-default type="radio"
+                       class="form-control preview-field"
+                       ng-class="::codelistList.inputType"
+                       value="{{ ::key }}"
+                       ng-model="::codelistList.validationModel[codelistList.fieldViewModel.identifier].value"/>
+                <i></i>
+                <span>{{ ::value }}</span>
+            </label>
+        </div>
+        <seip-validation-message
+                validation-model="::codelistList.validationModel[codelistList.fieldViewModel.identifier]"
+                field-ctrl="::codelistList.form[codelistList.fieldViewModel.identifier]"
+                view-model="::codelistList.fieldViewModel"></seip-validation-message>
+    </div>
+</div>

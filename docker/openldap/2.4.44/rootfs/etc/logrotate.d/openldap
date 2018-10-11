@@ -1,0 +1,13 @@
+${VOLUME_LDAP_LOGS}/ldap.log {
+    missingok
+    notifempty
+    compress
+    daily
+    rotate 10
+    size=100M
+    sharedscripts
+    postrotate
+        # Trigger reloading
+        /bin/kill -HUP $(cat /var/run/rsyslogd.pid) || true
+    endscript
+}

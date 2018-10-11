@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="content-patches-2.6.0-01" author="akunchev">
+	<preConditions onFail="MARK_RAN">
+		<not>
+			<sqlCheck expectedResult="0">SELECT COUNT(*) FROM (SELECT instance_id, COUNT(*) FROM seip_content GROUP BY instance_id, version, purpose HAVING COUNT(*) > 1 and instance_id IS NOT NULL) AS temp</sqlCheck>
+		</not>
+	</preConditions>
+		<comment>Removes duplicated view content for template versions. It will keep one record for every duplication in order to secure that there is a view for the versions.</comment>
+		<sql endDelimiter=";">
+			DELETE FROM seip_content
+			WHERE id IN (SELECT id
+             			 FROM (SELECT id, ROW_NUMBER() 
+             			 OVER (PARTITION BY instance_id, version, purpose ORDER BY id) AS rnum 
+             			 FROM seip_content) t
+              			 WHERE t.rnum > 1) 
+            AND instance_id IS NOT NULL
+		</sql>
+	</changeSet>
+
+	<changeSet id="content-patches-2.6.0-02" author="akunchev">
+		<comment>Adds unique constraint to the content table. This way we could secure that there will be no more duplications of contents.</comment>
+		<addUniqueConstraint tableName="seip_content" columnNames="instance_id,purpose,version" constraintName="content_uc_uniquecontent" />
+	</changeSet>
+
+</databaseChangeLog>

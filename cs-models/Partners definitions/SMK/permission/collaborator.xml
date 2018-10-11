@@ -1,79 +1,130 @@
 <roles>
-    <role name="COLLABORATOR" priority="15">
-        <include>collaborator_external</include>
-		<include>collaborator_annotation</include>
-    </role>
-    <role name="collaborator_external" external="false">
-        <permission name="create">
-            <actions>
-				<action name="import" />
-				<action name="updateInt" />
-            </actions>
-        </permission>
-        <permission name="edit">
-            <actions>
-                <action name="editDetails" />
-			</actions>
-        </permission>
-		<permission name="common_action">
-		     <actions>
-                <action name="uploadNewVersion" />
-                <action name="move" />
-				<action name="clone" />
-            </actions>
-        </permission>
-        <permission name="transition">
-            <actions>
-				<action name="achive" />
-				<action name="start" />     
-        		<action name="suspend" />	
-        		<action name="restart" />	
-				<action name="reopen" />				
-				<action name="stop" />
+	<role name="COLLABORATOR" priority="15">
+		<include>collaborator_external</include>
+	</role>
+	<role name="collaborator_external" external="false">
+		<permission name="transition">
+			<actions>
+				<action name="addAttachment" />
+				<action name="addDepiction" />
+				<action name="addPrimaryImage" />
+				<action name="addReferences" />
+				<action name="addThumbnail" />
+				<action name="addWatchers" />
+				<action name="amendPhotos_collaborator" local="true" bind="amendPhotos">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="approve_collaborator" local="true" bind="approve">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="approveAndPublish_collaborator" local="true" bind="approveAndPublish">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="changeTemplate" />
+				<action name="clarified_collaborator" local="true" bind="clarified">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="clarify_collaborator" local="true" bind="clarify">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="clone" >
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
 				<action name="complete" />
-				<action name="revoke" />
-				<action name="approve" />
+				<action name="completeTask" >
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="create" />
+				<action name="achive_contributor" local="true" bind="achive">
+					<filter value="IS_CREATED" />
+				</action>
+				<action name="createCase" />
+				<action name="createDocument" />
+				<action name="createInContext" />
+				<action name="createSubTask" />
+				<action name="createTask" />
+				<action name="createWorkflow" />
+				<action name="delete_contributor" local="true" bind="delete">
+					<filter value="CREATEDBY" />
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="deleteComment" />
+				<action name="download" />
+				<action name="editDetails" />
+				<action name="editComment"/>
+				<action name="editOffline"/>
+				<action name="exportTabPDF" />
+				<action name="exportTabWord" />
+				<action name="exportPDF" />
+				<action name="exportWord" />
+				<action name="finalApprove_contributor" local="true" bind="finalApprove">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="finish_contributor" local="true" bind="finish">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="implementRecommendations_contributor" local="true" bind="implementRecommendations">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="import" />
+				<action name="lock" />
+				<action name="move" >
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="createComment" />
+				<action name="open" />
+				<action name="prepareImport" />
+				<action name="print" />
+				<action name="printTab" />
 				<action name="publish" >
 					<filter value="IS_UPLOADED" />
 				</action>
 				<action name="publishAsPdf" >
 					<filter value="IS_CREATED" />
 				</action>
-				<action name="revertVersion_collaborator" local="true" bind="revertVersion">
-                    <filter value="CREATEDBY" />
-                </action>
-            </actions>
-        </permission>
-        <permission name="custom_action">
-            <actions>
-                <action name="addPrimaryImage" />
-                <action name="addDepiction" />
-                <action name="addAttachment" />				
-				<action name="addThumbnail" />
 				<action name="reassign" />
-            </actions>
-        </permission>
-        <permission name="lock">
-            <actions>
-				<action name="lock" />
-                <action name="unlock" />
-            </actions>
-        </permission>
-    </role>
-	<permission name="delete">
-            <actions>
-                <action name="delete_collaborator" local="true" bind="delete">
-                    <filter value="CREATEDBY" />
-                </action>
-            </actions>
-        </permission>
-	 <role name="collaborator_annotation" external="false">
-		<permission name="transition">
-			<actions applyTo="annotation">
-				<action name="editComment"/>
-				<action name="deleteComment" />
+				<action name="reject_collaborator" local="true" bind="reject">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="rejectMovement_collaborator" local="true" bind="rejectMovement">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="rejectTask_collaborator" local="true" bind="rejectTask">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="reopen" />
+				<action name="replyComment" />
 				<action name="suspendComment" />
-				<action name="restartComment" />			
+				<action name="resolveIssue_collaborator" local="true" bind="resolveIssue">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="restart" />
+				<action name="restartComment" />
+				<action name="revertVersion_collaborator" local="true" bind="revertVersion">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="revoke" />
+				<action name="saveAsTemplate"/>
+				<action name="start"/>
+				<action name="startProgress_collaborator" local="true" bind="startProgress">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="stop">
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="suspend" />
+				<action name="takeMoreSamples_collaborator" local="true" bind="takeMoreSamples">
+					<filter value="ASSIGNEE" />
+				</action>
+				<action name="unlock" />
+				<action name="updateInt" />
+				<action name="updateTemplate" />
+				<action name="uploadNewVersion" />
+				<action name="uploadRevision_collaborator" local="true" bind="uploadRevision">
+					<filter value="CREATEDBY" />
+				</action>
+				<action name="viewDetails" />
+				<action name="updateTemplate" />
 			</actions>
 		</permission>
 	</role>

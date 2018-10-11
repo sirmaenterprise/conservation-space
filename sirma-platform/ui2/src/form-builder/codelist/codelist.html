@@ -1,0 +1,26 @@
+<div class="form-group codelist-wrapper">
+  <label for="{{ ::codelist.fieldViewModel.identifier }}">
+    {{ ::codelist.fieldViewModel.label }}
+    <sup class="mandatory-mark">*</sup>
+  </label>
+
+  <div class="form-field-wrapper">
+    <seip-hint
+        hint-text="::codelist.fieldViewModel.tooltip"
+        hint-class="::codelist.widgetConfig.hintClass"
+        hint-visible="::codelist.showTooltip()"></seip-hint>
+    <codelist-select id="{{ ::codelist.fieldViewModel.identifier }}"
+                 name="{{ ::codelist.fieldViewModel.identifier }}"
+                 validation-model="::codelist.validationModel[codelist.fieldViewModel.identifier]"
+                 config="::codelist.fieldConfig"
+                 class="form-field edit-field codelist"></codelist-select>
+    <span id="{{ ::codelist.fieldViewModel.identifier }}"
+          class="form-field preview-field codelist">{{ codelist.validationModel[codelist.fieldViewModel.identifier].valueLabel}}</span>
+    <span id="{{ ::codelist.fieldViewModel.identifier }}"
+          class="form-field print-field codelist">{{ codelist.validationModel[codelist.fieldViewModel.identifier].valueLabel}}</span>
+    <seip-validation-message
+        validation-model="::codelist.validationModel[codelist.fieldViewModel.identifier]"
+        field-ctrl="::codelist.form[codelist.fieldViewModel.identifier]"
+        view-model="::codelist.fieldViewModel"></seip-validation-message>
+  </div>
+</div>

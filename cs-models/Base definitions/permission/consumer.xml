@@ -3,14 +3,15 @@
 		<include>consumer_external</include>
 		<include>consumer_annotation</include>
 	</role>
-
 	<role name="consumer_external" external="false">
 		<permission name="read">
 			<actions>
 				<action name="viewDetails"/>
 				<action name="download"/>
 				<action name="open" />
-				<action name="saveAsTemplate"/>
+				<action name="composeEmail">
+					<filter value="NOT_MAILBOX_SUPPORTABLE" />
+				</action>
 				<action name="print"/>
 				<action name="printTab"/>
 				<action name="exportTabPDF"/>
@@ -20,10 +21,9 @@
 			</actions>
 		</permission>
 	</role>
-	
 	<role name="consumer_annotation" external="false">
 		<permission name="transition">
-			<actions applyTo="annotation">
+			<actions>
 				<action name="replyComment"/>
 			</actions>
 		</permission>

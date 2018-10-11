@@ -1,0 +1,36 @@
+<div id="{{ ::fileUploadItem.entry.file.id }}" class="file-entry">
+  <div class="row vertical-center" ng-if="!fileUploadItem.complete">
+    <div class="col-md-3 file-name">{{ ::fileUploadItem.entry.file.name }}</div>
+    <div class="col-md-3">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar">0%</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <button class="btn btn-sm btn-primary upload-button" ng-click="fileUploadItem.upload()"
+              ng-disabled="!fileUploadItem.uploadEnabled || !fileUploadItem.valid || fileUploadItem.config.disabled"
+              ng-show="!fileUploadItem.complete">
+        {{ ::'fileupload.upload' | translate }}
+      </button>
+      <button class="btn btn-sm btn-default remove-button" ng-click="fileUploadItem.remove()"
+              ng-disabled="!fileUploadItem.removeEnabled" ng-show="!fileUploadItem.complete">
+        {{ ::'fileupload.remove' | translate }}
+      </button>
+    </div>
+    <div class="col-md-3 has-error message">
+      <span class="help-block">{{ fileUploadItem.message }}</span>
+    </div>
+  </div>
+
+  <div class="row instance-header" ng-if="fileUploadItem.complete">
+    <div class="col-md-12" ng-bind-html="fileUploadItem.header | toTrustedHtml"></div>
+  </div>
+
+  <span ng-if="fileUploadItem.uploadAllowed && !fileUploadItem.existingEntity && !fileUploadItem.uploadStarted">
+    <instance-create-configuration config="::fileUploadItem.config"
+                                   on-form-loaded="fileUploadItem.onFormLoaded(event)">
+    </instance-create-configuration>
+  </span>
+
+  <hr class="separator" ng-if="fileUploadItem.fileUpload.entries.length > 1"/>
+</div>

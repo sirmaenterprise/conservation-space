@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo="/>
+  <link rel="stylesheet" type="text/css" media="screen" href="/build/style/bootstrap.css">
+
+  <script src="/jspm_packages/es6-module-loader.js"></script>
+  <script src="/jspm_packages/system.js"></script>
+  <script src="/build/config.js"></script>
+  <script src="/build/common/lib/plugin-registry.js"></script>
+  <script src="/build/plugins.js"></script>
+  <script src="/sandbox/sandbox-init.js"></script>
+
+</head>
+<body>
+<script type="text/javascript">
+  bootstrapSandbox({
+    paths: {
+      'services/idoc/idoc-context-factory': 'sandbox/services/idoc/idoc-context-factory.stub.js',
+      'common/application-config': 'sandbox/common/application-config.stub.js'
+    },
+    modules: ['sandbox/create/instance-create-panel/instance-create-panel-bootstrap', 'font-awesome', 'idoc/editor/idoc-editor']
+  }).then(function () {
+    // es6 template literals are not supported in IE and the sandbox is not transpiled
+    CKEDITOR.basePath = window.location.protocol + '//' + window.location.host + '/build/common/lib/ckeditor/';
+  }).catch();
+</script>
+<br>
+
+<div class="container">
+  <instance-create-panel-bootstrap></instance-create-panel-bootstrap>
+</div>
+</body>
+</html>

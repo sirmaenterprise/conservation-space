@@ -4,60 +4,38 @@
 
 	<groupId>com.sirma.itt.seip</groupId>
 	<artifactId>seip-parent</artifactId>
-	<version>2.6.0-SNAPSHOT</version>
+	<version>2.22.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>SEIP Bundle</name>
-	<description>SEIP Main Bundle</description>
-	<url>http://www.sirmaitt.com/</url>
-	<issueManagement>
-		<system>JIRA</system>
-		<url>https://ittruse.ittbg.com/jira/browse/CMF</url>
-	</issueManagement>
-	<ciManagement>
-		<url>http://jenkins.ruse.ittbg.com:8888/view/SEIP/job/SEIP CI/</url>
-	</ciManagement>
+	<name>SEP Parent POM</name>
 
 	<properties>
-		<version.arquillian>1.1.8.Final</version.arquillian>
-		<version.arquillian.jacoco>1.0.0.Alpha8</version.arquillian.jacoco>
-		<version.wildfly.arquillian>1.0.0.CR1</version.wildfly.arquillian>
-		<version.jacoco>0.7.6.201602180812</version.jacoco>
+		<version.jacoco>0.7.9</version.jacoco>
 		<version.hibernate>4.3.9.Final</version.hibernate>
-		<slf4j.version>1.7.12</slf4j.version>
+		<slf4j.version>1.7.25</slf4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<version.java>1.8</version.java>
 		<version.resteasy>3.0.11.Final</version.resteasy>
-		<version.jackson>2.5.1</version.jackson>
+		<version.jackson>2.6.7</version.jackson>
 		<version.undertow>1.2.9.Final</version.undertow>
 		<version.infinispan>7.2.3.Final</version.infinispan>
 		<version.httpcomponents>4.4.1</version.httpcomponents>
-		<!-- Added new property for sonar plugin to resolve jacoco unit test's 
-			reports -->
-		<sonar.jacoco.reportPaths>${project.build.directory}/jacoco-ut.exec,${project.build.directory}/jacoco-it.exec</sonar.jacoco.reportPaths>
+		<version.rdf4j>2.2.2</version.rdf4j>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<poi.version>3.17</poi.version>
+		<poi.scratchpad.version>3.17-beta1</poi.scratchpad.version>
 	</properties>
 
 	<modules>
-		<module>seip-bom</module>
-		<module>platform</module>
-		<module>extensions</module>
-		<module>adapters</module>
-		<module>deployments</module>
-		<module>api-gateway</module>
-		<module>model-management</module>
-
-		<module>authority-management</module>
+		<module>all</module>
+		<module>bom</module>
+		<module>platform/seip-parent</module>
+		<module>content</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.sirma.itt.commons</groupId>
-				<artifactId>itt-commons</artifactId>
-				<version>1.0.7</version>
-			</dependency>
-
 			<!-- logging -->
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -143,15 +121,52 @@
 				<version>2.6</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-text</artifactId>
+				<version>1.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-scratchpad</artifactId>
+				<version>${poi.scratchpad.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>1.7.2</version>
+			</dependency>
+
+			<dependency>
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
 				<version>2.1</version>
 			</dependency>
+
+
+			<!-- Used for properly parsing CDATA in JAXB -->
 			<dependency>
 				<groupId>org.eclipse.persistence</groupId>
 				<artifactId>org.eclipse.persistence.moxy</artifactId>
 				<version>2.5.1</version>
 			</dependency>
+
 			<dependency>
 				<groupId>de.odysseus.juel</groupId>
 				<artifactId>juel-impl</artifactId>
@@ -225,11 +240,17 @@
 				<version>3.3.1</version>
 				<scope>test</scope>
 			</dependency>
-
 			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>3.4</version>
+				<groupId>org.jglue.cdi-unit</groupId>
+				<artifactId>cdi-unit</artifactId>
+				<version>4.0.2</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.weld.se</groupId>
+				<artifactId>weld-se</artifactId>
+				<version>2.4.4.Final</version>
+				<scope>test</scope>
 			</dependency>
 
 			<!-- jboss modules -->
@@ -303,12 +324,12 @@
 			<dependency>
 				<groupId>org.liquibase</groupId>
 				<artifactId>liquibase-core</artifactId>
-				<version>3.3.3</version>
+				<version>3.5.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.mattbertolini</groupId>
 				<artifactId>liquibase-slf4j</artifactId>
-				<version>1.2.1</version>
+				<version>2.0.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -413,52 +434,6 @@
 					<version>2.2</version>
 					<scope>test</scope>
 				</dependency>
-
-				<!-- To use/disable TestNG for testing uncomment/comment next block -->
-				<dependency>
-					<groupId>org.wildfly.arquillian</groupId>
-					<artifactId>wildfly-arquillian-testng-integration</artifactId>
-					<version>${version.wildfly.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.wildfly.arquillian</groupId>
-					<artifactId>wildfly-arquillian-testenricher-msc</artifactId>
-					<version>${version.wildfly.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-				<!-- <dependency> -->
-				<!-- <groupId>org.wildfly.arquillian</groupId> -->
-				<!-- <artifactId>wildfly-arquillian-common</artifactId> -->
-				<!-- <version>${version.wildfly.arquillian}</version> -->
-				<!-- </dependency> -->
-				<dependency>
-					<groupId>org.jboss.shrinkwrap.resolver</groupId>
-					<artifactId>shrinkwrap-resolver-api-maven</artifactId>
-					<version>2.1.1</version>
-					<scope>test</scope>
-				</dependency>
-
-				<dependency>
-					<groupId>org.jboss.arquillian.testng</groupId>
-					<artifactId>arquillian-testng-container</artifactId>
-					<version>${version.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-
-				<dependency>
-					<groupId>org.codehaus.jettison</groupId>
-					<artifactId>jettison</artifactId>
-					<version>1.3.4</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.spec.javax.faces</groupId>
-					<artifactId>jboss-jsf-api_2.2_spec</artifactId>
-					<version>2.2.10</version>
-					<scope>test</scope>
-				</dependency>
-
 			</dependencies>
 		</profile>
 
@@ -531,337 +506,11 @@
 				</plugins>
 			</build>
 		</profile>
-
-		<profile>
-			<id>integration-test-cc</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.jboss.spec</groupId>
-					<artifactId>jboss-javaee-7.0</artifactId>
-					<version>1.0.3.Final</version>
-					<scope>provided</scope>
-					<type>pom</type>
-				</dependency>
-
-				<dependency>
-					<groupId>org.wildfly.arquillian</groupId>
-					<artifactId>wildfly-arquillian-container-remote</artifactId>
-					<version>1.0.0.CR1</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.arquillian.core</groupId>
-					<artifactId>arquillian-core-api</artifactId>
-					<version>${version.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.arquillian.protocol</groupId>
-					<artifactId>arquillian-protocol-servlet</artifactId>
-					<version>${version.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.shrinkwrap.resolver</groupId>
-					<artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-					<version>2.1.1</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.arquillian.extension</groupId>
-					<artifactId>arquillian-jacoco</artifactId>
-					<version>${version.arquillian.jacoco}</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jacoco</groupId>
-					<artifactId>org.jacoco.core</artifactId>
-					<version>${version.jacoco}</version>
-				</dependency>
-			</dependencies>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.sonarsource.scanner.maven</groupId>
-						<artifactId>sonar-maven-plugin</artifactId>
-					</plugin>
-
-					<plugin>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<argLine>${argLine} -Duser.language=en</argLine>
-							<excludes>
-								<exclude>**/*CITest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<configuration>
-							<includes>
-								<include>**/*CITest.java</include>
-							</includes>
-						</configuration>
-						<executions>
-							<execution>
-								<id>integration-tests</id>
-								<goals>
-									<goal>integration-test</goal>
-									<goal>verify</goal>
-								</goals>
-								<configuration>
-									<argLine>${failsafeArgLine}</argLine>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>${version.jacoco}</version>
-						<configuration>
-							<dumpOnExit>true</dumpOnExit>
-						</configuration>
-						<executions>
-							<execution>
-								<id>pre-unit-test</id>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-								<configuration>
-									<destFile>${project.build.directory}/jacoco-ut.exec</destFile>
-									<propertyName>argLine</propertyName>
-								</configuration>
-							</execution>
-							<execution>
-								<id>post-unit-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-									<dataFile>${project.build.directory}/jacoco-ut.exec</dataFile>
-									<outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>pre-integration-test</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-								<configuration>
-									<destFile>${project.build.directory}/jacoco-it.exec</destFile>
-									<propertyName>failsafeArgLine</propertyName>
-								</configuration>
-							</execution>
-							<execution>
-								<id>post-integration-test</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-
-									<dataFile>${project.build.directory}/jacoco-it.exec</dataFile>
-									<outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-				</plugins>
-			</build>
-			<reporting>
-				<plugins>
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>${version.jacoco}</version>
-					</plugin>
-				</plugins>
-			</reporting>
-		</profile>
-
-		<profile>
-			<id>integration-test-embbed</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.wildfly</groupId>
-					<artifactId>wildfly-embedded</artifactId>
-					<version>9.0.0.CR1</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.wildfly.arquillian</groupId>
-					<artifactId>wildfly-arquillian-container-embedded</artifactId>
-					<version>1.0.0.CR1</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.arquillian.core</groupId>
-					<artifactId>arquillian-core-api</artifactId>
-					<version>${version.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.logmanager</groupId>
-					<artifactId>jboss-logmanager</artifactId>
-					<version>2.0.0.Final</version>
-					<scope>test</scope>
-				</dependency>
-
-			</dependencies>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>2.8</version>
-						<executions>
-							<execution>
-								<id>unpack</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.wildfly</groupId>
-											<artifactId>wildfly-dist</artifactId>
-											<version>9.0.0.CR1</version>
-											<type>zip</type>
-											<overWrite>false</overWrite>
-											<outputDirectory>target</outputDirectory>
-										</artifactItem>
-									</artifactItems>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<configuration>
-							<includes>
-								<include>**/*CITest.java</include>
-							</includes>
-							<forkMode>always</forkMode>
-							<redirectTestOutputToFile>false</redirectTestOutputToFile>
-							<argLine>${failsafeArgLine}</argLine>
-							<systemProperties>
-								<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-							</systemProperties>
-						</configuration>
-						<executions>
-							<execution>
-								<id>integration-tests</id>
-								<goals>
-									<goal>integration-test</goal>
-									<goal>verify</goal>
-								</goals>
-								<configuration>
-									<argLine>${failsafeArgLine}</argLine>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.sonarsource.scanner.maven</groupId>
-						<artifactId>sonar-maven-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>integration-test</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.jboss.spec</groupId>
-					<artifactId>jboss-javaee-7.0</artifactId>
-					<version>1.0.3.Final</version>
-					<scope>provided</scope>
-					<type>pom</type>
-				</dependency>
-
-				<dependency>
-					<groupId>org.wildfly.arquillian</groupId>
-					<artifactId>wildfly-arquillian-container-remote</artifactId>
-					<version>1.0.0.CR1</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.arquillian.core</groupId>
-					<artifactId>arquillian-core-api</artifactId>
-					<version>${version.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.jboss.arquillian.protocol</groupId>
-					<artifactId>arquillian-protocol-servlet</artifactId>
-					<version>${version.arquillian}</version>
-					<scope>test</scope>
-				</dependency>
-
-				<dependency>
-					<groupId>org.jboss.shrinkwrap.resolver</groupId>
-					<artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-					<version>2.1.1</version>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<configuration>
-							<includes>
-								<include>**/*CITest.java</include>
-							</includes>
-							<forkMode>always</forkMode>
-							<redirectTestOutputToFile>false</redirectTestOutputToFile>
-							<argLine>${failsafeArgLine}</argLine>
-						</configuration>
-						<executions>
-							<execution>
-								<id>integration-tests</id>
-								<goals>
-									<goal>integration-test</goal>
-									<goal>verify</goal>
-								</goals>
-								<configuration>
-									<argLine>${failsafeArgLine}</argLine>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.sonarsource.scanner.maven</groupId>
-						<artifactId>sonar-maven-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.5.1</version>
-					<configuration>
-						<source>${version.java}</source>
-						<target>${version.java}</target>
-					</configuration>
-				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
@@ -875,12 +524,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>2.20</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>2.19.1</version>
+					<version>2.20</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

@@ -1,0 +1,15 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX nga: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/NGA#>
+delete {
+    ?instance nga:purpose ?purpose
+} insert {
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?instance nga:purpose "NGA214014"   
+    }
+}where  {
+    ?instance a emf:Document .
+	?instance nga:purpose ?purpose .
+	filter(?purpose = "NGA214004"
+		|| ?purpose = "NGA214005"
+		|| ?purpose = "NGA214006")
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="create-unique-tables-2.12-0" author="btonchev">
+        <preConditions>
+            <not>
+                <tableExists tableName="sep_unique_fields"/>
+            </not>
+        </preConditions>
+        <comment>
+            Create sep_unique_fields table.
+            It holds which couple of definition id and field uri are unique for tenant.
+            Create sep_unique_values table.
+            It hold registered unique values of properties for instances.
+        </comment>
+        <createTable tableName="sep_unique_fields">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="definition_id" type="varchar(180)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="field_uri" type="varchar(180)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="sep_unique_fields" columnNames="definition_id,field_uri"/>
+        <createTable tableName="sep_unique_values">
+            <column autoIncrement="true" name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="value" type="varchar(2048)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="instance_id" type="varchar(180)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unique_field_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="sep_unique_values" columnNames="unique_field_id,value"/>
+        <addForeignKeyConstraint
+                baseTableSchemaName="public"
+                baseTableName="sep_unique_values"
+                baseColumnNames="unique_field_id"
+                constraintName="sep_unique_field_fk"
+                deferrable="false"
+                initiallyDeferred="false"
+                onDelete="CASCADE"
+                onUpdate="NO ACTION"
+                referencedTableSchemaName="public"
+                referencedTableName="sep_unique_fields"
+                referencedColumnNames="id"
+                />
+    </changeSet>
+
+</databaseChangeLog>

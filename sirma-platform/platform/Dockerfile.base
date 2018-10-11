@@ -1,0 +1,36 @@
+FROM docker-reg.sirmaplatform.com/wildfly:9.0.2-u3
+
+ARG wildfly_home=/opt/wildfly
+ARG wildfly_pg_module_path=${wildfly_home}/modules/system/layers/base/org/postgresql/main/
+ARG pg_jdbc4_driver_url=https://jdbc.postgresql.org/download/postgresql-9.4-1206-jdbc4.jar
+
+ENV IDP_PORT="9443" \
+	MAIL_HOST="mail" \
+	MAIL_PORT="1025" \
+	MAIL_SENDER="no-reply@sirma.bg" \
+	IMAGE_SERVER_BASE_URL="http://iiif" \
+	FTP_HOST="ftp" \
+	IMAGE_SERVER_ENABLED="true" \
+	DB_HOST="db" \
+	DB_PORT="5432" \
+	DB_USER="sep" \
+	DB_USER_PASS="sep" \
+	DB_NAME="sep" \
+	DB_NAME_AUDIT="sepaudit" \
+	EXPORT_PDF_SERVICE_ADDR="http://export:8080" \
+	JAVA_OPTS="${JAVA_OPTS} -Djava.net.preferIPv4Stack=true"
+
+COPY docker-rootfs/ /
+
+RUN \
+	apk --no-cache add libaio openjdk8-jre  && \
+	(cd ${wildfly_pg_module_path}; curl -sLO ${pg_jdbc4_driver_url}) && \
+	for file in bin/sep*.cli; do ./bin/jboss-cli.sh --file=$file; done && \
+	rm -rf standalone/configuration/standalone_xml_history && \
+	mkdir -p /etc/sep/assets /var/lib/sep/content /var/lib/sep/tmp && \
+    chown -R $DOCKER_USER:$DOCKER_USER $wildfly_home /etc/sep/assets /var/lib/sep && \
+	chmod +x /docker-init.d/*.sh /usr/local/bin/*.sh
+
+VOLUME ["/etc/sep/assets", "/var/lib/sep"]
+
+HEALTHCHECK --start-period=15m CMD healthcheck.sh

@@ -1,0 +1,12 @@
+# Main entrypoint for zimbra-setup role
+
+- include_vars: file='packages-{{ ansible_os_family }}.yml'
+- include: 'vars/zimbra-{{ ansible_os_family }}.yml'
+
+- include: base/configure-hosts.yml
+
+- include: 'zimbra/{{ ansible_os_family }}/packages.yml'
+- include: zimbra/zimbra-install.yml
+- include: zimbra/zimbra-setup.yml
+- include: spam/install-spamassassin.yml
+- include: spam/install-policyd.yml

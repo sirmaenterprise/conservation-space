@@ -1,0 +1,327 @@
+<?xml version="1.0"?>
+<definition id="userDefinition" parentId="userDefinitionBase" type="user">
+	<fields>		
+		<field name="default_header" type="ANY" label="USER_DEFAULT_HEADER_YUL" />
+		<field name="compact_header" type="an..4096" label="USER_COMPACT_HEADER_YUL" />
+		<field name="tooltip_header" type="ANY" label="USER_TOOLTIP_HEADER_YUL" />
+	
+		<field name="userId" type="an..200" label="userDefinition.userId" tooltip="yul.userId.tooltip" rnc="^(?:[a-zA-Z0-9]+(?:[\._][a-zA-Z0-9]{2,})+|[a-zA-Z0-9]{3,}(?:[\._][a-zA-Z0-9]+)*)(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,20})?$" unique="true" />
+		<field name="title" type="an..100" label="userDefinition.title" tooltip="yul.title.tooltip" />
+	    <field name="firstName" type="an..35" mandatory="true" label="userDefinition.firstName" tooltip="yul.firstName.tooltip" />
+	    <field name="lastName" type="an..35" mandatory="true" label="userDefinition.lastName" tooltip="yul.lastName.tooltip" /> 
+	    <field name="email" type="an..50" label="yul.email.label" tooltip="yul.email.tooltip" unique="true" />
+		<field name="country" type="an..50" label="userDefinition.country" tooltip="yul.country.tooltip" />
+		<field name="address" type="an..100" label="userDefinition.address" tooltip="yul.address.tooltip" />
+		<field name="telephone" type="an..50" label="userDefinition.telephone" tooltip="yul.telephone.tooltip" />
+		<field name="mobile" type="an..100" label="userDefinition.mobile" tooltip="yul.mobile.tooltip" />
+		<field name="im" type="an..100" label="userDefinition.im" tooltip="yul.im.tooltip" />
+		
+		<field name="organization" type="an..100" label="userDefinition.organization" tooltip="yul.organization.tooltip" />
+		<field name="department" type="an..50" displayType="editable" codelist="CL245" label="yul.department.label" tooltip="yul.department.tooltip" uri="emf:departmentName" >
+			<control id="RELATED_FIELDS">
+				<control-param id="fieldsToRerender" name="RERENDER">jobtitle</control-param>
+				<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+				<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+			</control>
+		</field>
+		<field name="jobtitle" type="an..50" codelist="CL350" label="userDefinition.jobtitle" tooltip="yul.jobtitle.tooltip" />
+		<field name="language" type="an..50" codelist="CL13" label="userDefinition.language" tooltip="yul.language.tooltip" >
+			<value>en</value>
+		</field>
+		<field name="ownedBy" type="uri" label="ownedBy" displayType="system" >
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Task</control-param>
+			</control>
+		</field>
+		
+		<!-- system field -->
+		<field name="emf:version" type="an..10" displayType="system" /> 	
+		<field name="isAssigneeOf" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="isMemberOf" type="uri" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
+		<field name="status" type="an..10" displayType="system" />
+		<field name="owner" type="uri" displayType="system" />
+		<field name="isReporterOf" type="uri" displayType="system" />
+		<field name="createdOn" type="dateTime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system" />
+		<field name="modifiedOn" type="dateTime" displayType="system" />
+		<field name="modifiedBy" type="uri" displayType="system" />
+		<field name="isPoolAssigneeTo" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+		<field name="lockedBy" type="uri" displayType="system" />
+
+	</fields>	
+	<regions> 
+		<region id="systemData" displayType="editable" label="yul.systemData.region.label">
+			<fields>
+				<field name="type" type="an..20" displayType="readOnly" label="yul.type.label" tooltip="yul.type.tooltip" codelist="CL7" uri="emf:type" > 
+					<value>FC236008</value>
+				</field>
+				<field name="status" type="an..10" displayType="readonly" codelist="CL12" label="status.label" tooltip="yul.status.tooltip" uri="emf:status" />
+				<field name="emf:version" type="an..10" displayType="readOnly" label="object.version" uri="emf:version"/>
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" dmsType="FORBIDDEN">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="dateTime" displayType="readOnly" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" uri="emf:modifiedOn" />
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" uri="emf:modifiedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" displayType="readonly" label="yul.lockedBy.label" tooltip="yul.lockedBy.tooltip" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<!-- relationships -->
+				<field name="isMemberOf" type="uri" displayType="readOnly" label="yul.isMemberOf.label" tooltip="yul.isMemberOf.tooltip" multiValued="true" uri="emf:isMemberOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="isAssigneeOf" type="uri" displayType="readOnly" label="yul.isAssigneeOf.label" tooltip="yul.isAssigneeOf.tooltip" multiValued="true" uri="emf:isAssigneeOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="chc:isSupervisorOf" type="uri" displayType="readOnly" label="yul.isSupervisorOf.label" tooltip="yul.isSupervisorOf.tooltip" multiValued="true" uri="chc:isSupervisorOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="chc:isAuthorOf" type="uri" displayType="readOnly" label="yul.authorOf.label" tooltip="yul.isAuthorOf.tooltip" multiValued="true" uri="chc:isAuthorOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="ptop:involvedIn" type="uri" displayType="readOnly" label="yul.involvedIn.label" tooltip="yul.involvedIn.tooltip" multiValued="true" uri="ptop:involvedIn" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<!-- <field name="chc:hasApproved" type="uri" displayType="readOnly" label="yulUser.approvedBy.label" tooltip="yulUser.hasApproved.tooltip" multiValued="true" uri="chc:hasApproved" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field> -->
+				<field name="isReporterOf" type="uri" displayType="readOnly" label="yul.isReporterOf.label" tooltip="yul.isReporterOf.tooltip" multiValued="true" uri="emf:isReporterOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="emf:isWatcherOf" type="uri" displayType="readOnly" label="yul.isWatcherOf.label" tooltip="yul.isWatcherOf.tooltip" multiValued="true" uri="emf:isWatcherOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="hasThumbnail" type="uri" displayType="readOnly" label="yul.hasThumbnail.label" tooltip="yul.hasThumbnail.tooltip" uri="emf:hasThumbnail" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readOnly" label="yul.parentOf.label" tooltip="yul.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" displayType="readOnly" label="yul.hasParent.label" tooltip="yul.hasParent.tooltip" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="yul.partOf.label" tooltip="yul.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="yul.hasChild.label" tooltip="yul.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+    <transitions>
+		<transition id="editDetails" order="5" actionPath="/actions" />
+		<transition id="activate" order="10" actionPath="/" />
+		<transition id="deactivate" order="15" />
+		
+		<group id="add" order="20" label="add.group.label" type="menu" />	
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="25" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" label="exportTabPDF.label" tooltip="exportTabPDF.tooltip" eventId="exportTabPDF" purpose="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" label="exportPDF.label" eventId="exportPDF" purpose="exportPDF" tooltip="exportPDF.tooltip" group="exportAs" />
+		<transition id="exportTabWord" label="exportTabWord.label" tooltip="exportTabWord.tooltip" eventId="exportTabWord" purpose="exportTabWord" group="exportAs" />
+		<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" group="exportAs" />
+		
+		<group id="print" order="30" label="print.group.label" type="menu" />
+		<transition id="printTab" label="printTab.label" tooltip="printTab.tooltip" eventId="printTab" purpose="printTab" group="print" />
+		<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" group="print" />
+		
+		<group id="template" order="31" label="template.group.label" type="menu" />
+		<transition id="saveAsUserTemplate" group="template" /> 
+		<transition id="updateTemplate" tooltip="yul.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="yul.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="35" label="more.group.label" type="menu" />
+		<transition id="unlock" actionPath="/" group="more" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="NOT_CREATED"/>
+		<stateTransition from="NOT_CREATED" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
+
+		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="saveAsUserTemplate" to="ACTIVE"/>		           
+        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="print" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportPDF" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportWord" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>
+		
+		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
+		
+		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />	
+	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="project" id="all"/>
+		<child type="object" id="yulActivity"/>
+		<child type="task" id="all"/>
+		<child type="document" id="all"/>
+		<child type="object" id="yulAudio"/>
+		<child type="object" id="yulVideo"/>
+		<child type="object" id="yulImage"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="USER_TOOLTIP_HEADER_YUL">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}"
+						${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+							<span data-title="${get([title])}">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+                 	   			&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+                     		)}
+						</a>
+					</span>
+					${if(${get([country])}<>null).then(
+						<span class="tooltip-row">
+							<label>Country: </label>
+							<span data-property="country">${get([country])}</span>
+						</span>
+					)}
+					${if(${get([telephone])}<>null).then(
+						<span class="tooltip-row">
+							<label>Telephone: </label>
+							<span data-property="telephone">${get([telephone])}</span>
+						</span>
+					)}
+					${if(${get([mobile])}<>null).then(
+						<span class="tooltip-row">
+							<label>Mobile: </label>
+							<span data-property="mobile">${get([mobile])}</span>
+						</span>
+					)}
+					${if(${get([email])}<>null).then(
+						<span class="tooltip-row">
+							<label>Email: </label>
+							<span data-property="mobile">${get([email])}</span>
+						</span>
+					)}
+					${if(${get([organization])}<>null).then(
+						<span class="tooltip-row">
+							<label>Organization: </label>
+							<span data-property="organization">${get([organization])}</span>
+						</span>
+					)}
+					${if(${get([department])}<>null).then(
+						<span class="tooltip-row">
+							<label>Department: </label>
+							<span data-property="department">${CL([department])}</span>
+						</span>
+					)}	
+					${if(${get([jobtitle])}<>null).then(
+						<span class="tooltip-row">
+							<label>Job position: </label>
+							<span data-property="jobtitle">${CL([jobtitle])}</span>
+						</span>
+					)}	
+				</span>
+			)})}]]></value>
+		</label>
+		<label id="USER_DEFAULT_HEADER_YUL">
+            <value lang="en"><![CDATA[${eval(
+				${var.jobtitle=${if(${CL([jobtitle])}<>null).then(true).else(false)}}
+				${var.department=${if(${CL([department])}<>null).then(true).else(false)}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span ><img src="${thumbnailUri(64)}"/></span>
+                ${if(${get([emf:isActive])}==false).then(<span style=color:#a9a9a9;>).else(<span>)}
+					${if(${CL([jobtitle])}<>null).then(<span data-property="jobtitle">${CL([jobtitle])}</span>)}
+					${if(${and(${var.jobtitle} and ${var.department})}).then(<span>,&nbsp;</span>)}
+					${if(${CL([department])}<>null).then(<span data-property="department">${CL([department])}</span>)}
+					${if(${or(${var.jobtitle} or ${var.department})}).then(</br>)}
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"	
+							${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+								&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+							)}
+						</a>
+					</span>
+					${if(${get([email])}<>null).then(,&nbsp;<span data-property="email">${get([email])}</span>)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]>
+			</value>
+        </label>
+		<label id="USER_COMPACT_HEADER_YUL">
+			<value lang="en"><![CDATA[${eval(
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"	
+						${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+								&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+							)}
+						</a>
+					</span>
+					<br />
+				</span>)}]]>
+			</value>
+		</label>	
+	</labels>
+</definition>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="1.0" attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+	<xs:include schemaLocation="common.xsd" />
+
+	<xs:annotation>
+		<xs:appinfo>
+			<jaxb:schemaBindings>
+				<jaxb:package name="com.sirma.itt.cmf.beans.jaxb" />
+			</jaxb:schemaBindings>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:simpleType name="templateIdType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100" />
+			<xs:pattern value="[\w:_]{1,100}" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="templateDefinition">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="fields" type="complexFieldsDefinition" minOccurs="1" />
+				<xs:element ref="labels" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute type="templateIdType" name="id" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

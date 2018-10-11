@@ -1,0 +1,58 @@
+SELECT DISTINCT ?assignedTo ?role ?roleType ?isLibrary ?library ?parent ?wrongInstance ?inheritFromParent
+?inheritFromLibrary WHERE {
+    {
+        # fetch special permission for entity
+        ?role sec:hasRoleType ?roleType .
+        ?roleType skos:exactMatch ?sepRole .
+        ?assignedTo sec:assignedTo ?role.
+        ?role sec:hasPermission ?entity.
+        optional {
+            ?entity a owl:Class.
+            BIND("true"^^xsd:boolean as ?isLibrary).
+        }
+    } UNION {
+        {
+            # fetch parent and check if the entity inherits the permissions of the parent
+            ?entity ptop:partOf ?parent .
+            optional {
+                ?parent sec:hasPermission ?entity .
+                bind("true"^^xsd:boolean as ?inheritFromParent)
+            }
+        } UNION {
+            ?parent emf:hasChild ?entity.
+            optional {
+                ?parent sec:hasPermission ?entity .
+                bind("true"^^xsd:boolean as ?inheritFromParent)
+            }
+        }
+    } UNION {
+        # fetch library and if the library inheritance is enabled
+        ?entity a ?library .
+        ?library a owl:Class.
+        optional {
+            ?library sec:hasPermission ?entity .
+            bind("true"^^xsd:boolean as ?inheritFromLibrary)
+        }
+    } UNION {
+        # fetch any permissions to instances that
+        # not parent to the current instance
+        # not library to the current instance
+        # not a role
+        ?wrongInstance sec:hasPermission ?entity .
+        filter(not exists {
+                ?wrongInstance a sec:Role
+            })
+        filter(not exists {
+                ?entity a ?wrongInstance .
+                ?wrongInstance sec:hasPermission ?entity
+            })
+        filter (not exists {
+                ?entity ptop:partOf ?wrongInstance .
+                ?wrongInstance sec:hasPermission ?entity
+            })
+        filter (not exists {
+                ?wrongInstance emf:hasChild ?entity.
+                ?wrongInstance sec:hasPermission ?entity
+            })
+    }
+}

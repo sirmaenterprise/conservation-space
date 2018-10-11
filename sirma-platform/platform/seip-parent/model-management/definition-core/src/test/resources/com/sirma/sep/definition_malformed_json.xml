@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<definition id="malformedJsonDef" type="object">
+		<fields>
+			<field name="label" label="testLabel" type="an..200" mandatory="true" displayType="editable" uri="dcterms:label"></field>
+			<field name="jsonFieldBlank" label="jsonFieldBlankLabel" type="json" mandatory="true" displayType="editable" uri="emf:test"></field>
+			<field name="correctJsonField" label="correctJsonFieldLabel" type="json">
+				<value>{ "foo" : "bar", "one" : "two"}</value>
+			</field>
+			<field name="malformedJsonField" label="malformedJsonFieldLabel" type="json">
+				<value>{ "foo" : "bar", "one" : "two"</value>
+			</field>
+		</fields>
+		
+		<regions>
+			<region id="systemData" displayType="editable" order="10">
+				<fields>
+					<field name="type" label="typeLabel" type="json" order="10">
+						<value>{ foo :</value>
+					</field>
+				</fields>
+			</region>
+			<region id="testRegion" displayType="editable" order="10">
+				<fields>
+					<field name="notJson" label="notJsonLabel" type="an..50" order="11">
+						<value>{ bar :</value>
+					</field>
+				</fields>
+			</region>
+		</regions>
+		
+		<transitions>
+			<transition id="contactPerson" purpose="addRelation">
+				<fields>
+					<field name="attachToConfig" label="attachToConfigLabel" type="json">
+						<value>
+			 				{
+			 					"predefinedTypes" : ["emf:User"],
+								"relation" : ["emf:contactPerson"]
+						</value>
+						<control id="configuration" />
+					</field>
+					<field name="misspelledBooleanField" label="misspelledBooleanFieldLabel" type="json" order="11">
+						<value>{ "boolField" : tru }</value>
+					</field>
+					<field name="correctBooleanField" label="correctBooleanFieldLabel" type="json" order="11">
+						<value>{ "boolField" : false }</value>
+					</field>
+				</fields>
+			</transition>
+			<transition id="testTransition" purpose="test">
+				<fields>
+					<field name="testOne" label="testOneLabel" type="json">
+						<value>
+			 				{
+			 					"predefinedTypes" : ["emf:User"]
+								"relation" : ["emf:contactPerson"]
+							}
+						</value>
+						<control id="configuration" />
+					</field>
+					<field name="notJsonField" label="notJsonFieldLabel" type="an..100">
+						<value>
+			 				{
+			 					"predefinedTypes : ["emf:User"]
+						</value>
+						<control id="configuration" />
+					</field>
+				</fields>
+			</transition>
+		</transitions> 
+</definition>

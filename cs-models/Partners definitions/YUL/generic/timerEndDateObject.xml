@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<definition id="timerEndDateObject" type="timer" isAbstract="false">
+	<fields>
+		<field name="timerEndDateObject" type="an..200" displayType="system">
+			<value><![CDATA[
+					var mapWithUsersObjects = {};
+                    var currentDateCalendar = java.util.Calendar.getInstance();
+                    currentDateCalendar.setTime(new java.util.Date());
+                    var currentDate = currentDateCalendar.getTime();
+ 
+                    currentDateCalendar.add(java.util.Calendar.DATE, 1);
+                    var tomorrowDate = currentDateCalendar.getTime();
+					
+					// process yul:Activity
+					//['IN_PROGRESS'];
+					var arguments = new com.sirma.itt.seip.context.Context();
+					arguments.put('currentDate', currentDate);
+					arguments.put('tomorrowDate', tomorrowDate);
+					arguments.put('type', 'yul:Activity');
+					arguments.put('statement', '{?instance emf\\:status \"IN_PROGRESS\" . } ');
+					var yulActivities = search.with(search.buildArgumentsForPredefinedQuery('yulQueries/getInstanceNearEnd', arguments));
+					var properties = ['createdBy', 'emf:createdBy', 'hasWatcher', 'emf:hasWatcher', 'assignee', 'emf:hasAssignee'];
+				    for(var i=0; i < yulActivities.length; i++){
+						var yulActivity = yulActivities[i];
+                        var relatedUsers = tasks.getTaskAssignees(yulActivity, properties);
+						for(var j=0; j < relatedUsers.length; j++) {
+							var relatedUser = relatedUsers[j];
+							// get list of dossiers by user
+							var listOfObjects = mapWithUsersObjects[relatedUser];
+							// check do we have any
+							if (!listOfObjects) {
+								// we don't have any dossiers yet so create a list
+								listOfObjects = [];
+							}
+							// add new dossier to list
+							listOfObjects.push(yulActivity);
+							// update the map
+							mapWithUsersObjects[relatedUser] = listOfObjects;
+						}
+					}
+					
+					//issue
+                    // process emf:Issue
+                    //  ['IN_PROGRESS', 'ON_HOLD', 'OPEN', 'CLARIFY'];
+                    var arguments = new com.sirma.itt.seip.context.Context();
+                    arguments.put('currentDate', currentDate);
+                    arguments.put('tomorrowDate', tomorrowDate);
+                    arguments.put('type', 'emf:Issue');
+                    arguments.put('statement', '{?instance emf\\:status \"IN_PROGRESS\" . } UNION { ?instance emf\\:status \"ON_HOLD\" . } UNION {?instance emf\\:status \"OPEN\" . } UNION {?instance emf\\:status \"CLARIFY\" . } ');
+					// find issue
+                    var emfIssue = search.with(search.buildArgumentsForPredefinedQuery('yulQueries/getInstanceNearEnd', arguments));
+					var properties = ['assignee', 'emf:hasAssignee'];
+					for(var i=0; i < emfIssue.length; i++){
+						var issue = emfIssue[i];
+                        var relatedUsers = tasks.getTaskAssignees(issue, properties);
+						for(var j=0; j < relatedUsers.length; j++) {
+							var relatedUser = relatedUsers[j];
+							// get list of dossiers by user
+							var listOfObjects = mapWithUsersObjects[relatedUser];
+							// check do we have any
+							if (!listOfObjects) {
+								// we don't have any dossiers yet so create a list
+								listOfObjects = [];
+							}
+							// add new dossier to list
+							listOfObjects.push(issue);
+							// update the map
+							mapWithUsersObjects[relatedUser] = listOfObjects;
+						}
+                    }
+					
+					// process emf:Project
+                    // ['IN_PROGRESS'];
+                    var arguments = new com.sirma.itt.seip.context.Context();
+                    arguments.put('currentDate', currentDate);
+                    arguments.put('tomorrowDate', tomorrowDate);
+                    arguments.put('type', 'emf:Project');
+                    arguments.put('statement', '?instance emf\\:status \"IN_PROGRESS\" . ');
+					// find projects
+                    var emfProjects = search.with(search.buildArgumentsForPredefinedQuery('yulQueries/getInstanceNearEnd', arguments));
+					var properties = ['createdBy', 'emf:createdBy', 'hasWatcher', 'emf:hasWatcher', 'hasParticipant', 'ptop:hasParticipant', 'assignee', 'emf:hasAssignee'];
+					for(var i=0; i < emfProjects.length; i++){
+						var project = emfProjects[i];
+                        var relatedUsers = tasks.getTaskAssignees(project, properties);
+						for(var j=0; j < relatedUsers.length; j++) {
+							var relatedUser = relatedUsers[j];
+							// get list of dossiers by user
+							var listOfObjects = mapWithUsersObjects[relatedUser];
+							// check do we have any
+							if (!listOfObjects) {
+								// we don't have any dossiers yet so create a list
+								listOfObjects = [];
+							}
+							// add new dossier to list
+							listOfObjects.push(project);
+							// update the map
+							mapWithUsersObjects[relatedUser] = listOfObjects;
+						}
+                    }
+					
+					// process emf:BusinessProcess
+					// state IN_PROGRESS, NOT_YET_STARTED
+					arguments = new com.sirma.itt.seip.context.Context();
+					arguments.put('currentDate', currentDate);
+					arguments.put('tomorrowDate', tomorrowDate);
+					arguments.put('type', 'emf:BusinessProcess');
+					arguments.put('statement', '{?instance emf\\:status \\"IN_PROGRESS\\" . } UNION {?instance emf\\:status \\"NOT_YET_STARTED\\" . }');
+					// find workflows
+					var bussinessProcesses = search.with(search.buildArgumentsForPredefinedQuery('yulQueries/getInstanceNearEnd', arguments));
+                    properties = ['createdBy', 'emf:createdBy', 'hasWatcher', 'emf:hasWatcher' ];
+                    for(var i=0; i < bussinessProcesses.length; i++){
+						var process = bussinessProcesses[i];
+                        var relatedUsers = tasks.getTaskAssignees(process, properties);
+						for(var j=0; j < relatedUsers.length; j++) {
+							var relatedUser = relatedUsers[j];
+							// get list of dossiers by user
+							var listOfObjects = mapWithUsersObjects[relatedUser];
+							// check do we have any
+							if (!listOfObjects) {
+								// we don't have any dossiers yet so create a list
+								listOfObjects = [];
+							}
+							// add new dossier to list
+							listOfObjects.push(process);
+							// update the map
+							mapWithUsersObjects[relatedUser] = listOfObjects;
+						}
+                    }
+                   
+				   // process emf:Task
+				   // state IN_PROGRESS, NOT_YET_STARTED, ON_HOLD 
+                   arguments = new com.sirma.itt.seip.context.Context();
+				   arguments.put('currentDate', currentDate);
+				   arguments.put('tomorrowDate', tomorrowDate);
+				   arguments.put('type', 'emf:Task');
+				   arguments.put('statement', '{?instance emf\\:status \\"IN_PROGRESS\\" . } UNION {?instance emf\\:status \\"NOT_YET_STARTED\\" . } UNION { ?instance emf\\:status \\"ON_HOLD\\" . }');
+				   var emfTasks = search.with(search.buildArgumentsForPredefinedQuery('yulQueries/getInstanceNearEnd', arguments));
+				   properties = ['assignee', 'emf:hasAssignee', 'createdBy', 'emf:createdBy', 'hasWatcher', 'emf:hasWatcher' ];
+				   for(var i=0; i < emfTasks.length; i++){
+						var emfTask = emfTasks[i];
+                        var relatedUsers = tasks.getTaskAssignees(emfTask, properties);
+						for(var j=0; j < relatedUsers.length; j++) {
+							var relatedUser = relatedUsers[j];
+							// get list of dossiers by user
+							var listOfObjects = mapWithUsersObjects[relatedUser];
+							// check do we have any
+							if (!listOfObjects) {
+								// we don't have any dossiers yet so create a list
+								listOfObjects = [];
+							}
+							// add new dossier to list
+							listOfObjects.push(emfTask);
+							// update the map
+							mapWithUsersObjects[relatedUser] = listOfObjects;
+						}
+                    }
+					
+					// TODO: Define better subject if you like
+					var subject ='Upcoming Due Date';
+					var listOfRecipients = Object.keys(mapWithUsersObjects);
+					if(listOfRecipients.length > 0) {
+						// loop by keys (recipients)
+						for(var i=0; i < listOfRecipients.length; i++){
+							// current recipient(user)
+							var currentRecipient = listOfRecipients[i];
+							// get list with objects from map
+							var objects = mapWithUsersObjects[currentRecipient];
+							var recipients = [currentRecipient];
+							//send the mail
+							var context =  new com.sirma.itt.seip.context.Context();
+							mail.sendNotifications(objects[0], subject, "email_enddate_object_yul", recipients, objects);
+						}
+					}	
+                ]]>
+			</value>
+			<control id="schedulerConfiguration">
+				<!-- To be executed each day at 00:00 -->
+				<control-param id="config" name="cronExpression">0 1 0 1/1 * ? *</control-param>
+				<control-param id="config" name="persistent">true</control-param>
+			</control>
+		</field>
+	</fields>
+</definition>

@@ -3,28 +3,27 @@
 	<fields>		
 		<field name="default_header" type="ANY" label="USER_DEFAULT_HEADER_NGA" />
 		<field name="compact_header" type="an..4096" label="USER_COMPACT_HEADER_NGA" />
-		<field name="tooltip_header" type="an..4096" label="USER_TOOLTIP_HEADER_NGA" />
-
-		<field name="userId" type="an..35" order="2" label="userDefinition.userId" tooltip="ngaUser.userId.tooltip"  />
-		<field name="avatar" type="an..200" order="6" label="userDefinition.avatar" tooltip="ngaUser.avatar.tooltip" />
+		<field name="tooltip_header" type="ANY" label="USER_TOOLTIP_HEADER_NGA" />
+		
+		<field name="userId" type="an..200" order="2" label="userDefinition.userId" tooltip="ngaUser.userId.tooltip" unique="true"  />
 		<field name="title" type="an..100" order="4" label="userDefinition.title" tooltip="nga.title.tooltip" />
-	    <field name="firstName" type="an..35" order="8" label="userDefinition.firstName" tooltip="ngaUser.firstName.tooltip" />
-	    <field name="lastName" type="an..35" order="10" label="userDefinition.lastName" tooltip="ngaUser.lastName.tooltip" /> 
-	    <field name="email" type="an..50" order="12" label="nga.email.label" tooltip="nga.email.tooltip" />
+		<field name="firstName" type="an..35" order="8" mandatory="true" label="userDefinition.firstName" tooltip="ngaUser.firstName.tooltip" />
+		<field name="lastName" type="an..35" order="10" mandatory="true" label="userDefinition.lastName" tooltip="ngaUser.lastName.tooltip" /> 
+		<field name="email" type="an..50" order="12" label="nga.email.label" tooltip="nga.email.tooltip" />
 		<field name="country" type="an..50" order="14" label="userDefinition.country" tooltip="ngaUser.country.tooltip" />
 		<field name="address" type="an..100" order="16" label="userDefinition.address" tooltip="ngaUser.address.tooltip" />
 		<field name="telephone" type="an..50" order="18" label="userDefinition.telephone" tooltip="ngaUser.telephone.tooltip" />
 		<field name="mobile" type="an..100" order="20" label="userDefinition.mobile" tooltip="ngaUser.mobile.tooltip" />
 		<field name="im" type="an..100" order="22" label="userDefinition.im" tooltip="ngaUser.im.tooltip" />
-		
+
 		<field name="organization" type="an..100" order="24" label="userDefinition.organization" tooltip="ngaUser.organization.tooltip" />
-		<field name="department" type="an..1024" label="nga.department.label" tooltip="nga.department.tooltip" codelist="CL245" displayType="editable" order="26" multiValued="true" filters="ngaConservationDepartment2" dmsType="FORBIDDEN" uri="emf:departmentName" >
+		<field name="department" type="an..1024" label="nga.department.label" tooltip="nga.department.tooltip" codelist="CL245" displayType="editable" order="26" filters="ngaConservationDepartment2" uri="emf:departmentName" >
 			<control id="RELATED_FIELDS">
 				<control-param id="fieldsToRerender" name="RERENDER">jobtitle</control-param>
 				<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
 				<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
 			</control>
-		</field> 
+		</field>
 		<field name="jobtitle" type="an..50" codelist="CL350" order="28" label="userDefinition.jobtitle" tooltip="ngaUser.jobtitle.tooltip" />
 		<field name="language" type="an..50" codelist="CL13" order="30" label="userDefinition.language" tooltip="ngaUser.language.tooltip" >
 			<value>en</value>
@@ -39,74 +38,119 @@
 		<field name="emf:version" type="an..10" displayType="system" /> 	
 		<field name="isAssigneeOf" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="isMemberOf" type="uri" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
+		<field name="isReporterOf" type="uri" displayType="system" />
+		<field name="status" type="an..35" displayType="system" />
+		<field name="owner" type="uri" displayType="system" />
+		<field name="createdBy" type="uri" 	displayType="system" />
+		<field name="createdOn" type="dateTime" displayType="system" />
+		<field name="modifiedBy" type="uri" displayType="system" /> 
+		<field name="modifiedOn" type="dateTime" displayType="system" /> 
+		<field name="isPoolAssigneeTo" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
 	</fields>	
 	<regions> 
-		<region id="ngaUserRelationships" order="80" displayType="editable" label="nga.relationships.region.label">
+		<region id="systemInformation" order="75" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="type" type="an..20" label="nga.type.label" tooltip="nga.type.tooltip" order="799" codelist="CL3" displayType="hidden" uri="emf:type" dmsType="FORBIDDEN" > 
+				<field name="type" type="an..20" label="nga.type.label" tooltip="nga.type.tooltip" codelist="CL7" displayType="hidden" uri="emf:type" > 
 					<value>user</value>
 				</field>
-				<field name="emf:version" type="an..10" order="201" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>
-				<field name="isMemberOf" type="uri" label="ngaUser.isMemberOf.label" tooltip="ngaUser.isMemberOf.tooltip" mandatory="false" displayType="readOnly" order="800" multiValued="true" previewEmpty="false" uri="emf:isMemberOf" dmsType="FORBIDDEN" >
+				<field name="status" type="an..10" displayType="readOnly" label="nga.status.label" tooltip="nga.status.tooltip" uri="emf:status" codelist="CL12" />
+				<field name="emf:version" type="an..10" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>
+				<field name="integrated" type="boolean" label="emf.integrated.label" displayType="hidden" uri="emf:integrated" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" uri="emf:createdBy" dmsType="FORBIDDEN">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" uri="emf:modifiedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="dateTime" displayType="readOnly" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" uri="emf:modifiedOn" />
+				<field name="lockedBy" type="uri" label="lockedBy" tooltip="nga.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+		
+				<!-- relationships -->
+				<field name="isMemberOf" type="uri" label="ngaUser.isMemberOf.label" tooltip="ngaUser.isMemberOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isMemberOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Group</control-param>
 					</control>
 				</field>
-				<field name="isAssigneeOf" type="uri" label="ngaUser.isAssigneeOf.label" tooltip="ngaUser.isAssigneeOf.tooltip" mandatory="false" displayType="readOnly" order="801" multiValued="true" previewEmpty="false" uri="emf:isAssigneeOf" dmsType="FORBIDDEN" >
+				<field name="isAssigneeOf" type="uri" label="ngaUser.isAssigneeOf.label" tooltip="ngaUser.isAssigneeOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isAssigneeOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Task</control-param>
 					</control>
 				</field>
-				<field name="chc:isSupervisorOf" type="uri" label="nga.isSupervisorOf.label" tooltip="nga.isSupervisorOf.tooltip" mandatory="false" displayType="readOnly" order="802" multiValued="true" previewEmpty="false" uri="chc:isSupervisorOf" dmsType="FORBIDDEN" >
+				<field name="chc:isSupervisorOf" type="uri" label="nga.isSupervisorOf.label" tooltip="nga.isSupervisorOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="chc:isSupervisorOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Task</control-param>
 					</control>
 				</field>
-				<field name="chc:isAuthorOf" type="uri" label="ngaUser.authorOf.label" tooltip="ngaUser.isAuthorOf.tooltip" mandatory="false" displayType="readOnly" order="804" multiValued="true" previewEmpty="false" uri="chc:isAuthorOf" dmsType="FORBIDDEN" >
+				<field name="chc:isAuthorOf" type="uri" label="ngaUser.authorOf.label" tooltip="ngaUser.isAuthorOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="chc:isAuthorOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document</control-param>
 					</control>
 				</field>
-				<field name="ptop:involvedIn" type="uri" label="ngaUser.involvedIn.label" tooltip="ngaUser.involvedIn.tooltip" mandatory="false" displayType="readOnly" order="806" multiValued="true" previewEmpty="false" uri="ptop:involvedIn" dmsType="FORBIDDEN" >
+				<field name="ptop:involvedIn" type="uri" label="ngaUser.involvedIn.label" tooltip="ngaUser.involvedIn.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:involvedIn" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Task</control-param>
 					</control>
 				</field>
-				<field name="chc:hasApproved" type="uri" label="ngaUser.approvedBy.label" tooltip="ngaUser.hasApproved.tooltip" mandatory="false" displayType="readOnly" order="808" multiValued="true" previewEmpty="false" uri="chc:hasApproved" dmsType="FORBIDDEN" >
+				<field name="chc:hasApproved" type="uri" label="ngaUser.approvedBy.label" tooltip="ngaUser.hasApproved.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="chc:hasApproved" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document</control-param>
 					</control>
 				</field>
-				<field name="emf:isWatcherOf" type="uri" label="ngaUser.isWatcherOf.label" tooltip="ngaUser.isWatcherOf.tooltip" mandatory="false" displayType="readOnly" order="810" multiValued="true" previewEmpty="false" uri="emf:isWatcherOf" dmsType="FORBIDDEN" >
+				
+				<field name="isReporterOf" type="uri" label="ngaUser.isReporterOf.label" tooltip="ngaUser.isReporterOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isReporterOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="emf:isWatcherOf" type="uri" label="ngaUser.isWatcherOf.label" tooltip="ngaUser.isWatcherOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isWatcherOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" mandatory="false" displayType="readOnly" order="812" previewEmpty="false" uri="emf:hasThumbnail" dmsType="FORBIDDEN" >
+				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 				</field>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" mandatory="false" displayType="readOnly" order="814" multiValued="true" previewEmpty="false" uri="emf:parentOf" dmsType="FORBIDDEN" >
+				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User</control-param>
+						<control-param id="range" name="range" />
 					</control>
 				</field>
-				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" mandatory="false" displayType="readOnly" order="816" multiValued="true" previewEmpty="false" uri="emf:hasParent" dmsType="FORBIDDEN" >
+				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User</control-param>
+						<control-param id="range" name="range" />
 					</control>
 				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" mandatory="false" displayType="readOnly" order="818" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="emf:hasTemplate" type="uri" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" mandatory="false" displayType="readOnly" order="820" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -115,41 +159,64 @@
 		</region>
 	</regions>
     <transitions>
-		<transition id="editDetails" order="1" />
-		<!-- not used, only lable is change as the actions are visible in manage actions per roles -->
-		<transition id="print" order="18" label="nga.print.label"/>
-		<transition id="exportPDF" order="20" label="nga.exportPDF.label"/> 
-		<transition id="exportWord" order="22" label="nga.exportWord.label"/>
-		<!-- ******************************************************************** -->
-		<transition id="printTab" label="print.label" tooltip="printTab.tooltip" order="4" eventId="printTab" purpose="printTab" />
-		<transition id="exportTabPDF" label="exportPDF.label" tooltip="exportTabPDF.tooltip" order="5" eventId="exportTabPDF" purpose="exportTabPDF" />
-		<transition id="exportTabWord" label="exportWord.label" tooltip="exportTabWord.tooltip" order="8" eventId="exportTabWord" purpose="exportTabWord" />
-		<transition id="unlock" order="9" />
-		<transition id="addThumbnail" order="10" />
-		<transition id="saveAsTemplate" order="11" /> 
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="activate" order="15" />
+		<transition id="deactivate" order="20" />
+		
+		<group id="add" order="25" label="add.group.label" type="menu" />
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		
+		<transition id="printTab" order="35" />
+		
+		<group id="template" order="40" label="template.group.label" type="menu" />
+		<transition id="saveAsUserTemplate" group="template" />
+		<transition id="changeTemplate" group="template" />
+		<transition id="updateTemplate" group="template" />
+	
+		<group id="more" order="45" label="more.group.label" type="menu" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" actionPath="/" group="more" />
 	</transitions>
 
 	<stateTransitions>
-		<stateTransition from="*" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="create" to="NOT_CREATED"/>
+		<stateTransition from="NOT_CREATED" transition="create" to="ACTIVE"/>
 		<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
 
 		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
-		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>		           
-        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
-        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="saveAsUserTemplate" to="ACTIVE"/>		           
+		<stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
-		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>
 		
-		<stateTransition from="ACTIVE" transition="delete" to="DELETED" />
-		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />	
+		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
 	
-		<stateTransition from="INACTIVE" transition="delete" to="DELETED" />
-
-		<stateTransition from="*" transition="delete" to="DELETED" />
+		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />	
 	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="project" id="all"/>
+		<child type="object" id="ngaConservationActivity"/>
+		<child type="task" id="all"/>
+		<child type="document" id="all"/>
+		<child type="object" id="ngaAudio"/>
+		<child type="object" id="ngaVideo"/>
+		<child type="object" id="NGAIT211001"/>
+		<child type="object" id="NGAIT211002"/>
+		<child type="object" id="NGAIT211003"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
 	<labels>
 		<label id="USER_TOOLTIP_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(#{eval(
@@ -158,8 +225,12 @@
 				</span>
 				<span class="tooltip-data">
 					<span class="tooltip-header">
-						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}"
+							${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
 							<span data-title="${get([title])}">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+                 	   			&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+                     		)}
 						</a>
 					</span>
 					${if(${get([country])}<>null).then(
@@ -212,25 +283,26 @@
 				${var.jobtitle=${if(${CL([jobtitle])}<>null).then(true).else(false)}}
 				${var.department=${if(${CL([department])}<>null).then(true).else(false)}}
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
-                <span ><img src="${thumbnailUri(64)}"/></span>
-                <span>
+				<span ><img src="${thumbnailUri(64)}"/></span>
+				${if(${get([emf:isActive])}==false).then(<span style=color:#a9a9a9;>).else(<span>)}
 					${if(${CL([jobtitle])}<>null).then(<span data-property="jobtitle">${CL([jobtitle])}</span>)}
 					${if(${and(${var.jobtitle} and ${var.department})}).then(<span>,&nbsp;</span>)}
 					${if(${CL([department])}<>null).then(<span data-property="department">${CL([department])}</span>)}
 					${if(${or(${var.jobtitle} or ${var.department})}).then(</br>)}
 					<span class="truncate-element">
-						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
 							<span data-property="title">${get([title])}</span>
 						</a>
+						${if(${get([emf:isActive])}==false).then(
+							&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+						)}
 					</span>
 					${if(${get([email])}<>null).then(,&nbsp;<span data-property="email">${get([email])}</span>)}
-					${if(${var.isVersion}).then(
-						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
-					)}
 					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]>
 			</value>
-        </label>
+		</label>
 		<label id="USER_COMPACT_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(
 				<span><img src="${thumbnailUri(16)}"/></span>
@@ -238,16 +310,16 @@
 					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 					${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 					<span class="truncate-element">
-						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+						${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
 							<span data-property="title">${get([title])}</span>
 						</a>
-						${if(${var.isVersion}).then(
-							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						${if(${get([emf:isActive])}==false).then(
+							&nbsp;<span data-property="emf:status">(${CL([status])})</span>
 						)}
 					</span>
-					<br />
 				</span>)}]]>
 			</value>
-		</label>	
+		</label>
 	</labels>
 </definition>

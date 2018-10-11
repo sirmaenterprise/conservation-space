@@ -1,0 +1,25 @@
+- name: Installing and enabling the PolicyD service
+  shell: ./zmprov ms {{ fqdn }} +zimbraServiceInstalled cbpolicyd +zimbraServiceEnabled cbpolicyd
+  args:
+    chdir: /opt/zimbra/bin/
+
+- name: Configuring PolicyD database
+  copy:
+    src: 'config.php'
+    dest: /opt/zimbra/common/share/webui/includes/config.php
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Configuring PolicyD web interface
+  file:
+    src: /opt/zimbra/common/share/webui
+    dest: /opt/zimbra/data/httpd/htdocs/webui
+    state: link
+
+- name: Enable PolicyD web interface
+  lineinfile:
+    dest: /opt/zimbra/conf/httpd.conf
+    regexp: "^    DirectoryIndex index.html index.html.var"
+    line: "    DirectoryIndex index.html index.html.var index.php"
+    state: present

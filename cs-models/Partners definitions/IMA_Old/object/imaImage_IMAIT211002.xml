@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<definition id="IMAIT211002" parentId="imaImage" type="object"> <!-- Published Image-->
+	<fields>
+		<!-- headers and tooltip-->
+		<!-- <field name="compact_header" type="an..4096" label="IMAIT211002_COMPACT_HEADER_IMAIT211002" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="default_header" type="an..4096" label="IMAIT211002_DEFAULT_HEADER_IMAIT211002" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="breadcrumb_header" type="an..4096" label="IMAIT211002_BREADCRUMB_HEADER_IMAIT211002" mandatory="false" displayType="system" dmsType="FORBIDDEN" /> -->
+		
+		<field name="type" type="an..50" codelist="CL211"><value>IMAIT211002</value></field>
+	</fields>
+	<regions>
+		<region id="conservationImage" order="90" displayType="editable" label="IMAMT210001.conservationImage.label">
+			<fields>
+				<field name="imageLightingCondition" type="an..180" codelist="CL329"  displayType="editable" label="IMAIT211002.imageLightingCondition.label"  uri=" ima:imageLightingCondition" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>	
+				<field name="imageDetail" type="an..10" codelist="CL330" displayType="editable"  label="IMAIT211002.imageDetail.label" uri="ima:imageDetail" > 
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="treatmentStage" type="an..10" codelist="CL327" displayType="editable" label="IMAIT211002.treatmentStage.label" uri="ima:treatmentStage">
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="imageShotDate" type="date" displayType="editable" label="IMAIT211002.treatmentStage.label" uri="ima:imageShotDate" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+			</fields>
+		</region>
+	</regions>	
+	
+	<!-- <labels>	
+		<label id="IMAIT211002_DEFAULT_HEADER_IMAIT211002">
+			<value lang="en">
+			<![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])}==false).then(href="${link(currentInstance)}")}}
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.contentSize=${if(${get([size], 0)} <> 0).then(${get([size])}).else(${get([fileSize])})}}
+			<span>
+				<span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}"style="vertical-align:middle">
+				<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>&nbsp;
+				<span data-property="type">${CL([type])}</span>
+				
+				${if(${get([imageLightingCondition])}<>null).then(:&nbsp;<span data-property="imageLightingCondition">${CL([imageLightingCondition])}</span>)}
+				${if(${get([imageDetail])}<>null).then(-&nbsp;<span data-property="imageDetail">${CL([imageDetail])}</span>)}
+				${if(${get([treatmentStage])}<>null).then(-&nbsp;<span data-property="treatmentStage">${CL([treatmentStage])}</span>)}
+				${if(${get([imageShotDate])}<>null).then(-&nbsp;<span data-property="imageShotDate">${get([imageShotDate])}</span>)}
+
+				&nbsp;(<span data-property="status">${CL([status])}</span>)
+			</span><br />
+			<span>
+				${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+					(${if(${get([status])}<>FOR_IMP).then(<span data-property="status">${CL([status])}</span>&nbsp;
+						<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+					)}
+				)}	
+				${if(${get([status])}<>FOR_IMP).then(
+					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])}==true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])}==true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>&nbsp;
+					</a>
+					${if(${get([mimetype])}<>null).then(Mimetype:&nbsp;<span data-property="mimetype">${CL([mimetype])}</span>)}
+					&nbsp;<span class="document-version version badge">${get([version])}</span>
+				).else(
+					${if(${get([emf:isDeleted])}==true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span>
+				)}
+				${if(${get([references])}<>null).then(<br /><i>Associated with:&nbsp;</i><span data-property="references">${get([references])}</span>)}
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				
+			<span>)}]]></value>
+		</label>
+		
+		<label id="IMAIT211002_COMPACT_HEADER_IMAIT211002">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span>
+				<span class="truncate-element${if(${var.isLatest}).then(latest-revision)}${if(${var.isRevision}).then( revision)}">
+				
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+						(${if(${get([status])}<>FOR_IMP).then(<span data-property="status">${CL([status])}</span>
+						<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+						)}
+					)}
+					<span data-property="title">${get([title])}</span>&nbsp;
+				</a>	
+				${if(${get([imageLightingCondition])}<>null).then(:&nbsp;<span data-property="imageLightingCondition">${CL([imageLightingCondition])}</span>)}
+				${if(${get([imageDetail])}<>null).then(-&nbsp;<span data-property="imageDetail">${CL([imageDetail])}</span>)}
+				${if(${get([treatmentStage])}<>null).then(-&nbsp;<span data-property="treatmentStage">${CL([treatmentStage])}</span>)}
+				${if(${get([imageShotDate])}<>null).then(-&nbsp;<span data-property="imageShotDate">${get([imageShotDate])}</span>)}				${if(${get([status])}<>FOR_IMP).then(<span class="document-version version badge">${get([version])}</span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				</span>
+			<span>)}]]></value>
+		</label>
+		
+		<label id="IMAIT211002_BREADCRUMB_HEADER_IMAIT211002">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span>&nbsp;
+				</a>
+				${if(${get([imageLightingCondition])}<>null).then(: <span data-property="imageLightingCondition">${CL([imageLightingCondition])}</span>)}
+				${if(${get([imageDetail])}<>null).then(- <span data-property="imageDetail">${CL([imageDetail])}</span>)}
+				${if(${get([treatmentStage])}<>null).then(- <span data-property="treatmentStage">${CL([treatmentStage])}</span>)}
+				${if(${get([imageShotDate])}<>null).then(- <span data-property="imageShotDate">${get([imageShotDate])}</span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			)}]]></value>
+		</label>
+		<label id="IMAMT210001.imageLightingCondition.label">
+			<value lang="en">Lighting condition</value>
+		</label>
+		<label id="IMAIT211002.imageDetail.label">
+			<value lang="en">Detail</value>
+		</label>
+		<label id="IMAIT211002.treatmentStage.label">
+			<value lang="en">Treatment phase</value>
+		</label>
+		<label id="IMAIT211002.imageShotDate.label">
+			<value lang="en">Date Shot?</value>
+		</label>
+	</labels> -->
+</definition>

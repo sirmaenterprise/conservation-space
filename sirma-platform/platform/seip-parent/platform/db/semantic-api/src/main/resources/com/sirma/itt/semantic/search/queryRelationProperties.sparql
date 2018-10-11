@@ -1,0 +1,36 @@
+SELECT DISTINCT ?instance (emf:Relation as ?instanceType) ?title ?creator
+(if(lang(?title)= "", "en", lang(?title)) as ?titleLanguage) ?definition 
+((if (bound(?domainClass1), ?domainClass1, ptop:Entity)) as ?domainClass) 
+((if (bound(?rangeClass1), ?rangeClass1, ptop:Entity)) as ?rangeClass) ?inverseRelation ?isSystemProperty 
+?autoAssignPermissionRole ?allowPermissionOverride ?autoAssignParentPermissionRole ?isSearchable ?auditEvent
+WHERE {
+	{
+		?instance a owl:ObjectProperty .
+	} UNION {
+		?instance a emf:DefinitionObjectProperty .
+	}
+	?instance
+		rdfs:comment|skos:definition ?definition ;
+		rdfs:label ?title .
+	optional {
+		?instance emf:isSearchable ?isSearchable .
+	} optional {
+		?instance emf:isSystemProperty ?isSystemProperty .
+	} optional {
+		?instance rdfs:domain ?domainClass1 . 
+	} optional {
+		?instance rdfs:range ?rangeClass1 . 
+	} optional {
+		?instance owl:inverseOf ?inverseRelation . 
+	} optional {
+		?instance sec:autoAssignPermissionRole ?autoAssignPermissionRole . 
+	} optional {
+		?instance sec:allowPermissionOverride ?allowPermissionOverride . 
+	} optional {
+		?instance sec:autoAssignParentPermissionRole ?autoAssignParentPermissionRole . 
+	} optional {
+		?instance emf:auditEvent ?auditEvent . 
+	} optional {
+        ?instance dc:creator ?creator
+    }
+}

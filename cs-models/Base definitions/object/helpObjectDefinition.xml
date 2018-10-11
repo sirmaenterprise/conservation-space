@@ -1,12 +1,54 @@
-<?xml version="1.0"?>
-<definition id="help" parentId="GEO10001" isAbstract="true" type="object">
-    <fields>
-		<field name="rdf:type" type="URI" label="type.label" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-            <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Help</value>
-        </field>
-        <field name="type" type="an..50" codelist="CL7" label="type.label" mandatory="false" displayType="system" dmsType="emf:type" uri="emf:type">
-            <value>HELP</value>
-        </field>
-		<field name="helpTarget" type="an..1024" codelist="CL16" label="helpTarget.label" mandatory="false" displayType="editable" multiValued="true" dmsType="FORBIDDEN" uri="emf:helpTarget"/>
-    </fields>
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="help" parentId="baseObject" isAbstract="true" type="object">
+	<fields>
+		<!-- SYSTEM FIELDS -->
+		<field name="rdf:type" type="URI" label="type.label" displayType="system" uri="rdf:type">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Help</value>
+		</field>
+		<field name="type" type="an..50" codelist="CL7">
+			<value>HELP</value>
+		</field>
+		
+		<field name="emf:contentId" type="an..40" displayType="system" uri="emf:contentId"/>
+		<field name="documentLocation" type="an..500" label="location.label" displayType="system"/> <!-- attachmentLocation-->
+		<field name="workingCopyLocation" type="an..500" displayType="system" previewEmpty="false"/>
+		<field name="content" type="any" label="document.content" displayType="system" uri="emf:content"/>
+		<field name="fileSize" type="an..10" label="size.label" displayType="system" previewEmpty="false"/> <!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
+		
+    	<!-- GENERAL DATA FIELDS FOR HELP -->
+		<field name="helpTarget" type="an..1024" codelist="CL16" label="helpTarget.label" displayType="editable" multiValued="true" uri="emf:helpTarget" />
+		<field name="name" type="an..180" label="name.label" displayType="readonly" previewEmpty="false" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" uri="emf:fileName" />
+		<field name="size" type="n..10" label="size.label" displayType="readonly" previewEmpty="false" uri="emf:size"> 
+			<control id="BYTE_FORMAT" />
+		</field>
+		<field name="mimetype" type="an..20" codelist="CL30" label="mimetype.label" displayType="readonly" previewEmpty="false" uri="emf:mimetype" />
+	</fields>
+	<transitions>		
+		<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" />
+	</transitions>
+	
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="APPROVED" />
+
+		<stateTransition from="APPROVED" transition="editDetails" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="uploadNewVersion" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="delete" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="move" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="lock" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="unlock" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="print" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="createInContext" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="revertVersion" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="updateTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="addWatchers" to="APPROVED" />
+	</stateTransitions>
 </definition>

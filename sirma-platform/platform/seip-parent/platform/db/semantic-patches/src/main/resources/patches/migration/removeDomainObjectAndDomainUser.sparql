@@ -1,0 +1,23 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+delete{
+    emf:DomainObject ?p ?o.
+    ?s1 ?p1 emf:DomainObject.
+    emf:DomainUser ?p2 ?o2.
+    ?s3 ?p3 emf:DomainUser.
+} where {
+    {
+        emf:DomainObject ?p ?o .
+    } union {
+        ?s1 ?p1 emf:DomainObject
+    } union {
+        emf:DomainUser ?p2 ?o2 
+    } union {
+        ?s3 ?p3 emf:DomainUser
+    }
+}

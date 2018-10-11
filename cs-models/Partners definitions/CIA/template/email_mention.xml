@@ -1,30 +1,17 @@
 <?xml version="1.0"?>
-	<templateDefinition id="email_mention"> <!-- Template id same as the file name without .xml ! -->
+	<templateDefinition id="email_mention">
      	<fields>
-			<field name="type" type="an..180" displayType="system"> <!-- document type for the current template -->
+			<field name="type" type="an..180" displayType="system"> 
 				<value>emailTemplate</value>
 			</field>
-		    <field name="title" type="an..100" displayType="system"> <!-- Template title -->
+		    <field name="title" type="an..100" displayType="system"> 
 				<value>User mention email template</value>
 			</field>
-		    <field name="description" type="an..180" displayType="system"> <!-- Template description -->
-				<value>This is the default email template used for notifications on user mention.</value>
-			</field>
-			<field name="primary" type="boolean" displayType="system" > <!-- If the template is primary/default -->
+			<field name="primary" type="boolean" displayType="system" >
 				<value>false</value>
 			</field>
-		    <field name="mimetype" type="an..20" displayType="system"><value>text/plain</value></field>
-		    <field name="createdBy" type="uri" displayType="system"><value>${currentUser.id}</value><control id="PICKER"/></field>
-		    <field name="createdOn" type="dateTime" displayType="system"><value>${today}</value></field>
 			<field name="public" type="boolean" displayType="system"><value>true</value></field>
-			
-			<!-- Template content specific properties -->
-			
-			
-			<!-- other configuration should come here -->
-			
-			<!-- The actual template content -->
-		    <field name="content" type="ANY" displayType="system"> <!-- NOTE: the content goes into the CDATA tag. The tag is used to escape the internal XML -->
+		    <field name="content" type="ANY" displayType="system"> 
 				<value><![CDATA[
 					<#assign lang=notifications.getUserLanguage(user)>
 					
@@ -164,7 +151,7 @@
 					 <!-- HEADER -->
 								  <tr>
 									<td align="center" valign="top">
-									  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="color:#FFFFFF;" bgcolor="#3498db">
+									  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="color:#FFFFFF;" bgcolor="#263744">
 										<tr>
 										  <td align="center" valign="top">
 											<table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
@@ -216,53 +203,33 @@
 																	<#assign title = commented.properties['title']>
 																	You are mentioned in a comment on 
 																	<strong>
-																		<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project'> 
-																			(Project) ${title}
-																		<#elseif rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey'>
+																		<#if rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey'>
 																			(Survey: ${codelists.getCodeValue(200, commented.properties['subType']).properties['en']}) 
 																			${title}
 																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'>
-																			(Task: ${codelists.getCodeValue(243, commented.properties['subType']).properties['en']}) 
-																			${title}
+																			(Task) ${codelists.getCodeValue(28, commented.properties['subType']).properties['en']}
+																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
+																			${codelists.getCodeValue(10, commented.properties['type']).properties['en']}										
 																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image'>
 																			(Image: ${codelists.getCodeValue(211, commented.properties['subType']).properties['en']}) 
 																			${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Audio'>
-																			(${codelists.getCodeValue(3, commented.properties['type']).properties['en']}) 
-																			${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Video'>
-																			(${codelists.getCodeValue(3, commented.properties['type']).properties['en']}) 
-																			${title}
 																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
-																			(Document: ${codelists.getCodeValue(210, commented.properties['type']).properties['en']}) 
-																			${title}
+																			(Document) ${title}
 																		<#elseif rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample'>
 																			(Sample: ${codelists.getCodeValue(248, commented.properties['subType']).properties['en']}) 
 																			${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#SavedSearch'>
-																			(${codelists.getCodeValue(3, commented.properties['type']).properties['en']}) 
-																			${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Help'>
-																			(${codelists.getCodeValue(3, commented.properties['type']).properties['en']}) 
-																			${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group'>
-																			Group: ${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User'>
-																			User: ${title}
-																		<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#ClassDescription'>
-																			Library: ${title}
 																		<#else>
 																			(${codelists.getCodeValue(7, commented.properties['type']).properties['en']}) 
 																			${title}
 																		</#if>.
 																	</strong>	
-																	The comment is created by ${notifications.getDisplayName(commented.properties['modifiedBy'])}.<br/></br>
+																	The comment is created by <a href="${url}/#/idoc/${commenter.id}"><#if commenter.properties['firstName']??>${commenter.properties['firstName']}</#if> ${commenter.properties['lastName']}</a>.<br/></br>
 																</div>
 															  </td>
 															</tr>
 														  </table>
 
-														  <table border="0" cellpadding="0" cellspacing="0" width="50%" class="emailButton" style="background-color: #3498DB;">
+														  <table border="0" cellpadding="0" cellspacing="0" width="50%" class="emailButton" style="background-color: #263744;">
 															<tr>
 															  <td align="center" valign="middle" class="buttonContent" style="padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;">
 																<#if rdfType ??> 

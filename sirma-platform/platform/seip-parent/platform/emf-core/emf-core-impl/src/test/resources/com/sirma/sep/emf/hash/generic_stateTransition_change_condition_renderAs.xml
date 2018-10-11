@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<definition id="generic_state" type="case">
+	<stateTransitions>
+		<stateTransition from="DRAFT" transition="reject" to="REJECTED" />
+		<stateTransition from="DRAFT" transition="publish" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+			<condition id="requiredFields" renderAs="REQUIRED">[identifier] AND [title] AND [status] AND [createdBy] AND [createdOn]</condition>
+		</stateTransition>
+		<stateTransition from="DRAFT" transition="publish" to="DRAFT" />
+	</stateTransitions>
+</definition>

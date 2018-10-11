@@ -1,0 +1,30 @@
+<div class="search-context-menu">
+  <div class="text-center context-loader" ng-hide="::searchContextMenu.initialized">
+    <span class="fa fa-spinner fa-1x fa-spin"></span>
+  </div>
+
+  <table class="table table-striped table-hover" ng-if="::searchContextMenu.initialized">
+    <tr ng-if="searchContextMenu.config.enableCurrentObject" ng-click="::searchContextMenu.selectCurrentObject()">
+      <td class="search-context-item current-object-item-wrapper" data-value="current_object">
+        <a href="javascript:void(0)">{{ ::'context.current.object' | translate}}</a>
+      </td>
+    </tr>
+
+    <tr ng-if="searchContextMenu.recentObjects.length === 0">
+      <td class="empty-recent-objects">
+        <i>{{ ::'recent.objects.none' | translate }}</i>
+      </td>
+    </tr>
+
+    <tr ng-repeat="recentObject in searchContextMenu.recentObjects track by recentObject.id">
+      <td class="search-context-item recent-object-item-wrapper" data-value="{{::recentObject.id}}"
+          ng-click="::searchContextMenu.selectContext(recentObject)">
+        <seip-static-instance-header class="overflow-hidden"
+                                     config="::searchContextMenu.headerConfig"
+                                     header-type="'breadcrumb_header'"
+                                     header="recentObject.headers.breadcrumb_header">
+        </seip-static-instance-header>
+      </td>
+    </tr>
+  </table>
+</div>

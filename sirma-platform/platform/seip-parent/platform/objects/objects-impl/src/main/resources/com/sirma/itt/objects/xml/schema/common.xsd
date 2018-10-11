@@ -1,0 +1,279 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+	<xs:complexType name="controlParam">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="idType" name="id" use="required" />
+				<xs:attribute type="xs:string" name="name" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="uiParam">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="idType" name="id" use="required" />
+				<xs:attribute type="xs:string" name="name" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="controlDefinition">
+		<xs:sequence>
+			<xs:element name="control-param" type="controlParam" maxOccurs="unbounded" minOccurs="0" />
+			<xs:element name="ui-param" type="uiParam" maxOccurs="unbounded" minOccurs="0" />
+			<xs:element name="fields" type="complexFieldsDefinition" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="idType" name="id" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="regionsDefinition">
+		<xs:sequence>
+			<xs:element name="region" type="regionDefinition" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="regionDefinition">
+		<xs:sequence>
+			<xs:element name="control" type="controlDefinition" minOccurs="0" maxOccurs="1" />
+			<xs:element name="condition" type="conditionDefinition" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="fields" type="complexFieldsDefinition" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="idType" name="id" use="required" />
+		<xs:attribute type="xs:integer" name="order" use="optional" />
+		<xs:attribute type="displayTypeType" name="displayType" use="optional" />
+		<xs:attribute type="labelIdType" name="label" use="optional" />
+		<xs:attribute type="xs:string" name="tooltip" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="complexFieldDefinition">
+		<xs:choice maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="value" type="xs:string" minOccurs="0" />
+			<xs:element name="condition" type="conditionDefinition" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="control" type="controlDefinition" minOccurs="0" maxOccurs="1" />
+		</xs:choice>
+		<xs:attribute type="xs:integer" name="order" use="optional" />
+		<xs:attribute type="idType" name="name" use="required" />
+		<xs:attribute type="xs:string" name="type" use="optional" />
+		<xs:attribute type="xs:boolean" name="multiValued" use="optional" />
+		<xs:attribute type="codelist" name="codelist" use="optional" />
+		<xs:attribute type="expressionType" name="rnc" use="optional" />
+		<xs:attribute type="labelIdType" name="label" use="optional" />
+		<xs:attribute type="labelIdType" name="tooltip" use="optional" />
+		<xs:attribute type="xs:boolean" name="mandatory" use="optional" />
+		<xs:attribute type="displayTypeType" name="displayType" use="optional" />
+		<xs:attribute type="xs:boolean" name="previewEmpty" use="optional" />
+		<xs:attribute type="xs:string" name="dmsType" use="optional" />
+		<xs:attribute type="xs:string" name="filters" use="optional" />
+		<xs:attribute type="xs:string" name="uri" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="complexFieldsDefinition">
+		<xs:sequence>
+			<xs:element name="field" type="complexFieldDefinition" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="filterDefinitions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="filter" type="filterDefinition" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="filterDefinition">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="idType" name="id" use="required" />
+				<xs:attribute type="filterModeType" name="mode" use="optional" default="INCLUDE" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="conditionDefinition">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="idType" name="id" use="required" />
+				<xs:attribute type="renderAsType" name="renderAs" use="optional" default="HIDDEN" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:element name="labels">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="label" type="label" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="label">
+		<xs:sequence>
+			<xs:element name="value" type="labelValue" maxOccurs="unbounded" minOccurs="1" />
+		</xs:sequence>
+		<xs:attribute type="labelIdType" name="id" />
+	</xs:complexType>
+
+	<xs:complexType name="labelValue">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="lang" use="optional" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="codelist">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(CL)\d{1,3}" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="expressionType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="2048" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="renderAsType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="HIDDEN" />
+			<xs:enumeration value="VISIBLE" />
+			<xs:enumeration value="DISABLED" />
+			<xs:enumeration value="ENABLED" />
+			<xs:enumeration value="REQUIRED" />
+			<xs:enumeration value="READONLY" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="filterModeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="INCLUDE" />
+			<xs:enumeration value="EXCLUDE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="displayTypeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="system" />
+			<xs:enumeration value="readonly" />
+			<xs:enumeration value="read_only" />
+			<xs:enumeration value="readOnly" />
+			<xs:enumeration value="hidden" />
+			<xs:enumeration value="editable" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="idType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100" />
+			<xs:pattern value="[a-zA-Z0-9_]{1,100}" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="allowedChildrenType">
+		<xs:sequence>
+			<xs:element name="child" type="childType" maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="childType">
+		<xs:sequence>
+			<xs:element name="configs" type="configsType" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="allowedChildType" name="type" use="required" />
+		<xs:attribute type="allowedChildIdType" name="id" use="required" />
+		<xs:attribute type="xs:boolean" name="defaultChild" use="optional" default="false" />
+	</xs:complexType>
+
+	<xs:complexType name="configsType">
+		<xs:sequence>
+			<xs:element name="config" type="configType" maxOccurs="unbounded" minOccurs="0" />
+			<xs:element name="filter" type="filterType" maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="configType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="control" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="filterType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="property" use="optional" />
+				<xs:attribute type="xs:string" name="codelist" use="optional" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:simpleType name="allowedChildIdType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100" />
+			<xs:pattern value="[\w\.\-$_]{1,100}" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="labelIdType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="allowedChildType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="case" />
+			<xs:enumeration value="task" />
+			<xs:enumeration value="workflow" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="transitionsDefinition">
+		<xs:sequence>
+			<xs:element name="transition" type="transitionDefinition" maxOccurs="unbounded"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="transitionDefinition">
+		<xs:sequence>
+			<xs:element name="condition" type="conditionDefinition" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="fields" type="complexFieldsDefinition" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="idType" name="id" use="required" />
+		<xs:attribute type="displayTypeType" name="displayType" use="optional" default="editable" />
+		<xs:attribute type="xs:string" name="label" use="optional" />
+		<xs:attribute type="xs:string" name="tooltip" use="optional" />
+		<xs:attribute type="xs:string" name="eventId" use="optional" />
+		<xs:attribute type="xs:string" name="nextPrimaryState" use="optional" />
+		<xs:attribute type="xs:string" name="nextSecondaryState" use="optional" />
+		<xs:attribute type="xs:boolean" name="defaultTransition" use="optional" default="false" />
+		<xs:attribute type="xs:boolean" name="immediate" use="optional" default="false" />
+		<xs:attribute type="xs:string" name="purpose" use="optional" />
+		<xs:attribute type="xs:integer" name="order" use="optional" />
+		<xs:attribute type="xs:string" name="confirmation" use="optional" />
+		<xs:attribute type="xs:string" name="disabledReason" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="stateTransitionsDefinition">
+		<xs:sequence>
+			<xs:element name="stateTransition" type="stateTransitionDefinition" maxOccurs="unbounded"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="stateTransitionDefinition">
+		<xs:sequence>
+			<xs:element name="condition" type="conditionDefinition" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute type="idType" name="from" use="required" />
+		<xs:attribute type="idType" name="transition" use="required" />
+		<xs:attribute type="idType" name="to" use="optional" />
+	</xs:complexType>
+
+</xs:schema>

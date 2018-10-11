@@ -1,0 +1,189 @@
+#!/bin/bash
+
+# OPTIONS:
+#    -d            daemonize (run in background)"
+#    -s            run in server only mode (no workbench)"
+#    -p pidfile    write PID to <pidfile>"
+#    -h"
+#    --help        print command line options"
+#    -v            print GraphDB version, then exit"
+#    -Dprop        set Java system property"
+#    -Xprop        set non-standard Java system property"
+#
+# CONTROLLING STARTUP:
+#
+# You can use these environment variables to control some options:
+#
+#    GDB_JAVA_OPTS      - Sets additional Java options (-D or -X)
+#    GDB_MIN_MEM        - Sets the Java minimum heap size (-Xms option).
+#    GDB_MAX_MEM        - Sets the Java maximum heap size (-Xmx option).
+#    GDB_HEAP_SIZE      - Sets the Java minimum and maximum heap size (-Xms and -Xmx option).
+#                         Overrides both GDB_MIN_MEM and GDB_MAX_MEM.
+#                         Recommended if you need to specify the heap size.
+#    GDB_HEAP_NEWSIZE   - Sets the initial and maximum heap size for the young generation (-Xmn option).
+#    GDB_GC_LOG         - Enables (if set to true) the logging of Java garbage collection.
+#                         The log will be written to gc-<pid>.log in the distribution directory,
+#                         unless GDB_GC_LOG_FILE is set to a custom file.
+#    GDB_GC_LOG_FILE    - Specifies a custom file for GC logging.
+#    GDB_HEAP_DUMP_FILE - Specifies a custom file/folder for heap dump
+
+SCRIPT="$0"
+
+# SCRIPT may be an arbitrarily deep series of symlinks. Loop until we have the concrete path.
+while [ -h "$SCRIPT" ] ; do
+  ls=`ls -ld "$SCRIPT"`
+  # Drop everything prior to ->
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    SCRIPT="$link"
+  else
+    SCRIPT=`dirname "$SCRIPT"`/"$link"
+  fi
+done
+
+# determine graphdb dist
+GDB_DIST=`dirname "$SCRIPT"`/..
+
+# make GDB_DIST absolute
+GDB_DIST=`cd "$GDB_DIST"; pwd`
+
+. "$GDB_DIST"/bin/setvars.in.sh
+
+. "$GDB_DIST"/bin/graphdb.in.sh
+
+# Special-case path variables.
+case `uname` in
+    CYGWIN*)
+        GDB_CLASSPATH=`cygpath -p -w "$GDB_CLASSPATH"`
+        GDB_DIST=`cygpath -p -w "$GDB_DIST"`
+    ;;
+esac
+
+launch_service()
+{
+    pidpath=$1
+    daemonized=$2
+    serveronly=$3
+    props=$4
+    GDB_parms=""
+
+    if [ "x$pidpath" != "x" ]; then
+        GDB_parms="$GDB_parms -Dgraphdb.pidfile=$pidpath"
+    fi
+
+    # Make sure we dont use any predefined locale, as we check some exception message strings and rely on english language
+    # As those strings are created by the OS, they are dependant on the configured locale
+    LANG=en_US.UTF-8
+    LC_ALL=en_US.UTF-8
+
+    # TODO: Why is this needed?
+    #export HOSTNAME=`hostname -s`
+
+    if [ "x$serveronly" = "x" ]; then
+        mainclass=GraphDBWorkbench
+    else
+        mainclass=GraphDBServer
+    fi
+
+    # The gdb-foreground option will tell GraphDB not to close stdout/stderr, but it's up to us not to daemonize.
+    if [ "x$daemonized" = "x" ]; then
+        GDB_parms="$GDB_parms -Dgraphdb.foreground=yes"
+        exec "$JAVA" "${JAVA_OPTS_ARRAY[@]}" $GDB_JAVA_OPTS $GDB_parms -Dgraphdb.dist="$GDB_DIST" -cp "$GDB_CLASSPATH" $props \
+                com.ontotext.graphdb.server.$mainclass
+        # exec without running it in the background, makes it replace this shell, we'll never get here...
+        # no need to return something
+    else
+        # Startup GraphDB, background it, and write the pid.
+        exec "$JAVA" "${JAVA_OPTS_ARRAY[@]}" $GDB_JAVA_OPTS $GDB_parms -Dgraphdb.dist="$GDB_DIST" -cp "$GDB_CLASSPATH" $props \
+                    com.ontotext.graphdb.server.$mainclass <&- &
+        return $?
+    fi
+}
+
+# Print command line usage / help
+usage() {
+    echo "Usage: $0 [-vdsh] [-p pidfile] [-Dprop] [-Xprop]"
+    echo "Start GraphDB."
+    echo "    -d            daemonize (run in background)"
+    echo "    -s            run in server only mode (no workbench)"
+    echo "    -p pidfile    write PID to <pidfile>"
+    echo "    -h"
+    echo "    --help        print command line options"
+    echo "    -v            print GraphDB version, then exit"
+    echo "    -Dprop        set Java system property"
+    echo "    -Xprop        set non-standard Java system property"
+}
+
+# Parse any long getopt options and put them into properties before calling getopt below
+# Be dash compatible to make sure running under ubuntu works
+ARGV=""
+while [ $# -gt 0 ]
+do
+    case $1 in
+      --help) ARGV="$ARGV -h"; shift;;
+      --*=*) properties="$properties -Dgraphdb.${1#--}"
+           shift 1
+           ;;
+      --*) [ $# -le 1 ] && {
+                echo "Option requires an argument: '$1'."
+                shift
+                continue
+            }
+           properties="$properties -Dgraphdb.${1#--}=$2"
+           shift 2
+           ;;
+      *) ARGV="$ARGV $1" ; shift
+    esac
+done
+
+# Parse any command line options.
+args=`getopt vdshp:D:X: $ARGV`
+eval set -- "$args"
+
+while true; do
+    case $1 in
+        -v)
+            "$JAVA" "${JAVA_OPTS_ARRAY[@]}" $GDB_JAVA_OPTS $GDB_parms -Dgraphdb.home="$GDB_DIST" -cp "$GDB_CLASSPATH" $props \
+                    com.ontotext.graphdb.server.Version
+            exit 0
+        ;;
+        -p)
+            pidfile="$2"
+            shift 2
+        ;;
+        -d)
+            daemonized="yes"
+            shift
+        ;;
+        -s)
+            serveronly="yes"
+            shift
+        ;;
+        -h)
+            usage
+            exit 0
+        ;;
+        -D)
+            properties="$properties -D$2"
+            shift 2
+        ;;
+        -X)
+            properties="$properties -X$2"
+            shift 2
+        ;;
+        --)
+            shift
+            break
+        ;;
+        *)
+            echo "Error parsing argument $1!" >&2
+            usage
+            exit 1
+        ;;
+    esac
+done
+
+# Start up the service
+launch_service "$pidfile" "$daemonized" "$serveronly" "$properties"
+
+exit $?

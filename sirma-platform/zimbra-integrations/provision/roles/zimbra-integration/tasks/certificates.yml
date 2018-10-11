@@ -1,0 +1,75 @@
+# See https://wiki.zimbra.com/wiki/Administration_Console_and_CLI_Certificate_Tools
+- name: Copy certificates to the server
+  when: certificates_path is defined
+  copy:
+    src: "{{ certificates_path }}"
+    dest: /tmp/certificates/
+
+- name: Backup any previous certificates & private keys
+  when: certificates_path is defined
+  archive:
+    path: /opt/zimbra/ssl/zimbra/server
+    dest: /opt/zimbra/ssl/zimbra/server.tgz
+  become: true
+  become_user: zimbra
+
+- name: Clear any previous certificates & private keys
+  shell: rm -f /opt/zimbra/ssl/zimbra/server/*
+
+- name: Copy private key in /opt/zimbra/ssl/zimbra/server/
+  copy:
+    src: /tmp/certificates/domain.key
+    dest: /opt/zimbra/ssl/zimbra/server/server.key
+  become: true
+  become_user: zimbra
+
+- name: Copy certificate signing request in /opt/zimbra/ssl/zimbra/server/
+  copy:
+    src: /tmp/certificates/domain.csr
+    dest: /opt/zimbra/ssl/zimbra/server/server.csr
+  become: true
+  become_user: zimbra
+
+- name: Copy certificate in /opt/zimbra/ssl/zimbra/server/
+  copy:
+    src: /tmp/certificates/domain.crt
+    dest: /opt/zimbra/ssl/zimbra/server/server.crt
+  become: true
+  become_user: zimbra
+
+- name: Deploy certificates
+  when: certificates_path is defined
+  shell: ./zmcertmgr deploycrt self -allservers
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Verify certificates
+  when: certificates_path is defined
+  shell: openssl rsa -in /opt/zimbra/ssl/zimbra/server/server.key -check && openssl req -text -noout -verify -in /opt/zimbra/ssl/zimbra/server/server.csr
+  become: true
+  become_user: zimbra
+
+- name: Remove LDAP SSL Checks
+  shell: ./zmlocalconfig -e zimbra_require_interprocess_security=0
+  args:
+      chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Remove zimbra alias from java cacerts if present
+  shell: ./keytool -delete -alias zimbra -keystore /opt/zimbra/common/lib/jvm/java/jre/lib/security/cacerts -storepass changeit -noprompt
+  args:
+       chdir: /opt/zimbra/common/lib/jvm/java/bin
+  # if its a first time installation, it will throw an error
+  ignore_errors: yes
+  become: true
+  become_user: zimbra
+
+- name: Deploy certificate to java cacerts
+  shell: ./keytool -importcert -keystore /opt/zimbra/common/lib/jvm/java/jre/lib/security/cacerts -storepass changeit -file /opt/zimbra/ssl/zimbra/server/server.crt -alias zimbra -noprompt
+  args:
+      chdir: /opt/zimbra/common/lib/jvm/java/bin
+  become: true
+  become_user: zimbra

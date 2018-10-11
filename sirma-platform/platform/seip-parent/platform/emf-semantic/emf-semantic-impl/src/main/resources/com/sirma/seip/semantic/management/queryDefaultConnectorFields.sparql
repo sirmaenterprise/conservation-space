@@ -1,0 +1,19 @@
+select ?connector ?instance (if(bound(?descr), ?descr, "") as ?description) (if(bound(?sortable), ?sortable, "false"^^xsd:boolean) as ?isSortable) 
+	(if(?type = owl:ObjectProperty, "relation", if(?range = rdfs:Literal, "xsd:string", ?range)) as ?fieldType) 
+where {
+    optional {
+        ?connector cnctr:hasField ?instance .
+    }
+    ?instance a cnctr:ConnectorField ;
+    	a ?type .
+ 	optional {
+ 		?instance cnctr:fieldDescription ?descr ;
+ 	}
+    filter(?type = owl:ObjectProperty || ?type = owl:DatatypeProperty)
+    optional {
+        ?instance cnctr:isSortable ?sortable .
+    }
+    optional {
+        ?instance rdfs:range ?range
+    }
+}

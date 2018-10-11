@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<include file="cmf-init.xml" relativeToChangelogFile="true" />
+
+	<changeSet id="cmf-0.12.2-0" author="bbonev">
+		<addColumn tableName="cmf_workflowinstance">
+			<column name="cmid" type="VARCHAR(100)"/>
+		</addColumn>
+	</changeSet>
+	<changeSet id="cmf-0.13.0-0" author="bbonev">
+		<comment>Added task discriminator column</comment>
+		<addColumn tableName="cmf_taskentity">
+			<column name="tasktype" type="integer" />
+		</addColumn>
+		<sql splitStatements="true" endDelimiter=";">update cmf_taskentity set tasktype=0 where tasktype is null and workflowinstanceid like 'activiti%';update cmf_taskentity set tasktype=1 where tasktype is null and (workflowinstanceid is null or workflowinstanceid like 'workspace%');</sql>
+	</changeSet>
+	<changeSet id="cmf-0.13.0-1" author="bbonev">
+		<comment>Added task type index</comment>
+		<createIndex tableName="cmf_taskentity" indexName="idx_te_dm_t">
+			<column name="dmid" />
+			<column name="tasktype" />
+		</createIndex>
+	</changeSet>
+	<changeSet id="cmf-0.13.0-2" author="bbonev">
+		<comment>Added task discriminator column in assigned tasks</comment>
+		<addColumn tableName="cmf_assignedusertasks">
+			<column name="tasktype" type="integer" />
+		</addColumn>
+		<sql>update cmf_assignedusertasks set taskType=(select t.taskType from cmf_taskentity t where t.dmid=taskinstanceid)</sql>
+		<createIndex tableName="cmf_assignedusertasks" indexName="idx_aut_own_t">
+			<column name="owninginstanceid" />
+			<column name="owninginstancetype"/>
+			<column name="tasktype"/>
+		</createIndex>
+		<createIndex tableName="cmf_assignedusertasks" indexName="idx_aut_own_t_a">
+			<column name="owninginstanceid" />
+			<column name="owninginstancetype"/>
+			<column name="tasktype"/>
+			<column name="active"/>
+		</createIndex>
+	</changeSet>
+	<changeSet id="cmf-0.13.0.3" author="bbonev">
+		<comment>Added task tree path column</comment>
+		<addColumn tableName="cmf_taskentity">
+			<column name="treepath" type="varchar(512)" />
+		</addColumn>
+	</changeSet>
+	<changeSet id="cmf-0.14.0-0" author="bbonev">
+		<validCheckSum>7:652c9a366fc26c8db5995a84077406c5</validCheckSum>
+		<comment>Migrate the data from table cmf_section_document to emf_links and drops the first table, refactor cmf_sectionentity table</comment>
+		<!-- Add the missing columns to section entity table -->
+		<addColumn tableName="cmf_sectionentity">
+			<column name="dmid" type="varchar(100)" />
+			<column name="revision" type="int8" />
+			<column name="container" type="varchar(100)" />
+			<column name="owninginstancetype" type="int8" />
+			<column name="owninginstanceid" type="varchar(50)" />
+			<column name="defpath" type="varchar(256)" />
+		</addColumn>
+		<!-- Copy the data from other tables so it's valid -->
+		<sql>
+			update cmf_sectionentity set owninginstanceid = cast(caseentity_id as varchar), owninginstancetype = (select d.id from emf_datatypedefinition as d where d.name='caseinstance'), revision = (select c.caseRevision from cmf_caseentity as c where c.id=caseentity_id), container = (select c.container from cmf_caseentity as c where c.id=caseentity_id), defpath = (select c.cdid || '/' || sectionid from cmf_caseentity as c where c.id=caseentity_id);
+			update cmf_sectionentity as s set dmid = (select pv.stringvalue from emf_properties as p inner join emf_propertyvalue as pv on p.value_id=pv.id where p.bean_id=s.id and p.bean_type=2 and p.propertyid = (select pr.id from emf_prototype as pr where pr.name='dmsId' and pr.container=s.container));
+		</sql>
+		<dropUniqueConstraint tableName="cmf_sectionentity" constraintName="cmf_sectionentity_id_key" uniqueColumns="id, caseentity_id"/>
+		<!-- Drop the old not needed column -->
+		<dropColumn tableName="cmf_sectionentity" columnName="caseentity_id"/>
+		<!-- Add foreign key constraint to be able to load the data type eagerly -->
+		<addForeignKeyConstraint constraintName="secownreffk" referencedTableName="emf_datatypedefinition" baseColumnNames="owninginstancetype" baseTableName="cmf_sectionentity" referencedColumnNames="id" onDelete="NO ACTION" onUpdate="NO ACTION" referencesUniqueColumn="false" deleteCascade="false" initiallyDeferred="false" baseTableSchemaName="public" referencedTableSchemaName="public" />
+		<!-- Add other constraints -->
+		<addNotNullConstraint tableName="cmf_sectionentity" columnName="revision" columnDataType="int8"/>
+		<addNotNullConstraint tableName="cmf_sectionentity" columnName="defpath" columnDataType="varchar(256)"/>
+		<!-- Add the new section indexes -->
+		<createIndex tableName="cmf_sectionentity" indexName="idx_sece_dmid">
+			<column name="dmid" />
+		</createIndex>
+		<createIndex tableName="cmf_sectionentity" indexName="idx_sece_ownref">
+			<column name="owninginstanceid" />
+			<column name="owninginstancetype" />
+		</createIndex>
+		<createIndex tableName="cmf_sectionentity" indexName="idx_sece_sId_rev">
+			<column name="sectionid" />
+			<column name="revision" />
+		</createIndex>
+
+		<!-- Migrate the join table to emf_links table -->
+		<!-- First we create some additional columns to copy data in -->
+		<addColumn tableName="cmf_section_document">
+			<column name="casetype" type="int8" />
+			<column name="documenttype" type="int8" />
+			<column name="sectiontype" type="int8" />
+		</addColumn>
+		<!-- Execute queries to populate the new columns, then to copy data to the other table -->
+		<sql endDelimiter=";">
+			update cmf_section_document set casetype = (select d.id from emf_datatypedefinition as d where d.name='caseinstance');
+			update cmf_section_document set documenttype = (select d.id from emf_datatypedefinition as d where d.name='documentinstance');
+			update cmf_section_document set sectiontype= (select d.id from emf_datatypedefinition as d where d.name='sectioninstance');
+			insert into emf_links (fromid, fromtype, link_id, primarylink, toid, totype) select caseentity_id, casetype, 'caseToSectionLink', 1,section_id, sectiontype from cmf_section_document;
+			insert into emf_links (fromid, fromtype, link_id, primarylink, toid, totype) select section_id, sectiontype, 'sectionToChildLink', 1,document_id, documenttype from cmf_section_document;
+		</sql>
+		<!-- drop the invalid table -->
+		<dropTable tableName="cmf_section_document" />
+	</changeSet>
+	<changeSet id="cmf-0.14.0-1" author="bbonev">
+		<comment>Added section purpose</comment>
+		<addColumn tableName="cmf_sectionentity">
+			<column name="purpose" type="varchar(50)" />
+		</addColumn>
+	</changeSet>
+	<changeSet id="cmf-0.14.0-2" author="bbonev">
+		<validCheckSum>7:8f3145f2c84aa71aad1f8f8716635e0c</validCheckSum>
+		<comment>Added standalone column to document entity</comment>
+		<addColumn tableName="cmf_documententity">
+			<column name="standalone" type="int2" />
+		</addColumn>
+		<sql endDelimiter=";">update cmf_documententity set standalone=2;</sql>
+		<addNotNullConstraint tableName="cmf_documententity" columnName="standalone" columnDataType="int2"/>
+	</changeSet>
+	<changeSet id="cmf-0.14.0-3" author="bbonev">
+		<comment>Added container column to document entity</comment>
+		<addColumn tableName="cmf_documententity">
+			<column name="container" type="varchar(100)" />
+		</addColumn>
+		<sql endDelimiter=";">update cmf_documententity as d set container=(select s.container from cmf_sectionentity as s where cast(s.id as varchar) = d.owningreferenceid);</sql>
+	</changeSet>
+	<changeSet id="cmf-0.15.0-0" author="bbonev">
+		<comment>Extended instance reference identifiers to 100 characters</comment>
+		<modifyDataType tableName="cmf_assignedusertasks" columnName="owninginstanceid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="cmf_assignedusertasks" columnName="contextreferenceid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="cmf_caseentity" columnName="owninginstanceid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="cmf_documententity" columnName="owningreferenceid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="cmf_sectionentity" columnName="owninginstanceid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="cmf_taskentity" columnName="owninginstanceid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="cmf_workflowinstance" columnName="owningreferenceeid" newDataType="varchar(100)"/>
+	</changeSet>
+
+	<!-- Moved data migration patches from emf module to cmf -->
+
+	<changeSet id="cmf-0.15.0-0.1" author="bbonev">
+		<comment>Change the emf_properties table id from long to string</comment>
+		<modifyDataType tableName="emf_properties" columnName="bean_id" newDataType="varchar(50)" />
+	</changeSet>
+	<changeSet id="cmf-0.15.0-0.2" author="bbonev">
+		<validCheckSum>7:17c14c5512b6b3b89e884d0784f478ee</validCheckSum>
+		<comment>Change the emf_links table id from long to string</comment>
+		<!-- Update Links table -->
+		<addColumn tableName="emf_links">
+			<column name="tempid" type="varchar(50)">
+				<constraints nullable="false"/>
+			</column>
+		</addColumn>
+		<modifyDataType tableName="emf_links" columnName="reverse" newDataType="varchar(50)"/>
+		<sql endDelimiter=";">
+			update emf_links set tempid = 'emf:links-' || cast(id as varchar);
+			update emf_links set reverse= 'emf:links-' || reverse where reverse is not null;
+			update emf_properties set bean_id = (select c.tempid from emf_links c where bean_id=cast(c.id as varchar)) where bean_type=9;
+		</sql>
+		<dropPrimaryKey tableName="emf_links"/>
+		<dropColumn tableName="emf_links" columnName="id"/>
+		<renameColumn tableName="emf_links" oldColumnName="tempid" newColumnName="id"/>
+		<addPrimaryKey tableName="emf_links" columnNames="id"/>
+		<!-- END of emf links -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-0.3" author="bbonev">
+		<validCheckSum>7:bb47c27fccb8103eea72f4f3384cd788</validCheckSum>
+		<comment>Change the emf common, comment, topic table id from long to string</comment>
+		<!-- Update Common entity table -->
+		<addColumn tableName="emf_commonentity">
+			<column name="tempid" type="varchar(50)" >
+				<constraints nullable="false"/>
+			</column>
+		</addColumn>
+		<sql endDelimiter=";">
+			update emf_commonentity set tempid = 'emf:common-' || cast(id as varchar);
+			update emf_properties set bean_id = (select c.tempid from emf_commonentity c where bean_id=cast(c.id as varchar)) where bean_type=7;
+		</sql>
+		<dropPrimaryKey tableName="emf_commonentity"/>
+		<dropColumn tableName="emf_commonentity" columnName="id"/>
+		<renameColumn tableName="emf_commonentity" oldColumnName="tempid" newColumnName="id"/>
+		<addPrimaryKey tableName="emf_commonentity" columnNames="id"/>
+		<!-- END of emf common entity -->
+
+		<!-- Update Comment entity table -->
+		<addColumn tableName="emf_comment">
+			<column name="tempid" type="varchar(50)" >
+				<constraints nullable="false"/>
+			</column>
+		</addColumn>
+		<modifyDataType tableName="emf_comment" columnName="topic_id" newDataType="varchar(50)" />
+		<sql endDelimiter=";">
+			update emf_comment set tempid = 'emf:comment-' || cast(id as varchar);
+			update emf_comment set topic_id = 'emf:topic-' || cast(topic_id as varchar);
+			update emf_properties set bean_id = (select c.tempid from emf_comment c where bean_id=cast(c.id as varchar)) where bean_type=11;
+		</sql>
+		<dropPrimaryKey tableName="emf_comment"/>
+		<dropColumn tableName="emf_comment" columnName="id"/>
+		<renameColumn tableName="emf_comment" oldColumnName="tempid" newColumnName="id"/>
+		<addPrimaryKey tableName="emf_comment" columnNames="id"/>
+		<modifyDataType tableName="emf_comment" columnName="replayof_id" newDataType="varchar(50)" />
+		<!-- END of emf comment entity -->
+
+		<!-- Update Topic entity table -->
+		<addColumn tableName="emf_topic">
+			<column name="tempid" type="varchar(50)" >
+				<constraints nullable="false"/>
+			</column>
+		</addColumn>
+		<sql endDelimiter=";">
+			update emf_topic set tempid = 'emf:topic-' || cast(id as varchar);
+			update emf_properties set bean_id = (select c.tempid from emf_topic c where bean_id=cast(c.id as varchar)) where bean_type=10;
+		</sql>
+		<dropPrimaryKey tableName="emf_topic"/>
+		<dropColumn tableName="emf_topic" columnName="id"/>
+		<renameColumn tableName="emf_topic" oldColumnName="tempid" newColumnName="id"/>
+		<addPrimaryKey tableName="emf_topic" columnNames="id"/>
+		<!-- END of emf topic entity -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-0.4" author="bbonev">
+		<validCheckSum>7:f7961261999494486ae539b06cf3cf73</validCheckSum>
+		<comment>Change the emf_resource table id from long to string</comment>
+		<!-- Update Links table -->
+		<addColumn tableName="emf_resource">
+			<column name="tempid" type="varchar(100)" >
+				<constraints nullable="false"/>
+			</column>
+		</addColumn>
+		<modifyDataType tableName="emf_resourcerole" columnName="resource_id" newDataType="varchar(100)"/>
+		<sql endDelimiter=";">
+			update emf_resource set tempid = 'emf:' || identifier;
+			update emf_properties set bean_id = (select c.tempid from emf_resource c where bean_id=cast(c.id as varchar)) where bean_type=6;
+			update emf_resourcerole set resource_id = (select r.tempid from emf_resource r where resource_id = cast(r.id as varchar));
+		</sql>
+		<dropPrimaryKey tableName="emf_resource"/>
+		<renameColumn tableName="emf_resource" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="emf_resource" oldColumnName="tempid" newColumnName="id"/>
+		<addPrimaryKey tableName="emf_resource" columnNames="id"/>
+		<!-- END of emf links -->
+	</changeSet>
+
+	<!-- END of moved pathces -->
+
+	<changeSet id="cmf-0.15.0-1" author="bbonev">
+		<validCheckSum>7:e5fe166bf7b9e6f750a42f80b48afca5</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<dbms type="h2"/>
+			</not>
+		</preConditions>
+		<comment>Change the case table id from long to string</comment>
+		<!-- Update case table -->
+		<addColumn tableName="cmf_caseentity">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<!-- 1. Copy the data to tempid column
+			 2. Remove the full namespace and replace it with prefix only
+			 3. Fill the missing URIs with db ids
+			 4. Fix the properties references
+			 5, 6, 7. Fix possible references to other entities
+			 8, 9. Fix link references
+			 10. Fix role references
+			 11. Fix topic references
+			 12, 13. Update assigned tasks table ids -->
+		<sql endDelimiter=";">
+			update cmf_caseentity as e set tempid = (select pv.stringvalue from emf_properties p inner join emf_propertyvalue pv on p.value_id=pv.id where p.propertyid in (select pt.id from emf_prototype as pt where pt.name='uri') and p.bean_id = cast(e.id as varchar) and p.bean_type=1);
+			update cmf_caseentity set tempid = 'emf:' || substring(tempid from '....................................$') where tempid is not null;
+			update cmf_caseentity set tempid = 'emf:case-' || cast(id as varchar) where tempid is null;
+			update emf_properties set bean_id = (select c.tempid from cmf_caseentity c where bean_id=cast(c.id as varchar)) where bean_type=1;
+
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_caseentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=1) where pv.id in (select p.value_id from emf_properties p inner join cmf_caseentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=1);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_caseentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=1) where pv.id in (select p.value_id from emf_properties p inner join cmf_caseentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=1);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_caseentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=1) where pv.id in (select p.value_id from emf_properties p inner join cmf_caseentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=1);
+
+			update cmf_sectionentity as s set owninginstanceid=(select c.tempid from cmf_caseentity c where s.owninginstanceid = cast(c.id as varchar)) where s.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update cmf_taskentity as t set owninginstanceid=(select c.tempid from cmf_caseentity c where t.owninginstanceid =cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update cmf_workflowinstance set owningreferenceeid=(select c.tempid from cmf_caseentity c where owningreferenceeid = cast(c.id as varchar)) where owningreferencetype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update emf_links set fromid=(select c.tempid from cmf_caseentity c where fromid = cast(c.id as varchar)) where fromtype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update emf_links set toid=(select c.tempid from cmf_caseentity c where toid = cast(c.id as varchar)) where totype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update emf_resourcerole set targetrolereferencerid=(select c.tempid from cmf_caseentity c where targetrolereferencerid = cast(c.id as varchar)) where targetrolereferencetype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update emf_topic as t set topicaboutid=(select c.tempid from cmf_caseentity c where t.topicaboutid = cast(c.id as varchar)) where t.topicabouttype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update cmf_assignedusertasks as t set contextreferenceid=(select c.tempid from cmf_caseentity c where t.contextreferenceid = cast(c.id as varchar)) where t.contextreferencetype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+			update cmf_assignedusertasks as t set owninginstanceid=(select c.tempid from cmf_caseentity c where t.owninginstanceid = cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='caseinstance');
+		</sql>
+		<dropPrimaryKey tableName="cmf_caseentity"/>
+		<renameColumn tableName="cmf_caseentity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_caseentity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_caseentity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_caseentity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_caseentity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of case -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-1-h2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<dbms type="h2"/>
+		</preConditions>
+		<comment>Change the case table id from long to string</comment>
+		<!-- Update case table -->
+		<addColumn tableName="cmf_caseentity">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<dropPrimaryKey tableName="cmf_caseentity"/>
+		<renameColumn tableName="cmf_caseentity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_caseentity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_caseentity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_caseentity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_caseentity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of case -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-3" author="bbonev">
+		<validCheckSum>7:77c5f8d8e359c4150e84208191c2fcf8</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<dbms type="h2"/>
+			</not>
+		</preConditions>
+		<comment>Change the section table id from long to string</comment>
+		<!-- Update section table -->
+		<addColumn tableName="cmf_sectionentity">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<!-- 1. Copy the data to tempid column
+			 2. Remove the full namespace and replace it with prefix only
+			 3. Fill the missing URIs with db ids
+			 4. Fix the properties references
+			 5. Fix possible references to other entities
+			 6, 7. Fix link references -->
+		<sql endDelimiter=";">
+			update cmf_sectionentity as e set tempid = (select pv.stringvalue from emf_properties p inner join emf_propertyvalue pv on p.value_id=pv.id where p.propertyid in (select pt.id from emf_prototype as pt where pt.name='uri') and p.bean_id = cast(e.id as varchar) and p.bean_type=2);
+			update cmf_sectionentity set tempid = 'emf:' || substring(tempid from '....................................$') where tempid is not null;
+			update cmf_sectionentity set tempid = 'emf:section-' || cast(id as varchar) where tempid is null;
+			update emf_properties set bean_id = (select c.tempid from cmf_sectionentity c where bean_id=cast(c.id as varchar)) where bean_type=2;
+
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_sectionentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=2) where pv.id in (select p.value_id from emf_properties p inner join cmf_sectionentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=2);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_sectionentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=2) where pv.id in (select p.value_id from emf_properties p inner join cmf_sectionentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=2);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_sectionentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=2) where pv.id in (select p.value_id from emf_properties p inner join cmf_sectionentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in(select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=2);
+
+			update cmf_documententity as d set owningreferenceid=(select c.tempid from cmf_sectionentity c where d.owningreferenceid = cast(c.id as varchar) and d.owningreferencetype in (select d.id from emf_datatypedefinition d where d.name='sectioninstance')) where owningreferencetype in (select d.id from emf_datatypedefinition d where d.name='sectioninstance');
+			update emf_links set fromid=(select c.tempid from cmf_sectionentity c where fromid = cast(c.id as varchar) and fromtype in (select d.id from emf_datatypedefinition d where d.name='sectioninstance')) where fromtype in (select d.id from emf_datatypedefinition d where d.name='sectioninstance');
+			update emf_links set toid=(select c.tempid from cmf_sectionentity c where toid = cast(c.id as varchar) and totype in (select d.id from emf_datatypedefinition d where d.name='sectioninstance')) where totype in (select d.id from emf_datatypedefinition d where d.name='sectioninstance');
+		</sql>
+		<dropPrimaryKey tableName="cmf_sectionentity"/>
+		<renameColumn tableName="cmf_sectionentity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_sectionentity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_sectionentity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_sectionentity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_sectionentity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of section -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-3-h2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<dbms type="h2"/>
+		</preConditions>
+		<comment>Change the section table id from long to string</comment>
+		<!-- Update section table -->
+		<addColumn tableName="cmf_sectionentity">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<dropPrimaryKey tableName="cmf_sectionentity"/>
+		<renameColumn tableName="cmf_sectionentity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_sectionentity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_sectionentity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_sectionentity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_sectionentity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of section -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-4" author="bbonev">
+		<validCheckSum>7:cdb2a14bdf2fe0aa614d12ebc4435d6f</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<dbms type="h2"/>
+			</not>
+		</preConditions>
+		<comment>Change the document table id from long to string</comment>
+		<!-- Update section table -->
+		<addColumn tableName="cmf_documententity">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<!-- 1. Copy the data to tempid column
+			 2. Remove the full namespace and replace it with prefix only
+			 3. Fill the missing URIs with db ids
+			 4. Fix the properties references
+			 5, 6. Fix link references -->
+		<sql endDelimiter=";">
+			update cmf_documententity as e set tempid = (select pv.stringvalue from emf_properties p inner join emf_propertyvalue pv on p.value_id=pv.id where p.propertyid in (select pt.id from emf_prototype as pt where pt.name='uri') and p.bean_id = cast(e.id as varchar) and p.bean_type=3);
+			update cmf_documententity set tempid = 'emf:' || substring(tempid from '....................................$') where tempid is not null;
+			update cmf_documententity set tempid = 'emf:document-' || cast(id as varchar) where tempid is null;
+			update emf_properties set bean_id = (select c.tempid from cmf_documententity c where bean_id=cast(c.id as varchar)) where bean_type=3;
+
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_documententity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=3) where pv.id in (select p.value_id from emf_properties p inner join cmf_documententity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=3);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_documententity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=3) where pv.id in (select p.value_id from emf_properties p inner join cmf_documententity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=3);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_documententity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=3) where pv.id in (select p.value_id from emf_properties p inner join cmf_documententity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=3);
+
+			update emf_links set fromid=(select c.tempid from cmf_documententity c where fromid = cast(c.id as varchar) and fromtype in (select d.id from emf_datatypedefinition d where d.name='documentinstance')) where fromtype in (select d.id from emf_datatypedefinition d where d.name='documentinstance');
+			update emf_links set toid=(select c.tempid from cmf_documententity c where toid = cast(c.id as varchar) and totype in (select d.id from emf_datatypedefinition d where d.name='documentinstance')) where totype in (select d.id from emf_datatypedefinition d where d.name='documentinstance');
+		</sql>
+		<dropPrimaryKey tableName="cmf_documententity"/>
+		<renameColumn tableName="cmf_documententity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_documententity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_documententity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_documententity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_documententity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of document -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-4-h2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<dbms type="h2"/>
+		</preConditions>
+		<comment>Change the document table id from long to string</comment>
+		<!-- Update section table -->
+		<addColumn tableName="cmf_documententity">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<dropPrimaryKey tableName="cmf_documententity"/>
+		<renameColumn tableName="cmf_documententity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_documententity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_documententity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_documententity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_documententity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of document -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-5" author="bbonev">
+		<validCheckSum>7:21b6e254f4d418226fb9082bc3ca8b6c</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<dbms type="h2"/>
+			</not>
+		</preConditions>
+		<comment>Change the workflows table id from long to string</comment>
+		<!-- Update workflows table -->
+		<addColumn tableName="cmf_workflowinstance">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<!-- 1. Copy the data to tempid column
+			 2. Remove the full namespace and replace it with prefix only
+			 3. Fill the missing URIs with db ids
+			 4. Fix the properties references
+			 5. Fix possible references to other entities
+			 6, 7. Fix link references
+			 8. Fix role references
+			 9, 10. Update assigned tasks table ids -->
+		<sql endDelimiter=";">
+			update cmf_workflowinstance as e set tempid = (select pv.stringvalue from emf_properties p inner join emf_propertyvalue pv on p.value_id=pv.id where p.propertyid in (select pt.id from emf_prototype as pt where pt.name='uri') and p.bean_id = cast(e.id as varchar) and p.bean_type=4);
+			update cmf_workflowinstance set tempid = 'emf:' || substring(tempid from '....................................$') where tempid is not null;
+			update cmf_workflowinstance set tempid = 'emf:workflow-' || cast(id as varchar) where tempid is null;
+			update emf_properties set bean_id = (select c.tempid from cmf_workflowinstance c where bean_id=cast(c.id as varchar)) where bean_type=4;
+
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_workflowinstance e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=4) where pv.id in (select p.value_id from emf_properties p inner join cmf_workflowinstance e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=4);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_workflowinstance e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=4) where pv.id in (select p.value_id from emf_properties p inner join cmf_workflowinstance e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=4);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_workflowinstance e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=4) where pv.id in (select p.value_id from emf_properties p inner join cmf_workflowinstance e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=4);
+
+			update cmf_taskentity as t set owninginstanceid=(select c.tempid from cmf_workflowinstance c where t.owninginstanceid =cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='workflowinstancecontext');
+			update emf_links set fromid=(select c.tempid from cmf_workflowinstance c where fromid = cast(c.id as varchar)) where fromtype in (select d.id from emf_datatypedefinition d where d.name='workflowinstancecontext');
+			update emf_links set toid=(select c.tempid from cmf_workflowinstance c where toid = cast(c.id as varchar)) where totype in (select d.id from emf_datatypedefinition d where d.name='workflowinstancecontext');
+			update emf_resourcerole set targetrolereferencerid=(select c.tempid from cmf_workflowinstance c where targetrolereferencerid = cast(c.id as varchar)) where targetrolereferencetype in (select d.id from emf_datatypedefinition d where d.name='workflowinstancecontext');
+			update cmf_assignedusertasks as t set contextreferenceid=(select c.tempid from cmf_workflowinstance c where t.contextreferenceid = cast(c.id as varchar)) where t.contextreferencetype in (select d.id from emf_datatypedefinition d where d.name='workflowinstancecontext');
+			update cmf_assignedusertasks as t set owninginstanceid=(select c.tempid from cmf_workflowinstance c where t.owninginstanceid = cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='workflowinstancecontext');
+		</sql>
+		<dropPrimaryKey tableName="cmf_workflowinstance"/>
+		<renameColumn tableName="cmf_workflowinstance" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_workflowinstance" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_workflowinstance" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_workflowinstance" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_workflowinstance" columnName="old_id" columnDataType="int8"/>
+		<!-- END of workflows -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-5-h2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<dbms type="h2"/>
+		</preConditions>
+		<comment>Change the workflows table id from long to string</comment>
+		<!-- Update workflows table -->
+		<addColumn tableName="cmf_workflowinstance">
+			<column name="tempid" type="varchar(100)" />
+		</addColumn>
+		<dropPrimaryKey tableName="cmf_workflowinstance"/>
+		<renameColumn tableName="cmf_workflowinstance" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_workflowinstance" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_workflowinstance" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_workflowinstance" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_workflowinstance" columnName="old_id" columnDataType="int8"/>
+		<!-- END of workflows -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-6" author="bbonev">
+		<validCheckSum>7:a655e6902fb64c4d8d12992adc88ccb0</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<dbms type="h2"/>
+			</not>
+		</preConditions>
+		<comment>Change the tasks table id from long to string</comment>
+		<!-- Update tasks table -->
+		<addColumn tableName="cmf_taskentity">
+			<column name="tempid" type="varchar(100)" />
+			<column name="treepath_copy" type="varchar(200)" />
+		</addColumn>
+		<modifyDataType tableName="cmf_taskentity" columnName="treepath" newDataType="varchar(2048)"/>
+		<!-- 1. Copy the data to tempid column
+			 2. Remove the full namespace and replace it with prefix only
+			 3. Fill the missing URIs with db ids
+			 4. Fix the properties references
+			 5-9. Fix possible references to other entities for workflow task
+			 10-14. Fix possible references to other entities for standalone task
+			 15. Backup the tree path column if other fixes are needed later
+			 16. Update the tree path for root level standalone tasks
+			 17. Update the tree path for second level standalone tasks that does not have children
+			 18. Update the tree path for second level standalone tasks that have one more child
+			 (NOTE: the path will update only paths that are up to 3 levels. For more that that the patch will update the first and the last number)
+			 19. Update the last number of tree path
+			 20. Update owning reference of the subtasks -->
+		<sql endDelimiter=";">
+			update cmf_taskentity as e set tempid = (select pv.stringvalue from emf_properties p inner join emf_propertyvalue pv on p.value_id=pv.id where p.propertyid in (select pt.id from emf_prototype as pt where pt.name='uri') and p.bean_id = cast(e.id as varchar) and p.bean_type=5);
+			update cmf_taskentity set tempid = 'emf:' || substring(tempid from '....................................$') where tempid is not null;
+			update cmf_taskentity set tempid = 'emf:task-' || cast(id as varchar) where tempid is null;
+			update emf_properties set bean_id = (select c.tempid from cmf_taskentity c where bean_id=cast(c.id as varchar)) where bean_type=5;
+
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_taskentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=5) where pv.id in (select p.value_id from emf_properties p inner join cmf_taskentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='default_header') and p.bean_type=5);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_taskentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=5) where pv.id in (select p.value_id from emf_properties p inner join cmf_taskentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='compact_header') and p.bean_type=5);
+			update emf_propertyvalue as pv set stringvalue = (select substring(pv.stringvalue from '^.+?instanceId=') || e.tempid || substring(substring(pv.stringvalue from '(?:[0-9]+.*?)(?=").+$') from '[^0-9]+?.+$') from emf_properties p inner join cmf_taskentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=5) where pv.id in (select p.value_id from emf_properties p inner join cmf_taskentity e on e.tempid = p.bean_id where p.value_id=pv.id AND p.propertyid in (select pt.id from emf_prototype as pt where pt.name='breadcrumb_header') and p.bean_type=5);
+
+			update emf_links set fromid=(select c.tempid from cmf_taskentity c where fromid = cast(c.id as varchar)) where fromtype in (select d.id from emf_datatypedefinition d where d.name='taskinstance');
+			update emf_links set toid=(select c.tempid from cmf_taskentity c where toid = cast(c.id as varchar)) where totype in (select d.id from emf_datatypedefinition d where d.name='taskinstance');
+			update emf_resourcerole set targetrolereferencerid=(select c.tempid from cmf_taskentity c where targetrolereferencerid = cast(c.id as varchar)) where targetrolereferencetype in (select d.id from emf_datatypedefinition d where d.name='taskinstance');
+			update cmf_assignedusertasks as t set contextreferenceid=(select c.tempid from cmf_taskentity c where t.contextreferenceid = cast(c.id as varchar)) where t.contextreferencetype in (select d.id from emf_datatypedefinition d where d.name='taskinstance');
+			update cmf_assignedusertasks as t set owninginstanceid=(select c.tempid from cmf_taskentity c where t.owninginstanceid = cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='taskinstance');
+
+			update emf_links set fromid=(select c.tempid from cmf_taskentity c where fromid = cast(c.id as varchar)) where fromtype in (select d.id from emf_datatypedefinition d where d.name='standalonetaskinstance');
+			update emf_links set toid=(select c.tempid from cmf_taskentity c where toid = cast(c.id as varchar)) where totype in (select d.id from emf_datatypedefinition d where d.name='standalonetaskinstance');
+			update emf_resourcerole set targetrolereferencerid=(select c.tempid from cmf_taskentity c where targetrolereferencerid = cast(c.id as varchar)) where targetrolereferencetype in (select d.id from emf_datatypedefinition d where d.name='standalonetaskinstance');
+			update cmf_assignedusertasks as t set contextreferenceid=(select c.tempid from cmf_taskentity c where t.contextreferenceid = cast(c.id as varchar)) where t.contextreferencetype in (select d.id from emf_datatypedefinition d where d.name='standalonetaskinstance');
+			update cmf_assignedusertasks as t set owninginstanceid=(select c.tempid from cmf_taskentity c where t.owninginstanceid = cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='standalonetaskinstance');
+
+			update cmf_taskentity set treepath_copy = treepath;
+			update cmf_taskentity as t set treepath = tempid where treepath=cast(id as varchar);
+			update cmf_taskentity as t set treepath = tempid || substring(treepath from '/.+$') where treepath like (id || '/%');
+			update cmf_taskentity as t set treepath = substring(substring(treepath from '^.+/' || t.owninginstanceid) from '^.+/') || (select c.tempid from cmf_taskentity c where t.owninginstanceid=cast(c.id as varchar)) || substring(substring(treepath from t.owninginstanceid || '/.+$') from '/.+$') where t.treepath ~ ('^[-a-z0-9:]+/' || t.owninginstanceid || '/.+(?!/)') and t.treepath ~ '^[-a-z0-9:]+?/[-a-z0-9:]+?/[-a-z0-9:]+?$';
+			update cmf_taskentity as t set treepath = substring(substring(treepath from '^.+/' || (select c.id from cmf_taskentity c where t.treepath like ('%/' || c.id))) from '^.+/') || (select c.tempid from cmf_taskentity c where t.treepath like ('%/' || c.id)) where treepath like ('%/' || (select c.id from cmf_taskentity c where t.treepath like ('%/' || c.id)));
+
+			update cmf_taskentity as t set owninginstanceid=(select c.tempid from cmf_taskentity c where t.owninginstanceid = cast(c.id as varchar)) where t.owninginstancetype in (select d.id from emf_datatypedefinition d where d.name='standalonetaskinstance');
+		</sql>
+		<dropPrimaryKey tableName="cmf_taskentity"/>
+		<renameColumn tableName="cmf_taskentity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_taskentity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_taskentity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_taskentity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_taskentity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of tasks -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-6-h2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<dbms type="h2"/>
+		</preConditions>
+		<comment>Change the tasks table id from long to string</comment>
+		<!-- Update tasks table -->
+		<addColumn tableName="cmf_taskentity">
+			<column name="tempid" type="varchar(100)" />
+			<column name="treepath_copy" type="varchar(200)" />
+		</addColumn>
+		<modifyDataType tableName="cmf_taskentity" columnName="treepath" newDataType="varchar(2048)"/>
+		<dropPrimaryKey tableName="cmf_taskentity"/>
+		<renameColumn tableName="cmf_taskentity" oldColumnName="id" newColumnName="old_id"/>
+		<renameColumn tableName="cmf_taskentity" oldColumnName="tempid" newColumnName="id"/>
+		<addNotNullConstraint tableName="cmf_taskentity" columnName="id" columnDataType="varchar(100)"/>
+		<addPrimaryKey tableName="cmf_taskentity" columnNames="id"/>
+		<!-- we should drop the column at some point -->
+		<dropNotNullConstraint tableName="cmf_taskentity" columnName="old_id" columnDataType="int8"/>
+		<!-- END of tasks -->
+	</changeSet>
+	<changeSet id="cmf-0.15.0-7" author="bbonev">
+		<comment>Fix common entity properties</comment>
+		<sql endDelimiter=";">
+			update emf_propertyvalue set stringvalue = ('emf:common-' || cast(longvalue as varchar)), persistedtype = 6 where longvalue is not null and actualtype = 9 and persistedtype = 3;
+		</sql>
+	</changeSet>
+	<changeSet id="cmf-0.15.0-8" author="bbanchev">
+		<validCheckSum>7:359e91ee94acf49d2f2d59fd58754c31</validCheckSum>
+		<comment>Fix common entity properties</comment>
+		<dropNotNullConstraint tableName="cmf_assignedusertasks" columnName="userid" columnDataType="VARCHAR(50)"/>
+		<sql endDelimiter=";">
+			alter table cmf_assignedusertasks add column poolUsers varchar(10240);
+			alter table cmf_assignedusertasks add column poolGroups varchar(10240);
+		</sql>
+	</changeSet>
+	<changeSet id="cmf-1.2.0-0" author="bbonev">
+		<comment>Added template table</comment>
+		<createTable tableName="cmf_template">
+			<column autoIncrement="true" name="id" type="bigserial">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="cmf_template_pkey"/>
+            </column>
+            <column name="templateid" type="varchar(256)" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="groupid" type="varchar(256)" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="visibleto" type="varchar(50)" />
+            <column name="primarytemplate" type="int2" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="publictemplate" type="int2" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="dmsid" type="varchar(100)" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="container" type="varchar(50)" />
+            <column name="digest" type="varchar(100)" />
+		</createTable>
+		<createIndex tableName="cmf_template" indexName="idx_temp_id">
+			<column name="templateid" />
+		</createIndex>
+		<createIndex tableName="cmf_template" indexName="idx_temp_grid">
+			<column name="groupid" />
+		</createIndex>
+	</changeSet>
+	<changeSet id="cmf-1.4.0-0" author="bbonev" dbms="postgresql">
+		<comment>Rename section column old_id to listindex and fill the missing values</comment>
+		<renameColumn tableName="cmf_sectionentity" oldColumnName="old_id" newColumnName="listindex"/>
+		<sql>
+			update cmf_sectionentity set listindex=nextval('cmf_sectionentity_id_seq') where listindex is null;
+		</sql>
+	</changeSet>
+	<changeSet id="cmf-1.4.0-1" author="bbonev">
+		<!-- Patch has been moved from emf because the order of executions is all emf then cmf.
+			All patches related to changed column id types should not be located in emf patches
+			because they break the whole patch system. -->
+		<comment>Increase column length of properties.bean_id and resource role</comment>
+		<modifyDataType tableName="emf_resourcerole" columnName="targetrolereferencerid" newDataType="varchar(100)"/>
+		<modifyDataType tableName="emf_properties" columnName="bean_id" newDataType="varchar(100)"/>
+	</changeSet>
+	<changeSet id="cmf-1.5.1-0" author="bbonev">
+		<comment>drop copyOf and linkFrom columns from document table</comment>
+		<dropColumn tableName="cmf_documententity" columnName="linkfrom"/>
+		<dropColumn tableName="cmf_documententity" columnName="copyof"/>
+	</changeSet>
+	<changeSet id="cmf-1.6.0-0" author="bbonev">
+		<validCheckSum>7:28aee7550583eda4ac67f7750d0cb1bc</validCheckSum>
+		<comment>Added standalone column to section entity</comment>
+		<addColumn tableName="cmf_sectionentity">
+			<column name="standalone" type="int2" />
+		</addColumn>
+		<sql endDelimiter=";">update cmf_sectionentity set standalone=2;</sql>
+		<addNotNullConstraint tableName="cmf_sectionentity" columnName="standalone" columnDataType="int2"/>
+	</changeSet>
+	<changeSet id="cmf-1.6.0-2" author="bbonev">
+		<preConditions><tableExists tableName="emf_thumbnailentity"/></preConditions>
+		<comment>Generate thumbnail entries for all documents</comment>
+		<sql endDelimiter=";">
+			insert into emf_thumbnailmappingentity (instanceid, instancetype, thumbnailid, purpose) select de.id, d.id, de.id,'default' from cmf_documententity as de, emf_datatypedefinition as d where de.id not in (select thumbnailid from emf_thumbnailmappingentity) and d.name = 'documentinstance';
+			insert into emf_thumbnailentity (id, endpoint, providername) select de.id, de.documentdmsid, 'alfresco4Dms' from cmf_documententity as de where de.id not in (select id from emf_thumbnailentity);
+		</sql>
+	</changeSet>
+	<changeSet id="cmf-1.7.0-0" author="bbanchev">
+		<comment>Added draft documents table</comment>
+		<createTable tableName="cmf_draftinstances">
+			<column name="instanceid" type="varchar(100)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="userid" type="varchar(100)" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="created" type="timestamp" >
+            	<constraints nullable="false"/>
+            </column>
+            <column name="content" type="text" >
+            	<constraints nullable="true"/>
+            </column>
+            <column name="properties" type="text" />
+            <column name="status" type="varchar(30)" />
+		</createTable>
+		<addPrimaryKey tableName="cmf_draftinstances" columnNames="instanceid,userid"/>
+		<createIndex tableName="cmf_draftinstances" indexName="idx_draft_instance_id">
+			<column name="instanceid" />
+		</createIndex>
+		<createIndex tableName="cmf_draftinstances" indexName="idx_draft_user_id">
+			<column name="userid" />
+		</createIndex>
+	</changeSet>
+	<!-- add here the patch because of  cmf-0.15.0-0.4-->
+	<changeSet id="emf-1.8.0" author="bbanchev">
+		<validCheckSum>7:a2cad9cd34ee0d383ddbcbb79fce93f5</validCheckSum>
+		<preConditions onFail="MARK_RAN" onFailMessage="Already patched!">
+			<columnExists tableName="emf_resourcerole" columnName="resource_id"/>
+		</preConditions>
+		<comment>Update role table - update names, add new columns</comment>
+		<dropIndex indexName="idx_prr_r_trr" tableName="emf_resourcerole"/>
+		<dropIndex indexName="idx_prr_trr" tableName="emf_resourcerole"/>
+		<renameColumn tableName="emf_resourcerole" oldColumnName="resource_id" newColumnName="authority_id"/>
+			<dropNotNullConstraint  tableName="emf_resourcerole" columnName="authority_id" columnDataType="varchar(100)"/>
+		<renameColumn tableName="emf_resourcerole" oldColumnName="targetrolereferencerid" newColumnName="targetid"/>
+		<renameColumn tableName="emf_resourcerole" oldColumnName="targetrolereferencetype" newColumnName="targettype"/>
+    	<createIndex indexName="idx_prr_r_trr" tableName="emf_resourcerole" unique="false">
+            <column name="role"/>
+            <column name="targetid"/>
+            <column name="targettype"/>
+        </createIndex>
+        <createIndex indexName="idx_prr_trr" tableName="emf_resourcerole" unique="false">
+            <column name="targetid"/>
+            <column name="targettype"/>
+        </createIndex>
+	</changeSet>
+	<changeSet id="emf-1.8.0-2" author="bbanchev">
+		<validCheckSum>7:2be1a03ca23b3f43507b1f66a84dccb1</validCheckSum>
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<columnExists tableName="emf_resourcerole" columnName="path"/>
+			</not>
+		</preConditions>
+		<addColumn  tableName="emf_resourcerole" >
+        	<column name="path" type="varchar(500)" />
+        	<column name="inherited_targetid" type="VARCHAR(100)"/>
+            <column name="inherited_targettype" type="int8"/>
+            <column name="systeminfo" type="varchar(500)"/>
+    	</addColumn>
+    	<addNotNullConstraint tableName="emf_resourcerole" columnName="path" defaultNullValue="{path}" columnDataType="varchar(500)"/>
+    	<createIndex indexName="idx_prr_trr_path" tableName="emf_resourcerole" unique="false">
+            <column name="path"/>
+        </createIndex>
+	</changeSet>
+    <changeSet id="emf-1.8.0-3" author="bbanchev">
+		<comment>Update system user in resource and resource role tables</comment>
+		<sql>
+		    delete from emf_resource where id='emf:SYSTEM_ALL_OTHER_USERS';
+			update emf_resource set id='sec:SYSTEM_ALL_OTHER_USERS' where identifier='SYSTEM_ALL_OTHER_USERS';
+			update emf_resource set type=3 where id='sec:SYSTEM_ALL_OTHER_USERS';
+			update emf_resourcerole set authority_id='sec:SYSTEM_ALL_OTHER_USERS' where authority_id='emf:SYSTEM_ALL_OTHER_USERS'
+		</sql>
+	</changeSet>
+	<changeSet id="emf-1.8.0-4" author="bbanchev">
+		<comment>Extended path to 1500</comment>
+		<modifyDataType tableName="emf_resourcerole" columnName="path" newDataType="varchar(1500)"/>
+	</changeSet>
+	<changeSet id="emf-1.8.0-5" author="bbanchev">
+		<comment>Extended path to 2500</comment>
+		<modifyDataType tableName="emf_resourcerole" columnName="path" newDataType="varchar(2500)"/>
+	</changeSet>
+	<changeSet id="emf-1.9.2-0" author="bbonev">
+		<comment>Increase the id of emf_links to 100 chars</comment>
+		<modifyDataType tableName="emf_links" columnName="id" newDataType="varchar(100)"/>
+	</changeSet>
+	<changeSet id="emf-1.9.2-1" author="bbonev">
+		<comment>Generate emf_links entries for the document primary parent</comment>
+		<sql endDelimiter=";">
+			insert into emf_links (id, fromid, fromtype, link_id, primarylink, toid, totype) select de.id || '-l', de.id, (select d.id from emf_datatypedefinition d where d.name = 'documentinstance'), 'emf:primaryParent' ,1 ,de.owningreferenceid, de.owningreferencetype from cmf_documententity de where owningreferenceid is not null and owningreferencetype not in (select d.id from emf_datatypedefinition d where d.name = 'sectioninstance') and de.id not in (select fromid from emf_links where link_id ='emf:primaryParent' and fromid=de.id);
+		</sql>
+	</changeSet>
+</databaseChangeLog>

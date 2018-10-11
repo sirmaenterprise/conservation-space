@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="rest-security-2.8.0-1" author="smustafov">
+		<comment>Create sep_active_user_session table</comment>
+		<createTable tableName="sep_active_user_session">
+			<column name="id" type="bigserial" autoIncrement="true">
+				<constraints primaryKey="true" primaryKeyName="sep_active_user_session_id_pk"
+					nullable="false" />
+			</column>
+			<column name="jwt" type="varchar(1024)">
+				<constraints nullable="false" unique="true" />
+			</column>
+			<column name="saml" type="varchar(4096)">
+				<constraints nullable="false" unique="true" />
+			</column>
+			<column name="session_index" type="varchar(36)">
+				<constraints nullable="false" />
+			</column>
+			<column name="identity_id" type="varchar(256)">
+				<constraints nullable="false" />
+			</column>
+			<column name="identity_properties" type="varchar(4096)">
+				<constraints nullable="false" />
+			</column>
+			<column name="loggedin_date" type="TIMESTAMP WITH TIME ZONE" />
+		</createTable>
+	</changeSet>
+
+</databaseChangeLog>

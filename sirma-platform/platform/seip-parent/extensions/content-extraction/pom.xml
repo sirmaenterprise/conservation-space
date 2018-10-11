@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.sirma.itt.seip</groupId>
+		<artifactId>extensions</artifactId>
+		<version>2.22.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>content-extraction</artifactId>
+
+	<properties>
+		<tika.version>1.16</tika.version>
+	</properties>
+
+	<dependencies>
+		<!-- sep dependencies -->
+		<dependency>
+			<groupId>com.sirma.sep</groupId>
+			<artifactId>content-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>configuration-db</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.mattbertolini</groupId>
+			<artifactId>liquibase-slf4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers</artifactId>
+			<version>${tika.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>dom4j</artifactId>
+					<groupId>dom4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-rs-client</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Tika library uses 3.17-beta1, so we upgrade to the final version of 3.17
+		 This version is also needed for XLSX file processing in Integration modules -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+		</dependency>
+		<!-- override poi to final version -->
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>51.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<!-- provided -->
+		<dependency>
+			<artifactId>dom4j</artifactId>
+			<groupId>dom4j</groupId>
+			<version>1.6.1</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>test-module</artifactId>
+			<scope>test</scope>
+			<classifier>tests</classifier>
+		</dependency>
+	</dependencies>
+</project>

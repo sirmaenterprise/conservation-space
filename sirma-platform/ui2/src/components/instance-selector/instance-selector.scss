@@ -1,0 +1,255 @@
+@import "../../style/reusables";
+
+@mixin buttonFontStyle {
+  /* the icons should be a bit bigger but the button shouldn't grow up */
+  /* Important is applied to avoid over-complicated selector in order to override the component clients styling. */
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+}
+
+.instance-box, .instance-suggest, .instance-suggest.btn {
+  float: left;
+  display: inline-flex;
+}
+
+.instance-selector {
+
+.instance-suggest {
+  width: 30%;
+  display: flex;
+
+  .btn {
+    flex-wrap: wrap;
+  }
+}
+
+  display: inline-flex !important;
+  flex-flow: row wrap;
+  align-content: flex-start;
+
+  &.preview {
+    .instance-box {
+      margin-bottom: 0;
+
+      .instance-box-header {
+        border: 0;
+      }
+    }
+
+    .instance-suggest {
+      width: 0;
+    }
+  }
+
+  &:after {
+    content: ' ';
+    display: block;
+    height: 0;
+    clear: both;
+  }
+
+  .instance-box {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    float: left;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-width: 0;
+
+    &:hover {
+      .remove-instance-btn {
+        display: flex;
+        visibility: visible;
+      }
+    }
+
+    .lock-label {
+      padding-right: 0.5em;
+    }
+
+    .instance-box-header {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      min-width: 0;
+      @include fit-header-inside-container();
+    }
+
+    .separator {
+      margin-top: 5px;
+      margin-bottom: -5px;
+    }
+
+    .instance-data.icon-16 .header-icon {
+      margin-left: 0;
+    }
+
+    .header-icon img {
+      vertical-align: sub;
+    }
+
+    .remove-instance-btn {
+      display: flex;
+      visibility: hidden;
+      border: none;
+      margin-right: 5px;
+
+      &:hover {
+        visibility: visible;
+      }
+    }
+  }
+
+  .btn {
+    float: left;
+    color: #333;
+    background-color: #eee !important;
+    font-size: 14px;
+    box-shadow: none;
+    margin-right: 5px;
+
+    &:hover {
+      background-color: #e6e6e6 !important;
+      text-shadow: 1px 1px 3px #ccc;
+    }
+
+    .expand-icon, .collapse-icon {
+      @include buttonFontStyle;
+    }
+  }
+
+  /* Styles applied when instance selector items needs to be rendered inline. */
+  &.inline {
+    display: inline-flex;
+    flex-wrap: wrap;
+    vertical-align: bottom;
+
+    .header-icon {
+      img {
+        /* Clear the right margin to prevent inconsistent spacing between header and icon. */
+        margin-right: 0 !important;
+      }
+    }
+
+    .btn {
+      .expand-icon, .collapse-icon {
+        @include buttonFontStyle;
+      }
+    }
+
+    .show-more-objects, .show-less-objects {
+      position: relative;
+      top: 2px;
+      height: 16px;
+      display: inline-flex;
+
+      .hidden-objects-count {
+        margin-right: 3px;
+      }
+
+      .hidden-objects-count, .expand-icon, .collapse-icon {
+        margin-top: -2px;
+        font-size: 12px !important;
+      }
+
+      .expand-icon, .collapse-icon {
+        font-size: 14px !important;
+      }
+    }
+  }
+
+  /* Under IE and Edge there are a number of issues related with the flexbox usage which is not properly supported by those browsers. */
+  @include internet-explorer-11-and-edge() {
+    &.inline {
+      display: inline-block !important;
+      vertical-align: top;
+
+      .instance-header, .instance-data, .header-icon {
+        display: inline-flex !important;
+      }
+
+      /* There is a selector that matches all the .header-icon elements in idoc header and applies 64px width under IE/Edge, that's why it's overriden here. */
+      .header-icon {
+        width: 16px !important;
+      }
+
+      .show-more-objects, .show-less-objects {
+        .hidden-objects-count, .expand-icon, .collapse-icon {
+          margin-top: -3px;
+        }
+      }
+    }
+  }
+
+  @include firefox() {
+    &.inline {
+      .show-more-objects, .show-less-objects {
+        .hidden-objects-count, .expand-icon, .collapse-icon {
+          margin-top: -3px;
+        }
+      }
+    }
+  }
+
+  .select2-container--default {
+
+    .select2-selection--single,
+    .select2-selection--multiple {
+      margin-right: 5px;
+
+      .select2-selection__choice {
+        background-color: #fff;
+        border: none;
+        color: inherit;
+      }
+
+      .select2-selection__choice__remove {
+        display: none;
+      }
+
+      /* Overrides the select2 style for the search input field.
+        This field's width is calculated and set dynamically inline by the plugin
+        and breaks visualisation. See CMF-29439 and CMF-29646*/
+      .select2-search__field {
+        width: 100% !important;
+      }
+    }
+  }
+}
+
+/* Fix the overflowing header text in dialogs under firefox */
+@mixin headersWrap {
+  .modal-dialog {
+    .instance-selector {
+
+      .instance-box {
+        word-break: break-all;
+
+        .instance-box-header {
+
+          .instance-data {
+            width: 100%;
+
+            span:not(.header-icon):not(.lock-label) {
+              width: 97%;
+            }
+
+            .truncate-element, a {
+              min-width: 0;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include firefox() {
+  @include headersWrap();
+}
+
+@include internet-explorer-11-and-edge() {
+  @include headersWrap();
+}

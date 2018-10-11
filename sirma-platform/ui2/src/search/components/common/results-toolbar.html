@@ -1,0 +1,25 @@
+<div class="results-toolbar">
+  <span ng-if="resultsToolbar.isSearchPerformed" class="message-wrapper">
+    <span ng-if="resultsToolbar.shouldRenderResults()">
+      <b class="search-bounds">{{resultsToolbar.resultData.lower}} - {{resultsToolbar.resultData.upper}}</b> {{'results.toolbar.results.of' | translate}}
+    </span>
+
+    <b class="search-count">{{resultsToolbar.resultData.resultSize}}</b> {{'results.toolbar.results.found' | translate}}
+
+    <span ng-if="resultsToolbar.shouldRenderType()">
+      {{'results.toolbar.for.type' | translate}} <b class="search-type overflow-message">{{resultsToolbar.resultData.types}}</b>
+    </span>
+
+    <span ng-if="resultsToolbar.shouldRenderContext()"> {{'results.toolbar.in.context' | translate}}
+      <span class="search-context overflow-message">
+        <seip-static-instance-header header-type="'breadcrumb_header'"
+                                     header="resultsToolbar.resultData.context">
+        </seip-static-instance-header>
+      </span>
+    </span>
+
+    <span ng-if="resultsToolbar.shouldRenderFts()">
+      {{'results.toolbar.matching.text' | translate}} <b class="text-info overflow-message">{{resultsToolbar.resultData.fts}}</b>
+    </span>
+  </span>
+</div>

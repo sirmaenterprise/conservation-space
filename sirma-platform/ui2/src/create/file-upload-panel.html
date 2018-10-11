@@ -1,0 +1,20 @@
+<div class="file-upload-panel">
+  <seip-context-selector config="fileUploadPanel.config"></seip-context-selector>
+  <div class="error-message text-danger" ng-repeat="errorMessage in fileUploadPanel.getErrorMessages()">{{errorMessage | translate}}</div>
+  <seip-file-upload config="fileUploadPanel.config"
+                    on-validity-change="fileUploadPanel.onValidityChanged(event)"></seip-file-upload>
+
+  <div class="buttons">
+    <button class="btn btn-sm btn-primary uploadall-btn"
+            ng-if="::fileUploadPanel.config.controls.showUploadAll"
+            ng-disabled="!fileUploadPanel.uploadEnabled || fileUploadPanel.config.errorMessage"
+            ng-click="fileUploadPanel.uploadAll()">
+      {{ ::'dialog.button.upload.all' | translate }}
+    </button>
+    <button class="btn btn-sm btn-default seip-close-btn"
+            ng-if="::fileUploadPanel.config.controls.showCancel"
+            ng-click="fileUploadPanel.cancel()">
+      {{ ::'dialog.button.close' | translate }}
+    </button>
+  </div>
+</div>

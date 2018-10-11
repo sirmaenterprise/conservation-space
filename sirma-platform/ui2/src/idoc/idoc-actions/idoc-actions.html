@@ -1,0 +1,25 @@
+<div class="idoc-actions">
+  <button class="btn btn-sm btn-primary seip-btn-just-save" ng-if="idocActions.context.isEditMode()"
+          ng-click="idocActions.executeHeaderAction(idocActions.saveIdocAndContinueAction, true)"
+          ng-disabled="idocActions.actionsConfig.disableSaveButton">
+    <span data-label="idoc.page.button.just.save">{{::'idoc.page.button.just.save'|translate}}</span>
+  </button>
+  <button class="btn btn-sm btn-default seip-btn-save" ng-if="idocActions.context.isEditMode()"
+          ng-click="idocActions.executeHeaderAction(idocActions.saveIdocAndPreviewAction, true)"
+          ng-disabled="idocActions.actionsConfig.disableSaveButton">
+    <span data-label="idoc.page.button.save">{{::'idoc.page.button.save'|translate}}</span>
+  </button>
+  <button class="btn btn-sm btn-default seip-btn-cancel" ng-if="idocActions.context.isEditMode()"
+          ng-click="idocActions.executeHeaderAction(idocActions.cancelSaveIdocAction)">
+    {{::'idoc.page.button.cancel'|translate}}
+  </button>
+
+  <button class="btn btn-sm btn-primary"
+          ng-repeat="action in idocActions.headerActions"
+          ng-if="idocActions.context.isPreviewMode()"
+          ng-class="::action.cssClass"
+          ng-disabled="action.disableButton"
+          ng-click="idocActions.executeHeaderAction(action)">{{::action.label}}
+  </button>
+  <seip-actions-menu context="::idocActions.actionContext"></seip-actions-menu>
+</div>

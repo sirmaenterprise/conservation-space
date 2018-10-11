@@ -1,0 +1,22 @@
+<ul class="dropdown-menu" ng-class="::submenu.config.menuClass" role="presentation" ng-switch
+    on="submenu.config.isLoading">
+  <li ng-switch-default ng-repeat="item in submenu.data.items" role="presentation" class="menu-item"
+      ng-class="::{divider: item.type === 'divider', active: item.selected === true, 'dropdown-submenu': item.data!==undefined}">
+    <a ng-if="::!item.data" role="menuitem" tabindex="-1" href="javascript: void(0)" data-tooltip="{{::item.tooltip}}"
+       onclick="return false;"
+       ng-click="submenu.executeAction(item)"
+       ng-class="::{'fa fa-check': item.selected}" class="{{::item.id}}"
+       ng-bind-html="' <span>' + (item.label | translate) || item.template + '</span>' | toTrustedHtml"></a>
+
+    <a ng-if="::item.data" tabindex="-1" data-tooltip="{{::item.tooltip}}"
+       ng-mouseover="submenu.calculateSubmenuPosition($event)"
+       ng-click="submenu.disableGroupClick($event)"
+       ng-bind-html="' <span>' + (item.label | translate) || item.template + '</span>' | toTrustedHtml"></a>
+    <submenu ng-if="::item.data" config="submenu.config" data="item.data"></submenu>
+  </li>
+  <li ng-switch-when="true" role="presentation" class="loading">
+      <span role="menuitem"><i
+        class="fa fa-cog fa-spin fa-1x fa-fw"></i> {{'dropdown.loading' | translate}}</span>
+  </li>
+</ul>
+

@@ -1,0 +1,16 @@
+<div class="recent-activities">
+  <div ng-if="recentActivities.errorMessage" class="message error">
+    {{::recentActivities.errorMessage | translate}}
+  </div>
+
+  <seip-user-activity-entry ng-repeat="activity in recentActivities.searchRequest.data"
+                            control="recentActivities.control"
+                            activity="::activity"></seip-user-activity-entry>
+
+  <seip-pagination ng-if="recentActivities.renderPagination()"
+                   total="recentActivities.resultsTotal"
+                   page="recentActivities.currentPage"
+                   config="::recentActivities.paginationConfig"
+                   callback="::recentActivities.onPageChange">
+  </seip-pagination>
+</div>

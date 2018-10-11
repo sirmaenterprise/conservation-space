@@ -1,0 +1,85 @@
+<div class="search-bar">
+  <seip-object-type-select class="search-types small-select"
+                           config="::searchBar.typesConfig"
+                           ng-model="searchBar.objectType"></seip-object-type-select>
+
+  <input type="text"
+         class="form-control free-text filter-input"
+         ng-model="searchBar.freeText"
+         ng-keypress="::searchBar.onKeyPressed($event)"
+         ng-disabled="searchBar.config.disabled"
+         ng-change="::searchBar.onFTSChange()"
+         title="{{ ::'search.keyword.title' | translate }}"
+         placeholder="{{ ::'search.keyword.placeholder' | translate}}">
+
+  <button class="btn btn-default search-bar-btn search-options-btn"
+          title="{{ ::'search.bar.options.title' | translate }}"
+          ng-disabled="searchBar.config.disabled"
+          ng-click="searchBar.toggleOptions()"
+          ng-class="{'options-opened': searchBar.showOptions}">
+    <span class="fa" ng-class="{'fa-chevron-up': searchBar.showOptions, 'fa-chevron-down': !searchBar.showOptions}"></span>
+  </button>
+
+  <button class="btn btn-default search-bar-btn search-icon"
+          title="{{ ::'search.tooltip' | translate }}"
+          ng-click="searchBar.search()"
+          ng-disabled="searchBar.config.disabled">
+    <span class="fa fa-search fa-1"></span>
+  </button>
+
+  <span class="btn btn-default search-context"
+        title="{{ ::'search.bar.context.title' | translate }}"
+        ng-click="searchBar.selectContext()"
+        ng-class="{ 'has-context': searchBar.selectedContext,
+                    'search-bar-border': !searchBar.config.enableCurrentObject}"
+        data-value="{{searchBar.selectedContext.id}}">
+
+    <span ng-if="!searchBar.selectedContext">
+      {{ ::'search.bar.context' | translate }}
+    </span>
+
+    <span class="selected-context current-object"
+          ng-if="searchBar.isCurrentContextSelected()">
+      {{ ::'context.current.object' | translate}}
+    </span>
+
+    <seip-static-instance-header ng-if="searchBar.isArbitraryContextSelected()"
+                                 class="selected-context overflow-hidden"
+                                 config="::searchBar.headerConfig"
+                                 header-type="'breadcrumb_header'"
+                                 header="searchBar.selectedContext.headers.breadcrumb_header">
+    </seip-static-instance-header>
+  </span>
+
+  <button class="btn btn-default search-bar-btn search-context-btn clear-context"
+          title="{{ ::'search.bar.context.clear.title' | translate }}"
+          ng-if="searchBar.selectedContext"
+          ng-disabled="searchBar.config.disabled"
+          ng-click="searchBar.clearContext()">
+    <span class="fa fa-sm fa-times"></span>
+  </button>
+
+  <button class="btn btn-default search-bar-btn search-context-btn search-context-menu-btn"
+          title="{{ ::'search.bar.context.menu.title' | translate }}"
+          ng-disabled="searchBar.config.disabled"
+          ng-click="::searchBar.toggleContextMenu()"
+          ng-class="{'context-menu-opened': searchBar.showContextMenu}">
+    <i class="fa" ng-class="{'fa-caret-up': searchBar.showContextMenu, 'fa-caret-down': !searchBar.showContextMenu}"></i>
+  </button>
+
+  <span class="search-options-wrapper">
+    <search-bar-options class="animated"
+                        ng-if="::searchBar.renderOptions"
+                        ng-show="searchBar.showOptions"
+                        on-search-selected="::searchBar.onSearchSelected(savedSearch)"
+                        on-mode-selected="::searchBar.onModeSelected(mode)"></search-bar-options>
+  </span>
+
+  <span class="search-context-menu-wrapper">
+    <search-context-menu class="animated"
+                         config="searchBar.config"
+                         ng-if="::searchBar.renderContextMenu"
+                         ng-show="searchBar.showContextMenu"
+                         on-context-change="searchBar.onContextMenuSelection(instance)"></search-context-menu>
+  </span>
+</div>

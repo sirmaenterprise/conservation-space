@@ -1,0 +1,36 @@
+<div class="seip-code-lists-upload">
+  <button class="btn btn-default select-file-btn"
+          ng-disabled="codeListsUpload.uploading"
+          ng-switch="!!codeListsUpload.uploadControl">
+    <span class="fa fa-lg fa-folder-open"></span>
+    <span ng-switch-when="false">{{ ::'code.lists.upload.file' | translate }}</span>
+    <span ng-switch-default>{{codeListsUpload.uploadControl.files[0].name}}</span>
+  </button>
+  <input class="file-upload-field" type="file"/>
+
+  <button class="btn btn-primary code-lists-overwrite" ng-show="codeListsUpload.uploadControl"
+          ng-click="codeListsUpload.overwrite()" ng-disabled="codeListsUpload.uploading">
+    <span class="fa fa-lg fa-upload"></span>
+    {{ ::'code.lists.upload.overwrite' | translate }}
+  </button>
+
+  <button class="btn btn-primary code-lists-update" ng-show="codeListsUpload.uploadControl"
+          ng-click="codeListsUpload.update()" ng-disabled="codeListsUpload.uploading">
+    <span class="fa fa-lg fa-plus"></span>
+    {{ ::'code.lists.upload.update' | translate }}
+  </button>
+
+  <span class="fa fa-lg fa-spinner fa-spin" ng-show="codeListsUpload.uploading"></span>
+
+  <div class="upload-status alert" ng-if="codeListsUpload.uploadMessage"
+       ng-class="::codeListsUpload.error ? 'alert-danger' : 'alert-success'">
+
+    <span ng-if="::codeListsUpload.error" ng-repeat="error in ::codeListsUpload.uploadMessage track by $index">
+        <span ng-show="::codeListsUpload.uploadMessage.length > 1">{{$index + 1}}.&nbsp;</span>{{error}}<br/>
+    </span>
+
+    <span ng-if="::!codeListsUpload.error">
+        {{ ::codeListsUpload.uploadMessage }}
+    </span>
+  </div>
+</div>

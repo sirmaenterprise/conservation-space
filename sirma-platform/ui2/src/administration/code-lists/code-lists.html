@@ -1,0 +1,33 @@
+<div class="seip-code-lists">
+  <seip-contextual-help class="pull-right" target="'administration.code.lists'"></seip-contextual-help>
+
+  <h4>{{ ::'code.lists.upload.header' | translate }}</h4>
+  <seip-code-lists-upload on-upload="codeLists.onUpload()"></seip-code-lists-upload>
+
+  <h4>{{ ::'code.lists.export.header' | translate }}</h4>
+  <seip-code-lists-export on-export="codeLists.onExport()"></seip-code-lists-export>
+
+  <div class="code-lists-management">
+    <h4>
+      {{ ::'code.lists.manage.header' | translate }}
+      <button class="btn text-success code-list-add-btn btn-borderless pull-right"
+              ng-click="::codeLists.addCodeList()" ng-disabled="!codeLists.canAdd()">
+        <i class="fa fa-plus"></i>
+        {{ ::'code.lists.manage.add.list' | translate }}
+      </button>
+    </h4>
+
+    <code-lists-search code-lists="codeLists.codeLists"
+                       on-filter="codeLists.onFilter(filtered)"></code-lists-search>
+
+    <code-list ng-repeat="codeList in codeLists.codeLists track by codeList.id"
+               ng-show="codeList.visible"
+               model="codeList"
+               can-edit="codeLists.canEdit(codeList)"
+               on-edit="codeLists.onEdit()"
+               on-save="codeLists.onSave()"
+               on-cancel="codeLists.onCancel(codeList, $index)"
+               on-create-cancel="codeLists.onCreateCancel(codeList)"
+               on-change="codeLists.onChange(codeList)"></code-list>
+  </div>
+</div>

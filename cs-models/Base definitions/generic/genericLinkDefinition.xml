@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 <definition id="linkDefinition" type="link">
 	<fields>
-	    <field name="status" 		type="an..10" uri="emf:status" codelist="CL11" />
-	    <field name="createdOn" 	type="dateTime" label="linkDefinition.created-on" uri="emf:createdOn"/>
-	    <field name="createdBy" 	type="uri" 	label="linkDefinition.created-from" uri="emf:createdBy">
+	    <field name="status" label="status.label" type="an..10" uri="emf:status" codelist="CL8" />
+	    <field name="createdOn" type="dateTime" label="createdOn.label" uri="emf:createdOn"/>
+	    <field name="createdBy" type="uri" label="createdBy.label" uri="emf:createdBy">
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>     
-	    <field name="modifiedOn"  	type="dateTime" label="modifiedOn.label" uri="emf:modifiedOn"/>
-	    <field name="modifiedBy"    type="uri" 	label="modifiedBy.label" uri="emf:modifiedBy">
+	    <field name="modifiedOn" type="dateTime" label="modifiedOn.label" uri="emf:modifiedOn"/>
+	    <field name="modifiedBy" type="uri" label="modifiedBy.label" uri="emf:modifiedBy">
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>
-	    <field name="relationType"  type="an..50" label="linkDefinition.relationType" uri="emf:relationType" ><control id="INSTANCE"/></field>
-	    <field name="isActive"  	type="boolean" label="linkDefinition.isActive" uri="emf:isActive" />
-	    <field name="emf:isDeleted" type="boolean"  displayType="system" uri="emf:isDeleted" dmsType="FORBIDDEN"><value>false</value></field>
-	    <field name="source"  type="an..50" displayType="system" uri="emf:source" ><control id="INSTANCE"/></field>
-	    <field name="destination"  type="an..50" displayType="system" uri="emf:destination" ><control id="INSTANCE"/></field>
-	    <field name="emf:loggedBy"  type="uri" 	label="linkDefinition.logged-by" uri="emf:loggedBy">
+	    <field name="relationType" type="an..50" label="linkDefinition.relationType" uri="emf:relationType"><control id="INSTANCE"/></field>
+	    <field name="isActive" type="boolean" label="linkDefinition.isActive" uri="emf:isActive" />
+	    <field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted"><value>false</value></field>
+	    <field name="source" type="an..50" displayType="system" uri="emf:source"><control id="INSTANCE"/></field>
+	    <field name="destination" type="an..50" displayType="system" uri="emf:destination"><control id="INSTANCE"/></field>
+	    <field name="emf:loggedBy" type="uri" label="linkDefinition.loggedBy" uri="emf:loggedBy">
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
@@ -27,7 +27,7 @@
 	</fields>
 
     <transitions>
-		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
+		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" actionPath="/" />
 		<transition id="delete" label="delete.label" eventId="delete" purpose="delete" confirmation="confirmation.action" tooltip="delete.tooltip" />
 	</transitions>
 
@@ -39,19 +39,4 @@
 
 		<stateTransition from="*" transition="delete" to="DELETED" />
 	</stateTransitions>
-
-	<labels>
-		<label id="linkDefinition.created-on">
-			<value lang="bg">Дата на създаване</value>
-			<value lang="en">Created On</value>
-		</label>
-		<label id="linkDefinition.created-from">
-			<value lang="bg">Създаден от</value>
-			<value lang="en">Created By</value>
-		</label>
-		<label id="linkDefinition.logged-by">
-			<value lang="bg">Логнато от</value>
-			<value lang="en">Logged by</value>
-		</label>
-	</labels>
 </definition>

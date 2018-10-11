@@ -1,0 +1,123 @@
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix conc: <http://www.sirma.com/ontologies/2016/06/concepts#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+emf:regularuser a ptop:Person ;
+ 		ptop:title "regularuser" ; 
+ 		sec:assignedTo emf:4ea14141d4cfd13f30d3b247166b37d815730a9b ;
+ 		sec:assignedTo emf:f6dae92e66b6a10bc05f5e407b262cbdba6d8b9e ;
+ 		sec:assignedTo emf:readRoleWithAssignmentToInstanceWithoutPermissionsForEmfConsumer ;
+ 		sec:assignedTo emf:c910213f18437d8bd0ec2b895e7a0c1e9527a1a3 .
+
+emf:consumer a ptop:Person ;
+ 		ptop:title "consumer" ;
+ 		emf:isMemberOf emf:Consumers ;
+ 		emf:isMemberOf emf:group1 ;
+ 		sec:assignedTo emf:dc355d5cc9637827117f77487c40696f0d34cd01 ;
+ 		sec:assignedTo emf:c1782b187358eb3d9ded9899205783a098697748 ;
+ 		sec:assignedTo emf:dc355d5cc9637827117f77487c40696f0d34cd00 .
+ 		
+emf:regularuser emf:isMemberOf sec:SYSTEM_ALL_OTHER_USERS .
+emf:consumer emf:isMemberOf sec:SYSTEM_ALL_OTHER_USERS .
+ 		
+emf:instanceWithoutPermissionsForEmfConsumer a emf:Project ;
+		dcterms:title "ProjectWithoutPermissionsToEmfConsumer" .
+emf:readRoleWithAssignmentToInstanceWithoutPermissionsForEmfConsumer a sec:Role ;
+		sec:hasPermission emf:instanceWithoutPermissionsForEmfConsumer ;
+		sec:hasPermission emf:Project ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+ 		
+emf:2c07d0f7-da74-4a33-aa62-5754a1889540 a emf:Project ;
+		dcterms:title "Project1" .
+		
+emf:5d1a5319-079e-4ad6-bc95-e7adb4c07812 a emf:Project ;
+		dcterms:title "Project2" .
+		
+emf:dc355d5cc9637827117f77487c40696f0d34cd00 a sec:Role ;
+		sec:hasPermission emf:2c07d0f7-da74-4a33-aa62-5754a1889540 ;
+		sec:hasPermission emf:Project ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+		
+emf:dc355d5cc9637827117f77487c40696f0d34cd01 a sec:Role ;
+		sec:hasPermission emf:5d1a5319-079e-4ad6-bc95-e7adb4c07812 ;
+		sec:hasPermission emf:Project ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+		
+emf:4ea14141d4cfd13f30d3b247166b37d815730a9b a sec:Role ;
+		sec:hasPermission emf:Project ;
+		sec:hasPermission emf:2c07d0f7-da74-4a33-aa62-5754a1889540 ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read-Write .
+		
+emf:c910213f18437d8bd0ec2b895e7a0c1e9527a1a3 a sec:Role ;
+		sec:hasPermission emf:2c07d0f7-da74-4a33-aa62-5754a1889540 ;
+		sec:hasRoleType conc:SecurityRoleTypes-Manager ;
+		sec:isManagerOf emf:2c07d0f7-da74-4a33-aa62-5754a1889540 .
+		
+emf:f6dae92e66b6a10bc05f5e407b262cbdba6d8b9e a sec:Role ;
+		sec:hasPermission emf:5d1a5319-079e-4ad6-bc95-e7adb4c07812 ;
+		sec:hasRoleType conc:SecurityRoleTypes-Manager ;
+		sec:isManagerOf emf:5d1a5319-079e-4ad6-bc95-e7adb4c07812 .
+		
+emf:13328fcf-9d27-4f82-b2cb-222c254fa01a a emf:Case ;
+		dcterms:title "Case1" .
+		
+emf:9342974dc19d806a3c71b7930e1b3782bdf2fd31 a sec:Role ;
+		sec:hasPermission emf:13328fcf-9d27-4f82-b2cb-222c254fa01a ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+
+sec:SYSTEM_ALL_OTHER_USERS sec:assignedTo emf:9342974dc19d806a3c71b7930e1b3782bdf2fd31 .
+
+emf:Consumers a ptop:Group ;
+		ptop:title "Consumers" ;
+		sec:assignedTo emf:9b34f75d4f3ad30125ec160e4ec2ac2ee14839d1 .
+		
+emf:9b34f75d4f3ad30125ec160e4ec2ac2ee14839d1 a sec:Role ;
+		sec:hasPermission emf:93b6ebd8-0239-472d-8ed7-703fc4e4b313 ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+		
+emf:93b6ebd8-0239-472d-8ed7-703fc4e4b313 a emf:Case ;
+		dcterms:title "Case2" .
+		
+emf:c663fcd7-5f8d-4d1b-9100-43c7c8874815 a emf:Document ;
+		dcterms:title "Document1" .
+		
+emf:c1782b187358eb3d9ded9899205783a098697748 a sec:Role ;
+		sec:hasPermission emf:c663fcd7-5f8d-4d1b-9100-43c7c8874815 ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+		
+		
+emf:Document a ptop:Document ;
+		emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+		dcterms:title "Document" .
+
+emf:Project a emf:Activity ;
+		emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+		dcterms:title "Project" .		
+		
+emf:user1 a ptop:Person ;
+		ptop:title "user1" ;
+		sec:assignedTo emf:6be1c51e13ac60d859e4a69e8d8665b6068d3193 ;
+		sec:assignedTo emf:6be1c51e13ac60d859e4a69e8d8665b6068d3192 .
+		
+sec:SYSTEM_ALL_OTHER_USERS sec:assignedTo emf:d6be8cd499950807b20bda8c8e87f64b02a7b2e4 .
+sec:SYSTEM_ALL_OTHER_USERS sec:assignedTo emf:6be1c51e13ac60d859e4a69e8d8665b6068d3191 .
+		
+emf:6be1c51e13ac60d859e4a69e8d8665b6068d3193 a sec:Role ;
+		sec:hasPermission emf:Document ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read-Write .
+		
+emf:d6be8cd499950807b20bda8c8e87f64b02a7b2e4 a sec:Role ;
+		sec:hasPermission emf:Document ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .
+		
+emf:6be1c51e13ac60d859e4a69e8d8665b6068d3191 a sec:Role ;
+		sec:hasPermission emf:Project ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read-Write .
+		
+emf:6be1c51e13ac60d859e4a69e8d8665b6068d3192 a sec:Role ;
+		sec:hasPermission emf:Project ;
+		sec:hasRoleType conc:SecurityRoleTypes-Read .

@@ -1,0 +1,15 @@
+{
+	{
+	    ?currentUser sec:assignedTo ?permissionsRole%suffix%
+	} UNION {
+	    ?currentUser emf:isMemberOf ?group%suffix%  .
+	    ?group%suffix% sec:assignedTo ?permissionsRole%suffix%
+	}
+	{
+		?permissionsRole%suffix% sec:hasPermission %instance% .
+		?permissionsRole%suffix% sec:hasRoleType ?roleType%suffix% .
+		FILTER (?roleType%suffix% != conc:SecurityRoleTypes-Read)
+	} UNION {
+		?permissionsRole%suffix% sec:isManagerOf %instance% .
+	}
+}

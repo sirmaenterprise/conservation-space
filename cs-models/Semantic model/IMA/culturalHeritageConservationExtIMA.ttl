@@ -5,6 +5,7 @@
 @prefix ima: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix ptop: <http://www.ontotext.com/proton/protontop#> .
@@ -14,1740 +15,953 @@
 @base <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA> .
 
 <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA> rdf:type owl:Ontology ;
-                                                                           
-                                                                           rdfs:label "Extension of Cultural Heritage Conservation Ontology Model for IMA"@en ;
-                                                                           
-                                                                           owl:versionInfo "0.1"@en ;
-                                                                           
-                                                                           dc:subject "Extension of Cultural Heritage Conservation Ontology Model for IMA"@en ;
-                                                                           
-                                                                           rdfs:comment "IMA Extension of Cultural Heritage Conservation Ontology Model for Conservation Space project"@en ;
-                                                                           
-                                                                           dc:creator "Lidiya Dimitrova"@en ;
-                                                                           
-                                                                           owl:imports <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> .
+                                                                            owl:imports <http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums> ;
+                                                                            owl:versionInfo "0.1"@en ;
+                                                                            dc:creator "Lidiya Dimitrova"@en ;
+                                                                            rdfs:comment "IMA Extension of Cultural Heritage Conservation Ontology Model for Conservation Space project"@en ;
+                                                                            rdfs:label "Extension of Cultural Heritage Conservation Ontology Model for IMA"@en ;
+                                                                            dc:subject "Extension of Cultural Heritage Conservation Ontology Model for IMA"@en .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#auditEvent
+emf:auditEvent rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#classCategory
+emf:classCategory rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#definitionId
+emf:definitionId rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isCreateable
+emf:isCreateable rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isPartOfObjectLibrary
+emf:isPartOfObjectLibrary rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isSearchable
+emf:isSearchable rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/creator
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#allowInheritLibraryPermissions
+sec:allowInheritLibraryPermissions rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#allowInheritParentPermissions
+sec:allowInheritParentPermissions rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2004/02/skos/core#definition
+skos:definition rdf:type owl:AnnotationProperty .
 
 
 #################################################################
-#
 #    Object Properties
-#
 #################################################################
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#duplicates
-
-ima:duplicates rdf:type owl:ObjectProperty ,
-                        owl:SymmetricProperty ;
-               
-               rdfs:label "Duplicates"@en ;
-               
-               emf:isSearchable "true"^^xsd:boolean ;
-               
-               dc:creator "Lidiya Dimitrova" ;
-               
-               skos:definition "Indicates that the cultural object duplicates another cultural object."@en ;
-               
-               rdfs:domain chc:CulturalObject ;
-               
-               rdfs:range chc:CulturalObject .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#checkedBy
+ima:checkedBy rdf:type owl:ObjectProperty ;
+              owl:inverseOf ima:hasChecked ;
+              rdfs:domain chc:CulturalObject ;
+              emf:auditEvent "+addCheckedBy|-removeCheckedBy|changeCheckedBy" ;
+              dc:creator "Anna Radeva" ;
+              rdfs:label "is checked by"@en ;
+              skos:definition "Checked by"@en .
 
 
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#hasChecked
+ima:hasChecked rdf:type owl:ObjectProperty ;
+               rdfs:domain ptop:Agent ;
+               emf:auditEvent "+addHasChecked|-removeHasChecked|changeHasChecked" ;
+               dc:creator "Anna Radeva" ;
+               rdfs:label "has checked"@en ;
+               skos:definition "Has checked"@en .
 
 
 #################################################################
-#
 #    Data properties
-#
 #################################################################
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#accessionNumber
-
-ima:accessionNumber rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Accession Number"@en ;
-                    
-                    dc:creator "Lidiya Dimitrova"@en ;
-                    
-                    skos:definition "Unique institutional ID. Can be coded to be human readable and to express, for example, year/lot/number if acquisition or shelf location"@en ;
-                    
-                    rdfs:domain chc:CulturalObject ;
-                    
-                    rdfs:range xsd:string .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#condition
+chc:condition rdf:type owl:DatatypeProperty .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#aestheticPriority
-
 ima:aestheticPriority rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "Aesthetic Priority"@en ;
-                      
-                      skos:definition "Aesthetic appearance determines priority for treatment"@en ;
-                      
-                      dc:creator "Lidiya Dimitrova"@en ;
-                      
                       rdfs:domain chc:CulturalObject ;
-                      
-                      rdfs:range xsd:string .
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Aesthetic Priority"@en ;
+                      skos:definition "Aesthetic appearance determines priority for treatment"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#afterFollowing
+ima:afterFollowing rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Anna Radeva" ;
+                   rdfs:label "After/Following"@en ;
+                   skos:definition "After/Following"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#alternateTitle
+ima:alternateTitle rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Anna Radeva" ;
+                   rdfs:label "Alternate title"@en ;
+                   skos:definition "Alternate title"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#artistInstructions
-
 ima:artistInstructions rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Artist Instructions"@en ;
-                       
-                       skos:definition "Artists description of how the work is to be displayed/installed"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
                        rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#artistNames
-
-ima:artistNames rdf:type owl:DatatypeProperty ;
-                
-                rdfs:label "Artist/Maker"@en ;
-                
-                skos:definition "An entity primarily responsible for creating an object"@en ;
-                
-                dc:creator "Lidiya Dimitrova"@en ;
-                
-                rdfs:domain chc:CulturalObject ;
-                
-                rdfs:range xsd:string .
-
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Artist Instructions"@en ;
+                       skos:definition "Artists description of how the work is to be displayed/installed"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#associatedMaterials
-
 ima:associatedMaterials rdf:type owl:DatatypeProperty ;
-                        
-                        rdfs:label "Associated Materials"@en ;
-                        
-                        dc:creator "Lidiya Dimitrova"@en ;
-                        
-                        skos:definition "This would include materials provided by the artist that are used for installation/adjustment/repair of the work of art, but are not actually part of the work of art."@en ;
-                        
                         rdfs:domain chc:CulturalObject ;
-                        
-                        rdfs:range xsd:string .
-
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Associated Materials"@en ;
+                        skos:definition "This would include materials provided by the artist that are used for installation/adjustment/repair of the work of art, but are not actually part of the work of art."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#attachmentDescription
-
 ima:attachmentDescription rdf:type owl:DatatypeProperty ;
-                          
-                          rdfs:label "Attachment Description"@en ;
-                          
-                          dc:creator "Lidiya Dimitrova"@en ;
-                          
-                          skos:definition "Text description of how  the object is attached to the mat. (attachment method). Example: hinges, inlay"@en ;
-                          
                           rdfs:domain chc:CulturalObject ;
-                          
-                          rdfs:range xsd:string .
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Attachment Description"@en ;
+                          skos:definition "Text description of how  the object is attached to the mat. (attachment method). Example: hinges, inlay"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#attribution
+ima:attribution rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Attribution"@en ;
+                skos:definition "Attribution"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#auxiliaryComponents
-
 ima:auxiliaryComponents rdf:type owl:DatatypeProperty ;
-                        
-                        rdfs:label "Auxiliary Components"@en ;
-                        
-                        dc:creator "Lidiya Dimitrova"@en ;
-                        
-                        skos:definition "Non-attached associated components"@en ;
-                        
                         rdfs:domain chc:CulturalObject ;
-                        
-                        rdfs:range xsd:string .
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Auxiliary Components"@en ;
+                        skos:definition "Non-attached associated components"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#baseDescription
-
-ima:baseDescription rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Base Description"@en ;
-                    
-                    dc:creator "Lidiya Dimitrova"@en ;
-                    
-                    skos:definition "The bottom support of anything; that on which a thing stands or rests"@en ;
-                    
-                    rdfs:domain chc:CulturalObject ;
-                    
-                    rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#century
-
-ima:century rdf:type owl:DatatypeProperty ;
-            
-            rdfs:label "Century"@en ;
-            
-            dc:creator "Lidiya Dimitrova"@en ;
-            
-            skos:definition "The century when the cultural object is created."@en ;
-            
-            rdfs:domain ima:Frame ;
-            
-            rdfs:range xsd:string .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#conditionDetails
+ima:conditionDetails rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf chc:condition ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Anna Radeva"@en ;
+                     rdfs:label "Condition details"@en ;
+                     skos:definition " Details of condition"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#conservationStatus
-
 ima:conservationStatus rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Conservation Status"@en ;
-                       
-                       skos:definition "General statement of condition."@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       rdfs:domain chc:CulturalObject ;
-                       
                        rdfs:subPropertyOf chc:condition ;
-                       
-                       rdfs:range xsd:string .
-
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Conservation Status"@en ;
+                       skos:definition "General statement of condition."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#construction
-
 ima:construction rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Construction"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova"@en ;
-                 
-                 skos:definition "Weave Structure,machine or hand sewn, previously repaired or altered, opening placement and construction (i.e. zipper on proper left)"@en ;
-                 
                  rdfs:domain chc:CulturalObject ;
-                 
-                 rdfs:range xsd:string .
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Construction"@en ;
+                 skos:definition "Weave Structure,machine or hand sewn, previously repaired or altered, opening placement and construction (i.e. zipper on proper left)"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#creationDates
-
-ima:creationDates rdf:type owl:DatatypeProperty ;
-                  
-                  rdfs:label "Creation Date"@en ;
-                  
-                  dc:creator "Lidiya Dimitrova"@en ;
-                  
-                  skos:definition "Start/end dates and qualifiers such as \"circa\", \"before\", etc. Can have historical records of former attributions of creation dates."@en ;
-                  
-                  rdfs:domain chc:CulturalObject ;
-                  
-                  rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#curatorialDepartment
-
-ima:curatorialDepartment rdf:type owl:DatatypeProperty ;
-                         
-                         rdfs:label "Curatorial Department"@en ;
-                         
-                         skos:definition """Departments responsible for the Object. 
-They are responsible for the curatorial management and displaying for exhibition but acquisition is done by Registrar office."""@en ;
-                         
-                         dc:creator "Lidiya Dimitrova"@en ;
-                         
-                         rdfs:domain chc:CulturalObject ;
-                         
-                         rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#designHouse
-
-ima:designHouse rdf:type owl:DatatypeProperty ;
-                
-                rdfs:label "Design House"@en ;
-                
-                dc:creator "Lidiya Dimitrova"@en ;
-                
-                skos:definition "Outer dimensions of the framed or unframed work when installed."@en ;
-                
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#creatorRole
+ima:creatorRole rdf:type owl:DatatypeProperty ;
                 rdfs:domain chc:CulturalObject ;
-                
-                rdfs:range xsd:string .
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Creator role"@en ;
+                skos:definition "Creator role"@en .
 
 
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#cultObjState
+ima:cultObjState rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Anna Radeva" ;
+                 rdfs:label "State"@en ;
+                 skos:definition "General state of cultural object"@en .
 
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#designerNames
 
-ima:designerNames rdf:type owl:DatatypeProperty ;
-                  
-                  rdfs:label "Designer"@en ;
-                  
-                  dc:creator "Lidiya Dimitrova"@en ;
-                  
-                  skos:definition "Name of the costume designer."@en ;
-                  
-                  rdfs:domain chc:CulturalObject ;
-                  
-                  rdfs:range xsd:string .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#culture
+ima:culture rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:string ;
+            dc:creator "Anna Radeva" ;
+            rdfs:label "Culture or people"@en ;
+            skos:definition "Culture or people"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#cumulativeExposureLuxH
+ima:cumulativeExposureLuxH rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Anna Radeva" ;
+                            rdfs:label "Cumulative exposure (lux hours)"@en ;
+                            skos:definition "Cumulative exposure (lux hours)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#dateChecked
+ima:dateChecked rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:dateTime ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Date checked"@en ;
+                skos:definition "Date checked"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#displayDimensions
-
 ima:displayDimensions rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "Display Dimensions"@en ;
-                      
-                      dc:creator "Lidiya Dimitrova"@en ;
-                      
-                      skos:definition "Outer dimensions of the framed or unframed work when installed."@en ;
-                      
                       rdfs:domain chc:CulturalObject ;
-                      
-                      rdfs:range xsd:string .
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Display Dimensions"@en ;
+                      skos:definition "Outer dimensions of the framed or unframed work when installed."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#displayInstructions
+ima:displayInstructions rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chc:CulturalObject ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Anna Radeva" ;
+                        rdfs:label "Display instructions"@en ;
+                        skos:definition "Display instructions"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#displayRequirement
-
 ima:displayRequirement rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Display Requirement"@en ;
-                       
-                       skos:definition "Environmental requirements as well as how to display the cultural object."@en ;
-                       
+                       rdfs:range xsd:string ;
                        dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       rdfs:range xsd:string .
+                       rdfs:label "Display Requirement"@en ;
+                       skos:definition "Environmental requirements as well as how to display the cultural object."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#dynasty
+ima:dynasty rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:string ;
+            dc:creator "Anna Radeva" ;
+            rdfs:label "Dynasty"@en ;
+            skos:definition "Dynasty"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#essentialComponents
-
 ima:essentialComponents rdf:type owl:DatatypeProperty ;
-                        
-                        rdfs:label "Essential Components"@en ;
-                        
-                        dc:creator "Lidiya Dimitrova"@en ;
-                        
-                        skos:definition "These are the parts of the artwork that artist indicates cannot be changed or replaced."@en ;
-                        
                         rdfs:domain chc:CulturalObject ;
-                        
-                        rdfs:range xsd:string .
-
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Essential Components"@en ;
+                        skos:definition "These are the parts of the artwork that artist indicates cannot be changed or replaced."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#estimatedHours
-
 ima:estimatedHours rdf:type owl:DatatypeProperty ;
-                   
-                   rdfs:label "Estimated Hours"@en ;
-                   
+                   rdfs:range xsd:string ;
                    dc:creator "Lidiya Dimitrova"@en ;
-                   
-                   skos:definition "Number of hours estimated to complete the treatment - linked to CMS Condition tab."@en ;
-                   
-                   rdfs:range xsd:string .
+                   rdfs:label "Estimated Hours"@en ;
+                   skos:definition "Number of hours estimated to complete the treatment - linked to CMS Condition tab."@en .
 
 
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#exposureEndDate
+ima:exposureEndDate rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:dateTime ;
+                    dc:creator "Anna Radeva" ;
+                    rdfs:label "Exposure end date"@en ;
+                    skos:definition "Exposure end date"@en .
 
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#fabricationDescription
 
-ima:fabricationDescription rdf:type owl:DatatypeProperty ;
-                           
-                           rdfs:label "Fabrication Description"@en ;
-                           
-                           skos:definition "Description of the fabrication method of the art object."@en ;
-                           
-                           dc:creator "Lidiya Dimitrova"@en ;
-                           
-                           rdfs:domain chc:CulturalObject ;
-                           
-                           rdfs:range xsd:string .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#exposurePeriod
+ima:exposurePeriod rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Anna Radeva" ;
+                   rdfs:label "Exposure period"@en ;
+                   skos:definition "Exposure period"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#exposurePeriodType
+ima:exposurePeriodType rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Anna Radeva" ;
+                       rdfs:label "Exposure period type"@en ;
+                       skos:definition "Exposure period type"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#exposureStartDate
+ima:exposureStartDate rdf:type owl:DatatypeProperty ;
+                      rdfs:domain chc:CulturalObject ;
+                      rdfs:range xsd:dateTime ;
+                      dc:creator "Anna Radeva" ;
+                      rdfs:label "Exposure start date"@en ;
+                      skos:definition "Exposure start date"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#fabricationMethod
-
 ima:fabricationMethod rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "Fabrication Description"@en ;
-                      
-                      skos:definition "Description of the fabrication method of the art object."@en ;
-                      
-                      dc:creator "Lidiya Dimitrova"@en ;
-                      
                       rdfs:domain chc:CulturalObject ;
-                      
-                      rdfs:range xsd:string .
-
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Fabrication Description"@en ;
+                      skos:definition "Description of the fabrication method of the art object."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#frameCountry
-
 ima:frameCountry rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Country/Region"@en ;
-                 
-                 skos:definition "Certain frame styles are synonymous with a certain country."@en ;
-                 
+                 rdfs:range xsd:string ;
                  dc:creator "Lidiya Dimitrova"@en ;
-                 
-                 rdfs:domain ima:Frame ;
-                 
-                 rdfs:range xsd:string .
-
+                 rdfs:label "Country/Region"@en ;
+                 skos:definition "Certain frame styles are synonymous with a certain country."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#frameDescription
-
 ima:frameDescription rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Frame Description"@en ;
-                     
-                     dc:creator "Lidiya Dimitrova"@en ;
-                     
-                     skos:definition "Text description of the frame if part of the original art object. example Tuttle. or if the object is permanently framed in storage. Include glazing, framing package and backing."@en ;
-                     
                      rdfs:domain chc:CulturalObject ;
-                     
-                     rdfs:range xsd:string .
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Frame Description"@en ;
+                     skos:definition "Text description of the frame if part of the original art object. example Tuttle. or if the object is permanently framed in storage. Include glazing, framing package and backing."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#frameType
+ima:frameType rdf:type owl:DatatypeProperty ;
+              rdfs:domain chc:CulturalObject ;
+              rdfs:range xsd:string ;
+              dc:creator "Anna Radeva" ;
+              rdfs:label "Frame type"@en ;
+              skos:definition "Frame type"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#generalAccessories
-
 ima:generalAccessories rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Accessories"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "Objects associated with a cultural object. Such as a special hanging bracket, a diagram for safely installing, or a videotape for safely installing, also a special grease for a machine that is part of the cultural object."@en ;
-                       
                        rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#generalCondition
-
-ima:generalCondition rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Condition"@en ;
-                     
-                     skos:definition " Very general text description of condition"@en ;
-                     
-                     dc:creator "Lidiya Dimitrova"@en ;
-                     
-                     rdfs:subPropertyOf chc:condition ;
-                     
-                     rdfs:range xsd:string .
-
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Accessories"@en ;
+                       skos:definition "Objects associated with a cultural object. Such as a special hanging bracket, a diagram for safely installing, or a videotape for safely installing, also a special grease for a machine that is part of the cultural object."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#glazingDescription
-
 ima:glazingDescription rdf:type owl:DatatypeProperty ;
-                       
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
                        rdfs:label "Glazing Description"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "The text description of unusual glazing requirement such as Optium for a friable drawing."@en ;
-                       
+                       skos:definition "The text description of unusual glazing requirement such as Optium for a friable drawing."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#handlingInstructions
+ima:handlingInstructions rdf:type owl:DatatypeProperty ;
+                         rdfs:domain chc:CulturalObject ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Anna Radeva" ;
+                         rdfs:label "Handling instructions"@en ;
+                         skos:definition "Handling instructions"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#humidityMaxPct
+ima:humidityMaxPct rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Anna Radeva" ;
+                   rdfs:label "Display humidity maximum (%)"@en ;
+                   skos:definition "Display humidity maximum (%)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#humidityMinPct
+ima:humidityMinPct rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Anna Radeva" ;
+                   rdfs:label "Display humidity minimum (%)"@en ;
+                   skos:definition "Display humidity minimum (%)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#humidityNotes
+ima:humidityNotes rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Anna Radeva" ;
+                  rdfs:label "Display humidity notes"@en ;
+                  skos:definition "Display humidity notes"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#illuminationMaxLux
+ima:illuminationMaxLux rdf:type owl:DatatypeProperty ;
                        rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
+                       rdfs:range xsd:string ;
+                       dc:creator "Anna Radeva" ;
+                       rdfs:label "Display illumination maximum (lux)"@en ;
+                       skos:definition "Display illumination maximum (lux)"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#handlingRequirements
-
-ima:handlingRequirements rdf:type owl:DatatypeProperty ;
-                         
-                         rdfs:label "Handling Requirement"@en ;
-                         
-                         skos:definition "Handling specifications"@en ;
-                         
-                         dc:creator "Lidiya Dimitrova"@en ;
-                         
-                         rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#homeLocation
-
-ima:homeLocation rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Home Location"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova"@en ;
-                 
-                 skos:definition "Location could be a gallery or storage location where the cultural object normally is"@en ;
-                 
-                 rdfs:domain chc:CulturalObject ;
-                 
-                 rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#housingDescription
-
-ima:housingDescription rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Housing Description"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "Text describing   permanent housing when it is in storage. example: A box for the rolled Escher Genesis"@en ;
-                       
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#illuminationMinLux
+ima:illuminationMinLux rdf:type owl:DatatypeProperty ;
                        rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
+                       rdfs:range xsd:string ;
+                       dc:creator "Anna Radeva" ;
+                       rdfs:label "Display Illumination minimum (lux)"@en ;
+                       skos:definition "Display Illumination minimum (lux)"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#illuminationNotes
+ima:illuminationNotes rdf:type owl:DatatypeProperty ;
+                      rdfs:domain chc:CulturalObject ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Anna Radeva" ;
+                      rdfs:label "Display illumination notes"@en ;
+                      skos:definition "Display illumination notes"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#imageDetail
-
 ima:imageDetail rdf:type owl:DatatypeProperty ;
-                
-                rdfs:label "Detail"@en ;
-                
-                skos:definition "Image details"@en ;
-                
-                dc:creator "Lidiya Dimitrova"@en ;
-                
                 rdfs:domain emf:Image ;
-                
-                rdfs:range xsd:string .
-
+                rdfs:range xsd:string ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                rdfs:label "Detail"@en ;
+                skos:definition "Image details"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#imageLightingCondition
-
 ima:imageLightingCondition rdf:type owl:DatatypeProperty ;
-                           
-                           rdfs:label "Lighting Condition"@en ;
-                           
-                           dc:creator "Lidiya Dimitrova"@en ;
-                           
-                           skos:definition "Lighting Condition of the image"@en ;
-                           
                            rdfs:domain emf:Image ;
-                           
-                           rdfs:range xsd:string .
-
+                           rdfs:range xsd:string ;
+                           dc:creator "Lidiya Dimitrova"@en ;
+                           rdfs:label "Lighting Condition"@en ;
+                           skos:definition "Lighting Condition of the image"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#imageShotDate
-
 ima:imageShotDate rdf:type owl:DatatypeProperty ;
-                  
-                  rdfs:label "Date Shot"@en ;
-                  
-                  dc:creator "Lidiya Dimitrova"@en ;
-                  
-                  skos:definition "The date the image was made"@en ;
-                  
                   rdfs:domain emf:Image ;
-                  
-                  rdfs:range xsd:dateTime .
+                  rdfs:range xsd:dateTime ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Date Shot"@en ;
+                  skos:definition "The date the image was made"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#innerDimensions
-
-ima:innerDimensions rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Inner Dimensions"@en ;
-                    
-                    skos:definition "Inside dimension of the Frame (Text height and width)"@en ;
-                    
-                    dc:creator "Lidiya Dimitrova"@en ;
-                    
-                    rdfs:domain ima:Frame ;
-                    
-                    rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#inscriptions
-
-ima:inscriptions rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Inscription(s)"@en ;
-                 
-                 skos:definition "Free text description of any writing or printing on the object's obverse or reverse. Artist signature, dealer marks, inventory codes, etc."@en ;
-                 
-                 dc:creator "Lidiya Dimitrova"@en ;
-                 
-                 rdfs:domain chc:CulturalObject ;
-                 
-                 rdfs:range xsd:dateTime .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#impression
+ima:impression rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Anna Radeva" ;
+               rdfs:label "Impression"@en ;
+               skos:definition "Impression"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#installationInstruction
-
 ima:installationInstruction rdf:type owl:DatatypeProperty ;
-                            
-                            rdfs:label "Installation Instruction"@en ;
-                            
+                            rdfs:range xsd:string ;
                             dc:creator "Lidiya Dimitrova"@en ;
-                            
-                            skos:definition "Text of any special Installation Instruction that the cultural object may require"@en ;
-                            
-                            rdfs:domain ima:Frame ;
-                            
-                            rdfs:range xsd:string .
-
+                            rdfs:label "Installation Instruction"@en ;
+                            skos:definition "Text of any special Installation Instruction that the cultural object may require"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#labelRequirement
-
 ima:labelRequirement rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Label Requirement"@en ;
-                     
+                     rdfs:range xsd:string ;
                      dc:creator "Lidiya Dimitrova"@en ;
-                     
-                     skos:definition "Type and placement of an accession number label"@en ;
-                     
-                     rdfs:range xsd:string .
+                     rdfs:label "Label Requirement"@en ;
+                     skos:definition "Type and placement of an accession number label"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#legalStatus
+ima:legalStatus rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Legal status"@en ;
+                skos:definition "Legal status"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#loanRequirements
-
 ima:loanRequirements rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Loan Requirement"@en ;
-                     
-                     skos:definition "Costume: Can the costume be loaned or not, and if yes, what are the requirements for packing and shipping - linked to CMS Catalogue Module Recommend Tab
-Costume Accessory: Can the costume accessory be loaned or not, and if yes, what are the requirements for packing and shipping -  linked to CMS Catalogue Module Recommend Tab"@en ;
-                     
+                     rdfs:range xsd:string ;
                      dc:creator "Lidiya Dimitrova"@en ;
-                     
-                     rdfs:range xsd:string .
-
+                     rdfs:label "Loan Requirement"@en ;
+                     skos:definition """Costume: Can the costume be loaned or not, and if yes, what are the requirements for packing and shipping - linked to CMS Catalogue Module Recommend Tab
+Costume Accessory: Can the costume accessory be loaned or not, and if yes, what are the requirements for packing and shipping -  linked to CMS Catalogue Module Recommend Tab"""@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#manufactureMethod
-
 ima:manufactureMethod rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "Method Of Manufacture"@en ;
-                      
-                      dc:creator "Lidiya Dimitrova"@en ;
-                      
-                      skos:definition "More specific details of how an object is made based on examination."@en ;
-                      
                       rdfs:domain chc:CulturalObject ;
-                      
-                      rdfs:range xsd:string .
-
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Method Of Manufacture"@en ;
+                      skos:definition "More specific details of how an object is made based on examination."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#marks
-
 ima:marks rdf:type owl:DatatypeProperty ;
-          
-          rdfs:label "Marks"@en ;
-          
-          skos:definition "Description of any marks not related to the image such notations or marks made by a processes"@en ;
-          
-          dc:creator "Lidiya Dimitrova"@en ;
-          
           rdfs:domain chc:CulturalObject ;
-          
-          rdfs:range xsd:string .
-
+          rdfs:range xsd:string ;
+          dc:creator "Lidiya Dimitrova"@en ;
+          rdfs:label "Marks"@en ;
+          skos:definition "Description of any marks not related to the image such notations or marks made by a processes"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#matType
-
 ima:matType rdf:type owl:DatatypeProperty ;
-            
-            rdfs:label "Mat Type"@en ;
-            
-            dc:creator "Lidiya Dimitrova"@en ;
-            
-            skos:definition "Text description of the mat, specially unusual ones such as deep mat with wrapper for pastel."@en ;
-            
             rdfs:domain chc:CulturalObject ;
-            
-            rdfs:range xsd:string .
+            rdfs:range xsd:string ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            rdfs:label "Mat Type"@en ;
+            skos:definition "Text description of the mat, specially unusual ones such as deep mat with wrapper for pastel."@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#materials
-
-ima:materials rdf:type owl:DatatypeProperty ;
-              
-              rdfs:label "Materials"@en ;
-              
-              skos:definition "All of the materials used to create the textile, costume, needlework."@en ;
-              
-              dc:creator "Lidiya Dimitrova" ;
-              
-              rdfs:domain chc:CulturalObject ;
-              
-              rdfs:range xsd:string .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#maxDailyExposureH
+ima:maxDailyExposureH rdf:type owl:DatatypeProperty ;
+                      rdfs:domain chc:CulturalObject ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Anna Radeva" ;
+                      rdfs:label "Maximum daily exposure (hours)"@en ;
+                      skos:definition "Maximum daily exposure (hours)"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#mediaDescription
-
-ima:mediaDescription rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Media Description"@en ;
-                     
-                     dc:creator "Lidiya Dimitrova" ;
-                     
-                     skos:definition "Text description of the media used for the drawing(graphite, chalk, pen & ink)."@en ;
-                     
-                     rdfs:domain chc:CulturalObject ;
-                     
-                     rdfs:range xsd:string .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#maxDisplayableDays
+ima:maxDisplayableDays rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Anna Radeva" ;
+                       rdfs:label "Maximum displayable days"@en ;
+                       skos:definition "Maximum displayable days"@en .
 
 
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#maxExposureLuxH
+ima:maxExposureLuxH rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Anna Radeva" ;
+                    rdfs:label "Maximum exposure (lux hours)"@en ;
+                    skos:definition "Maximum exposure (lux hours)"@en .
 
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#medium
 
-ima:medium rdf:type owl:DatatypeProperty ;
-           
-           rdfs:label "Medium and Support"@en ;
-           
-           dc:creator "Lidiya Dimitrova" ;
-           
-           skos:definition "Medium description often used for public"@en ;
-           
-           rdfs:domain chc:CulturalObject ;
-           
-           rdfs:range xsd:string .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#maxLuxLevel
+ima:maxLuxLevel rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Maximum lux level"@en ;
+                skos:definition "Maximum lux level"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#moldingWidth
-
 ima:moldingWidth rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Molding Width"@en ;
-                 
+                 rdfs:range xsd:string ;
                  dc:creator "Lidiya Dimitrova" ;
-                 
-                 skos:definition "The measurement from the site edge to the outer edge of the frame"@en ;
-                 
-                 rdfs:domain ima:Frame ;
-                 
-                 rdfs:range xsd:string .
+                 rdfs:label "Molding Width"@en ;
+                 skos:definition "The measurement from the site edge to the outer edge of the frame"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#mountDescription
-
-ima:mountDescription rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Mount Description"@en ;
-                     
-                     dc:creator "Lidiya Dimitrova"@en ;
-                     
-                     skos:definition "Text description of the mounting when Art objects is on display"@en ;
-                     
-                     rdfs:domain chc:CulturalObject ;
-                     
-                     rdfs:range xsd:string .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#nationality
+ima:nationality rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Nationality"@en ;
+                skos:definition "Nationality"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#objectType
-
 ima:objectType rdf:type owl:DatatypeProperty ;
-               
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova" ;
                rdfs:label "Object Type"@en ;
-               
-               dc:creator "Lidiya Dimitrova" ;
-               
-               skos:definition "Classification for the type of cultural object. This classification is supported by CMS (KeMU)"@en ;
-               
-               rdfs:domain chc:CulturalObject ;
-               
-               rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#outsideDimensions
-
-ima:outsideDimensions rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "Outside Dimensions"@en ;
-                      
-                      dc:creator "Lidiya Dimitrova" ;
-                      
-                      skos:definition "Outer dimension of the Frame (Text height and width)"@en ;
-                      
-                      rdfs:domain ima:Frame ;
-                      
-                      rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#ownerNames
-
-ima:ownerNames rdf:type owl:DatatypeProperty ;
-               
-               rdfs:label "Owner/Custodian"@en ;
-               
-               dc:creator "Lidiya Dimitrova" ;
-               
-               skos:definition "Owner of the Art Object."@en ;
-               
-               rdfs:domain chc:CulturalObject ;
-               
-               rdfs:range xsd:string .
-
+               skos:definition "Classification for the type of cultural object. This classification is supported by CMS (KeMU)"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#paintLayersDescription
-
 ima:paintLayersDescription rdf:type owl:DatatypeProperty ;
-                           
-                           rdfs:label "Paint Layers Description"@en ;
-                           
+                           rdfs:range xsd:string ;
                            dc:creator "Lidiya Dimitrova" ;
-                           
-                           skos:definition "Technical description of the paint layer or design construction."@en ;
-                           
-                           rdfs:domain ima:Painting ;
-                           
-                           rdfs:range xsd:string .
-
+                           rdfs:label "Paint Layers Description"@en ;
+                           skos:definition "Technical description of the paint layer or design construction."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#photographMount
-
 ima:photographMount rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Mount/Base"@en ;
-                    
+                    rdfs:range xsd:string ;
                     dc:creator "Lidiya Dimitrova" ;
-                    
-                    skos:definition "Type of material the photograph is mounted to."@en ;
-                    
-                    rdfs:domain ima:Photograph ;
-                    
-                    rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#physicalDimensions
-
-ima:physicalDimensions rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Physical Dimensions"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova" ;
-                       
-                       skos:definition "The physical attributes of the object without matte and/or frame. Both US and metric. Can be complex with multi-component or 3-dimensional objects.
-Includes weight and other measures of the physical attributes of objects and their components."@en ;
-                       
-                       rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
-
+                    rdfs:label "Mount/Base"@en ;
+                    skos:definition "Type of material the photograph is mounted to."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#physicalLocation
-
 ima:physicalLocation rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Physical Location"@en ;
-                     
-                     dc:creator "Lidiya Dimitrova" ;
-                     
-                     skos:definition "Physical location of the sample so that someone could lay their hands on such as drawer number"@en ;
-                     
                      rdfs:domain chc:Sample ;
-                     
-                     rdfs:range xsd:string .
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova" ;
+                     rdfs:label "Physical Location"@en ;
+                     skos:definition "Physical location of the sample so that someone could lay their hands on such as drawer number"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#portfolio
-
-ima:portfolio rdf:type owl:DatatypeProperty ;
-              
-              rdfs:label "Portfolio/Series"@en ;
-              
-              skos:definition "Indication of a group of works of art created as a group"@en ;
-              
-              dc:creator "Lidiya Dimitrova" ;
-              
-              rdfs:domain chc:CulturalObject ;
-              
-              rdfs:range xsd:string .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#portfolioTitle
+ima:portfolioTitle rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova" ;
+                   rdfs:label "Portfolio title"@en ;
+                   skos:definition "Indication of a group of works of art created as a group"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#preparatoryLayer
-
 ima:preparatoryLayer rdf:type owl:DatatypeProperty ;
-                     
-                     rdfs:label "Ground/Preparatory Layer"@en ;
-                     
-                     skos:definition "An additional preparation layer for the image"@en ;
-                     
-                     dc:creator "Lidiya Dimitrova" ;
-                     
                      rdfs:domain chc:CulturalObject ;
-                     
-                     rdfs:range xsd:string .
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova" ;
+                     rdfs:label "Ground/Preparatory Layer"@en ;
+                     skos:definition "An additional preparation layer for the image"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#previousID
+ima:previousID rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Anna Radeva" ;
+               rdfs:label "Previous ID"@en ;
+               skos:definition "Previous ID"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#primarySupportDescription
-
 ima:primarySupportDescription rdf:type owl:DatatypeProperty ;
-                              
-                              rdfs:label "Primary Support Description"@en ;
-                              
-                              dc:creator "Lidiya Dimitrova" ;
-                              
-                              skos:definition "Text description of the paper support.
-In case of photograpt descrives the type of photosensitive material the image lies on."@en ;
-                              
                               rdfs:domain chc:CulturalObject ;
-                              
-                              rdfs:range xsd:string .
-
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova" ;
+                              rdfs:label "Primary Support Description"@en ;
+                              skos:definition """Text description of the paper support.
+In case of photograpt descrives the type of photosensitive material the image lies on."""@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#primingDescription
-
 ima:primingDescription rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Sizing and Ground Description"@en ;
-                       
+                       rdfs:range xsd:string ;
                        dc:creator "Lidiya Dimitrova" ;
-                       
-                       skos:definition "Technical description of the sizing and ground construction"@en ;
-                       
-                       rdfs:domain ima:Painting ;
-                       
-                       rdfs:range xsd:string .
+                       rdfs:label "Sizing and Ground Description"@en ;
+                       skos:definition "Technical description of the sizing and ground construction"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#rabbetDepth
-
-ima:rabbetDepth rdf:type owl:DatatypeProperty ;
-                
-                rdfs:label "Rabbet Depth"@en ;
-                
-                skos:definition "How deep is the cavity where the artwork sits"@en ;
-                
-                dc:creator "Lidiya Dimitrova" ;
-                
-                rdfs:domain ima:Frame ;
-                
-                rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#sampleSite
-
-ima:sampleSite rdf:type owl:DatatypeProperty ;
-               
-               rdfs:label "Sample site"@en ;
-               
-               dc:creator "Lidiya Dimitrova" ;
-               
-               skos:definition "Location of the spot where the sample was taken: coordinates \"up\" and \"left\" or \"from right hand of the Litter\""@en ;
-               
-               rdfs:domain chc:Sample ;
-               
-               rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#samplingDate
-
-ima:samplingDate rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Date taken"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova" ;
-                 
-                 skos:definition "Date on which the sample was taken"@en ;
-                 
-                 rdfs:domain chc:Sample ;
-                 
-                 rdfs:range xsd:dateTime .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#recordType
+ima:recordType rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Anna Radeva" ;
+               rdfs:label "IMA record type"@en ;
+               skos:definition "IMA record type"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#secondarySupportDescription
-
 ima:secondarySupportDescription rdf:type owl:DatatypeProperty ;
-                                
-                                rdfs:label "Secondary Support Description"@en ;
-                                
-                                dc:creator "Lidiya Dimitrova" ;
-                                
-                                skos:definition "Text description of any secondary support, example: thick laid paper, or the type of material the mount/base is attached to for photographs.."@en ;
-                                
                                 rdfs:domain chc:CulturalObject ;
-                                
-                                rdfs:range xsd:string .
+                                rdfs:range xsd:string ;
+                                dc:creator "Lidiya Dimitrova" ;
+                                rdfs:label "Secondary Support Description"@en ;
+                                skos:definition "Text description of any secondary support, example: thick laid paper, or the type of material the mount/base is attached to for photographs.."@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#shape
-
-ima:shape rdf:type owl:DatatypeProperty ;
-          
-          rdfs:label "Shape"@en ;
-          
-          dc:creator "Lidiya Dimitrova" ;
-          
-          skos:definition "Shape of the Frame"@en ;
-          
-          rdfs:domain ima:Frame ;
-          
-          rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#sightSize
-
-ima:sightSize rdf:type owl:DatatypeProperty ;
-              
-              rdfs:label "Sight Size"@en ;
-              
-              dc:creator "Lidiya Dimitrova" ;
-              
-              skos:definition "This is the size of the opening from the front of the frame.  "@en ;
-              
-              rdfs:domain ima:Frame ;
-              
-              rdfs:range xsd:string .
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#seriesTitle
+ima:seriesTitle rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva" ;
+                rdfs:label "Series title"@en ;
+                skos:definition "Series title"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#specialConcerns
-
 ima:specialConcerns rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Special Concerns"@en ;
-                    
-                    skos:definition "Emphasized information (\"flag\") for the immediate attention of conservators or other staff members that the cultural object has conservation issues that impact its ability to be displayed"@en ;
-                    
+                    rdfs:range xsd:string ;
                     dc:creator "Lidiya Dimitrova"@en ;
-                    
-                    rdfs:range xsd:string .
+                    rdfs:label "Special Concerns"@en ;
+                    skos:definition "Emphasized information (\"flag\") for the immediate attention of conservators or other staff members that the cultural object has conservation issues that impact its ability to be displayed"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageHumidityMaxPct
+ima:storageHumidityMaxPct rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Anna Radeva" ;
+                          rdfs:label "Storage humidity maximum (%)"@en ;
+                          skos:definition "Storage humidity maximum (%)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageHumidityMinPct
+ima:storageHumidityMinPct rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Anna Radeva" ;
+                          rdfs:label "Storage humidity minimum (%)"@en ;
+                          skos:definition "Storage humidity minimum (%)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageHumidityNotes
+ima:storageHumidityNotes rdf:type owl:DatatypeProperty ;
+                         rdfs:domain chc:CulturalObject ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Anna Radeva" ;
+                         rdfs:label "Storage humidity notes"@en ;
+                         skos:definition "Storage humidity notes"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageIlluminationMaxLux
+ima:storageIlluminationMaxLux rdf:type owl:DatatypeProperty ;
+                              rdfs:domain chc:CulturalObject ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Anna Radeva" ;
+                              rdfs:label "Storage illumination maximum (lux)"@en ;
+                              skos:definition "Storage illumination maximum (lux)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageIlluminationMinLux
+ima:storageIlluminationMinLux rdf:type owl:DatatypeProperty ;
+                              rdfs:domain chc:CulturalObject ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Anna Radeva" ;
+                              rdfs:label "Storage illumination minimum (lux)"@en ;
+                              skos:definition "Storage illumination minimum (lux)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageIlluminationNotes
+ima:storageIlluminationNotes rdf:type owl:DatatypeProperty ;
+                             rdfs:domain chc:CulturalObject ;
+                             rdfs:range xsd:string ;
+                             dc:creator "Anna Radeva" ;
+                             rdfs:label "Storage illumination notes"@en ;
+                             skos:definition "Storage illumination notes"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageNotes
+ima:storageNotes rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Anna Radeva" ;
+                 rdfs:label "Storage notes"@en ;
+                 skos:definition "Storage notes"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageRequirement
-
 ima:storageRequirement rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Storage Requirement"@en ;
-                       
-                       skos:definition "Description on the storage requirements - wehether to store the piece flat, on a special hanger or other requirements."@en ;
-                       
+                       rdfs:range xsd:string ;
                        dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       rdfs:range xsd:string .
+                       rdfs:label "Storage Requirement"@en ;
+                       skos:definition "Description on the storage requirements - wehether to store the piece flat, on a special hanger or other requirements."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageTempMaxC
+ima:storageTempMaxC rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Anna Radeva" ;
+                    rdfs:label "Storage temperature maximum (°C)"@en ;
+                    skos:definition "Storage temperature maximum (°C)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageTempMaxF
+ima:storageTempMaxF rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Anna Radeva" ;
+                    rdfs:label "Storage temperature maximum (°F)"@en ;
+                    skos:definition "Storage temperature maximum (°F)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageTempMinC
+ima:storageTempMinC rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Anna Radeva" ;
+                    rdfs:label "Storage temperature minimum (°C)"@en ;
+                    skos:definition "Storage temperature minimum (°C)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageTempMinF
+ima:storageTempMinF rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Anna Radeva" ;
+                    rdfs:label "Storage temperature minimum (°F)"@en ;
+                    skos:definition "Storage temperature minimum (°F)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#storageTempNotes
+ima:storageTempNotes rdf:type owl:DatatypeProperty ;
+                     rdfs:domain chc:CulturalObject ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Anna Radeva" ;
+                     rdfs:label "Storage temperature notes"@en ;
+                     skos:definition "Storage temperature notes"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#structuralPriority
-
 ima:structuralPriority rdf:type owl:DatatypeProperty ;
-                       
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
                        rdfs:label "Structural Priority"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "Structural stability determines priority for treatment"@en ;
-                       
-                       rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#structureDescription
-
-ima:structureDescription rdf:type owl:DatatypeProperty ;
-                         
-                         rdfs:label "Structure"@en ;
-                         
-                         dc:creator "Lidiya Dimitrova"@en ;
-                         
-                         skos:definition "The material used and the relationship between them."@en ;
-                         
-                         rdfs:domain chc:CulturalObject ;
-                         
-                         rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#style
-
-ima:style rdf:type owl:DatatypeProperty ;
-          
-          rdfs:label "Style"@en ;
-          
-          skos:definition "A way of Painting, drawing, building, composing, etc. Characteristic of a particular period, place, person or movement."@en ;
-          
-          dc:creator "Lidiya Dimitrova"@en ;
-          
-          rdfs:domain ima:Frame ;
-          
-          rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#subClassification
-
-ima:subClassification rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "Sub-Classification"@en ;
-                      
-                      skos:definition "Defines if the sample is whether from a cultural object or from a commercial material used in the conservation of the cultural object."@en ;
-                      
-                      dc:creator "Lidiya Dimitrova"@en ;
-                      
-                      rdfs:domain chc:Sample ;
-                      
-                      rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#substrateDescription
-
-ima:substrateDescription rdf:type owl:DatatypeProperty ;
-                         
-                         rdfs:label "Substrate Description"@en ;
-                         
-                         skos:definition "A substance or layer that underlies something, or on which some process occurs, in particular."@en ;
-                         
-                         dc:creator "Lidiya Dimitrova"@en ;
-                         
-                         rdfs:domain chc:CulturalObject ;
-                         
-                         rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#supportDescription
-
-ima:supportDescription rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Support Description"@en ;
-                       
-                       skos:definition "A thing that bears the weight of something or keeps it upright."@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
-
+                       skos:definition "Structural stability determines priority for treatment"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#surfaceCoatingDescription
-
 ima:surfaceCoatingDescription rdf:type owl:DatatypeProperty ;
-                              
-                              rdfs:label "Surface Coating Description"@en ;
-                              
+                              rdfs:range xsd:string ;
                               dc:creator "Lidiya Dimitrova"@en ;
-                              
-                              skos:definition "Technical description of the surface coating material"@en ;
-                              
-                              rdfs:domain ima:Painting ;
-                              
-                              rdfs:range xsd:string .
+                              rdfs:label "Surface Coating Description"@en ;
+                              skos:definition "Technical description of the surface coating material"@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#surfaceDescription
-
-ima:surfaceDescription rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Surface Description"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "The outside part or uppermost layer of something (often used when describing its texture, form, or extent)."@en ;
-                       
-                       rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#tempMaxC
+ima:tempMaxC rdf:type owl:DatatypeProperty ;
+             rdfs:domain chc:CulturalObject ;
+             rdfs:range xsd:string ;
+             dc:creator "Anna Radeva" ;
+             rdfs:label "Display temperature maximum (°C)"@en ;
+             skos:definition "Display temperature maximum (°C)"@en .
 
 
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#tempMaxF
+ima:tempMaxF rdf:type owl:DatatypeProperty ;
+             rdfs:domain chc:CulturalObject ;
+             rdfs:range xsd:string ;
+             dc:creator "Anna Radeva" ;
+             rdfs:label "Display temperature maximum (°F)"@en ;
+             skos:definition "Display temperature maximum (°F)"@en .
 
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#treatmentStage
 
-ima:treatmentStage rdf:type owl:DatatypeProperty ;
-                   
-                   rdfs:label "Treatment phase"@en ;
-                   
-                   dc:creator "Lidiya Dimitrova"@en ;
-                   
-                   skos:definition "The treatment phase when the image was shot"@en ;
-                   
-                   rdfs:domain emf:Image ;
-                   
-                   rdfs:range xsd:string .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#tempMinC
+ima:tempMinC rdf:type owl:DatatypeProperty ;
+             rdfs:domain chc:CulturalObject ;
+             rdfs:range xsd:string ;
+             dc:creator "Anna Radeva" ;
+             rdfs:label "Display temperature minimum (°C)"@en ;
+             skos:definition "Display temperature minimum (°C)"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#tempMinF
+ima:tempMinF rdf:type owl:DatatypeProperty ;
+             rdfs:domain chc:CulturalObject ;
+             rdfs:range xsd:string ;
+             dc:creator "Anna Radeva" ;
+             rdfs:label "Display temperature minimum (°F)"@en ;
+             skos:definition "Display temperature minimum (°F)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#tempNotes
+ima:tempNotes rdf:type owl:DatatypeProperty ;
+              rdfs:domain chc:CulturalObject ;
+              rdfs:range xsd:string ;
+              dc:creator "Anna Radeva" ;
+              rdfs:label "Display temperature notes"@en ;
+              skos:definition "Display temperature notes"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#variableComponents
-
 ima:variableComponents rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "Variable Components"@en ;
-                       
-                       dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "These are components that may be changed, or may not be included in a given installation"@en ;
-                       
                        rdfs:domain chc:CulturalObject ;
-                       
-                       rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#vendorNames
-
-ima:vendorNames rdf:type owl:DatatypeProperty ;
-                
-                rdfs:label "Vendor/Vendor Manufacturer"@en ;
-                
-                dc:creator "Lidiya Dimitrova"@en ;
-                
-                skos:definition "The name of the Vendor who sold us the Frame."@en ;
-                
-                rdfs:domain ima:Frame ;
-                
-                rdfs:range xsd:string .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#watermarks
-
-ima:watermarks rdf:type owl:DatatypeProperty ;
-               
-               rdfs:label "Watermarks"@en ;
-               
-               skos:definition "Free text description of any watermarks evident in the paper/support"@en ;
-               
-               dc:creator "Lidiya Dimitrova"@en ;
-               
-               rdfs:domain chc:CulturalObject ;
-               
-               rdfs:range xsd:string .
-
-
-
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Variable Components"@en ;
+                       skos:definition "These are components that may be changed, or may not be included in a given installation"@en .
 
 
 #################################################################
-#
 #    Classes
-#
 #################################################################
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample
-
-chc:Sample emf:isCreateable "true"^^xsd:boolean ;
-           
-           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-           
-           emf:isSearchable "true"^^xsd:boolean .
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image
+emf:Image rdf:type owl:Class .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#BuiltEnvironment
-
-ima:BuiltEnvironment rdf:type owl:Class ;
-                     
-                     rdfs:label "Built Environment"@en ;
-                     
-                     rdfs:subClassOf chc:CulturalObject ;
-                     
-                     emf:isCreateable "true"^^xsd:boolean ;
-                     
-                     emf:isSearchable "true"^^xsd:boolean ;
-                     
-                     emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-                     
-                     dc:creator "Lidiya Dimitrova"@en ;
-                     
-                     skos:definition "This record type includes the built and natural environment, covering constructed works and natural landscapes, forming a continuum from the largest natural landscapes and settled areas to the smallest of individual built works."@en .
+###  http://www.ontotext.com/proton/protontop#Agent
+ptop:Agent rdf:type owl:Class .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#CeremonialEquipment
-
-ima:CeremonialEquipment rdf:type owl:Class ;
-                        
-                        rdfs:label "Ceremonial Equipment"@en ;
-                        
-                        rdfs:subClassOf chc:CulturalObject ;
-                        
-                        emf:isCreateable "true"^^xsd:boolean ;
-                        
-                        emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-                        
-                        emf:isSearchable "true"^^xsd:boolean ;
-                        
-                        skos:definition "Articles or physical resources used to equip a person or thing, such as the instruments used in an activity or operation, which relate to or are used for ritual observances and formal events of a religious, societal, military, or public nature."@en ;
-                        
-                        dc:creator "Lidiya Dimitrova"@en .
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#CostumeOrCostumeAccessories
+ima:CostumeOrCostumeAccessories rdf:type owl:Class ;
+                                rdfs:subClassOf chc:CulturalObject ;
+                                emf:classCategory "culturalobject" ;
+                                emf:definitionId "objectinstance" ;
+                                emf:isCreateable "true"^^xsd:boolean ;
+                                emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                                emf:isSearchable "true"^^xsd:boolean ;
+                                dc:creator "Lidiya Dimitrova"@en ;
+                                sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                                sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                                rdfs:label "Costume or Costume Accessories"@en ;
+                                skos:definition "This record type contains descriptors for objects worn or carried for warmth, protection, embellishment, or for symbolic purposes. It includes descriptors for garments considered as the main item of dress (e.g., \"shirts,\" \"trousers\"), descriptors for garments worn under the main garments (e.g., \"undershirts\"), and descriptors for garments worn over the main garments (e.g., \"parkas\").  Also included are descriptors for protective wear, including types of armor; vestments and other ceremonial garments; uniforms. "@en .
 
 
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Container
-
-ima:Container rdf:type owl:Class ;
-              
-              rdfs:label "Containers"@en ;
-              
-              rdfs:subClassOf chc:CulturalObject ;
-              
-              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-              
-              emf:isSearchable "true"^^xsd:boolean ;
-              
-              emf:isCreateable "true"^^xsd:boolean ;
-              
-              dc:creator "Lidiya Dimitrova"@en ;
-              
-              skos:definition "This record type contains descriptors for artifacts used to hold substances or objects. Included are descriptors for containers intended for culinary use, for horticultural use, for health care, hygiene, and similar personal needs as well as descriptors for containers associated with liturgical, funerary, and other ceremonial activities. Curatorial Department will determine whether it is Decorative Art, Design Art, Ethnographic Art, Asian (i.e. Chinese, Japanese, Korean), etc."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Costume
-
-ima:Costume rdf:type owl:Class ;
-            
-            rdfs:label "Costume"@en ;
-            
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Vehicle
+ima:Vehicle rdf:type owl:Class ;
             rdfs:subClassOf chc:CulturalObject ;
-            
-            emf:isSearchable "true"^^xsd:boolean ;
-            
-            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-            
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
             emf:isCreateable "true"^^xsd:boolean ;
-            
-            dc:creator "Lidiya Dimitrova"@en ;
-            
-            skos:definition "This record type contains descriptors for objects worn or carried for warmth, protection, embellishment, or for symbolic purposes. It includes descriptors for garments considered as the main item of dress (e.g., \"shirts,\" \"trousers\"), descriptors for garments worn under the main garments (e.g., \"undershirts\"), and descriptors for garments worn over the main garments (e.g., \"parkas\").  Also included are descriptors for protective wear, including types of armor; vestments and other ceremonial garments; uniforms. "@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#CostumeAccessory
-
-ima:CostumeAccessory rdf:type owl:Class ;
-                     
-                     rdfs:label "Costume Accessory"@en ;
-                     
-                     rdfs:subClassOf chc:CulturalObject ;
-                     
-                     emf:isSearchable "true"^^xsd:boolean ;
-                     
-                     emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-                     
-                     emf:isCreateable "true"^^xsd:boolean ;
-                     
-                     skos:definition "Items that do not form the primary articles of clothing, but are instead the smaller articles of dress, such as shoes, gloves, hats, jewelry, etc.  (Mode of fashion)."@en ;
-                     
-                     dc:creator "Lidiya Dimitrova"@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Drawing
-
-ima:Drawing rdf:type owl:Class ;
-            
-            rdfs:label "Drawing"@en ;
-            
-            rdfs:subClassOf chc:CulturalObject ;
-            
-            emf:isSearchable "true"^^xsd:boolean ;
-            
-            emf:isCreateable "true"^^xsd:boolean ;
-            
             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-            
-            dc:creator "Lidiya Dimitrova"@en ;
-            
-            skos:definition "Visual works produced by drawing, which is the application of lines on a surface, often paper, by using a pencil, pen, chalk, or some other tracing instrument to focus on the delineation of form rather than the application of color. (Getty AAT)"@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Frame
-
-ima:Frame rdf:type owl:Class ;
-          
-          rdfs:label "Frame"@en ;
-          
-          rdfs:subClassOf chc:CulturalObject ;
-          
-          emf:isSearchable "true"^^xsd:boolean ;
-          
-          emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-          
-          emf:isCreateable "true"^^xsd:boolean ;
-          
-          skos:definition "Cases or structures that surround or enclose such items as works of art,mirrors, or documents, serving as support or protection or to call attention, while leaving the items visible."@en ;
-          
-          dc:creator "Lidiya Dimitrova"@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Furnishing
-
-ima:Furnishing rdf:type owl:Class ;
-               
-               rdfs:label "Furnishing"@en ;
-               
-               rdfs:subClassOf chc:CulturalObject ;
-               
-               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-               
-               emf:isCreateable "true"^^xsd:boolean ;
-               
-               emf:isSearchable "true"^^xsd:boolean ;
-               
-               dc:creator "Lidiya Dimitrova"@en ;
-               
-               skos:definition """This record type contains descriptors for primarily movable articles that provide comfort, convenience, or protection in dwellings, places or business, or other public or private spaces. They may be useful or ornamental and may be used in indoor or outdoor spaces. (Sub-classifications can include: Decorative Arts such as furniture, seating furniture (chairs), table, desk, bed; and Textiles such as rugs, bedcovers, quilts, tapestries). Curatorial Department will determine whether it is Decorative Art, Design Art, Ethnographic Art, Asian (i.e. Chinese, Japanese, Korean), etc.
-
-- Trade names and proper names for particular types of furnishing that have come to be used generically or near-generically are included in the hierarchy
-- Objects whose primary purpose is to serve as storage receptacles or other forms of container (e.g., \"candle boxes\", \"footlockers\") appear in the Containers hierarchy. """@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Multimedia
-
-ima:Multimedia rdf:type owl:Class ;
-               
-               rdfs:label "Multimedia"@en ;
-               
-               rdfs:subClassOf chc:CulturalObject ;
-               
-               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-               
-               emf:isSearchable "true"^^xsd:boolean ;
-               
-               emf:isCreateable "true"^^xsd:boolean ;
-               
-               skos:definition "Contemporary works of art that employ several distinct art forms, such as sculpture and music or painting and light art. Includes time- based and variable art."@en ;
-               
-               dc:creator "Lidiya Dimitrova"@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Needlework
-
-ima:Needlework rdf:type owl:Class ;
-               
-               rdfs:label "Needlework"@en ;
-               
-               rdfs:subClassOf chc:CulturalObject ;
-               
-               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-               
-               emf:isSearchable "true"^^xsd:boolean ;
-               
-               emf:isCreateable "true"^^xsd:boolean ;
-               
-               dc:creator "Lidiya Dimitrova"@en ;
-               
-               skos:definition "Refers to works done with one or more needles and thread, yarn or cord. The term generally refers to work done by hand. Needlework includes sewing, embroidery, knitting, and other works. Until the 20th century \"plain sewing\" was the most widely practiced form of needlework in Western cultures. Most females learned basic sewing and knitting, which was used in the construction of clothing and the finishing of household textiles. With the introduction of machine sewing, needlework done by hand was often limited to decorative work."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Painting
-
-ima:Painting rdf:type owl:Class ;
-             
-             rdfs:label "Painting"@en ;
-             
-             rdfs:subClassOf chc:CulturalObject ;
-             
-             emf:isSearchable "true"^^xsd:boolean ;
-             
-             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-             
-             emf:isCreateable "true"^^xsd:boolean ;
-             
-             dc:creator "Lidiya Dimitrova"@en ;
-             
-             skos:definition "Unique works in which images are formed primarily by the direct application of pigments suspended in oil, water, egg yolk, molten wax, or other liquid, arranged in masses of color, onto a generally two-dimensional surface."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Pastel
-
-ima:Pastel rdf:type owl:Class ;
-           
-           rdfs:label "Pastel"@en ;
-           
-           rdfs:subClassOf chc:CulturalObject ;
-           
-           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-           
-           emf:isSearchable "true"^^xsd:boolean ;
-           
-           emf:isCreateable "true"^^xsd:boolean ;
-           
-           dc:creator "Lidiya Dimitrova"@en ;
-           
-           skos:definition "Works of art, typically on a paper or vellum support, to which designs are applied using crayons made of ground pigment held together with a binder, typically oil or water and gum. Works in this medium are sometimes classified as drawings, and sometimes as paintings, typically based on the local curatorial department responsible for the work or on the material of the support (pastels on paper may be classified as drawings, while pastels on vellum may be classified as paintings)."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Performance
-
-ima:Performance rdf:type owl:Class ;
-                
-                rdfs:label "Performance"@en ;
-                
-                rdfs:subClassOf chc:CulturalObject ;
-                
-                emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-                
-                emf:isSearchable "true"^^xsd:boolean ;
-                
-                emf:isCreateable "true"^^xsd:boolean ;
-                
-                dc:creator "Lidiya Dimitrova"@en ;
-                
-                skos:definition "Refers to works of art that unfold over time and that combine elements of theater and object-oriented art."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Photograph
-
-ima:Photograph rdf:type owl:Class ;
-               
-               rdfs:label "Photograph"@en ;
-               
-               rdfs:subClassOf chc:CulturalObject ;
-               
-               emf:isSearchable "true"^^xsd:boolean ;
-               
-               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-               
-               emf:isCreateable "true"^^xsd:boolean ;
-               
-               dc:creator "Lidiya Dimitrova"@en ;
-               
-               skos:definition "Refers to still images produced from radiation-sensitive materials (sensitive to light, electron beams, or nuclear radiation), generally by means of the chemical action of light on a sensitive film, paper, glass, or metal. It does not include reproductive prints of documents and technical drawings.  Photographs may be positive or negative, opaque or transparent."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Print
-
-ima:Print rdf:type owl:Class ;
-          
-          rdfs:label "Print"@en ;
-          
-          rdfs:subClassOf chc:CulturalObject ;
-          
-          emf:isCreateable "true"^^xsd:boolean ;
-          
-          emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-          
-          emf:isSearchable "true"^^xsd:boolean ;
-          
-          dc:creator "Lidiya Dimitrova"@en ;
-          
-          skos:definition "Pictorial works produced by transferring images by means of a matrix such as a plate, block, or screen, using any of various printing processes."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Sculpture
-
-ima:Sculpture rdf:type owl:Class ;
-              
-              rdfs:label "Sculpture"@en ;
-              
-              rdfs:subClassOf chc:CulturalObject ;
-              
-              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-              
-              emf:isSearchable "true"^^xsd:boolean ;
-              
-              emf:isCreateable "true"^^xsd:boolean ;
-              
-              dc:creator "Lidiya Dimitrova"@en ;
-              
-              skos:definition "Three-dimensional works of art in which images and forms are produced in relief, in intaglio, or in the round. The term refers particularly to art works created by carving or engraving a hard material, by molding or casting a malleable material (which usually then hardens), or by assembling parts to create a three-dimensional object. It is typically used to refer to large or medium-sized objects made of stone, wood, bronze, or another metal. Small objects are typically referred to as \"carvings\" or another appropriate term. \"Sculpture\" refers to works that represent tangible beings, objects, or groups of objects, or are abstract works that have defined edges and boundaries and can be measured."@en .
-
-
-
-###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#Weapons
-
-ima:Weapons rdf:type owl:Class ;
-            
-            rdfs:label "Weapons and Ammunition"@en ;
-            
-            rdfs:subClassOf chc:CulturalObject ;
-            
-            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-            
-            emf:isCreateable "true"^^xsd:boolean ;
-            
             emf:isSearchable "true"^^xsd:boolean ;
-            
-            dc:creator "Lidiya Dimitrova"@en ;
-            
-            skos:definition "This record type contains descriptors for implements and mechanisms designed to be used as a means of physical attack or defense. Included are hand-held weapons such as \"swords\", components of weapons (e.g., \"arrowheads\"), and objects propelled by firearms (e.g., \"cartridges\"). Also included are descriptors for hunting weapons (e.g., \"boar spears\") and for objects derived from weapons but used for purely ceremonial purposes (e.g., \"dress swords\"). The Curatorial Department will determine whether it is Ethnographic, Native American, Asian, etc."@en .
+            dc:creator "Malvina Makarieva"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Vehicle"@en ;
+            skos:definition "1111"@en .
 
 
-
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/IMA#WeaponsAndAmmunition
+ima:WeaponsAndAmmunition rdf:type owl:Class ;
+                         rdfs:subClassOf chc:CulturalObject ;
+                         emf:classCategory "culturalobject" ;
+                         emf:definitionId "objectinstance" ;
+                         emf:isCreateable "true"^^xsd:boolean ;
+                         emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                         emf:isSearchable "true"^^xsd:boolean ;
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                         sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                         rdfs:label "Weapons and Ammunition"@en ;
+                         skos:definition "This record type contains descriptors for implements and mechanisms designed to be used as a means of physical attack or defense. Included are hand-held weapons such as \"swords\", components of weapons (e.g., \"arrowheads\"), and objects propelled by firearms (e.g., \"cartridges\"). Also included are descriptors for hunting weapons (e.g., \"boar spears\") and for objects derived from weapons but used for purely ceremonial purposes (e.g., \"dress swords\"). The Curatorial Department will determine whether it is Ethnographic, Native American, Asian, etc."@en .
 
 
 #################################################################
-#
 #    Annotations
-#
 #################################################################
 
-chc:CulturalObject emf:isSearchable "true"^^xsd:boolean .
-
-
-chc:documents emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:isDocumentedIn emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:hasDepiction emf:isSearchable "true"^^xsd:boolean .
-
-
-
-emf:isPrimaryImageOf emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:hasParticipant emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:participates emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:hasAuthor emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:attachmentOf emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:hasAttachment emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:depicts emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:isCoauthorOf emf:isSearchable "true"^^xsd:boolean .
-
-
-
-ptop:involvedIn emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:isParticipantIn emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:involves emf:isSearchable "true"^^xsd:boolean .
-
-
-
-emf:processedBy emf:isSearchable "true"^^xsd:boolean .
-
+chc:ConservationActivity sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
 
 
 chc:isAuthorOf emf:isSearchable "true"^^xsd:boolean .
 
 
-
-chc:hasSupervisor emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:hasSample emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:isTakenFrom emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:ConservationActivity emf:isCreateable "true"^^xsd:boolean ;
-                         
-                         emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
-                         
-                         emf:isSearchable "true"^^xsd:boolean .
-
-
-
-emf:hasPrimaryImage emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:isSupervisorOf emf:isSearchable "true"^^xsd:boolean .
-
-
-
-emf:processes emf:isSearchable "true"^^xsd:boolean .
-
-
-
-ptop:hasParticipant emf:isSearchable "true"^^xsd:boolean .
-
-
-
-chc:hasCoauthor emf:isSearchable "true"^^xsd:boolean .
-
-
-
-
-###  Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net
-
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

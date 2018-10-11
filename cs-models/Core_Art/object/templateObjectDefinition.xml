@@ -1,0 +1,293 @@
+<?xml version="1.0"?>
+<definition id="template" parentId="templateBase" isAbstract="false" type="object">
+    <fields>
+		<field name="default_header" type="ANY" label="TEMPLATE_DEFAULT_HEADER_CORE" />
+		<field name="tooltip_header" type="ANY" label="TEMPLATE_TOOLTIP_HEADER_CORE" />
+		<field name="compact_header" type="an..4096" label="TEMPLATE_COMPACT_HEADER_CORE" />
+		<field name="breadcrumb_header" type="an..4096" label="TEMPLATE_BREADCRUMB_HEADER_CORE" />
+
+		<field name="type" type="an..50" displayType="system" />
+		<field name="status" type="an..50" displayType="system" />
+		<field name="templatePurpose" type="an..30" displayType="system" />
+		<field name="isPrimaryTemplate" type="boolean" displayType="system" />
+		<field name="title" type="an..40" displayType="system" />
+		<field name="identifier" type="an..50" displayType="system" />
+		<field name="description" type="an..1024" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="createdOn" type="dateTime" displayType="system"  />
+    	<field name="createdBy" type="uri" displayType="system" />
+        <field name="modifiedOn" type="dateTime" displayType="system"/>
+        <field name="modifiedBy" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri" displayType="system" />
+		<field name="outcome" type="an..50" displayType="system" />
+		<field name="completedOn" type="datetime" displayType="system" />
+		<field name="integrated" type="boolean" displayType="system" />
+		<field name="uri" type="an..50" displayType="system" />
+		<field name="hasRevision" type="uri" displayType="system" />
+		<field name="isRevisionOf" type="uri" displayType="system" />
+		<field name="lastPublishedRevision" type="uri" displayType="system" />
+		<field name="lastRevision" type="uri" displayType="system" />
+		<field name="nextRevision" type="uri" displayType="system" />
+		<field name="previousRevision" type="uri" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="templateRuleDescription" type="an..1024" displayType="system" />
+		<field name="emf:hasTemplate" type="an..1024" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="forObjectTypeLabel" type="an..256" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system"/>
+    </fields>
+	
+	<regions>
+		<region id="specificInformation" order="1" displayType="editable" label="core.specificInformation.region.label">
+			<fields>
+				<field name="title" type="an..500" mandatory="true" displayType="editable" label="title.label" tooltip="core.title.tooltip" uri="dcterms:title" unique="true" />
+				<field name="forObjectTypeLabel" type="an..256" mandatory="false" displayType="readonly" label="template.forObjectType" tooltip="core.forObjectType.tooltip" uri="emf:forObjectTypeLabel" />
+				<field name="templatePurpose" type="an..30" mandatory="true" displayType="readonly" codelist="CL31" label="template.templatePurpose" tooltip="core.templatePurpose.tooltip" uri="emf:templatePurpose"/>
+				<field name="isPrimaryTemplate" type="boolean" displayType="readonly" label="template.isPrimaryTemplate" tooltip="core.isPrimaryTemplate.tooltip" uri="emf:isPrimaryTemplate"/>
+				<field name="description" type="an..1024" displayType="editable" label="description.label" tooltip="description.tooltip" uri="dcterms:description"/>
+				<field name="templateRuleDescription" type="an..1024" displayType="readonly" label="template.ruleDescription" uri="emf:templateRuleDescription"/>
+				<field name="identifier" type="an..50" displayType="readonly" label="identifier" tooltip="core.identifier.tooltip" rnc="${eval(TMP${seq({+tmpSequence})})}" uri="dcterms:identifier"/>
+				<field name="emf:version" type="an..10" displayType="readonly" label="object.version" tooltip="core.version.tooltip" uri="emf:version"/> 
+				<field name="status" type="an..50" displayType="readonly" codelist="CL17" label="status.label" tooltip="core.status.tooltip" uri="emf:status" />
+				<field name="createdOn" type="dateTime" displayType="readonly" label="core.createdOn.label" tooltip="core.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readonly" label="core.createdBy.label" tooltip="core.createdBy.tooltip" uri="emf:createdBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="datetime" displayType="readonly" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readonly" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" uri="emf:modifiedBy">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" displayType="readonly" label="core.lockedBy.label" tooltip="core.lockedBy.tooltip" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+		<region id="systemData" order="2" displayType="editable" label="core.systemData.region.label">
+			<fields>
+				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="type.label" uri="emf:type">
+					<value>TEMPLATE</value>
+				</field>
+				<field name="parentOf" type="uri" displayType="readonly" label="core.parentOf.label" tooltip="core.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" displayType="readonly" label="core.hasParent.label" tooltip="core.hasParent.tooltip" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readonly" label="core.partOf.label" tooltip="core.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readonly" label="core.hasChild.label" tooltip="core.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	
+	<transitions>
+		<transition id="reloadTemplate" />
+		
+		<transition id="editDetails" order="10" actionPath="/" />
+		<transition id="setTemplateAsPrimary" order="15" />
+		<transition id="editTemplateRule" order="20" />
+		<transition id="activateTemplate" order="25" actionPath="/" />
+		<transition id="deactivateTemplate" order="30" actionPath="/" />
+		<transition id="updateExistingObjects" order="35" />
+	
+		<group id="more" order="40" label="more.group.label" type="menu" />
+		<transition id="cloneTemplate" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="45" />
+	</transitions>
+	
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="DRAFT" />
+
+		<stateTransition from="DRAFT" transition="activateTemplate" to="ACTIVE" />
+		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="lock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="unlock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="reloadTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="editTemplateRule" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="cloneTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="delete" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="setTemplateAsPrimary" to="DRAFT">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+
+		<stateTransition from="ACTIVE" transition="editDetails" to="UPDATED" />
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="unlock" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="managePermissions" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="reloadTemplate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="editTemplateRule" to="UPDATED" />
+		<stateTransition from="ACTIVE" transition="cloneTemplate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="setTemplateAsPrimary" to="ACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		<stateTransition from="ACTIVE" transition="deactivateTemplate" to="INACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		<stateTransition from="ACTIVE" transition="updateExistingObjects" to="ACTIVE" />
+
+		<stateTransition from="UPDATED" transition="activateTemplate" to="ACTIVE" />
+		<stateTransition from="UPDATED" transition="editDetails" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="lock" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="unlock" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="managePermissions" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="reloadTemplate" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="editTemplateRule" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="cloneTemplate" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="setTemplateAsPrimary" to="UPDATED">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		<stateTransition from="UPDATED" transition="deactivateTemplate" to="INACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		
+		<stateTransition from="INACTIVE" transition="activateTemplate" to="ACTIVE" />
+		<stateTransition from="INACTIVE" transition="editDetails" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="lock" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="unlock" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="managePermissions" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="reloadTemplate" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="editTemplateRule" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="cloneTemplate" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="setTemplateAsPrimary" to="INACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+	</stateTransitions>
+	
+	<labels>
+		<label id="TEMPLATE_TOOLTIP_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+                        <label>Type: </label>
+                        <span data-property="type">${CL([type])}</span>
+                    </span>
+					${if(${get([forObjectTypeLabel])} <> null).then(
+						<span class="tooltip-row">
+							<label>For object type: </label>
+							<span data-property="forObjectTypeLabel">${get([forObjectTypeLabel])}</span>
+						</span>
+					)}
+					${if(${get([templateRuleDescription])} <> null).then(
+						<span class="tooltip-row">
+							<label>Template rule: </label>
+							<span data-property="templateRuleDescription">${get([templateRuleDescription])}</span>
+						</span>
+					)}	
+					<span class="tooltip-row">
+                        <label>Status: </label>
+                        <span data-property="status">${CL([status])}</span>
+                    </span>
+					${if(${get([isPrimaryTemplate])} <> null).then(
+						<span class="tooltip-row">
+							<label>Primary: </label>
+							<span data-property="isPrimaryTemplate">${if(${get([isPrimaryTemplate])} == true).then(Yes).else(No)}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>Purpose: </label>
+						<span data-property="templatePurpose">${CL([templatePurpose])}</span>
+					</span>
+					<span class="tooltip-row">
+                        <label>Version: </label>
+                        <span data-property="emf:version">${get([emf:version])}</span>
+                    </span>
+					<span class="tooltip-row">
+                        <label>System modified by: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+					<span class="tooltip-row">
+                        <label>System modified on: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
+                    </span>
+				</span>
+			)})}]]></value>
+		</label>	
+	    <label id="TEMPLATE_DEFAULT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9;>).else(<span>)}
+				<span class="truncate-element">
+					<span data-property="type">${CL([type])}</span>:&nbsp;
+					<span data-property="templatePurpose">${CL([templatePurpose])}</span>,&nbsp;
+					${if(${get([isPrimaryTemplate])}==true).then(<span>Primary</span>).else(<span>Secondary</span>)}&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+				</span>
+				<br>	
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
+					</a>
+				${if(${var.isVersion}).then(
+					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+				)}
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+            </span>)}]]></value>
+		</label>
+		 <label id="TEMPLATE_COMPACT_HEADER_CORE">
+            <value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+            <span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9;>).else(<span>)}
+            <span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<span>
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
+					</a>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			</span>)}]]></value>
+        </label>
+		 <label id="TEMPLATE_BREADCRUMB_HEADER_CORE">
+            <value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+            <span ><img src="${thumbnailUri(16)}"/></span>
+            <span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-title="${get([title])}">${get([title])}</span>
+				</a>
+			</span>)}]]></value>
+        </label>
+    </labels>
+</definition>

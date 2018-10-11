@@ -1,14 +1,21 @@
 <?xml version="1.0"?>
 <definition id="savedSearch" parentId="savedSearchBase" type="object">
+	<configuration>
+		<fields>
+			<field name="existingInContext" type="an..50" codelist="CL26" uri="emf:existingInContext">
+				<value>WITHOUT_CONTEXT</value>
+			</field>
+		</fields>
+	</configuration>
     <fields>
 		<!-- headers and tooltip -->
         <field name="default_header" type="ANY" label="SAVED_SEARCH_DEFAULT_HEADER_NGA"  />
         <field name="compact_header" type="an..4096" label="SAVED_SEARCH_COMPACT_HEADER_NGA"  />
         <field name="breadcrumb_header" type="an..4096" label="SAVED_SEARCH_BREADCRUMB_HEADER_NGA" />
-		<field name="tooltip_header" type="an..4096" label="SAVED_SEARCH_TOOLTIP_HEADER_NGA" />
+		<field name="tooltip_header" type="ANY" label="SAVED_SEARCH_TOOLTIP_HEADER_NGA" />
 		
-		<field name="title" type="an..1000" mandatory="true" order="115" label="nga.title.label" tooltip="nga.title.tooltip" displayType="editable" dmsType="cm:title" uri="dcterms:title" />
-		<field name="description" type="an..1024" order="130" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable" dmsType="cm:description" uri="dcterms:description" />
+		<field name="title" type="an..1000" mandatory="true" order="115" label="nga.title.label" tooltip="nga.title.tooltip" displayType="editable" uri="dcterms:title" />
+		<field name="description" type="an..1024" order="130" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable" uri="dcterms:description" />
 		
 		<!-- system fields -->
 		 <field name="type" type="an..40" displayType="system" />
@@ -19,12 +26,11 @@
 		<field name="createdBy" type="uri" displayType="system" />
 		<field name="modifiedOn" type="datetime" displayType="system" />
 		<field name="modifiedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri"  displayType="system" />
 		<field name="outcome" type="an..50" displayType="system" />
 		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
+		<field name="integrated" type="boolean" label="emf.integrated.label" displayType="system" />
 		<field name="uri" type="an..50" displayType="system" />
 		<field name="hasRevision" type="uri" displayType="system" />
 		<field name="isRevisionOf" type="uri" displayType="system" />
@@ -33,76 +39,90 @@
 		<field name="nextRevision" type="uri" displayType="system" />
 		<field name="previousRevision" type="uri" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
     </fields>
 	
 	<regions>
 		<region id="systemData" label="nga.systemInformation.region.label" >
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL3" order="210" label="nga.type.label" tooltip="nga.type.tooltip" dmsType="emf:type" uri="emf:type" ><value>savedSearch</value></field>  
+				<field name="type" type="an..50" displayType="readonly" codelist="CL7" order="210" label="nga.type.label" tooltip="nga.type.tooltip" uri="emf:type" ><value>savedSearch</value></field>  
 				<field name="identifier" type="an..50" displayType="readOnly" order="215" label="nga.identifier.label" tooltip="nga.identifier.tooltip" rnc="${eval(SS${seq({+imgSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50" displayType="readOnly" codelist="CL8" order="222" label="nga.status.label" tooltip="nga.status.tooltip"  previewEmpty="false" dmsType="emf:status" uri="emf:status" >
+				<field name="status" type="an..50" displayType="readOnly" codelist="CL120" order="222" label="nga.status.label" tooltip="nga.status.tooltip" previewEmpty="false" uri="emf:status" >
 					<value>INIT</value>
 				</field>
-				<field name="emf:version" type="an..10" displayType="readOnly" order="225" label="savedSearch.version" tooltip="nga.version.tooltip" dmsType="FORBIDDEN" uri="emf:version"/> 
+				<field name="emf:version" type="an..10" displayType="readOnly" order="225" label="object.version" tooltip="nga.version.tooltip" uri="emf:version"/> 
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly" order="230" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" order="235" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip"  dmsType="-cm:creator" uri="emf:createdBy" >
+				<field name="createdOn" type="dateTime" displayType="readOnly" order="230" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" order="235" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" uri="emf:createdBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" order="240" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" previewEmpty="false" dmsType="-cm:modified"  uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" order="245" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
+				<field name="modifiedOn" type="datetime" displayType="readOnly" order="240" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readOnly" order="245" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" previewEmpty="false" uri="emf:modifiedBy">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" displayType="editable" order="285" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" mandatory="false" multiValued="true" previewEmpty="false" uri="emf:hasThumbnail" >
+				<field name="hasThumbnail" type="uri" displayType="readOnly" order="285" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasThumbnail" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" order="300" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" mandatory="false" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess,emf:User</control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" order="305" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" mandatory="false" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivit,emf:BusinessProcessy</control-param>
-					</control>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" mandatory="false" displayType="readOnly" order="308" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="parentOf" type="uri" displayType="readOnly" order="300" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" mandatory="false" displayType="readOnly" order="310" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasParent" type="uri" displayType="readOnly" order="305" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
+				<field name="emf:hasTemplate" type="uri" order="310" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>				
+				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" order="315" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" order="320" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
 				</field>
 			</fields>
 		</region>	
 	</regions>
 	
  	<transitions>
-	    <transition id="editDetails" order="10" />
-		<transition id="open" order="12" />
-		<!-- not used, only lable is change as the actions are visible in manage actions per roles -->
-		<transition id="print" order="18" label="nga.print.label"/>
-		<transition id="exportPDF" order="20" label="nga.exportPDF.label"/> 
-		<transition id="exportWord" order="22" label="nga.exportWord.label"/>
-		<!-- ******************************************************************** -->		
-		<transition id="printTab" order="21" label="print.label" />
-		<transition id="exportTabPDF" order="22" label="exportPDF.label"/>
-		<transition id="exportTabWord" order="25" label="exportWord.label" />
-		<transition id="addThumbnail" order="50" />
-		<transition id="saveAsTemplate" order="55" />
-        <transition id="managePermissions" order="60" />
-        <transition id="delete" order="65" confirmation="deleteCS.confirm" />
+	    <transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="open" order="15" />
+		
+		<group id="add" order="20" label="add.group.label" type="menu" />
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="25" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		
+		<transition id="printTab" order="30" />
+	
+		<group id="template" order="35" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip ="nga.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="nga.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="40" label="more.group.label" type="menu" />
+        <transition id="managePermissions" group="more" />
+		
+        <transition id="delete" order="100" confirmation="deleteCS.confirm" />
     </transitions>
 	
 	<stateTransitions>
@@ -111,12 +131,14 @@
         <stateTransition from="APPROVED" transition="editDetails" to="APPROVED" />
         <stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED" />
         <stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />		
 		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
-        <stateTransition from="APPROVED" transition="delete" to="DELETED" />
+        <stateTransition from="APPROVED" transition="delete" to="APPROVED" />
         <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="open" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="updateTemplate" to="APPROVED" />
     </stateTransitions>
 	
     <labels>
@@ -137,7 +159,7 @@
                     </span>
 					<span class="tooltip-row">
                         <label>System modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
                     </span>
 				</span>
 			)})}]]></value>
@@ -160,7 +182,7 @@
 					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 				)}
 				<br />
-				Last modified by:&nbsp;<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>,&nbsp;${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}
+				Last modified by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>,&nbsp;${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}
 				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
             </span>)}]]></value>
 		</label>
@@ -184,11 +206,10 @@
         </label>
 		 <label id="SAVED_SEARCH_BREADCRUMB_HEADER_NGA">
             <value lang="en"><![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")}}
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
             <span ><img src="${thumbnailUri(16)}"/></span>
             <span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}>
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-property="title">${get([title])}</span>
 				</a>

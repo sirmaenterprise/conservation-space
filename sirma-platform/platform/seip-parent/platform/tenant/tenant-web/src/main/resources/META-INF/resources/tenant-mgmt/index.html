@@ -1,0 +1,122 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Tenant Management</title>
+<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="./css/select2.min.css">
+<link rel="stylesheet" type="text/css"
+	href="./css/select2-bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="./css/custom.css">
+<script src="./js/jquery.js"></script>
+<script src="./js/bootstrap.min.js"></script>
+<script src="./js/lodash.js"></script>
+<script src="./js/select2.min.js"></script>
+<script src="./js/common.js"></script>
+<script src="./js/create.js"></script>
+</head>
+<body style="background-color: #f9f9f9; color: #222; font-size: 12px;">
+	<div class="container">
+		<nav class="navbar navbar-inverse tenant-bar">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<span><a class="navbar-brand" href="#" id="menu-create-tenant">Create new tenant</a></span>
+					<span><a class="navbar-brand" href="#" id="menu-update-tenant">Update tenant</a> </span>
+					<span><a class="navbar-brand" href="#" id="menu-manage-tenant">Manage tenants</a> </span>
+				</div>
+
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#" id="logout"><span
+							class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+				</ul>
+			</div>
+		</nav>
+		<div class="init-form">
+			<form id="data" method="POST" enctype="multipart/form-data"
+				action="javascript:;">
+				<div id="form-data" class="well">
+					<div class="row">
+						<div id="default-properties" class="col-md-6"></div>
+						<div id="additional-properties" class="col-md-6">
+							<div class="panel panel-default">
+								<div role="button" class="panel-heading collapsed" role="tab"
+									id="headingOne" data-toggle="collapse" data-parent="#accordion"
+									href="#collapseOne" aria-expanded="true"
+									aria-controls="collapseOne">
+									<span class="panel-title">Additional Properties</span>
+								</div>
+								<div id="collapseOne" class="panel-collapse collapse"
+									role="tabpanel" aria-labelledby="headingOne">
+									<div class="panel-body  scrollable-menu well"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row col-md-12">
+						<h4>Please choose tenant model and definitions:</h4>
+						<span class="label label-info">(You can only select one of
+							the below tabs. If you select Base models, the custom ones will
+							be ignored.)</span>
+
+						<ul class="nav nav-tabs nav-justified">
+							<li id="base-models" role="presentation" class="active"><a
+								href="#">Base Models</a></li>
+							<li id="custom-models" role="presentation"><a href="#">Custom
+									Models</a></li>
+						</ul>
+						<div id="base-models-form" class="well models">
+							<div class="dropdown">
+								<select class="form-control" id="base-models-select"
+									multiple="multiple">
+								</select>
+							</div>
+						</div>
+						<div id="custom-models-form" class="well models"
+							style="display: none;">
+							<div class="row">
+								<label for="DMSInitialization_attachment_definitions"
+									class="col-md-3">Definitions Bundle</label> <input type="file"
+									id="dmsBundle" class="col-md-3"
+									accept=".zip, application/zip, application/octet-stream"
+									name="DMSInitialization_attachment_definitions"
+									value="Definitions.zip"></input> <span
+									class="label label-info col-md-6">The definitions bundle
+									must be compressed in a .zip file format</span>
+							</div>
+							<div class="row">
+								<label for="SemanticDbInitialization_attachment_patches"
+									class="col-md-3">Ontology</label> <input type="file"
+									name="SemanticDbInitialization_attachment_patches"
+									class="col-md-3" value="Patches.zip"></input>
+							</div>
+						</div>
+					</div>
+					<div>
+						<input id="resetbutton" TYPE="reset"
+							class="btn btn-default btn-md" style="cursor: pointer;"
+							value="Reset Tenant Parameters"></input> <input TYPE="submit"
+							class="btn btn-primary btn-md" style="cursor: pointer;"
+							value="Create Tenant" id="createTenantButton"></input>
+					</div>
+			</form>
+		</div>
+	</div>
+	<div id="tenantInitModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Tenant Initialization</h4>
+				</div>
+				<div class="modal-body">
+					<p id="tenantInitStatus"></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

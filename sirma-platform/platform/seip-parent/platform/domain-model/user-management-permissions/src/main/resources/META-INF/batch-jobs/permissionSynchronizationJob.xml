@@ -1,0 +1,17 @@
+<job id="permissionSynchronizationJob" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+    <listeners>
+        <!-- the security listener should be always last, otherwise if other listener depends on the security context
+         it will be cleared when called
+         -->
+        <listener ref="jobCleanupListener" />
+        <listener ref="securityJobListener"/>
+    </listeners>
+
+    <step id="process">
+        <chunk item-count="#{jobParameters['chunk_size']}">
+            <reader ref="permissionSyncInstanceReader"/>
+            <processor ref="calculateInstancePermissionProcessor"/>
+            <writer ref="instancePermissionWriter"/>
+        </chunk>
+    </step>
+</job>

@@ -1,0 +1,25 @@
+<div class="form-group input-datetime-wrapper">
+  <label class="field-label" for="{{ ::datetime.fieldViewModel.identifier }}">
+    {{ ::datetime.fieldViewModel.label }}
+    <sup class="mandatory-mark">*</sup>
+  </label>
+  <div class="form-field-wrapper">
+    <seip-hint hint-text="::datetime.fieldViewModel.tooltip"
+               hint-class="::datetime.widgetConfig.hintClass"
+               hint-visible="::datetime.showTooltip()"></seip-hint>
+    <seip-datetime-picker id="{{ ::datetime.fieldViewModel.identifier }}"
+                          name="{{ ::datetime.fieldViewModel.identifier }}"
+                          class="form-field edit-field datetime"
+                          ng-model="datetime.validationModel[datetime.fieldViewModel.identifier].value"
+                          form="datetime.form"
+                          config="::datetime.config"></seip-datetime-picker>
+    <span id="{{ ::datetime.fieldViewModel.identifier }}"
+          class="form-field preview-field datetime">{{ ::datetime.getFormattedDate() }}</span>
+    <span id="{{ ::datetime.fieldViewModel.identifier }}"
+          class="form-field print-field datetime">{{ ::datetime.getFormattedDate() }}</span>
+    <seip-validation-message
+        validation-model="::datetime.validationModel[datetime.fieldViewModel.identifier]"
+        field-ctrl="::datetime.form[datetime.fieldViewModel.identifier]"
+        view-model="::datetime.fieldViewModel"></seip-validation-message>
+  </div>
+</div>

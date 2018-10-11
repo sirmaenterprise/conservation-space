@@ -1,0 +1,23 @@
+diff --git a/src/common/lib/lazyload/jquery.lazyload.js b/src/common/lib/lazyload/jquery.lazyload.js
+index 6beb04c..28f1c24 100644
+--- a/src/common/lib/lazyload/jquery.lazyload.js
++++ b/src/common/lib/lazyload/jquery.lazyload.js
+@@ -104,6 +104,10 @@
+
+             self.loaded = false;
+
++          if ($self.is("img")) {
++            $self.addClass("lazyload-placeholder");
++          }
++
+             /* If no src attribute given use data:uri. */
+             if ($self.is("img") && ($self.attr("src") === undefined || $self.attr("src") === false)) {
+               $self.attr("src", settings.placeholder);
+@@ -131,6 +135,7 @@
+
+                     $("<img />")
+                         .one("load", function() {
++                            $self.removeClass("lazyload-placeholder");
+                             var original = $self.attr("data-" + settings.data_attribute);
+                             $self.hide();
+                             if ($self.is("img")) {

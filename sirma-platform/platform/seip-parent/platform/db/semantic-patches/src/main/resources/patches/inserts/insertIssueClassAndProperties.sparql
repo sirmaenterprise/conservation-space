@@ -1,0 +1,66 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+
+insert data {
+
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+    
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Issue
+
+		    emf:Issue rdf:type owl:Class ;
+            rdfs:label "Issue"@en ,
+                       "Проблем"@bg ;
+			rdfs:subClassOf emf:DomainObject ;
+			emf:isSearchable "true"^^xsd:boolean ;
+			emf:isCreateable "true"^^xsd:boolean ;
+			emf:isUploadable "false"^^xsd:boolean ;
+			emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+			dc:creator "Anna Radeva"@en ;
+			skos:definition "A subject or problem that people are thinking and talking about."@en ;
+			emf:definitionId "objectinstance" ;
+			sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+			sec:allowInheritLibraryPermissions "true"^^xsd:boolean .		
+            
+        ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#issueType
+			emf:issueType rdf:type owl:DatatypeProperty ;
+			rdfs:label "Issue Type"@en ,
+					   "Вид Проблем"@bg ;
+			skos:definition "Subtype for Issue. An issue could represent a bug, a task, a helpdesk ticket, a leave request form, a question, etc."@en ;
+			rdfs:domain emf:Issue ;
+			dc:creator "Anna Radeva"@en .	
+
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasReporter
+
+			emf:hasReporter rdf:type owl:ObjectProperty ;
+			rdfs:label "Has Reporter"@en ,
+                       "Докладван от"@bg ;
+			emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Anna Radeva"@en ;
+			skos:definition "Specifies who is reporter to an Object"@en ;
+			rdfs:range ptop:Agent ;
+			rdfs:subPropertyOf emf:hasAgent ;
+			rdfs:domain ptop:Entity .
+				
+				
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isReporterOf
+
+			emf:isReporterOf rdf:type owl:ObjectProperty ;
+            rdfs:label "Is Reporter Of"@en ,
+                       "Докладва"@bg ;
+            emf:isSearchable "true"^^xsd:boolean ;
+			dc:creator "Anna Radeva" ;
+			skos:definition "Specifies the Object the user is reporter to"@en ;
+			owl:inverseOf emf:hasReporter ;
+			rdfs:range ptop:Entity ;
+			rdfs:subPropertyOf emf:isAgentOf ;
+			rdfs:domain ptop:Agent .				
+						  
+    }
+}

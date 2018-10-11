@@ -1,0 +1,46 @@
+<div class="save-as-template-dialog">
+
+  <div class="form-group">
+    <label>{{::'idoc.template.type' | translate}}</label>
+    <seip-object-type-select class="template-select" ng-model="templateDataPanel.config.type"
+                             config="::templateDataPanel.objectTypeConfig"></seip-object-type-select>
+  </div>
+
+  <div class="form-group" ng-class="{ 'has-error': !templateDataPanel.titleValid }">
+    <label>{{::'idoc.template.title' | translate}} </label>
+    <input class="form-control template-title" type="text"
+           ng-model="templateDataPanel.title"
+           ng-model-options="::{ debounce: { 'default': 500, 'blur': 0 } }"
+           ng-change="templateDataPanel.onTitleChanged()" />
+     <span class="template-title-message help-block" ng-if="!templateDataPanel.titleValid">{{::'idoc.template.title.message' | translate}}</span>
+  </div>
+
+  <label class="checkbox template-primary">
+    {{::'idoc.template.button.primary' | translate}}
+    <input type="checkbox" value="primary" name="primary"
+           ng-model="templateDataPanel.config.template.primary"/>
+    <i></i>
+  </label>
+  <hr>
+
+  <div class="form-group template-purpose-form">
+    <label>{{::'idoc.template.purpose' | translate}} </label>
+    <div class="purpose-choices">
+      <label class="radio" ng-class="{'state-disabled' : templateDataPanel.config.isPurposeDisabled}">
+        <input type="radio" name="purpose" value="creatable"
+               ng-model='templateDataPanel.config.template.purpose'
+               ng-disabled="templateDataPanel.config.isPurposeDisabled">
+        {{::'idoc.template.creatable' | translate}}
+        <i></i>
+      </label>
+      <label class="radio" ng-class="{'state-disabled' : templateDataPanel.config.isPurposeDisabled}">
+        <input type="radio" name="purpose" value="uploadable"
+               ng-model='templateDataPanel.config.template.purpose'
+               ng-disabled="templateDataPanel.config.isPurposeDisabled">
+        {{::'idoc.template.uploadable' | translate}}
+        <i></i>
+      </label>
+    </div>
+  </div>
+
+</div>

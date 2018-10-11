@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<definition id="yuldt210009" type="document" parentId="yulDocument" > <!-- Service Request -->
+	<regions>
+		<region id="generalData" >
+			<fields>
+				<field name="purpose" type="an..20" mandatory="true" displayType="editable" codelist="CL264" order="2" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="yul:purpose" />
+				<field name="serviceProvider" type="an..180" displayType="editable" label="yul.serviceProvider.label" tooltip="yul.serviceProvider.tooltip" uri="yul:serviceProvider" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264008')</condition>
+					<condition id="mandatoryFields" renderAs="MANDATORY">[purpose] IN ('YUL264008')</condition>
+				</field>
+				<field name="requestedBy" type="uri" displayType="editable" label="yul.requestedBy.label" tooltip="yul.requestedBy.tooltip" uri="yul:requestedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
+					</control>
+					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264008')</condition>
+					<condition id="mandatoryFields" renderAs="MANDATORY">[purpose] IN ('YUL264008')</condition>
+				</field>
+				<field name="yaleProvider" type="an..20" displayType="editable" codelist="CL268" label="yul.yaleProvider.label" tooltip="yul.yaleProvider.tooltip" uri="yul:yaleProvider" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264008')</condition>
+					<condition id="mandatoryFields" renderAs="MANDATORY">[purpose] IN ('YUL264008')</condition>
+				</field>
+				<field name="otherProvider" type="an..180" displayType="editable" label="yul.otherProvider.label" tooltip="yul.otherProvider.tooltip" uri="yul:otherProvider" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264008')</condition>
+					<condition id="mandatoryFields" renderAs="MANDATORY">[purpose] IN ('YUL264008')</condition>
+				</field>
+			</fields>
+		</region>
+		<region id="systemData" >
+			<fields>
+				<field name="type" codelist="CL6">
+					<value>YULDT210009</value>
+					<control id="RELATED_FIELDS">
+						<control-param id="fieldsToRerender" name="RERENDER">purpose</control-param>
+						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+</definition>

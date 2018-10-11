@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<definition id="savedSearch" parentId="savedSearchBase" type="object">
+	<configuration>
+		<fields>
+			<field name="existingInContext" type="an..50" codelist="CL26" uri="emf:existingInContext">
+				<value>WITHOUT_CONTEXT</value>
+			</field>
+		</fields>
+	</configuration>
+	<fields>
+		<!-- headers and tooltip -->
+		<field name="default_header" type="ANY" label="SAVED_SEARCH_DEFAULT_HEADER_CORE"  />
+		<field name="compact_header" type="an..4096" label="SAVED_SEARCH_COMPACT_HEADER_CORE"  />
+		<field name="breadcrumb_header" type="an..4096" label="SAVED_SEARCH_BREADCRUMB_HEADER_CORE" />
+		<field name="tooltip_header" type="ANY" label="SAVED_SEARCH_TOOLTIP_HEADER_CORE" />
+
+		<field name="type" 	type="an..40" displayType="system" />
+		<field name="title" type="an..1000" displayType="system" />
+		<field name="description" type="an..1024" displayType="system" />
+		<field name="identifier" type="an..50"  displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="status"  type="an..35" displayType="system" />
+		<field name="createdOn" type="dateTime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system" />
+		<field name="modifiedOn" type="datetime" displayType="system" />
+		<field name="modifiedBy" type="uri" displayType="system" />
+		<field name="outcome" type="an..50" displayType="system" />
+		<field name="completedOn" type="datetime" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri"  displayType="system" />
+		<field name="integrated" type="boolean" displayType="system" />
+		<field name="uri" type="an..50" displayType="system" />
+		<field name="hasRevision" type="uri" displayType="system" />
+		<field name="isRevisionOf" type="uri" displayType="system" />
+		<field name="lastPublishedRevision" type="uri" displayType="system" />
+		<field name="lastRevision" type="uri" displayType="system" />
+		<field name="nextRevision" type="uri" displayType="system" />
+		<field name="previousRevision" type="uri" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+	</fields>
+	<regions>
+		<region id="generalData" order="20" displayType="editable" label="core.generalData.region.label">
+			<fields>
+				<field name="title" type="an..1000" mandatory="true" displayType="editable" label="title.label" tooltip="core.title.tooltip" uri="dcterms:title" unique="true" />
+				<field name="description" type="an..1024" displayType="editable" label="description.label" tooltip="core.description.tooltip" uri="dcterms:description" />
+			</fields>
+		</region>	
+		<region id="systemData" label="core.systemData.region.label" >
+			<fields>
+				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="core.type.label" tooltip="core.type.tooltip" uri="emf:type" ><value>savedSearch</value></field>  
+				<field name="identifier" type="an..50" displayType="readOnly" label="core.identifier.label" tooltip="core.identifier.tooltip" rnc="${eval(SS${seq({+imgSequence})})}" uri="dcterms:identifier"/>
+				<field name="status" type="an..50" displayType="readOnly" codelist="CL120" label="core.status.label" tooltip="core.status.tooltip" uri="emf:status" >
+					<value>INIT</value>
+				</field>
+				<field name="emf:version" type="an..10" displayType="readOnly" label="core.version.label" tooltip="core.version.tooltip" uri="emf:version"/> 
+				<!-- object properties (relationships) -->
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="core.createdOn.label" tooltip="core.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="core.createdBy.label" tooltip="core.createdBy.tooltip" uri="emf:createdBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="datetime" displayType="readOnly" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" uri="emf:modifiedBy">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" displayType="readonly" label="lockedBy" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="hasThumbnail" type="uri" displayType="readOnly" label="core.hasThumbnail.label" tooltip="core.hasThumbnail.tooltip" uri="emf:hasThumbnail" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readOnly" label="core.parentOf.label" tooltip="core.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" displayType="readOnly" label="core.hasParent.label" tooltip="core.hasParent.tooltip" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="core.partOf.label" tooltip="core.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="core.hasChild.label" tooltip="core.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+			</fields>
+		</region>	
+	</regions>
+
+	<transitions>
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="open" order="15" />
+		
+		<group id="add" order="25" label="add.group.label" type="menu" />		
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		
+		<group id="print" order="35" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+
+		<group id="template" order="36" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="core.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="core.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="40" label="more.group.label" type="menu" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="45" tooltip="core.delete.tooltip" />
+	</transitions>
+	
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="APPROVED" />
+
+		<stateTransition from="APPROVED" transition="editDetails" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="updateTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />		
+		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="open" to="APPROVED" />
+		
+		<stateTransition from="APPROVED" transition="delete" to="APPROVED" />
+	</stateTransitions>
+	<labels>
+		<label id="SAVED_SEARCH_TOOLTIP_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+                        <label>System modified by: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+					<span class="tooltip-row">
+                        <label>System modified on: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
+                    </span>
+				</span>
+			)})}]]></value>
+		</label>
+		<label id="SAVED_SEARCH_DEFAULT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span data-property="type">${CL([type])}</span>
+					<br />
+					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>
+					</a>&nbsp;
+					Last&nbsp;modified&nbsp;by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>, ${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]>
+			</value>
+		</label>
+		<label id="SAVED_SEARCH_COMPACT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+					<span>
+						<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="title">${get([title])}</span>
+						</a>
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}
+					</span>
+				</span>)}]]>
+			</value>
+		</label>
+		<label id="SAVED_SEARCH_BREADCRUMB_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>)}]]>
+			</value>
+		</label>
+	</labels>
+</definition>

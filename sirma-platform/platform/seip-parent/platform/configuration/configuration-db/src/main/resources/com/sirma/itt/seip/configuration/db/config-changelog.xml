@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="conf-1.10.1-1" author="bbonev">
+		<comment>Add configurations table</comment>
+		<createTable tableName="seip_configurations">
+			<column name="id" type="varchar(128)">
+				<constraints nullable="false" />
+			</column>
+			<column name="tenant_id" type="varchar(128)">
+				<constraints nullable="true" />
+			</column>
+			<column name="config_value" type="varchar(4098)">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		<addPrimaryKey tableName="seip_configurations" columnNames="id, tenant_id" constraintName="pk_configs_id_tid"/>
+	</changeSet>
+
+	<changeSet id="conf-1.21.0-1" author="kpenev">
+    	<comment>Update configurations - change uri to id</comment>
+    	<sql endDelimiter=";">
+			update seip_configurations set config_value = replace(config_value, 'uri', 'id')  where id in ('solr.runtime.dashlet.all.fl', 'solr.search.ftsearch.basic.fq', 'solr.runtime.links.fl', 'solr.search.ftsearch.query');
+			update seip_configurations set config_value = replace(config_value, 'default_header:* AND ', '')  where id = 'solr.search.ftsearch.basic.fq';
+			delete from seip_configurations where id = 'solr.runtime.fq.write.permissions';
+			delete from seip_configurations where id = 'solr.runtime.fq.permissions';
+		</sql>
+		<sql endDelimiter=";">
+			update seip_configurations set config_value = replace(config_value, 'compact_header,', '')  where id in ('solr.runtime.dashlet.all.fl', 'solr.search.ftsearch.basic.fq', 'solr.runtime.links.fl', 'solr.search.ftsearch.query');
+		</sql>
+		<sql endDelimiter=";">
+			update seip_configurations set config_value = replace(config_value, 'breadcrumb_header,', '')  where id in ('solr.runtime.dashlet.all.fl', 'solr.search.ftsearch.basic.fq', 'solr.runtime.links.fl', 'solr.search.ftsearch.query');
+		</sql>
+		<sql endDelimiter=";">
+			update seip_configurations set config_value = replace(config_value, 'default_header,', '')  where id in ('solr.runtime.dashlet.all.fl', 'solr.search.ftsearch.basic.fq', 'solr.runtime.links.fl', 'solr.search.ftsearch.query');
+		</sql>
+   	</changeSet>
+
+   	<changeSet id="conf-1.21.0-2" author="kpenev">
+    	<comment>Update configurations - remove _sort_ prefixes form configurations</comment>
+   		<sql endDelimiter=";">
+			update seip_configurations set config_value = replace(config_value, '_sort_', '')  where id in ('solr.runtime.dashlet.all.fl', 'solr.search.ftsearch.basic.fq', 'solr.runtime.links.fl', 'solr.search.ftsearch.query');
+		</sql>
+	</changeSet>
+
+   	<changeSet id="conf-1.23.0-1" author="bbonev">
+    	<comment>Fix cache configurations scope. The cache provider should be system configuration</comment>
+   		<sql endDelimiter=";">
+   			delete from seip_configurations where id = 'cache.provider.class';
+			insert into seip_configurations(id, tenant_id, config_value) values('cache.provider.class', 'system.tenant', 'com.sirma.itt.cmf.cache.InfinispanCacheProvider');
+		</sql>
+	</changeSet>
+
+	<changeSet id="conf-2.4.0-1" author="akunchev">
+		<preConditions onFail="MARK_RAN" onFailMessage="Version content handling date already defined">
+			<sqlCheck expectedResult="0">select count(*) from seip_configurations where id='version.content.handling.enabled.date';</sqlCheck>
+		</preConditions>
+    	<comment>Add temporary configuration which will be the date, when the new content handling for the version is added to the system</comment>
+   		<sql endDelimiter=";">
+			INSERT INTO seip_configurations (id, tenant_id, config_value) VALUES ('version.content.handling.enabled.date', 'system.tenant', TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DDThh:mm:ssZ'));
+		</sql>
+	</changeSet>
+
+	<changeSet id="conf-2.6.0-1" author="akunchev">
+		<preConditions onFail="MARK_RAN" onFailMessage="Date for enabling revert operation is already defined">
+			<sqlCheck expectedResult="0">select count(*) from seip_configurations where id='version.revert.operation.enabled.date';</sqlCheck>
+		</preConditions>
+    	<comment>Adds configuration which will be the date, when the revert functionality is added to the system. It is used to filter the revert operation for older version, because there are few issues with them</comment>
+   		<sql endDelimiter=";">
+			INSERT INTO seip_configurations (id, tenant_id, config_value) VALUES ('version.revert.operation.enabled.date', 'system.tenant', TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DDThh:mm:ssZ'));
+		</sql>
+	</changeSet>
+
+	<changeSet id="conf-2.6.0-2" author="akunchev">
+		<preConditions onFail="MARK_RAN" onFailMessage="Date for enabling revert operation is not defined">
+			<sqlCheck expectedResult="1">select count(*) from seip_configurations where id='version.revert.operation.enabled.date';</sqlCheck>
+		</preConditions>
+    	<comment>Updates the configuration for revert with correct time, because the insert does not get it in 00-23 time zone, but 01-12 which causes unwanted behaviour for the functionality</comment>
+   		<sql endDelimiter=";">
+			UPDATE seip_configurations SET config_value = TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') WHERE id='version.revert.operation.enabled.date';
+		</sql>
+	</changeSet>
+	<changeSet id="conf-2.7.0-1-update" author="kpenev">
+		<preConditions onFail="MARK_RAN" onFailMessage="There are no FTS configurations that contains the field _all_text">
+			<sqlCheck expectedResult="1">SELECT CASE WHEN COUNT(1) > 0 THEN 1 ELSE 0 END AS count from seip_configurations WHERE id = 'solr.search.ftsearch.query' and config_value like '%_all_text:({0})%' limit 1</sqlCheck>
+		</preConditions>
+    	<comment>Remove the field _all_text from FTS search configuration. This field was originally added by solr connector, but with GraphDB 8 it is not generated anymore</comment>
+   		<sql endDelimiter=";">
+			UPDATE public.seip_configurations SET config_value=replace(config_value, '_all_text:({0})', 'title:({0}) OR content:({0})') WHERE id = 'solr.search.ftsearch.query' and config_value like '%_all_text:({0})%';
+		</sql>
+	</changeSet>
+
+    <changeSet id="conf-2.10.0-1" author="mradkov">
+        <comment>Update the ranking query fields configuration with the correct default field multipliers.</comment>
+        <sql endDelimiter=";">
+            UPDATE public.seip_configurations SET config_value=replace(config_value, 'description^10', 'description^8')
+            WHERE id = 'search.solr.ranking.qf' and config_value like '%description^10%';
+        </sql>
+        <sql endDelimiter=";">
+            UPDATE public.seip_configurations SET config_value=replace(config_value, 'identifier^8', 'identifier^10')
+            WHERE id = 'search.solr.ranking.qf' and config_value like '%identifier^8%';
+        </sql>
+    </changeSet>
+    
+    <changeSet id="conf-2.12.0-1" author="smustafov">
+		<preConditions onFail="MARK_RAN" onFailMessage="Username validation pattern already updated">
+			<sqlCheck expectedResult="1">select count(*) from seip_configurations where id='validation.userName' and config_value =
+				'^[a-zA-Z0-9]+(?:[\-\.][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,20})?$';
+			</sqlCheck>
+		</preConditions>
+		<comment>Update username validation pattern to support underscore</comment>
+		<sql endDelimiter=";">
+			update seip_configurations set
+			config_value = '^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,20})?$'
+			where id = 'validation.userName';
+		</sql>
+	</changeSet>
+
+	<changeSet id="conf-2.16.0-1" author="tdossev">
+		<comment>Fix spelling mistake in property "application.name"</comment>
+		<sql endDelimiter=";">
+			UPDATE seip_configurations SET id='application.name' WHERE id='appliction.name';
+		</sql>
+	</changeSet>
+	
+	<changeSet id="conf-2.18.0-1" author="smustafov">
+		<comment>Rename session.timeout.redirect to session.timeout</comment>
+		<sql endDelimiter=";">
+			UPDATE seip_configurations SET id='session.timeout' WHERE id='session.timeout.redirect';
+		</sql>
+	</changeSet>
+
+	<changeSet id="conf-2.22.0-1" author="btonchev">
+		<comment>Update the ranking query fields configuration with the correct default field.</comment>
+		<sql endDelimiter=";">
+			UPDATE public.seip_configurations SET config_value='altTitle^50 title^10 identifier^10 description^8 fileName^8 content^5  ocrContent^5'
+			WHERE id = 'search.solr.ranking.qf' and config_value = 'altTitle^50 title^10 identifier^10 description^8 fileName^8 content^5';
+		</sql>
+		<sql endDelimiter=";">
+			UPDATE public.seip_configurations SET config_value='altTitle~3 title~3 identifier~2 description~5 fileName~5 content~10 ocrContent~10'
+			WHERE id = 'search.solr.ranking.pf' and config_value = 'altTitle~3 title~3 identifier~2 description~5 fileName~5 content~10';
+		</sql>
+	</changeSet>
+	<changeSet id="conf-2.22.0-2" author="btonchev">
+		<comment>Update the regular expression pattern used to escape Solr specific symbols in FTS search terms.</comment>
+		<sql endDelimiter=";">
+			UPDATE public.seip_configurations SET config_value='([\^\[\]\{\}\(\)\!\~\+\-\&amp;\|\"\:\\])'
+			WHERE id = 'search.solr.term.escape.regex';
+		</sql>
+	</changeSet>
+	<changeSet id="conf-2.22.0-3" author="btonchev">
+		<comment>Update the regular expression pattern used to escape Solr specific symbols in FTS search terms.</comment>
+		<sql endDelimiter=";">
+			UPDATE public.seip_configurations SET config_value='([\^\[\]\{\}\(\)\!\~\+\-\&amp;\|\:])'
+			WHERE id = 'search.solr.term.escape.regex';
+		</sql>
+	</changeSet>
+
+</databaseChangeLog>

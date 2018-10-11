@@ -1,0 +1,37 @@
+#
+# Sesame configuration template for an OWLIM-Enterprise worker repository
+#
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rep: <http://www.openrdf.org/config/repository#>.
+@prefix sr: <http://www.openrdf.org/config/repository/sail#>.
+@prefix sail: <http://www.openrdf.org/config/sail#>.
+@prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+
+[] a rep:Repository ;
+    rep:repositoryID "{repositoryId}" ;
+    rdfs:label "{label}" ;
+    rep:repositoryImpl [
+        rep:repositoryType "owlim:ReplicationClusterWorker" ;
+        rep:delegate [
+            rep:repositoryType "owlim:MonitorRepository" ;
+            sr:sailImpl [
+                sail:sailType "owlimClusterWorker:Sail" ;
+                owlim:entity-index-size {entity-index-size} ; 
+                owlim:entity-id-size  "32" ;
+            	owlim:repository-type "file-repository" ;
+                owlim:ruleset "owl-horst-optimized" ;
+                owlim:storage-folder "storage" ;
+                owlim:enablePredicateList "false" ;
+                
+                owlim:in-memory-literal-properties "true" ;
+                owlim:enable-literal-index "true" ;
+                owlim:check-for-inconsistencies "false" ;
+                owlim:disable-sameAs  "false" ;
+                owlim:query-timeout  "0" ;
+                owlim:query-limit-results  "0" ;
+                owlim:throw-QueryEvaluationException-on-timeout "false" ;
+                owlim:read-only "false" ;
+    			owlim:nonInterpretablePredicates "{%Non-interpretable predicates|http://www.w3.org/2000/01/rdf-schema#label;http://www.w3.org/1999/02/22-rdf-syntax-ns#type;http://www.ontotext.com/owlim/ces#gazetteerConfig;http://www.ontotext.com/owlim/ces#metadataConfig%}" ;
+            ]
+        ]
+    ].

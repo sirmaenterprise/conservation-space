@@ -1,0 +1,66 @@
+{
+    "operation" : "composite",
+    "steps" : [
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "in-vm-acceptor" : "local-broker"
+                }
+            ],
+            "server-id" : 0
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "http-acceptor" : "http-acceptor-throughput"
+                }
+            ],
+            "http-listener" : "default",
+            "param" : {
+                "direct-deliver" : false,
+                "batch-delay" : 50
+            }
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "messaging"
+                }
+            ],
+            "port" : 5445
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "remote-acceptor" : "netty"
+                }
+            ],
+            "socket-binding" : "messaging"
+        }
+    ]
+}

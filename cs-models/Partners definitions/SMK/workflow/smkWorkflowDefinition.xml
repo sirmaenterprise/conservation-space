@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="smkWorkflow" parentId="workflowBase" isAbstract="true" type="workflow">
+	<fields>
+		<!-- headers and tooltip -->
+		<field name="default_header" type="ANY" label="WORKFLOW_DEFAULT_HEADER_SMK" />
+		<field name="compact_header" type="an..4096" label="WORKFLOW_COMPACT_HEADER_SMK" />
+		<field name="breadcrumb_header" type="an..4096" label="WORKFLOW_BREADCRUMB_HEADER_SMK" />
+		<field name="tooltip_header" type="ANY" label="WORKFLOW_TOOLTIP_HEADER_SMK" />
+
+		<field name="identifier" displayType="system" />
+		<field name="type" displayType="system" />
+		<field name="title" type="an..1024" mandatory="false" displayType="system" >
+			<control id="DEFAULT_VALUE_PATTERN">
+				<control-param type="default_value_pattern" id="template" name="template">$[emf:type]</control-param>
+			</control>
+		</field>
+		<field name="status" displayType="system" />
+		<field name="description" displayType="system" />
+		<field name="createdOn" displayType="system" />
+		<field name="createdBy" displayType="system" />
+		<field name="modifiedOn" displayType="system" />
+		<field name="modifiedBy" displayType="system" />
+		<field name="emf:version" displayType="system" />
+		<field name="emf:revisionNumber" displayType="system" />
+		<field name="assignee" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri" displayType="system" />
+		<field name="plannedEndDate" type="date" displayType="system" />
+		<field name="plannedStartDate" type="date" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<!-- workflow fields -->
+		<field name="priority" displayType="system" />
+		<field name="stopReason" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+	</fields>
+	<regions>
+		<region id="generalWorkflowInformation" order="10" displayType="editable" label="smkWorkflow.generalWorkflowInformation.region.label">
+			<fields>
+				<field name="type" type="an..50" order="110" codelist="CL7" label="smk.type.label" tooltip="smk.type.tooltip" displayType="readonly" >
+					<value>FC236004</value>
+				</field>
+				<field name="department" type="an..50" mandatory="true" codelist="CL245" order="111" label="smk.departmentName.label" tooltip="smk.department.tooltip" multiValued="true" displayType="editable" previewEmpty="false" uri="emf:departmentName" >
+					 <control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
+					</control>
+				</field>	
+				<field name="description" type="an..1000" order="112" label="smk.description.label" tooltip="smk.description.tooltip" displayType="editable"  previewEmpty="false" uri="dcterms:description" />
+				<field name="priority" type="an..20" displayType="editable" codelist="CL29" order="116" label="priority.label" tooltip="smk.priority.tooltip" previewEmpty="false" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority">
+					<value>0006-000084</value>
+				</field>
+				<field name="plannedStartDate" type="date" displayType="editable" order="117" label="smk.plannedStartDate.label" tooltip="smk.plannedStartDate.tooltip" uri="emf:plannedStartDate">
+					<condition id="readonlyField" renderAs="READONLY">[status] IN ('IN_PROGRESS')</condition>
+					<value>${today}</value>
+				</field>
+				<field name="plannedEndDate" type="date" displayType="editable" order="118"  label="smk.plannedEndDate.label" tooltip="smk.plannedEndDate.tooltip" previewEmpty="false" uri="emf:plannedEndDate">
+					<condition id="readonlyField" renderAs="READONLY">[status] IN ('IN_PROGRESS')</condition>
+				</field>
+				<field name="stopReason" type="an..250" order="119" displayType="hidden" label="smk.stopReason.label" tooltip="smk.stopReason.tooltip"  previewEmpty="false" uri="emf:stopReason" />
+			</fields>
+		</region>
+		<region id="systemData" order="30" label="smk.systemData.region.label">
+			<fields>
+				<field name="identifier" type="an..50" order="300" label="smk.identifier.label" tooltip="smk.identifier.tooltip" displayType="readOnly" rnc="${eval(WF${seq({+wfSequence})})}" uri="dcterms:identifier">
+					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NEW')</condition>
+				</field>
+				<field name="status" type="an..50" order="305" codelist="CL9" label="smk.status.label" tooltip="smk.status.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:status" />
+				<field name="emf:version" type="an..10" order="310" label="object.version" tooltip="smk.version.tooltip" displayType="readOnly" uri="emf:version"/>
+				<field name="integrated" type="boolean" displayType="hidden" label="integrated.label" order="311" uri="emf:integrated"/>
+				<field name="createdOn" type="dateTime" order="315" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" order="320" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" displayType="readonly" uri="emf:createdBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="datetime" order="325" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedOn" />
+				<field name="modifiedBy" type="uri" order="330" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedBy">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" order="335" label="smk.lockedBy.label" tooltip="smk.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+
+			</fields>
+		</region>
+		<region id="smkActivityDefinitionRelationships" order="40" displayType="editable" label="smk.relationships.region.label">
+			<fields>
+				<field name="attachmentOf" type="uri" label="smk.attachmentOf.label" tooltip="smk.attachmentOf.tooltip" displayType="editable" multiValued="true" order="400" previewEmpty="false" uri="chc:attachmentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Document,emf:Media,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video,chc:Sample,emf:BusinessProcess</control-param>
+					</control>
+				</field>
+				<field name="hasAttachment" type="uri" label="smk.hasAttachment.label" tooltip="smk.hasAttachment.tooltip" displayType="editable" multiValued="true" order="402" previewEmpty="false" uri="chc:hasAttachment" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Document,emf:Media,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video,chc:Sample,emf:BusinessProcess</control-param>
+					</control>
+				</field>
+				<field name="hasWatcher" type="uri" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip" displayType="editable" order="404" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
+					</control>
+				</field>
+				<field name="hasThumbnail" type="uri" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" displayType="readOnly" order="406" previewEmpty="false" uri="emf:hasThumbnail" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" label="smk.parentOf.label" tooltip="smk.parentOf.tooltip" displayType="readOnly" multiValued="true" order="408" previewEmpty="false" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" order="410" label="smk.hasParent.label" tooltip="smk.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" order="415" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" order="420" label="smk.partOf.label" tooltip="smk.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" order="450" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	<transitions>
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="start" order="15" label="start.label" tooltip="smk.start.wf.action.tooltip" eventId="start" purpose="bpmStart" immediate="true" actionPath="/" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var type = codelist.getDescription(10, root.get('type'), 'da');
+							var subject = '(Påbegyndt) Workflow: ' + type;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get("hasWatcher");
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_start_object_smk", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="stop" order="20" label="stop.label" tooltip="smk.stop.wf.action.tooltip"  eventId="stop" purpose="bpmStop" immediate="true" confirmation="confirmation.action" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var type = codelist.getDescription(10, root.get('type'), 'da');
+							var subject = '(Afbrudt) Workflow: ' + type;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get("hasWatcher");
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_stop_object_smk", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+
+		<group id="add" order="25" label="add.group.label" type="menu" />	
+		<transition id="addThumbnail" group="add"  />	
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add"  >
+			<fields>
+				<field name="addAttachmentConfig" type="json">
+					<value>						
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasWatcher"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addAttachment" label="smk.addAttachment.action.label" tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+			<fields>
+				<field name="attachToConfig" type="json">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Project","chc:ConservationActivity","emf:Document","emf:Media","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","emf:BusinessProcess"],
+							"selection" : "multiple",
+							"relation" : ["chc:hasAttachment"]
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" group="exportAs" />
+		<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" group="exportAs" />
+		<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" group="exportAs"  />
+
+		<group id="print" order="35" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" group="print" />
+
+		<group id="template" order="36" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />	
+		<transition id="updateTemplate" tooltip="smk.updateTemplate.action.tooltip" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" tooltip="smk.changeTemplate.action.tooltip" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		
+		<group id="more" order="40" label="more.group.label" type="menu" />
+		<transition id="move" label="move.label" eventId="move" purpose="move" tooltip="move.tooltip" group="more" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var type = codelist.getDescription(10, root.get('type'), 'da');
+							var subject = '(Flyttet) Workflow: ' + type;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get("hasWatcher");
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_move_object_smk", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="lock" group="more" />
+		<transition id="unlock" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="45" confirmation="project_delete.confirm" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var type = codelist.getDescription(10, root.get('type'), 'da');
+							var subject = '(Slettet) Workflow: ' + type;
+							
+							var targetID = root.get("processes");
+							var instances = [];
+							for(i = 0; i < targetID.length; i++) {
+								var ins = instance.load(targetID[i]);
+								instances.push(ins);
+							}
+							context.put('processes', instances);
+						  
+							//extract warchers and crearedBy users
+							var watchers = root.get("hasWatcher");
+							var createdBy = root.get('createdBy');
+							
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_delete_object_smk", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">false</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+	</transitions>
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="NOT_YET_STARTED" />
+
+		<stateTransition from="NOT_YET_STARTED" transition="editDetails" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="start" to="IN_PROGRESS" />
+		<stateTransition from="NOT_YET_STARTED" transition="addAttachment" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="printTab" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="print" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="exportTabPDF" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="exportPDF" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="exportTabWord" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="exportWord" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="move" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="lock" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="unlock" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="addWatchers" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="addThumbnail" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="saveAsTemplate" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="changeTemplate" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="updateTemplate" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="managePermissions" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="createInContext" to="NOT_YET_STARTED" />
+		<stateTransition from="NOT_YET_STARTED" transition="delete" to="NOT_YET_STARTED" />
+
+		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED">
+			<condition id="requiredFields" renderAs="REQUIRED">[stopReason]</condition>
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="addAttachment" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="exportPDF" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="exportTabWord" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="exportWord" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS" />
+
+		<stateTransition from="STOPPED" transition="printTab" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="print" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="exportTabPDF" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="exportPDF" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="exportTabWord" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="exportWord" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="managePermissions" to="STOPPED" />
+
+		<stateTransition from="COMPLETED" transition="printTab" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="print" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="exportTabPDF" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="exportPDF" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED" />
+	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="task" id="all"/>
+		<child type="document" id="all"/>
+		<child type="object" id="smkAudio"/>
+		<child type="object" id="smkVideo"/>
+		<child type="object" id="smkImage"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="WORKFLOW_TOOLTIP_HEADER_SMK">
+			<value lang="en"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            <span data-type="${get([type])}">${CL([type])}</span> 
+                        </a>
+                    </span>
+					<span class="tooltip-row">
+                        <label>Status: </label>										
+                        <span data-property="status">${CL([status])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>System Created by: </label>
+                        <span data-property="createdBy">${user(${get([createdBy])})}</span>
+                    </span>
+                    ${if(${get([plannedEndDate])}<>null).then(
+						<span class="tooltip-row">
+							<label>Planned end date: </label>
+							<span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy)}</span>
+						</span>
+					)}
+					${if(${get([stopReason])}<>null).then(
+						<span class="tooltip-row">
+							<label>Stop Reason: </label>
+							<span data-property="stopReason">${get([stopReason])}</span>
+						</span>
+					)}
+                </span>
+            )}]]></value>
+			<value lang="da"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            <span data-type="${get([type])}">${CL([type])}</span> 
+                        </a>
+                    </span>
+					<span class="tooltip-row">
+                        <label>Status: </label>										
+                        <span data-property="status">${CL([status])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Oprettet af: </label>
+                        <span data-property="createdBy">${user(${get([createdBy])})}</span>
+                    </span>
+                    ${if(${get([plannedEndDate])}<>null).then(
+						<span class="tooltip-row">
+							<label>Planlagt slutdato: </label>
+							<span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy)}</span>
+						</span>
+					)}
+					${if(${get([stopReason])}<>null).then(
+						<span class="tooltip-row">
+							<label>Årsag til afbrydelse: </label>
+							<span data-property="stopReason">${get([stopReason])}</span>
+						</span>
+					)}
+                </span>
+            )}]]></value>
+		</label>
+		<label id="WORKFLOW_DEFAULT_HEADER_SMK">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="type">${CL([type])}</span>&nbsp;
+						</a>
+						${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
+					</span>
+					<br />
+					<span class="truncate-element">
+						${if(${get([plannedEndDate])} <> null).then(Planned end date: <span>${date([plannedEndDate]).format(dd.MM.yyyy)}</span>,&nbsp;)}
+						Priority:&nbsp;<span data-property="priority">${CL([priority])}</span>
+						${if(${var.isVersion}).then(
+							&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+						)}
+					</span>	
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="type">${CL([type])}</span>&nbsp;
+						</a>
+						${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
+					</span>
+					<br />
+					<span class="truncate-element">
+						${if(${get([plannedEndDate])} <> null).then(Planlagt&nbsp;slutdato:&nbsp;<span>${date([plannedEndDate]).format(dd.MM.yyyy)}</span>,&nbsp;)}
+						Prioritet:&nbsp;<span data-property="priority">${CL([priority])}</span>
+						${if(${var.isVersion}).then(
+							&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+						)}
+					</span>	
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>
+			)}]]></value>
+		</label>		
+		<label id="WORKFLOW_COMPACT_HEADER_SMK">	
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="type">${CL([type])}</span>&nbsp;
+					</a>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					${if(${var.isVersion}).then(
+						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
+						<span data-property="type">${CL([type])}</span>&nbsp;
+					</a>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					${if(${var.isVersion}).then(
+						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			)}]]></value>
+		</label>
+		<label id="WORKFLOW_BREADCRUMB_HEADER_SMK">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="type">${CL([type])}</span>
+					 </a>
+				</span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
+						<span data-property="type">${CL([type])}</span>
+					 </a>
+				</span>
+			)}]]></value>
+		</label>		
+	</labels>
+</definition>

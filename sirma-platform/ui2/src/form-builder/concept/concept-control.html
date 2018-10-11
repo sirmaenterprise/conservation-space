@@ -1,0 +1,33 @@
+<div class="form-group concept-control-wrapper">
+  <label for="{{ ::conceptControl.fieldViewModel.identifier }}">
+    {{ ::conceptControl.fieldViewModel.label }}
+    <sup class="mandatory-mark">*</sup>
+  </label>
+
+  <div class="form-field-wrapper">
+    <seip-hint seip-tooltip hint-text="::conceptControl.fieldViewModel.tooltip"
+               hint-class="::conceptControl.widgetConfig.hintClass"
+               hint-visible="::conceptControl.showTooltip()"></seip-hint>
+
+    <div ng-switch="conceptControl.fieldViewModel.preview">
+      <seip-concept-picker ng-switch-when="false"
+                           scheme="::conceptControl.scheme"
+                           broader="::conceptControl.broader"
+                           multiple="::conceptControl.fieldViewModel.multivalue"
+                           ng-model="conceptControl.value"
+                           on-change="conceptControl.onChange(event.value)">
+      </seip-concept-picker>
+
+      <seip-instance-selector ng-switch-when="true"
+                              instance-model-property="::conceptControl.validationModel[conceptControl.fieldViewModel.identifier]"
+                              config="::conceptControl.instanceSelectorConfig"
+                              class="form-field">
+      </seip-instance-selector>
+    </div>
+
+    <seip-validation-message
+            validation-model="conceptControl.validationModel[conceptControl.fieldViewModel.identifier]"
+            field-ctrl="::conceptControl.form[conceptControl.fieldViewModel.identifier]"
+            view-model="::conceptControl.fieldViewModel"></seip-validation-message>
+  </div>
+</div>

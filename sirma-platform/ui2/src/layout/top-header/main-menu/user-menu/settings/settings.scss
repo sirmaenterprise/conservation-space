@@ -1,0 +1,50 @@
+@import "../../../../../style/variables";
+@import '../../../../../style/mixins';
+
+#userSettingsMenu {
+  // using !important because main-menu.scss overrides these settings.
+  border-right: none !important;
+  width: $user-menu-width !important;
+
+  .dropdownmenu-wrapper {
+    padding: 0;
+
+    .user-icon {
+      padding: 0;
+      width: $user-menu-width;
+      height: $menu-item-height;
+
+      .icons-container {
+        display: flex;
+        height: 100%;
+        align-items: center;
+
+        .user-avatar {
+          display: inline-flex;
+          width: 60px;
+          height: $nav-image-container-size;
+
+          img, i {
+            /* to achieve same size as fa icons */
+            max-width: $nav-image-container-size;
+            max-height: $nav-image-container-size;
+            display: block;
+            margin: auto;
+          }
+        }
+
+        .caret {
+          margin: 0 8px 0 2px;
+        }
+      }
+
+      &[data-tooltip] {
+        @include tooltip($tooltip-color, $tooltip-background-color, $tooltip-font-size) {
+          z-index: 100;
+          top: $menu-item-height + 2;
+          right: 2px;
+        }
+      }
+    }
+  }
+}

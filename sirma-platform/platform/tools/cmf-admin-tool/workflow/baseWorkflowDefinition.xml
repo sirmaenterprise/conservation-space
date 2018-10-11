@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+<workflowDefinition id="workflowBase" isAbstract="true">
+	<fields>
+		<field name="default_header" type="an..4096" label="WORKFLOW_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+	    <field name="compact_header" type="an..4096" label="WORKFLOW_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+	    <field name="breadcrumb_header" type="an..4096" label="WORKFLOW_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+
+		<field name="identifier" type="an..50" order="10" label="uniqueIdentifier" mandatory="true" displayType="readOnly" dmsType="emf:identifier" rnc="${eval(${get([identifier]).from(rootContext)}-${seq({+${get([identifier]).from(rootContext)}})})}" uri="dcterms:identifier">
+			<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+		</field>
+		<field name="type" label="workflow.type" type="an..180" dmsType="emf:type" uri="emf:type"/>
+		<field name="name" label="workflow.type" type="an..180" dmsType="-cm:name" uri="dcterms:title"/>
+		<field name="description" label="workflow.description" type="an..250"  mandatory="true"  dmsType="cm:description" uri="dcterms:description"/>
+		<field name="status" label="workflow.status" type="an..20" codelist="CL101" mandatory="true" displayType="editable" dmsType="emf:status" uri="emf:status"/>
+		<field name="startedBy" label="workflow.startedBy" type="an..100"     dmsType="-initiator"><control id="USER"/></field>
+		<field name="startTime" label="workflow.startTime" type="datetime"    dmsType="-startDate" uri="ptop:startTime"/>
+		<field name="completedBy" label="workflow.completedBy" type="an..100" dmsType="cm:owner"><control id="USER"/></field>
+		<field name="endTime" label="workflow.endTime" type="datetime" dmsType="-endDate" uri="ptop:endTime"/>
+		<field name="contextType" label="workflow.caseType" type="an..100" codelist="CL200" displayType="readOnly" dmsType="cmfwf:contextType"/> <!-- this codelist probably is bad idea to be here -->
+		<field name="message" label="workflow.message" type="an..250" dmsType="bpm:workflowDescription"/>
+		<field name="priority" label="workflow.priority" type="an..180" codelist="CL208" mandatory="true" rnc="${to.dmsConvert(CL208,value,extra1)}|${from.dmsConvert(CL208,extra1,value)}" dmsType="bpm:workflowPriority" uri="emf:priority"/>
+		<field name="plannedEndDate" label="workflow.plannedEndDate" type="dateTime" mandatory="true" dmsType="bpm:workflowDueDate" uri="emf:plannedEndTime"/>
+		<field name="revision" type="n..10" displayType="system"/>
+		<field name="container" type="an..50" displayType="system" dmsType="cmfwf:container"/>
+		<field name="cancelReason" type="an..250" displayType="readOnly" previewEmpty="false" mandatory="false" label="workflow.cancelReason"/>
+	</fields>
+
+	<taskDefinitions>
+		<task id="workflowPreviewTask" purpose="workflowPreview" referenceId="workflowPreviewTask"></task>
+
+		<task id="workflowHistory" purpose="workflowHistory" referenceId="workflowHistory"></task>
+
+		<task id="taskMetadata" purpose="taskMetadata" referenceId="taskMetadata"></task>
+
+	</taskDefinitions>
+
+	<labels>
+		<label id="WORKFLOW_DEFAULT_HEADER">
+			<value lang="bg"><![CDATA[${eval(<a class="${get([status])} workflow-state-${get([status])}" href="${link(currentInstance)}"><b>${id.uid} ${CL([type])} (${CL([status])})</b></a><br />стартиран от: <a href="${userLink(${get([startedBy])})}"><b>${user(${get([startedBy])})}</b></a>, стартиран на: <b>${date([startTime]).format(dd.MM.yyyy, HH:mm)}</b>)}]]></value>
+            <value lang="en"><![CDATA[${eval(<a class="${get([status])} workflow-state-${get([status])}" href="${link(currentInstance)}"><b>${id.uid} ${CL([type])} (${CL([status])})</b></a><br />Started by: <a href="${userLink(${get([startedBy])})}"><b>${user(${get([startedBy])})}</b></a>, Started on: <b>${date([startTime]).format(dd.MM.yyyy, HH:mm)}</b>)}]]></value>
+		</label>
+        <label id="WORKFLOW_COMPACT_HEADER">
+			<value lang="bg"><![CDATA[${eval(<a class="${get([status])} has-tooltip workflow-state-${get([status])}" href="${link(currentInstance)}">${id.uid} ${CL([type])} (${CL([status])})</a>)}]]></value>
+            <value lang="en"><![CDATA[${eval(<a class="${get([status])} has-tooltip workflow-state-${get([status])}" href="${link(currentInstance)}">${id.uid} ${CL([type])} (${CL([status])})</a>)}]]></value>
+		</label>
+        <label id="WORKFLOW_BREADCRUMB_HEADER">
+			<value lang="bg"><![CDATA[${eval(<a class="${get([status])} has-tooltip workflow-state-${get([status])}" href="${link(currentInstance)}">${CL([type])} (${CL([status])})</a>)}]]></value>
+            <value lang="en"><![CDATA[${eval(<a class="${get([status])} has-tooltip workflow-state-${get([status])}" href="${link(currentInstance)}">${CL([type])} (${CL([status])})</a>)}]]></value>
+		</label>
+		<label id="workflow.type">
+			<value lang="bg">Вид на работен процес</value>
+			<value lang="en">Workflow type</value>
+		</label>
+		<label id="workflow.description">
+			<value lang="bg">Описание на работен процес</value>
+			<value lang="en">Workflow description</value>
+		</label>
+		<label id="workflow.status">
+			<value lang="bg">Статус на работен процес</value>
+			<value lang="en">Workflow status</value>
+		</label>
+		<label id="workflow.startedBy">
+			<value lang="bg">Стартиран от</value>
+			<value lang="en">Started by</value>
+		</label>
+		<label id="workflow.startTime">
+			<value lang="bg">Стартиран на</value>
+			<value lang="en">Started on</value>
+		</label>
+		<label id="workflow.completedBy">
+			<value lang="bg">Приключен от</value>
+			<value lang="en">Completed by</value>
+		</label>
+		<label id="workflow.endTime">
+			<value lang="bg">Приключен на</value>
+			<value lang="en">Completed on</value>
+		</label>
+		<label id="workflow.caseType">
+			<value lang="bg">Вид на преписката</value>
+			<value lang="en">Case type</value>
+		</label>
+		<label id="workflow.caseId">
+			<value lang="bg">Case id</value>
+			<value lang="en">Case id</value>
+		</label>
+		<label id="workflow.casePublicId">
+			<value lang="bg">Case id</value>
+			<value lang="en">Case id</value>
+		</label>
+		<label id="workflow.priority">
+			<value lang="bg">Приоритет</value>
+			<value lang="en">Priority</value>
+		</label>
+		<label id="workflow.plannedEndDate">
+			<value lang="bg">Срок за изпълнение</value>
+			<value lang="en">Due Date</value>
+		</label>
+		<label id="workflow.message">
+			<value lang="bg">Коментар по работен процес</value>
+			<value lang="en">Message</value>
+		</label>
+		<label id="workflow.cancelReason">
+			<value lang="bg">Причина за прекратяване</value>
+			<value lang="en">Cancellation reason</value>
+		</label>
+	</labels>
+</workflowDefinition>

@@ -1,0 +1,14 @@
+PREFIX cnctr: <http://www.sirma.com/ontologies/2017/06/connectors#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+delete {
+    ?connectorName cnctr:recreate "false"^^xsd:boolean .
+} insert {
+    graph <http://www.sirma.com/ontologies/2017/06/connectors/data> {
+     ?connectorName cnctr:recreate "true"^^xsd:boolean .
+        }
+} where {
+    bind(cnctr:fts_CONNECTOR_ID as ?connectorName)
+    optional {?connectorName cnctr:recreate "false"^^xsd:boolean . }
+}
+
+ 

@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<definition id="yuldt210015" type="document" parentId="yulDocument" > <!-- Review record -->
+	<regions>
+		<region id="generalData" >
+			<fields>
+				<field name="chc:documents" type="uri" mandatory="true" multiValued="false" />
+				<field name="purpose" type="an..20" mandatory="true" displayType="editable" codelist="CL264" order="2" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="yul:purpose" >
+					<control id="RELATED_FIELDS">
+						<control-param id="fieldsToRerender" name="RERENDER">yul:conservationAction</control-param>
+						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
+				<field name="yul:conditionIssues" type="an..20" displayType="editable" codelist="CL274" label="yul.conditionIssues.label" tooltip="yul.conditionIssues.tooltip" multiValued="true" uri="yul:conditionIssues" />
+				<field name="yul:conditionNotess" type="an..1800" displayType="editable" label="yul.conditionNotess.label" tooltip="yul.conditionNotess.tooltip" uri="yul:conditionNotess" />
+				<field name="chc:overallConditionAppraisal" type="an..20" displayType="editable" codelist="CL125" label="yul.overallConditionAppraisal.label" tooltip="yul.overallConditionAppraisal.tooltip" uri="chc:overallConditionAppraisal" />
+				<field name="yul:reviewedBy" type="uri" displayType="editable" label="core.reviewedBy.label" tooltip="core.reviewedBy.tooltip" uri="yul:reviewedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
+					</control>
+					<value>${currentUser.id}</value>
+				</field>
+				<field name="yul:reviewedOn" type="date" displayType="editable" label="yul.reviewedOn.label" tooltip="yul.reviewedOn.tooltip" uri="yul:reviewedOn" />
+				<field name="yul:identificationReason" type="an..20" displayType="editable" codelist="CL270" label="yul.identificationReason.label" tooltip="yul.identificationReason.tooltip" uri="yul:identificationReason" >
+					<condition id="hiddenField" renderAs="HIDDEN">[purpose] NOTIN ('YUL264017')</condition>
+				</field>
+				<field name="yul:treatmentNeeded" type="an..180" displayType="editable" label="yul.treatmentNeeded.label" tooltip="yul.treatmentNeeded.tooltip" uri="yul:treatmentNeeded" />
+				<field name="yul:treatmentNotes" type="an..180" displayType="editable" label="yul.treatmentNotes.label" tooltip="yul.treatmentNotes.tooltip" uri="yul:treatmentNotes" />
+				<field name="yul:digitizationRecommendations" type="an..20" displayType="editable" codelist="CL271" label="yul.digitizationRecommendations.label" tooltip="yul.digitizationRecommendations.tooltip" multiValued="true" uri="yul:digitizationRecommendations" />
+				<field name="yul:conservationAction" type="an..20" displayType="editable" codelist="CL272" label="yul.conservationAction.label" tooltip="yul.conservationAction.tooltip" multiValued="true" uri="yul:conservationAction" />
+				<field name="yul:assignedConsAct" type="uri" displayType="editable" label="yul.assignedConsAct.label" tooltip="yul.assignedConsAct.tooltip" multiValued="true" uri="yul:assignedConsAct" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,emf:Task,yul:Activity</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["IN_PROGRESS","NOT_YET_STARTED","ON_HOLD"]}
+						</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+				
+				
+		<region id="exhibition" label="yul.exhibitionProperties.region.label" displayType="editable" order="15" >
+			<condition id="hidden" renderAs="HIDDEN">[purpose] NOTIN ('YUL264009')</condition> 
+			<fields>
+				<field name="yul:exhibitionCaseLocation" type="an..50" displayType="editable" label="yul.exhibitionCaseLocation.label" tooltip="yul.exhibitionCaseLocation.tooltip" uri="yul:exhibitionCaseLocation" />
+				<field name="yul:itemNumber" type="an..50" displayType="editable" label="yul.itemNumber.label" tooltip="yul.itemNumber.tooltip" uri="yul:itemNumber" />
+				<field name="yul:curatorialNotes" type="an..180" displayType="editable" label="yul.curatorialNotes.label" tooltip="yul.curatorialNotes.tooltip" uri="yul:curatorialNotes" />
+				<field name="yul:conservatorsNotes" type="an..180" displayType="editable" label="yul.conservatorsNotes.label" tooltip="yul.conservatorsNotes.tooltip" uri="yul:conservatorsNotes" />
+				<field name="yul:curatorialAssistantNotes" type="an..180" displayType="editable" label="yul.curatorialAssistantNotes.label" tooltip="yul.curatorialAssistantNotes.tooltip" uri="yul:curatorialAssistantNotes" />
+				<field name="yul:exhibitProductionNotes" type="an..180" displayType="editable" label="yul.exhibitProductionNotes.label" tooltip="yul.exhibitProductionNotes.tooltip" uri="yul:exhibitProductionNotes" />
+				<field name="yul:openingForExhibition" type="an..180" displayType="editable" label="yul.openingForExhibition.label" tooltip="yul.openingForExhibition.tooltip" uri="yul:openingForExhibition" />
+				<field name="yul:pageturninstruction" type="an..180" displayType="editable" label="yul.pageturninstruction.label" tooltip="yul.pageturninstruction.tooltip" uri="yul:pageturninstruction" />
+				<field name="yul:imagingForReproduction" type="an..180" displayType="editable" label="yul.imagingForReproduction.label" tooltip="yul.imagingForReproduction.tooltip" uri="yul:imagingForReproduction" />
+				<field name="yul:imagingDeadline" type="an..180" displayType="editable" label="yul.imagingDeadline.label" tooltip="yul.imagingDeadline.tooltip" uri="yul:imagingDeadline" />
+				<field name="yul:mountType" type="an..50" displayType="editable" codelist="CL273" label="yul.mountType.label" tooltip="yul.mountType.tooltip" uri="yul:mountType" />
+				<field name="yul:stockFrameSize" type="an..50" displayType="editable" label="yul.stockFrameSize.label" tooltip="yul.stockFrameSize.tooltip" uri="yul:stockFrameSize" />
+			</fields>
+		</region>
+		<region id="systemData" >
+			<fields>
+				<field name="type" codelist="CL6">
+					<value>YULDT210015</value>
+					<control id="RELATED_FIELDS">
+						<control-param id="fieldsToRerender" name="RERENDER">purpose</control-param>
+						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>	
+			</fields>
+		</region>
+	</regions>
+</definition>

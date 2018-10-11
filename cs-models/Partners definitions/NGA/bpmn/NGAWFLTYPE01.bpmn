@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.4.0">
   <bpmn:process id="NGAWFLTYPE01" name="Review and Approve Conservation Activity Reports (+publish) Workflow" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.StopProcessListener" event="end">
+        <camunda:field name="relation">        <camunda:string>emf:processes</camunda:string>
+</camunda:field>
+        <camunda:field name="source">        <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+        <camunda:field name="status">        <camunda:expression>DRAFT</camunda:expression>
+</camunda:field>
+      </camunda:executionListener>
+    </bpmn:extensionElements>
     <bpmn:startEvent id="StarProcess">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -33,14 +43,6 @@
           <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
 </camunda:field>
           <camunda:field name="relations">          <camunda:string>processes</camunda:string>
-</camunda:field>
-        </camunda:executionListener>
-        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
-          <camunda:field name="relation">          <camunda:string>emf:processes</camunda:string>
-</camunda:field>
-          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
-</camunda:field>
-          <camunda:field name="status">          <camunda:expression>DRAFT</camunda:expression>
 </camunda:field>
         </camunda:executionListener>
         <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.SendWorkflowMail" event="take">

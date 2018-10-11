@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<definition id="genericRecordSpace" type="object" parentId="entity" isAbstract="true"> 
+<!-- Objects of type Record Space will serve as revision holders -->
+	<configuration>
+		<fields>
+			<field name="existingInContext" type="an..50" codelist="CL26">
+				<value>WITHOUT_CONTEXT</value>
+			</field>
+		</fields>
+	</configuration>
+
+    <fields>
+    <!-- HEADERS AND TOOLTIP -->
+        <field name="default_header" type="ANY" label="RECORD_DEFAULT_HEADER" displayType="system"/>
+        <field name="compact_header" type="an..4096" label="RECORD_COMPACT_HEADER" displayType="system"/>
+        <field name="breadcrumb_header" type="an..4096" label="RECORD_BREADCRUMB_HEADER" displayType="system"/>
+        <field name="tooltip_header" type="ANY" label="RECORD_TOOLTIP_HEADER" displayType="system"/>
+    
+        <field name="title" type="an..50" displayType="readonly" unique="true"/>
+        <field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+            <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#RecordSpace</value>
+        </field>
+        <field name="type" type="an..50" order="5" codelist="CL7" label="type.label" displayType="readonly" uri="emf:type">
+			<value>recordSpace</value>
+		</field>
+		<field name="status" type="an..35" codelist="CL32"/>
+    </fields>
+    <stateTransitions>
+        <stateTransition from="INIT" transition="create" to="ACTIVE"/>
+                        
+        <stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="lock" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="managePermissions" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="print" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="printTab" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="exportPDF" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="exportWord" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="revertVersion" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="addWatchers" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+    </stateTransitions>
+    <labels>
+   	<label id="RECORD_TOOLTIP_HEADER">
+    	<value lang="en"><![CDATA[${eval(#{eval(
+			<span class="thumbnail-content">
+				<img class="thumbnail" src="${thumbnailUri(64)}" />
+			</span>
+			<span class="tooltip-data">
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-row">
+					<label>Modified by: </label>
+					<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+				</span>
+				<span class="tooltip-row">
+					<label>Modified on: </label>
+					<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				</span>
+			</span>
+		)})}]]></value>
+		<value lang="de"><![CDATA[${eval(#{eval(
+			<span class="thumbnail-content">
+				<img class="thumbnail" src="${thumbnailUri(64)}" />
+			</span>
+			<span class="tooltip-data">
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-row">
+					<label>Geändert von: </label>
+					<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+				</span>
+				<span class="tooltip-row">
+					<label>Geändert am: </label>
+					<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				</span>
+			</span>
+		)})}]]></value>
+      <value lang="bg"><![CDATA[${eval(#{eval(
+			<span class="thumbnail-content">
+				<img class="thumbnail" src="${thumbnailUri(64)}" />
+			</span>
+			<span class="tooltip-data">
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+					   <span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>                   
+				<span class="tooltip-row">
+					<label>Последно актуализиран от: </label>
+					<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+				</span>
+				<span class="tooltip-row">
+					<label>Последно актуализиран на: </label>
+					<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				</span>
+			</span>
+		)})}]]></value>
+		<value lang="da"><![CDATA[${eval(#{eval(
+			<span class="thumbnail-content">
+				<img class="thumbnail" src="${thumbnailUri(64)}" />
+			</span>
+			<span class="tooltip-data">
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-row">
+					<label>Opdateret af: </label>
+					<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+				</span>
+				<span class="tooltip-row">
+					<label>Opdateret: </label>
+					<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				</span>
+			</span>
+		)})}]]></value>
+    </label>
+    <label id="RECORD_DEFAULT_HEADER">
+      <value lang="bg"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+                <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                    <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}                        
+						<b>
+							<span data-property="title">${get([title])}</span>
+							${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+                    </a>
+                </span>
+                ${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+            </span>
+		)}]]></value>
+		<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+                <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                    <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}                        
+						<b>
+							<span data-property="title">${get([title])}</span>
+							${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+                    </a>
+                </span>
+                ${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+            </span>
+		)}]]></value>
+		<value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+                <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                    <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}                        
+						<b>
+							<span data-property="title">${get([title])}</span>
+							${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+                    </a>
+                </span>
+                ${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+            </span>
+		)}]]></value>
+		<value lang="da"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+                <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                    <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}                        
+						<b>
+							<span data-property="title">${get([title])}</span>
+							${if(${var.isVersion}).then(
+								&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+                    </a>
+                </span>
+                ${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+            </span>
+		)}]]></value>
+    </label>
+	<label id="RECORD_COMPACT_HEADER">
+		<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						<span data-property="title">${get([title])}</span>&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+		)}]]></value>
+		<value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						<span data-property="title">${get([title])}</span>&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+		)}]]></value>
+		<value lang="bg"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						<span data-property="title">${get([title])}</span>&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+		)}]]></value>
+		<value lang="da"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					<span data-property="title">${get([title])}</span>&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+		)}]]></value>
+    </label>
+    <label id="RECORD_BREADCRUMB_HEADER">
+		<value lang="bg"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span>
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+		)}]]></value>
+		<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span>
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+		)}]]></value>
+		<value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span>
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+		)}]]></value>
+		<value lang="da"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span>
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+		)}]]></value>
+   		</label>
+	</labels>
+</definition>

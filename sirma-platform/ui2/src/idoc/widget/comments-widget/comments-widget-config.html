@@ -1,0 +1,59 @@
+<div class="comments-widget-config">
+  <div>
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a data-target=".comments-widget-config > .tab-content > .select-object-tab" data-toggle="tab"
+           href="javascript:void(0)">{{::'widget.config.tab.select.objects' | translate}}</a>
+      </li>
+      <li>
+        <a data-target=".comments-widget-config > .tab-content > .comments-details-tab" data-toggle="tab"
+           href="javascript:void(0)">{{::'comments.action.filter' | translate}}</a>
+      </li>
+      <li>
+        <a data-target=".comments-widget-config > .tab-content > .display-options-tab" data-toggle="tab"
+           href="javascript:void(0)">{{::'widget.config.tab.display.options' | translate}}</a>
+      </li>
+    </ul>
+  </div>
+  <div class="tab-content">
+    <section class="select-object-tab tab-pane in active">
+      <seip-object-selector config="commentsWidgetConfig.objectSelectorConfig"
+                            context="commentsWidgetConfig.context"></seip-object-selector>
+    </section>
+
+    <section class="display-options-tab tab-pane">
+      <seip-widget-common-display-configurations config="commentsWidgetConfig.config"></seip-widget-common-display-configurations>
+      <div class="form-group panel panel-default pages-panel">
+        <div class="panel-heading">{{'comments.widget.display.options' | translate}}</div>
+        <div class="panel-body config">
+          <label>{{::'comments.widget.comments.limit' | translate}}</label>
+          <seip-select class="limit" data-config="commentsWidgetConfig.limitMenuConfig"
+                       ng-model="commentsWidgetConfig.config.size"></seip-select>
+          <br/>
+        </div>
+      </div>
+    </section>
+
+    <section class="comments-details-tab tab-pane">
+      <div class="form-group panel panel-default pages-panel">
+        <div class="panel-heading">{{'comments.widget.filters' | translate}}</div>
+        <div class="panel-body config">
+          <label>{{::'comments.widget.select.users' | translate}}</label>
+          <div class="users-control">
+            <seip-resource-select class="users-select" config="commentsWidgetConfig.usersSelectConfig"
+                                  ng-model="commentsWidgetConfig.config.selectedUsers"></seip-resource-select>
+            <div class="input-group-btn">
+              <button class="form-control btn btn-default btn-clear-fields"
+                      ng-click="commentsWidgetConfig.clearFilters()">{{::'comments.filter.by.keywords.clear' | translate}}
+              </button>
+            </div>
+
+          </div>
+          <br/>
+          <label>{{::'comments.widget.select.date' | translate}}</label>
+          <div class="date-range-component"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<!-- Using customChange tasks for updating the ontologies. 
+	The class that executes	the task is com.sirma.itt.emf.semantic.patch.UpdateSemanticTask. 
+	it has two parameters: 
+		- fileName - List of files to be executed on the repository separated with ';' 
+		- fileType - type of the files provided by the parameter fileName. all files must be of the same type - RDF, SPARQL or NAMESPACES file - -->
+		
+	<changeSet id="email-integration-patches-2.8.0-1" author="sdjulgerova">
+		<comment>Inserts the Email class to the semantic</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="patches/inserts/insertEmailClass.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="email-integration-patches-2.8.0-2" author="sdjulgerova">
+		<comment>Inserts isMailboxSupportable annotation property to the semantic</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="patches/inserts/insertIsMailboxSupportableProperty.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="email-integration-patches-2.8.0-3" author="sdjulgerova">
+		<comment>Inserts mailbox address object property to the semantic</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="patches/inserts/insertMailboxAddressProperty.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="email-integration-patches-2.9.0-2" author="gtsankov">
+		<comment>Alters mailbox address object property to be data property</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="patches/migration/changeMailboxAddressAsProperty.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+	<changeSet id="email-integration-patches-2.15.0-1" author="sdjulgerova">
+		<comment>Alters email object to be sub class of ptop:InformationResource</comment>
+		<customChange class="com.sirma.itt.emf.semantic.patch.UpdateSemanticTask">
+			<param name="fileName" value="patches/migration/changeEmailClassOf.sparql" />
+			<param name="fileType" value="SPARQL" />
+		</customChange>
+	</changeSet>
+</databaseChangeLog>

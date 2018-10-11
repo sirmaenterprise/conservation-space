@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="template-2.12.0-2" author="amitev" runInTransaction="false">
+		<comment>
+			Initializes missing forObjectTypeLabel property in the template instances
+		</comment>
+		<customChange class="com.sirma.sep.template.patches.ForObjectTypeLabelPatch" />
+	</changeSet>
+
+	<changeSet id="template-2.15.0-1" author="vtsonev" runInTransaction="false">
+		<preConditions onFail="HALT">
+			<tableExists tableName="sep_template_content" />
+		</preConditions>
+		<comment>
+			Migrates all templates' contents from the DMS to the appropriate content table
+		</comment>
+		<customChange class="com.sirma.sep.template.patches.TemplatesContentMigratePatch" />
+	</changeSet>
+	
+	<changeSet id="template-2.15.0-2" author="amitev" runInTransaction="false">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<sqlCheck expectedResult="0">select count(*) from sep_template where correspondinginstance is not null</sqlCheck>
+			</not>
+		</preConditions>
+		<comment>
+			Adds missing published_template_version and title value in sep_template by extracting it from the latest active version of the corresponding template instance
+		</comment>
+		<customChange class="com.sirma.sep.template.patches.PublishedInstanceVersionAndTitlePatch" />
+	</changeSet>
+	
+	<changeSet id="template-2.17.0-1" author="vtsonev" runInTransaction="false">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<sqlCheck expectedResult="0">
+					SELECT count(*)
+					  FROM sep_template tpl
+					  where (select count(id) from sep_template
+					  where groupId = tpl.groupId 
+					  and purpose = tpl.purpose
+					  and primarytemplate = 1) > 1;
+				</sqlCheck>
+			</not>
+		</preConditions>
+		<comment>
+			If more than one primary templates for the same group are present in the relational database, repairs their primary
+	 		flags by synchronizing them with the corresponding instance.
+		</comment>
+		<customChange class="com.sirma.sep.template.patches.MultiplePrimaryTemplatesPatch" />
+	</changeSet>
+	
+	<changeSet id="template-2.20.0-1" author="bbonev">
+		<preConditions>
+			<changeSetExecuted id="template-2.15.0-1" author="vtsonev"
+							   changeLogFile="com/sirma/sep/template/patches/template-data-changelog.xml"/>
+		</preConditions>
+		<comment>Remove dmsid column for templates after templates migration from dms to relational database</comment>
+		<dropColumn tableName="sep_template" columnName="dmsid"/>
+	</changeSet>
+</databaseChangeLog>

@@ -14,788 +14,823 @@
 @base <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> .
 
 <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> rdf:type owl:Ontology ;
-                                                                       
-                                                                       rdfs:label "Cultural Heritage Conservation Ontology Model"@en ;
-                                                                       
-                                                                       owl:versionInfo "0.1"@en ;
-                                                                       
-                                                                       dc:subject "Cultural Heritage Conservation Ontology Model"@en ;
-                                                                       
-                                                                       rdfs:comment "Cultural Heritage Conservation Ontology Model used for Conservation Space project"@en ;
-                                                                       
-                                                                       dc:creator "Sirm ITT (Kiril Penev, Lidiya Dimitrova)"@en ;
-                                                                       
-                                                                       dc:rights "What rights?"@en ;
-                                                                       
-                                                                       owl:imports <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> ,
-                                                                                   <http://www.sirma.com/ontologies/2014/11/security> .
-
+                                                                        owl:imports <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> ,
+                                                                                    <http://www.sirma.com/ontologies/2014/11/security> ;
+                                                                        rdfs:label "Cultural Heritage Conservation Ontology Model"@en ;
+                                                                        owl:versionInfo "0.1"@en ;
+                                                                        rdfs:comment "Cultural Heritage Conservation Ontology Model used for Conservation Space project"@en ;
+                                                                        dc:rights "What rights?"@en ;
+                                                                        dc:subject "Cultural Heritage Conservation Ontology Model"@en ;
+                                                                        dc:creator "Sirm ITT (Kiril Penev, Lidiya Dimitrova)"@en .
 
 #################################################################
-#
-#    Annotation properties
-#
-#################################################################
-
-
-###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#auditEvent
-
-emf:auditEvent rdf:type owl:AnnotationProperty .
-
-
-
-
-
-#################################################################
-#
 #    Object Properties
-#
 #################################################################
-
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#approvedBy
-
 chc:approvedBy rdf:type owl:ObjectProperty ;
-               
-               rdfs:label "is approved by"@en ;
-               
-               dc:creator "Lidiya Dimitrova" ;
-               
+               owl:inverseOf chc:hasApproved ;
+               rdfs:domain ptop:Entity ;
                emf:auditEvent "+addApprovedBy|-removeApprovedBy|changeApprovedBy" ;
-               
-               skos:definition "Defines person who has approved the document."@en ;
-               
-               rdfs:range ptop:Agent ;
-               
-               rdfs:domain ptop:Entity .
+               dc:creator "Lidiya Dimitrova" ;
+               rdfs:label "er godkendt af"@da ,
+                          "is approved by"@en ;
+               skos:definition "Defines person who has approved the document."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#assignedPermissions
+chc:assignedPermissions rdf:type owl:ObjectProperty ;
+                        owl:inverseOf chc:hasAssignedPermissionsTo ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Assigned permissions"@en ,
+                                   "Tildelte tilladelser"@da ;
+                        skos:definition "Assigned permissions."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#attachmentOf
-
 chc:attachmentOf rdf:type owl:ObjectProperty ;
-                 
-                 rdfs:label "is attachment of"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova" ;
-                 
-                 emf:auditEvent "+addAttachmentOf|-removeAttachmentOf|changeAttachmentOf" ;
-                 
-                 skos:definition "Specifies of which object the current one is an attachment."@en ;
-                 
-                 rdfs:range ptop:Entity ;
-                 
+                 owl:inverseOf chc:hasAttachment ;
                  rdfs:domain ptop:Entity ;
-                 
-                 owl:inverseOf chc:hasAttachment .
-
+                 emf:auditEvent "+addAttachmentOf|-removeAttachmentOf|changeAttachmentOf" ;
+                 dc:creator "Lidiya Dimitrova" ;
+                 rdfs:label "er vedhæftning af"@da ,
+                            "is attachment of"@en ;
+                 skos:definition "Specifies of which object the current one is an attachment."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#borrowedBy
-
 chc:borrowedBy rdf:type owl:ObjectProperty ;
-               
-               rdfs:label "is borrowed by"@en ;
-               
-               emf:auditEvent "+addBorrowedBy|-removeBorrowedBy|changeBorrowedBy" ;
-               
-               skos:definition "Indicates the institution that borrows the cultural object."@en ;
-               
-               dc:creator "Lidiya Dimitrova" ;
-               
-               rdfs:range ptop:Organization ;
-               
+               owl:inverseOf chc:isBorrowerOf ;
                rdfs:domain chc:CulturalObject ;
-               
-               owl:inverseOf chc:isBorrowerOf .
-
+               emf:auditEvent "+addBorrowedBy|-removeBorrowedBy|changeBorrowedBy" ;
+               dc:creator "Lidiya Dimitrova" ;
+               rdfs:label "er lånt af"@da ,
+                          "is borrowed by"@en ;
+               skos:definition "Indicates the institution that borrows the cultural object."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#depicts
-
 chc:depicts rdf:type owl:ObjectProperty ;
-            
-            rdfs:label "depicts"@en ;
-            
+            owl:inverseOf chc:hasDepiction ;
+            rdfs:domain emf:Image ;
             emf:auditEvent "+addDepicts|-removeDepicts|changeDepicts" ;
-            
             dc:creator "Lidiya Dimitrova" ;
-            
-            skos:definition "Indicates the cultural object is depicted with image."@en ;
-            
-            rdfs:range emf:DomainObject ;
-            
-            rdfs:domain emf:Image .
-
+            rdfs:label "afbilder"@da ,
+                       "depicts"@en ;
+            skos:definition "Indicates the cultural object is depicted with image."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#documents
-
 chc:documents rdf:type owl:ObjectProperty ;
-              
-              rdfs:label "documents an object"@en ;
-              
+              owl:inverseOf chc:isDocumentedIn ;
               emf:auditEvent "+addDocuments|-removeDocuments|changeDocuments" ;
-              
-              skos:definition "Indicates that the document is related to cultural object/sample."@en ;
-              
               dc:creator "Lidiya Dimitrova" ;
-              
-              rdfs:domain emf:Document ;
-              
-              rdfs:range ptop:Entity .
-
+              rdfs:label "documents an object"@en ,
+                         "dokumenterer en genstand"@da ;
+              skos:definition "Indicates that the document is related to cultural object/sample."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#duplicates
-
 chc:duplicates rdf:type owl:ObjectProperty ,
                         owl:SymmetricProperty ;
-               
-               rdfs:label "duplicates"@en ;
-               
+               rdfs:domain chc:CulturalObject ;
                emf:auditEvent "+addDuplicates|-removeDuplicates|changeDuplicates" ;
-               
-               skos:definition "Indicates that the cultural object duplicates another cultural object."@en ;
-               
                dc:creator "Lidiya Dimitrova" ;
-               
-               rdfs:range chc:CulturalObject ;
-               
-               rdfs:domain chc:CulturalObject .
+               rdfs:label "duplicates"@en ,
+                          "duplikerer"@da ;
+               skos:definition "Indicates that the cultural object duplicates another cultural object."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#exhibitedAt
+chc:exhibitedAt rdf:type owl:ObjectProperty ;
+                owl:inverseOf chc:hasCulturalObjectExhibited ;
+                rdfs:domain chc:CulturalObject ;
+                emf:auditEvent "+addToExhibition|-removeFromExhibition|changeExhibition" ;
+                dc:creator "Lidiya Dimitrova" ;
+                rdfs:label "exhibited on"@en ,
+                           "udstillet på"@da ;
+                skos:definition "The exhibition that the cultural object is part of."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasApproved
-
 chc:hasApproved rdf:type owl:ObjectProperty ;
-                
-                rdfs:label "has approved"@en ;
-                
-                emf:auditEvent "+addHasApproved|-removeHasApproved|changeHasApproved" ;
-                
-                skos:definition "Defines person who has approved the document."@en ;
-                
-                dc:creator "Lidiya Dimitrova" ;
-                
                 rdfs:domain ptop:Agent ;
-                
-                rdfs:range ptop:Entity ;
-                
-                owl:inverseOf chc:approvedBy .
-
+                emf:auditEvent "+addHasApproved|-removeHasApproved|changeHasApproved" ;
+                dc:creator "Lidiya Dimitrova" ;
+                rdfs:label "har godkendt"@da ,
+                           "has approved"@en ;
+                skos:definition "Defines person who has approved the document."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasAssignedConservator
-
 chc:hasAssignedConservator rdf:type owl:ObjectProperty ;
-                           
-                           rdfs:label "has assigned conservator"@en ;
-                           
-                           emf:auditEvent "+addHasAssignedConservator|-removeHasAssignedConservator|changeHasAssignedConservator" ;
-                           
-                           skos:definition "Indicates the conservator assigned to the record."@en ;
-                           
-                           dc:creator "Malvina Makarieva" ;
-                           
-                           rdfs:range ptop:Agent ;
-                           
+                           rdfs:subPropertyOf owl:topObjectProperty ;
+                           owl:inverseOf chc:isAssignedConservator ;
                            rdfs:domain ptop:Entity ;
-                           
-                           rdfs:subPropertyOf owl:topObjectProperty .
+                           emf:auditEvent "+addHasAssignedConservator|-removeHasAssignedConservator|changeHasAssignedConservator" ;
+                           dc:creator "Malvina Makarieva" ;
+                           rdfs:label "har tilknyttet konservator"@da ,
+                                      "has assigned conservator"@en ;
+                           skos:definition "Indicates the conservator assigned to the record."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasAssignedPermissionsTo
+chc:hasAssignedPermissionsTo rdf:type owl:ObjectProperty ;
+                             rdfs:domain ptop:Agent ;
+                             dc:creator "Malvina Makarieva"@en ;
+                             rdfs:label "har tildelt tilladelser til"@da ,
+                                        "has assigned permissions to"@en ;
+                             skos:definition "Has assigned permissions on document."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasAttachment
-
 chc:hasAttachment rdf:type owl:ObjectProperty ;
-                  
-                  rdfs:label "has attachment"@en ;
-                  
+                  rdfs:domain ptop:Entity ;
                   emf:auditEvent "+addHasAttachment|-removeHasAttachment|changeHasAttachment" ;
-                  
                   dc:creator "Lidiya Dimitrova" ;
-                  
-                  skos:definition "Specifies the attachments of the current object."@en ;
-                  
-                  rdfs:range ptop:Entity ;
-                  
-                  rdfs:domain ptop:Entity .
-
+                  rdfs:label "har vedhæftning"@da ,
+                             "has attachment"@en ;
+                  skos:definition "Specifies the attachments of the current object."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasAuthor
-
 chc:hasAuthor rdf:type owl:ObjectProperty ;
-              
-              rdfs:label "has author"@en ;
-              
-              emf:auditEvent "+addHasAuthor|-removeHasAuthor|changeHasAuthor" ;
-              
-              skos:definition "Indicates that the document has an author."@en ;
-              
-              dc:creator "Lidiya Dimitrova" ;
-              
+              owl:inverseOf chc:isAuthorOf ;
               rdfs:domain emf:Document ;
-              
-              rdfs:range ptop:Agent ;
-              
-              owl:inverseOf chc:isAuthorOf .
-
+              emf:auditEvent "+addHasAuthor|-removeHasAuthor|changeHasAuthor" ;
+              dc:creator "Lidiya Dimitrova" ;
+              rdfs:label "har forfatter"@da ,
+                         "has author"@en ;
+              skos:definition "Indicates that the document has an author."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasCoauthor
-
 chc:hasCoauthor rdf:type owl:ObjectProperty ;
-                
-                rdfs:label "has coauthor"@en ;
-                
-                emf:auditEvent "+addHasCoauthor|-removeHasCoauthor|changeHasCoauthor" ;
-                
-                skos:definition "Indicates that the document has coauthor."@en ;
-                
-                dc:creator "Lidiya Dimitrova" ;
-                
+                owl:inverseOf chc:isCoauthorOf ;
                 rdfs:domain emf:Document ;
-                
-                rdfs:range ptop:Agent .
+                emf:auditEvent "+addHasCoauthor|-removeHasCoauthor|changeHasCoauthor" ;
+                dc:creator "Lidiya Dimitrova" ;
+                rdfs:label "har medforfatter"@da ,
+                           "has coauthor"@en ;
+                skos:definition "Indicates that the document has coauthor."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasCulturalObjectExhibited
+chc:hasCulturalObjectExhibited rdf:type owl:ObjectProperty ;
+                               rdfs:domain chc:Exhibition ;
+                               emf:auditEvent "+addHasCulturalObjectExhibited|-removeHasCulturalObjectExhibited|changeHasCulturalObjectExhibited" ;
+                               dc:creator "Lidiya Dimitrova" ;
+                               rdfs:label "exhibited cultural objects"@en ,
+                                          "udstillede værker"@en ;
+                               skos:definition "Indicates the cultural objects being part of the exhibition."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasDepiction
-
 chc:hasDepiction rdf:type owl:ObjectProperty ;
-                 
-                 rdfs:label "has depiction"@en ;
-                 
-                 emf:auditEvent "+addHasDepiction|-removeHasDepiction|changeHasDepiction" ;
-                 
-                 skos:definition "Indicates the cultural object is depicted with image."@en ;
-                 
-                 dc:creator "Lidiya Dimitrova" ;
-                 
-                 rdfs:range emf:Image ;
-                 
                  rdfs:domain ptop:Entity ;
-                 
-                 owl:inverseOf chc:depicts .
-
+                 emf:auditEvent "+addHasDepiction|-removeHasDepiction|changeHasDepiction" ;
+                 dc:creator "Lidiya Dimitrova" ;
+                 rdfs:label "har afbildning"@da ,
+                            "has depiction"@en ;
+                 skos:definition "Indicates the cultural object is depicted with image."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasSample
-
 chc:hasSample rdf:type owl:ObjectProperty ;
-              
-              rdfs:label "has sample"@en ;
-              
-              dc:creator "Lidiya Dimitrova" ;
-              
-              emf:auditEvent "+addHasSample|-removeHasSample|changeHasSample" ;
-              
-              skos:definition "Indicates the sample which is taken from the cultural object."@en ;
-              
+              owl:inverseOf chc:isTakenFrom ;
               rdfs:domain chc:CulturalObject ;
-              
-              rdfs:range chc:Sample ;
-              
-              owl:inverseOf chc:isTakenFrom .
-
+              emf:auditEvent "+addHasSample|-removeHasSample|changeHasSample" ;
+              dc:creator "Lidiya Dimitrova" ;
+              rdfs:label "har prøve"@da ,
+                         "has sample"@en ;
+              skos:definition "Indicates the sample which is taken from the cultural object."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#hasSupervisor
-
 chc:hasSupervisor rdf:type owl:ObjectProperty ;
-                  
-                  rdfs:label "has supervisor"@en ;
-                  
-                  emf:auditEvent "+addHasSupervisor|-removeHasSupervisor|changeHasSupervisor" ;
-                  
-                  skos:definition "Indicates the document/activity is supervised by supervisor"@en ;
-                  
-                  dc:creator "Lidiya Dimitrova"@en ;
-                  
-                  rdfs:range ptop:Agent ;
-                  
+                  owl:inverseOf chc:isSupervisorOf ;
                   rdfs:domain ptop:Entity ;
-                  
-                  owl:inverseOf chc:isSupervisorOf .
-
+                  emf:auditEvent "+addHasSupervisor|-removeHasSupervisor|changeHasSupervisor" ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "har leder"@da ,
+                             "has supervisor"@en ;
+                  skos:definition "Indicates the document/activity is supervised by supervisor"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isAssignedConservator
-
 chc:isAssignedConservator rdf:type owl:ObjectProperty ;
-                          
-                          rdfs:label "is assigned conservator of"@en ;
-                          
-                          emf:auditEvent "+addIsAssignedConservator|-removeIsAssignedConservator|changeIsAssignedConservator" ;
-                          
-                          dc:creator "Malvina Makarieva" ;
-                          
-                          skos:definition "The record that the user is assigned conservator."@en ;
-                          
                           rdfs:domain ptop:Agent ;
-                          
-                          rdfs:range ptop:Entity ;
-                          
-                          owl:inverseOf chc:hasAssignedConservator .
-
+                          emf:auditEvent "+addIsAssignedConservator|-removeIsAssignedConservator|changeIsAssignedConservator" ;
+                          dc:creator "Malvina Makarieva" ;
+                          rdfs:label "er tilknyttet konservator til"@da ,
+                                     "is assigned conservator of"@en ;
+                          skos:definition "The record that the user is assigned conservator."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isAuthorOf
-
 chc:isAuthorOf rdf:type owl:ObjectProperty ;
-               
-               rdfs:label "is author of"@en ;
-               
-               emf:auditEvent "+addIsAuthorOf|-removeIsAuthorOf|changeIsAuthorOf" ;
-               
-               skos:definition "Indicates who is the author of the document."@en ;
-               
-               dc:creator "Lidiya Dimitrova"@en ;
-               
                rdfs:domain ptop:Agent ;
-               
-               rdfs:range emf:Document .
-
+               emf:auditEvent "+addIsAuthorOf|-removeIsAuthorOf|changeIsAuthorOf" ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "er forfatter af"@da ,
+                          "is author of"@en ;
+               skos:definition "Indicates who is the author of the document."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isBorrowerOf
-
 chc:isBorrowerOf rdf:type owl:ObjectProperty ;
-                 
-                 rdfs:label "is borrower of"@en ;
-                 
-                 emf:auditEvent "+addIsBorrowerOf|-removeIsBorrowerOf|changeIsBorrowerOf" ;
-                 
-                 skos:definition "Indicates the cultural object borrowed by an Institution"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova" ;
-                 
                  rdfs:domain ptop:Organization ;
-                 
-                 rdfs:range chc:CulturalObject .
-
+                 emf:auditEvent "+addIsBorrowerOf|-removeIsBorrowerOf|changeIsBorrowerOf" ;
+                 dc:creator "Lidiya Dimitrova" ;
+                 rdfs:label "er låner af"@da ,
+                            "is borrower of"@en ;
+                 skos:definition "Indicates the cultural object borrowed by an Institution"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isCoauthorOf
-
 chc:isCoauthorOf rdf:type owl:ObjectProperty ;
-                 
-                 rdfs:label "is coauthor of"@en ;
-                 
-                 emf:auditEvent "+addIsCoauthorOf|-removeIsCoauthorOf|changeIsCoauthorOf" ;
-                 
-                 skos:definition "Indicates that the user is coauthor of the document"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova" ;
-                 
                  rdfs:domain ptop:Agent ;
-                 
-                 rdfs:range emf:Document ;
-                 
-                 owl:inverseOf chc:hasCoauthor .
-
+                 emf:auditEvent "+addIsCoauthorOf|-removeIsCoauthorOf|changeIsCoauthorOf" ;
+                 dc:creator "Lidiya Dimitrova" ;
+                 rdfs:label "er medforfatter af"@da ,
+                            "is coauthor of"@en ;
+                 skos:definition "Indicates that the user is coauthor of the document"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isDocumentedIn
-
 chc:isDocumentedIn rdf:type owl:ObjectProperty ;
-                   
-                   rdfs:label "is documented in"@en ;
-                   
-                   skos:definition "Indicates that the cultural object/sample is related to a document."@en ;
-                   
-                   dc:creator "Lidiya Dimitrova" ;
-                   
-                   emf:auditEvent "+addIsDocumentedIn|-removeIsDocumentedIn|changeIsDocumentedIn" ;
-                   
-                   rdfs:range emf:Document ;
-                   
                    rdfs:domain ptop:Entity ;
-                   
-                   owl:inverseOf chc:documents .
-
+                   emf:auditEvent "+addIsDocumentedIn|-removeIsDocumentedIn|changeIsDocumentedIn" ;
+                   dc:creator "Lidiya Dimitrova" ;
+                   rdfs:label "er dokumenteret i"@da ,
+                              "is documented in"@en ;
+                   skos:definition "Indicates that the cultural object/sample is related to a document."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isLenderOf
-
 chc:isLenderOf rdf:type owl:ObjectProperty ;
-               
-               rdfs:label "is lender of"@en ;
-               
-               emf:auditEvent "+addIsLenderOf|-removeIsLenderOf|changeIsLenderOf" ;
-               
-               skos:definition "Indicates the institution that has lent the cultural object for the Exhibition."@en ;
-               
-               dc:creator "Lidiya Dimitrova"@en ;
-               
+               owl:inverseOf chc:lentBy ;
                rdfs:domain ptop:Organization ;
-               
-               rdfs:range chc:CulturalObject ;
-               
-               owl:inverseOf chc:lentBy .
-
+               emf:auditEvent "+addIsLenderOf|-removeIsLenderOf|changeIsLenderOf" ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "er udlåner af"@da ,
+                          "is lender of"@en ;
+               skos:definition "Indicates the institution that has lent the cultural object for the Exhibition."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isSupervisorOf
-
 chc:isSupervisorOf rdf:type owl:ObjectProperty ;
-                   
-                   rdfs:label "is supervisor of"@en ;
-                   
-                   emf:auditEvent "+addIsSupervisorOf|-removeIsSupervisorOf|changeIsSupervisorOf" ;
-                   
-                   skos:definition "Indicates the supervisor of the document/activity."@en ;
-                   
-                   dc:creator "Lidiya Dimitrova"@en ;
-                   
                    rdfs:domain ptop:Agent ;
-                   
-                   rdfs:range ptop:Entity .
-
+                   emf:auditEvent "+addIsSupervisorOf|-removeIsSupervisorOf|changeIsSupervisorOf" ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "er leder af"@da ,
+                              "is supervisor of"@en ;
+                   skos:definition "Indicates the supervisor of the document/activity."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#isTakenFrom
-
 chc:isTakenFrom rdf:type owl:ObjectProperty ;
-                
-                rdfs:label "is taken from"@en ;
-                
+                rdfs:domain chc:Sample ;
                 emf:auditEvent "+addIsTakenFrom|-removeIsTakenFrom|changeIsTakenFrom" ;
-                
-                skos:definition "Indicates the cultural object that the sample is taken from."@en ;
-                
                 dc:creator "Lidiya Dimitrova" ;
-                
-                rdfs:range chc:CulturalObject ;
-                
-                rdfs:domain chc:Sample .
-
+                rdfs:label "er taget fra"@da ,
+                           "is taken from"@en ;
+                skos:definition "Indicates the cultural object that the sample is taken from."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#lentBy
-
 chc:lentBy rdf:type owl:ObjectProperty ;
-           
-           rdfs:label "is lent by"@en ;
-           
-           dc:creator "Lidiya Dimitrova" ;
-           
+           rdfs:domain chc:CulturalObject ;
            emf:auditEvent "+addIsLentBy|-removeIsLentBy|changeIsLentBy" ;
-           
-           skos:definition "Indicates that the Cultural Object is lent by an Organization"@en ;
-           
-           rdfs:range ptop:Organization ;
-           
-           rdfs:domain chc:CulturalObject .
-
-
-
+           dc:creator "Lidiya Dimitrova" ;
+           rdfs:label "er udlånt af"@da ,
+                      "is lent by"@en ;
+           skos:definition "Indicates that the Cultural Object is lent by an Organization"@en .
 
 
 #################################################################
-#
 #    Data properties
-#
 #################################################################
-
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#activityPurpose
-
 chc:activityPurpose rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Purpose"@en ;
-                    
-                    dc:creator "Lidiya Dimitrova" ;
-                    
-                    skos:definition "The purpose of the performed activity."@en ;
-                    
                     rdfs:domain emf:Activity ;
-                    
-                    rdfs:range xsd:string .
-
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova" ;
+                    rdfs:label "Formål"@da ,
+                               "Purpose"@en ;
+                    skos:definition "The purpose of the performed activity."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#activityType
-
 chc:activityType rdf:type owl:DatatypeProperty ;
-                 
-                 rdfs:label "Activity Type"@en ;
-                 
-                 dc:creator "Lidiya Dimitrova" ;
-                 
-                 skos:definition "The type of the performed activity."@en ;
-                 
                  rdfs:domain emf:Activity ;
-                 
-                 rdfs:range xsd:string .
-
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova" ;
+                 rdfs:label "Activity type"@en ,
+                            "Aktivitetstype"@da ;
+                 skos:definition "The type of the performed activity."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#condition
-
 chc:condition rdf:type owl:DatatypeProperty ;
-              
-              rdfs:label "Condition"@en ;
-              
+              rdfs:range xsd:string ;
               dc:creator "Lidiya Dimitrova" ;
-              
-              skos:definition "Description of the condition of the cultural object"@en ;
-              
-              rdfs:range xsd:string .
+              rdfs:label "Condition"@en ,
+                         "Tilstand"@da ;
+              skos:definition "Description of the condition of the cultural object"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#dateCompleted
+chc:dateCompleted rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:dateTime ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Date completed"@en ,
+                             "Dato afsluttet"@da ;
+                  skos:definition "Defines the date when report was completed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#dateSigned
+chc:dateSigned rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:dateTime ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Date signed"@en ,
+                          "Dato underskrevet"@da ;
+               skos:definition "Defines the date when report was signed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#depictionType
+chc:depictionType rdf:type owl:DatatypeProperty ;
+                  rdfs:domain emf:Image ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Afbildningstype"@da ,
+                             "Depiction type"@en ;
+                  skos:definition "The relationship of the image to the work it depicts."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#exhibitionID
+chc:exhibitionID rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:Exhibition ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Exhibition ID"@en ,
+                            "Udstilling Id"@da ;
+                 skos:definition "Id of the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#exhibitionOrganizer
+chc:exhibitionOrganizer rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chc:Exhibition ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Arrangør"@da ,
+                                   "Organizer"@en ;
+                        skos:definition "The organizer of the current event."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#exhibitionVenue
+chc:exhibitionVenue rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:Exhibition ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Venue"@da ,
+                               "Venue"@en ;
+                    skos:definition "The location where an event is taking place."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#externalCreatedOn
-
 chc:externalCreatedOn rdf:type owl:DatatypeProperty ;
-                      
-                      rdfs:label "External Created On"@en ;
-                      
+                      rdfs:range xsd:dateTime ;
                       dc:creator "Lidiya Dimitrova"@en ;
-                      
-                      skos:definition "The date when the entity is created in the external system. "@en ;
-                      
-                      rdfs:range xsd:dateTime .
-
+                      rdfs:label "Eksternt oprettet den"@da ,
+                                 "External created on"@en ;
+                      skos:definition "The date when the entity is created in the external system. "@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#fingerprint
-
 chc:fingerprint rdf:type owl:DatatypeProperty ;
-                
-                rdfs:label "Fingerprint"@en ;
-                
-                skos:definition "A partner computed or supplied value that should change whenever the image contents or the image metadata is changed.. "@en ;
-                
+                rdfs:range xsd:string ;
                 dc:creator "Lidiya Dimitrova"@en ;
-                
-                rdfs:range xsd:string .
-
+                rdfs:label "Fingeraftryk"@da ,
+                           "Fingerprint"@en ;
+                skos:definition "A partner computed or supplied value that should change whenever the image contents or the image metadata is changed."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#heightOfSubject
-
 chc:heightOfSubject rdf:type owl:DatatypeProperty ;
-                    
-                    rdfs:label "Height of Subject"@en ;
-                    
+                    rdfs:range xsd:float ;
                     dc:creator "Lidiya Dimitrova"@en ;
-                    
-                    skos:definition "The height of represented subject."@en ;
-                    
-                    rdfs:range xsd:float .
+                    rdfs:label "Emnets højde"@en ,
+                               "Height of subject"@en ;
+                    skos:definition "The height of represented subject."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#imageColor
+chc:imageColor rdf:type owl:DatatypeProperty ;
+               rdfs:domain emf:Image ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Billedfarve"@da ,
+                          "Image color"@en ;
+               skos:definition "The characterization of the chromatic qualities of the image."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#imageDate
+chc:imageDate rdf:type owl:DatatypeProperty ;
+              rdfs:domain emf:Image ;
+              rdfs:range xsd:dateTime ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Billeddata"@da ,
+                         "Image Data"@en ;
+              skos:definition "The date when the image was created or produced."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#imageRestrictions
+chc:imageRestrictions rdf:type owl:DatatypeProperty ;
+                      rdfs:domain emf:Image ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Billedophavsret/Betingelser"@en ,
+                                 "Image Copyright/ Restrictions"@en ;
+                      skos:definition "Copyright statement naming the copyright holder by name, location, and date of copyright, and a summary of any restrictions on the use or dissemination of the image."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#integrated
-
 chc:integrated rdf:type owl:DatatypeProperty ;
-               
-               rdfs:label "Integrated"@en ;
-               
-               skos:definition "Defines if the cultural object is imported from CMS (Collection Management System)/ DAM (Digital Asset Management systems) or is created in CS (Conservation Space)."@en ;
-               
+               rdfs:range xsd:boolean ;
                dc:creator "Lidiya Dimitrova"@en ;
-               
-               rdfs:range xsd:boolean .
-
+               rdfs:label "Integrated"@en ,
+                          "Integreret"@da ;
+               skos:definition "Defines if the cultural object is imported from CMS (Collection Management System)/ DAM (Digital Asset Management systems) or is created in CS (Conservation Space)."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#integratedSystemId
-
 chc:integratedSystemId rdf:type owl:DatatypeProperty ;
-                       
-                       rdfs:label "integrated System Identifier"@en ;
-                       
+                       rdfs:range xsd:string ;
                        dc:creator "Lidiya Dimitrova"@en ;
-                       
-                       skos:definition "The identifier of the integrated system"@en ;
-                       
-                       rdfs:range xsd:string .
+                       rdfs:label "Integrated system identifier"@en ,
+                                  "integreret systemidentifikator"@en ;
+                       skos:definition "The identifier of the integrated system"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#overallConditionAppraisal
+chc:overallConditionAppraisal rdf:type owl:DatatypeProperty ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "Generel tilstandsvurdering"@da ,
+                                         "Overall condition appraisal"@en ;
+                              skos:definition "General description of the condition."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#reportDate
-
 chc:reportDate rdf:type owl:DatatypeProperty ;
-               
-               rdfs:label "Date of report"@en ;
-               
-               skos:definition "Date of the report."@en ;
-               
-               dc:creator "Malvina Makarieva"@en ;
-               
                rdfs:domain emf:Document ;
-               
-               rdfs:range xsd:dateTime .
+               rdfs:range xsd:dateTime ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Date of report"@en ,
+                          "Dato for rapport"@da ;
+               skos:definition "Date of the report."@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#sampleSite
+chc:sampleSite rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Lokalitet materialeprøve"@da ,
+                          "Sample site"@en ;
+               skos:definition "Location of the spot where the sample was taken: coordinates \"up\" and \"left\" or \"from right hand of the sitter\"."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#sampleStorageLocation
+chc:sampleStorageLocation rdf:type owl:DatatypeProperty ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Materialeprøve - placering"@da ,
+                                     "Sample storage location"@en ;
+                          skos:definition "Physical location of the sample so that someone could lay their hands on such as drawer number."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#samplingDate
+chc:samplingDate rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:dateTime ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Date taken"@en ,
+                            "Dato for udtagelse"@da ;
+                 skos:definition "Date on which the sample was taken."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#samplingDateRequested
+chc:samplingDateRequested rdf:type owl:DatatypeProperty ;
+                          rdfs:range xsd:dateTime ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Date requested"@en ,
+                                     "Dato for forespørgsel"@da ;
+                          skos:definition "The data on which the sample analysis is requested."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#samplingReason
+chc:samplingReason rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Grund til analyse"@da ,
+                              "Reason for analysis"@en ;
+                   skos:definition "Reason for sampling/motivation for sampling."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#sourceSystemId
-
 chc:sourceSystemId rdf:type owl:DatatypeProperty ;
-                   
-                   rdfs:label "External System ID"@en ;
-                   
-                   skos:definition "Defines the system from which the object is imported (CMS/DAM)"@en ;
-                   
+                   rdfs:range xsd:string ;
                    dc:creator "Lidiya Dimitrova"@en ;
-                   
-                   rdfs:range xsd:string .
+                   rdfs:label "Eksternt system-id"@da ,
+                              "External system ID"@en ;
+                   skos:definition "Defines the system from which the object is imported (CMS/DAM)"@en .
 
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#spectralRange
+chc:spectralRange rdf:type owl:DatatypeProperty ;
+                  rdfs:domain emf:Image ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Spectral range"@en ,
+                             "Spektralområde"@da ;
+                  skos:definition "The type of light used for the photograph to be taken."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#treatedObjects
+chc:treatedObjects rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Behandlede værker"@da ,
+                              "Treated objects"@en ;
+                   skos:definition "Identifies if single or multiple objects are treated."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#treatmentStage
+chc:treatmentStage rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Behandlings-/undersøgelsesstadie"@da ,
+                              "Stage of treatment/ examination"@en ;
+                   skos:definition "Stage of treatment/examination in which the photograph was taken."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#treatmentType
+chc:treatmentType rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Mindre/større behandling"@da ,
+                             "Minor/Major treatment"@en ;
+                  skos:definition "Indicates if the treatment is minor or major."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#viewDescription
+chc:viewDescription rdf:type owl:DatatypeProperty ;
+                    rdfs:domain emf:Image ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Se beskrivelse"@en ,
+                               "View description"@en ;
+                    skos:definition "The type of light used for the photograph to be taken."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#viewType
+chc:viewType rdf:type owl:DatatypeProperty ;
+             rdfs:domain emf:Image ;
+             rdfs:range xsd:string ;
+             dc:creator "Lidiya Dimitrova"@en ;
+             rdfs:label ""@da ,
+                        "View type"@en ;
+             skos:definition "The type of light used for the photograph to be taken."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#widthOfSubject
-
 chc:widthOfSubject rdf:type owl:DatatypeProperty ;
-                   
-                   rdfs:label "Width of Subject"@en ;
-                   
+                   rdfs:range xsd:float ;
                    dc:creator "Lidiya Dimitrova"@en ;
-                   
-                   skos:definition "The width of represented subject."@en ;
-                   
-                   rdfs:range xsd:float .
-
-
-
+                   rdfs:label "Emnets bredde"@da ,
+                              "Width of subject"@en ;
+                   skos:definition "The width of represented subject."@en .
 
 
 #################################################################
-#
 #    Classes
-#
 #################################################################
+
+###  http://www.ontotext.com/proton/protontop#Organization
+ptop:Organization emf:isCreateable "false"^^xsd:boolean ;
+                  emf:isSearchable "false"^^xsd:boolean .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#ConservationActivity
-
 chc:ConservationActivity rdf:type owl:Class ;
-                         
-                         rdfs:label "Conservation Activity"@en ;
-                         
                          rdfs:subClassOf emf:Activity ;
-                         
-                         skos:definition "Activities that are connected with conservation of a cultural objects"@en ;
-                         
                          emf:classCategory "caseinstance" ;
-                         
+                         emf:definitionId "objectinstance" ;
                          dc:creator "Lidiya Dimitrova"@en ;
-                         
-                         emf:definitionId "objectinstance" .
-
+                         rdfs:label "Conservation Activity"@en ,
+                                    "Konservering"@da ;
+                         skos:definition "Activities that are connected with conservation of a cultural objects"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalEvent
-
 chc:CulturalEvent rdf:type owl:Class ;
-                  
-                  rdfs:label "Cultural Event"@en ;
-                  
                   rdfs:subClassOf ptop:Event ;
-                  
                   dc:creator "Kiril Penev"@en ;
-                  
+                  rdfs:label "Cultural Event"@en ,
+                             "Kulturelle begivenhed"@da ;
                   skos:definition "Organized events such as art events, Exhibitions‎, Museum events and etc."@en .
 
 
-
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject
-
 chc:CulturalObject rdf:type owl:Class ;
-                   
-                   rdfs:label "Cultural Object"@en ;
-                   
-                   rdfs:subClassOf emf:DomainObject ;
-                   
+                   rdfs:subClassOf ptop:Object ;
+                   emf:classCategory "culturalobject" ;
                    emf:definitionId "objectinstance" ;
-                   
-                   skos:definition "A cultural object is an object made by humans for a practical and/or spiritual purpose. Cultural object is involved in cultural activities"@en ;
-                   
                    dc:creator "Kiril Penev"@en ;
-                   
-                   emf:classCategory "culturalobject" .
-
+                   rdfs:label "Cultural Object"@en ,
+                              "Værk"@da ;
+                   skos:definition "A cultural object is an object made by humans for a practical and/or spiritual purpose. Cultural object is involved in cultural activities"@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Exhibition
-
 chc:Exhibition rdf:type owl:Class ;
-               
-               rdfs:label "Exhibition"@en ;
-               
                rdfs:subClassOf chc:CulturalEvent ;
-               
-               skos:definition "An exhibition, in the most general sense, is an organized presentation and display of a selection of items. In practice, exhibitions usually occur within museums, galleries and exhibition halls, and World's Fairs."@en ;
-               
+               emf:classCategory "objectinstance" ;
                emf:definitionId "objectinstance" ;
-               
                dc:creator "Kiril Penev"@en ;
-               
-               emf:classCategory "objectinstance" .
-
+               rdfs:label "Exhibition"@en ,
+                          "Udstilling"@da ;
+               skos:definition "An exhibition, in the most general sense, is an organized presentation and display of a selection of items. In practice, exhibitions usually occur within museums, galleries and exhibition halls, and World's Fairs."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#IncomingLoan
-
 chc:IncomingLoan rdf:type owl:Class ;
-                 
-                 rdfs:label "Incoming Loan"@en ;
-                 
                  rdfs:subClassOf chc:Loan ;
-                 
                  dc:creator "Lidiya Dimitrova"@en ;
-                 
+                 rdfs:label "Incoming Loan"@en ,
+                            "Indgående lån"@da ;
                  skos:definition "Loan for an exhibition inside of the organization."@en .
 
 
-
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Loan
-
 chc:Loan rdf:type owl:Class ;
-         
          rdfs:subClassOf chc:CulturalEvent ;
-         
-         skos:definition "A Loan is an action by the owner or caretaker of a cultural object by which the \"loaning\" institution allows the cultural object to be physically moved to a place controlled by the \"borrowing\" institution. There can be extensive written contracts and other stipulations for this action."@en ;
-         
-         dc:creator "Lidiya Dimitrova"@en .
-
+         dc:creator "Lidiya Dimitrova"@en ;
+         skos:definition "A Loan is an action by the owner or caretaker of a cultural object by which the \"loaning\" institution allows the cultural object to be physically moved to a place controlled by the \"borrowing\" institution. There can be extensive written contracts and other stipulations for this action."@en .
 
 
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#OutgoingLoan
-
 chc:OutgoingLoan rdf:type owl:Class ;
-                 
-                 rdfs:label "Outgoing Loan"@en ;
-                 
                  rdfs:subClassOf chc:Loan ;
-                 
                  dc:creator "Lidiya Dimitrova"@en ;
-                 
+                 rdfs:label "Outgoing Loan"@en ,
+                            "Udlån"@da ;
                  skos:definition "Loan for an exhibition outside of the organization."@en .
 
 
-
 ###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample
-
 chc:Sample rdf:type owl:Class ;
-           
-           rdfs:label "Sample"@en ;
-           
-           rdfs:subClassOf emf:DomainObject ;
-           
+           rdfs:subClassOf ptop:Object ;
            emf:classCategory "sample" ;
-           
-           dc:creator "Kiril Penev"@en ;
-           
            emf:definitionId "objectinstance" ;
-           
+           dc:creator "Kiril Penev"@en ;
+           rdfs:label "Prøve"@da ,
+                      "Sample"@en ;
            skos:definition "Sample is a representative part or a single item from a larger whole or group especially when presented for inspection or shown as evidence of quality. Samples are taken from the cultural object to make additional scientiffic analysis on the used materials, technics and etc."@en .
 
 
+#################################################################
+#    Annotations
+#################################################################
+
+emf:BusinessProcess emf:isSearchable "true"^^xsd:boolean .
 
 
-###  Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net
+emf:Company emf:classCategory "company" ;
+            emf:definitionId "objectinstance" .
 
+
+emf:Customer emf:isCreateable "false"^^xsd:boolean ;
+             emf:isSearchable "false"^^xsd:boolean .
+
+
+emf:DataImportReport emf:definitionId "objectinstance" ;
+                     emf:classCategory "dataimportreport" ;
+                     emf:isSearchable "true"^^xsd:boolean ;
+                     emf:isPartOfObjectLibrary "true"^^xsd:boolean .
+
+
+emf:DataImportSource emf:isUploadable "true"^^xsd:boolean ;
+                     emf:definitionId "objectinstance" ;
+                     emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                     emf:classCategory "dataimportsource" ;
+                     emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:Department emf:isCreateable "false"^^xsd:boolean ;
+               emf:isSearchable "false"^^xsd:boolean .
+
+
+emf:Vendor emf:isCreateable "false"^^xsd:boolean ;
+           emf:isSearchable "false"^^xsd:boolean .
+
+
+emf:changeReason emf:auditEvent "+addAssignedPermissions|-removeAssignedPermissions|changeAssignedPermissions" .
+
+
+emf:createdBy rdfs:label "oprettet af"@da ,
+                         "system created by"@en .
+
+
+emf:hasAssignee rdfs:label "har ansvarlig"@da ,
+                           "has assignee"@en .
+
+
+emf:hasChild rdfs:label "has child"@en ;
+             emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:hasParent rdfs:label "has parent"@en ,
+                         "har overordnet kontekst"@da .
+
+
+emf:hasPrimaryImage rdfs:label "har primær optagelse"@da ,
+                               "has primary image"@en .
+
+
+emf:hasReporter rdfs:label "har rapportør"@da ,
+                           "has reporter"@en .
+
+
+emf:hasThumbnail rdfs:label "has thumbnail"@en ,
+                            "har thumbnail"@da .
+
+
+emf:hasWatcher rdfs:label "has watcher"@en ,
+                          "har observatør"@da .
+
+
+emf:isAssigneeOf rdfs:label "is assignee of"@en ,
+                            "er ansvarlig for"@da .
+
+
+emf:isMemberOf rdfs:label "is member of"@en ,
+                          "er medlem af"@da .
+
+
+emf:isPrimaryImageOf rdfs:label "er primær optagelse af"@da ,
+                                "is primary image of"@en .
+
+
+emf:isReporterOf rdfs:label "is reporter of"@en ,
+                            "er rapportør af"@da .
+
+
+emf:isThumbnailOf rdfs:label "is thumbnail of"@en ,
+                             "er thumbnail af"@da .
+
+
+emf:isWatcherOf rdfs:label "er observatør af"@da ,
+                           "is watcher of"@en .
+
+
+emf:markedForDownload emf:isSearchable "false"^^xsd:boolean .
+
+
+emf:modifiedBy rdfs:label "opdateret af"@da ,
+                          "system modified by"@en .
+
+
+emf:parentOf rdfs:label "overordnet kontekst for"@da ,
+                        "parent of"@en .
+
+
+emf:processedBy rdfs:label "processed by"@en ,
+                           "behandlet af"@da .
+
+
+emf:processes rdfs:label "behandler"@da ,
+                         "process"@en .
+
+
+ptop:hasMember rdfs:label "har medlem"@da ,
+                          "has member"@en .
+
+
+ptop:hasParticipant rdfs:label "har deltager"@da ,
+                               "has participant"@en .
+
+
+ptop:involvedIn rdfs:label "involveret i"@da ,
+                           "involved in"@en .
+
+
+ptop:partOf rdfs:label "del af"@da ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            rdfs:label "part of"@en .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

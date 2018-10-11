@@ -1,0 +1,21 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+delete {
+    emf:owner rdf:type emf:DefinitionObjectProperty , emf:DefinitionProperty ;
+        rdfs:range ptop:Agent ;
+        rdfs:domain ptop:Entity .
+    emf:ownedBy rdf:type emf:DefinitionObjectProperty , emf:DefinitionProperty ;
+        rdfs:range ptop:Entity ;
+        rdfs:domain ptop:Agent .
+}
+insert {
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        emf:owner rdfs:range ptop:Entity ;
+            rdfs:domain ptop:Agent .
+        emf:ownedBy rdfs:range ptop:Agent ;
+            rdfs:domain ptop:Entity ;
+    }
+} where {
+}

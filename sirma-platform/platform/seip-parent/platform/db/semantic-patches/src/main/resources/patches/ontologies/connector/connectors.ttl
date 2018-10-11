@@ -1,0 +1,236 @@
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix cnctr: <http://www.sirma.com/ontologies/2017/06/connectors#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+
+@base <http://www.sirma.com/ontologies/2017/06/connectors#> .
+
+<http://www.sirma.com/ontologies/2017/06/connectors#> rdf:type owl:Ontology ;
+                                                                  
+                                                                  rdfs:label "SEP Connectors"@en ;
+                                                                  
+                                                                  owl:versionInfo "0.1"@en ;
+                                                                  
+                                                                  dc:subject "SEP Connectors"@en ;
+                                                                  
+                                                                  dc:creator "Kiril Penev"@en ;
+                                                                  
+                                                                  rdfs:comment "SEP ontology for connectors configuration"@en .
+                                                                              
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+cnctr:hasField rdf:type owl:ObjectProperty ;
+           
+           rdfs:label "Has Field"@en ;
+           
+           dc:creator "Kiril Penev"@en ;
+           
+           skos:definition "Specifies all connector's fields that are associated with this connector. "@en ;
+           
+           rdfs:domain cnctr:Connector ;
+           
+           rdfs:range cnctr:ConnectorField .
+           
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+cnctr:address rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Address"@en ;
+                 
+                 skos:definition "Full HTTP address to the solr server that will be used in the solrUrl property of the connector initialization script. Example: http://localhost:8983/solr"@en ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+
+cnctr:connectorName rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Connector Name"@en ;
+                 
+                 skos:definition "Name of the connector without the Solr connector prefix. If not specified it will be generated from the tenant name"@en ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+                 
+cnctr:copyConfigsFrom rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Copy configs from"@en ;
+                 
+                 skos:definition "Connector copy configurations from another core. Default value is 'collection1'"@en ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+
+cnctr:entityFilter rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Entity filter"@en ;
+                 
+                 skos:definition """The entityFilter parameter is used to fine-tune the set of entities and/or individual values for the configured fields, based on the field value. Entities and field values are synchronised to Solr if, and only if, they pass the filter. The entity filter is similar to a FILTER() inside a SPARQL query but not exactly the same. Each configured field can be referred to, in the entity filter, by prefixing it with a ?, much like referring to a variable in SPARQL. 
+Default value is: ?isDeleted in (\\\"false\\\"^^xsd:boolean) && bound(?isDeleted)
+For more information: http://graphdb.ontotext.com/documentation/enterprise/solr-graphdb-connector.html#advanced-filtering-and-fine-tuning"""@en ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+                 
+cnctr:fieldDescription rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Field description"@en ;
+                 
+                 skos:definition """Defines the mapping from RDF property to connector property. 
+This is optional field and can be omitted if there is no need to change anything of the field.
+This field is in JSON format and corresponds to the configuration of the field in the connector without the curly brackets.
+For more information check http://graphdb.ontotext.com/documentation/enterprise/solr-graphdb-connector.html#list-of-creation-parameters
+
+The property name, property chain, data type or all configurations can be omitted and will be automatically generated.
+There are a few cases where this configuration is required: 
+ - if any of the flags indexed, stored, analyzed and multivalue need to be false (they are true by default)
+ - if you need to specify a specific type of the field. For example: native:text_tokenized type must be specified for all text fields that are needed to be used in FTS  
+ - if the field is part of property chain or multiple property chains then you need to specify the field name and property chain in multiple field descriptions. For more information check http://graphdb.ontotext.com/documentation/enterprise/solr-graphdb-connector.html#solr-graphdb-connector-multiple-chains
+"""@en ;
+                 
+                 rdfs:domain cnctr:ConnectorField ;
+                 
+                 dc:creator "Kiril Penev"@en .
+
+                 
+cnctr:isSortable rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Is sortable"@en ;
+                 
+                 skos:definition "Defines if a field can be used for sorting"@en ;
+                 
+                 rdfs:range xsd:boolean ;
+                 
+                 rdfs:domain cnctr:ConnectorField ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+                 
+cnctr:manageCore rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Manage Core"@en ;
+                 
+                 skos:definition "A flag that allows GraphDB to manage the core. The default value is true"@en ;
+                 
+                 rdfs:range xsd:boolean ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+                 
+cnctr:manageSchema rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Manage Schema"@en ;
+                 
+                 skos:definition "A flag that allows GraphDB to manage the schema. The default value is true"@en ;
+                 
+                 rdfs:range xsd:boolean ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+                 
+cnctr:recreate rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Recreate"@en ;
+                 
+                 skos:definition "A flag that marks the Connector to be recreated"@en ;
+                 
+                 rdfs:range xsd:boolean ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+                 
+cnctr:recreatedOn rdf:type owl:DatatypeProperty ;
+                 
+                 rdfs:label "Recreated On"@en ;
+                 
+                 skos:definition "Recreated On Date"@en ;
+                 
+                 rdfs:domain cnctr:Connector ;
+                 
+                 rdfs:range xsd:dateTime ;
+                 
+                 dc:creator "Kiril Penev"@en .
+                 
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+cnctr:Connector a owl:Class ;
+
+			 rdfs:label "Connector"@en ;
+             
+             rdfs:subClassOf ptop:Abstract ;
+             
+             emf:isCreateable "false"^^xsd:boolean ;
+             
+             emf:isUploadable "false"^^xsd:boolean ;
+             
+             emf:isSearchable "false"^^xsd:boolean ;
+             
+             skos:definition "Connector description object"@en ;
+             
+             dc:creator "Kiril Penev"@en .
+             
+             
+cnctr:ConnectorField a owl:Class ;
+
+			 rdfs:label "Connector Field"@en ;
+             
+             rdfs:subClassOf ptop:Abstract ;
+             
+             emf:isCreateable "false"^^xsd:boolean ;
+             
+             emf:isUploadable "false"^^xsd:boolean ;
+             
+             emf:isSearchable "false"^^xsd:boolean ;
+             
+             skos:definition "Connector field description object"@en ;
+             
+             dc:creator "Kiril Penev"@en .

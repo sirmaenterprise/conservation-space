@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+	xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+    http://xmlns.jcp.org/xml/ns/persistence
+    http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+    <persistence-unit name="CoreDatabase" transaction-type="JTA">
+		<jta-data-source>java:jboss/datasources/system.tenant</jta-data-source>
+		<properties>
+			<!-- Loading using external configuration for hibernate. The file should 
+				be located in the root directory if the classpath -->
+			<property name="hibernate.ejb.cfgfile" value="core.hibernate.cfg.xml" />
+		</properties>
+	</persistence-unit>
+	
+	<persistence-unit name="SEIP-Primary" transaction-type="JTA">
+		<properties>
+			<!-- Loading using external configuration for hibernate. The file should 
+				be located in the root directory if the classpath -->
+			<property name="hibernate.ejb.cfgfile" value="hibernate.cfg.xml" />
+		</properties>
+	</persistence-unit>
+	
+	<!-- Declaring the persistence unit for the audit log. -->
+	<persistence-unit name="seip-auditlog">
+		<properties>
+			<!-- Loading using external configuration for hibernate. The file should 
+				be located in the root directory if the classpath. -->
+			<property name="hibernate.ejb.cfgfile" value="audit.hibernate.cfg.xml" />
+		</properties>
+	</persistence-unit>
+</persistence>

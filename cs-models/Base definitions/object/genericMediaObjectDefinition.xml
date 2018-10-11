@@ -1,170 +1,128 @@
-<?xml version="1.0"?>
-    <definition id="media" parentId="GEO10001" isAbstract="true" type="object">
-        <fields>
-			<!-- headers and tooltip -->
-			<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-            <field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-            <field name="breadcrumb_header" type="an..4096" label="DOCUMENT_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-            <field name="tooltip_header" type="an..4096" label="DOCUMENT_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-			
-			<field name="rdf:type" 		type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-				<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Media</value>
-			</field>			
-			
-			<field name="viewDefinition" type="an..20" label="image.viewDefinition" displayType="system"  uri="emf:viewDefinition"><value>image</value></field>
-			<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
-	        <field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
-            <field name="outcome" type="an..50" codelist="CL9" displayType="readOnly" label="outcome.label" previewEmpty="false" uri="emf:outcome" />
-            			
-			<!-- general fields for each primary object -->
-            <field name="type" 			type="an..50" >
-				<value>MEDIA</value>
-			</field>
-			<field name="status" 		type="an..50" codelist="CL8" />
-			<field name="title" 	 	type="an..180" />
-			
-			<field name="name" 			type="an..180" label="file-name" mandatory="false" displayType="hidden" dmsType="cm:name" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName"/>			<!-- documentName -->
-		    
-		    <!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
-		    <field name="fileSize" 		type="an..10" label="file-size" mandatory="false" displayType="system" previewEmpty="false" />	
-			
-			<!-- When you use this field the control BYTE_FORMAT is required -->
-		    <field name="size" type="n..10" label="file-size" mandatory="false" displayType="hidden" previewEmpty="false" uri="emf:size">
-		    	<control id="BYTE_FORMAT" />
-		    </field>
-		    
-			<field name="mimetype" codelist="CL215" type="an..20" label="mimetype" displayType="hidden" dmsType="-cm:content.mimetype" previewEmpty="false" uri="emf:mimetype"/>
-			<field name="lockedBy" 		type="uri" label="locked-by" displayType="readonly" dmsType="FORBIDDEN" previewEmpty="false"> 
-	    		<control id="PICKER">
-	    			<control-param id="range" name="range">emf:User</control-param>
-	    		</control>
-			</field>		
-			<field name="hasThumbnail" type="uri" label="hasThumbnail" mandatory="false" displayType="system" previewEmpty="false" uri="emf:hasThumbnail" >
-				<control id="PICKER">
-					<control-param id="range" name="range">emf:Image</control-param>
-				</control>
-			</field>
-        </fields>
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="media" parentId="baseObject" isAbstract="true" type="object">
+	<fields>
+		<!-- HEADERS AND TOOLTIP -->
+		<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER" displayType="system"/>
+		<field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="an..4096" label="DOCUMENT_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="tooltip_header" type="ANY" label="DOCUMENT_TOOLTIP_HEADER" displayType="system"/>
 
-        <transitions>
-			<transition id="download" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" />
-			<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
-			<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion"  tooltip="uploadNewVersion.tooltip" />
-			<transition id="delete" label="delete.label" eventId="delete" purpose="delete" confirmation="confirmation.action" tooltip="delete.tooltip" />
-			<transition id="saveAsTemplate" label="saveAsTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" />
-			<transition id="move" label="move.label" eventId="move" purpose="move" tooltip="move.tooltip" />
-			<transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" />
-			<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" />	
-			<transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" />
-	     	<transition id="publish" label="publish.label" eventId="publish" purpose="publish" tooltip="publish.tooltip" />	         
-	     	<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" />
-			<transition id="printTab" label="printTab.label" eventId="printTab" purpose="printTab" tooltip="printTab.tooltip" />
-			<transition id="exportTabPDF" label="exportTabPDF.label" eventId="exportTabPDF" purpose="exportTabPDF" tooltip="exportTabPDF.tooltip" />
-			<transition id="exportPDF" label="exportPDF.label" eventId="exportPDF" purpose="exportPDF" tooltip="exportPDF.tooltip" />
-			<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" />
-	  	 	<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" />
-			<transition id="clone" label="clone.label" eventId="clone" purpose="clone" tooltip="clone.tooltip" />
-			
-        </transitions>
-        
-        <stateTransitions>		
-			<stateTransition from="INIT" transition="create" to="DRAFT" />
-			<stateTransition from="INIT" transition="clone" to="DRAFT"/>
-			
-			<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="delete" to="DELETED" />			
-			<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="approve" to="APPROVED"/>
-			<stateTransition from="DRAFT" transition="reject" to="REJECTED"/>  			
-			<stateTransition from="DRAFT" transition="move" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>			
-			<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="publish" to="APPROVED">
-				<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
-				<condition renderAs="PROPERTY" id="emf:revisionType">emf:latestRevision</condition>
-			</stateTransition>
-			<stateTransition from="DRAFT" transition="publish" to="DRAFT"/>			
-			<stateTransition from="DRAFT" transition="print" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="printTab" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="exportPDF" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="exportWord" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="clone" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="download" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="createInContext" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="revertVersion" to="DRAFT" />
-			
-			<stateTransition from="APPROVED" transition="delete" to="DELETED" />
-			<stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />			
-			<stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="publish" to="APPROVED">
-				<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
-				<condition renderAs="PROPERTY" id="emf:revisionType">emf:latestRevision</condition>
-			</stateTransition>
-			<stateTransition from="APPROVED" transition="publish" to="DRAFT"/>			
-			<stateTransition from="APPROVED" transition="print" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="exportPDF" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="exportWord" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="clone" to="APPROVED" />
-			<stateTransition from="APPROVED" transition="download" to="APPROVED"/>
-			
-			<stateTransition from="REJECTED" transition="saveAsTemplate" to="REJECTED"/>
-			<stateTransition from="REJECTED" transition="managePermissions" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="publish" to="REJECTED">
-				<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
-				<condition renderAs="PROPERTY" id="emf:revisionType">emf:latestRevision</condition>
-			</stateTransition>
-			<stateTransition from="REJECTED" transition="publish" to="DRAFT"/>
-			<stateTransition from="REJECTED" transition="print" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="printTab" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="exportTabPDF" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="exportPDF" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="exportWord" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="exportTabWord" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="clone" to="REJECTED" />
-			<stateTransition from="REJECTED" transition="download" to="REJECTED"/>
+    	<!-- SYSTEM FIELDS -->
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Media</value>
+		</field>
+		<!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
+		<field name="fileSize" type="an..10" label="name.label" displayType="system" previewEmpty="false" />
+		<field name="viewDefinition" type="an..20" label="viewDefinition.label" displayType="system" uri="emf:viewDefinition">
+			<value>image</value>
+		</field>
+		<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
+		<field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
+		<field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
 
-			<stateTransition from="OBSOLETE" transition="download" to="OBSOLETE"/>
-			<stateTransition from="OBSOLETE" transition="saveAsTemplate" to="OBSOLETE"/>
-			<stateTransition from="OBSOLETE" transition="print" to="OBSOLETE"/>
-			<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE"/>
-			<stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE"/>				
-			<stateTransition from="OBSOLETE" transition="exportPDF" to="OBSOLETE"/>
-			<stateTransition from="OBSOLETE" transition="exportWord" to="OBSOLETE" />
-			<stateTransition from="OBSOLETE" transition="exportTabWord" to="OBSOLETE" />
-			<stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE" />
-			<stateTransition from="OBSOLETE" transition="clone" to="OBSOLETE" />
-						
-			<stateTransition from="*" transition="delete" to="DELETED" />
-			<stateTransition from="*" transition="obsolete" to="OBSOLETE" />				
-		</stateTransitions>        
-        
-        <labels>
-			<label id="file-size">
-				<value lang="bg">Размер на файла</value>
-				<value lang="en">Size</value>
-			</label>
-			<label id="mimetype">
-				<value lang="bg">Тип на файла</value>
-				<value lang="en">Mimetype</value>
-			</label>
-			<label id="file-name">
-				<value lang="bg">Име на файл</value>
-				<value lang="en">Name</value>
-			</label>				
-			<label id="locked-by">
-				<value lang="bg">Заключен от</value>
-				<value lang="en">Locked by</value>
-			</label>
-			<label id="viewDefinition">
-    		   <value lang="bg">Дефиниция</value>
-    		   <value lang="en">Definition</value>
-    		</label>
-        </labels>		
-    </definition>
+    	<!-- GENERAL DATA FIELDS FOR MEDIA -->
+		<field name="type" type="an..50" codelist="CL7">
+			<value>MEDIA</value>
+		</field>
+		<field name="status" type="an..10" codelist="CL8"/>
+		<!-- documentName -->
+    	<field name="name" type="an..180" label="name.label" displayType="readonly" previewEmpty="false" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" uri="emf:fileName" />
+		<!-- When you use this field the control BYTE_FORMAT is required -->
+		<field name="size" type="n..10" label="size.label" displayType="readonly" previewEmpty="false" uri="emf:size">
+			<control id="BYTE_FORMAT" />
+		</field>
+		<field name="mimetype" type="an..20" codelist="CL30" label="mimetype.label" displayType="readonly" previewEmpty="false" uri="emf:mimetype" />
+
+    	<!-- GENERAL OBJECT FIELDS FOR MEDIA -->
+		<field name="hasThumbnail" type="uri" label="hasThumbnail" displayType="system" previewEmpty="false" uri="emf:hasThumbnail">
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Image</control-param>
+			</control>
+		</field>
+	</fields>
+
+	<transitions>
+		<transition id="download" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" />
+    	<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" />
+    	<transition id="publish" label="publish.label" eventId="publish" purpose="publish" tooltip="publish.tooltip" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="DRAFT" />
+		<stateTransition from="INIT" transition="clone" to="DRAFT" />
+
+		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="delete" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="approve" to="APPROVED" />
+		<stateTransition from="DRAFT" transition="reject" to="REJECTED" />
+		<stateTransition from="DRAFT" transition="move" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="lock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="unlock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="publish" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="DRAFT" transition="publish" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="print" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="printTab" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportPDF" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportWord" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="clone" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="download" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="revertVersion" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="changeTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="updateTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
+		
+		<stateTransition from="APPROVED" transition="delete" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="publish" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="publish" to="DRAFT" />
+		<stateTransition from="APPROVED" transition="print" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="clone" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="download" to="APPROVED" />
+		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
+		
+		<stateTransition from="REJECTED" transition="saveAsTemplate" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="managePermissions" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="publish" to="REJECTED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="REJECTED" transition="publish" to="DRAFT" />
+		<stateTransition from="REJECTED" transition="print" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="printTab" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportTabPDF" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportPDF" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportWord" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportTabWord" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="clone" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="download" to="REJECTED" />
+      	<stateTransition from="REJECTED" transition="addWatchers" to="REJECTED" />
+      	
+		<stateTransition from="OBSOLETE" transition="download" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="saveAsTemplate" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="print" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportPDF" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportWord" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportTabWord" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="clone" to="OBSOLETE" />
+
+		<stateTransition from="*" transition="obsolete" to="OBSOLETE" />
+	</stateTransitions>
+</definition>

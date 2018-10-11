@@ -1,527 +1,1897 @@
 <?xml version="1.0"?>
 <definition id="commonLabels" type="labels" isAbstract="true">
+<!--  Labels should be added in their respective logical region:
 
+		Index:                                           Label structure:
+		* Object Properties Labels                    -> xxxxxxx
+		* Data Properties Labels                      -> xxxxxxx.label
+ 		* Actions Labels                              -> xxxxxxx.action.label
+ 			* Comments actions labels
+
+        * Confirmation Labels                         -> confirmations should start/contain - "confirmation".
+ 		* Notification Labels                         -> notifications should start/contain - "notification".
+ 		* Validation errors                           -> errors should start/contain - "error".
+ 		* Used for field uniqueness                   -> notifications should contain - "unique".
+
+        * Labels of Widgets:                          -> widgets should start/contain - widget.
+			* used in aggregated table widget
+			* used in data object widget
+			* used in data table widget
+			* used in comments widget
+		    * used in process widget
+
+        * Specific:
+	      	* Labels for Audit log actions
+			* Labels for templates                   -> template.yyyy.label (template data property)
+								                     -> template.yyyy.action.label (template action)
+			* Email integration labels               -> should start/contain - "email"
+			* Used in export to Word functionality	 -> should start/contain - "word"
+			* Labels for downloads and favouries     -> should start/contain - "downloads/favouries"
+
+		* Group labels
+		* User labels
+		* Generic class labels
+		* Advanced search labels
+		* Saved search labels
+		* Permission labels
+
+ -->
 	<labels>
-		<label id="default.downloads.icon">
-			<value lang="bg"><![CDATA[${eval(<span class="custom-icon ${if(${get([markedForDownload])}).then(circle_arrow_down).else(download)} downloads-list" title="${if(${get([markedForDownload])}).then(Премахни от списъка за сваляне).else(Добави към списъка за сваляне)}"></span>)}]]></value>
-			<value lang="en"><![CDATA[${eval(<span class="custom-icon ${if(${get([markedForDownload])}).then(circle_arrow_down).else(download)} downloads-list" title="${if(${get([markedForDownload])}).then(Remove from downloads).else(Add to downloads)}"></span>)}]]></value>
-		</label>
-		<label id="default.favouries.icon">
-			<value lang="bg"><![CDATA[${eval(<span class="custom-icon ${if(${get([hasFavourite])}).then(star).else(dislikes)} favourites" title="${if(${get([hasFavourite])}).then(Премахни от любими).else(Добави в любими)}"></span>)}]]></value>
-			<value lang="en"><![CDATA[${eval(<span class="custom-icon ${if(${get([hasFavourite])}).then(star).else(dislikes)} favourites" title="${if(${get([hasFavourite])}).then(Remove from favourites).else(Add to favourites)}"></span>)}]]></value>
-		</label>
-		
-		<!--object properties -->
+		<!-- Object Properties Labels -->
 		<label id="lockedBy">
 			<value lang="bg">Заключено от </value>
 			<value lang="en">Locked by </value>
+			<value lang="de">Gesperrt von </value>
+			<value lang="fi">Lukittu </value>
 		</label>
 		<label id="parentOf">
 			<value lang="bg">Родител на</value>
-			<value lang="en">Parent Of</value>
+			<value lang="en">Parent of</value>
+			<value lang="de">Elternteil von</value>
+			<value lang="fi">Vanhempi</value>
 		</label>
 		<label id="hasParent">
 			<value lang="bg">Има родител</value>
-			<value lang="en">Has Parent</value>
+			<value lang="en">Has parent</value>
+			<value lang="de">Hat Elternteil</value>
+			<value lang="fi">Onko vanhempi</value>
 		</label>
 		<label id="hasTemplate">
 			<value lang="bg">Има шаблон</value>
-			<value lang="en">Has Template</value>
+			<value lang="en">Has template</value>
+			<value lang="de">Hat eine Vorlage</value>
+			<value lang="fi">Malli</value>
+		</label>
+		<label id="templateVersion">
+			<value lang="bg">Версия на приложения шаблон</value>
+			<value lang="en">Version of the applied template</value>
+			<value lang="de">Version der verwendeten Vorlage</value>
+			<value lang="fi">Käytetyn mallin versio</value>
 		</label>
 		<label id="hasThumbnail">
 			<value lang="bg">Има умалено изображение</value>
-			<value lang="en">Has Thumbnail</value>
+			<value lang="en">Has thumbnail</value>
+			<value lang="de">Hat Miniaturansicht</value>
+			<value lang="fi">Pienoiskuva</value>
 		</label>
 		<label id="isThumbnailOf">
 			<value lang="bg">Е умалено изображение на</value>
-			<value lang="en">Is Thumbnail Of</value>
+			<value lang="en">Is thumbnail of</value>
+			<value lang="de">Ist Thumbnail von</value>
+			<value lang="fi">On pienoiskuva</value>
 		</label>
 		<label id="owner">
 			<value lang="bg">Собственик</value>
 			<value lang="en">Owner</value>
+			<value lang="de">Inhaber</value>
+			<value lang="fi">Omistaja</value>
 		</label>
 		<label id="ownedBy">
 			<value lang="bg">Собственост на</value>
 			<value lang="en">Owned by</value>
+			<value lang="de">Gehört</value>
+			<value lang="fi">Omistuksessa</value>
 		</label>
 		<label id="isAssigneeOf">
 			<value lang="bg">Изпълнител на</value>
-			<value lang="en">Is Assignee Of</value>
+			<value lang="en">Is assignee of</value>
+			<value lang="de">Ist Bevollmächtigter von</value>
+			<value lang="fi">Oleskelulupa on</value>
 		</label>
 		<label id="assignee">
 			<value lang="bg">Е възложен на</value>
-			<value lang="en">Has Assignee</value>
-		</label>		
+			<value lang="en">Has assignee</value>
+			<value lang="de">Hat Bevollmächtigter</value>
+			<value lang="fi">Onko vastaanottaja</value>
+		</label>
+		<label id="assignees.label">
+			<value lang="bg">Изпълнители</value>
+			<value lang="en">Assignees</value>
+			<value lang="de">Beauftragte</value>
+			<value lang="fi">Luovutuksensaajina</value>
+		</label>
 		<label id="isPoolAssigneeTo">
 			<value lang="bg">Е добавен към пул</value>
-			<value lang="en">Is Pool Assignee To</value>
-		</label>
-			
-		<!--labels of actions -->
-		<label id="claim.label">
-			<value lang="bg">Приемане на задача</value>
-			<value lang="en">Claim</value>
-		</label>
-		<label id="release.label">
-			<value lang="bg">Освобождаване на задача</value>
-			<value lang="en">Release to Pool</value>
-		</label>
-		
-		<label id="print.label">
-			<value lang="bg">Разпечатване</value>
-			<value lang="en">Print All Tabs</value>
-		</label>
-		<label id="printTab.label">
-			<value lang="bg">Разпечатване на секция</value>
-			<value lang="en">Print</value>
-		</label>
-		<label id="exportTabPDF.label">
-			<value lang="bg">Експортиране на секция в PDF</value>
-			<value lang="en">Export to PDF</value>
-		</label>
-		<label id="exportPDF.label">
-			<value lang="bg">Експортиране в PDF</value>
-			<value lang="en">Export All Tabs to PDF</value>
-		</label>
-		<label id="exportWord.label">
-			<value lang="bg">Експортиране в Word</value>
-			<value lang="en">Export All Tabs to Word</value>
-		</label>
-		<label id="exportTabWord.label">
-			<value lang="bg">Експортиране на секция в Word</value>
-			<value lang="en">Export to Word</value>
-		</label>
-		
-		<label id="editDetails.label">
-			<value lang="bg">Редактиране на детайлите</value>
-			<value lang="en">Edit</value>
-		</label>
-		<label id="delete.label">
-			<value lang="bg">Изтриване</value>
-			<value lang="en">Delete</value>
-		</label>
-		<label id="addThumbnail.label">
-			<value lang="bg">Добавяне на умалено изображение</value>
-			<value lang="en">Add Thumbnail</value>
-		</label>
-		<label id="saveAsTemplate.label">
-			<value lang="bg">Запазване като формуляр</value>
-			<value lang="en">Save аs Public Template</value>
-		</label>
-		<label id="managePermissions.label">
-			<value lang="bg">Актуализиране на права</value>
-			<value lang="en">Edit Permissions</value>
-		</label>		
-		<label id="restorePermissions.label">
-			<value lang="bg">Възстановяване на права</value>
-			<value lang="en">Restore Permissions</value>
-		</label>
-		<label id="move.label">
-			<value lang="bg">Преместване</value>
-			<value lang="en">Move</value>
-		</label>	
-		<label id="approve.label">
-			<value lang="bg">Одобряване</value>
-			<value lang="en">Approve</value>
-		</label>
-		<label id="reject.label">
-			<value lang="bg">Отхвърляне</value>
-			<value lang="en">Reject</value>
-		</label>
-		<label id="start.label">
-			<value lang="bg">Започване на работа</value>
-            <value lang="en">Start</value>
-		</label>
-		<label id="lock.label">
-			<value lang="bg">Заключване</value>
-			<value lang="en">Lock</value>
-		</label>		
-		<label id="unlock.label">
-			<value lang="bg">Отключи</value>
-			<value lang="en">Unlock</value>
-		</label>
-		<label id="reassign.label">
-			<value lang="bg">Пренасочване</value>
-			<value lang="en">Reassign</value>
-		</label>		
-		<label id="suspend.label">
-			<value lang="bg">Временно спиране</value>
-			<value lang="en">Suspend</value>
-		</label>
-		<label id="restart.label">
-			<value lang="bg">Подновяване работа</value>
-			<value lang="en">Restart</value>
-		</label>
-		<label id="stop.label">
-			<value lang="bg">Прекратяване на работа</value>
-			<value lang="en">Stop</value>
-		</label>
-	   	<label id="complete.label">
-			<value lang="bg">Приключи</value>
-            <value lang="en">Complete</value>
-		</label>
-		<label id="download.label">
-			<value lang="bg">Изтегляне</value>
-			<value lang="en">Download</value>
-		</label>
-		<label id="uploadNewVersion.label">
-			<value lang="bg">Прикачване на нова версия</value>
-			<value lang="en">Upload New Version</value>
-		</label>
-		<label id="open.label">
-			<value lang="bg">Отваряне</value>
-			<value lang="en">Open</value>
-		</label>
-		<label id="clone.label">
-			<value lang="bg">Клониране</value>
-			<value lang="en">Clone</value>
-		</label>
-		<label id="annotation.createComment">
-			<value lang="bg">Създай тема</value>
-			<value lang="en">New Topic</value>
-		</label>
-		<label id="annotation.editComment">
-			<value lang="bg">Редактирай коментар</value>
-			<value lang="en">Edit Comment</value>
-		</label>
-		<label id="annotation.replyComment">
-			<value lang="bg">Отговори</value>
-			<value lang="en">Reply</value>
-		</label>
-		<label id="annotation.deleteComment">
-			<value lang="bg">Изтрий коментар</value>
-			<value lang="en">Delete Comment</value>
-		</label>
-		<label id="annotation.suspendComment">
-			<value lang="bg">Затвори коментар</value>
-			<value lang="en">Resolve Comment</value>
-		</label>
-		<label id="annotation.restartComment">
-			<value lang="bg">Отвори коментара</value>
-			<value lang="en">Restart Comment</value>
-		</label>
-		<label id="addIcons.label">
-			<value lang="bg">Добави икони</value>
-            <value lang="en">Add Icons</value>
-        </label>
-		<label id="viewDetails.label">
-			<value lang="bg">Виж Детайлите</value>
-            <value lang="en">View Details</value>
-        </label>
-		<label id="addWatchers.label">
-			<value lang="bg">Добави наблюдаващи</value>
-			<value lang="en">Add Watchers</value>
-		</label>
-		<label id="createdOn.label">
-		    <value lang="bg">Създаден на</value>
-			<value lang="en">System created on</value>
-		</label>
-		<label id="createdBy.label">
-			<value lang="bg">Създаден от</value>
-			<value lang="en">System created by</value>
-		</label>
-		<label id="publish.label">
-			<value lang="bg">Публикувай</value>
-			<value lang="en">Publish</value>
-		</label>
-		<label id="publishAsPdf.label">
-			<value lang="bg">Публикувай като PDF</value>
-			<value lang="en">Publish as PDF</value>
-		</label>
-		<label id="importFile.label">
-			<value lang="bg">Импортирай файла</value>
-			<value lang="en">Import file</value>
-		</label>
-		<label id="createInContext.label">
-			<value lang="bg">Създаване в контекст</value>
-			<value lang="en">Create in context</value>
-		</label>
-		<label id="create">
-			<value lang="bg">Създай</value>
-			<value lang="en">Create</value>
-		</label>		
-		<label id="revertVersion.label">
-			<value lang="bg">Възстанови тази версия</value>
-			<value lang="en">Revert to this version</value>
-		</label>	
-		
-				
-		<!--labels of confirmations -->
-		<label id="confirmation.action">
-			<value lang="bg">Сигурни ли сте, че искате да продължите с операцията {{operationName}}?</value>
-			<value lang="en">Are you sure you want to continue with action {{operationName}}?</value>
-		</label>
-		<label id="revert.confirmation.action">
-			<value lang="bg">Съдържанието и свойствата на текущата версия, ще бъдат заменени. Сигурни ли сте, искате да се върнете към тази версия?</value>
-			<value lang="en">The content and the properties of the current version will be replaced. Are you sure you want to revert to this version?</value>
-		</label>
-
-		<!--labels of notifications -->
-		<label id="notification.project.assignment.subject">
-			<value lang="bg">Вие бяхте добавени към проект</value>
-			<value lang="en">New assignment on a project</value>
-		</label>
-		
-		<!--labels of fields-->
-		<label id="uniqueIdentifier.label">
-			<value lang="bg">Номер</value>
-			<value lang="en">Identifier</value>
-		</label>
-		<label id="type.label">
-            <value lang="bg">Тип</value>
-            <value lang="en">Type</value>
-        </label>         
-        <label id="title.label">
-            <value lang="bg">Наименование</value>
-            <value lang="en">Title</value>
-        </label>
-		<label id="widthOfSubject.label">
-			<value lang="bg">Ширина на обекта</value>
-			<value lang="en">Width of Subject</value>
-		</label>
-		<label id="heightOfSubject.label">
-			<value lang="bg">Височина на обекта</value>
-			<value lang="en">Height of Subject</value>
-		</label>
-		<label id="dimensionUnit.label">
-			<value lang="bg">Мерна единица</value>
-			<value lang="en">Property Unit</value>
-		</label>
-		<label id="document.content">
-			<value lang="bg">Съдържание на документa</value>
-			<value lang="en">Document content</value>
-		</label>
-		<label id="document.ocr.content">
-			<value lang="bg">OCR Съдържание на документa</value>
-			<value lang="en">OCR Document content</value>
-		</label>
-		<label id="document.ocr.status">
-			<value lang="bg">OCR Статус</value>
-			<value lang="en">OCR Status</value>
-		</label>
-		<label id="modifiedBy.label">
-			<value lang="bg">Актуализиран от</value>
-			<value lang="en">Modified by</value>
-		</label>
-		<label id="modifiedOn.label">
-			<value lang="bg">Актуализиран на</value>
-			<value lang="en">Modified on</value>
-		</label>
-		<label id="completedBy.label">
-			<value lang="bg">Приключен от</value>
-			<value lang="en">Completed by</value>
-		</label>
-		<label id="completedOn.label">
-			<value lang="bg">Приключен на</value>
-			<value lang="en">Completed on</value>
-		</label>
-		<label id="transitionMatrix.label">
-			<value lang="bg">Преходи</value>
-			<value lang="en">Transition Matrix</value>
-		</label>
-		<label id="activityId.label">
-			<value lang="bg">Идентификатор на дейност</value>
-			<value lang="en">Activity Id</value>
-		</label>
-		<label id="outcome.label">
-			<value lang="bg">Резултат от дейност</value>
-			<value lang="en">Outcome</value>
-		</label>
-		<label id="helpTarget.label">
-            <value lang="bg">Цел на ръководството</value>
-            <value lang="en">Help Target</value>
-        </label>
-        <label id="taskNotes.label">
-			<value lang="bg">Бележки свръзани с изпълнението на задачата</value>
-			<value lang="en">Task notes</value>
-		</label>
-		<label id="plannedStartDate.label">
-			<value lang="bg">Планирана начална дата</value>
-			<value lang="en">Planned Start Date</value>
-		</label>
-		<label id="plannedEndDate.label">
-			<value lang="bg">Планирана крайна дата</value>
-			<value lang="en">Planned End Date</value>
-		</label>
-		<label id="status.label">
-		<value lang="bg">Статус</value>
-			<value lang="en">Status</value>
-		</label>
-		<label id="priority.label">
-		<value lang="bg">Прироитет</value>
-			<value lang="en">Priority</value>
-		</label>
-		<label id="name.label">
-		<value lang="bg">Име на файл</value>
-			<value lang="en">File name</value>
-		</label>
-		<label id="mimetype.label">
-		<value lang="bg">Разширение</value>
-			<value lang="en">Mimetype</value>
-		</label>
-		<label id="size.label">
-		<value lang="bg">Големина</value>
-			<value lang="en">Size</value>
-		</label>
-		<label id="description.label">
-		<value lang="bg">Описание</value>
-			<value lang="en">Description</value>
-		</label>
-		<label id="object.version">
-			<value lang="bg">Версия</value>
-			<value lang="en">Version</value>
-		</label>		
-		<label id="hasRevision.label">
-			<value lang="bg">Има ревизия</value>
-			<value lang="en">Has revision</value>
-		</label>			
-		<label id="isRevisionOf.label">
-			<value lang="bg">Е ревизия на</value>
-			<value lang="en">Is revision of</value>
-		</label>			
-		<label id="lastPublishedRevision.label">
-			<value lang="bg">Последна публикувана ревизия</value>
-			<value lang="en">Last published revision</value>
-		</label>			
-		<label id="lastRevision.label">
-			<value lang="bg">Последна ревизия</value>
-			<value lang="en">Last revision</value>
-		</label>			
-		<label id="nextRevision.label">
-			<value lang="bg">Следваща ревизия</value>
-			<value lang="en">Next revision</value>
-		</label>			
-		<label id="previousRevision.label">
-			<value lang="bg">Предишна ревизия</value>
-			<value lang="en">Previous revision</value>
-		</label>	
-		<label id="revisionNumber.label">
-			<value lang="bg">Ревизия номер</value>
-			<value lang="en">Revision Number</value>
-		</label>			
-		<label id="integrated.label">
-			<value lang="bg">Интегриран</value>
-			<value lang="en">Integrated</value>
-		</label>
-		<label id="uri.label">
-			<value lang="bg">URI</value>
-			<value lang="en">URI</value>
-		</label>
-		<label id="workflow.stopReason.label">
-			<value lang="bg">Причина за спиране на работния процес</value>
-			<value lang="en">Reason to stop the workflow</value>
-		</label>	
+			<value lang="en">Is pool assignee to</value>
+			<value lang="de">Ist Pool-Beauftragter zu</value>
+			<value lang="fi">On Pool Assignee To</value>
+		</label>
+		<label id="poolAssignees.label">
+			<value lang="bg">Възможни изпълнители</value>
+			<value lang="en">Possible assignees</value>
+			<value lang="de">Mögliche Beauftragte</value>
+			<value lang="fi">Mahdolliset toimihenkilöt</value>
+		</label>
+		<label id="isMemberOf">
+			<value lang="bg">Е член на</value>
+			<value lang="en">Is member of</value>
+			<value lang="de">Ist Mitglied von</value>
+			<value lang="fi">Onko jäsen</value>
+		</label>
+		<label id="hasMember">
+			<value lang="bg">Има член</value>
+			<value lang="en">Has member</value>
+			<value lang="de">Hat Mitglied</value>
+			<value lang="fi">Onko jäsen</value>
+		</label>
+    	<label id="associatedWith">
+   			<value lang="bg">Асоцииран с</value>
+   			<value lang="en">Associated with</value>
+   			<value lang="de">Verknüpft mit</value>
+   			<value lang="fi">Liittyvä</value>
+    	</label>
+    	<label id="processedBy">
+   			<value lang="bg">Обработен от</value>
+   			<value lang="en">Processed by</value>
+   			<value lang="de">Verarbeitet von</value>
+   			<value lang="fi">Jalostanut</value>
+    	</label>
 		<label id="partOf.label">
 			<value lang="bg">"Част от"</value>
 			<value lang="en">Part of</value>
+			<value lang="de">Teil von</value>
+			<value lang="fi">Osa</value>
 		</label>
 		<label id="hasChild.label">
 			<value lang="bg">Има деца</value>
 			<value lang="en">Has child</value>
+			<value lang="de">Hat ein Kind</value>
+			<value lang="fi">Onko lapsi</value>
 		</label>
-		
-        <!-- labels of widgets -->
+		<label id="hasRevision.label">
+			<value lang="bg">Има ревизия</value>
+			<value lang="en">Has revision</value>
+			<value lang="de">Hat Überarbeitung</value>
+			<value lang="fi">Onko tarkistus</value>
+		</label>
+		<label id="isRevisionOf.label">
+			<value lang="bg">Е ревизия на</value>
+			<value lang="en">Is revision of</value>
+			<value lang="de">Ist Revision von</value>
+			<value lang="fi">Tarkistetaanko</value>
+		</label>
+		<label id="lastPublishedRevision.label">
+			<value lang="bg">Последна публикувана ревизия</value>
+			<value lang="en">Last published revision</value>
+			<value lang="de">Letzte veröffentlichte Überarbeitung</value>
+			<value lang="fi">Viimeisin julkaistu versio</value>
+		</label>
+		<label id="lastRevision.label">
+			<value lang="bg">Последна ревизия</value>
+			<value lang="en">Last revision</value>
+			<value lang="de">Letzte Überarbeitung</value>
+			<value lang="fi">Viimeinen tarkistus</value>
+		</label>
+		<label id="nextRevision.label">
+			<value lang="bg">Следваща ревизия</value>
+			<value lang="en">Next revision</value>
+			<value lang="de">Nächste Überarbeitung</value>
+			<value lang="fi">Seuraava tarkistus</value>
+		</label>
+		<label id="previousRevision.label">
+			<value lang="bg">Предишна ревизия</value>
+			<value lang="en">Previous revision</value>
+			<value lang="de">Vorherige Überarbeitung</value>
+			<value lang="fi">Edellinen versio</value>
+		</label>
+		<label id="createdBy.label">
+			<value lang="bg">Създаден от</value>
+			<value lang="en">System created by</value>
+			<value lang="de">System erstellt von</value>
+			<value lang="fi">Järjestelmä luonut</value>
+		</label>
+		<label id="modifiedBy.label">
+			<value lang="bg">Актуализиран от</value>
+			<value lang="en">Modified by</value>
+			<value lang="de">Geändert von</value>
+			<value lang="fi">Muokannut</value>
+		</label>
+		<label id="hasReporter">
+		    <value lang="bg">Докладван от</value>
+			<value lang="en">Has reporter</value>
+			<value lang="de">Hat reporter</value>
+			<value lang="fi">Onko Reporter</value>
+		</label>
+		<label id="isReporterOf">
+		    <value lang="bg">Докладва</value>
+			<value lang="en">Is reporter of</value>
+			<value lang="de">Ist Reporter von</value>
+			<value lang="fi">Onko toimittaja</value>
+		</label>
+		<label id="hasWatchers">
+		    <value lang="bg">Наблюдатели</value>
+			<value lang="en">Watchers</value>
+			<value lang="de">Beobachter</value>
+			<value lang="fi">Watchers</value>
+		</label>
+		<label id="isWatcherOf">
+			<value lang="bg">Наблюдава</value>
+			<value lang="en">Is watcher of</value>
+			<value lang="de">Ist Beobachter von</value>
+			<value lang="fi">Tarkkailee</value>
+		</label>
+		<label id="references">
+		    <value lang="bg">Препраща към</value>
+			<value lang="en">References</value>
+			<value lang="de">Verweise</value>
+			<value lang="fi">Viitteet</value>
+		</label>
+		<label id="isDuplicatedBy">
+		    <value lang="bg">Дублира</value>
+			<value lang="en">Duplicate</value>
+			<value lang="de">Duplikate</value>
+			<value lang="fi">Monistaa</value>
+		</label>
+
+		<!-- Data Properties Labels-->
+		<label id="uniqueIdentifier.label">
+			<value lang="bg">Номер</value>
+			<value lang="en">Identifier</value>
+			<value lang="de">Identifikator</value>
+			<value lang="fi">Tunniste</value>
+		</label>
+		<label id="type.label">
+            <value lang="bg">Тип</value>
+            <value lang="en">Type</value>
+            <value lang="de">Art</value>
+            <value lang="fi">Tyyppi</value>
+        </label>
+        <label id="title.label">
+            <value lang="bg">Наименование</value>
+            <value lang="en">Title</value>
+            <value lang="de">Titel</value>
+            <value lang="fi">Otsikko</value>
+        </label>
+		<label id="widthOfSubject.label">
+			<value lang="bg">Ширина на обекта</value>
+			<value lang="en">Width of subject</value>
+			<value lang="de">Breite des Betreffs</value>
+			<value lang="fi">Aiheen leveys</value>
+		</label>
+		<label id="heightOfSubject.label">
+			<value lang="bg">Височина на обекта</value>
+			<value lang="en">Height of subject</value>
+			<value lang="de">Höhe des Betreffs</value>
+			<value lang="fi">Aiheen korkeus</value>
+		</label>
+		<label id="dimensionUnit.label">
+			<value lang="bg">Мерна единица</value>
+			<value lang="en">Property unit</value>
+			<value lang="de">Immobilieneinheit</value>
+			<value lang="fi">Kiinteistöyksikkö</value>
+		</label>
+		<label id="document.content">
+			<value lang="bg">Съдържание на документa</value>
+			<value lang="en">Document content</value>
+			<value lang="de">Dokumentinhalt</value>
+			<value lang="fi">Asiakirjan sisältö</value>
+		</label>
+		<label id="modifiedOn.label">
+			<value lang="bg">Актуализиран на</value>
+			<value lang="en">Modified on</value>
+			<value lang="de">Geändert am</value>
+			<value lang="fi">Muokattu</value>
+		</label>
+		<label id="completedBy.label">
+			<value lang="bg">Приключен от</value>
+			<value lang="en">Completed by</value>
+			<value lang="de">Vervollständigt von</value>
+			<value lang="fi">Valmistanut</value>
+		</label>
+		<label id="completedOn.label">
+			<value lang="bg">Приключен на</value>
+			<value lang="en">Completed on</value>
+			<value lang="de">Vervollständigt am</value>
+			<value lang="fi">Valmistunut</value>
+		</label>
+		<label id="transitionMatrix.label">
+			<value lang="bg">Преходи</value>
+			<value lang="en">Transition matrix</value>
+			<value lang="de">Übergangsmatrix</value>
+			<value lang="fi">Siirtymämatriisi</value>
+		</label>
+		<label id="activityId.label">
+			<value lang="bg">Идентификатор на дейност</value>
+			<value lang="en">Activity ID</value>
+			<value lang="de">Aktivitäts-ID</value>
+			<value lang="fi">Activity Id</value>
+		</label>
+		<label id="outcome.label">
+			<value lang="bg">Резултат от дейност</value>
+			<value lang="en">Outcome</value>
+			<value lang="de">Ergebnis</value>
+			<value lang="fi">Tulokset</value>
+		</label>
+		<label id="helpTarget.label">
+            <value lang="bg">Цел на ръководството</value>
+            <value lang="en">Help target</value>
+            <value lang="de">Zielhilfe</value>
+            <value lang="fi">Auta kohde</value>
+        </label>
+        <label id="taskNotes.label">
+			<value lang="bg">Бележки свръзани с изпълнението на задачата</value>
+			<value lang="en">Task notes</value>
+			<value lang="de">Aufgabennotizen</value>
+			<value lang="fi">Tehtävähuomautukset</value>
+		</label>
+		<label id="plannedStartDate.label">
+			<value lang="bg">Планирана начална дата</value>
+			<value lang="en">Planned start date</value>
+			<value lang="de">Geplantes Startdatum</value>
+			<value lang="fi">Suunniteltu alkamispäivä</value>
+		</label>
+		<label id="plannedEndDate.label">
+			<value lang="bg">Планирана крайна дата</value>
+			<value lang="en">Planned end date</value>
+			<value lang="de">Geplantes Enddatum</value>
+			<value lang="fi">Suunniteltu päättymispäivä</value>
+		</label>
+		<label id="actualStartDate.label">
+			<value lang="bg">Действителна начална дата</value>
+			<value lang="en">Actual start date</value>
+			<value lang="de">Aktuelles Startdatum</value>
+			<value lang="fi">Todellinen alkamispäivä</value>
+		</label>
+		<label id="actualEndDate.label">
+			<value lang="bg">Действителна крайна дата</value>
+			<value lang="en">Actual end date</value>
+			<value lang="de">Tatsächliches Enddatum</value>
+			<value lang="fi">Todellinen lopetuspäivä</value>
+		</label>
+		<label id="estimatedEffortHours.label">
+			<value lang="bg">Прогнозни работни часове</value>
+			<value lang="en">Estimated effort hours</value>
+			<value lang="de">Geschätzte Arbeitsstunden</value>
+			<value lang="fi">Arvioitu pyyntiponnistus tuntia</value>
+		</label>
+		<label id="actualEffortHours.label">
+			<value lang="bg">Действителни работни часове</value>
+			<value lang="en">Actual effort hours</value>
+			<value lang="de">Tatsächliche Aufwand Stunden</value>
+			<value lang="fi">Todelliset ponnistelutunnit</value>
+		</label>
+		<label id="accumulatedEstimatedEffortHours.label">
+			<value lang="bg">Натрупани прогнозни работни часове</value>
+			<value lang="en">Accumulated estimated effort hours</value>
+			<value lang="de">Kumulierte geschätzte Arbeitsstunden</value>
+			<value lang="fi">Kertyneet arvioidut ponnistelutunnit</value>
+		</label>
+		<label id="accumulatedActualEffortHours.label">
+			<value lang="bg">Натрупани действителни работни часове</value>
+			<value lang="en">Accumulated actual effort hours</value>
+			<value lang="de">Kumulierte tatsächliche Arbeitsstunden</value>
+			<value lang="fi">Kertyneet todelliset ponnistelutunnit</value>
+		</label>
+		<label id="duration.label">
+			<value lang="bg">Продължителност</value>
+			<value lang="en">Duration</value>
+			<value lang="de">Dauer</value>
+			<value lang="fi">Kesto</value>
+		</label>
+		<label id="status.label">
+			<value lang="bg">Статус</value>
+			<value lang="en">Status</value>
+			<value lang="de">Status</value>
+			<value lang="fi">Status</value>
+		</label>
+		<label id="priority.label">
+			<value lang="bg">Приоритет</value>
+			<value lang="en">Priority</value>
+			<value lang="de">Priorität</value>
+			<value lang="fi">Prioriteetti</value>
+		</label>
+		<label id="name.label">
+			<value lang="bg">Име на файл</value>
+			<value lang="en">File name</value>
+			<value lang="de">Dateiname</value>
+			<value lang="fi">Tiedoston nimi</value>
+		</label>
+		<label id="location.label">
+			<value lang="bg">Път до обекта</value>
+			<value lang="en">Location</value>
+			<value lang="de">Ort</value>
+			<value lang="fi">Sijainti</value>
+		</label>
+		<label id="viewDefinition.label">
+			<value lang="bg">Дефиниция</value>
+			<value lang="en">Definition</value>
+			<value lang="de">Definition</value>
+			<value lang="fi">Määritelmä</value>
+		</label>
+		<label id="mimetype.label">
+			<value lang="bg">Разширение</value>
+			<value lang="en">Mimetype</value>
+			<value lang="de">Mime Typ</value>
+			<value lang="fi">Mimetype</value>
+		</label>
+		<label id="size.label">
+			<value lang="bg">Големина (в байтове)</value>
+			<value lang="en">Size (in bytes)</value>
+			<value lang="de">Größe (in Bytes)</value>
+			<value lang="fi">Koko (tavuina)</value>
+		</label>
+		<label id="description.label">
+			<value lang="bg">Описание</value>
+			<value lang="en">Description</value>
+			<value lang="de">Beschreibung</value>
+			<value lang="fi">Kuvaus</value>
+		</label>
+		<label id="object.version">
+			<value lang="bg">Версия</value>
+			<value lang="en">Version</value>
+			<value lang="de">Version</value>
+			<value lang="fi">Versio</value>
+		</label>
+		<label id="revisionNumber.label">
+			<value lang="bg">Ревизия номер</value>
+			<value lang="en">Revision number</value>
+			<value lang="de">Revisionsnummer</value>
+			<value lang="fi">Tarkistusnumero</value>
+		</label>
+		<label id="publishedOn.label">
+			<value lang="bg">Публикувано на</value>
+			<value lang="en">Published on</value>
+			<value lang="de">Veröffentlicht auf</value>
+			<value lang="fi">Julkaistu</value>
+		</label>
+		<label id="revisionType.label">
+			<value lang="bg">Тип на ревизия</value>
+			<value lang="en">Revision type</value>
+			<value lang="de">Revisionstyp</value>
+			<value lang="fi">Versiotyyppi</value>
+		</label>
+		<label id="publishedBy.label">
+			<value lang="bg">Публикувано от</value>
+			<value lang="en">Published by</value>
+			<value lang="de">Veröffentlicht von</value>
+			<value lang="fi">Julkaissut</value>
+		</label>
+		<label id="integrated.label">
+			<value lang="bg">Импортиран</value>
+			<value lang="en">Integrated</value>
+			<value lang="de">Integriert</value>
+			<value lang="fi">Integroitu</value>
+		</label>
+		<label id="uri.label">
+			<value lang="bg">URI</value>
+			<value lang="en">URI</value>
+			<value lang="de">URI</value>
+			<value lang="fi">URI</value>
+		</label>
+		<label id="workflow.stopReason.label">
+			<value lang="bg">Причина за спиране на работния процес</value>
+			<value lang="en">Reason to stop the workflow</value>
+			<value lang="de">Grund, den Workflow zu stoppen</value>
+			<value lang="fi">Syy lopettaa työnkulku</value>
+		</label>
+		<label id="identifierLabel">
+	      <value lang="bg">Пореден номер на документ</value>
+	      <value lang="en">Document sequential number</value>
+	      <value lang="de">Dokument laufende Nummer</value>
+	      <value lang="fi">Document sequential number</value>
+    	</label>
+    	<label id="createdOn.label">
+		    <value lang="bg">Създаден на</value>
+			<value lang="en">System created on</value>
+			<value lang="de">System erstellt am</value>
+			<value lang="fi">Järjestelmä luotu</value>
+		</label>
+		<label id="dueDate.label">
+		    <value lang="bg">Крайна дата за изпълнение</value>
+			<value lang="en">Due date</value>
+			<value lang="de">Geburtstermin</value>
+			<value lang="fi">Eräpäivä</value>
+		</label>
+		<label id="resolution.label">
+		    <value lang="bg">Резолюция</value>
+			<value lang="en">Resolution</value>
+			<value lang="de">Auflösung</value>
+			<value lang="fi">Resolution</value>
+		</label>
+	    <label id="ocrLanguage.label">
+	      <value lang="bg">Език за OCR</value>
+	      <value lang="en">OCR Language</value>
+	      <value lang="de">OCR-Sprache</value>
+	      <value lang="fi">OCR language</value>
+	    </label>
+
+		<!-- Actions Labels -->
+		<label id="claim.label">
+			<value lang="bg">Приемане на задача</value>
+			<value lang="en">Claim</value>
+			<value lang="de">Anspruch</value>
+			<value lang="fi">Vaatimus</value>
+		</label>
+		<label id="release.label">
+			<value lang="bg">Освобождаване на задача</value>
+			<value lang="en">Release to Pool</value>
+			<value lang="de">Freigabe zum Pool</value>
+			<value lang="fi">Vapauta allas</value>
+		</label>
+		<label id="print.label">
+			<value lang="bg">Разпечатване</value>
+			<value lang="en">Print All Tabs</value>
+			<value lang="de">Drucken</value>
+			<value lang="fi">Tulosta</value>
+		</label>
+		<label id="printTab.label">
+			<value lang="bg">Разпечатване на секция</value>
+			<value lang="en">Print</value>
+			<value lang="de">Registerkarte drucken</value>
+			<value lang="fi">Tulosta-välilehti</value>
+		</label>
+		<label id="exportTabPDF.label">
+			<value lang="bg">Експортиране на секция в PDF</value>
+			<value lang="en">Export to PDF</value>
+			<value lang="de">Tab nach PDF exportieren</value>
+			<value lang="fi">Vie välilehti PDF-muotoon</value>
+		</label>
+		<label id="exportPDF.label">
+			<value lang="bg">Експортиране в PDF</value>
+			<value lang="en">Export All Tabs to PDF</value>
+			<value lang="de">Als PDF exportieren</value>
+			<value lang="fi">Vie PDF: ksi</value>
+		</label>
+		<label id="exportWord.label">
+			<value lang="bg">Експортиране в Word</value>
+			<value lang="en">Export All Tabs to Word</value>
+			<value lang="de">In Word exportieren</value>
+			<value lang="fi">Vie Wordiin</value>
+		</label>
+		<label id="exportTabWord.label">
+			<value lang="bg">Експортиране на секция в Word</value>
+			<value lang="en">Export to Word</value>
+			<value lang="de">Tab in Word exportieren</value>
+			<value lang="fi">Vie välilehti Wordiin</value>
+		</label>
+		<label id="editDetails.label">
+			<value lang="bg">Редактиране на детайлите</value>
+			<value lang="en">Edit</value>
+			<value lang="de">Bearbeiten</value>
+			<value lang="fi">Muokata</value>
+		</label>
+		<label id="delete.label">
+			<value lang="bg">Изтриване</value>
+			<value lang="en">Delete</value>
+			<value lang="de">Löschen</value>
+			<value lang="fi">Poistaa</value>
+		</label>
+		<label id="addThumbnail.label">
+			<value lang="bg">Добавяне на умалено изображение</value>
+			<value lang="en">Add Thumbnail</value>
+			<value lang="de">Vorschau hinzufügen</value>
+			<value lang="fi">Lisää pienoiskuva</value>
+		</label>
+		<label id="saveAsTemplate.label">
+			<value lang="bg">Запазване като шаблон</value>
+			<value lang="en">Save аs Public Template</value>
+			<value lang="de">Als öffentliche Vorlage speichern</value>
+			<value lang="fi">Tallenna julkisen mallin mukaan</value>
+		</label>
+		<label id="saveAsUserTemplate.label">
+			<value lang="bg">Запазване като шаблон за потребител</value>
+			<value lang="en">Save аs User Template</value>
+			<value lang="de">Als Benutzervorlage speichern</value>
+			<value lang="fi">Save аs user template</value>
+		</label>
+		<label id="managePermissions.label">
+			<value lang="bg">Актуализиране на права</value>
+			<value lang="en">Manage Permissions</value>
+			<value lang="de">Berechtigungen verwalten</value>
+			<value lang="fi">Hallinnoi käyttöoikeuksia</value>
+		</label>
+		<label id="restorePermissions.label">
+			<value lang="bg">Възстановяване на права</value>
+			<value lang="en">Restore Permissions</value>
+			<value lang="de">Berechtigungen wiederherstellen</value>
+			<value lang="fi">Palauta käyttöoikeudet</value>
+		</label>
+		<label id="move.label">
+			<value lang="bg">Преместване</value>
+			<value lang="en">Move</value>
+			<value lang="de">Bewegung</value>
+			<value lang="fi">Liikkua</value>
+		</label>
+		<label id="approve.label">
+			<value lang="bg">Одобряване</value>
+			<value lang="en">Approve</value>
+			<value lang="de">Genehmigen</value>
+			<value lang="fi">Hyväksyä</value>
+		</label>
+		<label id="reject.label">
+			<value lang="bg">Отхвърляне</value>
+			<value lang="en">Reject</value>
+			<value lang="de">Ablehnen</value>
+			<value lang="fi">Hylätä</value>
+		</label>
+		<label id="start.label">
+			<value lang="bg">Започване на работа</value>
+            <value lang="en">Start</value>
+            <value lang="de">Anfang</value>
+            <value lang="fi">Alkaa</value>
+        </label>
+		<label id="lock.label">
+			<value lang="bg">Заключване</value>
+			<value lang="en">Lock</value>
+			<value lang="de">Sperren</value>
+			<value lang="fi">Lukitse</value>
+		</label>
+		<label id="unlock.label">
+			<value lang="bg">Отключи</value>
+			<value lang="en">Unlock</value>
+			<value lang="de">Freischalten</value>
+			<value lang="fi">Avaa</value>
+		</label>
+		<label id="reassign.label">
+			<value lang="bg">Пренасочване</value>
+			<value lang="en">Reassign</value>
+			<value lang="de">Neu zuweisen</value>
+			<value lang="fi">Siirtää</value>
+		</label>
+		<label id="suspend.label">
+			<value lang="bg">Временно спиране</value>
+			<value lang="en">Suspend</value>
+			<value lang="de">Aussetzen</value>
+			<value lang="fi">Keskeyttää</value>
+		</label>
+		<label id="restart.label">
+			<value lang="bg">Подновяване работа</value>
+			<value lang="en">Restart</value>
+			<value lang="de">Neustart</value>
+			<value lang="fi">Uudelleenkäynnistää</value>
+		</label>
+		<label id="stop.label">
+			<value lang="bg">Прекратяване на работа</value>
+			<value lang="en">Stop</value>
+			<value lang="de">Halt</value>
+			<value lang="fi">Pysäytä</value>
+		</label>
+	   	<label id="complete.label">
+			<value lang="bg">Приключи</value>
+            <value lang="en">Complete</value>
+		    <value lang="de">Komplett</value>
+            <value lang="fi">Saattaa loppuun</value>
+		</label>
+	   	<label id="completeTask.label">
+			<value lang="bg">Приключи задачата</value>
+            <value lang="en">Complete Task</value>
+		    <value lang="de">Aufgabe Komplett</value>
+            <value lang="fi">Complete task</value>
+		</label>
+		<label id="download.label">
+			<value lang="bg">Изтегляне</value>
+			<value lang="en">Download</value>
+			<value lang="de">Herunterladen</value>
+			<value lang="fi">Ladata</value>
+		</label>
+		<label id="uploadNewVersion.label">
+			<value lang="bg">Прикачване на нова версия</value>
+			<value lang="en">Upload New Version</value>
+			<value lang="de">Neue Version hochladen</value>
+			<value lang="fi">Lataa uusi versio</value>
+		</label>
+		<label id="open.label">
+			<value lang="bg">Отваряне</value>
+			<value lang="en">Open</value>
+			<value lang="de">Öffnen</value>
+			<value lang="fi">Avata</value>
+		</label>
+		<label id="clone.label">
+			<value lang="bg">Клониране</value>
+			<value lang="en">Clone</value>
+			<value lang="de">Klon</value>
+			<value lang="fi">Klooni</value>
+		</label>
+		<label id="addIcons.label">
+			<value lang="bg">Добави икони</value>
+            <value lang="en">Add Icons</value>
+            <value lang="de">Fügen Sie Symbole hinzu</value>
+            <value lang="fi">Lisää kuvakkeita</value>
+        </label>
+		<label id="viewDetails.label">
+			<value lang="bg">Виж детайлите</value>
+            <value lang="en">View Details</value>
+            <value lang="de">Details anzeigen</value>
+            <value lang="fi">Tarkemmat tiedot</value>
+        </label>
+		<label id="addWatchers.label">
+			<value lang="bg">Добави наблюдаващи</value>
+			<value lang="en">Add Watchers</value>
+			<value lang="de">Beobachter hinzufügen</value>
+			<value lang="fi">Lisää katsojia</value>
+		</label>
+		<label id="publish.label">
+			<value lang="bg">Публикувай</value>
+			<value lang="en">Publish</value>
+			<value lang="de">Veröffentlichen</value>
+			<value lang="fi">Julkaista</value>
+		</label>
+		<label id="publishAsPdf.label">
+			<value lang="bg">Публикувай като PDF</value>
+			<value lang="en">Publish as PDF</value>
+			<value lang="de">Als PDF veröffentlichen</value>
+			<value lang="fi">Julkaise PDF-muodossa</value>
+		</label>
+		<label id="uploadRevision.label">
+			<value lang="bg">Качи ревизия</value>
+			<value lang="en">Upload Revision</value>
+			<value lang="de">Revision hochladen</value>
+			<value lang="fi">Upload revision</value>
+		</label>
+		<label id="importFile.label">
+			<value lang="bg">Импортирай файла</value>
+			<value lang="en">Import File</value>
+			<value lang="de">Datei importieren</value>
+			<value lang="fi">Tuo tiedosto</value>
+		</label>
+		<label id="createInContext.label">
+			<value lang="bg">Създаване в контекст</value>
+			<value lang="en">Create in Context</value>
+			<value lang="de">Erstellen Sie im Kontext</value>
+			<value lang="fi">Luo konteksti</value>
+		</label>
+		<label id="create">
+			<value lang="bg">Създай</value>
+			<value lang="en">Create</value>
+			<value lang="de">Erstellen</value>
+			<value lang="fi">Luoda</value>
+		</label>
+		<label id="revertVersion.label">
+			<value lang="bg">Възстанови тази версия</value>
+			<value lang="en">Revert to This Version</value>
+			<value lang="de">Zurück zu dieser Version</value>
+			<value lang="fi">Palauta tämä versio</value>
+		</label>
+		<label id="editOffline.label">
+			<value lang="bg">Редактиране офлайн</value>
+			<value lang="en">Edit Offline</value>
+			<value lang="de">Offline bearbeiten</value>
+			<value lang="fi">Muokkaa offline-tilassa</value>
+		</label>
+		<label id="changeTemplate.label">
+			<value lang="bg">Смяна на шаблон</value>
+			<value lang="en">Change Template</value>
+			<value lang="de">Vorlage ändern</value>
+			<value lang="fi">Muuta mallia</value>
+		</label>
+		<label id="updateTemplate.label">
+			<value lang="bg">Актуализация на шаблон</value>
+			<value lang="en">Update Template</value>
+			<value lang="de">Vorlage aktualisieren</value>
+			<value lang="fi">Update template</value>
+		</label>
+		<label id="deactivate.label">
+    		<value lang="bg">Деактивиране</value>
+    		<value lang="en">Deactivate</value>
+    		<value lang="de">Deaktivieren</value>
+    		<value lang="fi">Deaktivoi</value>
+    	</label>
+		<label id="activate.label">
+    		<value lang="bg">Активиране</value>
+    		<value lang="en">Activate</value>
+    		<value lang="de">aktivieren Sie</value>
+    		<value lang="fi">Aktivoi</value>
+    	</label>
+    	<label id="activateTemplate.label">
+    		<value lang="bg">Активиране на шаблон</value>
+    		<value lang="en">Activate Template</value>
+    		<value lang="de">Vorlage aktivieren</value>
+    		<value lang="fi">Aktivoi malli</value>
+    	</label>
+		<label id="deactivateTemplate.label">
+    		<value lang="bg">Деактивиране на шаблон</value>
+    		<value lang="en">Deactivate Template</value>
+    		<value lang="de">Deaktivieren Vorlage</value>
+    		<value lang="fi">Poista mallipohja käytöstä</value>
+    	</label>
+    	<label id="assignMember.action.label">
+    		<value lang="bg">Добавяне на членове</value>
+    		<value lang="en">Assign Members</value>
+    		<value lang="de">Vergeben Mitglieder</value>
+    		<value lang="fi">Assign members</value>
+    	</label>
+		<label id="markForReview.action.label">
+   			<value lang="bg">Отбележи за преглед</value>
+   			<value lang="en">Mark for Review</value>
+   			<value lang="de">Zur Überprüfung markieren</value>
+   			<value lang="fi">Merkitse tarkasteluun</value>
+    	</label>
+    	<label id="markAsReviewed.action.label">
+   			<value lang="bg">Отбележи като прегледано</value>
+   			<value lang="en">Mark as Reviewed</value>
+   			<value lang="de">Als "Bewertet" markieren</value>
+   			<value lang="fi">Merkitse tarkastetuksi</value>
+    	</label>
+    	<label id="markAsRejected.action.label">
+   			<value lang="bg">Отбележи като отказано</value>
+   			<value lang="en">Mark as Rejected</value>
+   			<value lang="de">Als abgelehnt markieren</value>
+   			<value lang="fi">Merkitse hylätyksi</value>
+    	</label>
+		<label id="clarify.action.label">
+		    <value lang="bg">За изясняване</value>
+			<value lang="en">Clarify</value>
+			<value lang="de">Klären</value>
+			<value lang="fi">Selventää</value>
+		</label>
+		<label id="clarified.action.label">
+		    <value lang="bg">Изяснен</value>
+			<value lang="en">Clarified</value>
+			<value lang="de">Geklärte</value>
+			<value lang="fi">Kirkastettu</value>
+		</label>
+		<label id="reopen.action.label">
+		    <value lang="bg">Преотворен</value>
+			<value lang="en">Reopen</value>
+			<value lang="de">Wieder öffnen</value>
+			<value lang="fi">Avaa uudelleen</value>
+		</label>
+		<label id="startProgress.action.label">
+		    <value lang="bg">Започни работа</value>
+			<value lang="en">Start Progress</value>
+			<value lang="de">Start Fortschritt</value>
+			<value lang="fi">Aloita edistys</value>
+		</label>
+		<label id="tools.group.label">
+			<value lang="bg">Инструменти</value>
+			<value lang="en">Tools</value>
+			<value lang="de">Werkzeuge</value>
+			<value lang="fi">Työkalut</value>
+		</label>
+		<label id="manageRelations.group.label">
+			<value lang="bg">Управление на връзки</value>
+			<value lang="en">Manage Relations</value>
+			<value lang="de">Beziehungen zwischen Männern</value>
+			<value lang="fi">Vaihda suhteet</value>
+		</label>
+		<label id="printAndExport.group.label">
+			<value lang="bg">Печат и експортиране</value>
+			<value lang="en">Print and Export</value>
+			<value lang="de">Drucken und exportieren</value>
+			<value lang="fi">Tulosta ja viedä</value>
+		</label>
+		<label id="templates.group.label">
+			<value lang="bg">Управление на шаблон</value>
+			<value lang="en">Manage Template</value>
+			<value lang="de">Vorlage verwalten</value>
+			<value lang="fi">Hallinnoi mallia</value>
+		</label>
+		<label id="manageModel.label">
+			<value lang="bg">Управление на модел</value>
+			<value lang="en">Manage model</value>
+			<value lang="de">Manage model</value>
+			<value lang="fi">Manage model</value>
+			<value lang="da">???Manage model</value>
+		</label>
+
+		<!-- Comments actions labels -->
+		<label id="annotation.createComment">
+			<value lang="bg">Създай тема</value>
+			<value lang="en">New Topic</value>
+			<value lang="de">Neues Thema</value>
+			<value lang="fi">Uusi aihe</value>
+		</label>
+		<label id="annotation.editComment">
+			<value lang="bg">Редактирай коментар</value>
+			<value lang="en">Edit Comment</value>
+			<value lang="de">Kommentar bearbeiten</value>
+			<value lang="fi">Muokkaa komentoa</value>
+		</label>
+		<label id="annotation.replyComment">
+			<value lang="bg">Отговори</value>
+			<value lang="en">Reply</value>
+			<value lang="de">Antworten</value>
+			<value lang="fi">Vastaa</value>
+		</label>
+		<label id="annotation.deleteComment">
+			<value lang="bg">Изтрий коментар</value>
+			<value lang="en">Delete Comment</value>
+			<value lang="de">Kommentar löschen</value>
+			<value lang="fi">Poista kommentti</value>
+		</label>
+		<label id="annotation.suspendComment">
+			<value lang="bg">Затвори коментар</value>
+			<value lang="en">Resolve Comment</value>
+			<value lang="de">Kommentar auflösen</value>
+			<value lang="fi">Ratkaise kommentti</value>
+		</label>
+		<label id="annotation.restartComment">
+			<value lang="bg">Отвори коментара</value>
+			<value lang="en">Restart Comment</value>
+			<value lang="de">Neu starten Kommentar</value>
+			<value lang="fi">Käynnistä komento uudelleen</value>
+		</label>
+
+		<!-- Confirmation Labels-->
+		<label id="confirmation.action">
+			<value lang="bg">Сигурни ли сте, че искате да продължите с операцията {{operationName}}?</value>
+			<value lang="en">Are you sure you want to continue with action {{operationName}}?</value>
+			<value lang="de">Sind Sie sicher, dass Sie mit der Aktion fortzusetzen {{operation}}?</value>
+			<value lang="fi">Haluatko varmasti jatkaa toimintaa {{operationName}}?</value>
+		</label>
+		<label id="revert.confirmation.action">
+			<value lang="bg">Съдържанието и свойствата на текущата версия, ще бъдат заменени. Сигурни ли сте, искате да се върнете към тази версия?</value>
+			<value lang="en">The content and the properties of the current version will be replaced. Are you sure you want to revert to this version?</value>
+			<value lang="de">Der Inhalt und die Eigenschaften der aktuellen Version werden ersetzt. Möchten Sie wirklich zu dieser Version zurückkehren?</value>
+			<value lang="fi">Nykyisen version sisältö ja ominaisuudet korvataan. Haluatko varmasti palauttaa tämän version?</value>
+		</label>
+		<label id="confirmation.update_template">
+			<value lang="bg">Има нова версия на текущия шаблон. Може да има загуба на статично съдържание, ако потвърдите актуализацията. Сигурни ли сте?</value>
+			<value lang="en">There is a new version of the current template. There might be a lost of static content if you confirm the update. Are you sure?</value>
+			<value lang="de">Es gibt eine neue Version der aktuellen Vorlage. Es könnte ein statischer Inhalte verloren, wenn Sie das Update bestätigen. Bist du sicher?</value>
+			<value lang="fi">There is a new version of the current template. There might be a lost of static content if you confirm the update. Are you sure?</value>
+		</label>
+		<label id="confirmation.disableGroup">
+			<value lang="bg">Групата ще бъде деактивирана. Всички членове ще загубят дадените от групата права. Сигурни ли сте?</value>
+			<value lang="en">The group will be disabled. All users will loose their permissions given to the group, if you disable it. Are you sure?</value>
+			<value lang="de">Die Gruppe wird deaktiviert. Alle Benutzer ihre Berechtigungen für die Gruppe gegeben verlieren, wenn Sie sie deaktivieren. Bist du sicher?</value>
+			<value lang="fi">The group will be disabled. All users will loose their permissions given to the group, if you disable it. Are you sure?</value>
+		</label>
+
+		<!-- Notification Labels -->
+		<label id="notification.project.assignment.subject">
+			<value lang="bg">Вие бяхте добавени към проект</value>
+			<value lang="en">New assignment on a project</value>
+			<value lang="de">Neue Zuweisung für ein Projekt</value>
+			<value lang="fi">Uusi tehtävä projektissa</value>
+		</label>
+
+		<!-- Validation errors -->
+		<label id="validation.error.field.has.thumbnail.not.existing">
+			<value lang="bg">Полето "Има умалено изображение" не е дефинирано в модела</value>
+			<value lang="en">Has thumbnail field is not defined in the model</value>
+			<value lang="de">Das Miniaturbildfeld ist im Modell nicht definiert</value>
+			<value lang="fi">Has thumbnail field is not defined in the model</value>
+		</label>
+		<label id="validation.error.invalid_codelist">
+			<value lang="bg">Кодлист поле '%s' със стойност '%s' не съдържа валидна стойност от номенклатура. Валидни стойности: '%s'</value>
+			<value lang="en">The codelist field '%s' and value '%s' does not contain a valid nomenclature value. Valid values: '%s'</value>
+			<value lang="de">Das Codelistenfeld '%s' und der Wert '%s' enthalten keinen gültigen Nomenklaturwert. Gültige Werte: '%s'</value>
+			<value lang="fi">Codelist-kenttä '% s' ja arvo '% s' eivät sisällä kelvollista nimikkeistöarvoa. Voimassa olevat arvot: '% s'</value>
+		</label>
+		<label id="validation.error.invalid_boolean">
+			<value lang="bg">Булевото поле %s не съдържа коректна стойност от двоичен тип.</value>
+			<value lang="en">The boolean filed %s does not contain a valid boolean value.</value>
+			<value lang="de">Das boolesche Feld %s enthält keinen gültigen booleschen Wert.</value>
+			<value lang="fi">Boolen tallennettu% s ei sisällä kelvollista boole-arvoa.</value>
+		</label>
+		<label id="validation.error.invalid_date">
+			<value lang="bg">Полето от тип дата %s не съдържа стойност от тип дата.</value>
+			<value lang="en">The date field %s does not contain a value of type date.</value>
+			<value lang="de">Das Datumsfeld %s enthält keinen Wert vom Typ date.</value>
+			<value lang="fi">Päivämääräkenttään% s ei ole tyyppipäivän arvoa.</value>
+		</label>
+		<label id="validation.error.missing_mandatory_property">
+			<value lang="bg">Полето %s е задължително, а не е зададена стойност за него.</value>
+			<value lang="en">The field with name %s is mandatory but no value was provided for it.</value>
+			<value lang="de">Das Feld mit dem Namen% s ist obligatorisch, aber es wurde kein Wert angegeben.</value>
+			<value lang="fi">Kenttä, jonka nimi on% s, on pakollinen, mutta sille ei annettu mitään arvoa.</value>
+		</label>
+		<label id="validation.error.invalid_number">
+			<value lang="bg">Числовото поле с име '%s' не съдържа стойност, която отговаря на типа му '%s'. Детайли: '%s'</value>
+			<value lang="en">The numeric field with name '%s' does not contain a value that matches its defined type '%s'. Details: '%s'.</value>
+			<value lang="de">Das numerische Feld mit dem Namen '%s' enthält keinen Wert, der dem definierten Typ '%s' entspricht. Details: '%s'.</value>
+			<value lang="fi">Numeerinen kenttä, jonka nimi on '% s', ei sisällä arvoa, joka vastaa määritettyä tyyppiä '% s'. Tiedot: '% s'.</value>
+		</label>
+		<label id="validation.error.invalid_uri">
+			<value lang="bg">Полето с име %s не съдържа валидна стойност от тип URI.</value>
+			<value lang="en">The field with name %s does not contain a valid value of type URI.</value>
+			<value lang="de">Das Feld mit dem Namen% s enthält keinen gültigen Wert vom Typ URI.</value>
+			<value lang="fi">Kenttä, jonka nimi on% s, ei sisällä kelvollista arvoa tyyppiä URI.</value>
+		</label>
+		<label id="validation.error.invalid_text_format">
+		  <value lang="bg">Текстово поле с име '%s' не съдържа стойност, която отговаря на типа му '%s'. Детайли: '%s' </value>
+		  <value lang="en">The text field with name '%s' does not contain a value that matches its defined type '%s'. Details: '%s'</value>
+		  <value lang="de">Das Textfeld mit dem Namen '%s' enthält keinen Wert, der dem definierten Typ '%s' entspricht. Details: '%s'</value>
+		  <value lang="fi">Tekstikenttä, jonka nimi on '% s', ei sisällä arvoa, joka vastaa määritettyä tyyppiä '% s'. Tiedot: '% s'</value>
+		</label>
+		<label id="validation.error.invalid_single_value">
+		  <value lang="bg">Стойността за поле '%s' трябва да е една, вместо това бяха получени няколко.</value>
+		  <value lang="en">The value for the instance poperty '%s' should be single value, but received multiple values.</value>
+		  <value lang="de">Der Wert für das Feld '%s' soll einzelner sein, aber mehrere Werten wurden erhalten.</value>
+		  <value lang="fi">The value for the instance poperty '%s' should be single value, but received multiple values.</value>
+		</label>
+		<label id="validation.error.existing_without_context">
+		  <value lang="bg">Обекта не може да съществува извън контекст. Моля, изберете контекст!</value>
+		  <value lang="en">The object cannot exist without context. Please, select context!</value>
+		  <value lang="de">Das Objekt kann nicht ohne Kontext existieren. Bitte, wählen Sie den Kontext aus!</value>
+		  <value lang="fi">The object cannot exist without context. Please, select context!</value>
+		</label>
+		<label id="validation.error.existing_in_context">
+		  <value lang="bg">Обекта не може да съществува в избрания контекст. Моля, премахнете избрания контекст!</value>
+		  <value lang="en">The object cannot exist in the selected context. Please, remove the context!</value>
+		  <value lang="de">Das Objekt kann im ausgewählten Kontext nicht existieren. Bitte, löschen Sie den Kontext!</value>
+		  <value lang="fi">The object cannot exist in the selected context. Please, remove the context!</value>
+		</label>
+
+	    <!-- Used for field uniqueness  -->
+	    <label id="validation.error.unique_value">
+	      <value lang="en">The value in '%s' field must be unique! Duplicate value found! Please, double check!</value>
+	      <value lang="bg">Стойността в полето '%s' трябва да е уникална! Намерена дублирана стойност! Моля, проверете отново!</value>
+	      <value lang="de">Der Wert in '%s' Feld muss eindeutig sein! Doppelter Wert gefunden! Bitte nochmal nachprüfen!</value>
+	      <value lang="fi">The value in '%s' field must be unique! Duplicate value found! Please, double check!</value>
+    	</label>
+	    <label id="validation.value.unique">
+	      <value lang="en">The value must be unique! Duplicate value found!</value>
+	      <value lang="bg">Стойността трябва да е уникална! Намерена дублирана стойност!</value>
+	      <value lang="de">Der Wert muss eindeutig sein! Doppelter Wert gefunden!</value>
+	      <value lang="fi">The value must be unique! Duplicate value found!</value>
+	    </label>
+	    <label id="validation.error.move.object.destination.permission">
+	      <value lang="bg">Нямате права да преместите обекта в избрания кентекст!</value>
+	      <value lang="en">You do not have permissions to change the destination object.</value>
+	    </label>
+	    <label id="validation.error.move.object.allow.children">
+	      <value lang="bg">Избрания контекст не може да има деца от този тип!</value>
+	      <value lang="en">Selected destination does not allow children of that type!</value>
+	    </label>
+
+ 		<!-- Labels of Widgets -->
         <label id="select.object.automatically.more.than.one.message">
         	<value lang="bg">Намерени са повече от един обект. Моля изпълнете действието "Конфигурирай" и изберете само един обект от резултатите от търсенето.</value>
         	<value lang="en">More than one objects are found which satisfy the search criteria. Please select "Configure widget" action and chose only one of the objects in the search result.</value>
+        	<value lang="de">Es werden mehrere Objekte gefunden, die den Suchkriterien entsprechen. Wählen Sie die Aktion "Widget konfigurieren" und wählen Sie nur eines der Objekte im Suchergebnis aus.</value>
+        	<value lang="fi">More than one objects are found which satisfy the search criteria. Please select "Configure widget" action and chose only one of the objects in the search result.</value>
+        </label>
+        <label id="select.object.undefined.criteria">
+        	<value lang="bg">Няма конфигурирани критерии за търсене. Необходимо е да се изпълни търсене преди запазване на конфигурацията.</value>
+        	<value lang="en">The widget has no search criteria configured. You need to perform a search before saving the configuration.</value>
+        	<value lang="de">Das Widget hat keine Suchkriterien konfiguriert. Sie müssen eine Suche durchführen, bevor Sie die Konfiguration speichern.</value>
+        	<value lang="fi">Widget ei ole määritellyt hakukriteerejä. Sinun on tehtävä haku ennen kuin tallennat kokoonpanon.</value>
         </label>
         <label id="labels.preview.none">
         	<value lang="bg">Няма налична визуализация.</value>
             <value lang="en">No preview available.</value>
+            <value lang="de">Keine Vorschau vorhanden.</value>
+            <value lang="fi">Esikatselua ei ole saatavilla.</value>
         </label>
         <label id="select.object.results.none">
         	<value lang="bg">Няма обект, който да отговаря на избраните критерии за търсене.</value>
             <value lang="en">No object could be found with the selected search criteria.</value>
+            <value lang="de">Mit den ausgewählten Suchkriterien konnte kein Objekt gefunden werden.</value>
+            <value lang="fi">Valitusta hakukriteeristä ei löytynyt kohdetta.</value>
         </label>
         <label id="imagewidget.no.images.selected">
         	<value lang="bg">Няма избрани изображения.</value>
             <value lang="en">No images selected.</value>
+            <value lang="de">Keine Bilder ausgewählt.</value>
+            <value lang="fi">Ei kuvia valittu.</value>
         </label>
-   
-         <!-- used in aggregated table widget -->  
+
+         <!-- used in aggregated table widget -->
         <label id="widget.aggregated.table.total">
         	<value lang="bg">Общ брой резултати: </value>
-            <value lang="en">Total Results: </value>
+            <value lang="en">Total results: </value>
+            <value lang="de">Gesamtergebnisse: </value>
+            <value lang="fi">Tulokset yhteensä: </value>
         </label>
         <label id="widget.aggregated.table.number">
         	<value lang="bg">Брой</value>
             <value lang="en">Number</value>
-        </label>       
-         
+            <value lang="de">Nummer</value>
+            <value lang="fi">Määrä</value>
+        </label>
+
         <!-- used in data object widget -->
         <label id="select.object.none">
         	<value lang="bg">Няма избран обект.</value>
             <value lang="en">No selection.</value>
+            <value lang="de">Keine Auswahl.</value>
+            <value lang="fi">Ei valintaa.</value>
         </label>
+
         <!-- used in data table widget -->
-        <label id="search.results">
-        	<value lang="bg"> Резултати</value>
-            <value lang="en"> Results</value>
+        <label id="widget.datatable.search.results">
+        	<value lang="bg"> резултати</value>
+            <value lang="en"> results</value>
+            <value lang="de"> Ergebnisse</value>
+            <value lang="fi"> tulokset</value>
         </label>
+		<label id="widget.export.multiple.objects">
+        	<value lang="bg">Множество обекти</value>
+            <value lang="en">Multiple objects</value>
+            <value lang="de"></value>
+            <value lang="fi"></value>
+        </label>
+
         <!-- used in comments widget -->
         <label id="comments.widget.error">
         	<value lang="bg">Няма намерени коментари по зададените обекти и филтри</value>
             <value lang="en">There are no comments for the selected objects and filters</value>
+            <value lang="de">Zu den ausgewählten Objekten und Filtern gibt es keine Kommentare</value>
+            <value lang="fi">Valituille kohteille ja suodattimille ei ole kommentteja </value>
         </label>
-        <!-- used in export to Word functionality -->
-        <label id="comments.widget.topic">
-        	<value lang="bg">Тема</value>
-            <value lang="en">Topic</value>
-        </label>        
-        <label id="comments.widget.reply">
-        	<value lang="bg">Отговор</value>
-            <value lang="en">Reply</value>
+
+        <!-- used in process widget -->
+        <label id="widgets.process.empty">
+        	<value lang="bg">Процесът не може да бъде показан.</value>
+            <value lang="en">The process can not be displayed.</value>
+            <value lang="de">Der Prozess kann nicht angezeigt werden.</value>
+            <value lang="fi">Prosessia ei voi näyttää.</value>
         </label>
-        <label id="comments.widget.object">
-        	<value lang="bg">Обект</value>
-            <value lang="en">Object</value>
-        </label>
-        <label id="comments.widget.type">
-        	<value lang="bg">Тип</value>
-            <value lang="en">Type</value>
-        </label>                
-        <label id="comments.widget.creator">
-        	<value lang="bg">Създател</value>
-            <value lang="en">Creator</value>
-        </label>
-        <label id="comments.widget.createdOn">
-        	<value lang="bg">Създаден на</value>
-            <value lang="en">Created on</value>
-        </label>
-        <label id="comments.widget.text">
-        	<value lang="bg">Текст</value>
-            <value lang="en">Text</value>
-        </label>
-        <label id="comments.widget.status">
-        	<value lang="bg">Статус</value>
-            <value lang="en">Status</value>
-        </label>        
-     
+
+		<!-- Specific -->
+		<!-- Labels for Audit log actions -->
+		<label id="login.label">
+			<value lang="bg">Влизане</value>
+			<value lang="en">Login</value>
+			<value lang="de">Anmeldung</value>
+			<value lang="fi">Kirjaudu sisään</value>
+		</label>
+		<label id="logout.label">
+			<value lang="bg">Излизане</value>
+			<value lang="en">Logout</value>
+			<value lang="de">Ausloggen</value>
+			<value lang="fi">Kirjautua ulos</value>
+		</label>
+		<label id="addRelation.label">
+			<value lang="bg">Добави връзка</value>
+			<value lang="en">Add relation</value>
+			<value lang="de">Beziehung hinzufügen</value>
+			<value lang="fi">Lisää suhde</value>
+		</label>
+		<label id="removeRelation.label">
+			<value lang="bg">Премахна връзка</value>
+			<value lang="en">Remove relation</value>
+			<value lang="de">Beziehung entfernen</value>
+			<value lang="fi">Poista yhteys</value>
+		</label>
+		<label id="editPermissions.label">
+			<value lang="bg">Редактира права</value>
+			<value lang="en">Edit Permissions</value>
+			<value lang="de">Berechtigungen bearbeiten</value>
+			<value lang="fi">Muokkaa käyttöoikeuksia</value>
+		</label>
+		<label id="exportXlsx.label">
+			<value lang="bg">Експортиране към Ексел</value>
+			<value lang="en">Export to Excel</value>
+			<value lang="de">Nach Excel exportieren</value>
+			<value lang="fi">Vie Excel</value>
+		</label>
+		<label id="exportXlsx.header.system.id.label">
+			<value lang="bg">Системен идентификационен номер</value>
+			<value lang="en">System id</value>
+			<value lang="de"></value>
+			<value lang="fi"></value>
+		</label>
+		<label id="updateInstanceTemplate.label">
+			<value lang="bg">Актуализира шаблон за инстанция</value>
+			<value lang="en">Update Instance Template</value>
+			<value lang="de">Instanzvorlage aktualisieren</value>
+			<value lang="fi">Päivitä istunnon malli</value>
+		</label>
+		<label id="partialImportFile.label">
+			<value lang="bg">Частично импортира файл</value>
+			<value lang="en">Partially imported file</value>
+			<value lang="de">Teilweise importierte Datei</value>
+			<value lang="fi">Osittain tuodut tiedostot</value>
+		</label>
+		<label id="dynamicBPMNStatusChange-emf:processes.label">
+			<value lang="bg">Обработва</value>
+			<value lang="en">Processes</value>
+			<value lang="de">Prozesse</value>
+			<value lang="fi">Prosessit</value>
+		</label>
+		<label id="changePassword.label">
+			<value lang="bg">Смени парола</value>
+			<value lang="en">Change Password</value>
+			<value lang="de">Passwort ändern</value>
+			<value lang="fi">Vaihda salasana</value>
+		</label>
+
 		<!-- Labels for templates -->
 		<label id="template.forObjectType">
     		<value lang="bg">За тип</value>
     		<value lang="en">For object type</value>
+    		<value lang="de">Für Objekttyp</value>
+    		<value lang="fi">Kohteen tyyppi</value>
     	</label>
 		<label id="template.templatePurpose">
     		<value lang="bg">Предназначение на шаблона</value>
     		<value lang="en">Template purpose</value>
+    		<value lang="de">Vorlage Zweck</value>
+    		<value lang="fi">Mallin tarkoitus</value>
     	</label>
 		<label id="template.isPrimaryTemplate">
     		<value lang="bg">Главен шаблон</value>
     		<value lang="en">Primary template</value>
-    	</label>
-		<label id="template.activate">
-    		<value lang="bg">Активирай</value>
-    		<value lang="en">Activate</value>
+    		<value lang="de">Primäre Vorlage</value>
+    		<value lang="fi">Ensisijainen malli</value>
     	</label>
 		<label id="template.create">
-    		<value lang="bg">Създай шаблон</value>
-    		<value lang="en">Create template</value>
+    		<value lang="bg">Създаване на шаблон</value>
+    		<value lang="en">Create Template</value>
+    		<value lang="de">Vorlage erstellen</value>
+    		<value lang="fi">Luo mallipohja</value>
     	</label>
-		<!-- used in process widget -->
-        <label id="widgets.process.empty">
-        	<value lang="bg">Процесът не може да бъде показан.</value>
-            <value lang="en">The process can not be displayed.</value>
+		<label id="template.reload">
+    		<value lang="bg">Презареждане на шаблон</value>
+    		<value lang="en">Reload Template</value>
+    		<value lang="de">Vorlage neu laden</value>
+    		<value lang="fi">Lataa mallipohja</value>
+    	</label>
+		<label id="template.editRule">
+    		<value lang="bg">Управление на правила</value>
+    		<value lang="en">Manage Rules</value>
+    		<value lang="de">Regeln verwalten</value>
+    		<value lang="fi">Hallitse sääntöjä</value>
+    	</label>
+		<label id="template.setAsPrimary">
+    		<value lang="bg">Задай като главен</value>
+    		<value lang="en">Set as Primary</value>
+    		<value lang="de">Als primär festlegen</value>
+    		<value lang="fi">Merkitse ensisijaiseksi</value>
+    	</label>
+		<label id="template.rule">
+    		<value lang="bg">Правило на шаблон</value>
+    		<value lang="en">Template rule</value>
+    		<value lang="de">Vorlagenregel</value>
+    		<value lang="fi">Mallipohja</value>
+    	</label>
+		<label id="template.ruleDescription">
+    		<value lang="bg">Правило на шаблон</value>
+    		<value lang="en">Template rule</value>
+    		<value lang="de">Vorlagenregel</value>
+    		<value lang="fi">Mallipohja</value>
+    	</label>
+    	<label id="template.updateExistingObjects">
+			<value lang="bg">Обновяване на съществуващи обекти</value>
+			<value lang="en">Update Existing Objects</value>
+			<value lang="de">Aktualisieren Sie vorhandene Objekte</value>
+			<value lang="fi">Päivitä olemassa olevat esineet</value>
+		</label>
+    	<label id="template.clone">
+			<value lang="bg">Клониране на шаблон</value>
+			<value lang="en">Clone Template</value>
+			<value lang="de">Klonvorlage</value>
+			<value lang="fi">Kloonimalli</value>
+		</label>
+
+		<!-- Labels for SKOS concepts -->
+		<label id="skos.collectionId.label">
+   			<value lang="bg">Уникално ИД на колекция</value>
+   			<value lang="en">Unique collection ID</value>
+   			<value lang="de">Eindeutige Sammlungs-ID</value>
+   			<value lang="fi">Unique collection ID</value>
+    	</label>
+    	<label id="skos.conceptSchemeId.label">
+   			<value lang="bg">Уникално ИД на схема</value>
+   			<value lang="en">Unique concept scheme ID</value>
+   			<value lang="de">Eindeutige Konzeptschema-ID</value>
+   			<value lang="fi">Unique concept scheme ID</value>
+    	</label>
+    	<label id="skos.isTopConcept.label">
+   			<value lang="bg">Главна концепция</value>
+   			<value lang="en">Is top concept</value>
+   			<value lang="de">Ist Top-Konzept</value>
+   			<value lang="fi">Is top concept</value>
+    	</label>
+    	<label id="skos.hasTopConcept">
+   			<value lang="bg">Главна концепция</value>
+   			<value lang="en">Has top concept</value>
+   			<value lang="de">Hat Top-Konzept</value>
+   			<value lang="fi">On Top Concept</value>
+    	</label>
+		<label id="skos.conceptId.label">
+   			<value lang="bg">Уникално ИД на концепция</value>
+   			<value lang="en">Unique concept ID</value>
+   			<value lang="de">Einzigartige Konzept-ID</value>
+   			<value lang="fi">Unique concept ID</value>
+    	</label>
+    	<label id="skos.inScheme">
+   			<value lang="bg">В схема</value>
+   			<value lang="en">In scheme</value>
+   			<value lang="de">In Schema</value>
+   			<value lang="fi">In scheme</value>
+    	</label>
+    	<label id="skos.topConceptOf">
+   			<value lang="bg">Главна концепция на</value>
+   			<value lang="en">Top concept of</value>
+   			<value lang="de">Top-Konzept von</value>
+   			<value lang="fi">Top Concept Of</value>
+    	</label>
+    	<label id="skos.isMemberOfCollection">
+   			<value lang="bg">Член на колекция</value>
+   			<value lang="en">Is member of collection</value>
+   			<value lang="de">Ist Mitglied der Sammlung</value>
+   			<value lang="fi">Onko jäsen kokoelmasta</value>
+    	</label>
+    	<label id="skos.related">
+   			<value lang="bg">Свързана с</value>
+   			<value lang="en">Related</value>
+   			<value lang="de">Verbunden</value>
+   			<value lang="fi">Liittyvä</value>
+    	</label>
+    	<label id="skos.broaderTransitive">
+   			<value lang="bg">Broader transitive</value>
+   			<value lang="en">Broader transitive</value>
+   			<value lang="de">Hat einen breiteren Transitiv</value>
+   			<value lang="fi">Broader transitive</value>
+		</label>
+    	<label id="skos.broader">
+   			<value lang="bg">Broader</value>
+   			<value lang="en">Broader</value>
+   			<value lang="de">Hat breiter</value>
+   			<value lang="fi">Broader</value>
+    	</label>
+    	<label id="skos.narrowerTransitive">
+   			<value lang="bg">Narrower transitive</value>
+   			<value lang="en">Narrower transitive</value>
+   			<value lang="de">Hat einen breiteren Transitiv</value>
+   			<value lang="fi">Narrower transitive</value>
+    	</label>
+    	<label id="skos.narrower">
+   			<value lang="bg">Narrower</value>
+   			<value lang="en">Narrower</value>
+   			<value lang="de">Hat schmaler</value>
+   			<value lang="fi">Narrower</value>
+    	</label>
+    	<label id="skos.broadMatch">
+   			<value lang="bg">Broad match</value>
+   			<value lang="en">Broad match</value>
+   			<value lang="de">Breites Spiel</value>
+   			<value lang="fi">Broad match</value>
+    	</label>
+    	<label id="skos.narrowMatch">
+   			<value lang="bg">Narrow match</value>
+   			<value lang="en">Narrow match</value>
+   			<value lang="de">Hat engere Übereinstimmung</value>
+   			<value lang="fi">Narrow match</value>
+    	</label>
+    	<label id="skos.closeMatch">
+   			<value lang="bg">Close match</value>
+   			<value lang="en">Close match</value>
+   			<value lang="de">Hat enge Übereinstimmung</value>
+   			<value lang="fi">Close match</value>
+    	</label>
+    	<label id="skos.exactMatch">
+   			<value lang="bg">Exact match</value>
+   			<value lang="en">Exact match</value>
+   			<value lang="de">Hat genaue Übereinstimmung</value>
+   			<value lang="fi">Exact match</value>
+    	</label>
+    	<label id="skos.relatedMatch">
+   			<value lang="bg">Related match</value>
+   			<value lang="en">Related match</value>
+   			<value lang="de">Hat ein ähnliches Spiel</value>
+   			<value lang="fi">Related match</value>
+    	</label>
+    	<label id="skos.definition.label">
+   			<value lang="bg">Дефиниция</value>
+   			<value lang="en">Definition</value>
+   			<value lang="de">Definition</value>
+   			<value lang="fi">Määritelmä</value>
+    	</label>
+    	<label id="skos.example.label">
+   			<value lang="bg">Пример</value>
+   			<value lang="en">Example</value>
+   			<value lang="de">Beispiel</value>
+   			<value lang="fi">Esimerkki</value>
+    	</label>
+    	<label id="skos.note.label">
+   			<value lang="bg">Бележка</value>
+   			<value lang="en">Note</value>
+   			<value lang="de">Hinweis</value>
+   			<value lang="fi">Huomautus</value>
+    	</label>
+    	<label id="skos.notation.label">
+   			<value lang="bg">Нотация</value>
+   			<value lang="en">Notation</value>
+   			<value lang="de">Notation</value>
+   			<value lang="fi">Merkintätapa</value>
+    	</label>
+    	<label id="skos.hiddenLabel.label">
+   			<value lang="bg">Скрит етикет</value>
+   			<value lang="en">Hidden label</value>
+   			<value lang="de">Verstecktes Etikett</value>
+   			<value lang="fi">Piilotettu tarra</value>
+    	</label>
+    	<label id="skos.prefLabel.label">
+   			<value lang="bg">Предпочитан етикет</value>
+   			<value lang="en">Preferred label</value>
+   			<value lang="de">Bevorzugter Aufkleber</value>
+   			<value lang="fi">Suositeltava tarra</value>
+    	</label>
+    	<label id="skos.altLabel.label">
+   			<value lang="bg">Алтернативен етикет</value>
+   			<value lang="en">Alternative label</value>
+   			<value lang="de">Alternatives Etikett</value>
+   			<value lang="fi">Vaihtoehtoinen tarra</value>
+    	</label>
+    	<label id="skos.associatedWithObject.action.label">
+   			<value lang="bg">Свързва се с обект</value>
+   			<value lang="en">Associated with object</value>
+   			<value lang="de">Verknüpfen mit Objekt</value>
+   			<value lang="fi">Associated with object</value>
+    	</label>
+    	<label id="skos.addToCollection.action.label">
+   			<value lang="bg">Добави към колекция</value>
+   			<value lang="en">Add to Collection</value>
+   			<value lang="de">Zur Sammlung hinzufügen</value>
+   			<value lang="fi">Lisää kokoelmaan</value>
+    	</label>
+    	<label id="skos.member">
+   			<value lang="bg">Членове</value>
+   			<value lang="en">Members</value>
+   			<value lang="de">Mitglieder</value>
+   			<value lang="fi">Jäsenet</value>
+    	</label>
+    	<label id="skos.addMember.action.label">
+    		<value lang="bg">Добави член</value>
+    		<value lang="en">Add Member</value>
+    		<value lang="de">Mitglied hinzufügen</value>
+    		<value lang="fi">Lisää jäsen</value>
+    	</label>
+    	<label id="skos.createConcept.action.label">
+    		<value lang="bg">Създай концепция</value>
+    		<value lang="en">Create Concept</value>
+    		<value lang="de">Konzept erstellen</value>
+    		<value lang="fi">Create concept</value>
+    	</label>
+
+		<!-- Email integration labels -->
+		<label id="email.integration.emailAddress">
+            <value lang="bg">Пощенска кутия</value>
+            <value lang="en">E-mail address</value>
+            <value lang="de">E-Mail-Addresse</value>
+            <value lang="fi">Sähköpostiosoite</value>
         </label>
+        <label id="composeEmail.label">
+            <value lang="bg">Създай писмо</value>
+            <value lang="en">Compose Email</value>
+            <value lang="de">E-Mail verfassen</value>
+            <value lang="fi">Kirjoita sähköposti</value>
+        </label>
+        <label id="emailintegration.welcome.mail.subject">
+        	<value lang="bg">Добре дошли в Sirma Enterprise Platform</value>
+   			<value lang="en">Welcome to Sirma Enterprise Platform</value>
+   			<value lang="de">Willkommen bei der Sirma Enterprise Plattform</value>
+   			<value lang="fi">Tervetuloa Sirma Enterprise Platformiin</value>
+   		</label>
+   		<label id="emailintegration.welcome.mail.message">
+        	<value lang="bg">Добре дошли в Sirma Enterprise Platform</value>
+   			<value lang="en">Welcome to Sirma Enterprise Platform</value>
+   			<value lang="de">Willkommen bei der Sirma Enterprise Plattform</value>
+   			<value lang="fi">Tervetuloa Sirma Enterprise Platformiin</value>
+   		</label>
+   		<label id="emailintegration.welcome.mail.username">
+        	<value lang="bg">Моля ползвайте следното потребителско име: </value>
+   			<value lang="en">Please use the following username: </value>
+   			<value lang="de">Bitte verwenden Sie den folgenden Benutzernamen: </value>
+   			<value lang="fi">Käytä seuraavaa käyttäjätunnusta: </value>
+   		</label>
+   		<label id="emailintegration.welcome.mail.password">
+        	<value lang="bg">Парола: </value>
+   			<value lang="en">Password: </value>
+   			<value lang="de">Password: </value>
+   			<value lang="fi">Salasana: </value>
+   		</label>
+   		<label id="emailintegration.welcome.mail.system.url">
+        	<value lang="bg">За да влезете в системата ползвайте следния линк: </value>
+   			<value lang="en">To enter the system use following link: </value>
+   			<value lang="de">Um das System zu betreten, benutzen Sie folgenden Link: </value>
+   			<value lang="fi">Syötä järjestelmään seuraavat linkit: </value>
+   		</label>
+   		<label id="emailintegration.welcome.mail.mailbox.url">
+        	<value lang="bg">За да смените паролата си ползвайте следния линк: </value>
+   			<value lang="en">To change your passoword use following link: </value>
+   			<value lang="de">Um Ihr Passwort zu ändern, benutzen Sie folgenden Link: </value>
+   			<value lang="fi">Voit muuttaa salasanaa seuraavalla linkillä: </value>
+   		</label>
+
+   		<!-- Used in export to Word functionality -->
+        <label id="comments.widget.topic">
+        	<value lang="bg">Тема</value>
+            <value lang="en">Topic</value>
+            <value lang="de">Thema</value>
+            <value lang="fi">Aihe</value>
+        </label>
+        <label id="comments.widget.reply">
+        	<value lang="bg">Отговор</value>
+            <value lang="en">Reply</value>
+            <value lang="de">Antworten</value>
+            <value lang="fi">Vastaa</value>
+        </label>
+        <label id="comments.widget.object">
+        	<value lang="bg">Обект</value>
+            <value lang="en">Object</value>
+            <value lang="de">Objekt</value>
+            <value lang="fi">Esine</value>
+        </label>
+        <label id="comments.widget.type">
+        	<value lang="bg">Тип</value>
+            <value lang="en">Type</value>
+            <value lang="de">Art</value>
+            <value lang="fi">Tyyppi</value>
+        </label>
+        <label id="comments.widget.creator">
+        	<value lang="bg">Създател</value>
+            <value lang="en">Creator</value>
+            <value lang="de">Schöpfer</value>
+            <value lang="fi">Luoja</value>
+        </label>
+        <label id="comments.widget.createdOn">
+        	<value lang="bg">Създаден на</value>
+            <value lang="en">Created on</value>
+            <value lang="de">Erstellt am</value>
+            <value lang="fi">Luotu</value>
+        </label>
+        <label id="comments.widget.text">
+        	<value lang="bg">Текст</value>
+            <value lang="en">Text</value>
+            <value lang="de">Text</value>
+            <value lang="fi">Teksti</value>
+        </label>
+        <label id="comments.widget.status">
+        	<value lang="bg">Статус</value>
+            <value lang="en">Status</value>
+            <value lang="de">Status</value>
+            <value lang="fi">Status</value>
+        </label>
+
+		<!-- Used in Issue functionality -->
+		<label id="issue.hasWatcher">
+			<value lang="bg">Наблюдаващ</value>
+			<value lang="en">Has watcher</value>
+			<value lang="de">Hat watcher</value>
+			<value lang="fi">Onko Watcher</value>
+		</label>
+		<label id="issue.issueType.label">
+		    <value lang="bg">Вид проблем</value>
+			<value lang="en">Issue type</value>
+			<value lang="de">Fehlertyp</value>
+			<value lang="fi">Julkaisutyyppi</value>
+		</label>
+		<label id="issue.resolveIssue.action.label">
+		    <value lang="bg">Приключи проблема</value>
+			<value lang="en">Resolve Issue</value>
+			<value lang="de">Resolve Ausgabe</value>
+			<value lang="fi">Ratkaise ongelma</value>
+		</label>
+
+		<!-- Labels for downloads and favouries -->
+		<label id="default.downloads.icon">
+			<value lang="bg"><![CDATA[${eval(<span class="custom-icon ${if(${get([markedForDownload])}).then(circle_arrow_down).else(download)} downloads-list" title="${if(${get([markedForDownload])}).then(Премахни от списъка за сваляне).else(Добави към списъка за сваляне)}"></span>)}]]></value>
+			<value lang="en"><![CDATA[${eval(<span class="custom-icon ${if(${get([markedForDownload])}).then(circle_arrow_down).else(download)} downloads-list" title="${if(${get([markedForDownload])}).then(Remove from downloads).else(Add to downloads)}"></span>)}]]></value>
+			<value lang="fi"><![CDATA[${eval(<span class="custom-icon ${if(${get([markedForDownload])}).then(circle_arrow_down).else(download)} downloads-list" title="${if(${get([markedForDownload])}).then(Remove from downloads).else(Add to downloads)}"></span>)}]]></value>
+		</label>
+		<label id="default.favouries.icon">
+			<value lang="bg"><![CDATA[${eval(<span class="custom-icon ${if(${get([hasFavourite])}).then(star).else(dislikes)} favourites" title="${if(${get([hasFavourite])}).then(Премахни от любими).else(Добави в любими)}"></span>)}]]></value>
+			<value lang="en"><![CDATA[${eval(<span class="custom-icon ${if(${get([hasFavourite])}).then(star).else(dislikes)} favourites" title="${if(${get([hasFavourite])}).then(Remove from favourites).else(Add to favourites)}"></span>)}]]></value>
+			<value lang="fi"><![CDATA[${eval(<span class="custom-icon ${if(${get([hasFavourite])}).then(star).else(dislikes)} favourites" title="${if(${get([hasFavourite])}).then(Remove from favourites).else(Add to favourites)}"></span>)}]]></value>
+		</label>
+
+		<!-- Group Labels -->
+		<label id="groupDefinition.title">
+			<value lang="bg">Име</value>
+			<value lang="en">Name</value>
+			<value lang="de">Name</value>
+			<value lang="fi">Nimi</value>
+		</label>
+		<label id="groupDefinition.email">
+			<value lang="bg">Имейл</value>
+			<value lang="en">Email</value>
+			<value lang="de">Email</value>
+			<value lang="fi">Sähköposti</value>
+		</label>
+		<label id="groupDefinition.groupId">
+			<value lang="bg">Номер на групата</value>
+			<value lang="en">Group ID</value>
+			<value lang="de">Gruppen-ID</value>
+			<value lang="fi">Group ID</value>
+		</label>
+
+		<!-- User labels -->
+		<label id="userDefinition.firstName">
+			<value lang="bg">Име</value>
+			<value lang="en">First name</value>
+			<value lang="de">Vorname</value>
+			<value lang="fi">Etunimi</value>
+		</label>
+		<label id="userDefinition.lastName">
+			<value lang="bg">Фамилия</value>
+			<value lang="en">Last name</value>
+			<value lang="de">Familienname, Nachname</value>
+			<value lang="fi">Sukunimi</value>
+		</label>
+		<label id="userDefinition.userId">
+			<value lang="bg">Номер на потребител</value>
+			<value lang="en">User ID</value>
+			<value lang="de">Benutzeridentifikation</value>
+			<value lang="fi">Käyttäjätunnus</value>
+		</label>
+		<label id="userDefinition.title">
+			<value lang="bg">Потребител</value>
+			<value lang="en">User</value>
+			<value lang="de">Benutzer</value>
+			<value lang="fi">Käyttäjä</value>
+		</label>
+		<label id="userDefinition.email">
+			<value lang="bg">Имейл</value>
+			<value lang="en">E-mail</value>
+			<value lang="de">E-mail</value>
+			<value lang="fi">Sähköposti</value>
+		</label>
+		<label id="userDefinition.jobtitle">
+			<value lang="bg">Длъжност</value>
+			<value lang="en">Job title</value>
+			<value lang="de">Berufsbezeichnung</value>
+			<value lang="fi">Työnimike</value>
+		</label>
+		<label id="userDefinition.country">
+			<value lang="bg">Държава</value>
+			<value lang="en">Country</value>
+			<value lang="de">Land</value>
+			<value lang="fi">Maa</value>
+		</label>
+		<label id="userDefinition.address">
+			<value lang="bg">Адрес</value>
+			<value lang="en">Address</value>
+			<value lang="de">Adresse</value>
+			<value lang="fi">Osoite</value>
+		</label>
+		<label id="userDefinition.telephone">
+			<value lang="bg">Телефон</value>
+			<value lang="en">Telephone</value>
+			<value lang="de">Hausnummer</value>
+			<value lang="fi">Puhelin</value>
+		</label>
+		<label id="userDefinition.mobile">
+			<value lang="bg">Мобилен телефон</value>
+			<value lang="en">Mobile</value>
+			<value lang="de">Mobile Nummer</value>
+			<value lang="fi">Mobile</value>
+		</label>
+		<label id="userDefinition.organization">
+			<value lang="bg">Търговско предприятие</value>
+			<value lang="en">Organization</value>
+			<value lang="de">Organisation</value>
+			<value lang="fi">Organisaatio</value>
+		</label>
+		<label id="userDefinition.im">
+			<value lang="bg">IM</value>
+			<value lang="en">IM</value>
+			<value lang="de">IM</value>
+			<value lang="fi">OLEN</value>
+		</label>
+		<label id="userDefinition.language">
+			<value lang="bg">Език</value>
+			<value lang="en">Language</value>
+			<value lang="de">Sprache</value>
+			<value lang="fi">Kieli</value>
+		</label>
+		<label id="userDefinition.emailAddress">
+			<value lang="bg">Системен имейл</value>
+			<value lang="en">System e-mail</value>
+			<value lang="de">System e-mail</value>
+			<value lang="fi">System e-mail</value>
+		</label>
+
+		<!-- Generic class/link labels -->
+     	<label id="CREATOR">
+    		<value lang="bg">Създадена от</value>
+    		<value lang="en">Created by</value>
+    		<value lang="de">Erstellt von</value>
+    		<value lang="fi">Luonut</value>
+    	</label>
+        <label id="classDefinition.partOfObjectLibrary">
+    		<value lang="bg">Библиотека</value>
+    		<value lang="en">Library</value>
+    		<value lang="de">Bibliothek</value>
+    		<value lang="fi">Kirjasto</value>
+    	</label>
+        <label id="classDefinition.searchable">
+    		<value lang="bg">Може да се търси</value>
+    		<value lang="en">Searchable</value>
+    		<value lang="de">Durchsuchbar</value>
+    		<value lang="fi">Searchable</value>
+    	</label>
+        <label id="classDefinition.creatable">
+    		<value lang="bg">Може да се създава</value>
+    		<value lang="en">Creatable</value>
+    		<value lang="de">Erstellbar</value>
+    		<value lang="fi">Creatable</value>
+    	</label>
+        <label id="classDefinition.uploadable">
+    		<value lang="bg">Може да се качва</value>
+    		<value lang="en">Uploadable</value>
+    		<value lang="de">Hochladbare</value>
+    		<value lang="fi">Uploadable</value>
+    	</label>
+        <label id="classDefinition.versionable">
+    		<value lang="bg">Може да се версионира</value>
+    		<value lang="en">Versionable</value>
+    		<value lang="de">Versionierbar</value>
+    		<value lang="fi">Versionable</value>
+    	</label>
+    	<label id="classDefinition.mailboxSupportable">
+    		<value lang="bg">Поддържа електронна поща</value>
+    		<value lang="en">Support mailbox</value>
+    		<value lang="de">Support-Mailbox</value>
+    		<value lang="fi">Support mailbox</value>
+    	</label>
+        <label id="classDefinition.acceptDataTypePattern">
+    		<value lang="bg">Филтър за качване</value>
+    		<value lang="en">Data type filter</value>
+    		<value lang="de">Datentyp-Filter</value>
+    		<value lang="fi">Data type filter</value>
+    	</label>
+        <label id="classDefinition.classCategory">
+    		<value lang="bg">Категория</value>
+    		<value lang="en">Category</value>
+    		<value lang="de">Kategorie</value>
+    		<value lang="fi">Category</value>
+    	</label>
+    	<label id="classDefinition.type">
+  			<value lang="bg">Библиотека</value>
+           	<value lang="en">Library</value>
+            <value lang="de">Bibliothek</value>
+           	<value lang="fi">Kirjasto</value>
+        </label>
+		<label id="classDefinition.allowInheritParentPermissions">
+			<value lang="bg">Позволи наследяване на права от родителя</value>
+			<value lang="en">Allow inherit parent permissions</value>
+			<value lang="de">Allow inherit parent permissions</value>
+			<value lang="fi">Allow inherit parent permissions</value>
+			<value lang="da">???Allow inherit parent permissions</value>
+		</label>
+		<label id="classDefinition.allowInheritLibraryPermissions">
+			<value lang="bg">Позволи наследяване на права от библиотеката</value>
+			<value lang="en">Allow inherit library permissions</value>
+			<value lang="de">Allow inherit library permissions</value>
+			<value lang="da">???Allow inherit library permissions</value>
+		</label>
+		<label id="linkDefinition.loggedBy">
+			<value lang="bg">Логнато от</value>
+			<value lang="en">Logged by</value>
+			<value lang="de">Angemeldet von</value>
+			<value lang="fi">Kirjautunut</value>
+		</label>
+		
+		<!-- Advanced search labels -->
+		<label id="search.date.range.beyond_last_year">
+			<value lang="bg">След повече от 1 година</value>
+			<value lang="en">Within more than a year ago</value>
+			<value lang="de">Innerhalb von mehr als vor einem Jahr</value>
+			<value lang="fi">Within more than a year ago</value>
+		</label>
+		<label id="search.date.range.last_year">
+			<value lang="bg">Последната година</value>
+			<value lang="en">Within a year ago</value>
+			<value lang="de">Innerhalb von vor einem Jahr</value>
+			<value lang="fi">Within a year ago</value>
+		</label>
+		<label id="search.date.range.last_month">
+			<value lang="bg">През последните 30 дена</value>
+			<value lang="en">Within last 30 days</value>
+			<value lang="de">Innerhalb der letzten 30 Tage</value>
+			<value lang="fi">Within last 30 days</value>
+		</label>
+		<label id="search.date.range.last_week">
+			<value lang="bg">През последните 7 дена</value>
+			<value lang="en">Within last 7 days</value>
+			<value lang="de">Innerhalb der letzten 7 Tage</value>
+			<value lang="fi">Within last 7 days</value>
+		</label>
+		<label id="search.date.range.yesterday">
+			<value lang="bg">Вчера</value>
+			<value lang="en">Yesterday</value>
+			<value lang="de">Gestern</value>
+			<value lang="fi">Yesterday</value>
+		</label>
+		<label id="search.date.range.today">
+			<value lang="bg">Днес</value>
+			<value lang="en">Today</value>
+			<value lang="de">Heute</value>
+			<value lang="fi">Tänään</value>
+		</label>
+		<label id="search.date.range.tomorrow">
+			<value lang="bg">Утре</value>
+			<value lang="en">Tomorrow</value>
+			<value lang="de">Morgen</value>
+			<value lang="fi">Tomorrow</value>
+		</label>
+		<label id="search.date.range.next_week">
+			<value lang="bg">Следващите 7 дни</value>
+			<value lang="en">Within next 7 days</value>
+			<value lang="de">Innerhalb von 7 Tagen</value>
+			<value lang="fi">Within next 7 days</value>
+		</label>
+		<label id="search.date.range.next_month">
+			<value lang="bg">Следващите 30 дни</value>
+			<value lang="en">Within next 30 days</value>
+			<value lang="de">Innerhalb nächsten 30 Tage</value>
+			<value lang="fi">Within next 30 days</value>
+		</label>
+		<label id="search.date.range.next_year">
+			<value lang="bg">Следващата година</value>
+			<value lang="en">Within a year ahead</value>
+			<value lang="de">Innerhalb eines Jahres voraus</value>
+			<value lang="fi">Within a year ahead</value>
+		</label>
+		<label id="search.date.range.beyond_next_year">
+			<value lang="bg">След повече от 1 година</value>
+			<value lang="en">Within more than a year ahead</value>
+			<value lang="de">Innerhalb von mehr als ein Jahr voraus</value>
+			<value lang="fi">Within more than a year ahead</value>
+		</label>
+		<label id="search.date.range.start">
+			<value lang="bg">Начало</value>
+			<value lang="en">Start</value>
+			<value lang="de"></value>
+			<value lang="fi"></value>
+		</label>
+		<label id="search.date.range.end">
+			<value lang="bg">Край</value>
+			<value lang="en">End</value>
+			<value lang="de"></value>
+			<value lang="fi"></value>
+		</label>
+		<label id="search.date.range.includedRanges">
+			<value lang="bg">Диапазон</value>
+			<value lang="en">Range</value>
+			<value lang="de"></value>
+			<value lang="fi"></value>
+		</label>
+
+		<!-- Saved search labels -->
+		<label id="savedSearch.searchCriteria">
+			<value lang="bg">Критерия</value>
+			<value lang="en">Criteria</value>
+			<value lang="de">Kriterien</value>
+			<value lang="fi">Criteria</value>
+		</label>
+		<label id="savedSearch.searchType">
+			<value lang="bg">Тип на търсенето</value>
+			<value lang="en">Search type</value>
+			<value lang="de">Suchtyp</value>
+			<value lang="fi">Haku tyyppi</value>
+		</label>
+
+		<!-- Permission labels -->
+		<label id="consumer.label">
+			<value lang="bg">Консуматор</value>
+			<value lang="en">Consumer</value>
+			<value lang="de">Verbraucher</value>
+			<value lang="fi">Kuluttaja</value>
+		</label>
+		<label id="contributor.label">
+			<value lang="bg">Контрибютор</value>
+			<value lang="en">Contributor</value>
+			<value lang="de">Teilnehmer</value>
+			<value lang="fi">Avustaja</value>
+		</label>
+		<label id="collaborator.label">
+			<value lang="bg">Супер потребител</value>
+			<value lang="en">Collaborator</value>
+			<value lang="de">Mitarbeiter</value>
+			<value lang="fi">Työtoveri</value>
+		</label>
+		<label id="manager.label">
+			<value lang="bg">Мениджър</value>
+			<value lang="en">Manager</value>
+			<value lang="de">Manager</value>
+			<value lang="fi">Johtaja</value>
+		</label>
 	</labels>
 </definition>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="DataImportReport" parentId="genericDataImportReport" type="object">
+	<!-- generated Data Import Report -->
+	<fields>
+		<field name="default_header" type="ANY" label="DATA_IMPORT_DEFAULT_HEADER_CORE" />
+		<field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER_CORE"/>
+		<field name="breadcrumb_header" type="an..4096" label="DATA_IMPORT_BREADCRUMB_HEADER_CORE" />
+		<field name="tooltip_header" type="ANY" label="DATA_IMPORT_TOOLTIP_HEADER_CORE" />
+		
+		<!-- system fields -->
+		<field name="title" type="an..1000" displayType="system" />
+		<field name="description" type="an..180" displayType="system" />
+		<field name="type" type="an..180" displayType="system" />
+		<field name="identifier" type="an..180" displayType="system" />
+		<field name="name" type="an..180" displayType="system" />
+		<field name="mimetype" type="an..20" displayType="system" />
+		<field name="size" type="n..10" displayType="system" />
+		<field name="status" type="an..35" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="createdOn" type="dateTime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system" />
+		<field name="modifiedOn" type="datetime" displayType="system" />
+		<field name="modifiedBy" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system"  />
+		<field name="outcome" type="an..50" displayType="system" />
+		<field name="completedOn" type="datetime" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+	</fields>
+	
+	<regions>	
+		<region id="generalDocumentDetails" displayType="editable" order="10" label="core.generalData.region.label">
+			<fields>
+				<field name="title" type="an..1000" displayType="editable" mandatory="true" label="title.label" uri="dcterms:title"/>
+			</fields>
+		</region>
+		<region id="systemData" displayType="editable" order="20" label="core.systemData.region.label">
+			<fields>
+				<field name="type" type="an..20" displayType="readonly" codelist="CL7" label="core.subType.label" uri="emf:type">
+					<value>EAI_Report</value>
+				</field>
+				<field name="identifier" type="an..180" displayType="readonly" label="uniqueIdentifier.label" rnc="${eval(DIR${seq({+dirSequence})})}" uri="dcterms:identifier">
+					<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+				</field>
+				<field name="name" type="an..180" displayType="readonly" label="name.label" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" uri="emf:fileName" /> <!-- documentName -->
+				<field name="mimetype" type="an..20" displayType="readonly" codelist="CL30" label="mimetype.label" uri="emf:mimetype" />
+				<field name="size" type="n..10" displayType="readonly" label="size.label" uri="emf:size"> <!-- When you use this field the control BYTE_FORMAT is required -->
+					<control id="BYTE_FORMAT" />
+				</field>
+				<field name="status" type="an..20" displayType="readonly" codelist="CL122" label="status.label" uri="emf:status" />
+				<field name="emf:version" type="an..10" displayType="readonly" label="object.version" uri="emf:version" />
+				<!-- object properties (relationships) -->
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="core.createdOn.label" tooltip="core.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="core.createdBy.label" tooltip="core.createdBy.tooltip" uri="emf:createdBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="datetime" displayType="readOnly" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" uri="emf:modifiedBy">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" displayType="readonly" label="core.lockedBy.label" tooltip="core.lockedBy.tooltip" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" displayType="readOnly" label="core.hasParent.label" tooltip="core.hasParent.tooltip" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="core.partOf.label" tooltip="core.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readonly" label="core.parentOf.label" tooltip="core.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="core.hasChild.label" tooltip="core.hasChild.tooltip"  multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>	
+	</regions>
+	<transitions>
+		<transition id="download" actionPath="/" />
+		
+		<group id="exportAs" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		
+		<group id="print" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		
+		<group id="more" label="more.group.label" type="menu" />
+    	<transition id="managePermissions" group="more" />
+	</transitions>
+	<labels>
+		<label id="DATA_IMPORT_BREADCRUMB_HEADER_CORE">
+            <value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+					<a target = "_blank" class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)} ${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}" ${var.href}>
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>)}]]>
+			</value>
+		</label>
+	</labels>
+</definition>

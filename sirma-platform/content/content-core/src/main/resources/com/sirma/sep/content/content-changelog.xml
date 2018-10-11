@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd"
+	logicalFilePath="com/sirma/itt/seip/content/content-changelog.xml">
+
+	<changeSet id="seip-content-1.22.0-1" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="seip_content"/>
+			</not>
+		</preConditions>
+		<comment>Adds seip_content table</comment>
+		<createTable tableName="seip_content">
+			<column name="id" type="varchar(128)" >
+				<constraints primaryKey="true" primaryKeyName="seip_content_primary_key"/>
+			</column>
+			<column name="instance_id" type="varchar(128)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="purpose" type="varchar(64)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="mimetype" type="varchar(64)"></column>
+			<column name="file_name" type="varchar(512)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="content_size" type="int8">
+				<constraints nullable="false"/>
+			</column>
+			<column name="remote_id" type="varchar(1024)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="remote_source_name" type="varchar(64)" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="charset" type="varchar(16)" />
+			<column name="is_view" type="int2" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="additional_info_id"  type="int8">
+				<constraints nullable="true"/>
+			</column>
+		</createTable>
+		<addForeignKeyConstraint constraintName="s_c_additional_info_id" baseColumnNames="additional_info_id" baseTableName="seip_content" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_serializablevalue" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+		<createIndex tableName="seip_content" indexName="idx_con_ins_t">
+			<column name="instance_id" />
+			<column name="purpose" />
+		</createIndex>
+		<createIndex tableName="seip_content" indexName="idx_con_rem_id">
+			<column name="remote_id" />
+		</createIndex>
+	</changeSet>
+	<changeSet id="seip-content-1.22.0-2" author="bbonev">
+		<comment>Increase the mimetype column length to 128</comment>
+		<modifyDataType tableName="seip_content" columnName="mimetype" newDataType="varchar(128)"/>
+	</changeSet>
+	<changeSet id="seip-content-1.22.0-3.3" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="emf_propertyvalue"/>			
+			<tableExists tableName="seip_instanceentity"/>
+			<tableExists tableName="emf_prototype"/>
+			<tableExists tableName="emf_datatypedefinition"/>
+			<not>
+				<changeSetExecuted changeLogFile="com/sirma/itt/seip/content/content-changelog.xml" author="bbonev" id="seip-content-1.22.0-3.2"/>
+			</not>
+		</preConditions>
+		<comment>Migrate existing content to the new seip_content table</comment>
+		<createTable tableName="not_migrated_content">
+			<column name="id" type="varchar(128)" >
+				<constraints primaryKey="true" primaryKeyName="not_migrated_content_pr_key"/>
+			</column>
+			<column name="instance_id" type="varchar(128)" />
+			<column name="purpose" type="varchar(64)" />
+			<column name="mimetype" type="varchar(128)" />
+			<column name="file_name" type="varchar(512)" />
+			<column name="content_size" type="int8" />
+			<column name="remote_id" type="varchar(1024)" />
+			<column name="remote_source_name" type="varchar(64)" />
+			<column name="charset" type="varchar(16)" />
+			<column name="is_view" type="int2" />
+		</createTable>
+		<sql endDelimiter=";">
+			insert into not_migrated_content (id, instance_id, purpose, mimetype, file_name, content_size, remote_id, remote_source_name, charset, is_view) 
+				select cast(ie.index as varchar), ie.id, 'primaryContent', 
+					(select pv.stringvalue from emf_propertyvalue as pv, emf_properties as p where p.bean_id = ie.id and p.propertyid = (select id from emf_prototype where name ='mimetype') and p.value_id = pv.id order by pv.id desc limit 1) as mimetype, 
+					(select pv.stringvalue from emf_propertyvalue as pv, emf_properties as p where p.bean_id = ie.id and p.propertyid = (select id from emf_prototype where name ='name') and p.value_id = pv.id order by pv.id desc limit 1) as filename,
+					-1, ie.dmsId, case when position('workspace://' in ie.dmsId) > 0 then 'alfresco4' else 'iiif' end, 'UTF-8', 2 
+						from  seip_instanceentity as ie where ie.dmsId is not null and ie.instancetype = (select id from emf_datatypedefinition where name = 'documentinstance');
+						
+			insert into seip_content (id, instance_id, purpose, mimetype, file_name, content_size, remote_id, remote_source_name, charset, is_view) 
+				select id, instance_id, purpose, mimetype, file_name, content_size, remote_id, remote_source_name, charset, is_view from not_migrated_content as tc where file_name is not null and mimetype is not null and tc.id not in (select id from seip_content);
+				
+			delete from not_migrated_content where file_name is not null and mimetype is not null;
+		</sql>
+	</changeSet>
+	<changeSet id="seip-content-1.22.0-3.4" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="not_migrated_content"/>
+			<sqlCheck expectedResult="0">select count(*) from not_migrated_content</sqlCheck>
+		</preConditions>
+		<dropTable tableName="not_migrated_content"/>
+	</changeSet>
+	<changeSet id="seip-content-1.22.0-4" author="bbonev">
+		<preConditions>
+			<tableExists tableName="emf_thumbnailentity"/>
+			<not>
+				<columnExists tableName="emf_thumbnailentity" columnName="lastfailtime"/>
+			</not>
+		</preConditions>
+		<addColumn tableName="emf_thumbnailentity">
+			<column name="lastfailtime" type="timestamp" />
+		</addColumn>
+		<modifyDataType tableName="emf_thumbnailentity" columnName="endpoint" newDataType="varchar(2048)"/>
+	</changeSet>
+	<changeSet id="seip-content-1.22.0-5" author="bbonev">
+		<comment>Change the instance id and purpose not to be required</comment>
+		<dropNotNullConstraint tableName="seip_content" columnName="instance_id"/>
+		<dropNotNullConstraint tableName="seip_content" columnName="purpose"/>
+	</changeSet>
+	<changeSet id="seip-content-2.1.0-1" author="bbonev">
+		<comment>Add indexable column to indicate which contents are applicable for indexing</comment>
+		<addColumn tableName="seip_content">
+			<column name="indexable" type="int2" defaultValue="2" />
+		</addColumn>
+		<sql>
+			update seip_content set indexable=1 where purpose='primaryView' or purpose='primaryContent';
+			update seip_content set indexable=2 where indexable is null;
+		</sql>
+	</changeSet>
+		<changeSet id="seip-content-2.3.0-1" author="bbonev">
+		<comment>Add checksum column to store unique checksums for contents to uniquely identify them</comment>
+		<addColumn tableName="seip_content">
+			<column name="checksum" type="varchar(50)" />
+		</addColumn>
+	</changeSet>
+	<changeSet id="seip-content-2.13.0-1" author="nvelkov">
+		<comment>Change the remote id and remote source name to nullable</comment>
+		<dropNotNullConstraint tableName="seip_content"
+			columnName="remote_id" />
+		<dropNotNullConstraint tableName="seip_content"
+			columnName="remote_source_name" />
+	</changeSet>
+	<changeSet id="content-patches-2.19.0-01" author="akunchev">
+		<preConditions>
+			<not>
+				<columnExists tableName="seip_content" columnName="createdon" />
+			</not>
+		</preConditions>
+		<comment>Adds column for the date when the entities are created. This date will be automatically generated on insert.</comment>
+		<addColumn tableName="seip_content">
+			<column name="createdon" type="TIMESTAMP WITH TIME ZONE" />
+		</addColumn>
+	</changeSet>
+</databaseChangeLog>

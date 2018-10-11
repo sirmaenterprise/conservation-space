@@ -1,0 +1,14 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX nga: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/NGA#>
+insert {
+    GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?s nga:requestNumber "000000"^^xsd:string .
+    }
+} where {
+	GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+		?s a emf:Document .
+		?s emf:type ?type .
+        filter not exists { ?s nga:requestNumber ?requestNumber }
+		FILTER(?type = "NGADT210013" || ?type = "NGADT210015" || ?type = "NGADT210037") 
+	}
+}

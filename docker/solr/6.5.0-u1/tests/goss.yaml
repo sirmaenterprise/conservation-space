@@ -1,0 +1,30 @@
+process:
+  java:
+    running: true
+
+addr:
+  tcp://0.0.0.0:8983:
+    reachable: true
+
+http:
+  http://0.0.0.0:8983/solr/admin/info/system:
+    status: 200
+
+mount:
+  /var/lib/solr:
+    exists: true
+  /opt/solr/server/logs:
+    exists: true
+
+file:
+  /var/lib/solr/:
+    exists: true
+    owner: dockeru
+
+  /var/lib/solr/solr.xml:
+    exists: true
+
+  /opt/solr/server/resources/log4j.properties:
+    exists: true
+    contains:
+    - log4j.rootLogger=WARN

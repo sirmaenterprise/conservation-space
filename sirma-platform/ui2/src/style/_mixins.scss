@@ -1,0 +1,283 @@
+/* All common mixins should go here. This stylesheet is imported in main.css */
+@import "../style/variables";
+
+@mixin top-offset($additional-offset: 0) {
+  top: $navbar-height + $breadcrumb-height + $additional-offset;
+}
+
+@mixin styled-input {
+  color: red;
+}
+
+@mixin border-bottom {
+  border-bottom: 1px solid #dfdfdf;
+}
+
+@mixin padding-horizontal($padding) {
+  padding-left: $padding;
+  padding-right: $padding;
+}
+
+@mixin round-border($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+}
+
+@mixin rect-shape($width,$height) {
+  width: $width;
+  height: $height;
+}
+
+/* When a height is set on a tag, it might be useful the line-height to be set to that height too. This way the text inside the tag is properly positioned in the middle. */
+@mixin equal-line-height($height) {
+  height: $height;
+  line-height: $height;
+}
+
+@mixin media-min-width($min-width, $width) {
+  @media(min-width: $min-width) {
+    width: $width;
+  }
+}
+
+/**
+ * Sets a font size according to given media screen width size.
+ * $font-size-list: A list with font size units for every supported screen width. See the $screen-widths list variable.
+ *                  If this argument is omited then the default font sizes will be applied.
+ */
+@mixin media-font-size($font-size-list: $default-font-sizes) {
+  @for $i from 1 to length($screen-widths) {
+    @media(max-width: nth($screen-widths, $i)) {
+      font-size: nth($font-size-list, $i);
+    }
+  }
+}
+
+/**
+ * Sets a max width according to given media screen width size.
+ * $width-size-list: A list with width size units for every supported screen width. See the $screen-widths list variable.
+ *                  This argument must not be omitted, as it is mandatory and no default list of values is specified.
+ */
+@mixin media-max-width($width-size-list) {
+  @for $i from 1 to length($screen-widths) {
+    @media(max-width: nth($screen-widths, $i)) {
+      max-width: nth($width-size-list, $i);
+    }
+  }
+}
+
+@mixin dtw-cell-padding() {
+  padding: 6px 12px;
+  @include word-wrap();
+}
+
+/* IE10+ CSS styles go here */
+@mixin internet-explorer-11() {
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    @content
+  }
+}
+
+/* EDGE CSS styles go here */
+@mixin edge() {
+  @supports (-ms-ime-align:auto) {
+    @content
+  }
+}
+
+/* Safari 9+ (iOS Only!) */
+@mixin safari9AndAbove() {
+  /* Safari 9+ (iOS Only!) */
+  @supports (overflow:-webkit-marquee) and (justify-content:inherit) {
+    @content
+  }
+  /* Safari 10+ (iOS Only!) */
+  @media not all and (min-resolution: .001dpcm) {
+    @supports (-webkit-appearance:none) {
+      @content
+    }
+  }
+}
+
+// firefox
+@mixin firefox() {
+  @-moz-document url-prefix() {
+    @content
+  }
+}
+
+/* all browsers except ie11 & edge */
+@mixin exclude-ie11-and-edge() {
+  @supports not (-ms-ime-align:auto) {
+    @content
+  }
+}
+
+/* IE10+ and EDGE CSS styles go here */
+@mixin internet-explorer-11-and-edge() {
+  @include internet-explorer-11() {
+    @content
+  }
+  @include edge() {
+    @content
+  }
+}
+
+@mixin firefox-and-edge() {
+  @include firefox() {
+    @content
+  }
+  @include edge() {
+    @content
+  }
+}
+
+@mixin internet-explorer-11-firefox-and-edge() {
+  @include internet-explorer-11() {
+    @content
+  }
+  @include firefox() {
+    @content
+  }
+  @include edge() {
+    @content
+  }
+}
+
+@mixin max-dimensions($width, $height) {
+  max-width: $width;
+  max-height: $height;
+}
+
+@mixin word-wrap() {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  // Non standard for WebKit
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Ensures that an icon will stay within the provided dimension and scale. */
+@mixin icon-dimensions($dimension) {
+  width: $dimension;
+  display: inline;
+  line-height: $dimension;
+  text-align: center;
+  margin-right: 0.3em;
+  margin-left: 0.5em;
+
+  i {
+    font-size: $dimension;
+  }
+
+  img {
+    margin: auto;
+    max-height: $dimension;
+    max-width: $dimension;
+  }
+
+  @include internet-explorer-11-firefox-and-edge() {
+    text-align: center;
+
+    img {
+      max-width: $dimension !important;
+      max-height: $dimension !important;
+    }
+  }
+
+  @include internet-explorer-11() {
+    min-width: $dimension;
+  }
+}
+
+/**
+ * Creates an area with a vertical scroll if the content is larger than the total height minus the provided
+ * offset in vh units.
+ */
+@mixin scrollable-area($vertical-offset) {
+  overflow-y: auto;
+  max-height: calc(100vh - #{$vertical-offset});
+  width: 100%;
+}
+
+@mixin tooltip($tooltip-color, $tooltip-background-color, $tooltip-font-size, $tooltip-width: 200px) {
+  &:not([data-tooltip=""]):hover:after {
+    position: absolute;
+    width: $tooltip-width;
+    content: attr(data-tooltip);
+
+    pointer-events: none;
+    color: $tooltip-color;
+    background-color: $tooltip-background-color;
+    text-align: center;
+    font-size: $tooltip-font-size;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: normal;
+    @include word-wrap();
+    opacity: 0;
+    animation: opacityTimer 1s 1s forwards;
+    @content;
+  }
+
+  @keyframes opacityTimer {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}
+
+/**
+ * Enforces max height so the whole content will be visible in a single screen (CKEditor visible area)
+ */
+@mixin content-max-height() {
+  max-height: 800px;
+
+  @media (max-height: 980px) {
+    max-height: 640px;
+  }
+
+  @media (max-height: 820px) {
+    max-height: 480px;
+  }
+
+  @media (max-height: 660px) {
+    max-height: 360px;
+  }
+}
+
+@mixin widget-header-button() {
+  outline: none;
+  width: 30px;
+  height: 33px;
+  padding: 0;
+  border: none;
+  border-left: 1px solid #e0e0e0;
+  background: none;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, .05);
+  }
+}
+
+/**
+ * .instance-data is inline-flex by default which  imposes problems
+ *  on header being wrapped inside most widgets.
+ */
+@mixin fit-header-inside-container() {
+  .instance-data {
+    display: flex;
+    > span:not(.header-icon):not(.lock-label) {
+      min-width: 0;
+      @include internet-explorer-11() {
+        width: 100%;
+      }
+      .banner {
+        float: left;
+      }
+    }
+  }
+}

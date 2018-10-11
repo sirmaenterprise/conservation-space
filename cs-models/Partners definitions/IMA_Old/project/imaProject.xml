@@ -1,0 +1,372 @@
+<?xml version="1.0"?>
+<definition id="imaProject" parentId="genericProject" type="project">
+	<fields>
+		<field name="default_header" type="ANY" label="PROJECT_DEFAULT_HEADER_CS" mandatory="true" displayType="system" uri="emf:default_header"/>
+	   	<field name="compact_header" type="an..4096" label="PROJECT_COMPACT_HEADER_CS" mandatory="false" displayType="system" uri="emf:compact_header"/>
+		<field name="tooltip_header" type="ANY" label="PROJECT_TOOLTIP_HEADER_CS" mandatory="false" displayType="system" uri="emf:tooltip_header"/>
+		
+		<!-- system fieds -->
+		<field name="identifier" type="an..50" displayType="system"/>
+		<field name="description" type="an..1024" displayType="system"/>
+		<field name="type" type="an..180" displayType="system" />
+		<field name="title" type="an..50"  displayType="system" />
+		<field name="status" type="an..50" displayType="system"/>
+		<field name="priority" 	type="an..20" displayType="system"/>
+		<field name="createdOn" type="datetime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system"/>
+		<field name="modifiedOn" type="datetime" displayType="system"/>
+		<field name="modifiedBy" type="uri" displayType="system"/>
+		<field name="hasParent" type="uri" displayType="system"/>
+		<field name="hasThumbnail" type="uri" displayType="system"/>
+		<field name="owner" type="uri" displayType="system"/>
+		<field name="outcome" type="an..50" displayType="system"/>
+		<field name="plannedStartDate" type="date" displayType="system"/>
+		<field name="plannedEndDate"   type="date" displayType="system"/>
+		<field name="actualStartDate" type="date" displayType="system"/>
+		<field name="actualEndDate" type="date" displayType="system"/>
+		<field name="actualEffortHours" type="n..10" displayType="system"/>
+		<field name="accumulatedEstimatedEffortHours" displayType="system"/>
+		<field name="accumulatedActualEffortHours" type="n..10" displayType="system"/>
+		<field name="duration" type="n..10"  displayType="system"/>
+		<field name="estimatedEffortHours" type="n..10" displayType="system"/>
+		<field name="completedOn" type="datetime" displayType="system" />
+		<field name="integrated" type="boolean" displayType="system" />
+		<field name="uri" type="an..50" label="uri.label" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="emailAddress" type="email" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system"/>
+		<field name="emailAddress" type="an..255" displayType="system" />
+	</fields>
+	<regions>
+		<region id="projectDetails" order="10" displayType="editable" label="genericproject.projectDetails">
+			<fields>
+				<field name="title" type="an..180" order="115" displayType="editable" previewEmpty="true"  label="imaProject.title"/>
+				
+				<field name="activityType" type="an..1024" codelist="CL241" mandatory="true" order="101" label="imaProject.activityType" displayType="editable" uri="chc:activityType"/>	
+				<field name="department" multiValued="true" type="an..1024" codelist="CL245" mandatory="true" order="102" label="imaProject.department" displayType="editable" uri="emf:departmentName"  />
+					
+				<field name="outgoingLoan" type="an..1024" order="117" label="imaProject.outgoingLoan" displayType="editable" uri="chc:outgoingLoanNumber">		
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityType] NOTIN ('IMA24102')</condition></field>
+				<field name="borrower" type="an..1024" order="118" label="imaProject.borrower" displayType="editable" uri="chc:borrowerName">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityType] NOTIN ('IMA24102')</condition>
+				</field>				
+				<field name="incomingLoanNumb" type="an..1024" order="119" label="imaProject.incomingLoanNumb" displayType="editable" uri="chc:incomingLoanNumber">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityType] NOTIN ('IMA24103')</condition></field>
+				<field name="lenderName" type="an..1024" order="120" label="imaProject.lenderName" displayType="editable" uri="chc:lenderName">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityType] NOTIN ('IMA24103')</condition></field>
+				<field name="exhibitionId" type="an..1024" order="121" label="imaProject.exhibitionId" displayType="editable" uri="chc:exhibitionId">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityType] NOTIN ('IMA24103')</condition></field>
+				<field name="exhibitionTrackingNumber" type="an..1024" order="122" label="imaProject.exhibitionTrackingNumber" displayType="editable" uri="chc:exhibitionTrackingNumber">
+					<condition id="hiddenFields" renderAs="HIDDEN">[activityType] NOTIN ('IMA24103')</condition></field>
+					
+				<field name="description" type="an..5000" order="116" previewEmpty="true" />
+				
+				<field name="priority" type="an..20" order="125" previewEmpty="true" />
+				<field name="owner" type="an..50" order="130" displayType="editable" previewEmpty="true" label="imaProject.owner" >
+					<control id="PICKLIST">
+						<control-param id="assigneeListItemsFilter" name="FILTER_NAME">ownerListItemsFilter</control-param>
+						<control-param id="triggerBtnTitle" name="TRIGGER_BUTTON_TITLE">assignee.triggerBtn.title</control-param>
+						<!-- ui-params are used only for the picklist popup javascript module and there are default values if missed here -->
+						<ui-param id="okBtnTitle" name="OK_BUTTON_TITLE">assignee.okBtn.title</ui-param>
+						<ui-param id="cancelBtnTitle" name="CANCEL_BUTTON_TITLE">assignee.cancelBtn.title</ui-param>
+						<ui-param id="picklistHeaderTitle" name="HEADER_TITLE">assignee.picklistHeader.title</ui-param>
+					</control>
+				</field>	
+				<field name="approvedBy" type="an..50" order="135" label="imaProject.approvedBy" mandatory="false" displayType="editable" previewEmpty="false">
+					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('APPROVED', 'COMPLETED')</condition>
+					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT', 'IN_PROGRESS')</condition>
+					<control id="PICKLIST">
+						<control-param id="assigneeListItemsFilter" name="FILTER_NAME">approvedByListItemsFilter</control-param>
+						<control-param id="triggerBtnTitle" name="TRIGGER_BUTTON_TITLE">assignee.triggerBtn.title</control-param>
+						<!-- ui-params are used only for the picklist popup javascript module and there are default values if missed here -->
+						<ui-param id="okBtnTitle" name="OK_BUTTON_TITLE">assignee.okBtn.title</ui-param>
+						<ui-param id="cancelBtnTitle" name="CANCEL_BUTTON_TITLE">assignee.cancelBtn.title</ui-param>
+						<ui-param id="picklistHeaderTitle" name="HEADER_TITLE">assignee.picklistHeader.title</ui-param>
+					</control>
+				</field>
+				<field name="visibility" type="an..20" label="genericproject.visibility" displayType="system" order="140"/>
+				<field name="status" type="an..50" order="145" >
+					<!-- https://ittruse.ittbg.com/jira/browse/CMF-1922 -->
+					<condition id="readonlyFieldId" renderAs="HIDDEN">[status] IN ('NO_ID','INIT','IN_PROGRESS','COMPLETED','DELETED')</condition>
+				</field>	
+				<field name="identifier" type="an..50" displayType="system" />				
+				<field name="type" type="an..180" displayType="system" />
+				<field name="createdOn" type="datetime" label="imaProject.create-on.label" displayType="system"  />
+				<field name="createdBy" type="an..50" label="imaProject.created-by.label" displayType="system" />				
+				<field name="reasonForSuspension" type="an..1024" displayType="system" />
+				<field name="modifiedOn" type="datetime" label="imaProject.modified-on.label" displayType="system"  />
+				<field name="modifiedBy" type="an..50" label="imaProject.modified-by.label" displayType="system" />
+						<field name="chc:involves" type="uri" label="imaConservationActivity.involves.label" mandatory="true" displayType="editable" uri="chc:involves" multiValued="true" order="118" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+					</control>
+				</field>
+				<field name="emf:hasAssignee" type="uri" label="imaConservationActivity.hasAssignee.label" mandatory="false" displayType="editable" uri="emf:hasAssignee" order="119" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="chc:hasSupervisor" type="uri" label="imaConservationActivity.hasSupervisor.label" mandatory="false" displayType="editable" uri="chc:hasSupervisor" multiValued="true" order="120">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="ptop:hasParticipant" type="uri" label="imaConservationActivity.hasParticipant.label" mandatory="false" displayType="editable" uri="ptop:hasParticipant" multiValued="true" order="121" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+			</fields>	
+		</region>	
+
+		<region id="timeAndEffort" order="20" displayType="editable" label="genericproject.timeAndEffort">
+			<fields>
+				<field name="plannedStartDate" order="215" type="date" previewEmpty="true">
+					<!--<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('COMPLETED')</condition>	-->
+				</field>
+				<field name="actualStartDate" order="220" type="date" displayType="editable" previewEmpty="true">
+					<value>${today}</value>				
+					<!-- <condition id="readOnlyFields" renderAs="READONLY">[status] IN ('COMPLETED', DELETED')</condition> -->
+				</field>
+				<field name="plannedEndDate" order="225" type="date" previewEmpty="true"></field>
+				<field name="actualEndDate" order="230" type="date" displayType="editable" previewEmpty="true">
+					<!-- <condition id="hiddenFields" renderAs="READONLY">[status] IN ('INIT', 'DELETED')</condition> -->
+				</field>
+				<field name="estimatedEffortHours" order="250" type="n..10" previewEmpty="true">
+					<!--<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('COMPLETED')</condition>-->
+				</field>
+			</fields>
+		</region>
+		
+		<!--<region id="suspension" order="30" displayType="editable" label="imaProject.suspension">
+			<fields>
+				<field name="reasonForSuspension" type="an..1024" order="315" label="reasonForSuspension.label" displayType="editable" previewEmpty="true">
+					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('INIT', 'SUBMITTED', 'APPROVED', 'COMPLETED', STOPPED')</condition>
+				</field>
+			</fields>	
+		</region>-->
+		
+		<region id="otherInformation" order="40" displayType="editable" label="imaProject.otherInformation" >
+			<fields>
+				<!--<field name="identifier" type="an..50" order="410" previewEmpty="true" label="uniqueIdentifier.label" displayType="readOnly" dmsType="cm:name" uri="dcterms:identifier"  rnc="${eval(${today.format(dd_MM_yyyy)}_${seq({+projectSequence})})}">
+						<condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+				</field>-->
+				<field name="type" type="an..180" order="415" label="imaProject.type" codelist="CL2" displayType="readOnly" dmsType="pm:type" previewEmpty="true">
+					<value>CSBaseProject</value>
+					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT')</condition>
+				</field>
+				<field name="createdOn" type="datetime" order="420" previewEmpty="true" label="imaProject.create-on.label" displayType="readOnly" dmsType="-cm:created" uri="emf:createdOn" />
+				<field name="createdBy" type="an..50" order="425" previewEmpty="true" label="imaProject.created-by.label" displayType="readOnly" dmsType="-cm:creator" uri="emf:createdBy"><control id="USER"/></field>		
+				<field name="modifiedOn" type="datetime" order="430" previewEmpty="true" label="imaProject.modified-on.label" displayType="readOnly" dmsType="-cm:modified" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="an..50" order="435" previewEmpty="true" label="imaProject.modified-by.label" displayType="readOnly" dmsType="-cm:modifier" uri="emf:modifiedBy"><control id="USER"/></field>
+			</fields>
+		</region>
+	</regions> 
+
+
+	<transitions>
+		<transition id="delete" label="imaProject.deleteProject.btn.title" eventId="delete" purpose="delete" confirmation="imaProject.confirm" />
+		<transition id="restart" label="imaProject.restartProject.btn.title" eventId="restart" purpose="restart" confirmation="imaProject.confirm" />
+		<transition id="complete" label="imaProject.completeProject.btn.title" eventId="complete" purpose="transition" confirmation="imaProject.confirm"   immediate="true" />
+		<transition id="move" label="imaProject.move.btn.title" eventId="move" purpose="move" />
+		<transition id="lock" label="imaProject.lock.btn.title" eventId="lock" purpose="lock" />
+		<transition id="unlock" label="imaProject.unlock.btn.title" eventId="unlock" purpose="unlock" />		
+		<transition id="saveAsTemplate" label="commonDocument.saveAsTemplate.btn.title" eventId="saveAsTemplate" purpose="saveAsTemplate" />
+		<transition id="editDetails" label="imaProject.editProjectDetails.btn.title" eventId="editDetails" purpose="editDetails"  />
+	</transitions>
+
+	<stateTransitions>
+		
+		<!-- for new UI2-->
+		<stateTransition from="INIT" transition="create" to="IN_PROGRESS"></stateTransition>
+		
+		<!--not implemented action in new UI2
+		<stateTransition from="INIT" transition="createProject" to="IN_PROGRESS"></stateTransition>-->
+		
+		<stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>
+		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>
+		
+		
+		<stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="restorePermissions" to="IN_PROGRESS" />
+		
+		<!--not implemented action in new UI2
+        <stateTransition from="IN_PROGRESS" transition="createCase" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="createTask" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="createObject" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="attachObject" to="IN_PROGRESS"/>
+		-->
+		
+		<!--not implemented action in new UI2
+		<stateTransition from="IN_PROGRESS" transition="createIDocument" to="IN_PROGRESS" />-->
+		
+		<stateTransition from="IN_PROGRESS" transition="delete" to="DELETED"/>
+		
+		<!--
+		<stateTransition from="IN_PROGRESS" transition="upload" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="createIdoc" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="attachDocument" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="addLibrary" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="removeLibrary" to="IN_PROGRESS" />
+		-->
+		
+		<stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="restorePermissions" to="COMPLETED" />
+		<!--not implemented action in new UI2
+		<stateTransition from="COMPLETED" transition="restart" to="IN_PROGRESS">-->
+			<!--<condition id="requiredFields" renderAs="REQUIRED">[plannedEndDate] AND [actualEndDate]</condition>-->
+		<!--</stateTransition>-->
+	</stateTransitions>
+
+	<allowedChildren>
+		<child type="case" id="NGACS001"/>
+		<child type="task" id="NGATS001"/>
+		<child type="task" id="NGATS002"/>
+		<child type="object" id="all"/>
+	</allowedChildren>		
+	
+	<labels>
+			
+        <label id="PROJECT_DEFAULT_HEADER_CS">
+			<value lang="en"><![CDATA[${eval(
+					${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+					<span class="truncate-element">
+						<span data-property="type">${CL([type])}</span> : 
+						<span data-property="activityType">${CL([activityType])}</span>,&nbsp;
+						<span data-property="status">${CL([status])}</span>
+					</span>
+					<br />
+					<span>
+						<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span> )}
+						<span data-property="title">${get([title])}</span> 
+						</a>,&nbsp;
+						<span data-property="department">${CL([department])}</span>
+						${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+					</span>
+			)}]]></value>
+		</label>
+		
+        <label id="PROJECT_COMPACT_HEADER_CS">
+		   <value lang="en"><![CDATA[${eval(
+   			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span class="truncate-element">
+				<span data-property="activityType">${CL([activityType])}</span>&nbsp;
+				<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+					${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></b> )}
+					<span data-property="title">${get([title])}</span>
+            	</a>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			</span>
+		)}]]></value>
+		</label>
+
+		<label id="imaProject.restartProject.btn.title">
+			<value lang="en">Re-open</value>
+		</label>
+		<label id="imaProject.title">
+			<value lang="en">Project Name</value>
+		</label>
+		<label id="csbaseproject.duration">
+			<value lang="en">Duration since start</value>
+		</label>
+		<label id="assignee.okBtn.title">
+			<value lang="en">Save</value>
+		</label>
+		<label id="assignee.cancelBtn.title">
+			<value lang="en">Cancel</value>
+		</label>
+		<label id="assignee.picklistHeader.title">
+			<value lang="en">Select user</value>
+		</label>
+		<label id="reasonForSuspension.label">
+			<value lang="en">Reason for suspension</value>
+		</label>
+		<label id="imaProject.confirm">
+			<value lang="en">Are you sure you want to continue with {{operationName}}?</value>
+		</label>	
+		<label id="imaProject.type">
+			<value lang="en">Type</value>
+		</label>
+		<label id="imaProject.approvedBy">
+			<value lang="en">Approved by</value>
+		</label>
+		<label id="imaProject.suspension">
+			<value lang="en">Project Suspension</value>
+		</label>
+		<label id="imaProject.otherInformation">
+			<value lang="en">Other Information</value>
+		</label>
+		<label id="imaProject.owner">
+			<value lang="en">Owner</value>
+		</label>
+		<label id="imaProject.activityType">
+			<value lang="en">Project Sub-type</value>
+		</label>
+		<label id="imaProject.department">
+			<value lang="en">Department</value>
+		</label>
+		<label id="imaProject.move.btn.title">
+			<value lang="en">Move</value>
+		</label>
+		<label id="imaProject.lock.btn.title">
+			<value lang="en">Lock</value>
+		</label>
+		<label id="imaProject.unlock.btn.title">
+			<value lang="en">Unlock</value>
+		</label>
+		<label id="imaProject.modified-by.label">
+			<value lang="en">System Modified By</value>
+		</label>
+		<label id="imaProject.modified-on.label">
+			<value lang="en">System Modified On</value>
+		</label>
+		<label id="imaProject.create-on.label">
+			<value lang="en">System Created On</value>
+		</label>
+		<label id="imaProject.created-by.label">
+			<value lang="en">System Created By</value>
+		</label>
+		<label id="imaProject.deleteProject.btn.title">
+			<value lang="en">Delete</value>
+		</label>
+		<label id="imaProject.completeProject.btn.title">
+			<value lang="en">Complete</value>
+		</label>
+		<label id="imaProject.editProjectDetails.btn.title">
+			<value lang="en">Edit</value>
+		</label>
+		
+		<label id="imaProject.department">
+			<value lang="en">Department</value>
+		</label>
+		<label id="imaProject.activityType">
+			<value lang="en">Purpose</value>
+		</label>
+		<label id="imaProject.outgoingLoan">
+			<value lang="en">Outgoing Loan # (OL #)</value>
+		</label>
+		<label id="imaProject.borrower">
+			<value lang="en">Borrower</value>
+		</label>
+		<label id="imaProject.incomingLoanNumb">
+			<value lang="en">In Coming Loan # (EL #)</value>
+		</label>
+		<label id="imaProject.lenderName">
+			<value lang="en">Lender</value>
+		</label>
+		<label id="imaProject.exhibitionId">
+			<value lang="en">Exhibition ID</value>
+		</label>
+		<label id="imaProject.exhibitionTrackingNumber">
+			<value lang="en">DEX-ID</value>
+		</label>
+	</labels>
+</definition>

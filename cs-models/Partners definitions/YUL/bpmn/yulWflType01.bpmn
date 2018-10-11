@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.4.0">
+  <bpmn:process id="yulWflType01" name="Preliminary Review and Approve workflow" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.StopProcessListener" event="end">
+        <camunda:field name="relation">        <camunda:string>emf:processes</camunda:string>
+</camunda:field>
+        <camunda:field name="source">        <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+        <camunda:field name="status">        <camunda:expression>DRAFT</camunda:expression>
+</camunda:field>
+      </camunda:executionListener>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1w0hhzp</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1w0hhzp" sourceRef="StartEvent_1" targetRef="yulTask-YUL24302">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string>emf:processes</camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>PENDING_APPROVAL</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_1aldyjl">
+      <bpmn:incoming>complete</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="yulTask-YUL24302" name="Review Objects" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="priority" type="string" />
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="assignees" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+          <camunda:inputParameter name="plannedEndDate"><![CDATA[${execution.getVariable("plannedEndDate")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher"><![CDATA[${execution.getVariable("hasWatcher")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="priority"><![CDATA[${execution.getVariable("priority")}]]></camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:taskListener expression="${execution.getVariableLocal(&#39;outcome&#39;)==&#39;forLoanApproval&#39;}" event="complete" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1w0hhzp</bpmn:incoming>
+      <bpmn:outgoing>forLoanApproval</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="#{collectMultiInstanceUsers.resolveUsers(execution, &#39;assignees&#39;)}" camunda:elementVariable="assignee">
+        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">${nrOfCompletedInstances == nrOfInstances}</bpmn:completionCondition>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:userTask id="yulTask-YUL24304" name="Approve Loan" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="priority" type="string" />
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="finalLoanDecision" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher"><![CDATA[${execution.getVariable("hasWatcher")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="priority"><![CDATA[${execution.getVariable("priority")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="plannedEndDate"><![CDATA[${execution.getVariable("plannedEndDate")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="assignee">${createdBy}</camunda:inputParameter>
+          <camunda:outputParameter name="hasWatcher">${hasWatcher}</camunda:outputParameter>
+          <camunda:outputParameter name="plannedEndDate">${plannedEndDate}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>forLoanApproval</bpmn:incoming>
+      <bpmn:outgoing>complete</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="complete" name="Completed" sourceRef="yulTask-YUL24304" targetRef="EndEvent_1aldyjl">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.SendWorkflowMail" event="take">
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="users">          <camunda:string>createdBy,hasWatcher</camunda:string>
+</camunda:field>
+          <camunda:field name="mailTemplate">          <camunda:expression>email_complete_object_yul</camunda:expression>
+</camunda:field>
+          <camunda:field name="subject">          <camunda:string>(Completed) Preliminary Review and Approve workflow</camunda:string>
+</camunda:field>
+        </camunda:executionListener>
+        <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.PublishObject" event="take">
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="relations">          <camunda:string>processes</camunda:string>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${execution.getVariable('finalLoanDecision')!= null}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="forLoanApproval" name="For loan approval" sourceRef="yulTask-YUL24302" targetRef="yulTask-YUL24304">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='forLoanApproval'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="yulWflType01">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="89" y="173" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="107" y="209" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1w0hhzp_di" bpmnElement="SequenceFlow_1w0hhzp">
+        <di:waypoint xsi:type="dc:Point" x="125" y="191" />
+        <di:waypoint xsi:type="dc:Point" x="165" y="191" />
+        <di:waypoint xsi:type="dc:Point" x="165" y="191" />
+        <di:waypoint xsi:type="dc:Point" x="205" y="191" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="180" y="191" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1aldyjl_di" bpmnElement="EndEvent_1aldyjl">
+        <dc:Bounds x="633" y="173" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="651" y="209" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_10urnl3_di" bpmnElement="yulTask-YUL24302">
+        <dc:Bounds x="205" y="151" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0zor4m9_di" bpmnElement="yulTask-YUL24304">
+        <dc:Bounds x="434" y="151" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1jpulfr_di" bpmnElement="complete">
+        <di:waypoint xsi:type="dc:Point" x="534" y="191" />
+        <di:waypoint xsi:type="dc:Point" x="633" y="191" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="557" y="166" width="52" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1m46n1c_di" bpmnElement="forLoanApproval">
+        <di:waypoint xsi:type="dc:Point" x="305" y="191" />
+        <di:waypoint xsi:type="dc:Point" x="434" y="191" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="323" y="170" width="85" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,1 +1,0 @@
-Please read about the pdf.js library [here](src/master/readme.md)

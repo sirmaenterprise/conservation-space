@@ -1,0 +1,58 @@
+<div class="model-fields">
+  <div ng-if="!modelFields.isModelDefinition()" class="selected-message alert alert-info">
+    {{ ::'administration.models.management.fields.model.message' | translate}}
+  </div>
+
+  <div ng-if="modelFields.isModelDefinition()" class="container-fluid form-horizontal">
+    <div class="control-section">
+      <input ng-model="modelFields.filterRules.filterTerm" ng-change="modelFields.triggerFilter()"
+             ng-model-options="::{ debounce: { 'default': 200, 'blur': 0 } }" class="filter-field form-control"/>
+
+      <div class="fields-controls" ng-show="false">
+        <button class="create-field-button btn btn-default" ng-click="modelFields.createField()">
+          {{ ::'administration.models.management.fields.add.field' | translate}}
+        </button>
+
+        <button class="create-region-button btn btn-default" ng-click="modelFields.createRegion()">
+          {{ ::'administration.models.management.fields.add.region' | translate}}
+        </button>
+      </div>
+    </div>
+
+    <div class="display-section">
+      <label class="checkbox filter-hidden">
+        {{ ::'administration.models.management.fields.filter.hidden' | translate}}
+        <input class="form-control" type="checkbox"
+               ng-change="modelFields.triggerFilter()"
+               ng-model="modelFields.filterRules.showHidden"/><i></i>
+      </label>
+
+      <label class="checkbox filter-system">
+        {{ ::'administration.models.management.fields.filter.system' | translate}}
+        <input class="form-control" type="checkbox"
+               ng-change="modelFields.triggerFilter()"
+               ng-model="modelFields.filterRules.showSystem"/><i></i>
+      </label>
+
+      <label class="checkbox filter-inherited">
+        {{ ::'administration.models.management.fields.filter.inherited' | translate}}
+        <input class="form-control" type="checkbox"
+               ng-change="modelFields.triggerFilter()"
+               ng-model="modelFields.filterRules.showInherited"/><i></i>
+      </label>
+    </div>
+
+    <div class="filter-message alert alert-info" ng-show="!modelFields.showSection">
+      {{ ::'administration.models.management.fields.filter.message' | translate}}
+    </div>
+
+    <div class="model-region-section panel panel-default" ng-show="modelFields.showSection">
+      <div class="panel-body">
+        <div ng-repeat="item in modelFields.model.getModels()" id="{{item.getId()}}">
+          <seip-model-field-view ng-if="modelFields.isModelField(item)" model="item"></seip-model-field-view>
+          <seip-model-region-view ng-if="!modelFields.isModelField(item)" model="item"></seip-model-region-view>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

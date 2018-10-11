@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="1.0" attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+	<xs:include schemaLocation="common.xsd" />
+
+	<xs:annotation>
+		<xs:appinfo>
+			<jaxb:schemaBindings>
+				<jaxb:package name="com.sirma.itt.seip.definition.jaxb" />
+			</jaxb:schemaBindings>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="definition">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="configuration" type="configuration" minOccurs="0" />
+				<xs:element name="fields" type="complexFieldsDefinition" minOccurs="0" />
+				<xs:element name="regions" type="regionsDefinition" minOccurs="0" />
+				<xs:element name="transitions" type="transitionsDefinition" minOccurs="0" />
+				<xs:element name="stateTransitions" type="stateTransitionsDefinition" minOccurs="0" />
+				<xs:element name="allowedChildren" type="allowedChildrenType" minOccurs="0" />
+				<xs:element ref="filterDefinitions" minOccurs="0" />
+				<xs:element ref="labels" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute type="objectType" name="type" use="required" />
+			<xs:attribute type="idType" name="id" use="required" />
+			<xs:attribute type="idType" name="parentId" use="optional" />
+			<xs:attribute type="idType" name="referenceId" use="optional" />
+			<xs:attribute type="xs:string" name="purpose" use="optional" />
+			<xs:attribute type="xs:boolean" name="isAbstract" use="optional" default="false" />
+			<xs:attribute type="expressionType" name="saveCondition" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:complexType name="configuration">
+		<xs:sequence>
+			<xs:element name="fields" type="complexFieldsDefinition" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,491 @@
+@import "../style/reusables";
+@import "../style/overrides";
+@import "../style/form";
+@import "../style/mixins";
+@import "../style/variables";
+
+$form-single-line-field-height: 34px;
+$form-textarea-height: 52px;
+/*
+*Most of the margin-right:-4px are used to negate the white space between inline-block elements.
+* refer to: https://css-tricks.com/fighting-the-space-between-inline-block-elements/
+*/
+.form-wrapper {
+  @include word-wrap();
+
+  //some narrow forms need some spacing
+  // between the label and actual field.
+  &.proper-field-fit.vertical-layout .form-group {
+    > label {
+      width: calc(25% - 5px);
+      position: relative;
+      right: 5px;
+    }
+
+    > .form-field-wrapper {
+      width: calc(75% - 5px);
+      position: relative;
+      left: 5px;
+    }
+  }
+
+  label:not(.checkbox) {
+    vertical-align: top;
+    float: left;
+  }
+
+  .form-group .form-field-wrapper .form-field:not(.preview-field):not(.print-field) {
+    display: inline;
+    width: 100%;
+    float: right;
+  }
+
+  .region-wrapper {
+    clear: both;
+  }
+
+  .form-field-wrapper {
+    display: inline-block;
+    width: $form-field-width;
+  }
+
+  .checkbox-wrapper .checkbox {
+    pointer-events: none;
+
+    &.edit-wrapper .checkbox-label {
+      pointer-events: auto;
+    }
+
+    .checkbox-label {
+      pointer-events: none;
+    }
+
+    i {
+      pointer-events: auto;
+    }
+  }
+
+  .radiobuttons-wrapper .radio {
+    pointer-events: none;
+
+    &.edit-label {
+      pointer-events: none;
+    }
+
+    span, i {
+      pointer-events: auto;
+    }
+  }
+
+  .codelistlist-wrapper {
+    display: inline;
+
+    label {
+      display: block;
+      width: $form-field-width;
+      float: left;
+    }
+  }
+
+  .radiobuttons-wrapper label {
+    width: 100%;
+  }
+
+  .input-password-wrapper {
+    .form-control[readonly] {
+      // chrome ignores autocomplete attribute for password fields and we workaround it by making password fields readonly
+      // thats why we make bg color of the fields white, so they don't look like disabled
+      background-color: white;
+    }
+  }
+
+  // IE can not resize textareas so we need to use resizable and style it
+  .ui-resizable-s {
+    height: 2px;
+    bottom: 0;
+    //resize handle moved to the middle of the textarea
+    position: relative;
+    top: 13px;
+
+    &:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: -25px;
+      right: 3px;
+      border-bottom: 6px solid black;
+      border-left: 6px solid white;
+      width: 0;
+    }
+  }
+
+  //on input an unnecessary br tag is added
+  @include edge() {
+    .input-text-wrapper .form-field br {
+      display: none;
+    }
+  }
+  //remove excess spacing
+  .textarea-wrapper {
+    @include edge() {
+      margin-bottom: 0;
+    }
+    .preview-field {
+      white-space: pre-wrap;
+    }
+  }
+
+  &.horizontal-layout {
+    .message {
+      & > span {
+        display: block;
+      }
+    }
+  }
+
+  /* Default layout */
+  &.vertical-layout {
+
+    .form-group > label {
+      min-height: 19px;
+      /* override the bootstrap's bottom padding */
+      margin-bottom: 0;
+      display: inline-block;
+      width: $form-label-width;
+
+      &.checkbox {
+        padding-left: 0;
+        width: 100%;
+        //negates white space below checkbox form group
+        margin-right: -4px;
+
+        .form-field-wrapper {
+          margin-right: -4px;
+          position: relative;
+          top: 3px;
+          left: -3px;
+        }
+
+        > span {
+          display: inline-block;
+          width: $form-label-width
+        }
+
+        i {
+          position: relative;
+          bottom: 6px;
+          right: 6px;
+        }
+      }
+    }
+
+    & > div,
+    .region > .panel-body {
+      align-items: stretch;
+    }
+
+    .form-group {
+      display: inline-block;
+      width: 100%;
+
+      &.object-control-wrapper {
+
+        label {
+          line-height: 100%;
+        }
+        .form-field .preview .instance-box-header {
+            padding: 0;
+        }
+      }
+
+      &.empty-cell {
+        display: none;
+      }
+      //safari adds too much space between form groups.
+      @include safari9AndAbove() {
+        font-size: 0;
+        > label {
+          @include media-font-size();
+        }
+
+        > div {
+          @include media-font-size();
+        }
+      }
+
+      &.textarea-wrapper {
+        /* This with combination with the white-space:pre-wrap for the preview-field below is a fix for when a too long unbreakable
+        string is placed inside the textarea which otherwise would overflow out of the element borders. */
+        & > div {
+          max-width: $form-field-width;
+        }
+
+        &.preview-field-wrapper {
+          width: 100%;
+
+          .preview-field {
+            height: auto;
+            padding: 2px 0;
+          }
+        }
+      }
+    }
+
+    /* label left from the field positioning styles */
+    .label-left .form-group {
+      width: 100%;
+
+      .radiobuttons-wrapper, .codelistlist-wrapper {
+        display: inline-block;
+        width: $form-field-width;
+      }
+
+      /* select2 needs specific styling because the flexbox breaks the underlying plugin styles */
+      .codelist-wrapper {
+        & > label {
+
+          width: $form-label-width;
+        }
+        & > div {
+          width: $form-field-width;
+
+          .select2 {
+            /* Important because select2 width is set as inline style */
+            width: 100% !important;
+
+            /* Overrides the select2 style for the search input field when in multiselect mode. This field's width is
+               calculated and set inline by the plugin and initially when there is no selection it is wider and brakes
+               the layout. */
+            .select2-selection--multiple {
+              .select2-search--inline:first-child {
+                .select2-search__field {
+                  width: 100% !important;
+                }
+              }
+              .select2-search--inline:not(:first-child) {
+                .select2-search__field {
+                  width: 0.75em !important;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    /* label above from the field positioning styles */
+    .label-above .form-group {
+      & > label:not(.checkbox) {
+        display: block;
+        padding-top: 6px;
+        width: 100%;
+      }
+
+      &.checkbox-wrapper .form-field-wrapper {
+        left: 0;
+      }
+
+      .codelistlist-wrapper {
+        float: left;
+        position: relative;
+        left: 4px;
+        label {
+          width: 100%;
+        }
+      }
+
+      .form-field-wrapper {
+        display: block;
+        width: 100%;
+        clear: both;
+      }
+
+      &.textarea-wrapper {
+        & > div {
+          max-width: 100%;
+        }
+      }
+    }
+
+    /* fields with hidden label positioning styles */
+    .label-hidden {
+      .form-group {
+
+        & > label:not(.checkbox) {
+          display: none;
+        }
+
+        //checkbox styling
+        &.checkbox-wrapper {
+          .checkbox-label {
+            display: none;
+          }
+          .form-field-wrapper {
+            left: 0;
+          }
+        }
+
+        //radiobutton styling
+        .radiobuttons-wrapper {
+          .seip-hint {
+            display: inline-block;
+            width: 100%;
+          }
+        }
+        & > div {
+          width: 100%;
+        }
+      }
+
+      .form-group:not(.codelist-wrapper):not(.checkbox-wrapper) {
+        &.textarea-wrapper {
+          & > div {
+            max-width: 100%;
+          }
+        }
+      }
+    }
+
+    .label-left {
+      &.label-text-left .form-group:not(.checkbox-wrapper) > label,
+      &.label-text-left .form-group label.checkbox span {
+        text-align: left;
+      }
+      &.label-text-right .form-group:not(.checkbox-wrapper) > label,
+      &.label-text-right .form-group label.checkbox span {
+        text-align: right;
+        padding-right: 15px;
+      }
+    }
+
+    sup {
+      color: red;
+    }
+    /* validation messages */
+    .messages {
+      display: inline-block;
+      float: left;
+      @include safari9AndAbove() {
+        line-height: 100%;
+      }
+
+      .message {
+        padding: 0;
+        & > span {
+          display: block;
+          position: relative;
+          left: 3px;
+        }
+        & > .error {
+          color: $state-danger-text;
+        }
+        & > .warn {
+          color: $state-warning-text;
+        }
+        & > .info {
+          color: $state-info-text;
+        }
+        & > .success {
+          color: $state-success-text;
+        }
+      }
+    }
+  }
+
+  /* Intended to be used mainly in repeats as table view */
+  &.table-layout {
+
+    &.form-wrapper {
+      width: 100%;
+
+      > div {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+    }
+
+    .label-hidden .form-group {
+
+      & > label:not(.checkbox) {
+        display: none;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-grow: 1;
+      align-items: center;
+      min-width: $table-column-min-width;
+      margin-bottom: 0;
+      border-right: 1px solid $table-border-color;
+      border-bottom: 1px solid $table-border-color;
+
+      /* force min-width of the table cells from inside-out */
+      > div:not(.messages),
+      > .checkbox,
+      > .instance-header {
+        flex: 1;
+        min-width: $table-column-min-width;
+      }
+
+      /* override the hidden cells visibility in order to avoid modifying the model so that the hidden cells to be
+         visible but to look empty and to have a consistent table layout */
+      &.hidden {
+        display: flex !important;
+        min-width: $table-column-min-width;
+
+        /* checkboxes have different DOM structure than the other input fields and should be handled properly */
+        > div > *, > .checkbox {
+          display: none !important;
+        }
+      }
+
+      &:last-child {
+        border-right: none;
+      }
+
+      .radio, .checkbox {
+        margin: 6px 0 3px 4px;
+      }
+
+      .preview-field {
+        @include dtw-cell-padding();
+      }
+    }
+
+    .messages {
+      display: none;
+    }
+  }
+
+  &.with-border {
+    .preview-field, .print-field:not(.checkbox-field) {
+      display: block;
+      border: 1px solid $table-border-color;
+    }
+    .codelistlist-wrapper {
+      .preview-field, .print-field {
+        border: none;
+      }
+    }
+  }
+
+  //tooltip styling
+  .seip-hint {
+    font-size: x-small;
+    min-width: 4px;
+    margin-left: -5px;
+    > i {
+      font-size: 10px !important;
+    }
+  }
+
+  .form-tooltip {
+    display: inline;
+    position: relative;
+    bottom: 1px;
+    left: -5px;
+    float: left;
+  }
+
+}

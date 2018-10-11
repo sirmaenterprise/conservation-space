@@ -4,13 +4,11 @@
 		<field name="default_header" type="ANY" label="OBJECT_DEFAULT_HEADER_CS" />
         <field name="compact_header" type="an..4096" label="OBJECT_COMPACT_HEADER_CS" />
 		<field name="breadcrumb_header" type="an..4096" label="OBJECT_BREADCRUMB_HEADER_CS" />
-		<field name="tooltip_header" type="an..4096" label="OBJECT_TOOLTIP_HEADER_CS" />
+		<field name="tooltip_header" type="ANY" label="OBJECT_TOOLTIP_HEADER_CS" />
 
 		<field name="integratedSystemId" type="an..1024" displayType="system" uri="chc:integratedSystemId" />	
 		<field name="references" type="an..1200" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" uri="chc:integrated">
-			<value>false</value>
-		</field>
+		
 		
 		<field name="uri" type="an..50" displayType="system" />
 		<field name="hasRevision" type="uri" displayType="system" />
@@ -28,19 +26,19 @@
 				<field name="title" type="an..1000" order="602" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="portfolioSeries" type="an..500" order="604" label="ngaCulturalObject.portfolioSeries.label" tooltip="ngaCulturalObject.portfolioSeries.tooltip" mandatory="false" displayType="editable" uri="nga:portfolioTitle" >
+				<field name="portfolioSeries" type="an..500" order="604" label="ngaCulturalObject.portfolioSeries.label" tooltip="ngaCulturalObject.portfolioSeries.tooltip" displayType="editable" uri="nga:portfolioTitle" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="creationDates" type="an..180" order="606" label="ngaCulturalObject.creationDates.label" tooltip="ngaCulturalObject.creationDates.tooltip" mandatory="false" displayType="editable" uri="nga:creationDates" >
+				<field name="creationDates" type="an..180" order="606" label="ngaCulturalObject.creationDates.label" tooltip="ngaCulturalObject.creationDates.tooltip" displayType="editable" uri="nga:creationDates" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="accessionNumber" type="an..50" order="608" label="ngaCulturalObject.accessionNumber.label" tooltip="ngaCulturalObject.accessionNumber.tooltip" mandatory="false" displayType="editable" uri="nga:accessionNumber" >
+				<field name="accessionNumber" type="an..50" order="608" label="ngaCulturalObject.accessionNumber.label" tooltip="ngaCulturalObject.accessionNumber.tooltip" displayType="editable" uri="nga:accessionNumber" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="objectId" type="an..6" order="610" label="ngaCulturalObject.objectId.label" tooltip="ngaCulturalObject.objectId.tooltip" mandatory="false" displayType="hidden" uri="emf:externalID" >
+				<field name="objectId" type="an..6" order="610" label="ngaCulturalObject.objectId.label" tooltip="ngaCulturalObject.objectId.tooltip" displayType="hidden" uri="emf:externalID" >
 					<condition id="readOnlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="type" type="an..50" order="613" label="nga.type-classification.label">
+				<field name="type" type="an..50" order="613" >
 					<value>Cultural Object</value>
 					<control id="RELATED_FIELDS">
 						<control-param id="fieldsToRerender" name="RERENDER">subType</control-param>
@@ -48,44 +46,51 @@
 						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
 					</control>
 				</field> 					
-				<field name="subType" type="an..50" order="615" label="ngaCulturalObject.subType.label" mandatory="false">
+				<field name="subType" type="an..50" order="615" label="ngaCulturalObject.subType.label" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="medium" type="an..1024" order="616" label="ngaCulturalObject.medium.label" tooltip="ngaCulturalObject.medium.tooltip" mandatory="false"  displayType="editable" uri="nga:medium"  >
+				<field name="medium" type="an..1024" order="616" label="ngaCulturalObject.medium.label" tooltip="ngaCulturalObject.medium.tooltip" displayType="editable" uri="nga:medium"  >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="description" type="an..5000" label="GEO10001.description" order="618" >
+				<field name="description" type="an..5000" label="nga.description.label" order="618" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
 				<field name="curatorialRemarks" type="an..10000" displayType="editable" label="ngaCulturalObject.curatorialRemarks.label" tooltip="ngaCulturalObject.curatorialRemarks.tooltip" order="620" uri="nga:curatorialRemarks">
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="physicalDimensions" type="an..1500" order="622" label="ngaCulturalObject.physicalDimensions.label" tooltip="ngaCulturalObject.physicalDimensions.tooltip" mandatory="false" displayType="editable" uri="nga:physicalDimensions" >
+				<field name="physicalDimensions" type="an..1500" order="622" label="ngaCulturalObject.physicalDimensions.label" tooltip="ngaCulturalObject.physicalDimensions.tooltip" displayType="editable" uri="nga:physicalDimensions" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="catalogueRaisonneRef" type="an..1024" order="623" label="ngaCulturalObject.catalogueRaisonneRef.label" tooltip="ngaCulturalObject.catalogueRaisonneRef.tooltip" mandatory="false" displayType="editable" uri="nga:catalogueRaisonneRef" >
+				<field name="catalogueRaisonneRef" type="an..1024" order="623" label="ngaCulturalObject.catalogueRaisonneRef.label" tooltip="ngaCulturalObject.catalogueRaisonneRef.tooltip" displayType="editable" uri="nga:catalogueRaisonneRef" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="inscriptions" type="an..5000" order="624" label="ngaCulturalObject.inscriptions.label" tooltip="ngaCulturalObject.inscriptions.tooltip" mandatory="false" displayType="editable" uri="nga:inscriptions"  >
+				<field name="inscriptions" type="an..5000" order="624" label="ngaCulturalObject.inscriptions.label" tooltip="ngaCulturalObject.inscriptions.tooltip" displayType="editable" uri="nga:inscriptions"  >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="distinguishingMarks" type="an..500" order="626" label="ngaCulturalObject.distinguishingMarks.label" tooltip="ngaCulturalObject.distinguishingMarks.tooltip" mandatory="false" displayType="editable" uri="nga:distinguishingMarks" >
+				<field name="distinguishingMarks" type="an..500" order="626" label="ngaCulturalObject.distinguishingMarks.label" tooltip="ngaCulturalObject.distinguishingMarks.tooltip" displayType="editable" uri="nga:distinguishingMarks" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="creditLine" type="an..1024" order="630" label="ngaCulturalObject.creditLine.label" tooltip="ngaCulturalObject.creditLine.tooltip" mandatory="false" displayType="readonly" uri="nga:creditLine" >
+				<field name="creditLine" type="an..1024" order="630" label="ngaCulturalObject.creditLine.label" tooltip="ngaCulturalObject.creditLine.tooltip" displayType="readonly" uri="nga:creditLine" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[integrated] IN ('false')</condition>
 				</field>
-				<field name="provenance" type="an..12000" order="632" label="ngaCulturalObject.provenance.label" tooltip="ngaCulturalObject.provenance.tooltip" mandatory="false" displayType="editable" uri="nga:provenance" >
+				<field name="provenance" type="an..12000" order="632" label="ngaCulturalObject.provenance.label" tooltip="ngaCulturalObject.provenance.tooltip" displayType="editable" uri="nga:provenance" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="ownerName" type="an..1024" order="634" label="ngaCulturalObject.ownerName.label" tooltip="ngaCulturalObject.ownerName.tooltip" mandatory="false" displayType="editable" uri="nga:ownerNames">
-					<condition id="hiddenFields" renderAs="HIDDEN">[integrated] IN ('true')</condition></field>
-				<field name="objectDepartment" type="an..20" order="636" label="ngaCulturalObject.objectDepartment.label" tooltip="ngaCulturalObject.objectDepartment.tooltip" mandatory="false" displayType="editable" uri="nga:objectDepartmentName" >
+				<field name="ownerName" type="an..1500" order="634" label="ngaCulturalObject.ownerName.label" tooltip="ngaCulturalObject.ownerName.tooltip" displayType="editable" uri="nga:ownerNames">
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="homeLocation" type="an..1024" order="638" label="ngaCulturalObject.homeLocation.label" tooltip="ngaCulturalObject.homeLocation.tooltip" mandatory="false" displayType="editable" multiValued="true" uri="nga:homeLocation" >
+				<field name="objectDepartment" type="an..20" order="636" label="ngaCulturalObject.objectDepartment.label" tooltip="ngaCulturalObject.objectDepartment.tooltip" displayType="editable" uri="nga:objectDepartmentName" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="currentLocation" type="an..180" order="640" label="ngaCulturalObject.currentLocation.label" tooltip="ngaCulturalObject.currentLocation.tooltip" mandatory="false" displayType="editable" multiValued="true" uri="nga:currentLocation" >
+				<field name="homeLocation" type="an..1024" order="638" label="ngaCulturalObject.homeLocation.label" tooltip="ngaCulturalObject.homeLocation.tooltip" displayType="editable" multiValued="true" uri="nga:homeLocation" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="bibliography" type="an..25000" order="642" label="ngaCulturalObject.bibliography.label" tooltip="ngaCulturalObject.bibliography.tooltip" mandatory="false" displayType="editable" uri="nga:bibliography" >
+				<field name="currentLocation" type="an..1024" order="640" label="ngaCulturalObject.currentLocation.label" tooltip="ngaCulturalObject.currentLocation.tooltip" displayType="editable" multiValued="true" uri="nga:currentLocation" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
+				<field name="bibliography" type="an..100000" order="642" label="ngaCulturalObject.bibliography.label" tooltip="ngaCulturalObject.bibliography.tooltip" displayType="editable" uri="nga:bibliography" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>		
-				<field name="weight" type="an..180" order="644" label="ngaCulturalObject.weight.label" tooltip="ngaCulturalObject.weight.tooltip" mandatory="false" displayType="editable" uri="nga:weight" />
+				<field name="weight" type="an..180" order="644" label="ngaCulturalObject.weight.label" tooltip="ngaCulturalObject.weight.tooltip" displayType="editable" uri="nga:weight" />
 				<field name="packingRequirements" type="an..1800" order="646" displayType="editable" label="ngaCulturalObject.packingRequirements.label" tooltip="ngaCulturalObject.packingRequirements.tooltip" uri="nga:packingRequirements" />	
 				<field name="environmentalRequirements" type="an..1800" order="648" displayType="editable" label="ngaCulturalObject.environmentalRequirements.label" tooltip="ngaCulturalObject.environmentalRequirements.tooltip" uri="nga:environmentalRequirements" />
 				<field name="handlingRequirements" type="an..1800" order="650" displayType="editable" label="ngaCulturalObject.handlingRequirements.label" tooltip="ngaCulturalObject.handlingRequirements.tooltip" uri="nga:handlingRequirements" />
 				<field name="installationRequirements" type="an..1800" order="652" displayType="editable" label="ngaCulturalObject.installationRequirements.label" tooltip="ngaCulturalObject.installationRequirements.tooltip" uri="nga:installationRequirements"/>
 			</fields>
+		</region>
+		<region id="systemData" order="70" displayType="editable" label="nga.systemInformation.region.label">
+			<fields>
+				<field name="integrated" type="boolean" displayType="hidden" order="714" label="cs.integrated.label" uri="chc:integrated">
+					<value>false</value>
+				</field>
+			</fields>	
 		</region>
 	</regions>	
 	
@@ -93,59 +98,56 @@
 		<!-- System action -->
 		<transition id="prepareImport" label="nga.prepareImport.action.label" eventId="prepareImport" purpose="prepareImport"  />
 		
-		<transition id="editDetails" order="9" />
-		<transition id="import" order="10" label="nga.import.action.label" tooltip="nga.import.action.tooltip" eventId="import" purpose="import" confirmation="import.confirm" />
-		<transition id="updateInt" order="11" label="nga.updateInt.action.label" tooltip="nga.updateInt.action.tooltip" eventId="updateInt" purpose="updateInt" confirmation="update.confirm" />
-		<transition id="achive" order="12" />
-		
+		<transition id="import" order="11" label="nga.import.action.label" tooltip="nga.import.action.tooltip" eventId="import" purpose="import" confirmation="import.confirm" />
+		<transition id="updateInt" order="12" label="nga.updateInt.action.label" tooltip="nga.updateInt.action.tooltip" eventId="updateInt" purpose="updateInt" confirmation="update.confirm" />
      </transitions>
 	
 	 <stateTransitions>			
 		<!-- transitions related to integration with external system (CMS) -->
 		<stateTransition from="INIT" transition="prepareImport" to="FOR_IMP"/>
-		<stateTransition from="INIT" transition="create" to="DRAFT" />
-		<stateTransition from="INIT" transition="clone" to="DRAFT">
+		<stateTransition from="INIT" transition="create" to="CURRENT" />
+		<stateTransition from="INIT" transition="clone" to="CURRENT">
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>
-		<stateTransition from="FOR_IMP" transition="import" to="DRAFT" />
+		<stateTransition from="FOR_IMP" transition="import" to="CURRENT" />
 		
-		<stateTransition from="DRAFT" transition="updateInt" to="DRAFT" >	
+		<stateTransition from="CURRENT" transition="updateInt" to="CURRENT" >	
 			<condition renderAs="PROPERTY" id="integrated">true</condition>
 		</stateTransition>	
-		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="move" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="lock" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="unlock" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="revertVersion" to="DRAFT" >
+		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addThumbnail" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="lock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="unlock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="updateTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="revertVersion" to="CURRENT" >
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>	
-		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="printTab" to="DRAFT" />
-        <stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT" />  
-		<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="clone" to="DRAFT" >
+		<stateTransition from="CURRENT" transition="managePermissions" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="printTab" to="CURRENT" />
+        <stateTransition from="CURRENT" transition="exportTabPDF" to="CURRENT" />  
+		<stateTransition from="CURRENT" transition="exportTabWord" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="clone" to="CURRENT" >
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>	
 		
-		<stateTransition from="DRAFT" transition="revoke" to="OBSOLETE">
-			<condition id="requiredFields" renderAs="REQUIRED">[nga:duplicates]</condition>
+		<stateTransition from="CURRENT" transition="revoke" to="OBSOLETE">
+			<condition id="requiredFields" renderAs="REQUIRED">[duplicates]</condition>
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>
 		
-		<stateTransition from="DRAFT" transition="addPrimaryImage" to="DRAFT" />
-        <stateTransition from="DRAFT" transition="addAttachment" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="createDocument" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="createWorkflow" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT"/>
+		<stateTransition from="CURRENT" transition="addPrimaryImage" to="CURRENT" />
+        <stateTransition from="CURRENT" transition="addAttachment" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addWatchers" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="createDocument" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="createWorkflow" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="createInContext" to="CURRENT"/>
 		
-		<stateTransition from="DRAFT" transition="achive" to="ARCHIVED">
+		<stateTransition from="CURRENT" transition="achive" to="ARCHIVED">
 			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
-			<condition renderAs="PROPERTY" id="emf:revisionType">emf:latestRevision</condition>
 		</stateTransition>
-		<stateTransition from="DRAFT" transition="achive" to="DRAFT"/>
+		<stateTransition from="CURRENT" transition="achive" to="CURRENT"/>
 		
 		<stateTransition from="OBSOLETE" transition="saveAsTemplate" to="OBSOLETE"/>
 		<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE" />
@@ -155,9 +157,7 @@
 		<stateTransition from="OBSOLETE" transition="createInContext" to="OBSOLETE"/>
 		<stateTransition from="OBSOLETE" transition="clone" to="OBSOLETE" >
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
-		</stateTransition>	
-		
-		<stateTransition from="OBSOLETE" transition="delete" to="OBSOLETE"/>
+		</stateTransition>
 
 		<stateTransition from="ARCHIVED" transition="printTab" to="ARCHIVED" />
         <stateTransition from="ARCHIVED" transition="exportTabPDF" to="ARCHIVED" />
@@ -165,9 +165,9 @@
 		<stateTransition from="ARCHIVED" transition="managePermissions" to="ARCHIVED" />
 		<stateTransition from="ARCHIVED" transition="createDocument" to="ARCHIVED" />
 		<stateTransition from="ARCHIVED" transition="createInContext" to="ARCHIVED"/>
+		<stateTransition from="ARCHIVED" transition="download" to="ARCHIVED"/>
 		
-		<stateTransition from="DRAFT" transition="delete" to="DELETED" />
-		<stateTransition from="*" transition="delete" to="DELETED" />
+		<stateTransition from="CURRENT" transition="deleteCulturalObject" to="CURRENT" />
    </stateTransitions>
 
 	<labels>
@@ -224,7 +224,7 @@
 					</span>
 					)}
 					<span class="tooltip-row">
-						<label>Vision: </label>
+						<label>Version: </label>
 						<span data-property="emf:version">${get([emf:version])}</span>
 					</span>
 					<span class="tooltip-row">
@@ -233,7 +233,7 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
 					</span>
 			</span>)})}]]></value>
     	</label>
@@ -260,7 +260,7 @@
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
 							<span>(</span>Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
 						)}
-						${if(${get([integrated])}==false).then(<span>#</span>&nbsp;<span data-property="identifier">${get([identifier])}</span>&nbsp;).else(<span>#</span>&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;)}
+						${if(${get([accessionNumber])}<>null).then(<span>#</span>&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;).else(<span>#</span>&nbsp;<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 						<span data-property="title">${get([title])}</span>&nbsp;
 					</a>
 					<span data-property="artistNames">${get([artistNames])}</span>
@@ -292,7 +292,7 @@
 				<span data-property="type">${CL([type])}</span>&nbsp;
 				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-					${if(${get([integrated])}==false).then(<span>#</span>&nbsp;<span data-property="identifier">${get([identifier])}</span>&nbsp;).else(<span>#</span>&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;)}
+					${if(${get([accessionNumber])}<>null).then(<span>#</span><span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;).else(<span>#</span><span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 				</a>
 				<span data-property="title">${get([title])}</span>&nbsp;
 				${if(${var.isVersion}).then(
@@ -315,7 +315,7 @@
 					${if(${or(${var.isLatest} or ${var.isRevision})}).then(
 						<span>(</span>Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
 					)}
-					${if(${get([integrated])}==false).then(<span>#</span>&nbsp;<span data-property="identifier">${get([identifier])}</span>).else(<span>#</span>&nbsp;<span data-property="accessionNumber">${get([accessionNumber])}</span>)}
+					${if(${get([accessionNumber])}<>null).then(<span>#</span><span data-property="accessionNumber">${get([accessionNumber])}</span>&nbsp;).else(<span>#</span><span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 				</a>
 			</span>		
 			)}]]></value>

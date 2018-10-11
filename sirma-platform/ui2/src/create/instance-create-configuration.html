@@ -1,0 +1,45 @@
+<div>
+  <div class="error-wrapper" ng-if="instanceCreateConfiguration.errorMessage">
+    {{instanceCreateConfiguration.errorMessage | translate}}
+  </div>
+  <div class="form-group">
+    <label>{{::'instance.create.panel.type' | translate}}</label>
+    <seip-instance-select class="types" config="instanceCreateConfiguration.instanceTypeConfig"
+                          ng-model="instanceCreateConfiguration.instanceType"
+                          ng-change="instanceCreateConfiguration.onTypeSelected(instanceCreateConfiguration.instanceType)">
+    </seip-instance-select>
+  </div>
+
+  <div class="form-group"
+       ng-show="instanceCreateConfiguration.isSubTypeDropdownVisible()">
+    <label>{{::'instance.create.panel.subtype' | translate}}</label>
+    <seip-instance-select class="sub-types" config="instanceCreateConfiguration.instanceSubTypeConfig"
+                          ng-model="instanceCreateConfiguration.instanceSubType"
+                          ng-change="instanceCreateConfiguration.onSubTypeSelected(instanceCreateConfiguration.instanceSubType)">
+    </seip-instance-select>
+  </div>
+  <div class="panel panel-default form-container"
+       ng-if="instanceCreateConfiguration.config.formConfig.models.viewModel">
+    <div class="panel-body">
+      <seip-form-wrapper class="proper-field-fit" config="instanceCreateConfiguration.config"
+                         form-config="instanceCreateConfiguration.config.formConfig"></seip-form-wrapper>
+    </div>
+  </div>
+  <a href="javascript: void(0)" ng-if="instanceCreateConfiguration.config.formConfig.models.viewModel"
+     ng-click="instanceCreateConfiguration.toggleShowAllProperties()" class="show-more">
+    <i class="fa"
+       ng-class="instanceCreateConfiguration.config.showAllProperties ? 'fa-angle-double-up' : 'fa-angle-double-down'"></i>
+    {{ instanceCreateConfiguration.config.showAllProperties ? 'showLess.button' : 'showMore.button' | translate }}
+  </a>
+
+  <div class="form-group"
+       ng-if="instanceCreateConfiguration.config.formConfig.models.viewModel && instanceCreateConfiguration.config.showTemplateSelector">
+    <label>{{::'idoc.template.select' | translate}}</label>
+    <seip-idoc-template-selector ng-model="instanceCreateConfiguration.config.formConfig.models"
+                                 instance-object="instanceCreateConfiguration.instanceObject"
+                                 selected-template="instanceCreateConfiguration.selectedTemplate"
+                                 purpose="::instanceCreateConfiguration.config.templatePurpose"
+                                 on-template-selected="instanceCreateConfiguration.initViewFromTemplate(event)">
+    </seip-idoc-template-selector>
+  </div>
+</div>

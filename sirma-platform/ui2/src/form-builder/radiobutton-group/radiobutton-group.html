@@ -1,0 +1,32 @@
+<div class="form-group radiobutton-group-wrapper">
+  <label class="field-label">
+    {{ ::radiobuttonGroup.fieldViewModel.label }}
+    <sup class="mandatory-mark">*</sup>
+  </label>
+
+  <div class="radiobuttons-wrapper">
+    <seip-hint
+        hint-text="::radiobuttonGroup.fieldViewModel.tooltip"
+        hint-class="::radiobuttonGroup.widgetConfig.hintClass"
+        hint-visible="radiobuttonGroup.showTooltip()"></seip-hint>
+    <label class="edit-label radio"
+           ng-repeat="field in radiobuttonGroup.control.controlFields">
+      <input type="radio"
+             name="{{ ::radiobuttonGroup.fieldViewModel.identifier }}"
+             class="form-control form-field radiobutton-field"
+             value="{{ ::field.identifier || field.name }}"
+             ng-model="radiobuttonGroup.validationModel[radiobuttonGroup.fieldViewModel.identifier].value"/>
+      <i></i>
+      <span>{{ ::field.label }}</span>
+    </label>
+    <span id="{{ ::radiobuttonGroup.fieldViewModel.identifier }}"
+          class="form-field preview-field radiobutton-group">{{ ::radiobuttonGroup.getLabel() }}</span>
+    <span id="{{ ::radiobuttonGroup.fieldViewModel.identifier }}"
+          class="form-field print-field radiobutton-group">{{ ::radiobuttonGroup.getLabel() }}</span>
+
+    <seip-validation-message
+        validation-model="::radiobuttonGroup.validationModel[radiobuttonGroup.fieldViewModel.identifier]"
+        field-ctrl="::radiobuttonGroup.form[radiobuttonGroup.fieldViewModel.identifier]"
+        view-model="::radiobuttonGroup.fieldViewModel"></seip-validation-message>
+  </div>
+</div>

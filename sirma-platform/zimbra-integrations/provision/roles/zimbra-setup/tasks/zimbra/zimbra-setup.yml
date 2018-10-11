@@ -1,0 +1,17 @@
+- name: Setting LMTP host lookup from DNS to native
+  shell: ./zmprov mcf zimbraMtaLmtpHostLookup native
+  args:
+    chdir: /opt/zimbra/bin/
+
+- name: Setting admin via proxy server
+  shell: ./zmproxyconfig -e -w -C -H {{ fqdn }}
+  args:
+    chdir: /opt/zimbra/libexec/
+  become: yes
+  become_user: zimbra
+
+- name: Redirecting HTTP to HTTPS
+  shell: ./zmprov ms {{ fqdn }} zimbraReverseProxyMailMode redirect
+  args:
+    chdir: /opt/zimbra/bin/
+

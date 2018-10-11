@@ -1,0 +1,217 @@
+@import "../../style/variables";
+
+/* CKE doesn't put hover styles on the widget wrapper but onto its first child and this causes issues
+   which is improper for inline widgets especially for input fields */
+
+.cke_widget_wrapper:hover > .cke_widget_element {
+  outline: none !important;
+}
+
+.cke_widget_wrapper:hover {
+  outline: none !important;
+}
+
+.cke_widget_wrapper.cke_widget_focused > .cke_widget_element {
+  outline: 1px solid $default-font-color !important;
+}
+
+.cke_widget_editable_focused {
+  outline: none !important;
+}
+
+.cke_widget_wrapper:hover .cke_widget_editable {
+  outline: none !important;
+}
+
+.cke_button__widgets_label {
+  margin-right: 5px !important;
+}
+
+/* For some reason CKE shows a drag handler even on in preview mode */
+.idoc-editor.preview .cke_widget_drag_handler_container {
+  display: none !important;
+}
+
+body.dragging, body.dragging * {
+  cursor: move !important;
+}
+
+@mixin make-header($font-weight,$font-size,$line-height,$margin) {
+  font-weight: $font-weight;
+  font-size: $font-size;
+  line-height: $line-height;
+  margin: $margin;
+}
+
+.ck-editor-area {
+  background: #fff;
+  outline: none;
+  padding: $idoc-page-default-padding;
+
+  h1 {
+    @include make-header(normal, 22px, 1.25, 30px 0 0 0);
+  }
+
+  h2 {
+    @include make-header(normal, 20px, 1.25, 30px 0 0 0);
+  }
+
+  h3 {
+    @include make-header(normal, 18px, 1.5, 30px 0 0 0);
+  }
+
+  h4 {
+    @include make-header(normal, 16px, 1.5, 20px 0 0 0);
+  }
+
+  h5 {
+    @include make-header(normal, 15px, 1.5, 20px 0 0 0);
+  }
+
+  h6 {
+    @include make-header(normal, 12px, 1.5, 20px 0 0 0);
+  }
+
+  /* Prevent top margin when the heading is the starting element in the editor */
+  h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
+    margin-top: 0px;
+  }
+
+  /* Workarounds the fact that ckeditor's magic line is positioned as first element in the editor
+    causing the headings to jump when the magic line shows/hides */
+  > {
+    span + h1, span + h2, span + h3, span + h4, span + h4, span + h5, span + h6 {
+      margin-top: 0px;
+    }
+  }
+
+  /* subsections that are after parent section */
+  h1 + h1, h1 + h2, h1 + h3, h1 + h4, h1 + h5, h1 + h6, h2 + h1, h2 + h2, h2 + h3, h2 + h4, h2 + h5, h2 + h6, h3 + h1, h3 + h2, h3 + h3, h3 + h4, h3 + h5, h3 + h6, h4 + h1, h4 + h2, h4 + h3, h4 + h4, h4 + h5, h4 + h6, h5 + h1, h5 + h2, h5 + h3, h5 + h4, h5 + h5, h5 + h6, h6 + h1, h6 + h2, h6 + h3, h6 + h4, h6 + h5, h6 + h6 {
+    margin-top: 30px;
+  }
+
+  &.preview {
+    .cke_widget_editable {
+      cursor: default;
+    }
+  }
+
+  ul {
+    padding-left: 20px;
+
+    li {
+      list-style-position: inside;
+    }
+  }
+
+  /* Numbered list styles */
+  ol {
+    padding-left: 20px;
+    counter-reset: item;
+
+    li {
+      display: block;
+
+      &:before {
+        content: counters(item, '.') '. ';
+        counter-increment: item
+      }
+
+      > :first-child:not(li):not(ol):not(div) {
+        display: inline;
+      }
+    }
+
+    &.decimal {
+      > li:before {
+        content: counters(item, '.', decimal) '. ';
+      }
+    }
+
+    &.lower-roman {
+      > li:before {
+        content: counters(item, '.', lower-roman) '. ';
+      }
+    }
+
+    &.upper-roman {
+      > li:before {
+        content: counters(item, '.', upper-roman) '. ';
+      }
+    }
+
+    &.lower-alpha {
+      > li:before {
+        content: counters(item, '.', lower-alpha) '. ';
+      }
+    }
+
+    &.upper-alpha {
+      > li:before {
+        content: counters(item, '.', upper-alpha) '. ';
+      }
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  table {
+    max-width: 100%;
+  }
+
+  .sep-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+}
+
+.cke_top {
+  border-top: none !important;
+  border-left: none !important;
+  background: #fff !important;
+}
+
+.cke_combo_button {
+  margin-right: 8px !important;
+}
+
+/*
+ * Equal height columns
+ */
+.layout-row, .layout-column {
+  display: flex;
+}
+
+.layout-column-editable {
+  width: 100%;
+}
+
+.idoc-editor {
+  &.edit {
+    /* Layout manager structure is not well maintained.
+     * In different cases it is possible to have all combinations of .layoutmanager with .layout-container or only .layoutmanager or only .layout-container.
+     * Bottom margin is set the same as widget's bottom margin and paragraphs' bottom margin.
+     */
+    .layoutmanager {
+      margin-bottom: $paragraph-margin-bottom;
+    }
+
+    :not(.layoutmanager) > .layout-container {
+      margin-bottom: $paragraph-margin-bottom;
+    }
+  }
+
+  &.preview {
+    .layout-column-editable {
+      border: none;
+    }
+
+    // Hide pagebreak in preview
+    .cke_pagebreak {
+      display: none;
+    }
+  }
+}

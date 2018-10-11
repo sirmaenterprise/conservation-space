@@ -1,0 +1,839 @@
+<?xml version="1.0"?>
+<definition id="yulProject" parentId="genericProject" type="project">
+	<fields>
+		<field name="default_header" type="ANY" label="PROJECT_DEFAULT_HEADER_YUL" />
+		<field name="compact_header" type="an..4096" label="PROJECT_COMPACT_HEADER_YUL" />
+		<field name="breadcrumb_header" type="an..4096" label="PROJECT_BREADCRUMB_HEADER_YUL" />
+		<field name="tooltip_header" type="ANY" label="PROJECT_TOOLTIP_HEADER_YUL" />
+
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project</value>
+		</field>		
+
+		<!-- system fieds -->
+		<field name="identifier" type="an..50" displayType="system"/>
+		<field name="description" type="an..1024" displayType="system"/>
+		<field name="type" type="an..180" displayType="system" />
+		<field name="title" type="an..50"  displayType="system" />
+		<field name="status" type="an..50" displayType="system"/>
+		<field name="priority" 	type="an..20" displayType="system"/>
+		<field name="createdOn" type="datetime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system"/>
+		<field name="modifiedOn" type="datetime" displayType="system"/>
+		<field name="modifiedBy" type="uri" displayType="system"/>
+		<field name="hasParent" type="uri" displayType="system"/>
+		<field name="hasThumbnail" type="uri" displayType="system"/>
+		<field name="owner" type="uri" displayType="system"/>
+		<field name="outcome" type="an..50" displayType="system"/>
+		<field name="plannedStartDate" type="date" displayType="system"/>
+		<field name="plannedEndDate"   type="date" displayType="system"/>
+		<field name="actualStartDate" type="date" displayType="system"/>
+		<field name="actualEndDate" type="date" displayType="system"/>
+		<field name="actualEffortHours" type="n..10" displayType="system"/>
+		<field name="accumulatedEstimatedEffortHours" displayType="system"/>
+		<field name="accumulatedActualEffortHours" type="n..10" displayType="system"/>
+		<field name="duration" type="n..10"  displayType="system"/>
+		<field name="estimatedEffortHours" type="n..10" displayType="system"/>
+		<field name="completedOn" type="datetime" displayType="system" />
+		<field name="integrated" type="boolean" displayType="system" />
+		<field name="uri" type="an..50" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
+		<field name="ownedBy" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+	</fields>
+	<regions>
+		<region id="generalData" displayType="editable" order="10" label="yul.generalData.region.label">
+			<fields>
+				<field name="subType" type="an..20" displayType="editable" mandatory="true" codelist="CL2" label="yul.subType.label" tooltip="yul.subType.tooltip" uri="yul:subType" >
+					<control id="RELATED_FIELDS">
+						<control-param type="department" id="fieldsToRerender" name="RERENDER">department</control-param>
+						<control-param type="department" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param type="department" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					  </control>
+					<value>YULPR001</value>
+				</field>
+				<field name="department" type="an..20" displayType="editable" mandatory="true" codelist="CL245" multiValued="true" label="yul.department.label" tooltip="yul.department.tooltip" uri="emf:departmentName" >
+					<!-- <control id="DEFAULT_VALUE_PATTERN">
+						 <control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
+					</control> -->
+				</field>
+				<field name="activityPurpose" type="an..20" displayType="hidden" codelist="CL241" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="chc:activityPurpose" >
+					<condition id="visibleFieldId" renderAs="VISIBLE">[subType] IN ('YULPR001')</condition>
+					<condition id="mandatoryFieldId" renderAs="MANDATORY">[subType] IN ('YULPR001')</condition>
+				</field>
+				<field name="title" type="an..1024" mandatory="true" displayType="editable" label="yul.title.label" tooltip="yul.title.tooltip" uri="dcterms:title" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						 <control-param type="default_value_pattern" id="template" name="template">$[emf:createdOn] $[chc:activityPurpose]</control-param>
+					</control>
+				</field>
+				<field name="description" type="an..1024" displayType="editable" label="yul.description.label" tooltip="yul.description.tooltip" uri="dcterms:description" />
+				<field name="priority" type="an..20" displayType="editable" codelist="CL29" label="yul.priority.label" tooltip="yul.priority.tooltip" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>
+		
+				<field name="reasonForSuspension" type="an..1024" displayType="hidden" label="yul.reasonForSuspension.label" tooltip="yul.reasonForSuspension.tooltip" uri="yul:reasonForSuspension" />
+				<field name="outgoingLoanNumber" type="an..20" displayType="editable" label="yul.outgoingLoanNumber.label" tooltip="yul.outgoingLoanNumber.tooltip" uri="yul:outgoingLoanNumber" />
+				<field name="lender" type="an..1024" displayType="editable" label="yul.lender.label" tooltip="yul.lender.tooltip" uri="yul:lender" />
+				<field name="exhibitionId" type="an..1024" displayType="editable" label="yul.exhibitionId.label" tooltip="yul.exhibitionId.tooltip" uri="yul:exhibitionId" />
+				<field name="venue" type="an..20" displayType="editable" codelist="CL263" label="yul.venue.label" tooltip="yul.venue.tooltip" uri="yul:venue" />
+				
+				<field name="assignee" type="uri" mandatory="true" displayType="editable" label="yul.assignee.label" tooltip="yul.assignee.tooltip" uri="emf:hasAssignee">
+					<condition id="readOnlyFieldId" renderAs="READONLY">[identifier] NOTIN ('NO_ID')</condition>
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
+					</control>
+					<value>${currentUser.id}</value>
+				</field>
+				<field name="hasParticipant" type="uri" displayType="editable" mandatory="true" label="yul.hasParticipant.label" tooltip="yul.hasParticipant.tooltip" multiValued="true" uri="ptop:hasParticipant">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User,emf:Group</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
+					</control>
+				</field>
+				<field name="yul:isAssignedConsActOf" type="uri" displayType="readOnly" label="yul.isAssignedConsActOf.label" tooltip="yul.isAssignedConsActOf.tooltip" multiValued="true" uri="yul:isAssignedConsActOf">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+		<region id="timeAndEffort" displayType="editable" order="15" label="yul.timeAndEffort.region.label" >
+			<fields>
+				<field name="plannedStartDate" type="date" displayType="editable" label="yul.plannedStartDate.label" tooltip="yul.actualStartDate.tooltip" uri="emf:plannedStartDate" />
+				<field name="plannedEndDate" type="date" displayType="editable" label="yul.plannedEndDate.label" tooltip="yul.actualEndDate.tooltip" uri="emf:plannedEndDate" />
+				<field name="estimatedEffortHours" type="n..10" displayType="editable" label="estimatedEffortHours.label" tooltip="yul.estimatedEffortHours.tooltip" uri="emf:estimatedEffort" />
+			</fields>
+		</region>
+		<region id="systemData" order="20" displayType="editable" label="yul.systemData.region.label">
+			<fields>
+				<field name="type" type="an..20" displayType="readonly" codelist="CL7" label="yul.type.label" tooltip="yul.type.tooltip" uri="emf:type" >
+					<value>FC236001</value>
+				</field>
+				<field name="identifier" type="an..50" displayType="readOnly" label="yul.identifier.label" tooltip="yul.identifier.tooltip" rnc="${eval(PR${seq({+prjSequence})})}" uri="dcterms:identifier"/>
+				<field name="status" type="an..20" displayType="readOnly" codelist="CL1" label="yul.status.label" tooltip="yul.status.tooltip" uri="emf:status" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT')</condition>
+				</field>
+				<field name="emf:version" type="an..10" displayType="readOnly" label="yul.version.label" tooltip="yul.version.tooltip" uri="emf:version"/> 
+				<!-- object properties (relationships) -->
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="datetime" displayType="readOnly" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" uri="emf:modifiedBy">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="lockedBy" type="uri" displayType="readonly" label="yul.lockedBy.label" tooltip="yul.lockedBy.tooltip" previewEmpty="false">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="attachmentOf" type="uri" displayType="editable" label="yul.attachmentOf.label" tooltip="yul.attachmentOf.tooltip" multiValued="true" uri="emf:isAttachedTo" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,yul:Activity,emf:Document,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video,chc:Sample,emf:BusinessProcess</control-param>
+					</control>
+				</field>
+				<field name="hasAttachment" type="uri" displayType="editable" label="yul.attachments.label" tooltip="yul.hasAttachment.tooltip" multiValued="true" uri="emf:hasAttachment" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,yul:Activity,emf:Document,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video,chc:Sample,emf:BusinessProcess</control-param>
+					</control>
+				</field>
+				<field name="hasWatcher" type="uri" displayType="editable" label="yul.hasWatcher.label" tooltip="yul.hasWatcher.tooltip" multiValued="true" uri="emf:hasWatcher" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
+					</control>
+				</field>
+				<field name="hasThumbnail" type="uri" displayType="readOnly" label="yul.hasThumbnail.label" tooltip="yul.hasThumbnail.tooltip" uri="emf:hasThumbnail" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readOnly" label="yul.parentOf.label" tooltip="yul.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="hasParent" type="uri" displayType="readOnly" label="yul.hasParent.label" tooltip="yul.hasParent.tooltip" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="yul.partOf.label" tooltip="yul.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="yul.hasChild.label" tooltip="yul.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions> 
+	<transitions>	
+		<transition id="create" eventId="create" purpose="create">
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+                    <value>
+						<![CDATA[
+
+							function includes(arr, k) {
+                              return arr.indexOf(k) > -1;
+                            }
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(New assignment) Project: ' + subType + " - " + title;
+
+							//extract assignee, participants and createdBy
+							var assignee = root.get('assignee');
+							var participants = root.get('hasParticipant');
+							var createdBy = root.get('createdBy');
+
+							//add all users to recipients
+							var recipients = [];
+							var i = 0;
+							 if(participants != null) {
+							   for (i = 0; i < participants.length; i++) {
+							   recipients.push(participants[i].toString());
+							   }
+							 }
+
+							if(!includes(recipients, assignee.toString())){
+								recipients.push(assignee.toString());
+							}
+							if(!includes(recipients, createdBy.toString())){
+								recipients.push(createdBy.toString());
+							}
+
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_assignee_object_yul", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                    </control>
+				</field>
+			</fields>
+		</transition> 
+	
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="reassign" order="15" label="reassign.label" tooltip="yul.reassign.tooltip" eventId="reassign" purpose="addRelation" confirmation="reassign.confirm" >
+			<fields>
+				<field name="attachToConfig" type="json">
+					<value>
+						{
+						"predefinedTypes" : ["emf:User"],
+						"selection" : "single",
+						"relation" : ["emf:hasAssignee"],
+						"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+				<field name="beforeReasing" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							//add to context old assignee
+							context.put('previousAsignee', root.get('assignee'));
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">before</control-param>
+						<control-param id="async" name="async">false</control-param>
+					</control>
+				</field>
+				<field name="onAssignTask" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Reassigned) Project: ' + subType + ' - ' + title;
+							
+							//extract watchers
+							var recipients = [];
+							var watchers = root.get('hasWatcher');
+							if(watchers != null){
+								for(var i = 0; i < watchers.length; i++){
+								log.info("Watch " + watchers[i].toString());
+								recipients.push(watchers[i].toString());
+								}
+							}
+							//extract assignee, createdBy and old assignee
+							recipients.push(root.getAsString('assignee'));
+							recipients.push(root.getAsString('createdBy'));
+							recipients.push(context.get('previousAsignee'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_reassigned_object_yul", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="complete" order="20" tooltip="yul.complete.action.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" actionPath="/" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Complete) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complete_object_yul", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="reopen" order="25" label="yul.reopen.action.label" tooltip="yul.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" confirmation="reopen.confirm" actionPath="/" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Reopened) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_reopen_object_yul", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="stop" order="30" tooltip="yul.stop.tooltip" eventId="stop" purpose="transition" immediate="true" confirmation="stop.confirm" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Stoped) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_stop_object_yul", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="suspend" order="35" tooltip="yul.suspend.action.tooltip" confirmation="suspend.confirm" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[						
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Suspended) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_suspend_object_yul", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>		
+		<transition id="restart" order="40" tooltip="yul.restart.action.tooltip" confirmation="restart.confirm" actionPath="/" >
+			<fields>
+				<field name="cleanReasonForSuspension" type="an..200" displayType="system" >
+					<value><![CDATA[
+							// remove value from filed yul:reasonForSuspension
+							root.remove('reasonForSuspension');]]></value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">before</control-param>
+						<control-param id="async" name="async">false</control-param>
+					</control>
+				</field>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Restarted) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_restart_object_yul", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="add" order="45" label="add.group.label" type="menu" />
+		<transition id="addCulturalObject" label="yul.addCulturalObject.action.label" tooltip="yul.addCulturalObject.action.tooltip" eventId="addCulturalObject" purpose="addRelation" actionPath="/" group="add" >
+			<fields>
+				<field name="addCOToConfig" type="json">
+					<value>
+						{
+							"predefinedTypes" : ["chc:CulturalObject"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasAttachment"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+			<fields>
+				<field name="addAttachmentConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["emf:Project","yul:Activity","emf:Document","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample","emf:BusinessProcess"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasAttachment"]
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addThumbnail" group="add" />	
+		<transition id="addWatchers" label="addWatchers.label" eventId="addWatchers" purpose="addRelation" group="add" >
+			<fields>
+				<field name="addWatcherConfig" type="json">
+					<value>						
+							{
+								"predefinedTypes" : ["emf:User"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasWatcher"],
+								"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="create" order="50" label="create.group.label" type="menu" />
+		<transition id="createDocument" label="yul.createDocument.action.label" tooltip="yul.createDocument.action.tooltip" eventId="createDocument" purpose="createInstance" actionPath="/" group="create" >
+      		<fields>
+				<field name="createDocumentConfig" type="json">
+					<value>
+   						{ 
+							"predefinedTypes" : ["emf:Document"],  
+							"contextSelectorDisabled": true
+    					}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="createActivity" label="yul.createActivity.action.label" tooltip="yul.createActivity.action.tooltip" eventId="createActivity" purpose="createInstance" actionPath="/" group="create" >
+      		<fields>
+				<field name="createCaseConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["yul:Activity"],
+							"contextSelectorDisabled": true
+						}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="createTask" label="yul.createTask.action.label" tooltip="yul.createSubTask.action.tooltip" eventId="createTask" purpose="createInstance" group="create" >
+      		<fields>
+				<field name="createTaskConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["emf:Task"],
+							"contextSelectorDisabled": true
+						}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>		
+		
+		<group id="exportAs" order="55" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		<transition id="exportWord" group="exportAs" />
+
+		<group id="print" order="60" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		<transition id="print" group="print" />
+		
+		<group id="template" order="61" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="yul.updateTemplate.action.tooltip" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" tooltip="yul.changeTemplate.action.tooltip" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		
+		<group id="more" order="65" label="more.group.label" type="menu" />
+		<transition id="move" confirmation="move.confirm" group="more" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Moved) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_move_object_yul", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="clone" confirmation="clone.confirm" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" actionPath="/" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="100" tooltip="yul.delete.tooltip" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+                    <value>
+						<![CDATA[	
+							var subType = codelist.getDescription(2, root.get('subType'), 'en');
+							var title = root.get('title');
+							var subject = '(Deleted) Project: ' + subType + ' - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_delete_object_yul", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                    </control>
+                </field>
+			</fields>
+		</transition>
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="IN_PROGRESS"/>
+		<stateTransition from="INIT" transition="clone" to="IN_PROGRESS"/>
+		
+		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="reassign" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>	
+		<stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED"/>
+		<stateTransition from="IN_PROGRESS" transition="suspend" to="ON_HOLD">
+			<condition id="requiredFields" renderAs="REQUIRED">[reasonForSuspension]</condition>
+		</stateTransition>
+		<stateTransition from="IN_PROGRESS" transition="addCulturalObject" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="addAttachment" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>	
+		<stateTransition from="IN_PROGRESS" transition="addWatchers" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="createDocument" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="createActivity" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="createTask" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="exportPDF" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="exportWord" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="exportTabWord" to="IN_PROGRESS" />
+		<stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="clone" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="changeTemplate" to="IN_PROGRESS"/>		
+		<stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS"/>
+		<stateTransition from="IN_PROGRESS" transition="delete" to="IN_PROGRESS"/>
+
+		<!-- on hold-->
+		<stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="reassign" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS"/>
+		<stateTransition from="ON_HOLD" transition="addCulturalObject" to="ON_HOLD" />
+		<stateTransition from="ON_HOLD" transition="addAttachment" to="ON_HOLD" />
+		<stateTransition from="ON_HOLD" transition="addThumbnail" to="ON_HOLD"/>	
+		<stateTransition from="ON_HOLD" transition="addWatchers" to="ON_HOLD" />
+		<stateTransition from="ON_HOLD" transition="createDocument" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="createActivity" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="createTask" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="exportTabPDF" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="exportPDF" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="exportWord" to="ON_HOLD" />
+		<stateTransition from="ON_HOLD" transition="exportTabWord" to="ON_HOLD" />
+		<stateTransition from="ON_HOLD" transition="print" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="printTab" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="move" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="clone" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="lock" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="unlock" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="saveAsTemplate" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="updateTemplate" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="changeTemplate" to="ON_HOLD"/>		
+		<stateTransition from="ON_HOLD" transition="managePermissions" to="ON_HOLD"/>
+		<stateTransition from="ON_HOLD" transition="createInContext" to="ON_HOLD"/>
+
+		<!-- STOPPED -->
+		<stateTransition from="STOPPED" transition="exportTabPDF" to="STOPPED"/>
+		<stateTransition from="STOPPED" transition="exportPDF" to="STOPPED"/>
+		<stateTransition from="STOPPED" transition="exportWord" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="exportTabWord" to="STOPPED" />
+		<stateTransition from="STOPPED" transition="print" to="STOPPED"/>
+		<stateTransition from="STOPPED" transition="printTab" to="STOPPED"/>
+		<stateTransition from="STOPPED" transition="clone" to="STOPPED"/>
+		<stateTransition from="STOPPED" transition="updateTemplate" to="STOPPED"/>		
+		<stateTransition from="STOPPED" transition="managePermissions" to="STOPPED"/>
+	
+		<!-- complete -->
+		<stateTransition from="COMPLETED" transition="reopen" to="IN_PROGRESS" />
+		<stateTransition from="COMPLETED" transition="exportTabPDF" to="COMPLETED"/>
+		<stateTransition from="COMPLETED" transition="exportPDF" to="COMPLETED"/>
+		<stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="print" to="COMPLETED"/>
+		<stateTransition from="COMPLETED" transition="printTab" to="COMPLETED"/>
+		<stateTransition from="COMPLETED" transition="clone" to="COMPLETED" />
+		<stateTransition from="COMPLETED" transition="updateTemplate" to="COMPLETED"/>
+		<stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED"/>
+	</stateTransitions>
+
+	<allowedChildren>
+		<child type="object" id="yulActivity"/>
+		<child type="document" id="all"/>
+		<child type="object" id="yulSample"/>
+		<child type="object" id="yulAudio"/>
+		<child type="object" id="yulVideo"/>
+		<child type="object" id="yulImage"/>
+		<child type="task" id="all"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="PROJECT_TOOLTIP_HEADER_YUL">
+    		<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Sub-type: </label>
+						<span data-property="subType">${CL([subType])}</span>
+					</span>
+					<span class="tooltip-row">
+                        <label>Department: </label>
+                        <span data-property="department">${CL([department])}</span>
+                    </span>
+					<span class="tooltip-row">
+                        <label>Priority: </label>
+                        <span data-property="priority">${CL([priority])}</span>
+                    </span>
+					<span class="tooltip-row">
+						<label>Status: </label>
+						<span data-property="status">${CL([status])}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Purpose: </label>
+						<span data-property="activityPurpose">${CL([activityPurpose])}</span>
+					</span>
+					${if(${get([plannedStartDate])}<>null).then(
+						<span class="tooltip-row">
+	                        <label>Start date: </label>
+	                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(MM/dd/yyyy)}</span>
+	                    </span>
+					)}
+					${if(${get([plannedEndDate])}<>null).then(
+						<span class="tooltip-row">
+	                        <label>End date: </label>
+	                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(MM/dd/yyyy)}</span>
+	                    </span>
+					)}
+					<span class="tooltip-row">
+						<label>System modified by: </label>
+						<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified on: </label>
+						<span data-property="modifiedOn">${date([modifiedOn]).format(MM/dd/yyyy, HH:mm)}</span>
+					</span>
+				</span>
+			)})}]]></value>
+    	</label>
+		<label id="PROJECT_DEFAULT_HEADER_YUL">
+			<value lang="en">
+				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span data-property="subType">${CL([subType])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					<br />
+					<span class="truncate-element">
+						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							<span data-property="title">${get([title])}</span>
+						</a>&nbsp;
+					</span>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
+				</span>
+			)}]]></value>
+		</label>
+		<label id="PROJECT_COMPACT_HEADER_YUL">
+			<value lang="en">
+				<![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<span data-property="activityPurpose">${CL([activityPurpose])}</span>&nbsp;
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span> 
+					</a>&nbsp;
+					${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			</span>
+		)}]]></value>
+		</label>	
+		<label id="PROJECT_BREADCRUMB_HEADER_YUL">
+			<value lang="en">
+				<![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span> 
+				</a>
+			</span>		
+            )}]]></value>
+		</label>		
+	</labels>		
+</definition>

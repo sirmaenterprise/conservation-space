@@ -1,0 +1,19 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+delete {
+    ?instance emf:owner ?user .
+    ?user emf:ownedBy ?instance .
+}
+insert {
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?user emf:owner ?instance .
+        ?instance emf:ownedBy ?user .
+    }
+}
+where {
+    ?instance emf:isDeleted "false"^^xsd:boolean .
+    ?instance emf:owner ?user  .
+    ?user a ptop:Agent .
+    ?user emf:ownedBy ?instance .
+}

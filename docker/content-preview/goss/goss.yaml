@@ -1,0 +1,44 @@
+package:
+  bash:
+    installed: true
+  curl:
+    installed: true
+  libreoffice:
+      installed: true
+  imagemagick:
+      installed: true
+
+process:
+  java:
+    running: true
+
+command:
+  ps aux | grep java | grep preview:
+    exit-status: 0
+
+file:
+  /etc/preview/application.yml:
+    exists: true
+    contains:
+    - "host: ${JMS_HOST}"
+    - "config: /etc/preview/log4j2.yml"
+  /etc/preview/log4j2.yml:
+    exists: true
+    contains:
+    - "name: PreviewRollingJsonAppender"
+    - "fileName: ${env:PREVIEW_LOGS}/preview.json"
+    - "JsonLayout"
+  /tmp/preview:
+    exists: true
+    filetype: directory
+  /var/log/preview:
+    exists: true
+    filetype: directory
+
+addr:
+  tcp://0.0.0.0:8300:
+    reachable: true
+
+mount:
+  "/var/log/preview":
+    exists: true

@@ -1,0 +1,185 @@
+@import "../../../style/variables";
+@import "../../../style/transitions";
+@import "../search-variables";
+
+$search-bar-height: 40px;
+$button-width: 30px;
+$button-width-small: 20px;
+
+.search-bar {
+
+  display: flex;
+  position: relative;
+
+  .search-types {
+    display: inline-flex;
+    // IE11 treats flex by default differently...
+    flex: 1 0 auto;
+    max-width: 33%;
+
+    .select2-selection {
+      min-height: $search-bar-height;
+      border-radius: $field-border-width;
+
+      &.select2-selection--multiple {
+        min-width: 150px;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+      }
+
+      .select2-selection__arrow {
+        width: $button-width-small !important;
+        min-height: $search-bar-height !important;
+        background-color: #fff !important;
+        border-left: 0 !important;
+        b {
+          border-color: #333 transparent transparent transparent !important;
+        }
+      }
+
+      &.select2-selection--single .select2-selection__rendered {
+        line-height: $search-bar-height;
+      }
+
+      &.select2-selection--multiple .select2-selection__rendered {
+        margin-top: 5px;
+      }
+    }
+
+    .select2-container--focus {
+      .select2-selection__arrow, .select2-selection__arrow:hover {
+        border-color: #66afe9;
+      }
+    }
+
+    .select2-container--open {
+      .select2-selection__arrow b {
+        border-color: transparent transparent #333 transparent !important;
+      }
+    }
+
+    .select2-container--disabled .select2-selection__arrow {
+      border-color: $disabled-field-border-color;
+    }
+  }
+
+  .filter-input {
+    height: $small-component-height;
+    text-overflow: ellipsis;
+    font-size: $small-component-font-size;
+
+    &:not(:focus) {
+      border-right: 0;
+      padding-right: 0;
+    }
+  }
+
+  > .filter-input {
+    height: $search-bar-height;
+  }
+
+  .search-bar-btn {
+    display: inline-flex;
+    height: $small-component-height;
+    padding: 0;
+
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    align-items: center;
+    text-align: center;
+
+    span.fa {
+      width: $button-width;
+      min-width: $button-width;
+    }
+
+    &:hover {
+      text-shadow: 1px 1px 3px grey;
+    }
+
+    &.active-btn {
+      background-color: #e6e6e6 !important;
+    }
+  }
+
+  > .search-bar-btn {
+    height: $search-bar-height;
+  }
+
+  .search-icon {
+    border-right: 1px solid $search-border-color;
+  }
+
+  .search-context {
+    display: inline-flex;
+    // IE11 treats flex by default differently...
+    flex: 1 0 auto;
+    align-items: center;
+
+    height: $search-bar-height;
+    max-width: 25%;
+    padding: 5px 10px;
+
+    font-size: $small-component-font-size;
+    border-radius: 0;
+    border-right: 0;
+    box-shadow: none;
+
+    .selected-context {
+      display: inline-flex;
+    }
+
+    .instance-header span {
+      font-size: $small-component-font-size !important;
+    }
+  }
+
+  .search-context-btn {
+    width: $button-width-small;
+    min-width: $button-width-small;
+
+    span.fa {
+      width: $button-width-small;
+      min-width: $button-width-small;
+    }
+  }
+
+  .search-context-menu-btn {
+    padding: 0 5px;
+    // The last button in the component
+    border-radius: 0 $search-default-radius $search-default-radius 0;
+    border-right: 1px solid $search-border-color;
+  }
+
+  // Position them below the search-bar as a dropdown panel
+  .search-bar-options, .search-context-menu {
+    position: absolute;
+    width: 100%;
+    top: $search-bar-height;
+    left: 0;
+    margin-top: -1px;
+    // Because it's rendered as a dropdown, it should appear above other components.
+    z-index: 10;
+
+    background: white;
+    border: 1px solid $search-border-color;
+    border-radius: 0 0 $search-default-radius $search-default-radius;
+
+    @include transition-drop-down();
+  }
+
+  .search-context-menu {
+    width: 33%;
+    right: 0;
+    left: auto;
+  }
+
+  .search-bar-options .saved-searches-list, .search-context-menu {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+}

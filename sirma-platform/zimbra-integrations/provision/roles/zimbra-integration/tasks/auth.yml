@@ -1,0 +1,18 @@
+- name: Generate authentication key for SEP integration
+  shell: hostname -d | sha256sum | head -c 64
+  register: auth_key
+
+- name: Set authentication key for SEP integration
+  shell: ./zmprov md {{ domain }} zimbraPreAuthKey {{ auth_key.stdout }}
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Add preauth.jsp
+  copy:
+    src: "{{ provision_path }}/zimbra-authenticator/preauth.jsp"
+    dest: /opt/zimbra/jetty/webapps/zimbra/preauth.jsp
+    owner: zimbra
+    group: zimbra
+    mode: 0644

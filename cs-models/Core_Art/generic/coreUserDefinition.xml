@@ -1,0 +1,320 @@
+<?xml version="1.0"?>
+<definition id="userDefinition" parentId="userDefinitionBase" type="user">
+	<fields>
+		<field name="default_header" type="ANY" label="USER_DEFAULT_HEADER_CORE" />
+		<field name="compact_header" type="an..4096" label="USER_COMPACT_HEADER_CORE" />
+		<field name="breadcrumb_header" type="an..4096" label="USER_BREADCRUMB_HEADER_CORE" />
+		<field name="tooltip_header" type="ANY" label="USER_TOOLTIP_HEADER_CORE"/>
+	
+		<field name="userId" type="an..200" displayType="system" />
+		<field name="title" type="an..100" displayType="system" />
+		<field name="firstName" type="an..35" displayType="system" />
+		<field name="lastName" type="an..35" displayType="system" />  
+		<field name="email" type="an..50" displayType="system" />
+		<field name="country" type="an..50" displayType="system" />
+		<field name="address" type="an..100" displayType="system" />
+		<field name="telephone" type="an..50" displayType="system" />
+		<field name="mobile" type="an..100" displayType="system" />
+		<field name="im" type="an..100" displayType="system" />
+		<field name="organization" type="an..100" displayType="system" />
+		<field name="jobtitle" type="an..50" displayType="system" />
+		<field name="language" type="an..50" displayType="system" />
+		<field name="ownedBy" type="uri" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri" displayType="system" />
+		<field name="isAssigneeOf" type="uri" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="isMemberOf" type="uri" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
+		<field name="status" type="an..10" displayType="system" />
+		<field name="owner" type="uri" displayType="system" />
+		<field name="isReporterOf" type="uri" displayType="system" />
+		<field name="createdOn" type="dateTime" displayType="system" />
+		<field name="createdBy" type="uri" displayType="system" />
+		<field name="modifiedOn" type="dateTime" displayType="system" />
+		<field name="modifiedBy" type="uri" displayType="system" />
+		<field name="isPoolAssigneeTo" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+      	<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+		<field name="lockedBy" type="uri" displayType="system" />
+	</fields>	
+	<regions>
+		<region id="userDetails" order="10" displayType="editable" label="core.specificInformation.region.label" >
+			<fields>
+				<field name="userId" type="an..200" displayType="editable" mandatory="true" label="userDefinition.userId" tooltip="core.userId.tooltip" uri="ptop:title" dmsType="urn:scim:schemas:core:1.0:userName" rnc="^(?:[a-zA-Z0-9]+(?:[\._][a-zA-Z0-9]{2,})+|[a-zA-Z0-9]{3,}(?:[\._][a-zA-Z0-9]+)*)(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,20})?$" unique="true" >
+					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('ACTIVE', 'INACTIVE')</condition>
+				</field>	
+				<field name="title" type="an..100" displayType="readonly" label="userDefinition.title" tooltip="core.title.tooltip" uri="dcterms:title" />
+				<field name="firstName" type="an..35" displayType="editable" mandatory="true" label="userDefinition.firstName" tooltip="core.firstName.tooltip" dmsType="urn:scim:schemas:core:1.0:name.givenName" uri="ptop:firstName" />
+				<field name="lastName" type="an..35" displayType="editable" mandatory="true" label="userDefinition.lastName" tooltip="core.lastName.tooltip" dmsType="urn:scim:schemas:core:1.0:name.familyName" uri="ptop:lastName"/>   
+				<field name="email" type="an..50" displayType="editable" mandatory="true" label="userDefinition.email" tooltip="core.email.tooltip" uri="emf:email" dmsType="urn:scim:schemas:core:1.0:emails" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$" unique="true"/>
+				<field name="country" type="an..50" displayType="editable" label="userDefinition.country" tooltip="core.country.tooltip" dmsType="urn:scim:schemas:core:1.0:addresses.country" uri="emf:countryName" />
+				<field name="address" type="an..100" displayType="editable" label="userDefinition.address" tooltip="core.address.tooltip" dmsType="urn:scim:schemas:core:1.0:addresses.streetAddress" uri="emf:address" />
+				<field name="telephone" type="an..50" displayType="editable" label="userDefinition.telephone" tooltip="core.telephone.tooltip" uri="emf:phoneNumber" />
+				<field name="mobile" type="an..100" displayType="editable" label="userDefinition.mobile" tooltip="core.mobile.tooltip" dmsType="urn:scim:schemas:core:1.0:phoneNumbers.mobile" uri="emf:mobileNumber" />
+				<field name="im" type="an..100" displayType="editable" label="userDefinition.im" tooltip="core.im.tooltip" uri="emf:instantMessengerId" />	    
+				<field name="organization" type="an..100" displayType="editable" label="userDefinition.organization" tooltip="core.organization.tooltip" uri="emf:organizationName"/>
+				<field name="departmentName" type="an..50" displayType="editable" label="core.departmentName.label" tooltip="core.department.tooltip" uri="emf:departmentName" />
+				<field name="jobtitle" type="an..50" displayType="editable" label="userDefinition.jobtitle" tooltip="core.jobtitle.tooltip" uri="emf:jobTitle" />
+				<field name="language" type="an..50" displayType="editable" codelist="CL13" label="userDefinition.language" tooltip="core.language.tooltip" uri="dcterms:language">
+					<value>en</value>
+				</field>	
+			</fields>	
+		</region>
+		<region id="systemData" order="20" displayType="editable" label="core.systemData.region.label">
+			<fields>
+				<field name="type" type="an..20" displayType="hidden" codelist="CL7" label="type.label" tooltip="core.type.tooltip" uri="emf:type"><value>FC236008</value></field>
+				<field name="status" type="an..10" displayType="readonly" codelist="CL12" label="status.label" uri="emf:status" />
+				<field name="emf:version" type="an..10" displayType="hidden" label="object.version" uri="emf:version"/>
+				<field name="integrated" type="boolean" displayType="hidden" label="emf.integrated.label" uri="emf:integrated"/>
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="core.createdOn.label" tooltip="core.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="core.createdBy.label" tooltip="core.createdBy.tooltip" uri="emf:createdBy" dmsType="FORBIDDEN">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="dateTime" displayType="readOnly" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" uri="emf:modifiedOn" />
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" uri="emf:modifiedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+		
+				<field name="isMemberOf" type="uri" displayType="readOnly" label="core.isMemberOf.label" tooltip="core.isMemberOf.tooltip" multiValued="true" uri="emf:isMemberOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="isAssigneeOf" type="uri" displayType="readOnly" label="core.isAssigneeOf.label" tooltip="core.isAssigneeOf.tooltip" multiValued="true" uri="emf:isAssigneeOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="involvedIn" type="uri" displayType="readOnly" label="core.involvedIn.label" tooltip="core.involvedIn.tooltip" multiValued="true" uri="ptop:involvedIn" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="chc:isAuthorOf" type="uri" displayType="readOnly" label="core.isAuthorOf.label" tooltip="core.isAuthorOf.tooltip" multiValued="true" uri="chc:isAuthorOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="isReporterOf" type="uri" displayType="readOnly" label="core.isReporterOf.label" tooltip="core.isReporterOf.tooltip" multiValued="true" uri="emf:isReporterOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="isWatcherOf" type="uri" displayType="readOnly" label="core.isWatcherOf.label" tooltip="core.isWatcherOf.tooltip" multiValued="true" uri="emf:isWatcherOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readOnly" label="core.parentOf.label" tooltip="core.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" uri="emf:hasTemplate"  >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="core.partOf.label" tooltip="core.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>	
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="core.hasChild.label" tooltip="core.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	<transitions>
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="activate" order="15" />
+		<transition id="deactivate" order="20" />
+		
+		<group id="add" order="25" label="add.group.label" type="menu" />	
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" label="exportTabPDF.label" eventId="exportTabPDF" purpose="exportTabPDF" tooltip="exportTabPDF.tooltip" group="exportAs" />
+		<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" group="exportAs" />
+		
+		<group id="print" order="35" label="print.group.label" type="menu" />
+		<transition id="printTab" label="printTab.label" eventId="printTab" purpose="printTab" tooltip="printTab.tooltip" group="print" />
+		
+		<group id="template" order="40" label="template.group.label" type="menu" />
+		<transition id="saveAsUserTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="core.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="core.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="45" label="more.group.label" type="menu" />
+		<transition id="unlock" actionPath="/" group="more" />
+	</transitions>
+	
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="NOT_CREATED"/>
+		<stateTransition from="NOT_CREATED" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
+
+		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE" />		
+		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="saveAsUserTemplate" to="ACTIVE"/>	
+		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>		           
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>		           
+        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />	
+		
+		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
+	</stateTransitions>
+
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="coreAudio"/>
+		<child type="object" id="coreVideo"/>
+		<child type="object" id="coreImage"/>
+		<child type="task" id="all"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="USER_TOOLTIP_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${userLink(currentInstance)}" class="instance-link" data-id="${id.db}" data-uid="${id.name}"
+						${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+							<span data-title="${get([title])}">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+                 	   			&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+                     		)}
+						</a>
+					</span>
+					${if(${get([country])}<>null).then(
+						<span class="tooltip-row">
+							<label>Country: </label>
+							<span data-property="country">${get([country])}</span>
+						</span>
+					)}
+					${if(${get([telephone])}<>null).then(
+						<span class="tooltip-row">
+							<label>Telephone: </label>
+							<span data-property="telephone">${get([telephone])}</span>
+						</span>
+					)}
+					${if(${get([mobile])}<>null).then(
+						<span class="tooltip-row">
+							<label>Mobile: </label>
+							<span data-property="mobile">${get([mobile])}</span>
+						</span>
+					)}
+					${if(${get([email])}<>null).then(
+						<span class="tooltip-row">
+							<label>Email: </label>
+							<span data-property="mobile">${get([email])}</span>
+						</span>
+					)}
+					${if(${get([organization])}<>null).then(
+						<span class="tooltip-row">
+							<label>Organization: </label>
+							<span data-property="organization">${get([organization])}</span>
+						</span>
+					)}
+					${if(${get([departmentName])}<>null).then(
+						<span class="tooltip-row">
+							<label>Department: </label>
+							<span data-property="departmentName">${get([departmentName])}</span>
+						</span>
+					)}	
+					${if(${get([jobtitle])}<>null).then(
+						<span class="tooltip-row">
+							<label>Job position: </label>
+							<span data-property="jobtitle">${get([jobtitle])}</span>
+						</span>
+					)}	
+				</span>
+			)})}]]></value>
+		</label>
+		<label id="USER_DEFAULT_HEADER_CORE">
+			<value lang="en">
+				<![CDATA[${eval(
+				${var.jobtitle=${if(${get([jobtitle])}<>null).then(true).else(false)}}
+				${var.departmentName=${if(${get([departmentName])}<>null).then(true).else(false)}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span ><img src="${thumbnailUri(64)}"/></span>
+				${if(${get([emf:isActive])}==false).then(<span style=color:#a9a9a9;>).else(<span>)}
+					<span class="truncate-element">
+						${if(${and(${var.jobtitle} and not ${var.departmentName})}).then(<span data-property="jobtitle">${get([jobtitle])}</span></br>)}
+						${if(${and(not ${var.jobtitle} and ${var.departmentName})}).then(<span data-property="departmentName">${get([departmentName])}</span></br>)}
+						${if(${and(${var.jobtitle} and ${var.departmentName})}).then(<span data-property="jobtitle">${get([jobtitle])}</span>,&nbsp;<span data-property="departmentName">${get([departmentName])}</span></br>)}
+							
+							
+					</span>
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+								&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+							)}
+						</a>
+						${if(${get([email])}<>null).then(,&nbsp;<span data-property="email">${get([email])}</span>)}
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}						
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>)}]]>
+			</value>
+		</label>
+		<label id="USER_COMPACT_HEADER_CORE">
+			<value lang="en">
+				<![CDATA[${eval(
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}" 
+						${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+							<span data-property="title">${get([title])}</span>
+							${if(${get([emf:isActive])}==false).then(
+			                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
+			                )}
+						</a>
+					</span>
+				</span>)}]]>
+			</value>
+		</label>
+		<label id="USER_BREADCRUMB_HEADER_CORE">
+			<value lang="en">
+				<![CDATA[${eval(
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+					${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+						<span data-property="title">${get([title])}</span>
+						${if(${get([emf:isActive])}==false).then(
+							&nbsp;<span data-property="emf:status">(${CL([status])})</span>
+						)}
+					</a>
+				</span>)}]]>
+			</value>
+		</label>
+	</labels>
+</definition>

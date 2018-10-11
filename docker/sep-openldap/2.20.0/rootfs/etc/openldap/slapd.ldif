@@ -1,0 +1,59 @@
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+olcArgsFile: /var/run/openldap/slapd.args
+olcPidFile: /var/run/openldap/slapd.pid
+
+dn: cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: schema
+
+# Base schemas
+include: file:///etc/openldap/schema/core.ldif
+include: file:///etc/openldap/schema/cosine.ldif
+include: file:///etc/openldap/schema/inetorgperson.ldif
+
+# Custom schemas
+include: file:///etc/openldap/schema/wso2Person.ldif
+include: file:///etc/openldap/schema/scimPerson.ldif
+include: file:///etc/openldap/schema/identityPerson.ldif
+
+dn: olcDatabase=frontend,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcFrontendConfig
+olcDatabase: frontend
+olcAccess: to * by * read
+
+# Override default config settings
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: config
+# This will allow only root through ldapi:/// to contact & manage this database
+olcAccess: to *
+  by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+  by * none
+
+# SEP MDB
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcDbMaxSize: 1073741824
+olcSuffix: ${SEP_MDB_SUFFIX}
+olcRootDN: ${SEP_MDB_ROOT_DN}
+olcRootPW: $sep_mdb_pass_replace
+olcDbDirectory: /var/lib/openldap/openldap-data
+olcDbIndex: uid pres,eq
+olcDbIndex: cn,sn pres,eq,approx,sub
+olcDbIndex: objectClass eq
+# Allow users to authenticate with their passwords and admins to manage them. Anyone else cannot see the passwords
+olcAccess: to attrs=userPassword
+  by self write
+  by anonymous auth
+  by dn.base="${SEP_MDB_ROOT_DN}" write
+  by * none
+# Allow only the admin to manage entries and all others to read
+olcAccess: to *
+  by self write
+  by dn.base="${SEP_MDB_ROOT_DN}" write
+  by * read

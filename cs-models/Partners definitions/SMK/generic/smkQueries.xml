@@ -10,6 +10,7 @@
 					?instance emf:hasWatcher ?hasWatcher .
 					 {statement}
 					FILTER(year(?modifiedOn) = YEAR(?systemTime) &amp;&amp; MONTH(?modifiedOn) = MONTH(?systemTime) &amp;&amp; DAY(?modifiedOn) = DAY(?systemTime)-	?todayMinus) .
+					FILTER NOT EXISTS {?instance a emf:Issue}.
 				}
 			</value>
 			<control id="query">
@@ -24,14 +25,38 @@
 		</field>
 		
 		<field name="getInstanceNearEnd" type="an..200" displayType="system">
+            <value>
+                SELECT DISTINCT ?instance ?instanceType WHERE {
+                 ?instance a ?type .
+                 ?instance emf:plannedEndDate ?planEndDate .
+                 ?instance emf:instanceType ?instanceType .
+                 ?instance emf:isDeleted "false"^^xsd:boolean .
+                 {statement}
+                 FILTER(?planEndDate &gt; ?currentDate &amp;&amp; ?planEndDate &lt;= ?tomorrowDate) .
+                }
+            </value>
+            <control id="query">
+                <control-param id="config" name="dialect">SPARQL</control-param>
+                <control-param id="config" name="countOnly">false</control-param>
+                <control-param id="config" name="includeInferred">true</control-param>
+                <control-param id="config" name="queryTimeout">5</control-param>
+                <control-param id="binding" name="currentDate" />
+                <control-param id="binding" name="tomorrowDate" />
+                <control-param id="binding" name="type" />
+                <control-param id="binding" name="systemMidnightTime" />
+                <control-param id="queryParam" name="statement" />
+            </control>
+        </field>
+		<field name="getModifiedIssueYesterday" type="an..200" displayType="system">
 			<value>
 				SELECT DISTINCT ?instance ?instanceType WHERE {
-				 ?instance a ?type .
-				 ?instance emf:plannedEndDate ?planEndDate .
-				 ?instance emf:instanceType ?instanceType .
-				 ?instance emf:isDeleted "false"^^xsd:boolean .
-				 {statement}
-				 FILTER(year(?planEndDate) = YEAR(?systemTime) &amp;&amp; MONTH(?planEndDate) = MONTH(?systemTime) &amp;&amp; DAY(?planEndDate) = DAY(?systemTime) + ?todayPlus) .
+					?instance a ?type .
+					?instance emf:modifiedOn ?modifiedOn .
+					?instance emf:instanceType ?instanceType .
+					?instance emf:isDeleted "false"^^xsd:boolean .
+					?instance emf:hasReporter ?hasReporter .
+					 {statement}
+					FILTER(year(?modifiedOn) = YEAR(?systemTime) &amp;&amp; MONTH(?modifiedOn) = MONTH(?systemTime) &amp;&amp; DAY(?modifiedOn) = DAY(?systemTime)-	?todayMinus) .
 				}
 			</value>
 			<control id="query">
@@ -39,9 +64,9 @@
 				<control-param id="config" name="countOnly">false</control-param>
 				<control-param id="config" name="includeInferred">true</control-param>
 				<control-param id="config" name="queryTimeout">5</control-param>
-				<control-param id="binding" name="todayPlus" />
 				<control-param id="binding" name="type" />
 				<control-param id="binding" name="systemTime" />
+				<control-param id="binding" name="todayMinus" />
 				<control-param id="queryParam" name="statement" />
 			</control>
 		</field>

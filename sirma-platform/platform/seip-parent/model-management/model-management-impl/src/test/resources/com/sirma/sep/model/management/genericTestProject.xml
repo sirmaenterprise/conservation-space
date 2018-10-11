@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<definition id="genericTestProject" parentId="genericProject" isAbstract="true" type="project"> <!-- Base Test Project definition -->
+    <fields>
+        <field name="releaseVersion" type="an..10" label="releaseVersion.label" displayType="readonly" uri="chd:releaseVersion">
+            <value>2.21</value>
+        </field>
+        <field name="emf:version" type="an..50" displayType="system"/>
+        <field name="createdOn" type="datetime" displayType="system"/>
+        <field name="createdBy" type="uri" displayType="system"/>
+        <field name="modifiedOn" type="datetime" displayType="system"/>
+        <field name="modifiedBy" type="uri" displayType="system"/>
+        <field name="lockedBy" type="uri" displayType="system"/>
+        <field name="hasParent" type="uri" displayType="system"/>
+        <field name="hasThumbnail" type="uri" displayType="system"/>
+        <field name="emf:hasTemplate" type="uri" displayType="system"/>
+        <field name="parentOf" type="uri" displayType="system"/>
+        <field name="hasChild" type="uri" displayType="system"/>
+    </fields>
+    <regions>
+        <region id="systemRelations" order="40" label="systemRelations.region.label" displayType="readOnly">
+            <!-- READONLY system fields-->
+            <fields>
+                <field name="hasThumbnail" type="uri" label="hasThumbnail" displayType="readOnly" uri="emf:hasThumbnail">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Image</control-param>
+                    </control>
+                </field>
+                <field name="emf:hasTemplate" type="uri" label="hasTemplate" displayType="readOnly" uri="emf:hasTemplate">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="parentOf" type="uri" label="parentOf" displayType="readOnly" multiValued="true" uri="emf:parentOf">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="hasParent" type="uri" label="hasParent" displayType="readOnly" uri="emf:hasParent">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="partOf" type="uri" label="partOf.label" displayType="readOnly" multiValued="true" uri="ptop:partOf">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="hasChild" type="uri" label="hasChild.label" displayType="readOnly" multiValued="true" uri="emf:hasChild">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="lockedBy" type="uri" label="lockedBy" displayType="readonly" previewEmpty="false">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="createdBy" type="uri" label="createdBy.label" displayType="editable" uri="emf:createdBy">
+                    <condition id="readOnlyFields" renderAs="READONLY">[status] IN ('SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'DELETED',
+                        'COMPLETED', 'ON_HOLD', 'STOPPED')
+                    </condition>
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="createdOn" type="datetime" label="createdOn.label" displayType="editable" uri="emf:createdOn">
+                    <condition id="readOnlyFields" renderAs="READONLY">[status] IN ('SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'DELETED',
+                        'COMPLETED', 'ON_HOLD', 'STOPPED')
+                    </condition>
+                </field>
+                <field name="modifiedBy" type="uri" label="modifiedBy.label" displayType="readOnly" uri="emf:modifiedBy">
+                    <condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT')</condition>
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="modifiedOn" type="datetime" label="modifiedOn.label" displayType="readOnly" uri="emf:modifiedOn">
+                    <condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT')</condition>
+                    <!-- <condition id="readOnlyFields" renderAs="READONLY">[status] NOT IN ('SUBMITTED')</condition>-->
+                </field>
+            </fields>
+        </region>
+    </regions>
+</definition>

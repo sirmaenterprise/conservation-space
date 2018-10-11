@@ -1,74 +1,86 @@
 <?xml version="1.0"?>
 <definition id="classDefinition" type="class">
     <fields>
-        <field name="default_header" type="ANY" label="CLASS_DEFAULT_HEADER" mandatory="false" displayType="system" uri="emf:default_header" />
-        <field name="compact_header" type="an..4096" label="CLASS_COMPACT_HEADER" mandatory="false" displayType="system" uri="emf:compact_header" />
-        <field name="breadcrumb_header" type="an..4096" label="CLASS_BREADCRUMB_HEADER" mandatory="false" displayType="system" uri="emf:breadcrumb_header" />
-        <field name="tooltip_header" type="an..4096" label="CLASS_TOOLTIP_HEADER" mandatory="false" displayType="system" uri="emf:tooltip_header"/>
+        <field name="default_header" type="ANY" label="CLASS_DEFAULT_HEADER" displayType="system"/>
+        <field name="compact_header" type="an..4096" label="CLASS_COMPACT_HEADER" displayType="system"/>
+        <field name="breadcrumb_header" type="an..4096" label="CLASS_BREADCRUMB_HEADER" displayType="system"/>
+        <field name="tooltip_header" type="an..4096" label="CLASS_TOOLTIP_HEADER" displayType="system"/>
 
-	    <field name="creator" type="an..35" label="CREATOR" mandatory="false" displayType="editable" uri="dc:creator " />
-        <field name="title" type="an..40" order="60" label="GEO10001.title" mandatory="true" displayType="editable" previewEmpty="false" dmsType="cm:title" uri="dcterms:title" />
-        <field name="description" type="an..10000" order="70" label="GEO10001.description" mandatory="false" displayType="editable" previewEmpty="false" dmsType="cm:description" uri="dcterms:description" />
-        <field name="status" type="an..50" order="50" label="status.label" mandatory="false" codelist="CL1" displayType="system" previewEmpty="false" dmsType="emf:status" uri="emf:status" />
-        <field name="type" type="an..50" order="10" label="classDefinition.type" mandatory="false" codelist="CL3" displayType="readOnly" dmsType="pm:type" uri="emf:type" previewEmpty="true">
+	    <field name="creator" type="an..35" label="CREATOR" displayType="editable" uri="dc:creator" />
+        <field name="title" type="an..40" label="title.label" displayType="editable" mandatory="true" previewEmpty="false" uri="dcterms:title" />
+        <field name="description" type="an..10000" label="description.label" displayType="editable" previewEmpty="false" uri="dcterms:description" />
+        <field name="status" type="an..50" codelist="CL8" label="status.label" displayType="system" previewEmpty="false" uri="emf:status" />
+        <field name="type" type="an..50" codelist="CL7" label="classDefinition.type" displayType="readOnly" uri="emf:type" previewEmpty="true">
     		<value>classDefinition</value>
   		</field>
-	    <field name="createdOn" 	type="dateTime" label="createdOn.label" displayType="system" uri="emf:createdOn" dmsType="FORBIDDEN"/>
-	    <field name="createdBy" 	type="uri" 	label="createdBy.label" displayType="system" uri="emf:createdBy" dmsType="FORBIDDEN">
+	    <field name="createdOn" type="dateTime" label="createdOn.label" displayType="system" uri="emf:createdOn"/>
+	    <field name="createdBy" type="uri" label="createdBy.label" displayType="system" uri="emf:createdBy">
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>
-	   	<field name="modifiedOn"  	type="dateTime" displayType="system" label="modifiedOn.label" uri="emf:modifiedOn" dmsType="FORBIDDEN"/>
-	    <field name="modifiedBy"    type="uri" 	displayType="system" label="modifiedBy.label" uri="emf:modifiedBy" dmsType="FORBIDDEN">
+	   	<field name="modifiedOn" type="dateTime" displayType="system" label="modifiedOn.label" uri="emf:modifiedOn"/>
+	    <field name="modifiedBy" type="uri" displayType="system" label="modifiedBy.label" uri="emf:modifiedBy">
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
-	    </field>	 	
-	    <field name="emf:version" 	type="an..10" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>         
-        <field name="defaultTemplate" type="an..50" order="41" displayType="system" dmsType="dom:defaultTemplate" uri="emf:defaultTemplate">
+	    </field>
+	    <field name="emf:version" type="an..10" label="object.version" displayType="readonly" uri="emf:version"/>
+        <field name="defaultTemplate" type="an..50" displayType="system" uri="emf:defaultTemplate">
                 <value>ontologyClassTemplate</value>
         </field>
-        <field name="rdf:type" type="uri" order="11" label="ontologyType.label" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+        <field name="rdf:type" type="uri" label="ontologyType.label" displayType="system" uri="rdf:type">
             <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#ClassDescription</value>
         </field>
-        <field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted" dmsType="FORBIDDEN">
+        <field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted">
         	<value>false</value>
         </field>
-        <field name="hasTemplate" type="uri" label="hasTemplate" mandatory="false" displayType="system" multiValued="false" previewEmpty="false" uri="emf:hasTemplate"/>
-		
-		<field name="partOfObjectLibrary" type="boolean" label="classDefinition.partOfObjectLibrary" displayType="readonly" uri="emf:isPartOfObjectLibrary" dmsType="FORBIDDEN">
+        <field name="emf:hasTemplate" type="uri" label="hasTemplate" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate">
+      		<control id="PICKER">
+   				<control-param id="range" name="range">emf:Template</control-param>
+   			</control>
+   		</field>
+   		<field name="emf:templateVersion" type="an..10" label="templateVersion" displayType="system" uri="emf:templateVersion"/>
+		<field name="altTitle" type="ANY" displayType="system" uri="emf:altTitle" />
+
+		<field name="partOfObjectLibrary" type="boolean" label="classDefinition.partOfObjectLibrary" displayType="readonly" uri="emf:isPartOfObjectLibrary">
 			<value>false</value>
 		</field>
-		<field name="searchable" type="boolean" label="classDefinition.searchable" displayType="readonly" uri="emf:isSearchable" dmsType="FORBIDDEN">
+		<field name="searchable" type="boolean" label="classDefinition.searchable" displayType="readonly" uri="emf:isSearchable">
 			<value>false</value>
 		</field>
-		<field name="createable" type="boolean" label="classDefinition.createable" displayType="readonly" uri="emf:isCreateable" dmsType="FORBIDDEN">
+		<field name="creatable" type="boolean" label="classDefinition.creatable" displayType="readonly" uri="emf:isCreateable">
 			<value>false</value>
 		</field>
-		<field name="uploadable" type="boolean" label="classDefinition.uploadable" displayType="readonly" uri="emf:isUploadable" dmsType="FORBIDDEN">
+		<field name="uploadable" type="boolean" label="classDefinition.uploadable" displayType="readonly" uri="emf:isUploadable">
 			<value>false</value>
 		</field>
-		<field name="versionable" type="boolean" label="classDefinition.versionable" displayType="readonly" uri="emf:isVersionable" dmsType="FORBIDDEN">
+		<field name="versionable" type="boolean" label="classDefinition.versionable" displayType="readonly" uri="emf:isVersionable">
 			<value>true</value>
 		</field>
-		<field name="acceptDataTypePattern" type="an..1024" label="classDefinition.acceptDataTypePattern" displayType="readonly" uri="emf:acceptDataTypePattern" dmsType="FORBIDDEN">
+		<field name="mailboxSupportable" type="boolean" label="classDefinition.mailboxSupportable" displayType="readonly" uri="emf:isMailboxSupportable">
+			<value>false</value>
 		</field>
-		<field name="classCategory" type="an..20" label="classDefinition.classCategory" displayType="readonly" uri="emf:classCategory" dmsType="FORBIDDEN">
+		<field name="acceptDataTypePattern" type="an..1024" label="classDefinition.acceptDataTypePattern" displayType="readonly" uri="emf:acceptDataTypePattern">
+		</field>
+		<field name="classCategory" type="an..100" label="classDefinition.classCategory" displayType="readonly" uri="emf:classCategory">
+		</field>
+		<field name="allowInheritParentPermissions" type="boolean" label="classDefinition.allowInheritParentPermissions" displayType="system" uri="sec:allowInheritParentPermissions">
+		</field>
+		<field name="allowInheritLibraryPermissions" type="boolean" label="classDefinition.allowInheritLibraryPermissions" displayType="system" uri="sec:allowInheritLibraryPermissions">
 		</field>
     </fields>
-    
     <transitions>
         <transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" />
-		<transition id="viewDetails" label="viewDetails.label" eventId="viewDetails" purpose="viewDetails" displayType="hidden" /> 
+		<transition id="viewDetails" label="viewDetails.label" eventId="viewDetails" purpose="viewDetails" displayType="hidden" />
  		<transition id="addIcons" label="addIcons.label" eventId="addIcons" purpose="addIcons" tooltip="addIcon.tooltip" />
- 		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
+ 		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" actionPath="/" />
         <transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" />
 		<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" />
 		<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
 		<transition id="createTemplate" label="template.create" eventId="createTemplate" purpose="createTemplate" tooltip="createTemplate.tooltip" />
+		<transition id="manageModel" label="manageModel.label" eventId="manageModel" purpose="manageModel" tooltip="manageModel.tooltip" />
     </transitions>
-    
     <stateTransitions>
         <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
 	    <stateTransition from="APPROVED" transition="viewDetails" to="APPROVED" />
@@ -80,18 +92,14 @@
 		<stateTransition from="APPROVED" transition="addIcons" to="APPROVED"/>
 		<stateTransition from="APPROVED" transition="createInContext" to="APPROVED"/>
 		<stateTransition from="APPROVED" transition="createTemplate" to="APPROVED"/>
+		<stateTransition from="APPROVED" transition="manageModel" to="APPROVED"/>
     </stateTransitions>
-    
     <labels>
     	<label id="classDefinition.btn.createObject">
 			<value lang="bg">Нов Обект</value>
             <value lang="en">New Object</value>
         </label>
-<!--        <label id="classDefinition.restorePermissions.btn.title">
-			<value lang="bg">Възстановяване на Права</value>
-			<value lang="en">Restore Permissions</value>
-		</label>
--->	    <label id="CLASS_TOOLTIP_HEADER">
+	    <label id="CLASS_TOOLTIP_HEADER">
 			<value lang="en"><![CDATA[${eval(#{eval(
                 <span class="thumbnail-content">
                     <img class="thumbnail" src="${thumbnailUri(64)}" />
@@ -112,7 +120,28 @@
                         <span data-property="images">#{query(customQueries/countAssosiations, objectUri=${id.db}, countedType=emf:Image)}</span>
                     </span>
                 </span>
-            )})}]]></value>
+				)})}]]></value>
+			<value lang="de"><![CDATA[${eval(#{eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+                            <span data-type="${get([type])}">(${CL([type])}) </span>
+                            <span data-title="${get([title])}">${get([title])}</span>
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Status: </label>
+                        <span data-property="emf:status">${get([status])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Bilder zugeordnet: </label>
+                        <span data-property="images">#{query(customQueries/countAssosiations, objectUri=${id.db}, countedType=emf:Image)}</span>
+                    </span>
+                </span>
+				)})}]]></value>
 			<value lang="bg"><![CDATA[${eval(#{eval(
                 <span class="thumbnail-content">
                     <img class="thumbnail" src="${thumbnailUri(64)}" />
@@ -133,70 +162,134 @@
                         <span data-property="images">#{query(customQueries/countAssosiations, objectUri=${id.db}, countedType=emf:Image)}</span>
                     </span>
                 </span>
-            )})}]]></value>
+				)})}]]></value>
+			<value lang="da"><![CDATA[${eval(#{eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+                            <span data-type="${get([type])}">(${CL([type])}) </span>
+                            <span data-title="${get([title])}">${get([title])}</span>
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Status: </label>
+                        <span data-property="emf:status">${get([status])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Billeder associeret: </label>
+                        <span data-property="images">#{query(customQueries/countAssosiations, objectUri=${id.db}, countedType=emf:Image)}</span>
+                    </span>
+                </span>
+				)})}]]></value>
 		</label>
 		<label id="CLASS_DEFAULT_HEADER">
 			<value lang="en"><![CDATA[${eval(
             <span><img src="${thumbnailUri(64)}"/></span>
-            <span>           
+            <span>
                 <span class="truncate-element">
                     <a href="${link(currentInstance)}" class="instance-link has-tooltip" uid="${id.uid}">
                         <b>
-                      <!--  <span data-property="type">(${CL([type])}) </span> -->
                             <span data-property="title">${get([title])}</span>
                         </b>
                     </a>
-                    
                 </span>
-             	 <br /><span class="banner label label-warning">${if(${get([lockedBy])} <> null).then(${label(object.lockedBy)}${get([lockedBy])})}</span>
-      <!--       <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
-         --> </span>)}]]></value>
+             	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+			</span>)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+            <span><img src="${thumbnailUri(64)}"/></span>
+            <span>
+                <span class="truncate-element">
+                    <a href="${link(currentInstance)}" class="instance-link has-tooltip" uid="${id.uid}">
+                        <b>
+                            <span data-property="title">${get([title])}</span>
+                        </b>
+                    </a>
+                </span>
+             	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt von)}${user([lockedBy])}</span>)}
+			</span>)}]]></value>
 			<value lang="bg"><![CDATA[${eval(
             <span><img src="${thumbnailUri(64)}"/></span>
-            <span>               
+            <span>
                 <span class="truncate-element">
                     <a href="${link(currentInstance)}" class="instance-link has-tooltip" uid="${id.uid}">
                         <b>
-                     <!--   <span data-property="type">(${CL([type])}) </span> --> 
                             <span data-property="title">${get([title])}</span>
                         </b>
                     </a>
                 </span>
-                <br /><span class="banner label label-warning">${if(${get([lockedBy])} <> null).then(${label(object.lockedBy)}${get([lockedBy])})}</span>
-     <!--          <br />актуализиран от: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
-      -->    </span>)}]]></value>
+                ${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+			</span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a href="${link(currentInstance)}" class="instance-link has-tooltip" uid="${id.uid}">
+							<b>
+								<span data-property="title">${get([title])}</span>
+							</b>
+						</a>
+					</span>
+					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>
+			)}]]></value>
 		</label>
 		<label id="CLASS_COMPACT_HEADER">
 			<value lang="en"><![CDATA[${eval(
             <span><img src="${thumbnailUri(16)}"/></span>
             <span>
-                <span class="banner label label-warning">${if(${get([lockedBy])} <> null).then(${label(object.lockedBy)}${get([lockedBy])})}</span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
                 <span class="truncate-element">
                     <a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
                         <b>
-                 <!--       <span data-property="type">(${CL([type])}) </span>   -->
                             <span data-property="title">${get([title])}</span>
-                        </b>                        
+                        </b>
+                    </a>
+                </span>
+            </span>)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+            <span><img src="${thumbnailUri(16)}"/></span>
+            <span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span class="truncate-element">
+                    <a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
+                        <b>
+                            <span data-property="title">${get([title])}</span>
+                        </b>
                     </a>
                 </span>
             </span>)}]]></value>
 			<value lang="bg"><![CDATA[${eval(
             <span><img src="${thumbnailUri(16)}"/></span>
             <span>
-                <span class="banner label label-warning">${if(${get([lockedBy])} <> null).then(${label(object.lockedBy)}${get([lockedBy])})}</span>
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
                 <span class="truncate-element">
                     <a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
                         <b>
-              <!--          <span data-property="type">(${CL([type])}) </span> -->
                             <span data-property="title">${get([title])}</span>
-                        </b>                        
+                        </b>
                     </a>
                 </span>
             </span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<span class="truncate-element">
+						<a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
+							<b>
+								<span data-property="title">${get([title])}</span>
+							</b>
+						</a>
+					</span>
+				</span>
+			)}]]></value>
 		</label>
 		<label id="CLASS_BREADCRUMB_HEADER">
 			<value lang="bg"><![CDATA[${eval(
-            <span><img src="${thumbnailUri(16)}"/></span>
+			<span><img src="${thumbnailUri(16)}"/></span>
             <a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
                 <span data-property="title">${get([title])}</span>
             </a>)}]]></value>
@@ -205,42 +298,17 @@
             <a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
                 <span data-property="title">${get([title])}</span>
             </a>)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+            <span><img src="${thumbnailUri(16)}"/></span>
+            <a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
+                <span data-property="title">${get([title])}</span>
+            </a>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<a class="instance-link has-tooltip" href="${link(currentInstance)}" uid="${id.uid}">
+					<span data-property="title">${get([title])}</span>
+				</a>
+			)}]]></value>
 		</label>
-        <label id="CREATOR">
-    			<value lang="bg">Създадена от</value>
-    			<value lang="en">Created by</value>
-    	</label>
-        <label id="classDefinition.partOfObjectLibrary">
-    			<value lang="bg">Библиотека</value>
-    			<value lang="en">Library</value>
-    	</label>
-        <label id="classDefinition.searchable">
-    			<value lang="bg">Може да се търси</value>
-    			<value lang="en">Searchable</value>
-    	</label>
-        <label id="classDefinition.createable">
-    			<value lang="bg">Може да се създава</value>
-    			<value lang="en">Createable</value>
-    	</label>
-        <label id="classDefinition.uploadable">
-    			<value lang="bg">Може да се качва</value>
-    			<value lang="en">Uploadable</value>
-    	</label>
-        <label id="classDefinition.versionable">
-    			<value lang="bg">Може да се версионира</value>
-    			<value lang="en">Versionable</value>
-    	</label>
-        <label id="classDefinition.acceptDataTypePattern">
-    			<value lang="bg">Филтър за качване</value>
-    			<value lang="en">Data type filter</value>
-    	</label>
-        <label id="classDefinition.classCategory">
-    			<value lang="bg">Категория</value>
-    			<value lang="en">Category</value>
-    	</label>
-    	<label id="classDefinition.type">
-  				<value lang="bg">Библиотека</value>
-            	<value lang="en">Library</value>
-        </label>
     </labels>
 </definition>

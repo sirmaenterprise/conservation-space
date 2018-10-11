@@ -1,0 +1,22 @@
+<div class="tenant-configuration">
+  <seip-input-filter ng-if="tenantConfiguration.filterConfig"
+                     config="::tenantConfiguration.filterConfig"
+                     ng-model="tenantConfiguration.filterKeyWord"
+                     on-key-pressed="tenantConfiguration.filterConfigurations()"
+                     on-button-clicked="tenantConfiguration.filterConfigurations()"></seip-input-filter>
+
+  <seip-form-wrapper ng-if="tenantConfiguration.formReady"
+                     config="tenantConfiguration.wrapperConfig"
+                     form-config="tenantConfiguration.formConfig"></seip-form-wrapper>
+  <div class="form-group pull-right">
+    <button class="btn btn-sm btn-primary save-button"
+            ng-disabled="!tenantConfiguration.isFormValid()"
+            ng-click="::tenantConfiguration.saveModifiedConfigurations()">
+      {{ ::'administration.tenant.button.save' | translate }}
+    </button>
+    <button class="btn btn-sm btn-default cancel-button"
+            ng-click="::tenantConfiguration.cancelConfigurationChanges()">
+      {{ ::'administration.tenant.button.cancel' | translate }}
+    </button>
+  </div>
+</div>

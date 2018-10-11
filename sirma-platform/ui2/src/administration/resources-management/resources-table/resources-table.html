@@ -1,0 +1,71 @@
+<div class="resources-table">
+
+  <table class="table table-bordered">
+    <caption>
+      <div class="table-header">
+        {{ ::resourcesTable.config.headerTitle | translate }}
+      </div>
+      <div class="table-actions">
+        <button type="button" class="config-btn"
+                data-tooltip="{{ ::'resources.table.configure' | translate }}"
+                ng-click="resourcesTable.configureTable()">
+          <i class="fa fa-cog"></i>
+        </button>
+      </div>
+    </caption>
+
+    <thead>
+    <tr>
+      <th>
+        {{ ::'resources.table.entity.header' | translate }}
+      </th>
+      <th ng-repeat="property in resourcesTable.selectedProperties">
+        {{ ::resourcesTable.getPropertyLabel(property.name) }}
+      </th>
+      <th>
+        {{ ::'resources.table.actions.header' | translate }}
+      </th>
+    </tr>
+    </thead>
+
+    <tr ng-repeat="resource in resourcesTable.resources track by resource.id">
+      <td>
+        <seip-static-instance-header header-type="'default_header'"
+                                     header="::resource.headers['default_header']"></seip-static-instance-header>
+      </td>
+
+      <td ng-repeat="property in resourcesTable.selectedProperties">
+        <span ng-switch="resourcesTable.getPropertyType(property.name)">
+          <span ng-switch-when="PICKER">
+            <seip-instance-selector ng-if="resourcesTable.relations[resource.id][property.name].model"
+              instance-model-property="::resourcesTable.relations[resource.id][property.name].model"
+              config="::resourcesTable.relations[resource.id][property.name].config"
+              class="form-field">
+            </seip-instance-selector>
+          </span>
+          <span ng-switch-when="codelist">
+            {{ resource.properties[property.name].text }}
+          </span>
+          <span ng-switch-when="text">
+            {{ resource.properties[property.name] }}
+          </span>
+          <span ng-switch-when="EMAIL">
+            {{ resource.properties[property.name] }}
+          </span>
+        </span>
+      </td>
+
+      <td>
+        <div class="edit-link">
+          <a href="javascript:void(0);" ng-click="resourcesTable.editResource(resource)">
+            {{ ::'resources.table.edit.action' | translate }}
+          </a>
+        </div>
+
+        <seip-actions-menu context="::resource.context"></seip-actions-menu>
+      </td>
+    </tr>
+
+  </table>
+
+</div>

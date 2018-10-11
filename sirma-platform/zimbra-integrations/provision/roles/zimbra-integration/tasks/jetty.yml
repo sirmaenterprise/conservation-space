@@ -1,0 +1,15 @@
+- name: Remove Header Filter Mapping to disable sameorigin X-Frame-Option
+  replace:
+    path: /opt/zimbra/jetty/etc/zimbra.web.xml.in
+    regexp: '<filter-mapping>\s+<filter-name>Set Header Filter<\/filter-name>\s+<url-pattern>\/\*<\/url-pattern>\s+<\/filter-mapping>'
+    replace: ''
+
+- name: Enable Zimbra to be embedded in an iframe
+  lineinfile:
+    path: /opt/zimbra/jetty/etc/zimbra.web.xml.in
+    insertafter: '<filter-class>com.zimbra.webClient.filters.SetHeaderFilter</filter-class>'
+    line: |
+      <init-param>
+        <param-name>allowInFrame</param-name>
+        <param-value>true</param-value>
+      </init-param>

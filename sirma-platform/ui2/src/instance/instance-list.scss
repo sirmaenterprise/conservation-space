@@ -1,0 +1,48 @@
+@import "../style/variables";
+@import "../style/mixins";
+
+.instance-list {
+  .table {
+    table-layout: fixed;
+  }
+
+  .instance-list-item-wrapper:last-child {
+    // Bootstrap's table lacks a bottom border for the last row.
+    border-bottom: 1px solid $idoc-tabs-border-color;
+  }
+
+  .instance-list-item {
+
+    width: 100%;
+    display: flex;
+    padding: 5px 0 5px 10px;
+    position: relative;
+
+    .header-container {
+      min-width: 0;
+      @include fit-header-inside-container();
+    }
+
+    &.selectable {
+      cursor: pointer;
+    }
+
+    label {
+      &.state-disabled {
+        cursor: not-allowed;
+      }
+    }
+
+    .select-control {
+      position: absolute;
+      top: 50% !important;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    /* Enforce vertical align in searches because they use different wrapper and selectors doesn't match */
+    .instance-data span:not(.header-icon):not(.lock-label) span:not(.badge) {
+      vertical-align: bottom;
+    }
+  }
+}

@@ -1,166 +1,224 @@
-<?xml version="1.0"?>
-<definition id="commonDocument" type="document" isAbstract="true">
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="commonDocument" parentId="entity" type="document" isAbstract="true">
+	<fields>
+		<!-- HEADERS AND TOOLTIP -->
+		<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER" displayType="system"/>
+		<field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="an..4096" label="DOCUMENT_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="tooltip_header" type="ANY" label="DOCUMENT_TOOLTIP_HEADER" displayType="system"/>
 
-	<!-- Common document data -->
-
-     	<fields>
-			<!-- headers and tooltip -->
-			<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-            <field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-            <field name="breadcrumb_header" type="an..4096" label="DOCUMENT_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-            <field name="tooltip_header" type="an..4096" label="DOCUMENT_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-
-			<!-- system fields -->
-			<field name="emf:isDeleted" type="boolean"  displayType="system" uri="emf:isDeleted" dmsType="FORBIDDEN"><value>false</value></field>
-			<field name="emf:contentId" type="an..40"  displayType="system" uri="emf:contentId" dmsType="FORBIDDEN"/>
-			<field name="rdf:type" 		type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-				<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document</value>
-			</field>
-			<field name="documentLocation" type="an..500" label="documents.document-location" displayType="system" dmsType="-nodeRef" /><!-- attachmentLocation-->
-			<field name="workingCopyLocation" type="an..500" displayType="system" previewEmpty="false" dmsType="FORBIDDEN" />
-			<field name="content" type="any" label="document.content" displayType="system"  dmsType="FORBIDDEN" uri="emf:content" />
-			<field name="ocrContent" type="any" label="document.ocr.content" displayType="system"  dmsType="FORBIDDEN" uri="emf:ocrContent" />
-			<field name="ocrStatus"	type="any" label="document.ocr.status" displayType="system"  dmsType="FORBIDDEN" uri="emf:ocrStatus"><value>Not Started</value></field>
-			<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
-	        <field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
-			<field name="outcome" type="an..50" codelist="CL9" displayType="readOnly" label="outcome.label" previewEmpty="false" uri="emf:outcome" />
-			<field name="integrated" type="boolean" label="integrated.label" displayType="hidden" uri="emf:integrated">
-				<value>false</value>
-			</field>
-			<field name="uri" type="an..50" label="uri.label" displayType="hidden" tooltip="uri.tooltip" uri="emf:uri" />
-	
-			<!-- general fields for each primary object -->
-		    <field name="identifier" 	type="an..180" label="documents.identifier" mandatory="false" displayType="readonly" dmsType="-emf:identifier" rnc="${seq({+documentSequence})}" uri="dcterms:identifier">
-				<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
-			</field>
-			<field name="type" 			type="an..180" codelist="CL210" label="documents.document-type" mandatory="false" displayType="readonly" previewEmpty="false" dmsType="emf:type" uri="emf:type"/> <!-- attachmentType -->
-		    <field name="title" 		type="an..100" label="documents.document-title" mandatory="true" displayType="editable" dmsType="cm:title" uri="dcterms:title"/>
-		    <field name="status"   		type="an..35" codelist="CL8" label="status.label" mandatory="false" displayType="system" previewEmpty="false" dmsType="emf:status" uri="emf:status"/>
-			<field name="description" 	type="an..180" label="documents.additional-description" displayType="editable" dmsType="cm:description" uri="dcterms:description"/>
-			<field name="createdOn" 	type="dateTime" label="documents.created-on" displayType="hidden" dmsType="-cm:created" uri="emf:createdOn"/><!-- uploadedOn -->
-			<field name="createdBy" 	type="uri" label="documents.created-from" displayType="hidden" dmsType="-cm:creator" uri="emf:createdBy"><!-- uploadedFrom -->
-				<control id="PICKER">
-	    			<control-param id="range" name="range">emf:User</control-param>
-	    		</control>
-	  		</field>
-		    <field name="modifiedOn" 	type="dateTime" label="modifiedOn.label" displayType="hidden" dmsType="-cm:modified" uri="emf:modifiedOn"/>
-		    <field name="modifiedBy" 	type="uri" label="modifiedBy.label" displayType="hidden" dmsType="-cm:modifier" uri="emf:modifiedBy">
-				<control id="PICKER">
-	    			<control-param id="range" name="range">emf:User</control-param>
-	    		</control>
-	   		</field>
-			<field name="completedOn" type="datetime" displayType="hidden" label="completedOn.label" previewEmpty="false" dmsType="-cm:completed" uri="emf:completedOn" />
-			<field name="hasRevision" type="uri" label="hasRevision.label" mandatory="false" displayType="readonly" multiValued="true" previewEmpty="false" uri="emf:hasRevision" >
-				<control id="PICKER">
-	    		</control>
-	    	</field>
-			<field name="isRevisionOf" type="uri" label="isRevisionOf.label" mandatory="false" displayType="readonly" previewEmpty="false" uri="emf:isRevisionOf" >
-				<control id="PICKER">
-	    		</control>
-	    	</field>
-			<field name="lastPublishedRevision" type="uri" label="lastPublishedRevision.label" mandatory="false" displayType="readonly" previewEmpty="false" uri="emf:lastPublishedRevision" >
-				<control id="PICKER">
-	    		</control>
-	    	</field>
-			<field name="lastRevision" type="uri" label="lastRevision.label" mandatory="false" displayType="readonly" previewEmpty="false" uri="emf:lastRevision" >
-				<control id="PICKER">
-	    		</control>
-	    	</field>
-			<field name="nextRevision" type="uri" label="nextRevision.label" mandatory="false" displayType="readonly" previewEmpty="false" uri="emf:nextRevision" >
-				<control id="PICKER">
-	    		</control>
-	    	</field>
-			<field name="previousRevision" type="uri" label="previousRevision.label" mandatory="false" displayType="readonly" previewEmpty="false" uri="emf:previousRevision" >
-				<control id="PICKER">
-	    		</control>
-	    	</field>
-	    		
-			<!-- document fields -->
-			<field name="name" 			type="an..180" label="documents.file-name" mandatory="false" displayType="hidden" dmsType="cm:name" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName"/>			<!-- documentName -->
-		    <!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
-		    <field name="fileSize" 		type="an..10" label="documents.file-size" mandatory="false" displayType="system" previewEmpty="false" />
-		    
-		    <!-- When you use this field the control BYTE_FORMAT is required -->
-		    <field name="size" type="n..10" label="documents.file-size" mandatory="false" displayType="hidden" previewEmpty="false" uri="emf:size">
-		    	<control id="BYTE_FORMAT" />
-		    </field>
-		    
-			<field name="mimetype" 		type="an..20" codelist="CL215" label="documents.mimetype" displayType="hidden" dmsType="-cm:content.mimetype" previewEmpty="false" uri="emf:mimetype"/>
-		    <field name="emf:version" 	type="an..10" label="documents.document-version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>
-		    <field name="emf:revisionNumber" type="an..10" label="documents.document-revision-number" displayType="system" dmsType="FORBIDDEN" previewEmpty="false" uri="emf:revisionNumber"/>
-			<field name="lockedBy" 		type="uri" label="documents.locked-by" displayType="readonly" dmsType="FORBIDDEN" previewEmpty="false">
-				<control id="PICKER">
-	    			<control-param id="range" name="range">emf:User</control-param>
-	    		</control>
-			</field>				
-			<field name="parentOf" type="uri" label="parentOf" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-				<control id="PICKER">
-					<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group</control-param>
-				</control>
-			</field>
-			<field name="hasParent" type="uri" label="hasParent" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasParent" >
-				<control id="PICKER">
-					<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group</control-param>
-				</control>
-			</field>
-			<field name="partOf" type="uri" label="partOf.label" mandatory="false" displayType="system" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-     			<control id="PICKER">
-      				<control-param id="range" name="range"></control-param>
-     			</control>
-    		</field>
-    		<field name="hasChild" type="uri" label="hasChild.label" mandatory="false" displayType="system" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-     			<control id="PICKER">
-      				<control-param id="range" name="range"></control-param>
-     			</control>
-    		</field>
-    		<field name="hasTemplate" type="uri" label="hasTemplate" mandatory="false" displayType="system" multiValued="false" previewEmpty="false" uri="emf:hasTemplate" />
-		</fields>
+		<!-- SYSTEM FIELDS -->
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document</value>
+		</field>
+		<field name="emf:contentId" type="an..40" displayType="system" uri="emf:contentId"/>
+		<field name="documentLocation" type="an..500" label="location.label" displayType="system"/> <!-- attachmentLocation-->
+		<field name="workingCopyLocation" type="an..500" displayType="system" previewEmpty="false"/>
+		<field name="content" type="any" label="document.content" displayType="system" uri="emf:content"/>
+		<field name="fileSize" type="an..10" label="size.label" displayType="system" previewEmpty="false"/> <!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
+		<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
+		<field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
+		<field name="emf:revisionNumber" type="an..10" label="revisionNumber.label" displayType="system" previewEmpty="false" uri="emf:revisionNumber" />
+		<field name="emf:revisionType" type="URI" label="revisionType.label" displayType="system" previewEmpty="false" uri="emf:revisionType" />
+		<field name="emf:publishedOn" type="datetime" label="publishedOn.label" displayType="system" previewEmpty="false" uri="emf:publishedOn" />
+		<field name="emf:publishedBy" type="uri" label="publishedBy.label" displayType="system" previewEmpty="false" uri="emf:publishedBy">
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:User</control-param>
+			</control>
+		</field>
 		
-		<transitions>
-			<transition id="download" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" />
-			<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" />
-			<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" />
-			<transition id="delete" label="delete.label" eventId="delete" purpose="delete" confirmation="confirmation.action" tooltip="delete.tooltip" />
-			<transition id="saveAsTemplate" label="saveAsTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" />
-			<transition id="move" label="move.label" eventId="move" purpose="move" tooltip="move.tooltip" />
-			<transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" />
-			<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" />	
-			<transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" />
-			<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" />
-			<transition id="addThumbnail" label="addThumbnail.label" eventId="addThumbnail" purpose="addThumbnail" tooltip="addThumbnail.tooltip" />
-			<transition id="printTab" label="printTab.label" eventId="printTab" purpose="printTab" tooltip="printTab.tooltip" />
-			<transition id="exportTabPDF" label="exportTabPDF.label" eventId="exportTabPDF" purpose="exportTabPDF" tooltip="exportTabPDF.tooltip" />
-			<transition id="exportPDF" label="exportPDF.label" eventId="exportPDF" purpose="exportPDF" tooltip="exportPDF.tooltip" />
-			<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" />
-			<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" />
-			<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />		
-			<transition id="revertVersion" label="revertVersion.label" eventId="revertVersion" purpose="revertVersion" confirmation="revert.confirmation.action" tooltip="revertVersion.tooltip"/>
-		</transitions>
-		<stateTransitions>
-			<stateTransition from="INIT" transition="create" to="DRAFT"/>
+		<!-- GENERAL DATA FIELDS FOR DOCUMENT -->
+		<field name="type" type="an..180" codelist="CL6"> 
+			<value>baseDocument</value>
+		</field>
+		<field name="status" type="an..35" codelist="CL5"/>
+		<field name="identifier" type="an..180" label="uniqueIdentifier.label" displayType="readonly" rnc="${seq({+documentSequence})}" uri="dcterms:identifier">
+			<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+		</field>
+		<field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
+		<field name="integrated" type="boolean" label="integrated.label" displayType="readOnly" uri="emf:integrated">
+			<value>false</value>
+		</field>
+		<field name="uri" type="an..50" label="uri.label" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri" />
+		<field name="completedOn" type="datetime" label="completedOn.label" displayType="readOnly" previewEmpty="false" uri="emf:completedOn" />
 
-			<stateTransition from="DRAFT" transition="download" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="editDetails" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="delete" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="move" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
-			<stateTransition from="DRAFT" transition="print" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="printTab" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="exportPDF" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="exportWord" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT"/>
-			<stateTransition from="DRAFT" transition="createInContext" to="DRAFT"/>		
-			<stateTransition from="DRAFT" transition="revertVersion" to="DRAFT" />
-			
-			<stateTransition from="*" transition="delete" to="DELETED" />
-		</stateTransitions>
+		<!-- document fields -->
+		<field name="name" type="an..180" label="name.label" displayType="readOnly" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName" /> <!-- documentName -->
+		<field name="size" type="n..10" label="size.label" displayType="readOnly" previewEmpty="false" uri="emf:size"> <!-- When you use this field the control BYTE_FORMAT is required -->
+			<control id="BYTE_FORMAT" />
+		</field>
+		<field name="mimetype" type="an..20" codelist="CL30" label="mimetype.label" displayType="readOnly" previewEmpty="false" uri="emf:mimetype" />
 
-   	<labels>
+		<!-- The ocr language of a document -->
+		<field name="ocrLanguage" type="an..20" codelist="CL25" label="ocrLanguage.label" displayType="readOnly" previewEmpty="false" uri="emf:ocrLanguage" >
+			<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('DRAFT')</condition>
+		</field>
+
+		<!-- GENERAL OBJECT FIELDS FOR DOCUMENT -->
+		<field name="hasRevision" type="uri" label="hasRevision.label" displayType="readonly" multiValued="true" previewEmpty="false" uri="emf:hasRevision">
+			<control id="PICKER" />
+		</field>
+		<field name="isRevisionOf" type="uri" label="isRevisionOf.label" displayType="readonly" previewEmpty="false" uri="emf:isRevisionOf">
+			<control id="PICKER" />
+		</field>
+		<field name="lastPublishedRevision" type="uri" label="lastPublishedRevision.label" displayType="readonly" previewEmpty="false" uri="emf:lastPublishedRevision">
+			<control id="PICKER" />
+		</field>
+		<field name="lastRevision" type="uri" label="lastRevision.label" displayType="readonly" previewEmpty="false" uri="emf:lastRevision">
+			<control id="PICKER" />
+		</field>
+		<field name="nextRevision" type="uri" label="nextRevision.label" displayType="readonly" previewEmpty="false" uri="emf:nextRevision">
+			<control id="PICKER" />
+		</field>
+		<field name="previousRevision" type="uri" label="previousRevision.label" displayType="readonly" previewEmpty="false" uri="emf:previousRevision">
+			<control id="PICKER" />
+		</field>
+	</fields>
+
+	<transitions>
+		<transition id="download" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" actionPath="/" />
+		<transition id="editOffline" label="editOffline.label" eventId="editOffline" purpose="editOffline" tooltip="editOffline.tooltip" />
+		<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" actionPath="/" />
+		<transition id="approve" label="approve.label" eventId="approve" purpose="transition" immediate="true" tooltip="approve.tooltip" />
+		<transition id="reject" label="reject.label" eventId="reject" purpose="transition" immediate="true" tooltip="reject.tooltip" />
+		<transition id="clone" label="clone.label" eventId="clone" purpose="clone" tooltip="clone.tooltip" />
+		<transition id="publish" label="publish.label" eventId="publish" purpose="publish" tooltip="publish.tooltip" />
+		<transition id="publishAsPdf" label="publishAsPdf.label" eventId="publishAsPdf" purpose="publishAsPdf" tooltip="publishAsPdf.tooltip" />
+		<transition id="uploadRevision" label="uploadRevision.label" eventId="uploadRevision" purpose="uploadRevision" tooltip="uploadRevision.tooltip" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="DRAFT"/>
+		<stateTransition from="NOT_CREATED" transition="create" to="DRAFT"/>
+		<stateTransition from="INIT" transition="clone" to="DRAFT" />
+		
+		<stateTransition from="DRAFT" transition="download" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="delete" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="move" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="lock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="unlock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="print" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="printTab" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportPDF" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportWord" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="revertVersion" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="editOffline" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="changeTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="updateTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
+		
+		<stateTransition from="DRAFT" transition="approve" to="APPROVED" />
+		<stateTransition from="DRAFT" transition="reject" to="REJECTED" />
+		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="publish" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="DRAFT" transition="publish" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="publishAsPdf" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="DRAFT" transition="publishAsPdf" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="uploadRevision" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="DRAFT" transition="uploadRevision" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="clone" to="DRAFT" />
+		
+		<stateTransition from="PENDING_APPROVAL" transition="download" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="clone" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="saveAsTemplate" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="lock" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="unlock" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="managePermissions" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="addThumbnail" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="publish" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="PENDING_APPROVAL" transition="publish" to="DRAFT" />
+		<stateTransition from="PENDING_APPROVAL" transition="publishAsPdf" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="PENDING_APPROVAL" transition="publishAsPdf" to="DRAFT" />
+		<stateTransition from="PENDING_APPROVAL" transition="print" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="printTab" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="exportTabPDF" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="exportPDF" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="exportWord" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="exportTabWord" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="createInContext" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="changeTemplate" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="updateTemplate" to="PENDING_APPROVAL" />
+		<stateTransition from="PENDING_APPROVAL" transition="addWatchers" to="PENDING_APPROVAL" />
+
+		<stateTransition from="APPROVED" transition="download" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="managePermissions" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="publish" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="publish" to="DRAFT" />
+		<stateTransition from="APPROVED" transition="publishAsPdf" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="publishAsPdf" to="DRAFT" />
+		<stateTransition from="APPROVED" transition="uploadRevision" to="APPROVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="APPROVED" transition="uploadRevision" to="DRAFT" />
+		<stateTransition from="APPROVED" transition="print" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="printTab" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportPDF" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="clone" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="addWatchers" to="APPROVED" />
+
+		<stateTransition from="REJECTED" transition="download" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="saveAsTemplate" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="managePermissions" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="publish" to="REJECTED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="REJECTED" transition="publish" to="DRAFT" />
+		<stateTransition from="REJECTED" transition="publishAsPdf" to="REJECTED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="REJECTED" transition="publishAsPdf" to="DRAFT" />
+		<stateTransition from="REJECTED" transition="uploadRevision" to="REJECTED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="REJECTED" transition="uploadRevision" to="DRAFT" />
+		<stateTransition from="REJECTED" transition="print" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="printTab" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportTabPDF" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportPDF" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportWord" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="exportTabWord" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="clone" to="REJECTED" />
+		<stateTransition from="REJECTED" transition="addWatchers" to="REJECTED" />
+
+		<stateTransition from="OBSOLETE" transition="download" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="saveAsTemplate" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="print" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportPDF" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportWord" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="exportTabWord" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE" />
+
+		<stateTransition from="*" transition="obsolete" to="OBSOLETE" />
+	</stateTransitions>
+
+	<labels>
 		<label id="DOCUMENT_TOOLTIP_HEADER">
 			<value lang="en"><![CDATA[${eval(
                 <span class="thumbnail-content">
@@ -169,7 +227,7 @@
                 <span class="tooltip-data">
                     <span class="tooltip-header">
                         <a href="${link(currentInstance)}" class="instance-link" data-mimetype="${get([mimetype])}" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
-                            (<span data-type="${get([type])}">${CL([type])}</span>) 
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
                             <span data-title="title">${get([title])}</span>
                         </a>
                     </span>
@@ -193,14 +251,45 @@
                     </span>
                 </span>
             )}]]></value>
-            <value lang="bg"><![CDATA[${eval(
+			<value lang="de"><![CDATA[${eval(
                 <span class="thumbnail-content">
                     <img class="thumbnail" src="${thumbnailUri(64)}" />
                 </span>
                 <span class="tooltip-data">
                     <span class="tooltip-header">
                         <a href="${link(currentInstance)}" class="instance-link" data-mimetype="${get([mimetype])}" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
-                            (<span data-type="${get([type])}">${CL([type])}</span>) 
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
+                            <span data-title="title">${get([title])}</span>
+                        </a>
+                    </span>
+					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Object ID: </label><span data-property="objectId">${id.uid}</span></span>)}
+                    <span class="tooltip-row">
+                        <label>Ausführung: </label>
+                        <span data-property-version="emf:version">${get([emf:version])}</span>
+                    </span>
+					<span class="tooltip-row">
+                        <label>Revision: </label>
+                        <span data-property="emf:revisionNumber">${get([emf:revisionNumber])}</span>
+                    </span>
+					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Description: </label><span data-property="description">${get([description])}</span></span>)}
+                    <span class="tooltip-row">
+                        <label>Geändert von: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geändert am: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )}]]></value>
+			<value lang="bg"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-mimetype="${get([mimetype])}" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
                             <span data-title="${get([title])}">${get([title])}</span>
                         </a>
                     </span>
@@ -220,6 +309,39 @@
                     </span>
                     <span class="tooltip-row">
                         <label>Последно актуализиран на: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )}]]></value>
+			<value lang="da"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-mimetype="${get([mimetype])}" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            (<span data-type="${get([type])}">${CL([type])}</span>)
+                            <span data-title="title">${get([title])}</span>
+                        </a>
+                    </span>
+					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Object ID: </label><span data-property="objectId">${id.uid}</span></span>)}
+                    <span class="tooltip-row">
+                        <label>Version: </label>
+                        <span data-property-version="emf:version">${get([emf:version])}</span>
+                    </span>
+					${if(${get([emf:revisionNumber])}<>null).then(
+						<span class="tooltip-row">
+							<label>Revision: </label>
+							<span data-property="emf:revisionNumber">${get([emf:revisionNumber])}</span>
+						</span>
+					)}
+					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Beskrivelse: </label><span data-property="description">${get([description])}</span></span>)}
+                    <span class="tooltip-row">
+                        <label>Opdateret af: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Opdateret: </label>
                         <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
                     </span>
                 </span>
@@ -296,15 +418,85 @@
 				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
             </span>
 			)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(64)}"/></span>
+			<span>
+                <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                    <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+                        ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+						<b>
+							Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+							(<span data-property="type">${CL([type])}</span>)&nbsp;
+							<span data-property="title">${get([title])}</span>&nbsp;
+						</b>
+						).else(
+						<b>
+							(<span data-property="type">${CL([type])}</span>)&nbsp;
+							<span data-property="title">${get([title])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+						</b>
+						)}
+						<b>
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+						</b>
+                    </a>
+                </span>
+                <br />Zuletzt geändert von: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt von)}${user([lockedBy])}</span>)}
+            </span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(64)}"/></span>
+			<span>
+                <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+                    <a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+                        ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+						<b>
+							Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+							(<span data-property="type">${CL([type])}</span>)&nbsp;
+							<span data-property="title">${get([title])}</span>&nbsp;
+						</b>
+						).else(
+						<b>
+							(<span data-property="type">${CL([type])}</span>)&nbsp;
+							<span data-property="title">${get([title])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+						</b>
+						)}
+						<b>
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+						</b>
+                    </a>
+                </span>
+                <br />Sidste&nbsp;opdateret&nbsp;af:&nbsp;<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+            </span>
+			)}]]></value>
 		</label>
-        <label id="DOCUMENT_COMPACT_HEADER">
+		<label id="DOCUMENT_COMPACT_HEADER">
 			<value lang="bg"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}            	 
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
             <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
             	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
@@ -322,13 +514,13 @@
                 </a>
             </span>
             )}]]></value>
-            <value lang="en"><![CDATA[${eval(
+			<value lang="en"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
             <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
             	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
@@ -346,103 +538,116 @@
                 </a>
             </span>
             )}]]></value>
+			<value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+            	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+                    ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+						Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+					).else(
+						<span data-property="type">(${CL([type])})</span>&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+					)}
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+                </a>
+            </span>
+            )}]]></value>
+			<value lang="da"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
+            	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+                    ${if(${or(${var.isLatest} or ${var.isRevision})}).then(Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;)}
+					(<span data-property="type">${CL([type])}</span>)&nbsp;
+					<span data-property="title">${get([title])}</span>&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+                </a>
+            </span>
+            )}]]></value>
 		</label>
-        <label id="DOCUMENT_BREADCRUMB_HEADER">
+		<label id="DOCUMENT_BREADCRUMB_HEADER">
 			<value lang="bg"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
  				<span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span data-property="revisionNumber">Ревизия:${get([emf:revisionNumber])}&nbsp;</span> 
+							<span data-property="revisionNumber">Ревизия:${get([emf:revisionNumber])}&nbsp;</span>
 							<span data-property="title">${get([title])}</span>
 						).else(
 							<span data-property="title">${get([title])}</span>
 						)}
 					</a>
 				</span>)}]]></value>
-            <value lang="en"><![CDATA[${eval(
+			<value lang="en"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
                 <span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span> 
+							<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>
 							<span data-property="title">${get([title])}</span>
 						).else(
 							<span data-property="title">${get([title])}</span>
 						)}
 					</a>
 				</span>)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                <span>
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+							<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>
+							<span data-property="title">${get([title])}</span>
+						).else(
+							<span data-property="title">${get([title])}</span>
+						)}
+					</a>
+				</span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					<span>
+						<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+							${if(${or(${var.isLatest} or ${var.isRevision})}).then(<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>)}
+							<span data-property="title">${get([title])}</span>
+						</a>
+				</span>
+			)}]]></value>
 		</label>
-
-		<label id="document.lockedBy">
-			<value lang="bg">Този документ е заключен за редакция от </value>
-			<value lang="en">This document is locked by </value>
-		</label>
-		<label id="document.confirm">
-			<value lang="bg">Сигурни ли сте, че искате да продължите с операцията {{operationName}}?</value>
-			<value lang="en">Are you sure you want to continue with action {{operationName}}?</value>
-		</label>
-		<label id="documents.file-name">
-			<value lang="bg">Име на файл</value>
-			<value lang="en">Name</value>
-		</label>
-		<label id="documents.document-type">
-			<value lang="bg">Документ</value>
-			<value lang="en">Type</value>
-		</label>
-		<label id="documents.document-title">
-			<value lang="bg">Наименование на документ</value>
-			<value lang="en">Title</value>
-		</label>
-		<label id="documents.additional-description">
-			<value lang="bg">Описание</value>
-			<value lang="en">Description</value>
-		</label>
-		<label id="documents.created-from">
-			<value lang="bg">Създаден от</value>
-			<value lang="en">Created by</value>
-		</label>
-		<label id="documents.created-on">
-			<value lang="bg">Създаден на</value>
-			<value lang="en">Created on</value>
-		</label>
-		<label id="documents.file-size">
-			<value lang="bg">Размер на файла</value>
-			<value lang="en">Size</value>
-		</label>
-		<label id="documents.mimetype">
-			<value lang="bg">Тип на файла</value>
-			<value lang="en">Mimetype</value>
-		</label>
-		<label id="documents.document-location">
-			<value lang="bg">Линк към документа</value>
-			<value lang="en">Document location</value>
-		</label>
-		<label id="documents.document-version">
-			<value lang="bg">Версия</value>
-			<value lang="en">Version</value>
-		</label>
-		<label id="documents.document-revision-number">
-			<value lang="bg">Ревизия</value>
-			<value lang="en">Revision</value>
-		</label>
-		<label id="documents.locked-by">
-			<value lang="bg">Заключен от</value>
-			<value lang="en">Locked by</value>
-		</label>
-		<label id="documents.identifier">
-			<value lang="bg">Номер</value>
-			<value lang="en">Identifier</value>
-		</label>
-</labels>
+	</labels>
 </definition>

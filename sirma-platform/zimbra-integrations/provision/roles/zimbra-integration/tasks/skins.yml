@@ -1,0 +1,35 @@
+- name: Removing previous SEP Zimbra skin
+  file:
+    state: absent
+    path: /opt/zimbra/jetty/webapps/zimbra/skins/sep
+
+- name: Add SEP Zimbra skin
+  copy:
+    src: "{{ provision_path }}/skins/sep"
+    dest: /opt/zimbra/jetty/webapps/zimbra/skins
+    owner: zimbra
+    group: zimbra
+    mode: 0644
+
+- name: Deploy SEP Zimbra skin
+  shell: ./zmskindeploy /opt/zimbra/jetty/webapps/zimbra/skins/sep/
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+# Zimbra requires <skin>/img/images.css.js to exists ...
+
+- name: Create "img" folder for SEP skin [WORKAROUND]
+  file:
+    path: /opt/zimbra/jetty/webapps/zimbra/skins/sep/img/
+    state: directory
+  become: true
+  become_user: zimbra
+
+- name: Create dummy "images.css.js" for SEP skin [WORKAROUND]
+  file:
+    path: /opt/zimbra/jetty/webapps/zimbra/skins/sep/img/images.css.js
+    state: touch
+  become: true
+  become_user: zimbra

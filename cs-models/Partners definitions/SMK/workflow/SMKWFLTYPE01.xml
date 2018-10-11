@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="SMKWFLTYPE01" parentId="smkWorkflow" type="workflow">
+	<regions>
+		<region id="generalWorkflowInformation" order="10" displayType="editable" label="smkWorkflow.generalWorkflowInformation.region.label">
+			<fields>
+				<field name="type" type="an..180" order="110" codelist="CL10" label="smk.type.label" tooltip="smk.type.tooltip" displayType="readonly" >
+					<value>SMKWFLTYPE01</value>
+				</field>
+			</fields>
+		</region>
+		<region id="smkActivityDefinitionRelationships" order="40" displayType="editable" label="smk.relationships.region.label">
+			<fields>
+				<field name="processes" type="uri" order="40" displayType="editable" label="smk.processes.label" tooltip="smk.processes.tooltip" multiValued="true" previewEmpty="false" uri="emf:processes" >
+					<condition id="readonlyField" renderAs="READONLY">[status] NOTIN ('INIT','NOT_YET_STARTED')</condition>
+					<condition id="mandatoryField" renderAs="MANDATORY">[status] IN ('NOT_YET_STARTED')</condition>
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["DRAFT"]}
+						</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+</definition>

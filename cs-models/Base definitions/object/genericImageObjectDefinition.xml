@@ -1,20 +1,30 @@
-<?xml version="1.0"?>
-    <definition id="image" parentId="media" isAbstract="true" type="object">
-        <fields>            
-			<field name="rdf:type" 		type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-				<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image</value>
-			</field>			
-			<field name="viewDefinition" type="an..20" label="viewDefinition" displayType="system"  uri="emf:viewDefinition"><value>image</value></field>
-            <field name="type" 			type="an..50" codelist="CL7" ><value>IMAGE</value></field>
-			<field name="widthOfSubject" type="n..10,5" label="widthOfSubject.label" displayType="editable" uri="emf:widthOfSubject" />
-			<field name="heightOfSubject" type="n..10,5" label="heightOfSubject.label" displayType="editable" uri="emf:heightOfSubject" />
-			<field name="dimensionUnit" type="an..15" label="dimensionUnit.label" displayType="editable" codelist="CL400" uri="emf:dimensionUnit" />
-			
-			<field name="isThumbnailOf" type="uri" label="isThumbnailOf" mandatory="false" displayType="editable" multiValued="true" uri="emf:isThumbnailOf">
-				<control id="PICKER">
-					<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Task,emf:Video,emf:Audio,emf:User</control-param>
-				</control>				
-			</field>
-			
-		</fields> 
-    </definition>
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="image" parentId="media" isAbstract="true" type="object">
+	<fields>
+		<!-- SYSTEM FIELDS -->
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image</value>
+		</field>
+		<field name="viewDefinition" type="an..20" label="viewDefinition.label" displayType="system" uri="emf:viewDefinition">
+			<value>image</value>
+		</field>
+
+    	<!-- GENERAL DATA FIELDS FOR IMAGE -->
+		<field name="type" type="an..50" codelist="CL7">
+			<value>IMAGE</value>
+		</field>
+		<field name="widthOfSubject" type="n..10,5" label="widthOfSubject.label" displayType="editable" uri="emf:widthOfSubject" />
+		<field name="heightOfSubject" type="n..10,5" label="heightOfSubject.label" displayType="editable" uri="emf:heightOfSubject" />
+		<field name="dimensionUnit" type="an..15" label="dimensionUnit.label" displayType="editable" codelist="CL14" uri="emf:dimensionUnit" />
+		<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
+		<field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
+		<field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
+
+    	<!-- GENERAL OBJECT FIELDS FOR IMAGE -->
+		<field name="isThumbnailOf" type="uri" label="isThumbnailOf" displayType="editable" multiValued="true" uri="emf:isThumbnailOf">
+			<control id="PICKER">
+				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Task,emf:Video,emf:Audio,emf:User</control-param>
+			</control>
+		</field>
+	</fields>
+</definition>

@@ -1,6 +1,68 @@
 <?xml version="1.0"?>
 <definition id="instanceQueries" type="query">
 	<fields>
+		<field name="findInstanceGraphForDelete" type="an..200" displayType="system">
+	    	<!-- Finds all children for the given objectUri.
+				 The first part of the UNION statement fetches all instances that are part of the sub tree for the given objectUri.
+	    		 The query filters out any attached instances, revisions and latest revisions.
+	    		 The second part of the UNION is mapping for the root instance itself because it's not included in the first part. -->
+            <value><![CDATA[SELECT DISTINCT ?instance WHERE 
+							{
+							    {
+							        {objectUri} emf:hasChild ?instance.
+							        ?instance emf:isDeleted "false"^^xsd:boolean.
+							        FILTER (NOT EXISTS {
+							                ?parent emf:hasAttachment ?instance.
+							            }) .
+							        FILTER (NOT EXISTS {
+							                ?instance emf:revisionType emf:revision.
+							            }).
+							    } UNION {
+							        BIND ({objectUri} as ?instance).
+							    }
+							}]]>
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="queryParam" name="objectUri" />
+			</control>
+        </field>
+		<field name="findRelatedInstancesGraphForDelete" type="an..200" displayType="system">
+	    	<!-- Finds all children and the instances that refers to them for the given objectUri.
+	    		 The query filters out any attached instances, revisions and latest revisions.
+	    		 The second part of the UNION is mapping for the root instance itself because it's not included in the first part. -->
+            <value><![CDATA[SELECT DISTINCT  ?instance WHERE 
+							{
+								{
+									# find related instances to the child instances of the one deleted
+									{objectUri} emf:hasChild ?child.
+									?child emf:isDeleted "false"^^xsd:boolean.
+									FILTER (NOT EXISTS {
+											?parent emf:hasAttachment ?child.
+										}) .
+									FILTER (NOT EXISTS {
+											?child emf:revisionType emf:revision.
+										}).
+								} UNION {
+									# find the related instances to the one deleted
+									BIND({objectUri} as ?child).
+								}
+								# any non deleted relating instances (they relate to the one beeing deleted not the otherway around)
+								?instance emf:hasRelation ?child.
+								?instance emf:isDeleted "false"^^xsd:boolean.
+							}]]>
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="queryParam" name="objectUri" />
+			</control>
+        </field>
 	    <field name="markInstanceGraphForDeleted" type="an..200" displayType="system">
 	    	<!-- The first part of the UNION statement fetches all instances that are part of the sub tree for the given objectUri.
 	    			The query filters out any attached instances, revisions and latest revisions.
@@ -34,8 +96,6 @@
 					         FILTER (! BOUND(?checkAttachment1)) .      
 					         OPTIONAL { ?instance emf:revisionType emf:revision. ?instance emf:isDeleted ?checkRevisionType1 .}
 					         FILTER (! BOUND(?checkRevisionType1)) .
-					         OPTIONAL { ?instance emf:revisionType emf:latestRevision. ?instance emf:isDeleted ?checkRevisionType2 .}
-					         FILTER (! BOUND(?checkRevisionType2)) .
 						} UNION {
 					        BIND ({objectUri} as ?instance).
 					 	}
@@ -87,8 +147,6 @@
 					         FILTER (! BOUND(?checkAttachment1)) .      
 					         OPTIONAL { ?anInstance emf:revisionType emf:revision. ?anInstance emf:isDeleted ?checkRevisionType1 .}
 					         FILTER (! BOUND(?checkRevisionType1)) .
-					         OPTIONAL { ?anInstance emf:revisionType emf:latestRevision. ?anInstance emf:isDeleted ?checkRevisionType2 .}
-					         FILTER (! BOUND(?checkRevisionType2)) .
 						} UNION {
 							?instance emf:commentsOn {objectUri}.
        						?instance emf:isDeleted "false"^^xsd:boolean.
@@ -145,8 +203,13 @@
         </field>
         <field name="loadInstanceContent" type="an..200" displayType="system">
             <value>select ?instance ?instanceType ?content where {
-					    ?instance emf:instanceType ?instanceType.
-					    ?instance emf:content ?content.
+					    {
+					        ?instance emf:content ?content.
+					    } UNION {
+					        ?instance emf:viewWidgetsContent ?content.
+					    } UNION {
+					        ?instance emf:viewContent ?content.
+					    }
 					}
 			</value>
             <control id="query">
@@ -158,14 +221,14 @@
          <field name="getDefaultLocations" type="an..200" displayType="system">
          	<!-- Extracts the default locations (projects). If the project instance have property defaultLocation, it is returned. -->
             <value>SELECT DISTINCT ?instance ?instanceType ?isDefaultLocation WHERE {
-    				    ?instance a emf:Project;
-        				emf:isDeleted "false"^^xsd:boolean;
-						emf:modifiedOn ?modifiedOn;
-        				emf:instanceType ?instanceType.
-    			   OPTIONAL { 
-    			   			  ?instance emf:isDefaultLocation ?locationParam.
-							  ?instance emf:isDefaultLocation ?isDefaultLocation.
-    			    		}
+								   ?instance a emf:Project;
+								   emf:isDeleted "false"^^xsd:boolean;
+								   emf:modifiedOn ?modifiedOn;
+								   emf:instanceType ?instanceType.
+						 OPTIONAL { 
+								  ?instance emf:isDefaultLocation ?locationParam.
+								  BIND("true"^^xsd:boolean as ?isDefaultLocation).
+    					 		  }
 				   } ORDER BY DESC(?modifiedOn)
 			</value>
             <control id="query">

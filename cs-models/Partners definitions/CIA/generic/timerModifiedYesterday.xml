@@ -9,19 +9,47 @@
 					arguments.put('todayMinus', 1);
 					arguments.put('statement', '{?instance emf\\:status \"IN_PROGRESS\" . } UNION {?instance emf\\:status \"NOT_YET_STARTED\" . } UNION { ?instance emf\\:status \"ON_HOLD\" . } UNION { ?instance emf\\:status \"PENDING_APPROVAL\". } UNION { ?instance emf\\:status \"DRAFT\". } UNION { ?instance emf\\:status \"CURRENT\". }');
 					var allObject = search.with(search.buildArgumentsForPredefinedQuery('ciaQueries/getModifiedInstancesYesterday', arguments));
-					var creatorProperties = ['emf:hasWatcher', 'hasWatcher'];
+					var relatedUsersProps = ['emf:hasWatcher', 'hasWatcher'];
+					var mapWithUsersObjects = {};
 					
 					for(var i=0; i < allObject.length; i++){
-						var subject ='(Edit) ';
-						var recipients = tasks.getTaskAssignees(allObject[i] ,creatorProperties);
-						subject += allObject[i].get('title');
-						mail.sendNotifications(allObject[i], security.getCurrentLoggedUser(), subject, "email_edit_object_cia", recipients, null);
-					}					
+					    var object  = allObject[i];
+						var recipients = tasks.getTaskAssignees(object, relatedUsersProps);
+						for(var j=0; j < recipients.length; j++) {
+							var recipient = recipients[j];
+							var listOfObjects = mapWithUsersObjects[recipient];
+							// check do we have any
+							if (!listOfObjects) {
+								// we don't have any dossiers yet so create a list
+								listOfObjects = [];
+							}
+							// add new dossier to list
+							listOfObjects.push(object);
+							// update the map
+							mapWithUsersObjects[recipient] = listOfObjects;
+						}
+					}	
+					var listOfRecipients = Object.keys(mapWithUsersObjects);
+					// TODO: Define subject
+					var subject ='(Edit) those objects';
+					if(listOfRecipients.length > 0) {
+						// loop by keys (recipients)
+						for(var i=0; i < listOfRecipients.length; i++){
+							// current recipient(user)
+							var currentRecipient = listOfRecipients[i];
+							// get list with agreements from map
+							var listOfObjects = mapWithUsersObjects[currentRecipient];
+							var recipients = [currentRecipient];
+							//send the mail
+							var context =  new com.sirma.itt.seip.context.Context();
+							mail.sendNotifications(listOfObjects[0], subject, "email_edit_object_cia", recipients, listOfObjects);
+						}
+					}
 				]]>
 			</value>
 			<control id="schedulerConfiguration">
 				<!-- To be executed each day at 00:00 -->
-				<control-param id="config" name="cronExpression">0 0 0 1/1 * ? *</control-param>
+				<control-param id="config" name="cronExpression">0 5 0 1/1 * ? *</control-param>
 				<control-param id="config" name="persistent">true</control-param>
 			</control>
 		</field>

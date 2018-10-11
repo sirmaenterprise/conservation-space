@@ -1,0 +1,20 @@
+<div class="advanced-search-string-criteria" ng-switch="advancedSearchStringCriteria.getMode()">
+  <seip-select class="string-criteria-select" ng-switch-default
+               config="::advancedSearchStringCriteria.selectConfig"
+               ng-change="advancedSearchStringCriteria.onValueChange()"
+               ng-model-options="::advancedSearchStringCriteria.modelOptions"
+               ng-model="advancedSearchStringCriteria.criteria.value">
+  </seip-select>
+  <span class="single-string-criteria" ng-switch-when="single">
+      <input type="text" class="form-control"
+             ng-change="advancedSearchStringCriteria.onValueChange()"
+             ng-model-options="::advancedSearchStringCriteria.modelOptions"
+             ng-model="advancedSearchStringCriteria.criteria.value"
+             ng-disabled="advancedSearchStringCriteria.config.disabled">
+  </span>
+
+  <seip-advanced-search-boolean-criteria ng-switch-when="empty"
+                                         config="::advancedSearchStringCriteria.config"
+                                         criteria="advancedSearchStringCriteria.criteria">
+  </seip-advanced-search-boolean-criteria>
+</div>

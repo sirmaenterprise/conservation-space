@@ -1,0 +1,25 @@
+PluginRegistry.add('model-management-attribute', [{
+  'order': 10,
+  'name': 'model-string-attribute',
+  'type': 'string',
+  'component': 'model-string-attribute',
+  'module': 'administration/model-management/components/string/model-string-attribute'
+}, {
+  'order': 20,
+  'name': 'model-multi-lang-string-attribute',
+  'type': 'multiLangString',
+  'component': 'model-label-attribute',
+  'module': 'administration/model-management/components/label/model-label-attribute'
+}, {
+  'order': 30,
+  'name': 'model-label-attribute',
+  'type': 'label',
+  'component': 'model-label-attribute',
+  'module': 'administration/model-management/components/label/model-label-attribute'
+}, {
+  'order': 40,
+  'name': 'model-boolean-attribute',
+  'type': 'boolean',
+  'component': 'model-boolean-attribute',
+  'module': 'administration/model-management/components/bool/model-boolean-attribute'
+}]);

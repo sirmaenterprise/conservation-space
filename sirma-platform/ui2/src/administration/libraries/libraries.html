@@ -1,0 +1,24 @@
+<div class="browse-libraries">
+
+  <div ng-if="::libraries.ontologySelectorConfig" class="filter-row">
+    <div class="filter-field">
+      <seip-select ng-model="libraries.selectedOntologies"
+                   ng-change="libraries.fetchLibraries()"
+                   config="::libraries.ontologySelectorConfig"
+                   class="ontology-filter">
+      </seip-select>
+    </div>
+
+    <div class="filter-field">
+      <input type="text" class="form-control title-filter"
+             ng-model="libraries.titleFilter"
+             ng-change="libraries.fetchLibraries()"
+             ng-model-options="{ debounce: { 'default': 500, 'blur': 0 } }"
+             placeholder="{{ ::'libraries.filter.title.placeholder' | translate }}"/>
+    </div>
+  </div>
+
+  <seip-instance-list config="::libraries.instanceListConfig"
+                      instances="libraries.libraries">
+  </seip-instance-list>
+</div>

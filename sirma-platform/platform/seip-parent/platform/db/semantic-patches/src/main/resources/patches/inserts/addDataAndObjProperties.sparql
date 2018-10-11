@@ -1,0 +1,295 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+insert data {
+
+graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+    
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasClient
+emf:hasClient rdf:type owl:ObjectProperty ;
+    rdfs:label "Hat Kunde"@de, "Клиент"@bg , "Onko asiakas"@fin , "Has Client"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Has client"@en ;
+    owl:inverseOf emf:isClientOf .
+        
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasSubsidiary
+emf:hasSubsidiary rdf:type owl:ObjectProperty ;
+    rdfs:label "Hat Tochtergesellschaft"@de , "Onko tytäryhtiö"@fin , "Филиал"@bg , "Has Subsidiary"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Has subsidiary"@en ;
+    rdfs:domain ptop:Agent ;
+    rdfs:range ptop:Agent .
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasHead
+emf:hasHead rdf:type owl:ObjectProperty ;
+    rdfs:label "hat Führer"@de , "on Leader"@fin , "Ръководител"@bg , "Has Head"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Has Head"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasProducer
+emf:hasProducer rdf:type owl:ObjectProperty ;
+    rdfs:label "Има производител"@bg , "Hat Produzent"@de , "Tuotannossa"@fin , "Has Producer"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Link showing that item has producer organization."@en ;
+    dc:creator "Yaldaz Mehmedova"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasProvider
+emf:hasProvider rdf:type owl:ObjectProperty ;
+    rdfs:label "Hat Provider"@de , "Onko palveluntarjoaja"@fin , "Доставчик"@bg , "Has Provider"@en ;
+    emf:isSearchable "true"^^xsd:boolean ; 
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Has provider"@en ; 
+    owl:inverseOf emf:isProviderOf .
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isAuthorOf
+emf:isAuthorOf rdf:type owl:ObjectProperty ;
+    rdfs:label "ist Autor von"@de , "on kirjoittaja"@fin , "Е автор на"@bg , "Is Author Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is author of"@en ;
+    owl:inverseOf emf:hasAuthor .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isClientOf
+emf:isClientOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Kunde von"@de , "Asiakkaalla"@fin , "Е клиент на"@bg ,"Is Client Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is client of"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isDeliveredTo
+emf:isDeliveredTo rdf:type owl:ObjectProperty ;
+    rdfs:label "Доставен на"@bg , "Wird geliefert an"@de , "Toimitetaan"@fin , "Is Delivered to"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Link showing to whom the product/service is delivered."@en ;
+    dc:creator "Yaldaz Mehmedova"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isEmployeeOf
+emf:isEmployeeOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Mitarbeiter von"@de , "On työntekijällä"@fin , "Е служител на"@bg , "Is Employee Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ; 
+    skos:definition "Is employee of"@en ;
+    rdfs:range ptop:Organization ;
+    rdfs:domain ptop:Person .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isHeadOf
+emf:isHeadOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Anführer von"@de , "Johtaja"@fin , "Е ръководител на"@bg , "Is Head Of"@en ;
+	emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is head of"@en ;
+    rdfs:range ptop:Organization ;
+    rdfs:domain ptop:Person ;
+    owl:inverseOf ptop:hasHead .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isIssuerOf
+emf:isIssuerOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Emittent von"@de , "IsIssuer Of"@fin , "Издател на"@bg , "IsIssuer Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is issuer of"@en ;
+    owl:inverseOf emf:issuedBy ;
+    rdfs:domain ptop:Agent .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isProducerOf
+emf:isProducerOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Е производител на"@bg , "Ist Produzent von"@de , "Tuotannossa"@fin , "Is Producer of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Link showing that the organization is producer of item/items."@en ;
+    dc:creator "Yaldaz Mehmedova"@en ;
+    owl:inverseOf emf:hasProducer .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isProviderOf
+emf:isProviderOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Anbieter von"@de , "Onko palveluntarjoaja"@fin , "Е доставчик на"@bg , "Is Provider Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;  
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is provider of"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isRecipientOf
+emf:isRecipientOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Empfänger von"@de , "Onko vastaanottaja"@fin , "Е получател на"@bg , "Is Recipient Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is recipient of"@en ;
+    owl:inverseOf emf:hasRecipient ;
+    rdfs:domain ptop:Agent .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isSubsidiaryOf
+emf:isSubsidiaryOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Tochtergesellschaft von"@de , "On tytäryhtiö"@fin , "Е филиал на"@bg , "Is Subsidiary Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Is subsidiary of"@en ;
+    owl:inverseOf emf:hasSubsidiary ;
+    rdfs:domain ptop:Agent ;
+    rdfs:range ptop:Agent .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#issuedBy
+emf:issuedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "Ausgestellt durch"@de , "Myöntänyt"@fin , "Издаден от"@bg , "Issued By"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "The organization or person who issues the statement."@en ;
+    rdfs:range ptop:Agent .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isContactPersonOf
+emf:isContactPersonOf rdf:type owl:ObjectProperty ;
+    rdfs:label "Ist Kontaktperson von"@de , "Yhteyshenkilö"@fin , "Лице за контакт"@bg , "Is Contact Person Of"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Contact person"@en ;     
+    owl:inverseOf emf:contactPerson .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasAuthor
+emf:hasAuthor rdf:type owl:ObjectProperty ;
+    rdfs:label "hat Autor"@de , "on kirjoittaja"@fin , "Автор"@bg , "Has Author"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Has author"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasDeliveredItem
+emf:hasDeliveredItem rdf:type owl:ObjectProperty ;
+    rdfs:label "Има доставяни продукти/услуги"@bg , "Hat Artikel geliefert"@de , "Onko toimitettu tuote"@fin , "Has Delivered Item"@en ;   
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Link showing items that the person/organization is being delivered."@en ;
+    dc:creator "Yaldaz Mehmedova"@en ;
+    owl:inverseOf emf:isDeliveredTo .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasEmployee
+emf:hasEmployee rdf:type owl:ObjectProperty ;
+    rdfs:label "hat Mitarbeiter"@de , "on työntekijä"@fin , "Служител"@bg , "Has Employee"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Organization employee"@en ;
+    owl:inverseOf emf:isEmployeeOf ;
+    rdfs:domain ptop:Organization ;
+    rdfs:range ptop:Person .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasRecipient
+emf:hasRecipient rdf:type owl:ObjectProperty ;
+    rdfs:label "Lautend auf"@de , "Osoitettu"@fin , "Получател"@bg , "Has Recipient"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "The organization or person to whom the statement was issued to."@en ;
+    rdfs:range ptop:Agent .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#addressCity
+emf:addressCity rdf:type owl:DatatypeProperty ;
+    rdfs:label "Stadt"@de , "Град"@bg , "Kaupunki"@fi , "City"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Address City"@en ;
+    dcterms:creator "Lyubomir Marinov"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#addressCountry
+emf:addressCountry rdf:type owl:DatatypeProperty ;
+    rdfs:label "Gebiet"@de , "Maan nimi"@fi, "Държава"@bg , "Address Country"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+	skos:definition "Name of the country"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#addressState
+emf:addressState rdf:type owl:DatatypeProperty ; 
+    rdfs:label "Zustand"@de , "Osavaltio"@fi , "Област"@bg , "Address State"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dcterms:creator "Lyubomir Marinov"@en ;
+    skos:definition "State of America"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#addressTimeZone
+emf:addressTimeZone rdf:type owl:DatatypeProperty ;
+    rdfs:label "Zeitzone"@de , "Aikavyöhyke"@fi , "Времева зона"@bg , "Time Zone"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Organization or Person address time zone"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#addressWebSite
+emf:addressWebSite rdf:type owl:DatatypeProperty ;
+    rdfs:label "Webseite"@de , "Интернет страница"@bg , "Verkkosivusto"@fi , "Web Site"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Organization web site address"@en ;
+    rdfs:range xsd:string .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#addressZip
+emf:addressZip rdf:type owl:DatatypeProperty ;
+    rdfs:label "Postleitzahl"@de , "Postinumero"@fi , "Пощенски код"@bg , "Zip"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Address zip"@en ;
+    dcterms:creator "Lyubomir Marinov"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#companyRole
+emf:companyRole rdf:type owl:DatatypeProperty ;
+    rdfs:label "Роля на дружеството"@bg , "Unternehmensrolle"@de , "Yrityksen rooli"@fi , "Company Role"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Defines the role of Company in context of current orgranization."@en ;
+    dcterms:creator "Yaldaz Mehmedova"@en .
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#currency
+emf:currency rdf:type owl:DatatypeProperty ;
+    rdfs:label "Währung"@de , "Valuutta"@fi , "Валута"@bg , "Currency"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Currency"@en ;
+    dcterms:creator "Lyubomir Marinov"@en .
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#location
+emf:location rdf:type owl:DatatypeProperty ;
+    rdfs:label "Ort"@de , "Sijainti"@fi , "Локация"@bg , "Location"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Event and Meeting location."@en ;
+    rdfs:range xsd:string .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#issueDate
+emf:issueDate rdf:type owl:DatatypeProperty ;
+    rdfs:label "Ausgabedatum"@de , "Julkaisupäivämäärä"@fi , "Дата на издаване"@bg , "Issue Date"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "The date when the statement was issued."@en ;
+    rdfs:range xsd:dateTime .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#productGroup
+emf:productGroup rdf:type owl:DatatypeProperty ;
+    rdfs:label "Продуктова група"@bg , "Produktgruppe"@de , "Tuoteryhmä"@fi , "Product Group"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Category of product"@en ;
+    dc:creator "Yaldaz Mehmedova"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#productNumber
+emf:productNumber rdf:type owl:DatatypeProperty ;
+    rdfs:label "Продуктов номер"@bg , "Produktnummer"@de , "Tuotenumero"@fi , "Product Number"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    skos:definition "Number of product which identifies the product uniquely within organization, domain, group or other category."@en ;
+    dc:creator "Yaldaz Mehmedova"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#salutation
+emf:salutation rdf:type owl:DatatypeProperty ;
+    rdfs:label "Anrede"@de , "Tervehdys"@fi , "Обръщение"@bg , "Salutation"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dcterms:creator "Lyubomir Marinov"@en ; 
+    skos:definition "Salutation"@en .
+	
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#subType
+emf:subType rdf:type owl:DatatypeProperty ;
+    rdfs:label "Untertyp"@de , "Alustyyppi"@fi , "Под тип"@bg , "Sub Type"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dcterms:creator "Lyubomir Marinov"@en ;
+    skos:definition "Sub Type"@en .
+	
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#recurring
+emf:recurring rdf:type owl:DatatypeProperty ;
+    rdfs:label "Wiederkehrend"@de , "Toistuva"@fi , "Повтаряемост"@bg , "Recurring"@en ;
+    emf:isSearchable "true"^^xsd:boolean ;
+    dc:creator "Lyubomir Marinov"@en ;
+    skos:definition "Specifies in the meeting occurs periodically or repeatedly."@en .
+    }
+}

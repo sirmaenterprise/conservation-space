@@ -1,0 +1,12 @@
+PREFIX chd: <http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+select ?instance ?title ?description ?ontology where {
+    graph ?ontology  {
+        ?instance a owl:Class .
+        ?instance rdfs:label ?title .
+        ?instance skos:definition | rdfs:comment ?description .
+    }
+}

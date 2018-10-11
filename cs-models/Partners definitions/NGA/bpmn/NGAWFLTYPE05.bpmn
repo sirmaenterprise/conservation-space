@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.4.0">
   <bpmn:process id="NGAWFLTYPE05" name="Documents Review and Approval Workflow" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.StopProcessListener" event="end">
+        <camunda:field name="relation">        <camunda:string>emf:processes</camunda:string>
+</camunda:field>
+        <camunda:field name="source">        <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+        <camunda:field name="status">        <camunda:expression>DRAFT</camunda:expression>
+</camunda:field>
+      </camunda:executionListener>
+    </bpmn:extensionElements>
     <bpmn:startEvent id="StarProcess">
       <bpmn:extensionElements>
         <camunda:formData>
@@ -542,14 +552,6 @@
           <camunda:field name="relations">          <camunda:string>processes</camunda:string>
 </camunda:field>
         </camunda:executionListener>
-        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
-          <camunda:field name="relation">          <camunda:string>emf:processes</camunda:string>
-</camunda:field>
-          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
-</camunda:field>
-          <camunda:field name="status">          <camunda:expression>DRAFT</camunda:expression>
-</camunda:field>
-        </camunda:executionListener>
         <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.SendWorkflowMail" event="take">
           <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
 </camunda:field>
@@ -570,9 +572,9 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="NGAWFLTYPE05">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StarProcess">
-        <dc:Bounds x="77" y="182" width="36" height="36" />
+        <dc:Bounds x="75" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="95" y="218" width="0" height="0" />
+          <dc:Bounds x="93" y="218" width="0" height="0" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1bmpipo_di" bpmnElement="ExclusiveGateway_1bmpipo" isMarkerVisible="true">
@@ -610,10 +612,10 @@
         <dc:Bounds x="380" y="343" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1ga9xcm_di" bpmnElement="SequenceFlow_start">
-        <di:waypoint xsi:type="dc:Point" x="113" y="200" />
+        <di:waypoint xsi:type="dc:Point" x="111" y="200" />
         <di:waypoint xsi:type="dc:Point" x="220" y="199" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="167" y="185" width="0" height="0" />
+          <dc:Bounds x="166" y="184.5" width="0" height="0" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1k5uva2_di" bpmnElement="implementRecommendations_curator">

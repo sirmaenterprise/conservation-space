@@ -1,0 +1,38 @@
+<roles>
+    <role name="COLLABORATOR" priority="15">
+        <include>collaborator_external</include>
+        <include>collaborator_test</include>
+        <include>collaborator_annotation</include>
+    </role>
+    <role name="collaborator_test" external="false">
+        <permission name="transition">
+            <actions>
+                <action name="contactPerson"></action>
+            </actions>
+        </permission>
+    </role>
+    <role name="collaborator_external" external="false">
+        <permission name="edit">
+            <actions>
+                <action name="editDetails"/>
+                <action name="download"/>
+                <action name="uploadNewVersion"/>
+                <action name="composeEmail">
+                    <filter value="NOT_MAILBOX_SUPPORTABLE"/>
+                </action>
+            </actions>
+        </permission>
+    </role>
+    <role name="collaborator_annotation" external="false">
+        <permission name="transition">
+            <actions>
+                <action name="editComment"/>
+                <action name="deleteComment">
+                    <filter value="CREATEDBY"/>
+                </action>
+                <action name="suspendComment"/>
+                <action name="restartComment"/>
+            </actions>
+        </permission>
+    </role>
+</roles>

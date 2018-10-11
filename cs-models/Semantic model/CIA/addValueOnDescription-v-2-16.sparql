@@ -1,0 +1,14 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#>
+insert {
+    GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?s dcterms:description "Some description"^^xsd:string .
+    }
+}  where {
+    ?s a chc:Sample .
+    filter not exists {
+        ?s dcterms:description ?description 
+    }
+}

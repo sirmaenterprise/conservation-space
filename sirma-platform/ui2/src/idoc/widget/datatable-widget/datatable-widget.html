@@ -1,0 +1,44 @@
+<div>
+  <div ng-if="datatableWidget.showDatatable()" magic-line-disabled>
+    <div class="table-toolbar form-inline" extension-point="datatable-toolbar"></div>
+
+    <div class="table-wrapper" ng-style="::{ 'width': datatableWidget.panelsWidth }">
+      <seip-datatable-filter ng-if="datatableWidget.insertFilterRow()"
+                             ng-show="datatableWidget.showFilterRow"
+                             widget-config="datatableWidget.config"
+                             config="::datatableWidget.filterConfig"
+                             context="::datatableWidget.context"
+                             on-filter="::datatableWidget.onFilter(filterCriteria)"></seip-datatable-filter>
+
+      <div ng-show="datatableWidget.config.displayTableHeaderRow" class="table-header nav">
+        <div ng-repeat="header in datatableWidget.widgetConfig.headers" class="header-cell" data-header-cell-name="{{::header.name}}"
+             ng-style="::{ 'width': datatableWidget.config.styles.columns[header.name].width }">
+          <div class="title-cell">
+            <span>{{ ::datatableWidget.getColumnHeaderLabel(header) }}</span>
+            <span ng-if="::header.showSortIcon" class="sort-icon" ng-click="datatableWidget.sortObjects(header)">
+              <i class="fa fa-sort"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-body" ng-class="{'stripe' : datatableWidget.config.stripeRows}">
+        <seip-form-wrapper ng-repeat="selectedObject in datatableWidget.widgetConfig.objectsOnPage"
+                           config="datatableWidget.formConfig" form-config="selectedObject"></seip-form-wrapper>
+      </div>
+    </div>
+
+    <div class="table-footer">
+      <span ng-hide="datatableWidget.isPaginationHidden()">
+        <seip-pagination total="datatableWidget.paginationConfig.resultSize"
+                         page="datatableWidget.paginationConfig.page"
+                         config="datatableWidget.paginationConfig"
+                         callback="datatableWidget.paginationCallback">
+        </seip-pagination>
+      </span>
+    </div>
+  </div>
+  <div ng-if="datatableWidget.errorMessage" class="message error">
+    {{::datatableWidget.errorMessage | translate}}
+  </div>
+</div>

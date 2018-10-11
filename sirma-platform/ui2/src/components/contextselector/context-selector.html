@@ -1,0 +1,18 @@
+<div class="context-selector">
+  <span>{{::'context.selector.context.label' | translate}}</span>
+  <span class="context-path" ng-bind-html="contextSelector.header | toTrustedHtml"></span>
+  <button ng-if="contextSelector.config.parentId" type="button"
+          class="btn btn-xs btn-default clear-context-btn"
+          ng-disabled="::contextSelector.config.contextSelectorDisabled || contextSelector.isSelectionModeInContext()"
+          title="{{ ::'context.selector.context.clear.btn' | translate }}"
+          ng-click="contextSelector.clearContextAndNotify()">
+    <span aria-hidden="true">&#10005;</span>
+  </button>
+  <button class="btn btn-xs btn-default open-picker-btn"
+          ng-disabled="contextSelector.config.contextSelectorDisabled || contextSelector.isSelectionModeWithoutContext()"
+          title="{{ ::'context.selector.context.select.btn' | translate }}"
+          ng-click="contextSelector.selectContext()">
+    {{::'context.selector.context.select.btn' | translate}}
+  </button>
+  <div class="error-message text-danger" ng-repeat="errorMessage in contextSelector.getErrorMessages()">{{errorMessage | translate}}</div>
+</div>

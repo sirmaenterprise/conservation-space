@@ -1,0 +1,33 @@
+# Default configurations for usage in Linux environment
+# Override with your own by providing custom application.yml to the --spring.config.location argument
+
+server:
+  # Used for health checking and filtering supported mime types
+  port: 8300
+
+# JMS configurations
+spring:
+  hornetq:
+    host: localhost
+    port: 5445
+    user: guest
+    password: guest
+
+# Content preview application configurations
+content:
+  preview:
+    # Folder where documents will be temporarily stored until preview is generated
+    temp-folder: /tmp/preview
+    thumbnail-format: png
+    timeout: 300000
+    jms:
+      concurrency: 1
+
+logging:
+  config: classpath:log4j2.yml
+
+# When the JMS broker is unavailable, it doesn't mean this service is unhealthy.
+management:
+  health:
+    jms:
+      enabled: false

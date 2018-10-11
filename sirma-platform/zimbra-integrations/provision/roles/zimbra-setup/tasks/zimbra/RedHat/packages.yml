@@ -1,0 +1,8 @@
+- name: Add EPEL repository
+  yum: name=epel-release state=installed
+
+- name: Install all of the Zimbra's dependencies for CentOS/RHEL System
+  yum: pkg='{{ dependency }}' state=installed
+
+- name: Ensure Postfix not installed
+  yum: pkg='{{ absent }}' state=absent

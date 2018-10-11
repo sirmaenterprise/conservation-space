@@ -6,7 +6,7 @@
 			<control id="ACTION_FILTER" />
 		</field>
 		<field name="ASSIGNEE" type="an..200" displayType="system">
-			<value>isCurrentUser(root.get('assignee'))</value>
+			<value>isCurrentUser(root.get('assignee')) || isCurrentUserMemberOf(root.get('assignee'))</value>
 			<control id="ACTION_FILTER" />
 		</field>
 		<field name="ASSIGNEE_BPMN" type="an..200" displayType="system">
@@ -37,7 +37,54 @@
 			<value><![CDATA[isCurrentUser(root.get('createdBy')) && !root.isUploaded()]]></value>
 			<control id="ACTION_FILTER" />
 		</field>
+		<field name="NOT_PART_OF_WORKFLOW" type="an..200" displayType="system">
+			<value>
+			<![CDATA[
+					function filter() {
+						// allow action if current instace is workflow
+						if (root.is("workflowinstancecontext")) {
+							return true;
+						}
+						// hide action is current instance is workflow task
+						if (root.get('activityId')) {
+							return false;
+						}
+						// hide action if current instance has emf:processedBy relations
+						if (root.getIdentifier() && root.getLinks('emf:processedBy').length > 0) {
+							return false;
+						}
+						return true;
+					}
+				filter();
+			]]></value>
+		    <control id="ACTION_FILTER" />
+		</field>
+		<field name="NOT_MAILBOX_SUPPORTABLE" type="an..200" displayType="system">
+			<value><![CDATA[
+					function filter() {
+						// hide action if current instace doesn't support mailbox
+						if (root.get('emailAddress')==null) {
+							return false;
+						}
+					return true;
+					}
+				filter();
+			]]></value>
+			<control id="ACTION_FILTER" />
+		</field>
+		<field name="IS_NOT_REVISION" type="an..200" displayType="system">
+			<value>
+				<![CDATA[
+					function filter() {
+						if (root.get('emf:revisionType') == "emf:revision") {
+							return false;
+						}
+							return true;
+					}
+					filter();
+				]]>
+			</value>
+			<control id="ACTION_FILTER" />
+		</field>
 	</fields>
-</definition>
-
-
+</definition>	

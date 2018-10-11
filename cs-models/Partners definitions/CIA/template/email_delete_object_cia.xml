@@ -1,39 +1,23 @@
 <?xml version="1.0"?>
 <templateDefinition id="email_delete_object_cia">
-    <!-- Template id same as the file name without .xml ! -->
     <fields>
         <field name="type" type="an..180" displayType="system">
-            <!-- document type for the current template -->
             <value>emailTemplate</value>
         </field>
         <field name="title" type="an..100" displayType="system">
-            <!-- Template title -->
             <value>Delete instance email template</value>
         </field>
         <field name="description" type="an..180" displayType="system">
-            <!-- Template description -->
             <value>This is the default email template used for generating
 				notifications on delete instances.</value>
         </field>
         <field name="primary" type="boolean" displayType="system">
-            <!-- If the template is primary/default -->
             <value>false</value>
-        </field>
-        <field name="mimetype" type="an..20" displayType="system">
-            <value>text/plain</value>
-        </field>
-        <field name="createdBy" type="uri" displayType="system">
-            <value>${currentUser.id}</value>
-            <control id="PICKER" />
-        </field>
-        <field name="createdOn" type="dateTime" displayType="system">
-            <value>${today}</value>
         </field>
         <field name="public" type="boolean" displayType="system">
             <value>true</value>
         </field>
         <field name="content" type="ANY" displayType="system">
-            <!-- NOTE: the content goes into the CDATA tag. The tag is used to escape the internal XML -->
             <value>
                 <![CDATA[
 					<#assign lang=notifications.getUserLanguage(user)>
@@ -174,7 +158,7 @@
  <!-- HEADER -->
               <tr>
                 <td align="center" valign="top">
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="color:#FFFFFF;" bgcolor="#3498db">
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="color:#FFFFFF;" bgcolor="#263744">
                     <tr>
                       <td align="center" valign="top">
                         <table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
@@ -183,9 +167,7 @@
                               <table border="0" cellpadding="30" cellspacing="0" width="100%">
                                 <tr>
                                   <td align="center" valign="top" class="textContent">
-									<h1 style="color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">
-										Conservation Space
-									</h1>
+									<h1 style="color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">${notifications.getApplicationName()}</h1>
                                     <h2 style="text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;">
 									
 									</h2>
@@ -225,6 +207,8 @@
 													Survey is deleted
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'>
 													Task is deleted
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
+													Workflow is deleted
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image'>
 													Image is deleted
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Audio'>
@@ -242,26 +226,18 @@
 											<br>
 											<div style="text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;">
 											<strong>
-												<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project'> 
-													(Project) ${target.properties['title']}
-												<#elseif rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey'>
+												<#if rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey'>
 													(Survey: ${codelists.getCodeValue(200, target.properties['subType']).properties['en']}) 
 													${target.properties['title']}
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'>
-													(Task: ${codelists.getCodeValue(243, target.properties['subType']).properties['en']}) 
-													${target.properties['title']}
+													(Task) ${codelists.getCodeValue(28, target.properties['subType']).properties['en']}
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
+													${codelists.getCodeValue(10, target.properties['type']).properties['en']}
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image'>
 													(Image: ${codelists.getCodeValue(211, target.properties['subType']).properties['en']}) 
 													${target.properties['title']}
-												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Audio'>
-													(${codelists.getCodeValue(3, target.properties['type']).properties['en']}) 
-													${target.properties['title']}
-												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Video'>
-													(${codelists.getCodeValue(3, target.properties['type']).properties['en']}) 
-													${target.properties['title']}
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
-													(${codelists.getCodeValue(210, target.properties['type']).properties['en']}) 
-													${target.properties['title']}
+													(Document) ${target.properties['title']}
 												<#elseif rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample'>
 													(Sample: ${codelists.getCodeValue(248, target.properties['subType']).properties['en']}) 
 													${target.properties['title']}
@@ -277,53 +253,32 @@
 											System created on: ${target.properties['createdOn']?datetime}<br>
 												<#if target.getParent()??>
 													<#assign parent = target.getParent()>
-													<#assign parentRDF = parent.properties['rdf:type']>
 													
-													<#if parentRDF??> 
+													<#if parent.properties['rdf:type']??> 
 														Parent: 
-														<#if parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project'> 
-															<a href="${notifications.buildFullURI(parent)}">
-																(Project) ${parent.properties['title']}
-															</a>
-														<#elseif parentRDF == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey'>
+														<#if parent.properties['rdf:type'] == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey'>
 															<a href="${notifications.buildFullURI(parent)}">
 																(Survey: ${codelists.getCodeValue(200, parent.properties['subType']).properties['en']}) 
 																${parent.properties['title']}
 															</a>
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'>
+														<#elseif parent.properties['rdf:type'] == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(Task: ${codelists.getCodeValue(243, parent.properties['subType']).properties['en']}) 
-																${parent.properties['title']}
+																(Task: ${codelists.getCodeValue(28, parent.properties['subType']).properties['en']}) 
 															</a>
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image'>
+														<#elseif parent.properties['rdf:type'] == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image'>
 															<a href="${notifications.buildFullURI(parent)}">
 																(Image: ${codelists.getCodeValue(211, parent.properties['subType']).properties['en']})
 																${parent.properties['title']}
 															</a>
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Audio'>
-															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(3, parent.properties['type']).properties['en']})
-																${parent.properties['title']}
-															</a>
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Video'>
-															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(3, parent.properties['type']).properties['en']})
-																${parent.properties['title']}
-															</a>
-														<#elseif parentRDF == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample'>
+														<#elseif parent.properties['rdf:type'] == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample'>
 															<a href="${notifications.buildFullURI(parent)}">
 																(Sample: ${codelists.getCodeValue(248, parent.properties['subType']).properties['en']})
 																${parent.properties['title']}
 															</a>
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+														<#elseif parent.properties['rdf:type'] == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(210, parent.properties['type']).properties['en']})
-																${parent.properties['title']}
+																(Document) ${parent.properties['title']}
 															</a>
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User'>
-															${parent.properties['title']}
-														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group'>
-															${parent.properties['title']}
 														<#else>
 															<a href="${notifications.buildFullURI(parent)}">
 																(${codelists.getCodeValue(7, parent.properties['type']).properties['en']})

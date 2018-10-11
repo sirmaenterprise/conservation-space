@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<definition id="groupDefinition" parentId="groupDefinitionBase" type="group">
+	<fields>
+		<field name="default_header" type="ANY" label="GROUP_DEFAULT_HEADER_YUL" />
+        <field name="compact_header" type="an..4096" label="GROUP_COMPACT_HEADER_YUL" />
+		<field name="tooltip_header" type="ANY" label="GROUP_TOOLTIP_HEADER_YUL" />   
+		
+		<!-- system field -->
+		<field name="title" type="an..100" displayType="system" />
+		<field name="email" type="an..35" displayType="system" />
+		<field name="hasParent" type="uri" displayType="system" />
+		<field name="hasThumbnail" type="uri" displayType="system" />
+		<field name="emf:version" type="an..10" displayType="system" />
+		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="hasMember" type="uri" displayType="system" />
+		<field name="groupId" type="an..50" displayType="system" />
+		<field name="status" type="an..10" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
+		<field name="hasChild" type="uri" displayType="system" />
+	    <field name="createdOn" type="dateTime" displayType="system" />
+	    <field name="createdBy" type="uri" displayType="system" />
+	    <field name="modifiedOn" type="dateTime" displayType="system" />
+	    <field name="modifiedBy" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" />
+	</fields>
+	<regions>
+		<region id="groupDetails" order="10" displayType="editable" label="yul.groupDetails.region.label" >
+			<fields>
+				<field name="title" type="an..100" displayType="editable" mandatory="true" label="groupDefinition.title" tooltip="yul.title.tooltip" uri="dcterms:title" >
+					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('INACTIVE')</condition>
+				</field>
+				<field name="email" type="an..35" displayType="editable" label="yul.email.label" tooltip="yul.email.tooltip" uri="emf:email" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$" />
+			</fields>	
+		</region>
+		<region id="systemData" order="20" displayType="editable" label="yul.systemData.region.label">
+			<fields>
+				<field name="type" type="an..20" displayType="editable" label="yul.type.label" tooltip="yul.type.tooltip" codelist="CL7" uri="emf:type" >
+					<value>FC236013</value>
+				</field>
+				<field name="groupId" type="an..50" displayType="editable" mandatory="true" label="groupDefinition.groupId" uri="ptop:title" rnc="^(:?[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+){2,}|[a-zA-Z0-9]{3,}(?:[\-\._][a-zA-Z0-9]+)*)$" unique="true">
+					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('ACTIVE', 'INACTIVE')</condition>
+				</field>
+				<field name="emf:version" type="an..10" displayType="readOnly" label="object.version" uri="emf:version"/>
+				<field name="status" type="an..10" displayType="readOnly" codelist="CL12" label="yul.status.label" tooltip="yul.status.tooltip" />
+				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
+				<field name="modifiedBy" type="uri" displayType="readOnly" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" uri="emf:modifiedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="modifiedOn" type="dateTime" displayType="readOnly" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" uri="emf:modifiedOn" />
+				<field name="lockedBy" type="uri" displayType="readonly" label="yul.lockedBy.label" tooltip="yul.lockedBy.tooltip" previewEmpty="false" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field> 	  
+				<field name="hasMember" type="uri" displayType="editable" label="yul.hasMember.label" tooltip="yul.hasMember.tooltip" multiValued="true" uri="ptop:hasMember" >
+					<condition id="readOnly" renderAs="READONLY">[status] IN ('INACTIVE')</condition>
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="isSupervisorOf" type="uri" displayType="readOnly" label="yul.isSupervisorOf.label" tooltip="yul.isSupervisorOf.tooltip" multiValued="true" uri="chc:isSupervisorOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="involvedIn" type="uri" displayType="readOnly" label="yul.involvedIn.label" tooltip="yul.involvedIn.tooltip" multiValued="true" uri="ptop:involvedIn" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="parentOf" type="uri" displayType="readOnly" label="yul.parentOf.label" tooltip="yul.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="partOf" type="uri" displayType="readOnly" label="yul.partOf.label" tooltip="yul.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" displayType="readOnly" label="yul.hasChild.label" tooltip="yul.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
+					<control id="PICKER">
+						<control-param id="range" name="range"/>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+
+    <transitions>
+		<transition id="editDetails" order="5"  />
+		<transition id="deactivate" order="10" actionPath="/" />
+		<transition id="activate" order="15" actionPath="/" />
+		<transition id="assignMember" order="20" actionPath="/" />
+		
+		<group id="add" order="25" label="add.group.label" type="menu" />
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" label="exportTabPDF.label" tooltip="exportTabPDF.tooltip" eventId="exportTabPDF" purpose="exportTabPDF" group="exportAs" />
+		<transition id="exportPDF" label="exportPDF.label" eventId="exportPDF" purpose="exportPDF" tooltip="exportPDF.tooltip" group="exportAs" />
+		<transition id="exportTabWord" label="exportTabWord.label" tooltip="exportTabWord.tooltip" eventId="exportTabWord" purpose="exportTabWord" group="exportAs" />
+		<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" group="exportAs" />
+		
+		<group id="print" order="35" label="print.group.label" type="menu" />
+		<transition id="printTab" label="printTab.label" tooltip="printTab.tooltip" eventId="printTab" purpose="printTab" group="print" />
+		<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" group="print" />
+		
+		<group id="template" order="36" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" /> 
+		<transition id="updateTemplate" tooltip="yul.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="yul.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="40" label="more.group.label" type="menu" />
+		<transition id="lock" group="more" />
+        <transition id="unlock" actionPath="/" group="more" />
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="NOT_CREATED"/>
+   		<stateTransition from="NOT_CREATED" transition="create" to="ACTIVE"/>
+    	<stateTransition from="INIT" transition="synchronize" to="ACTIVE" />
+
+		<stateTransition from="ACTIVE" transition="assignMember" to="ACTIVE"/>	
+		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>		           
+        <stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE"/>
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportPDF" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportWord" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="print" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="deactivate" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
+		
+	</stateTransitions>
+	<labels>
+		<label id="GROUP_TOOLTIP_HEADER_YUL">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					${if(${get([email])}<>null).then(
+						<span class="tooltip-row">
+							<label>Email: </label>
+							<span data-property="email">${get([email])}</span>
+						</span>
+					)}
+				</span>
+			)})}]]></value>
+		</label>
+		<label id="GROUP_DEFAULT_HEADER_YUL">
+		  <value lang="en"><![CDATA[${eval(
+		  ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+		  <span><img src="${thumbnailUri(64)}"/></span>
+		  ${if(${get([emf:isActive])}==false).then(<span style=color:#a9a9a9;>).else(<span>)}
+				<span class="truncate-element">
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}" ${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+						<span data-property="title">${get([title])}</span>
+					</a>
+					${if(${get([emf:isActive])}==false).then(&nbsp;(<span data-property="emf:status">${CL([status])}</span>))}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span> 
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+			</span>)}]]></value>
+		</label>
+		<label id="GROUP_COMPACT_HEADER_YUL">
+		   <value lang="en"><![CDATA[${eval(
+		   ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				<span class="truncate-element">
+					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}" ${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+						<span data-property="title">${get([title])}</span>
+					</a>
+					${if(${get([emf:isActive])}==false).then(&nbsp;(<span data-property="emf:status">${CL([status])}</span>))}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+				<br />
+			</span>)}]]></value>
+		</label>
+	</labels>
+</definition>

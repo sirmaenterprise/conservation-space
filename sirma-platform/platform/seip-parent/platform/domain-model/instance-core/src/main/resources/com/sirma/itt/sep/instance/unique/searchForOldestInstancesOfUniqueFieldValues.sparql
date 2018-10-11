@@ -1,0 +1,17 @@
+select ?instance ?uniqueValue where {
+    ?instance emf:definitionId ?definitionIdVariable.
+    ?instance emf:isDeleted "false"^^xsd:boolean .
+    ?instance emf:createdOn ?createdOn .
+    ?instance ?fieldUriVariable ?uniqueValue.
+    filter not exists { ?instance emf:isRevisionOf ?revision. }
+    filter (?uniqueValue = ?value && ?createdOn = ?minCreatedOn)
+    {
+        select ?value (min(?createdOn) as ?minCreatedOn)  {
+            ?instance emf:createdOn ?createdOn .
+            ?instance emf:isDeleted "false"^^xsd:boolean .
+            ?instance emf:definitionId ?definitionIdVariable.
+            ?instance ?fieldUriVariable ?value.
+            filter not exists { ?instance emf:isRevisionOf ?revision. }
+        } group by ?value
+    }
+}

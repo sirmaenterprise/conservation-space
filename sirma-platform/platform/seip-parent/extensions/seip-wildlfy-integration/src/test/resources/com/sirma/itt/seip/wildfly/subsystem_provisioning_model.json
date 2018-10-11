@@ -1,0 +1,198 @@
+{
+    "operation" : "composite",
+    "steps" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "messaging"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                }
+            ]
+        },
+        {
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                }
+            ],
+            "operation" : "write-attribute",
+            "name" : "jmx-management-enabled",
+            "value" : "true"
+        },
+        {
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                }
+            ],
+            "operation" : "write-attribute",
+            "name" : "persistence-enabled",
+            "value" : "true"
+        },
+        {
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                }
+            ],
+            "operation" : "write-attribute",
+            "name" : "security-enabled",
+            "value" : "false"
+        },
+        {
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                }
+            ],
+            "operation" : "write-attribute",
+            "name" : "journal-file-size",
+            "value" : "102400"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "security-setting" : "#"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "security-setting" : "#"
+                },
+                {
+                    "role" : "guest"
+                }
+            ],
+            "consume" : true,
+            "create-durable-queue" : true,
+            "create-non-durable-queue" : true,
+            "delete-durable-queue" : false,
+            "delete-non-durable-queue" : false,
+            "manage" : false,
+            "send" : true
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "in-vm-connector" : "local-broker"
+                }
+            ],
+            "server-id" : 0
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "http-connector" : "http-connector-throughput"
+                }
+            ],
+            "socket-binding" : "http",
+            "param" : {
+                "http-upgrade-endpoint" : "http-acceptor-throughput",
+                "batch-delay" : 50
+            }
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "connection-factory" : "InVmConnectionFactory"
+                }
+            ],
+            "client-id" : "sep-core",
+            "connector" : {"local-broker" : null},
+            "entries" : ["java:/ConnectionFactory"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "messaging"
+                },
+                {
+                    "hornetq-server" : "default"
+                },
+                {
+                    "pooled-connection-factory" : "local-broker"
+                }
+            ],
+            "client-id" : "sep-core",
+            "transaction" : "xa",
+            "connector" : {"local-broker" : null},
+            "entries" : ["java:jboss/DefaultJMSConnectionFactory"]
+        },
+        {
+            "address" : [{
+                "subsystem" : "ejb3"
+            }],
+            "operation" : "write-attribute",
+            "name" : "default-mdb-instance-pool",
+            "value" : "mdb-strict-max-pool"
+        },
+        {
+            "address" : [{
+                "subsystem" : "ejb3"
+            }],
+            "operation" : "write-attribute",
+            "name" : "default-resource-adapter-name",
+            "value" : "hornetq-ra"
+        },
+        {"operation" : "reload"}
+    ]
+}

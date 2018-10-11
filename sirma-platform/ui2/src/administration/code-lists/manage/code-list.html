@@ -1,0 +1,91 @@
+<div class="code-list panel panel-default">
+
+  <div class="code-list-header panel-heading" ng-click="codeList.toggleDetails()">
+    <i class="fa" ng-class="{'fa-caret-down': codeList.renderDetails, 'fa-caret-right': !codeList.renderDetails}"></i>
+    <span class="code-list-id">{{ codeList.model.id }}</span>
+    <span class="code-list-name" ng-if="::codeList.model.description">{{ codeList.model.description.name }}</span>
+  </div>
+
+  <div class="code-list-details" ng-if="codeList.renderDetails">
+    <div class="code-list-details-section">
+      <div class="row">
+        <div class="form-group col-md-4" ng-class="{'has-error': codeList.isIdInvalid()}">
+          <label>{{ ::'code.lists.manage.id' | translate }}</label>
+          <input type="text" class="form-control code-id" ng-readonly="!codeList.isCreateMode()"
+                 ng-model="::codeList.model.id" ng-change="codeList.onModelChange()">
+          <code-validation-messages ng-if="codeList.isCreateMode() && codeList.isIdInvalid()"
+                                    validation-field="codeList.model.validationModel['id']"></code-validation-messages>
+        </div>
+
+        <div class="form-group col-md-4" ng-class="{'has-error': codeList.isNameInvalid()}">
+          <label>{{ ::'code.lists.manage.name' | translate }} ({{::codeList.model.description.language}})</label>
+          <textarea class="form-control code-name" rows="1" ng-readonly="codeList.isPreviewMode()"
+                    ng-model="::codeList.model.description.name" ng-change="codeList.onModelChange()"></textarea>
+          <code-validation-messages ng-if="!codeList.isPreviewMode() && codeList.isNameInvalid()"
+                                    validation-field="codeList.model.description.validationModel['name']"></code-validation-messages>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>{{ ::'code.lists.manage.comment' | translate }} ({{::codeList.model.description.language}})</label>
+          <code-descriptions-button class="pull-right btn-borderless"
+                                    config="::codeList.descriptionsButtonConfig"
+                                    mode="codeList.mode"
+                                    code="codeList.model"
+                                    on-close="codeList.onModelChange()"
+                                    on-change="codeList.onModelChange()"></code-descriptions-button>
+          <textarea class="form-control code-comment" rows="1" ng-readonly="codeList.isPreviewMode()"
+                    ng-model="::codeList.model.description.comment"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-md-4">
+          <label>{{ ::'code.lists.manage.extra' | translate }} 1</label>
+          <textarea class="form-control code-extra-1" rows="1" ng-readonly="codeList.isPreviewMode()"
+                    ng-model="::codeList.model.extras['1']"></textarea>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>{{ ::'code.lists.manage.extra' | translate }} 2</label>
+          <textarea class="form-control code-extra-2" rows="1" ng-readonly="codeList.isPreviewMode()"
+                    ng-model="::codeList.model.extras['2']"></textarea>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>{{ ::'code.lists.manage.extra' | translate }} 3</label>
+          <textarea class="form-control code-extra-3" rows="1" ng-readonly="codeList.isPreviewMode()"
+                    ng-model="::codeList.model.extras['3']"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <code-values mode="codeList.mode" code-list="codeList.model" on-change="codeList.onModelChange()"></code-values>
+
+    <div class="row code-list-actions">
+      <span class="pull-right">
+        <span class="text-danger edit-disabled" ng-show="!codeList.canEdit">
+          {{ ::'code.lists.manage.disable.edit' | translate }}
+        </span>
+        <span class="fa fa-lg fa-spinner fa-spin" ng-show="codeList.savingChanges"></span>
+        <button class="btn btn-primary btn-sm code-list-edit" ng-if="codeList.isPreviewMode()"
+                ng-click="::codeList.edit()" ng-disabled="!codeList.canEdit">
+          {{ ::'code.lists.manage.edit' | translate }}
+        </button>
+        <button class="btn btn-primary btn-sm code-list-save" ng-if="codeList.mode !== 'preview'"
+                ng-click="::codeList.save()" ng-disabled="codeList.isSaveDisabled()">
+          <span ng-if="codeList.isCreateMode()">{{ ::'code.lists.manage.create' | translate }}</span>
+          <span ng-if="codeList.isEditMode()">{{ ::'code.lists.manage.save' | translate }}</span>
+        </button>
+        <button class="btn btn-default btn-sm code-list-cancel" ng-if="codeList.isEditMode()"
+                ng-click="::codeList.cancel()">
+          {{ ::'code.lists.manage.cancel' | translate }}
+        </button>
+        <button class="btn btn-default btn-sm code-list-cancel-create"
+                ng-if="codeList.isCreateMode()" ng-click="::codeList.cancelCreate()">
+          {{ ::'code.lists.manage.cancel.create' | translate }}
+        </button>
+      </span>
+    </div>
+  </div>
+
+</div>

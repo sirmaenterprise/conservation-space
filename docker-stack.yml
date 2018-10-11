@@ -1,0 +1,255 @@
+---
+version: '3.3'
+
+services:
+  db:
+    image: docker-reg.sirmaplatform.com/sep-postgres:2.0.0
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.db==yes
+    environment:
+      - WORK_MEM=48MB
+      - MAX_CONNECTIONS=500
+      - MAX_PREPARED_TRANSACTIONS=500
+      - EFFECTIVE_CACHE_SIZE=3072MB
+      - SHARED_BUFFERS=1280MB
+    ports:
+      - target: 5432
+        published: 5432
+        mode: host
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  solr-audit:
+    image: docker-reg.sirmaplatform.com/sep-solr-audit:2.12.0-u1
+    deploy:
+      placement:
+          constraints:
+              - node.labels.com.sirma.sep.solr.audit==yes
+    volumes:
+      - solr_audit_data:/var/lib/solr
+      - solr_audit_logs:/opt/solr/server/logs
+
+  solr:
+    image: docker-reg.sirmaplatform.com/sep-solr-core:2.12.0-u1
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.solr.core==yes
+    environment:
+      - SOLR_HEAP=4096m
+    volumes:
+      - solr_core_data:/var/lib/solr
+      - solr_core_logs:/opt/solr/server/logs
+
+  export:
+    image: docker-reg.sirmaplatform.com/export:2.22.0-SNAPSHOT
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.other==yes
+
+  compare:
+    image: docker-reg.sirmaplatform.com/compare-pdf:2.22.0-SNAPSHOT
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.other==yes
+
+  idp:
+    image: docker-reg.sirmaplatform.com/cs-wso2is:2.22.0-SNAPSHOT
+
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.idp==yes
+    environment:
+      - HOST_NAME=idp
+      - LDAP_USE_EMBEDDED=false
+      - LDAP_HOST=ldap
+      - LDAP_PORT=10389
+      - LDAP_USERNAME=cn=Manager,dc=SIRMAITT,dc=BG
+      - LDAP_PASSWORD=secret
+    volumes:
+      - idp_data:/opt/wso2is/repository/data
+      - idp_logs:/opt/wso2is/repository/logs
+      - /etc/sep/keystores:/opt/wso2is/repository/resources/keystore
+
+  ldap:
+    image: docker-reg.sirmaplatform.com/sep-openldap:2.20.0
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.idp==yes
+    volumes:
+      - ldap_data:/var/lib/openldap
+      - ldap_logs:/var/log/openldap
+
+  alfresco:
+    image: docker-reg.sirmaplatform.com/sep-alfresco:2.22.0-SNAPSHOT
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.dms==yes
+    environment:
+      - LDAP_HOST=ldap
+      - LDAP_PORT=10389
+      - LDAP_USERNAME=cn\=Manager,dc\=SIRMAITT,dc\=BG
+      - LDAP_PASSWORD=secret
+      - JAVA_OPTS=-XX:MaxPermSize=512m -Xms4g -Xmx4g -XX:+UseG1GC
+    volumes:
+      - alfresco_logs:/opt/tomcat/logs
+      - alfresco_data:/var/lib/alfresco
+      - alfresco_solr_data:/var/lib/alfresco-solr
+
+  graphdb:
+    image: docker-reg.sirmaplatform.com/graphdb:8.3.1-u2
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.semantic==yes
+    environment:
+      - GDB_HEAP_SIZE=7g
+    ports:
+      - 8091:8091
+    volumes:
+      - gdb_data:/var/lib/graphdb
+      - gdb_logs:/opt/graphdb/logs
+      - /etc/sep/licenses/graphdb.license:/opt/graphdb/conf/graphdb.license
+
+  ocr:
+    image: docker-reg.sirmaplatform.com/ocr-service:2.22.0-SNAPSHOT
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.ocr==yes
+
+  content-preview:
+    image: docker-reg.sirmaplatform.com/content-preview:2.22.0-SNAPSHOT
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.other==yes
+    volumes:
+      - content_preview_logs:/var/log/preview
+    environment:
+      - PREVIEW_LOG_LEVEL=info
+
+  image-processing:
+    image: docker-reg.sirmaplatform.com/image-processing:1.0.2
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    volumes:
+      - vsftpd_data:/data
+      - iiif_out:/var/www/localhost/images
+
+  iiif:
+    image: docker-reg.sirmaplatform.com/iip-server:6.0.0
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    environment:
+      - BASE_URL=http://iiif/fcgi-bin/iipsrv.fcgi?IIIF=
+    volumes:
+      - vsftpd_data:/data
+      - iiif_out:/var/www/localhost/images
+  ftp:
+    image: docker-reg.sirmaplatform.com/vsftpd:3.0.3
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    environment:
+      - PASV_PROMISCUOUS=YES
+    volumes:
+      - vsftpd_data:/var/lib/vsftpd
+
+  iiif-access:
+    image: docker-reg.sirmaplatform.com/apache-server:1.1
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    volumes:
+      - vsftpd_data:/var/www/html
+
+  wildfly:
+    image: docker-reg.sirmaplatform.com/cs-wildfly:2.22.0-SNAPSHOT
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.web==yes
+    ports:
+      - 8787:8787
+      - 9990:9990
+    volumes:
+      - sep_data:/var/lib/sep
+      - wildfly_logs:/opt/wildfly/standalone/log
+      - /etc/sep/keystores:/opt/wildfly/standalone/configuration/sep/certs
+      - /etc/sep/assets:/etc/sep/assets
+    environment:
+      - DB_NAME_AUDIT=sep
+      - ISSUER_ID=sep_issuer_id
+      - IDP_HOST=idp
+      - IDP_PORT=9443
+      - HOST=$NGINX_SERVER_NAME
+      - IMAGE_SERVER_BASE_URL=https://conservationspace.com/iiif
+      - REMOTE_DEBUG=yes
+      - JAVA_OPTS=-XX:MaxPermSize=512m -Xms4g -Xmx4g -XX:+UseG1GC -Djava.net.preferIPv4Stack=true
+
+  ui:
+    image: docker-reg.sirmaplatform.com/seip-ui:2.22.0-SNAPSHOT
+
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.web==yes
+    environment:
+      - BACKEND_PROTOCOL=http
+      - BACKEND_ADDR=wildfly:8080
+      - BACKEND_CONTEXT_PATH=emf
+
+  proxy:
+    image: docker-reg.sirmaplatform.com/http-proxy:2.22.0-SNAPSHOT
+
+    environment:
+      - NGINX_SERVER_NAME=$NGINX_SERVER_NAME
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.web==yes
+    volumes:
+      - /etc/sep/keystores:/etc/nginx/ssl:ro
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+
+volumes:
+    pg_data:
+    gdb_data:
+    gdb_logs:
+    vsftpd_data:
+    iiif_out:
+    solr_core_data:
+    solr_core_logs:
+    solr_audit_data:
+    solr_audit_logs:
+    idp_data:
+    idp_logs:
+    ldap_data:
+    ldap_logs:
+    alfresco_data:
+    alfresco_solr_data:
+    alfresco_logs:
+    vsftpd_data:
+    iiif_out:
+    wildfly_logs:
+    sep_data:
+    content_preview_logs:

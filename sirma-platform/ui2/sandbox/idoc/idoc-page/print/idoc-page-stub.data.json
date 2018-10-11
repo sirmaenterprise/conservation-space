@@ -1,0 +1,200 @@
+{
+  "definitionId": "definitionId",
+  "parentId": "parentId",
+  "returnUrl": "#/returnUrl",
+  "instanceType": "documentinstance",
+  "headers": {
+    "default_header": "<span>Header1</span>",
+    "compact_header": "<span>Header2</span>",
+    "breadcrumb_header": "<span>Header3</span>"
+  },
+  "viewModel": {
+    "fields": [
+      {
+        "identifier": "compact_header",
+        "previewEmpty": true,
+        "displayType": "SYSTEM",
+        "control": [{
+          "identifier": "INSTANCE_HEADER"
+        }]
+      },
+      {
+        "identifier": "field1",
+        "dataType": "text",
+        "displayType": "EDITABLE",
+        "label": "Field 1 (idoc page stub)",
+        "maxLength": 40,
+        "previewEmpty": true,
+        "isMandatory": false,
+        "validators": [
+          {
+            "level": "error",
+            "context": {
+              "pattern": "[\\s\\S]{1,40}"
+            },
+            "id": "regex",
+            "message": "Invalid format. Use letters and digits only up to 40 signs."
+          }
+        ]
+      },
+      {
+        "identifier": "field2",
+        "dataType": "text",
+        "displayType": "EDITABLE",
+        "label": "Field 2",
+        "maxLength": 40,
+        "previewEmpty": true,
+        "isMandatory": false,
+        "validators": [
+          {
+            "level": "error",
+            "context": {
+              "pattern": "[\\s\\S]{1,40}"
+            },
+            "id": "regex",
+            "message": "Invalid format. Use letters and digits only up to 40 signs."
+          },
+          {
+            "id": "condition",
+            "rules": [
+              {
+                "id": "mandatory",
+                "renderAs": "MANDATORY",
+                "expression": "+[field1]"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "checkboxTrigger",
+        "dataType": "boolean",
+        "displayType": "EDITABLE",
+        "label": "Checkbox field",
+        "previewEmpty": true,
+        "isMandatory": false,
+        "disabled": false,
+        "validators": []
+      },
+      {
+        "identifier": "field3",
+        "dataType": "text",
+        "displayType": "EDITABLE",
+        "label": "Field 3",
+        "maxLength": 40,
+        "previewEmpty": true,
+        "isMandatory": true,
+        "validators": [
+          {
+            "level": "error",
+            "context": {
+              "pattern": "[\\s\\S]{1,40}"
+            },
+            "id": "regex",
+            "message": "Invalid format. Use letters and digits only up to 40 signs."
+          },
+          {
+            "level": "error",
+            "id": "mandatory",
+            "message": "The field is mandatory!"
+          },
+          {
+            "id": "condition",
+            "rules": [
+              {
+                "id": "optional",
+                "renderAs": "OPTIONAL",
+                "expression": "[checkboxTrigger] IN ('false')"
+              },
+              {
+                "id": "hidden",
+                "renderAs": "HIDDEN",
+                "expression": "[checkboxTrigger] IN ('false')"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "identifier": "region1",
+        "label": "Region 1",
+        "displayType": "EDITABLE",
+        "validators": [
+          {
+            "id": "condition",
+            "rules": [
+              {
+                "id": "hidden",
+                "renderAs": "HIDDEN",
+                "expression": "[checkboxTrigger] IN ('true')"
+              }
+            ]
+          }
+        ],
+        "fields": [
+          {
+            "identifier": "regionField1",
+            "dataType": "text",
+            "displayType": "EDITABLE",
+            "label": "Region field 1",
+            "maxLength": 40,
+            "previewEmpty": true,
+            "isMandatory": false,
+            "validators": [
+              {
+                "level": "error",
+                "context": {
+                  "pattern": "[\\s\\S]{1,40}"
+                },
+                "id": "regex",
+                "message": "Invalid format. Use letters and digits only up to 40 signs."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "validationModel": {
+    "compact_header": {
+      "defaultValue": "\n<span><span class=\"banner label label-warning\"><\/span><span class=\"truncate-element\"><a class=\"instance-link has-tooltip\" href=\"/emf/entity/open.jsf?type=documentinstance&instanceId=emf:2f2b7b9d-4b3b-4441-8fc6-61f75bbb0bfc\" >\n(<span data-property=\"type\">iDocument 1 for testing<\/span>) <span data-property=\"title\"><\/span><span class=\"document-version version badge\"><\/span><\/a><\/span><span class=\"header-icons\" data-instanceId=\"emf:2f2b7b9d-4b3b-4441-8fc6-61f75bbb0bfc\"><span class=\"custom-icon download downloads-list\" title=\"Add to downloads\"><\/span><span class=\"custom-icon dislikes favourites\" title=\"Add to favourites\"><\/span><\/span><\/span>",
+      "value": "\n<span><span class=\"banner label label-warning\"><\/span><span class=\"truncate-element\"><a class=\"instance-link has-tooltip\" href=\"/emf/entity/open.jsf?type=documentinstance&instanceId=emf:2f2b7b9d-4b3b-4441-8fc6-61f75bbb0bfc\" >\n(<span data-property=\"type\">iDocument 1 for testing<\/span>) <span data-property=\"title\"><\/span><span class=\"document-version version badge\"><\/span><\/a><\/span><span class=\"header-icons\" data-instanceId=\"emf:2f2b7b9d-4b3b-4441-8fc6-61f75bbb0bfc\"><span class=\"custom-icon download downloads-list\" title=\"Add to downloads\"><\/span><span class=\"custom-icon dislikes favourites\" title=\"Add to favourites\"><\/span><\/span><\/span>",
+      "messages": []
+    },
+    "field1": {
+      "defaultValue": "",
+      "value": "",
+      "messages": []
+    },
+    "field2": {
+      "defaultValue": "",
+      "value": "",
+      "messages": []
+    },
+    "checkboxTrigger": {
+      "defaultValue": false,
+      "value": false,
+      "messages": []
+    },
+    "field3": {
+      "defaultValue": "",
+      "value": "",
+      "messages": []
+    },
+    "regionField1": {
+      "defaultValue": "",
+      "value": "",
+      "messages": []
+    },
+    "emf:hasTemplate" : {
+      "defaultValue": {
+        "results": ["blank"],
+        "total": 1,
+        "limit": 0,
+        "offset": 5
+      },
+      "value": null,
+      "messages": []
+    }
+  }
+}

@@ -1,0 +1,31 @@
+Configuration:
+  status: warn
+  name: PreviewService
+
+  properties:
+    property:
+      - name: PREVIEW_LOG_PATTERN
+        value: "%d{DEFAULT} %clr{%-5p [%c]} (%t) [u=%X{effective_user}, rqid=%X{request_id}] %m%ex%n"
+      - name: DEFAULT_LOG_PATTERN
+        value: "%d{DEFAULT} %clr{%-5p [%c]} (%t) %m%ex%n"
+
+  appenders:
+    Console:
+      - name: PreviewConsoleAppender
+        PatternLayout:
+          Pattern: ${PREVIEW_LOG_PATTERN}
+      - name: DefaultConsoleAppender
+        PatternLayout:
+          Pattern: ${DEFAULT_LOG_PATTERN}
+
+  Loggers:
+    logger:
+      - name: com.sirma.sep.content.preview
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: PreviewConsoleAppender
+    Root:
+      level: info
+      AppenderRef:
+        - ref: DefaultConsoleAppender

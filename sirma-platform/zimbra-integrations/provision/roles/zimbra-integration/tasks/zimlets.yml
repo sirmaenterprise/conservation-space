@@ -1,0 +1,43 @@
+- name: Copy com_sep_compose_zimlet on remote server
+  copy:
+    src: "{{ provision_path }}/sep-zimlets/com_sep_compose_zimlet"
+    dest: /tmp/
+
+- name: Copy com_sep_attachment_zimlet on remote server
+  copy:
+    src: "{{ provision_path }}/sep-zimlets/com_sep_attachment_zimlet"
+    dest: /tmp/
+
+# zmzimletctl works with archives...
+- name: Archive com_sep_compose_zimlet
+  archive:
+    format: zip
+    path: /tmp/com_sep_compose_zimlet/
+    dest: /tmp/com_sep_compose_zimlet.zip
+
+- name: Archive com_sep_attachment_zimlet
+  archive:
+    format: zip
+    path: /tmp/com_sep_attachment_zimlet/
+    dest: /tmp/com_sep_attachment_zimlet.zip
+
+- name: Deploy SEP Zimlets
+  shell: ./zmzimletctl deploy /tmp/com_sep_compose_zimlet.zip
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Deploy SEP Zimlets
+  shell: ./zmzimletctl deploy /tmp/com_sep_attachment_zimlet.zip
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Refresh Zimlets cache
+  shell: ./zmprov fc zimlet
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra

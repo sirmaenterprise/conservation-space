@@ -1,0 +1,30 @@
+<div class="instance-create-panel">
+  <seip-context-selector config="::instanceCreatePanel.config"></seip-context-selector>
+
+  <instance-create-configuration config="::instanceCreatePanel.config"></instance-create-configuration>
+
+  <div class="created-object-header" ng-show="instanceCreatePanel.createdObjectHeader">
+    <div ng-bind-html="instanceCreatePanel.createdObjectHeader | toTrustedHtml"></div>
+  </div>
+
+  <div class="buttons">
+    <label class="checkbox create-checkbox" ng-if="::instanceCreatePanel.config.controls.showCreateMore">
+      <input type="checkbox"
+             ng-disabled="instanceCreatePanel.isCreating || instanceCreatePanel.config.forceCreate"
+             ng-model="instanceCreatePanel.createAnother">
+      {{::'instance.create.panel.create.another' | translate}}
+      <i></i>
+    </label>
+
+    <button class="btn btn-sm btn-primary seip-create-btn"
+            ng-if="::instanceCreatePanel.config.controls.showCreate"
+            ng-disabled="instanceCreatePanel.isCreateDisabled()"
+            ng-click="instanceCreatePanel.create()">
+      {{ ::instanceCreatePanel.config.createButtonLabel | translate }}
+    </button>
+    <button class="btn btn-sm btn-default seip-close-btn" ng-click="instanceCreatePanel.cancel()"
+            ng-if="::instanceCreatePanel.config.controls.showCancel">
+      {{ ::'dialog.button.close' | translate }}
+    </button>
+  </div>
+</div>

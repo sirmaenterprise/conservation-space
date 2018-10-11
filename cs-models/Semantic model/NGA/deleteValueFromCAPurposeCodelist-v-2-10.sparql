@@ -1,0 +1,14 @@
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#>
+delete {
+	?instance chc:activityPurpose ?activityPurpose
+} insert {
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?instance chc:activityPurpose "NGA242017"   
+    }
+}where  {
+	?instance chc:activityPurpose ?activityPurpose .
+    filter(?activityPurpose = "NGA242009"
+        || ?activityPurpose = "NGA242007")
+}

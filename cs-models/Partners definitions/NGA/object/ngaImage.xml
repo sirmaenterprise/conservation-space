@@ -1,29 +1,29 @@
 <?xml version="1.0"?>
 <definition id="ngaImage" parentId="image" isAbstract="true" type="object">
 	<fields>
-		<field name="tooltip_header" type="an..4096" label="NGAMEDIA_TOOLTIP_HEADER_NGA" />
+		<field name="tooltip_header" type="ANY" label="NGAMEDIA_TOOLTIP_HEADER_NGA" />
 		
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image</value>
 		</field>
-		<field name="type" type="an..180" codelist="CL211" label="nga.type-classification.label" tooltip="nga.type.tooltip" order="5" />
-		<field name="title" type="an..180" label="nga.title.label" tooltip="nga.title.tooltip" mandatory="true" order="10" >
+		<field name="type" type="an..180" codelist="CL211" label="nga.subType.label" tooltip="nga.type.tooltip" order="5" />
+		<field name="title" type="an..180" label="nga.title.label" tooltip="nga.title.tooltip" mandatory="false" order="10" >
 			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
-			<condition id="optionalField" renderAs="OPTIONAL">[integrated] IN ('true')</condition>
+			<condition id="maldatoryField" renderAs="MANDATORY">[integrated] IN ('false')</condition>
 		</field>
-		<field name="name" type="an..180" label="nga.name.label" tooltip="nga.name.tooltip" mandatory="false" displayType="readonly" order="15" dmsType="cm:name" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName"/>
-		<field name="description" type="an..500" label="GEO10001.description" tooltip="nga.description.tooltip" order="20" >
+		<field name="name" type="an..180" label="nga.name.label" tooltip="nga.name.tooltip" mandatory="false" displayType="readonly" order="15" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName"/>
+		<field name="description" type="an..500" label="nga.description.label" tooltip="nga.description.tooltip" order="20" >
 			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 		</field>
-		<field name="mimetype" type="an..20" label="mimetype" tooltip="nga.mimetype.tooltip" displayType="readonly" order="25" dmsType="-cm:content.mimetype" previewEmpty="false" uri="emf:mimetype"/>
-		<field name="size" type="n..10" label="file-size" tooltip="nga.size.tooltip" mandatory="false" displayType="readonly" order="30" previewEmpty="false" uri="emf:size">
+		<field name="mimetype" type="an..20" label="mimetype.label" tooltip="nga.mimetype.tooltip" displayType="readonly" order="25" previewEmpty="false" uri="emf:mimetype"/>
+		<field name="size" type="n..10" label="size.label" tooltip="nga.size.tooltip" mandatory="false" displayType="readonly" order="30" previewEmpty="false" uri="emf:size">
 			<control id="BYTE_FORMAT" />
 		</field>
-		<field name="dimensionUnit" type="an..15" label="dimensionUnit" displayType="system" codelist="CL400" uri="emf:dimensionUnit" order="32" >
+		<field name="dimensionUnit" type="an..15" label="dimensionUnit" displayType="system" codelist="CL14" uri="emf:dimensionUnit" order="32" >
 			<value>cm</value>
 		</field>
 		<field name="identifier" type="an..50" label="nga.identifier.label" tooltip="nga.identifier.tooltip" rnc="${eval(IMG${seq({+imgSequence})})}" order="33" />
-		<field name="status" type="an..35" tooltip="nga.status.tooltip" codelist="CL15" displayType="readonly" order="35" />
+		<field name="status" type="an..35" tooltip="nga.status.tooltip" codelist="CL115" displayType="readonly" order="35" />
 		<field name="emf:version" type="an..10" label="object.version" tooltip="nga.version.tooltip" displayType="readonly" order="40" />
 		<field name="createdOn" type="dateTime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readonly" order="45" />
 		<field name="createdBy" type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readonly" order="50" /> 
@@ -31,26 +31,29 @@
 		<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" order="60" />
 		<field name="lockedBy" type="uri" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" order="68"  />
 		<!-- system fields -->
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" override="true" />
+		
 		
 		<!-- specific integration fields -->
-		<field name="sourceSystemId" type="an..180" order="2" codelist="CL250" label="nga.sourceSystemId.label" tooltip="nga.sourceSystemId.tooltip" mandatory="true" displayType="editable" filters="ngaImageSourceSystemId" uri="chc:sourceSystemId" >
-			<value>NGASR25001</value>
+		<field name="sourceSystemId" type="an..180" order="2" codelist="CL250" label="nga.sourceSystemId.label" tooltip="nga.sourceSystemId.tooltip" mandatory="true" displayType="editable" filters="ngaSourceSystemIdImage" uri="chc:sourceSystemId" >
+			<value>NGASR25005</value>
 			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 		</field>
-		<field name="objectId" type="an..50" order="3" label="ngaImage.objectId.label" mandatory="false" displayType="hidden" previewEmpty="false" uri="emf:externalID" >
-			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
-			<condition id="optionalField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
-		</field>
-		<field name="externalCreatedOn" type="dateTime" label="ngaImage.externalCreatedOn.label" mandatory="false" displayType="hidden" previewEmpty="false" uri="chc:externalCreatedOn" order="3" >
+		<field name="objectId" type="an..50" order="3" label="ngaImage.objectId.label" displayType="hidden" previewEmpty="false" uri="emf:externalID" >
 			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 			<condition id="optionalField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
 		</field>
-		<field name="integrated" type="boolean" displayType="system" uri="chc:integrated" >
+		<field name="externalCreatedOn" type="dateTime" label="ngaImage.externalCreatedOn.label" displayType="hidden" previewEmpty="false" uri="chc:externalCreatedOn" order="3" >
+			<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+			<condition id="optionalField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+		</field>
+		<field name="integrated" type="boolean" displayType="hidden" label="cs.integrated.label" order="41" uri="chc:integrated" >
 			<value>false</value>
 		</field>
 		<field name="references" type="an..1200" label="nga.reference.label" displayType="system" />
@@ -70,57 +73,65 @@
 	<regions>
 		<region id="generalMediaRelationships" order="100" displayType="editable" label="nga.relationships.region.label">
 			<fields>
-				<field name="chc:depicts" type="uri" label="ngaImage.depicts.label" tooltip="ngaImage.depicts.tooltip" mandatory="false" displayType="editable" order="100" multiValued="true" previewEmpty="false" uri="chc:depicts" >
+				<field name="chc:depicts" type="uri" label="ngaImage.depicts.label" tooltip="ngaImage.depicts.tooltip" displayType="editable" order="100" multiValued="true" previewEmpty="false" uri="chc:depicts" >
 					<control id="PICKER">
 					<control-param id="range" name="range">chc:CulturalObject</control-param></control>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="emf:isPrimaryImageOf" type="uri" label="ngaImage.isPrimaryImage.label" tooltip="nga.isPrimaryImageOf.tooltip" mandatory="false" displayType="editable" multiValued="true" order="1002" previewEmpty="false" uri="emf:isPrimaryImageOf" >
+				<field name="emf:isPrimaryImageOf" type="uri" label="ngaImage.isPrimaryImage.label" tooltip="nga.isPrimaryImageOf.tooltip" displayType="editable" multiValued="true" order="1002" previewEmpty="false" uri="emf:isPrimaryImageOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param></control>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="isThumbnailOf" type="uri" label="ngaImage.isThumbnailOf.label" tooltip="ngaImage.isThumbnailOf.tooltip" mandatory="false" displayType="readonly" order="1004" multiValued="true" previewEmpty="false" uri="emf:isThumbnailOf" >
+				<field name="isThumbnailOf" type="uri" label="ngaImage.isThumbnailOf.label" tooltip="ngaImage.isThumbnailOf.tooltip" displayType="readonly" order="1004" multiValued="true" previewEmpty="false" uri="emf:isThumbnailOf" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:ConservationActivity,emf:User,emf:BusinessProcess</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:ConservationActivity,emf:User,emf:BusinessProcess,emf:SavedSearch</control-param>
 					</control>
 				</field>
-				<field name="isAttachmentTo" type="uri" label="nga.attachmentOf.label" tooltip="nga.attachmentOf.tooltip" mandatory="false" displayType="editable" order="1006" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
-					</control>
-				</field>
-				<field name="hasAttachment" type="uri" label="nga.hasAttachment.label" tooltip="nga.hasAttachment.tooltip" mandatory="false" displayType="editable" order="1008" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
+				<field name="isAttachmentTo" type="uri" label="nga.attachmentOf.label" tooltip="nga.attachmentOf.tooltip" displayType="editable" order="1006" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="emf:hasWatcher" type="uri" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" mandatory="false" displayType="editable" order="1010" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
+				<field name="hasAttachment" type="uri" label="nga.hasAttachment.label" tooltip="nga.hasAttachment.tooltip" displayType="editable" order="1008" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
+					</control>
+				</field>
+				<field name="emf:hasWatcher" type="uri" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" displayType="editable" order="1010" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" mandatory="false" displayType="readOnly" order="1012" previewEmpty="false" uri="emf:hasThumbnail" >
+				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" displayType="readOnly" order="1012" previewEmpty="false" uri="emf:hasThumbnail" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 				</field>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" mandatory="false" displayType="readOnly" order="1014" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" mandatory="false" displayType="readOnly" order="1016" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User,emf:BusinessProcess</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" mandatory="false" displayType="readOnly" order="1018" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" order="1014" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" mandatory="false" displayType="readOnly" order="1020" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" order="1016" previewEmpty="false" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="emf:hasTemplate" type="uri" order="1018" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Template</control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" order="1020" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" order="1022" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -132,40 +143,60 @@
 		<!--system action -->
 		<transition id="prepareImport" label="nga.prepareImport.action.label" eventId="prepareImport" purpose="prepareImport" />
 
-		<transition id="editDetails" order="10" />
-		<transition id="import" order="12" label="nga.import.action.label" tooltip="nga.import.action.tooltip" eventId="import" purpose="import" confirmation="import.confirm" />
-		<transition id="updateInt" order="14" label="nga.updateInt.action.label" tooltip="nga.updateInt.action.tooltip" eventId="updateInt" purpose="updateInt" confirmation="update.confirm" />
-		<transition id="uploadNewVersion" order="16" />
-		<transition id="addAttachment" order="18" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" >
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		<transition id="import" order="15" label="nga.import.action.label" tooltip="nga.import.action.tooltip" eventId="import" purpose="import" confirmation="import.confirm" />
+		<transition id="updateInt" order="20" label="nga.updateInt.action.label" tooltip="nga.updateInt.action.tooltip" eventId="updateInt" purpose="updateInt" confirmation="update.confirm" />
+		<transition id="uploadNewVersion" order="25" />
+		
+		<group id="add" order="30" label="add.group.label" type="menu" />
+		<transition id="addAttachment" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
 			<fields>
-				<field name="attachToConfig" type="an10">
+				<field name="attachToConfig" type="json">
 					<value>
 						{
 							"predefinedTypes" : ["emf:Project","chc:ConservationActivity","emf:BusinessProcess","emf:Document","emf:Media","emf:Task","chc:CulturalObject","emf:Image","emf:Audio","emf:Video","chc:Sample"],
 							"selection" : "multiple",
-							"relation" : ["chc:hasAttachment"],
-							"implicitParams" : {
-								"removeExisting" : false
-							}
+							"relation" : ["chc:hasAttachment"]
 						}
 					</value>
 					<control id="configuration" />
 				</field>
 			</fields>
 		</transition>
-		<!-- not used, only lable is change as the actions are visible in manage actions per roles -->
-		<transition id="print" order="18" label="nga.print.label"/>
-		<transition id="exportPDF" order="20" label="nga.exportPDF.label"/> 
-		<transition id="exportWord" order="22" label="nga.exportWord.label"/>
-		<!-- ************************************************************************************  -->
-		<transition id="printTab" order="21" label="print.label" />
-		<transition id="exportTabPDF" order="22" label="exportPDF.label" />
-		<transition id="exportTabWord" order="26" label="exportWord.label" />
-		<transition id="download" order="28" />
-		<transition id="clone" order="29" />
-		<transition id="move" order="30" >
+		<transition id="addThumbnail" group="add" />
+		<transition id="addWatchers" group="add" >
 			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="addAttachmentConfig" type="json">
+					<value>						
+						{
+							"predefinedTypes" : ["emf:User"],
+							"selection" : "multiple",
+							"relation" : ["emf:hasWatcher"],
+							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<transition id="download" order="35" />
+		
+		<group id="exportAs" order="40" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+		
+		<transition id="printTab" order="45" />
+		
+		<group id="template" order="50" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="nga.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="nga.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="55" label="more.group.label" type="menu" />
+		<transition id="move" group="more" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[	
 							var type = codelist.getDescription(211, root.get('type'), 'en');
@@ -189,36 +220,18 @@
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
                         <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
                     </control>
                 </field>
 			</fields>
 		</transition>
-		<transition id="lock" order="32" />
-		<transition id="unlock" order="34" />
-		<transition id="addWatchers" order="36" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" >
+		<transition id="clone" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" actionPath="/" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="100" confirmation="deleteCS.confirm" >
 			<fields>
-				<field name="addAttachmentConfig" type="an10">
-					<value>						
-						{
-							"predefinedTypes" : ["emf:User"],
-							"selection" : "multiple",
-							"relation" : ["emf:hasWatcher"],
-							"implicitParams" : {
-								"removeExisting" : false
-							}
-						}
-					</value>
-					<control id="configuration" />
-				</field>
-			</fields>
-		</transition>
-		<transition id="addThumbnail" order="38" />
-		<transition id="saveAsTemplate" order="40" />			
-		<transition id="managePermissions" order="42" />
-		<transition id="delete" order="44" confirmation="deleteCS.confirm" >
-			<fields>
-				<field name="sendMail" type="an..200" displayType="system" mandatory="false">
+				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
 						<![CDATA[	
 							var type = codelist.getDescription(211, root.get('type'), 'en');
@@ -241,8 +254,7 @@
                     </value>
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async">true</control-param>
-                        <control-param id="persistent" name="persistent">false</control-param>
+                        <control-param id="async" name="async">false</control-param>
                     </control>
                 </field>
 			</fields>
@@ -250,38 +262,43 @@
 	</transitions>	
 		 
 	<stateTransitions>
-		<stateTransition from="INIT" transition="create" to="DRAFT"/>
-		<stateTransition from="INIT" transition="clone" to="DRAFT">
+		<stateTransition from="INIT" transition="create" to="CURRENT"/>
+		<stateTransition from="INIT" transition="clone" to="CURRENT">
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>
 		
 		<!-- state transition for integration (only for purposes of importing the image from external system) -->
 		<stateTransition from="INIT" transition="prepareImport" to="FOR_IMP"/>
-		<stateTransition from="FOR_IMP" transition="import" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="updateInt" to="DRAFT" >
+		<stateTransition from="FOR_IMP" transition="import" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="updateInt" to="CURRENT" >
 			<condition renderAs="PROPERTY" id="integrated">true</condition>
 		</stateTransition>
 		
-		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="download" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="move" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="addAttachment" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="printTab" to="DRAFT" />
-        <stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="clone" to="DRAFT" >
+		<stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="changeTemplate" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="download" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="move" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="managePermissions" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="addThumbnail" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="lock" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="unlock" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="uploadNewVersion" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="addAttachment" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="addWatchers" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="printTab" to="CURRENT" />
+        <stateTransition from="CURRENT" transition="exportTabPDF" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="exportTabWord" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="clone" to="CURRENT" >
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>
-		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT"/>
+		<stateTransition from="CURRENT" transition="createInContext" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="updateTemplate" to="CURRENT"/>
 
-		<stateTransition from="DRAFT" transition="delete" to="DELETED"/>
-		<stateTransition from="*" transition="delete" to="DELETED" />
+		<stateTransition from="CURRENT" transition="delete" to="CURRENT"/>
 	</stateTransitions>
+	
+	 <allowedChildren>
+		<child type="document" id="all"/>
+	</allowedChildren>
 </definition>

@@ -1,0 +1,48 @@
+<div class="instance-list">
+
+  <div class="alert alert-info" ng-if="instanceList.config.loadingListMessage && !instanceList.finishedLoading">
+    {{::instanceList.config.loadingListMessage | translate}}
+  </div>
+
+  <div class="alert alert-info" ng-if="instanceList.config.emptyListMessage && instanceList.filteredInstances.length < 1 && instanceList.finishedLoading">
+    {{::instanceList.config.emptyListMessage | translate}}
+  </div>
+
+  <div ng-if="instanceList.isSelectDeselectEnabled()">
+    <span ng-if="::instanceList.config.selectAll">
+      <a class="select-all" href="javascript:void(0)" ng-click="instanceList.selectAll()">
+        {{::'instance.list.select.all' | translate}}
+      </a> /
+    </span>
+    <a ng-if="::instanceList.config.deselectAll" class="deselect-all" href="javascript:void(0)" ng-click="instanceList.deselectAll()">
+      {{::'instance.list.deselect.all' | translate}}
+    </a>
+  </div>
+
+  <table class="table table-hover">
+    <tr class="instance-list-item-wrapper"
+        ng-repeat="instance in (instanceList.filteredInstances = (instanceList.instances | instanceByTypeFilter: instanceList.typesFilter))">
+      <td class="instance-list-item" ng-class="::{'selectable': instanceList.config.selectableItems}">
+        <label ng-if="::instanceList.config.selectableItems"
+               class="{{::instanceList.selectionControlType}}"
+               ng-class="::{'state-disabled' : instanceList.excluded[instance.id]}">
+          <input type="{{::instanceList.selectionControlType}}"
+                 value="{{::instance.id}}"
+                 name="selectedItems"
+                 ng-click="instanceList.onClick(instance)"
+                 ng-disabled="::instanceList.excluded[instance.id]"
+                 ng-checked="instanceList.isSelected(instance)"/>
+          <i class="select-control"></i>
+        </label>
+
+        <seip-header-container header-type="'default_header'"
+                               header="::instance.headers.default_header"
+                               instance-id="::instance.id"
+                               definition-id="::instance.definitionId"
+                               config="::instanceList.config"
+                               ng-click="instanceList.onClick(instance)">
+        </seip-header-container>
+      </td>
+    </tr>
+  </table>
+</div>

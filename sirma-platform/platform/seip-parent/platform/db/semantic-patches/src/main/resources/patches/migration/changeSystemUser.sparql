@@ -1,0 +1,31 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+
+DELETE {
+    %currentUser% ?predicate1 ?object1 .
+    ?subject ?predicate2 %currentUser% .
+    %currentUser%_SecurityRoleTypes-Manager ?predicate3 ?object3.
+    %currentUser%_SecurityRoleTypes-Read ?predicate4 ?object4.
+    %currentUser%_SecurityRoleTypes-Read-Write ?predicate5 ?object5.
+}
+INSERT {
+    GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework>{
+        emf:System-%tenantId% ?predicate1 ?object1 .
+        ?subject ?predicate2 emf:System-%tenantId% .
+        emf:System-%tenantId%_SecurityRoleTypes-Manager ?predicate3 ?object3.
+        emf:System-%tenantId%_SecurityRoleTypes-Read ?predicate4 ?object4.
+        emf:System-%tenantId%_SecurityRoleTypes-Read-Write ?predicate5 ?object5.
+    }
+}
+WHERE {
+    {
+        %currentUser% ?predicate1 ?object1 .
+    } UNION {
+        ?subject ?predicate2 %currentUser% .
+    } UNION {
+        %currentUser%_SecurityRoleTypes-Manager ?predicate3 ?object3
+    } UNION {
+        %currentUser%_SecurityRoleTypes-Read ?predicate4 ?object4
+    } UNION {
+        %currentUser%_SecurityRoleTypes-Read-Write ?predicate5 ?object5
+    }
+}

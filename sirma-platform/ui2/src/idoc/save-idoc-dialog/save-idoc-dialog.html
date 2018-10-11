@@ -1,0 +1,14 @@
+<div id="invalidObjectsList">
+  <div ng-repeat="object in saveIdocDialog.config.invalidObjects" class="panel panel-default"
+       data-object-id="{{ object.models.id }}">
+    <div class="panel-heading">
+      <seip-collapsible target="('#invalidObjectsList [data-object-id=\'' + object.models.id + '\'] .panel-body')"
+                        label="::object.models.headers['compact_header']" class="panel-title"></seip-collapsible>
+    </div>
+    <div class="panel-body">
+      <seip-context-selector ng-if="object.contextSelectorEnabled"
+                             config="::object.contextSelectorConfig"></seip-context-selector>
+      <seip-form-wrapper config="saveIdocDialog.config" form-config="object"></seip-form-wrapper>
+    </div>
+  </div>
+</div>

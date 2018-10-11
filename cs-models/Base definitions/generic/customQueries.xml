@@ -90,11 +90,30 @@
 				<control-param id="queryParam" name="draftRevision">0.0</control-param>
 			</control>
         </field>
+        <!-- Retrieves revision instances which status is different than the one specified with the binding 'statusArg' -->
+		<field name="getRevisionsWithDifferentStatus" type="an..200" displayType="system">
+			<value>SELECT DISTINCT ?instance ?instanceType WHERE {
+						?objectUri emf:hasRevision ?instance.
+						?instance emf:isDeleted "false"^^xsd:boolean.
+						?instance emf:instanceType ?instanceType.
+						?instance emf:status ?status.
+						FILTER (?status != ?statusArg).
+				   }
+			</value>
+			<control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="binding" name="objectUri" />
+				<control-param id="binding" name="statusArg" />
+			</control>
+		</field>
         <field name="processedByWorkflows" type="an..200" displayType="system">
             <value>select ?instance ?instanceType ?definitionId where {
 					    ?instance a emf:BusinessProcess;
 					        emf:processes ?objectUri;
-					        emf:type ?definitionId;
+					        emf:definitionId ?definitionId;
 					        emf:status "IN_PROGRESS";
 					        emf:isDeleted "false"^^xsd:boolean;
 					        emf:instanceType ?instanceType.
@@ -120,6 +139,7 @@
 				<control-param id="config" name="countOnly">false</control-param>
 				<control-param id="config" name="includeInferred">true</control-param>
 				<control-param id="config" name="queryTimeout">1</control-param>
+				<control-param id="config" name="enableInstancesByTypeFilter">false</control-param>
 				<control-param id="config" name="maxSize">-1</control-param>
 				<control-param id="binding" name="resourceType" />
 			</control>
@@ -152,6 +172,25 @@
 				<control-param id="config" name="includeInferred">true</control-param>
 				<control-param id="config" name="queryTimeout">5</control-param>
 				<control-param id="binding" name="currentInstance" />
+			</control>
+        </field>
+         <field name="getAllTasksNearEnd" type="an..200" displayType="system">
+            <value>		{ ?instance a emf:Task. } 
+					UNION 
+						{ ?instance a emf:BusinessProcessTask. }
+
+ 						?instance emf:plannedEndDate ?planEndDate.
+ 						?instance emf:instanceType ?instanceType.
+ 						?instance emf:isActive "true"^^xsd:boolean.
+   					FILTER(year(?planEndDate) = YEAR(?systemTime) &amp;&amp; MONTH(?planEndDate) = MONTH(?systemTime) &amp;&amp; DAY(?planEndDate) = DAY(?systemTime) + ?todayPlus).
+			</value>
+            <control id="query">
+				<control-param id="config" name="dialect">SPARQL</control-param>
+				<control-param id="config" name="countOnly">false</control-param>
+				<control-param id="config" name="includeInferred">true</control-param>
+				<control-param id="config" name="queryTimeout">5</control-param>
+				<control-param id="binding" name="todayPlus" />
+				<control-param id="binding" name="systemTime" />
 			</control>
         </field>
 	</fields>

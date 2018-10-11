@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.4.0">
+  <bpmn:process id="SMKWFLTYPE03" name="Photograph Cultural Object Workflow" isExecutable="true">
+    <bpmn:startEvent id="StarProcess">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="createdBy" type="string" />
+          <camunda:formField id="processes" type="string" />
+          <camunda:formField id="department" type="string" />
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="priority" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1bmpipo">
+      <bpmn:incoming>SequenceFlow_gateway</bpmn:incoming>
+      <bpmn:outgoing>rejectTask</bpmn:outgoing>
+      <bpmn:outgoing>finish_movement</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_gateway" sourceRef="smkTask-SMK24330" targetRef="ExclusiveGateway_1bmpipo" />
+    <bpmn:sequenceFlow id="finish_movement" name="Afslut" sourceRef="ExclusiveGateway_1bmpipo" targetRef="smkTask-SMK24331">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='finish'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_1fmcb9o">
+      <bpmn:incoming>rejectTask</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="rejectTask" name="Afvis opgave" sourceRef="ExclusiveGateway_1bmpipo" targetRef="EndEvent_1fmcb9o">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.SendWorkflowMail" event="take">
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="users">          <camunda:string>createdBy,hasWatcher</camunda:string>
+</camunda:field>
+          <camunda:field name="mailTemplate">          <camunda:expression>email_complete_object_smk</camunda:expression>
+</camunda:field>
+          <camunda:field name="subject">          <camunda:string>(Completed) Photograph Cultural Object Workflow</camunda:string>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='rejectTask'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="smkTask-SMK24330" name="Fotografér værk&#10;" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="priority" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+          <camunda:inputParameter name="department">${department}</camunda:inputParameter>
+          <camunda:inputParameter name="plannedEndDate"><![CDATA[${execution.getVariable("plannedEndDate")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher"><![CDATA[${execution.getVariable("hasWatcher")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="priority"><![CDATA[${execution.getVariable("priority")}]]></camunda:inputParameter>
+          <camunda:outputParameter name="plannedEndDate">${plannedEndDate}</camunda:outputParameter>
+          <camunda:outputParameter name="hasWatcher">${hasWatcher}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_start</bpmn:incoming>
+      <bpmn:incoming>amendPhotos</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="smkTask-SMK24331" name="Bekræft fotografering af værk&#10;" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="priority" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="assignee">${createdBy}</camunda:inputParameter>
+          <camunda:inputParameter name="department">${department}</camunda:inputParameter>
+          <camunda:inputParameter name="processes">${processes}</camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher"><![CDATA[${execution.getVariable("hasWatcher")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="plannedEndDate"><![CDATA[${execution.getVariable("plannedEndDate")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="priority"><![CDATA[${execution.getVariable("priority")}]]></camunda:inputParameter>
+          <camunda:outputParameter name="hasWatcher">${hasWatcher}</camunda:outputParameter>
+          <camunda:outputParameter name="plannedEndDate">${plannedEndDate}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>finish_movement</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1dx4b15</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_start" sourceRef="StarProcess" targetRef="smkTask-SMK24330" />
+    <bpmn:endEvent id="EndEvent_1uza8hz">
+      <bpmn:incoming>finish_approval</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="finish_approval" name="Afslut" sourceRef="ExclusiveGateway_13pyaqm" targetRef="EndEvent_1uza8hz">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.SendWorkflowMail" event="take">
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="users">          <camunda:string>createdBy,hasWatcher</camunda:string>
+</camunda:field>
+          <camunda:field name="mailTemplate">          <camunda:expression>email_complete_object_smk</camunda:expression>
+</camunda:field>
+          <camunda:field name="subject">          <camunda:string>(Afsluttet) Fotografér værk</camunda:string>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='finish'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_13pyaqm">
+      <bpmn:incoming>SequenceFlow_1dx4b15</bpmn:incoming>
+      <bpmn:outgoing>finish_approval</bpmn:outgoing>
+      <bpmn:outgoing>amendPhotos</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1dx4b15" sourceRef="smkTask-SMK24331" targetRef="ExclusiveGateway_13pyaqm" />
+    <bpmn:sequenceFlow id="amendPhotos" name="Erstat optagelse" sourceRef="ExclusiveGateway_13pyaqm" targetRef="smkTask-SMK24330">
+      <bpmn:documentation><![CDATA[${outcome=='amendPhotos'}]]></bpmn:documentation>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SMKWFLTYPE03">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StarProcess">
+        <dc:Bounds x="26" y="117" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="44" y="153" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1bmpipo_di" bpmnElement="ExclusiveGateway_1bmpipo" isMarkerVisible="true">
+        <dc:Bounds x="311" y="114" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="336" y="164" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1pxy70r_di" bpmnElement="SequenceFlow_gateway">
+        <di:waypoint xsi:type="dc:Point" x="239" y="138" />
+        <di:waypoint xsi:type="dc:Point" x="311" y="139" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="275" y="124" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_16j10oi_di" bpmnElement="finish_movement">
+        <di:waypoint xsi:type="dc:Point" x="361" y="139" />
+        <di:waypoint xsi:type="dc:Point" x="453" y="138" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="393" y="116" width="27" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1fmcb9o_di" bpmnElement="EndEvent_1fmcb9o">
+        <dc:Bounds x="505" y="239" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="523" y="275" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0mvgxb8_di" bpmnElement="rejectTask">
+        <di:waypoint xsi:type="dc:Point" x="336" y="164" />
+        <di:waypoint xsi:type="dc:Point" x="336" y="257" />
+        <di:waypoint xsi:type="dc:Point" x="505" y="257" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="390" y="238" width="63" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0z6dekk_di" bpmnElement="smkTask-SMK24330">
+        <dc:Bounds x="139" y="96" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_1mjpr12_di" bpmnElement="smkTask-SMK24331">
+        <dc:Bounds x="453" y="98" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ga9xcm_di" bpmnElement="SequenceFlow_start">
+        <di:waypoint xsi:type="dc:Point" x="62" y="135" />
+        <di:waypoint xsi:type="dc:Point" x="139" y="135" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="101" y="120" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1uza8hz_di" bpmnElement="EndEvent_1uza8hz">
+        <dc:Bounds x="823" y="121" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="841" y="157" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ei677t_di" bpmnElement="finish_approval">
+        <di:waypoint xsi:type="dc:Point" x="703" y="139" />
+        <di:waypoint xsi:type="dc:Point" x="823" y="139" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="748" y="117" width="27" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_13pyaqm_di" bpmnElement="ExclusiveGateway_13pyaqm" isMarkerVisible="true">
+        <dc:Bounds x="653" y="114" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="678" y="164" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1dx4b15_di" bpmnElement="SequenceFlow_1dx4b15">
+        <di:waypoint xsi:type="dc:Point" x="553" y="138" />
+        <di:waypoint xsi:type="dc:Point" x="653" y="139" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="603" y="124" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0p8sexh_di" bpmnElement="amendPhotos">
+        <di:waypoint xsi:type="dc:Point" x="678" y="114" />
+        <di:waypoint xsi:type="dc:Point" x="678" y="23" />
+        <di:waypoint xsi:type="dc:Point" x="189" y="23" />
+        <di:waypoint xsi:type="dc:Point" x="189" y="96" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="392" y="8" width="79" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

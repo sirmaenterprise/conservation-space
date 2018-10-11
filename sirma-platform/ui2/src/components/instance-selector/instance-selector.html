@@ -1,0 +1,47 @@
+<div class="instance-selector" ng-class="{'preview' : !instanceSelector.isEditMode()}">
+  <div class="instance-suggest">
+    <seip-instance-suggest-select
+      class="instance-suggest-select"
+      config="instanceSelector.selectConfig"
+      ng-if="instanceSelector.isEditMode()">
+    </seip-instance-suggest-select>
+
+    <button ng-if="instanceSelector.isEditMode()" class="btn btn-xs btn-default select-instance-btn no-print"
+            title="{{ ::'instance.selector.select.btn.title' | translate }}"
+            ng-click="instanceSelector.select()">
+      <span aria-hidden="true">&#43;</span>
+    </button>
+
+  </div>
+  <div class="instance-box"
+       ng-repeat="instanceId in instanceSelector.getSelectionPoolEntries() | limitTo: instanceSelector.displayObjectsCount">
+    <div class="instance-box-header">
+      <seip-static-instance-header header-type="instanceSelector.headerType"
+                                   header="instanceSelector.instanceModelProperty.value.headers[instanceId][instanceSelector.headerType]"
+                                   config="instanceSelector.config"
+                                   event-emitter="instanceSelector.eventEmitter"
+                                   is-disabled="false">
+      </seip-static-instance-header>
+    </div>
+    <button ng-if="instanceSelector.isEditMode()" type="button"
+            class="btn btn-xs btn-default remove-instance-btn no-print"
+            title="{{ ::'instance.selector.remove.object.btn.title' | translate }}"
+            ng-click="instanceSelector.removeSelectedItem($index)">
+      <span aria-hidden="true">&#10005;</span>
+    </button>
+  </div>
+  <button ng-if="instanceSelector.isShowMoreButtonVisible()"
+          class="btn btn-xs btn-default show-more-objects no-print"
+          title="{{ ::'instance.selector.show.more.btn.title' | translate }}"
+          ng-click="instanceSelector.showMore()">
+    <span class="hidden-objects-count" ng-hide="instanceSelector.isLoading">{{instanceSelector.getHiddenObjectsCount()}}</span>
+    <i class="fa fa-spinner fa-spin" ng-hide="!instanceSelector.isLoading"/>
+    <span class="expand-icon" aria-hidden="true">&#9663;</span>
+  </button>
+  <button ng-if="instanceSelector.isShowLessButtonVisible()"
+          class="btn btn-xs btn-default show-less-objects no-print"
+          title="{{ ::'instance.selector.show.less.btn.title' | translate }}"
+          ng-click="instanceSelector.showLess()">
+    <span class="collapse-icon" aria-hidden="true">&#9653;</span>
+  </button>
+</div>

@@ -1,0 +1,34 @@
+<div class="order-toolbar">
+  <div class="btn-group order-by dropdown">
+    <button class="btn btn-default order-by-dropdown"
+            title="{{ ::'search.order.toolbar.sort.current' | translate }}"
+            data-toggle="dropdown">
+      <span class="order-by-option">{{ orderToolbar.getOrderByValue() }}</span>
+    </button>
+    <button class="btn dropdown-toggle dropdown-toggle-split order-by-dropdown-button"
+            title="{{ ::'search.order.toolbar.sort.options' | translate }}"
+            ng-disabled="orderToolbar.disabled"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="true">
+      <b class="order-by-caret"></b>
+    </button>
+    <ul ng-if="!orderToolbar.disabled"
+        class="dropdown-menu order-by-dropdown-menu">
+      <li ng-repeat="order in orderToolbar.orderByData track by order.id">
+        <a role="menuitem"
+           href="javascript:void(0)"
+           ng-click="orderToolbar.onOrderSelected(order)"
+           ng-class="{'order-disabled': order.disabled}"
+           class="order-by-item">{{ ::order.text | translate }}</a>
+      </li>
+    </ul>
+  </div>
+
+  <button class="btn btn-default sort-by" ng-click="orderToolbar.onOrderToggled()"
+          title="{{ ::'search.order.toolbar.sort.direction' | translate }}"
+          ng-disabled="orderToolbar.disabled">
+    <i class="fa fa-sort-alpha-asc ascending" ng-if="orderToolbar.isAscending()"></i>
+    <i class="fa fa-sort-alpha-desc descending" ng-if="!orderToolbar.isAscending()"></i>
+  </button>
+</div>

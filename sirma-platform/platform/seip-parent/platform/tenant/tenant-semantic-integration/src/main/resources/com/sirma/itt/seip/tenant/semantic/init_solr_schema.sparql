@@ -1,0 +1,121 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+insert data {
+    
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework/init-solr> {
+ptop:Document rdf:type owl:Class ;
+              
+              rdfs:subClassOf ptop:InformationResource .
+              
+ptop:InformationResource rdf:type owl:Class ;
+
+                         rdfs:subClassOf ptop:Statement .
+                         
+ptop:Statement rdf:type owl:Class ;
+               
+               rdfs:subClassOf ptop:Object .
+               
+               
+emf:Project rdf:type owl:Class ;
+            
+            rdfs:subClassOf emf:Activity .
+            
+            
+emf:Activity rdf:type owl:Class ;
+             
+             rdfs:subClassOf ptop:Event .
+             
+             
+ptop:Event rdf:type owl:Class ;
+           
+           rdfs:subClassOf ptop:Happening .
+           
+
+ptop:Group rdf:type owl:Class ;
+           
+           rdfs:subClassOf ptop:Agent .
+           
+           
+ptop:Agent rdf:type owl:Class ;
+           
+           rdfs:subClassOf ptop:Object .
+           
+           
+emf:User rdf:type owl:Class ;
+         
+         rdfs:subClassOf ptop:Person .
+         
+         
+ptop:Person rdf:type owl:Class ;
+            
+            rdfs:subClassOf ptop:Agent .         
+                                          
+emf:DomainObject rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf ptop:Object .
+
+emf:test_instance a ptop:Document ;
+emf:instanceType "objectinstance" ;
+emf:uri "emf:test_instance" ;
+emf:type "type" ;
+emf:isDeleted "false"^^xsd:boolean ;
+emf:isActive "false"^^xsd:boolean ;
+dcterms:identifier "123" ;
+dcterms:title "title" ;
+dcterms:description "description" ;
+dcterms:creator "creator";
+emf:status "DELETED" ;
+emf:compact_header "<span class=truncate-element/>" ;
+emf:default_header "<span class=truncate-element/>" ;
+emf:owner emf:test_user ;
+emf:hasAssignee emf:test_user ;
+emf:hasAssignee emf:test_group ;
+emf:hasPoolAssignee emf:test_group ;
+emf:hasPoolAssignee emf:test_user ;
+ptop:endTime "2014-09-09T00:00:00.000+03:00"^^xsd:dateTime ;
+emf:mimetype "jpeg" ;
+emf:content "content" ;
+emf:ocrContent "ocrContent" ;
+emf:plannedEndDate "2014-09-09T00:00:00.000+03:00"^^xsd:dateTime ;
+emf:plannedStartDate "2014-09-09T22:28:54.119+03:00"^^xsd:dateTime ;
+emf:priority "HIGH" ;	
+emf:createdOn "2014-06-05T08:50:05.706+03:00"^^xsd:dateTime ;
+emf:modifiedOn "2014-06-05T08:50:05.706+03:00"^^xsd:dateTime ;
+emf:fileModifiedDate "2014-06-05T08:50:05.706+03:00"^^xsd:dateTime ;
+emf:fileCreatedDate "2014-06-05T08:50:05.706+03:00"^^xsd:dateTime ;
+emf:createdBy emf:test_user ;
+emf:modifiedBy emf:test_user ;
+ptop:partOf emf:test_project ;
+emf:isAttachedTo emf:test_project ;
+emf:hasParent emf:test_project ;
+emf:externalID "external" ;
+emf:fileName "fileName";
+emf:purpose "purpose" ;
+emf:departmentName "departmentName" ;
+emf:breadcrumb_header "breadcrumb_header" ;
+emf:filterType "filterType" ;
+emf:mutable "true"^^xsd:boolean ;
+emf:author "author" ;
+emf:revisionType emf:revision;
+emf:businessType "businessType" ;
+emf:departmentType "departmentType" ;
+emf:expirationDate "2014-06-05T08:50:05.706+03:00"^^xsd:dateTime .
+
+emf:test_project a emf:Project ;
+emf:isDeleted "false"^^xsd:boolean ;
+emf:parentOf emf:test_instance .
+     
+emf:test_group a ptop:Group ;
+emf:isDeleted "false"^^xsd:boolean .
+
+emf:test_user a emf:User ;
+emf:isDeleted "false"^^xsd:boolean .
+
+emf:test_group ptop:hasMember emf:test_user .
+
+}
+}

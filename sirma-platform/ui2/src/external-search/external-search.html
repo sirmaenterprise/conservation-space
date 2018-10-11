@@ -1,0 +1,58 @@
+<div class="external-search">
+  <seip-select class="external-systems"
+               ng-if="externalSearch.systemsSelectConfig"
+               config="externalSearch.systemsSelectConfig"
+               ng-model="externalSearch.system">
+  </seip-select>
+
+  <seip-advanced-search-section class="external-search-criteria"
+                                ng-if="externalSearch.criteria.rules.length > 0 && externalSearch.sectionLoaders"
+                                config="::externalSearch.sectionConfig"
+                                context="::externalSearch.context"
+                                criteria="externalSearch.criteria.rules[0]"
+                                loaders="::externalSearch.sectionLoaders">
+  </seip-advanced-search-section>
+
+  <div class="input-group-btn">
+    <div class="pull-right">
+      <button type="button" class="btn btn-primary seip-search"
+              ng-click="externalSearch.search()"
+              ng-disabled="externalSearch.config.disabled">
+        {{ ::'search.advanced.search' | translate }}
+      </button>
+      <button type="button" class="btn btn-default clear-criteria"
+              ng-click="externalSearch.clear()"
+              ng-disabled="externalSearch.config.disabled">
+        {{ ::'labels.clear' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="external-toolbar-panel search-toolbar">
+    <seip-results-toolbar class="results-bar-wrapper"
+                          ng-hide="externalSearch.hideSearchCriteria"
+                          ng-if="externalSearch.toolbarConfig.resultsToolbar"
+                          config="::externalSearch.toolbarConfig.resultsToolbar"></seip-results-toolbar>
+
+    <seip-order-toolbar class="order-bar-wrapper"
+                        ng-hide="externalSearch.hideSearchCriteria"
+                        ng-if="externalSearch.toolbarConfig.orderToolbar"
+                        disabled="externalSearch.toolbarConfig.orderToolbar.disabled"
+                        order-by="externalSearch.toolbarConfig.orderToolbar.orderBy"
+                        order-by-data="externalSearch.toolbarConfig.orderToolbar.orderByData"
+                        order-direction="externalSearch.toolbarConfig.orderToolbar.orderDirection"
+                        on-order-changed="externalSearch.toolbarCallback(params)"></seip-order-toolbar>
+  </div>
+
+  <seip-result-template ng-if="externalSearch.config.results.config"
+                        config="externalSearch.config.results.config"
+                        selected-items="externalSearch.config.results.config.selectedItems"
+                        results="externalSearch.config.results">
+  </seip-result-template>
+
+  <seip-pagination config="externalSearch.paginationConfig"
+                   total="externalSearch.config.results.total"
+                   page="externalSearch.paginationConfig.page"
+                   callback="externalSearch.paginationCallback">
+  </seip-pagination>
+</div>

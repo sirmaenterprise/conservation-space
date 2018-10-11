@@ -1,0 +1,9 @@
+<dataConfig>
+	<dataSource type="JdbcDataSource" driver="org.postgresql.Driver" url="jdbc:postgresql://db:5432/${DB_NAME}" user="${DB_USER}" password="${DB_PASSWORD}"/>
+    <document>
+        <entity name="EMFActivity" query="select * from emf_events 
+			WHERE '${dataimporter.request.clean}' != 'false'
+			OR id > '${dataimporter.request.lastId}'">
+        </entity>
+    </document>
+</dataConfig>

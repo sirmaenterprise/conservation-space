@@ -1,0 +1,99 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+insert data {
+
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+             
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#File
+		emf:File rdf:type owl:Class ;
+			rdfs:label "Файл"@bg , "Datei"@de , "Tiedosto"@fi , "File"@en ;
+			rdfs:subClassOf ptop:InformationResource ;
+			emf:isUploadable "true"^^xsd:boolean ;
+			sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+			emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+			sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+			emf:isSearchable "true"^^xsd:boolean ;
+			skos:definition "A resource for storing information, which is available to a computer program and is usually based on some kind of durable storage."@en ;
+			dc:creator "Lyubomir Marinov"@en ;
+			emf:classCategory "objectinstance" ;
+			emf:definitionId "objectinstance"@en .
+			
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Folder
+		emf:Folder rdf:type owl:Class ;
+            rdfs:label "Папка"@bg , "Ordner"@de , "Kansio"@fi , "Folder"@en ;
+            rdfs:subClassOf ptop:Object ;
+            sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+            skos:definition "Folder - a dynamic data organization item. In addition to being a holder for child items it also can be used for dynamic organization of data based on user defined queries."@en ;
+            dc:creator "Lyubomir Marinov"@en ;
+            emf:classCategory "folderinstance"@en ;
+            emf:definitionId "objectinstance"@en .
+			
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Meeting
+		emf:Meeting rdf:type owl:Class ;
+			rdfs:label "Среща"@bg , "Treffen"@de , "Kokous"@fi , "Meeting"@en ;
+            rdfs:subClassOf emf:Activity ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+            sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            skos:definition "An assembly of people for a particular purpose, especially for formal discussion."@en ;
+            dc:creator "Lyubomir Marinov"@en ;
+            emf:classCategory "meeting"@en ; 
+            emf:definitionId "objectinstance"@en .
+			
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Product
+		emf:Product rdf:type owl:Class ;
+            rdfs:label "Продукт"@bg , "Produkt"@de , "Tuote"@fi , "Product"@en ;
+            rdfs:subClassOf ptop:Object ;
+            sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+            sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            skos:definition "A product is a tangible or intangible output that is the result of a process that does not include activities that are performed at the interface between the supplier (provider) and the customer. A product is a result of a process. The product is produced by supplier (provider) and delivered to a customer. The product's supplier and customer can be internal or external to the organization. Organization is supplier, customer is external - product is produced by the organization and delivered/sold to an external organization  - customer. Supplier and customer are within the organization - product manufactured by one process/department within the organization is input to another process/department within the organization.Organization is customer, supplier is external - product is requested/purchased by the organization and delivered by an external provider. Products can be tangible or intangible. There are three generic product categories: hardware, processed materials, and software. Many products combine several of these categories. For example, an automobile (a product) combines hardware (e.g. tires), software (e.g. engine control algorithms), and processed materials (e.g. lubricants)."@en ;
+            dcterms:creator "Yaldaz Mehmedova"@en ;
+            emf:classCategory "objectinstance"@en ;
+            emf:definitionId "objectinstance"@en .
+			
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Service
+		emf:Service rdf:type owl:Class ;  
+            rdfs:label "Услуга"@bg , "Bedienung"@de , "Palvelu"@fi , "Service"@en ;
+            rdfs:subClassOf ptop:Object ;
+            sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+            sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            skos:definition "A service is an intangible output and is the result of a process that includes at least one activity that is carried out at the interface between the supplier (provider) and the customer. Service provision can take many forms. Service can be provided to support an organization’s own products (e.g. warranty service or the serving of meals). Service can be provided for a product supplied by a customer (e.g. a repair service or a delivery service). Service can also involve the provision of an intangible thing to a customer (e.g. entertainment, ambience, transportation, or advice)."@en ;
+            dcterms:creator "Yaldaz Mehmedova"@en ;
+            emf:classCategory "objectinstance"@en ;
+            emf:definitionId "objectinstance"@en .
+			
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Space
+		emf:Space rdf:type owl:Class ;
+			rdfs:label "Пространство"@bg , "Raum"@de , "Tila"@fi , "Space"@en ;
+			rdfs:subClassOf ptop:Object ;
+			emf:isCreateable "true"^^xsd:boolean ;
+			emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+			sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+			emf:isSearchable "true"^^xsd:boolean ; 
+			skos:definition "A place for organizing data based on domain, purpose or other criteria."@en ;
+			dc:creator "Lyubomir Marinov"@en ; 
+			emf:definitionId "objectinstance"@en ;
+			emf:classCategory "space"@en .
+    }
+}

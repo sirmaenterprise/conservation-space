@@ -1,0 +1,64 @@
+# initialization data template that defines all preconditions that are needed for the generation of the solr scheme.
+# for all fields of the connector a statement will be generated according to their type and will be appended to this template to emf:dummyInstance entity.
+# if we  don't define this information the entity emf:dummyInstance cannot be recognized and won't be synchronized by the connector.
+# this file shouldn't be modified in the future but who knows :)
+insert data {
+
+graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework/init-solr> {
+ptop:Document rdf:type owl:Class ;
+              
+              rdfs:subClassOf ptop:InformationResource .
+              
+ptop:InformationResource rdf:type owl:Class ;
+
+                         rdfs:subClassOf ptop:Statement .
+                         
+ptop:Statement rdf:type owl:Class ;
+               
+               rdfs:subClassOf ptop:Object .
+               
+               
+emf:Project rdf:type owl:Class ;
+            
+            rdfs:subClassOf emf:Activity .
+            
+            
+emf:Activity rdf:type owl:Class ;
+             
+             rdfs:subClassOf ptop:Event .
+             
+             
+ptop:Event rdf:type owl:Class ;
+           
+           rdfs:subClassOf ptop:Happening .
+           
+
+ptop:Group rdf:type owl:Class ;
+           
+           rdfs:subClassOf ptop:Agent .
+           
+           
+ptop:Agent rdf:type owl:Class ;
+           
+           rdfs:subClassOf ptop:Object .
+           
+           
+emf:User rdf:type owl:Class ;
+         
+         rdfs:subClassOf ptop:Person .
+         
+         
+ptop:Person rdf:type owl:Class ;
+            
+            rdfs:subClassOf ptop:Agent .         
+                           
+                    
+emf:DomainObject rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf ptop:Object .
+
+emf:dummyInstance a ptop:Document ;
+	emf:isDeleted "false"^^xsd:boolean ;
+$CONNECTOR_FIELDS$
+}
+}

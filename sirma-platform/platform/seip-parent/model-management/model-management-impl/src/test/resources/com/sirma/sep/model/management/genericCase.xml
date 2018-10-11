@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="GEC10001" parentId="entity" isAbstract="true" type="case">
+    <!-- Base Case definition -->
+    <fields>
+        <!-- HEADERS AND TOOLTIP -->
+        <field name="default_header" type="ANY" label="CASE_DEFAULT_HEADER" displayType="system"/>
+        <field name="compact_header" type="an..4096" label="CASE_COMPACT_HEADER" displayType="system"/>
+        <field name="breadcrumb_header" type="an..4096" label="CASE_BREADCRUMB_HEADER" displayType="system"/>
+        <field name="tooltip_header" type="ANY" label="CASE_TOOLTIP_HEADER" displayType="system"/>
+
+        <!-- SYSTEM FIELDS -->
+        <field name="activeWorkflow" type="an..50" displayType="system" previewEmpty="false" multiValued="true"/>
+        <field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+            <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Case</value>
+        </field>
+        <field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId"/>
+        <field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix"/>
+
+        <!-- GENERAL DATA FIELDS FOR CASE -->
+        <field name="type" type="an..180" codelist="CL4">
+            <value>GEC10001</value>
+        </field>
+        <field name="status" type="an..35" codelist="CL3">
+            <condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+        </field>
+        <field name="identifier" type="an..50" label="uniqueIdentifier.label" displayType="readonly" previewEmpty="false"
+               rnc="${eval(${today.format(dd-MM-yyyy-HH-mm-ss-SSS)}-${seq({+caseSequence})})}" uri="dcterms:identifier">
+            <condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+        </field>
+        <field name="priority" type="an..20" label="priority.label" displayType="system" uri="emf:priority"/>
+        <field name="plannedStartDate" type="dateTime" label="plannedStartDate.label" displayType="readOnly"
+               uri="emf:plannedStartDate"/> <!-- sort -->
+        <field name="plannedEndDate" type="dateTime" label="plannedEndDate.label" displayType="readOnly"
+               uri="emf:plannedEndDate"/> <!-- sort -->
+        <field name="estimatedEffortHours" type="n..10" label="estimatedEffortHours.label" displayType="editable" previewEmpty="false"
+               uri="emf:estimatedEffort"/>
+        <field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false"
+               uri="emf:outcome"/>
+        <field name="integrated" type="boolean" label="integrated.label" displayType="readOnly" uri="emf:integrated">
+            <value>false</value>
+        </field>
+        <field name="uri" type="an..50" label="uri.label" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri"/>
+        <field name="emailAddress" type="an..255" label="email.integration.emailAddress" displayType="readOnly"
+               rnc="${eval(${CL([type])}-${get([identifier])})}" uri="emf:mailboxAddress">
+            <control id="EMAIL"/>
+        </field>
+        <field name="completedOn" type="datetime" label="completedOn.label" displayType="readOnly" previewEmpty="false"
+               uri="emf:completedOn"/>
+    </fields>
+
+    <transitions>
+        <transition id="start" label="start.label" eventId="start" purpose="transition" immediate="true" tooltip="start.tooltip"/>
+        <transition id="approve" label="approve.label" eventId="approve" purpose="transition" immediate="true" tooltip="approve.tooltip"/>
+        <transition id="stop" label="stop.label" eventId="stop" purpose="transition" confirmation="confirmation.action" immediate="true"
+                    tooltip="stop.tooltip"/> <!--immediate="false" -->
+        <transition id="suspend" label="suspend.label" eventId="suspend" purpose="transition" immediate="true" tooltip="suspend.tooltip"/>
+        <transition id="restart" label="restart.label" eventId="restart" purpose="transition" immediate="true" tooltip="restart.tooltip"/>
+        <transition id="complete" label="complete.label" eventId="complete" purpose="transition" immediate="true"
+                    tooltip="complete.tooltip"/> <!--immediate="false" -->
+        <transition id="composeEmail" label="composeEmail.label" eventId="composeEmail" purpose="composeEmail"/>
+    </transitions>
+
+    <stateTransitions>
+        <stateTransition from="INIT" transition="create" to="APPROVED"/>
+        <stateTransition from="INIT" transition="clone" to="APPROVED"/>
+
+        <stateTransition from="APPROVED" transition="editDetails" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="start" to="IN_PROGRESS"/>
+        <stateTransition from="APPROVED" transition="stop" to="STOPPED"/>
+        <stateTransition from="APPROVED" transition="delete" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="move" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="lock" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="unlock" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="print" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="printTab" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="clone" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="createInContext" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="revertVersion" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="updateTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addWatchers" to="APPROVED"/>
+
+        <stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="suspend" to="ON_HOLD"/>
+        <stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED"/>
+        <stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>
+        <stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportPDF" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportWord" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportTabWord" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="clone" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="revertVersion" to="APPROVED"/>
+        <stateTransition from="IN_PROGRESS" transition="changeTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addWatchers" to="APPROVED"/>
+
+        <stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS"/>
+        <stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="stop" to="STOPPED"/>
+        <stateTransition from="ON_HOLD" transition="move" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="lock" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="unlock" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="managePermissions" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addThumbnail" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="saveAsTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="print" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="printTab" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportTabPDF" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportPDF" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportWord" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportTabWord" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="changeTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="updateTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="clone" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addWatchers" to="ON_HOLD"/>
+
+        <stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="print" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="printTab" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportTabPDF" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportPDF" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="clone" to="COMPLETED"/>
+
+        <stateTransition from="STOPPED" transition="managePermissions" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="print" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="printTab" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportTabPDF" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportPDF" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportWord" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportTabWord" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="clone" to="STOPPED"/>
+
+        <stateTransition from="*" transition="stop" to="STOPPED"/>
+    </stateTransitions>
+
+    <labels>
+        <label id="CASE_TOOLTIP_HEADER">
+            <value lang="en"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            <span data-id="${id}">${id} </span>
+                            <span data-type="${get([type])}">${CL([type])}</span>
+                            (<span data-status="${get([status])}">${CL([status])}</span>)
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Description: </label>
+                        <span data-property="description">${get([description])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Planned start date: </label>
+                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Planned end date: </label>
+                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Estimated effort hours: </label>
+                        <span data-property="estimatedEffortHours">${get([estimatedEffortHours])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Modified by: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Modified on: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )}]]></value>
+            <value lang="de"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            <span data-id="${id}">${id} </span>
+                            <span data-type="${get([type])}">${CL([type])}</span>
+                            (<span data-status="${get([status])}">${CL([status])}</span>)
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Beschreibung: </label>
+                        <span data-property="description">${get([description])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geplantes Startdatum: </label>
+                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geplantes Enddatum: </label>
+                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geschätzte Arbeitsstunden: </label>
+                        <span data-property="estimatedEffortHours">${get([estimatedEffortHours])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geändert von: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Geändert am: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )}]]></value>
+            <value lang="bg"><![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            <span data-id="${id}">${id} </span>
+                            <span data-type="${get([type])}">${CL([type])}</span>
+                            (<span data-status="${get([status])}">${CL([status])}</span>)
+                        </a>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Описание: </label>
+                        <span data-property="description">${get([description])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Планирана начална дата: </label>
+                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Планирана крайна дата: </label>
+                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Прогнозни работни часове: </label>
+                        <span data-property="estimatedEffortHours">${get([estimatedEffortHours])}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Последно актуализиран от: </label>
+                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>Последно актуализиран на: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                    </span>
+                </span>
+            )}]]></value>
+        </label>
+        <label id="CASE_DEFAULT_HEADER">
+            <value lang="bg"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+				<span class="truncate-element">
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						<b>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит)</b></span>&nbsp;)}
+							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+							<span data-property="type">${CL([type])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+							${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+					</a>
+				</span>
+				<br />
+				<span>
+					<label>актуализирана от: </label>&nbsp;
+					<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
+				</span>
+				<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+			</span>
+			)}]]></value>
+            <value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+				<span class="truncate-element">
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						<b>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span>&nbsp;)}
+							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+							<span data-property="type">${CL([type])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+							${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+					</a>
+				</span>
+				<br />
+				<span>
+					<label>Last modified by: </label>&nbsp;
+					<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
+				</span>
+				<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+			</span>
+			)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
+			<span>
+				<span class="truncate-element">
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						<b>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht)</b></span>&nbsp;)}
+							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+							<span data-property="type">${CL([type])}</span>&nbsp;
+							(<span data-property="status">${CL([status])}</span>)&nbsp;
+							${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+						</b>
+					</a>
+				</span>
+				<br />
+				<span>
+					<label>Zuletzt geändert von: </label>&nbsp;
+					<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
+				</span>
+				<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
+				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt von)}${user([lockedBy])}</span>)}
+			</span>
+			)}]]></value>
+        </label>
+
+        <label id="CASE_COMPACT_HEADER">
+            <value lang="bg"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит)</b></span>)}
+					${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+			)}]]></value>
+            <value lang="en"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+            <span><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span>)}
+					${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+			)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+            <span><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht)</b></span>)}
+					${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)&nbsp;
+					${if(${var.isVersion}).then(
+						<span data-property="emf:version">${get([emf:version])}</span>
+					)}
+				</a>
+			</span>
+			)}]]></value>
+        </label>
+        <label id="CASE_BREADCRUMB_HEADER">
+            <value lang="bg"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span>
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+			)}]]></value>
+            <value lang="en"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+            <span><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            <span>
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span> )}
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+			)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+            <span><img src="${thumbnailUri(16)}"/></span>
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            <span>
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
+					<span data-property="title">${get([title])}</span>
+				</a>
+			</span>
+			)}]]></value>
+        </label>
+    </labels>
+</definition>

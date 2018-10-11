@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="permissions-patches-2.3.0-1" author="amitev" runAlways="false" failOnError="true">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="emf_resourcerole"></tableExists>
+			<tableExists tableName="sep_entity_permission"></tableExists>
+		</preConditions>
+		<comment>Migrate saved search criteria to new model</comment>
+		<customChange class="com.sirma.itt.seip.permissions.db.patches.EntityPermissionLibrariesPatch">
+		</customChange>
+	</changeSet>
+
+	<changeSet id="permissions-patches-2.3.0-2" author="amitev" runAlways="false" failOnError="true">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="sep_entity_permission"></tableExists>
+		</preConditions>
+		<comment>Fixes missing parent relationships in sep_entity_permission</comment>
+		<customChange class="com.sirma.itt.seip.permissions.db.patches.EntityPermissionFixMissingParentsPatch">
+		</customChange>
+	</changeSet>
+	
+	<changeSet id="permissions-patches-2.9.0-1" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">select count(*) from sep_entity_permission where target_id =
+                'emf:User'</sqlCheck>
+		</preConditions>
+		<comment>Insert User library if not present</comment>
+		<sql>
+			insert into sep_entity_permission(target_id, inherit_from_parent, inherit_from_library, is_library)
+				values ('emf:User', 2, 2, 1)
+		</sql>
+	</changeSet>
+
+	<changeSet id="permissions-patches-2.9.0-2" author="bbonev">
+		<comment>Insert library reference for user permissions</comment>
+		<sql>
+			update sep_entity_permission set library_id = (select ep.id from sep_entity_permission ep where target_id
+		= 'emf:User') where library_id is null and target_id in (select r.id from emf_resource r where type = 1)
+		</sql>
+	</changeSet>
+
+	<changeSet id="permissions-patches-2.9.0-3" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">select count(*) from sep_entity_permission where target_id = 'emf:Group'</sqlCheck>
+		</preConditions>
+		<comment>Insert Group library if not present</comment>
+		<sql>
+			insert into sep_entity_permission(target_id, inherit_from_parent, inherit_from_library, is_library)
+			values ('emf:Group', 2, 2, 1)
+		</sql>
+	</changeSet>
+
+	<changeSet id="permissions-patches-2.9.0-4" author="bbonev">
+		<comment>Insert library reference for group permissions</comment>
+		<sql>
+			update sep_entity_permission set library_id = (select ep.id from sep_entity_permission ep where target_id
+			= 'emf:Group') where library_id is null and target_id in (select r.id from emf_resource r where type = 2)
+		</sql>
+	</changeSet>
+
+	<changeSet id="permissions-patches-2.12.0-1" author="bbonev">
+		<comment>Insert parent inheritance for Libraries, users and groups</comment>
+		<customChange class="com.sirma.itt.seip.permissions.db.patches.InsertMissingParentPermissionsPatch" />
+	</changeSet>
+	
+	<changeSet id="permissions-patches-2.13.0-1" author="smustafov">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">select count(*) from sep_role where id = 'NO_PERMISSION'</sqlCheck>
+		</preConditions>
+		<comment>Insert no permission role if not present</comment>
+		<sql>
+			insert into sep_role values ('NO_PERMISSION', -1, 1, 2, 2, 2, 1)
+		</sql>
+	</changeSet>
+
+	<changeSet id="permissions-patches-2.13.0-1" author="bbonev">
+		<preConditions onFail="CONTINUE">
+			<sqlCheck expectedResult="0">select count(*) from emf_resourcerole</sqlCheck>
+		</preConditions>
+		<comment>Drop not used table emf_resourcerole if empty</comment>
+		<dropTable tableName="emf_resourcerole" />
+	</changeSet>
+	
+	<changeSet id="permissions-patches-2.19.0-1" author="smustafov">
+		<comment>Changes permissions of System user if needed</comment>
+		<customChange class="com.sirma.itt.seip.permissions.db.patches.ChangeSystemUserPermissionsPatch" />
+	</changeSet>
+</databaseChangeLog>

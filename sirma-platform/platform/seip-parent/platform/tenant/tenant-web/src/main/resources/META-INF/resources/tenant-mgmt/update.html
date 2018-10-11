@@ -1,0 +1,384 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Tenant Management</title>
+    <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/custom.css">
+    <script type="text/javascript" src="./js/jquery.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script src="./js/common.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#data").submit(function (event) {
+                var tenantId = $('#tenants').find('option:selected').val()
+                var patches = $('input[name=SemanticDbUpdate_attachment_patches]')[0].files[0];
+                var message = "Are you sure you want to update tenant " + tenantId + " with no semantic customization file?";
+                if (patches) {
+                    message = "Are you sure you want to update tenant " + tenantId + " with semantic customization file " + patches.name + "?";
+                }
+                if (window.confirm(message)) {
+                    //grab all form data
+                    var formData = new FormData();
+                    formData.append('DMSUpdate_attachment_definitions', $('input[name=DMSUpdate_attachment_definitions]')[0].files[0]);
+                    formData.append('SemanticDbUpdate_attachment_patches', patches);
+
+                    var result = $.ajax({
+                        type: "POST",
+                        url: "../service/tenant/" + tenantId,
+                        data: formData,
+                        async: false,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            alert("Successfully updated ontology");
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                }
+            });
+
+            // get all tenants
+            $.get("../api/tenant/list", function (tenantList) {
+                var option = '';
+                if (tenantList.length > 0) {
+                    for (var i = 0; i < tenantList.length; i++) {
+                        option += '<option value="' + tenantList[i].tenantId + '">' + tenantList[i].tenantId + '</option>';
+                    }
+                    $('#tenants').append(option);
+                } else {
+                    document.location.href = "../tenant-mgmt/index.html";
+                    alert('There is no active tenants. Do you want to create one?');
+                }
+            });
+
+        function showhide(id) {
+            var e = document.getElementById(id);
+            e.style.display = (e.style.display == 'block') ? 'none' : 'block';
+        }
+	});
+    </script>
+</head>
+<body style="background-color: #f9f9f9; color: #222; font-size: 12px;">
+<div id="container" class="container">
+
+    <nav class="navbar navbar-inverse tenant-bar">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <span><a class="navbar-brand" href="#" id="menu-create-tenant">Create new tenant</a></span>
+                <span><a class="navbar-brand" href="#" id="menu-update-tenant">Update tenant</a> </span>
+                <span><a class="navbar-brand" href="#" id="menu-manage-tenant">Manage tenants</a> </span>
+            </div>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#" id="logout"><span
+                        class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="alert-danger">
+        <strong>Danger!</strong> Be careful what changes you make, because this
+        can break the system!<br>Make sure that no one works with the system when
+        you make changes!
+    </div>
+    <p>
+
+
+    <div class="action-bar">
+        You can upload files of these types:
+        <ul>
+            <li>RDF File with the whole ontology. You can directly upload
+                every ontology that you need: EMF, Proton, client's ontology and
+                etc. The file extension must be .ttl, .rdf or other RDF types<a
+                        href="javascript:showhide('rdf_file_example')"> Example
+                    security.ttl </a>
+                <div id="rdf_file_example" style="display: none;">
+						<pre>@prefix : &lt;http://www.semanticweb.org/owl/owlapi/turtle#&gt; .
+@prefix dc: &lt;http://purl.org/dc/elements/1.1/&gt; .
+@prefix emf: &lt;http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#&gt; .
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix sec: &lt;http://www.sirma.com/ontologies/2014/11/security#&gt; .
+@prefix xml: &lt;http://www.w3.org/XML/1998/namespace&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix ptop: &lt;http://www.ontotext.com/proton/protontop#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix skos: &lt;http://www.w3.org/2004/02/skos/core#&gt; .
+@prefix dcterms: &lt;http://purl.org/dc/terms/&gt; .
+@base &lt;http://www.sirma.com/ontologies/2014/11/security&gt; .
+
+&lt;http://www.sirma.com/ontologies/2014/11/security&gt; rdf:type owl:Ontology ;
+                                                   
+                                                   rdfs:label &quot;Enterprise Management Framework Security Model&quot;@en ;
+                                                   
+                                                   owl:versionInfo &quot;0.2&quot;@en ;
+                                                   
+                                                   dc:subject &quot;Enterprise Management Framework Security Model&quot;@en ;
+                                                   
+                                                   dc:creator &quot;Kiril Penev&quot;@en ;
+                                                   
+                                                   rdfs:comment &quot;Main ontology for representing the Security model and the relations between Users/Groups with the instances in the SEIP Application&quot;@en ;
+                                                   
+                                                   dc:rights &quot;What rights?&quot;@en .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+###  http://purl.org/dc/elements/1.1/creator
+
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+
+###  http://www.w3.org/2004/02/skos/core#definition
+
+skos:definition rdf:type owl:AnnotationProperty .
+
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#hasPermission
+
+sec:hasPermission rdf:type owl:ObjectProperty ,
+                          owl:TransitiveProperty ;
+                 
+                 rdfs:label &quot;Has permission&quot;@en ;
+                 
+                 skos:definition &quot;Indicates that the Role has permission on the instance&quot;@en ;
+                 
+                 emf:isSystemProperty &quot;true&quot;^^xsd:boolean ;
+                 
+                 dc:creator &quot;Kiril Penev&quot;@en .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#assignedTo
+
+sec:assignedTo rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label &quot;Has role&quot;@en ;
+                 
+                 skos:definition &quot;Assigns a User to a Role of an Entity. Assigning a user to a Role gives permissions to the Entity that is related with this role. These permissions depend on the role type&quot;@en ;
+                 
+                 emf:isSystemProperty &quot;true&quot;^^xsd:boolean ;
+                 
+                 dc:creator &quot;Kiril Penev&quot;@en .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#hasRoleType
+
+sec:hasRoleType rdf:type owl:ObjectProperty ;
+                  
+                 rdfs:label &quot;Has role type&quot;@en ;
+                 
+                 skos:definition &quot;Specified the type of the role&quot;@en ;
+                 
+                 emf:isSystemProperty &quot;true&quot;^^xsd:boolean ;
+                 
+                 dc:creator &quot;Kiril Penev&quot;@en .
+
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#isManagerOf
+
+sec:isManagerOf rdf:type owl:ObjectProperty ,
+                          owl:TransitiveProperty ;
+               
+               rdfs:label &quot;Is Manager of&quot;@en ;
+               
+               emf:isSystemProperty &quot;true&quot;^^xsd:boolean ;
+               
+               dc:creator &quot;Kiril Penev&quot;@en ;
+               
+               skos:definition &quot;Specifies which Role is the Manager of the instance&quot;@en .
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#Role
+
+sec:Role rdf:type owl:Class ;
+             
+             rdfs:label &quot;Security Role&quot;@en ;
+             
+             rdfs:subClassOf ptop:Abstract ;
+             
+             skos:definition &quot;Security role with assigned permissions on a given Entity&quot;@en ;
+             
+             dc:creator &quot;Kiril Penev&quot;@en .</pre>
+                </div>
+            </li>
+            <li>SPARQL Patch file for data migration - it can run slowly
+                depending on the quantity of data in the repository. The file
+                extension must be .sparql <a
+                        href="javascript:showhide('sparql_file_example')"> Example
+                    migrateDefinitionsTypeToEmfDefinitionId.sparql</a>
+                <div id="sparql_file_example" style="display: none;">
+						<pre>PREFIX emf: &lt;http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#&gt;
+delete {
+        ?instance emf:type ?definitionId.
+} insert {
+    graph&lt;http://www.sirma.com/data/definitions&gt; {
+        ?instance emf:definitionId ?definitionId.
+    }
+} where {
+    ?instance a emf:Definition.
+    ?instance emf:type ?definitionId.
+}</pre>
+                </div>
+            </li>
+            <li>Namespace file with defined mapping of prefixes and
+                namespaces that are used in the ontologies. The file must have file
+                extension .namespace or .ns <a
+                        href="javascript:showhide('namespace_file_example')"> Example
+                    defaultNamespaces.ns</a>
+                <div id="namespace_file_example" style="display: none;">
+						<pre># all prefixes and namespaces must be separated with | 
+# for comments use # at the beginning of the line
+emf | http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#
+sec | http://www.sirma.com/ontologies/2014/11/security#
+ptop | http://www.ontotext.com/proton/protontop#</pre>
+                </div>
+            </li>
+            <li>Archive with collection of the previously mentioned files.
+                The files will be executed in alpha-numerical order by name. All
+                files must be in the main folder of the archive <a
+                        href="javascript:showhide('patch_archive')"> Example archive
+                    structure</a>
+                <div id="patch_archive" style="display: none;">
+						<pre>test.sparql
+test2.sparql
+emf.ttl
+proton.ttl
+defaultNamespaces.namespaces</pre>
+                </div>
+            </li>
+            <li>Archive with changelog xml file and a collection of
+                previously mentioned files. The files will be executed as stated in
+                the changelog xml file. All files can be in different folders. The
+                changelo xml must have "-changelog.xml" as sufix in the name <a
+                        href="javascript:showhide('changelog_xml')"> Example changelog
+                    xml</a> <a href="javascript:showhide('changelog_archive')">
+                    Example archive structure</a>
+                <div id="changelog_xml" style="display: none;">
+						<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
+&lt;databaseChangeLog xmlns=&quot;http://www.liquibase.org/xml/ns/dbchangelog&quot;
+	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+	xsi:schemaLocation=&quot;http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd&quot;&gt;
+
+	&lt;changeSet id=&quot;semantic-patches-1.0&quot; author=&quot;author&quot;&gt;
+		&lt;comment&gt;Correct the class category for emf:ClassDescription&lt;/comment&gt;
+		&lt;customChange class=&quot;com.sirma.itt.emf.semantic.patch.UpdateSemanticTask&quot;&gt;
+			&lt;param name=&quot;fileName&quot; value=&quot;${currentdir}/test.sparql&quot; /&gt;
+			&lt;param name=&quot;fileType&quot; value=&quot;SPARQL&quot; /&gt;
+		&lt;/customChange&gt;
+	&lt;/changeSet&gt;
+
+	&lt;changeSet id=&quot;semantic-patches-2.0&quot; author=&quot;author&quot;&gt;
+		&lt;comment&gt;Correct the class category for emf:ClassDescription&lt;/comment&gt;
+		&lt;customChange class=&quot;com.sirma.itt.emf.semantic.patch.UpdateSemanticTask&quot;&gt;
+			&lt;param name=&quot;fileName&quot; value=&quot;${currentdir}/patch/test2.sparql&quot; /&gt;
+			&lt;param name=&quot;fileType&quot; value=&quot;SPARQL&quot; /&gt;
+		&lt;/customChange&gt;
+	&lt;/changeSet&gt;
+
+	&lt;changeSet id=&quot;semantic-patches-3.0&quot; author=&quot;author&quot;&gt;
+		&lt;comment&gt;Correct the class category for emf:ClassDescription&lt;/comment&gt;
+		&lt;customChange class=&quot;com.sirma.itt.emf.semantic.patch.UpdateSemanticTask&quot;&gt;
+			&lt;param name=&quot;fileName&quot; value=&quot;${currentdir}/ontology/emf.ttl&quot; /&gt;
+			&lt;param name=&quot;fileType&quot; value=&quot;RDF&quot; /&gt;
+		&lt;/customChange&gt;
+	&lt;/changeSet&gt;
+
+	&lt;changeSet id=&quot;semantic-patches-4.0&quot; author=&quot;author&quot;&gt;
+		&lt;comment&gt;Correct the class category for emf:ClassDescription&lt;/comment&gt;
+		&lt;customChange class=&quot;com.sirma.itt.emf.semantic.patch.UpdateSemanticTask&quot;&gt;
+			&lt;param name=&quot;fileName&quot; value=&quot;${currentdir}/ontology/proton.ttl&quot; /&gt;
+			&lt;param name=&quot;fileType&quot; value=&quot;RDF&quot; /&gt;
+		&lt;/customChange&gt;
+	&lt;/changeSet&gt;
+
+	&lt;changeSet id=&quot;semantic-patches-5.0&quot; author=&quot;author&quot;&gt;
+		&lt;comment&gt;Correct the class category for emf:ClassDescription&lt;/comment&gt;
+		&lt;customChange class=&quot;com.sirma.itt.emf.semantic.patch.UpdateSemanticTask&quot;&gt;
+			&lt;param name=&quot;fileName&quot; value=&quot;${currentdir}/defaultNamespaces.ns&quot; /&gt;
+			&lt;param name=&quot;fileType&quot; value=&quot;NAMESPACES&quot; /&gt;
+		&lt;/customChange&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;
+						</pre>
+                </div>
+                <div id="changelog_archive" style="display: none;">
+						<pre>test.sparql
+patch/test2.sparql
+ontology/emf.ttl
+ontology/proton.ttl
+tenant-changelog.xml
+defaultNamespaces.ns</pre>
+                </div>
+            </li>
+        </ul>
+
+
+    </div>
+    <div class="init-form">
+        <form id="data" method="POST" enctype="multipart/form-data"
+              action="javascript:;">
+            <div class="action-bar">
+                <div>
+                    <select id="tenants" class="btn btn-default" required>
+                        <option selected="selected"/>
+                    </select>
+                </div>
+
+                <div style="display: none; width: 500px; margin-top: 0.2em;">
+                    <label for="DMSUpdate_attachment_definitions">DMS
+                        Initialization ZIP bundle.</label> <input type="file"
+                                                                  style="margin-left: 50px; float: right;"
+                                                                  name="DMSUpdate_attachment_definitions"
+                                                                  value="Definitions.zip"></input>
+                </div>
+                <div style="width: 500px; margin-top: 0.2em;">
+                    <label for="SemanticDbUpdate_attachment_patches">Semantic
+                        customization File</label> <input type="file"
+                                                          style="margin-left: 50px; float: right;"
+                                                          name="SemanticDbUpdate_attachment_patches"
+                                                          value="Patches.zip"></input>
+                </div>
+                <div class="actions">
+						<span> <input TYPE="submit" class="btn btn-primary btn-md"
+                                      style="cursor: pointer;" value="Update Ontology"></input> <input
+                                TYPE="reset" class="btn btn-default btn-md"
+                                style="cursor: pointer;"></input>
+						</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+</body>
+
+</html>

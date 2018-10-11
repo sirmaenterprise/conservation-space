@@ -1,0 +1,1471 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix yul: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL> .
+
+<http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL> rdf:type owl:Ontology ;
+                                                                            owl:imports <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> ;
+                                                                            owl:versionInfo "0.1"@en ;
+                                                                            dc:creator "Lidiya Dimitrova"@en ;
+                                                                            rdfs:comment "YUL Extension of Cultural Heritage Conservation Ontology Model for Conservation Space project"@en ;
+                                                                            dc:rights "What rights?"@en ;
+                                                                            dc:subject "Extension of Cultural Heritage Conservation Ontology Model for Yale-YUL"@en ;
+                                                                            rdfs:label "Extension of Cultural Heritage Conservation Ontology Model for YUL"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#assignedConsAct
+yul:assignedConsAct rdf:type owl:ObjectProperty ;
+                    owl:inverseOf yul:isAssignedConsActOf ;
+                    emf:auditEvent "+addAssignedConservationAction|-removeAssignedConservationAction|changeAssignedConservationAction" ;
+                    emf:isSearchable "true"^^xsd:boolean ;
+                    dc:creator "Malvina Makarieva" ;
+                    rdfs:label "Conservation activity"@en ;
+                    skos:definition "All activities."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#associatedWith
+yul:associatedWith rdf:type owl:ObjectProperty ;
+                   rdfs:range chc:CulturalObject ;
+                   emf:auditEvent "+addAssociatedWith|-removeAssociatedWith|changeAssociatedWith" ;
+                   emf:isSearchable "true"^^xsd:boolean ;
+                   dc:creator "Malvina Makarieva" ;
+                   rdfs:label "Associated with"@en ;
+                   skos:definition "The Cultural Object associated with the current Cultural Object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#checkedBy
+yul:checkedBy rdf:type owl:ObjectProperty ;
+              rdfs:range emf:User ;
+              emf:auditEvent "+addCheckedBy|-removeCheckedBy|changeCheckedBy" ;
+              emf:isSearchable "true"^^xsd:boolean ;
+              dc:creator "Malvina Makarieva" ;
+              sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+              sec:autoAssignPermissionRole "COLLABORATOR" ;
+              rdfs:label "Checked by"@en ;
+              skos:definition "The person who has checked the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#collectedBy
+yul:collectedBy rdf:type owl:ObjectProperty ;
+                rdfs:range emf:User ;
+                emf:auditEvent "+addCollectedBy|-removeCollectedBy|changeCollectedBy" ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Malvina Makarieva" ;
+                sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                sec:autoAssignPermissionRole "COLLABORATOR" ;
+                rdfs:label "Collected by"@en ;
+                skos:definition "Name of individual who collected the sample."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#isAssignedConsActOf
+yul:isAssignedConsActOf rdf:type owl:ObjectProperty ;
+                        rdfs:range emf:Document ;
+                        emf:auditEvent "+addIsAassignedConservationActionOf|-removeIsAassignedConservationActionOf|changeIsAassignedConservationActionOf" ;
+                        emf:isSearchable "true"^^xsd:boolean ;
+                        dc:creator "Malvina Makarieva" ;
+                        rdfs:label "Assigned action"@en ;
+                        skos:definition "Processes actvity."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#packedBy
+yul:packedBy rdf:type owl:ObjectProperty ;
+             rdfs:range emf:User ;
+             emf:auditEvent "+addPackedBy|-removePackedBy|changePackedBy" ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Malvina Makarieva" ;
+             rdfs:label "Packed by"@en ;
+             skos:definition "The person who has packed the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#requestedBy
+yul:requestedBy rdf:type owl:ObjectProperty ;
+                rdfs:range emf:User ;
+                emf:auditEvent "+addRequestedBy|-removeRequestedBy|changeRequestedBy" ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Malvina Makarieva" ;
+                rdfs:label "Requested by"@en ;
+                skos:definition "Staff who is managing the outsourced work; primary contact."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#reviewedBy
+yul:reviewedBy rdf:type owl:ObjectProperty ;
+               rdfs:range emf:User ;
+               emf:auditEvent "+addReviewedBy|-removeReviewedBy|changeReviewedBy" ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Malvina Makarieva" ;
+               sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+               sec:autoAssignPermissionRole "COLLABORATOR" ;
+               rdfs:label "Review by"@en ;
+               skos:definition "Identifies the person, responsible for the review of the cultural object."@en .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#appliedMedia
+yul:appliedMedia rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Applied media"@en ;
+                 skos:definition "Technical description of any colorant or other media applied to the image surface."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#archivalObjectTitle
+yul:archivalObjectTitle rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Archival object title"@en ;
+                        skos:definition "Used for archival collections where there is no 1:1 relationship between objects and records in CMS. Provides more specific data for item to help distinguish it from others in the same collection."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#attachments
+yul:attachments rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Attachments"@en ;
+                skos:definition "Technical description of any attachments or material additions to the item."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#backing
+yul:backing rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Backing"@en ;
+            skos:definition "Technical description of any backing used in framing."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#barcode
+yul:barcode rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Barcode"@en ;
+            skos:definition "Barcode number assigned to all individually cataloged or boxes at archival level."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#binder
+yul:binder rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Binder/Emulsion"@en ;
+           skos:definition "Technical description of the layer of material that holds the light-sensitive."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#bindingPeriod
+yul:bindingPeriod rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Binding period"@en ;
+                  skos:definition "Binding period."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#bindingStyle
+yul:bindingStyle rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Binding style"@en ;
+                 skos:definition "Technical description of the binding style, materials and construction."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#caseType
+yul:caseType rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Case type"@en ;
+             skos:definition "Technical description of the case construction (only for cased images)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#chemicalComposition
+yul:chemicalComposition rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Chemical composition"@en ;
+                        skos:definition "Choice one to generally characterize the composition of the material."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#closures
+yul:closures rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Closures"@en ;
+             skos:definition "Technical description of any furniture added as closures to the binding."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#coatings
+yul:coatings rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Coatings"@en ;
+             skos:definition "Technical description of any coatings applied to surface of object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#color
+yul:color rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Color"@en ;
+          skos:definition "Text describing a quality of the sample such as red, blue, green, yellow, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#conditionIssues
+yul:conditionIssues rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Condition issues"@en ;
+                    skos:definition "Any condition issues related with the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#conditionNotes
+yul:conditionNotes rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Condition notes"@en ;
+                   skos:definition "Any additional condition notes related to the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#conservationAction
+yul:conservationAction rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Malvina Makarieva"@en ;
+                       rdfs:label "Conservation action"@en ;
+                       skos:definition "Any outstanding conservation actions."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#conservatorsNotes
+yul:conservatorsNotes rdf:type owl:DatatypeProperty ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Malvina Makarieva"@en ;
+                      rdfs:label "Conservator's notes"@en ;
+                      skos:definition "Notes from the conservator who is working on the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#construction
+yul:construction rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Condition issues"@en ;
+                 skos:definition "Any condition issues related with the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#covering
+yul:covering rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Covering, decoration/finishing"@en ;
+             skos:definition "Technical description of stamping, labels, or decoration to the binding."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#creator
+yul:creator rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Artist(s)/Author(s)/Creator(s)"@en ;
+            skos:definition "An entity primarily responsible for creating an object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#creditLine
+yul:creditLine rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Credit line"@en ;
+               skos:definition "Free text indicating the public credit line for the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#curator
+yul:curator rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Curator"@en ;
+            skos:definition "Curator or collection manager responsible for the object and for approving any conservation."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#curatorialAssistantNotes
+yul:curatorialAssistantNotes rdf:type owl:DatatypeProperty ;
+                             rdfs:range xsd:string ;
+                             dc:creator "Malvina Makarieva"@en ;
+                             rdfs:label "Curatorial assistant's notes"@en ;
+                             skos:definition "Notes from the Curatorial Assistant's who is working on the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#curatorialNotes
+yul:curatorialNotes rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Curatorial notes"@en ;
+                    skos:definition "Notes from the curator who is working on the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#currentLocation
+yul:currentLocation rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Current location"@en ;
+                    skos:definition "Location of object while in custody of conservation department."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#dateCollected
+yul:dateCollected rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:dateTime ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Date collected"@en ;
+                  skos:definition "Date that the sample was created or taken from the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#dateIn
+yul:dateIn rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:dateTime ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Date in"@en ;
+           skos:definition "Date when the object is in the department."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#datePacked
+yul:datePacked rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:dateTime ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Date packed"@en ;
+               skos:definition "The date when the object is packed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#dateReturned
+yul:dateReturned rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:dateTime ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Date returned"@en ;
+                 skos:definition "Date when the object is returned."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#decoration
+yul:decoration rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Decoration"@en ;
+               skos:definition "Technical description of any decorative embellishments."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#detailedExplanation
+yul:detailedExplanation rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Detailed explanation"@en ;
+                        skos:definition "Detailed explanation of the task."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#digitizationRecommendations
+yul:digitizationRecommendations rdf:type owl:DatatypeProperty ;
+                                rdfs:range xsd:string ;
+                                dc:creator "Malvina Makarieva"@en ;
+                                rdfs:label "Digitization recommendations"@en ;
+                                skos:definition "Any digitization recommendations."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#documentedCulturalObjectType
+yul:documentedCulturalObjectType rdf:type owl:DatatypeProperty ;
+                                 rdfs:range xsd:string ;
+                                 dc:creator "Malvina Makarieva"@en ;
+                                 rdfs:label "Cultural object type"@en ;
+                                 skos:definition "Related Cultural Object Type."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#duration
+yul:duration rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Duration"@en ;
+             skos:definition "Time value for how long the item was out."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#edgeTreatment
+yul:edgeTreatment rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Edge treatment"@en ;
+                  skos:definition "Technical description of the edges of the textblock and any treatment to them."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#endbands
+yul:endbands rdf:type owl:DatatypeProperty ;
+             rdfs:domain chc:CulturalObject ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Endbands"@en ;
+             skos:definition "Technical description of the endbands, construction, style and materials."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#endsheets
+yul:endsheets rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Endsheets"@en ;
+              skos:definition "Technical description of the endsheets"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#event
+yul:event rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Event"@en ;
+          skos:definition "Event."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#exhibitProductionNotes
+yul:exhibitProductionNotes rdf:type owl:DatatypeProperty ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Malvina Makarieva"@en ;
+                           rdfs:label "Exhibit production notes"@en ;
+                           skos:definition "Notes related to the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#exhibitionCaseLocation
+yul:exhibitionCaseLocation rdf:type owl:DatatypeProperty ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Malvina Makarieva"@en ;
+                           rdfs:label "Case location/Number"@en ;
+                           skos:definition "The number of exhibit case, it is different for each exhibition area."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#exhibitionId
+yul:exhibitionId rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Exhibition ID (EXH-#)"@en ;
+                 skos:definition "The exhibition tracking number used in a project; We currently use the prefix EXH-##."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#finalLoanDecision
+yul:finalLoanDecision rdf:type owl:DatatypeProperty ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Malvina Makarieva"@en ;
+                      rdfs:label "Final loan decision"@en ;
+                      skos:definition "Final loan decision on task."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#folder
+yul:folder rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Folder"@en ;
+           skos:definition "Number associated with folder from an archival collection, as listed in collection finding aid"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#frame
+yul:frame rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Frame"@en ;
+          skos:definition "Technical description of the frame's design and construction"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#function
+yul:function rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Function"@en ;
+             skos:definition "Characterization of the functional class of the object based on its primary use."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#glazing
+yul:glazing rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Glazing"@en ;
+            skos:definition "Technical description of any glazing used in framing"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#identificationReason
+yul:identificationReason rdf:type owl:DatatypeProperty ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Malvina Makarieva"@en ;
+                         rdfs:label "How identified"@en ;
+                         skos:definition "Definition on how did this item come to your attention"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#illumination
+yul:illumination rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Illumination"@en ;
+                 skos:definition "Describes the illumination of the image."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#imageAreaSize
+yul:imageAreaSize rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Image area size"@en ;
+                  skos:definition "Describes the dimensions of the image area or area within the printing plate mark."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#imageFormingMaterial
+yul:imageFormingMaterial rdf:type owl:DatatypeProperty ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Malvina Makarieva"@en ;
+                         rdfs:label "Image forming material"@en ;
+                         skos:definition "Technical description of the photographic process used to create image; may include description of the binder."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#imagingDeadline
+yul:imagingDeadline rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Imaging deadline"@en ;
+                    skos:definition "The date by which the imaging has to be done."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#imagingForReproduction
+yul:imagingForReproduction rdf:type owl:DatatypeProperty ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Malvina Makarieva"@en ;
+                           rdfs:label "Imaging for reproduction"@en ;
+                           skos:definition "Imaging needed for catalogues is needed for printing of any kind."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#imprint
+yul:imprint rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Create date(s)/Imprint"@en ;
+            skos:definition "Start/end dates and qualifiers such as \"circa\", \"before\", etc. Can have historical records of former attributions of creation dates.Place and date of publication or creation. Derived from 260 field in MARC record."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#innerContainer
+yul:innerContainer rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Inner container"@en ;
+                   skos:definition "Technical description of the interior container or case."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#inscriptions
+yul:inscriptions rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Inscription(s)"@en ;
+                 skos:definition "Free text description of any writing or printing on the object's obverse or reverse. Artist signature, dealer marks, inventory codes, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#isCased
+yul:isCased rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Cased image"@en ;
+            skos:definition "Is photograph a cased image?"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#isFramed
+yul:isFramed rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Framed"@en ;
+             skos:definition "Yes or No"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#isMatted
+yul:isMatted rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Matted/Framed"@en ;
+             skos:definition "Matted/Framed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#itemNumber
+yul:itemNumber rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Item number"@en ;
+               skos:definition "Numbering for the object in each case location."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#knownPlaytime
+yul:knownPlaytime rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Known playtime"@en ;
+                  skos:definition "Actual running time of the recording in minutes."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#lender
+yul:lender rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Lender"@en ;
+           skos:definition "The institution or YUL library/collection that has lent the Cultural Object for the Exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#lightingLevels
+yul:lightingLevels rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Lighting levels"@en ;
+                   skos:definition "Lighting levels."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#linings
+yul:linings rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Linings"@en ;
+            skos:definition "Technical description of any linings - materials and application."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#loanEndDate
+yul:loanEndDate rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:dateTime ;
+                dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Loan end date"@en ;
+                skos:definition "Loan end date."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#loanStartDate
+yul:loanStartDate rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:dateTime ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Loan start date"@en ;
+                  skos:definition "Loan start date."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#location
+yul:location rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Location"@en ;
+             skos:definition "Describes the location on the object shown in the image."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#locationHorizontal
+yul:locationHorizontal rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Malvina Makarieva"@en ;
+                       rdfs:label "Location, horizontal"@en ;
+                       skos:definition "Text including measurement and start point for sample location."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#locationStatus
+yul:locationStatus rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Location status"@en ;
+                   skos:definition "Description of location status."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#locationVertical
+yul:locationVertical rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Location, vertical	"@en ;
+                     skos:definition "Text including measurement and start point for sample location."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#magnification
+yul:magnification rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Magnification"@en ;
+                  skos:definition "Describes magnification level under which the image was created."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#marks
+yul:marks rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Marks"@en ;
+          skos:definition "Description of any marks not related to the image such notations or marks made by a processes."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#mat
+yul:mat rdf:type owl:DatatypeProperty ;
+        rdfs:range xsd:string ;
+        dc:creator "Malvina Makarieva"@en ;
+        rdfs:label "Mat"@en ;
+        skos:definition "Technical description of any mat present."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#materials
+yul:materials rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Materials"@en ;
+              skos:definition "Technical description of materials used in object's construction."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#maximumPlaytime
+yul:maximumPlaytime rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Maximum playtime"@en ;
+                    skos:definition "Maximum capacity of the format in minutes."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#media
+yul:media rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Media"@en ;
+          skos:definition "Text describing the medium or media used on the document."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#medium
+yul:medium rdf:type owl:DatatypeProperty ;
+           rdfs:domain chc:CulturalObject ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Material/Medium (very general)"@en ;
+           skos:definition "Medium description often used for public."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#mountType
+yul:mountType rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Mount type"@en ;
+              skos:definition "Description of the mount."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#numberOfPieces
+yul:numberOfPieces rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Number of items/parts"@en ;
+                   skos:definition "Number of pieces or separate components that are part of a single object"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#objectCount
+yul:objectCount rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:int ;
+                dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Object count"@en ;
+                skos:definition "Total number of objects listed on the receipt	"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#objectDepartment
+yul:objectDepartment rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Object department"@en ;
+                     skos:definition "Library department, or collection responsible for the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#objectNumber
+yul:objectNumber rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Object number (Accession number/Call number/Collection)"@en ;
+                 skos:definition "Unique institutional ID. Can be coded to be human readable and to express, for example, year/lot/number if acquisition or shelf location."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#openingForExhibition
+yul:openingForExhibition rdf:type owl:DatatypeProperty ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Malvina Makarieva"@en ;
+                         rdfs:label "Page/Opening for exhibition"@en ;
+                         skos:definition "Primary page for the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#otherProvider
+yul:otherProvider rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Other provider"@en ;
+                  skos:definition "Other provider."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#outerContainer
+yul:outerContainer rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Outer container"@en ;
+                   skos:definition "Technical description of the outer container."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#outgoingLoanNumber
+yul:outgoingLoanNumber rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Malvina Makarieva"@en ;
+                       rdfs:label "Loan, Outgoing # (LNO #)"@en ;
+                       skos:definition "Loan, Outgoing # (LNO #)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#overallCondition
+yul:overallCondition rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Overall condition"@en ;
+                     skos:definition "General note on overall condition of the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#owner
+yul:owner rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Owner/Custodian"@en ;
+          skos:definition "Owner of the Art Object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#pageturninstruction
+yul:pageturninstruction rdf:type owl:DatatypeProperty ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Page turn instruction"@en ;
+                        skos:definition "instructions if there are additional pages for opening, when this happen."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#paintLayer
+yul:paintLayer rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Paint layer"@en ;
+               skos:definition "Technical description of the paint layer or design construction."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#period
+yul:period rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Period"@en ;
+           skos:definition "Description of time period of object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#permanentLocation
+yul:permanentLocation rdf:type owl:DatatypeProperty ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Malvina Makarieva"@en ;
+                      rdfs:label "Permanent location"@en ;
+                      skos:definition "Location could be a gallery or storage location where the cultural object normally is stored or shelved."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#physicalDimensions
+yul:physicalDimensions rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Malvina Makarieva"@en ;
+                       rdfs:label "Physical dimensions (overall)"@en ;
+                       skos:definition "The physical attributes of the object without matte and/or frame. Both US and metric. Can be complex with multi-component or 3-dimensional objects. Includes weight and other measures of the physical attributes of objects and their components."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#physicalFormat
+yul:physicalFormat rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Physical format"@en ;
+                   skos:definition "Technical description of the format of the audio/visual record."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#physicalOrientation
+yul:physicalOrientation rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Physical orientation"@en ;
+                        skos:definition "Used to characterize whether the document lays flat, is folded or rolled."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#plateSize
+yul:plateSize rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Plate size"@en ;
+              skos:definition "Indicate standard plate size (only for cased images)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#preparation
+yul:preparation rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Preparation"@en ;
+                skos:definition "Technical description of any preparation of the specimen."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#preparatoryLayer
+yul:preparatoryLayer rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Preparatory layer"@en ;
+                     skos:definition "Technical description of the sizing and ground construction."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#primarySupport
+yul:primarySupport rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Primary support"@en ;
+                   skos:definition "Technical description of the primary support or substrate of the document, inlcudes color, surface texture, thickness."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#primaryUse
+yul:primaryUse rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Primary use"@en ;
+               skos:definition "Description of purpose for which the art of object was created."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#printingProcess
+yul:printingProcess rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Printing process"@en ;
+                    skos:definition "Technical description of the printing method(s) used to create the image."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#provenance
+yul:provenance rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Provenance"@en ;
+               skos:definition "Historical ownership of an art object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#purpose
+yul:purpose rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Purpose"@en ;
+            skos:definition "The purpose of the document."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#reasonForSuspension
+yul:reasonForSuspension rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Reason for suspension"@en ;
+                        skos:definition "Reason for suspension of the activity"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#reviewedOn
+yul:reviewedOn rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:dateTime ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Date reviewed"@en ;
+               skos:definition "The date when the review was done."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#sampleMaterial
+yul:sampleMaterial rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Sample мaterial"@en ;
+                   skos:definition "General characterization of the material type."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#scale
+yul:scale rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Scale"@en ;
+          skos:definition "Indicates the scale if one is."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#secondarySupport
+yul:secondarySupport rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Secondary support"@en ;
+                     skos:definition "Technical description of any secondary support present."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#series
+yul:series rdf:type owl:DatatypeProperty ;
+           rdfs:domain chc:CulturalObject ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Portfolio/Series"@en ;
+           skos:definition "Indication of a group of works of art created as a group."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#serviceProvider
+yul:serviceProvider rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Service provider"@en ;
+                    skos:definition "Name and contact information for the provider of the services."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#shipment
+yul:shipment rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:int ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Shipment Type/Size"@en ;
+             skos:definition "Text description of the type and quantity of containers in the shipment."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#shipmentObjectCount
+yul:shipmentObjectCount rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Shipment object count"@en ;
+                        skos:definition "Total number of outgoing objects listed on the receipt."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#singleOrMultiple
+yul:singleOrMultiple rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Single/ Multiple object"@en ;
+                     skos:definition "Identifies if the document is for single object or multiple objects."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#source
+yul:source rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Source"@en ;
+           skos:definition "Source of the image; photographer, publication, lab."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#speed
+yul:speed rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "Speed"@en ;
+          skos:definition "Speed associated with the format."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#stockBrand
+yul:stockBrand rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Stock brand"@en ;
+               skos:definition "Name of manufacture of the physical format used to make the recording or film."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#stockFrameSize
+yul:stockFrameSize rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Stock frame size"@en ;
+                   skos:definition "Description of the stock frame size."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#stretcher
+yul:stretcher rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Stretcher/Strainer"@en ;
+              skos:definition "Technical description of the stretcher/strainer if used."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#subType
+yul:subType rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Sub type"@en ;
+            skos:definition "Sub classification of the item."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#surfaceCoating
+yul:surfaceCoating rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Surface coatings"@en ;
+                   skos:definition "Technical description of any surface coating applied."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#textblockCollation
+yul:textblockCollation rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Malvina Makarieva"@en ;
+                       rdfs:label "Textblock, collation"@en ;
+                       skos:definition "Description of the printer's imposition and organization of the gatherings in a textblock, expressed in a shorthand formula."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#textblockLeafAttachment
+yul:textblockLeafAttachment rdf:type owl:DatatypeProperty ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Malvina Makarieva"@en ;
+                            rdfs:label "Textblock, leaf attachment"@en ;
+                            skos:definition "Technical description of the manner of leaf attachment/construction of the textblock."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#textblockMedia
+yul:textblockMedia rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Textblock, media"@en ;
+                   skos:definition "Technical description of the printing and media in the textblock."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#textblockSupport
+yul:textblockSupport rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Malvina Makarieva"@en ;
+                     rdfs:label "Textblock, support"@en ;
+                     skos:definition "Technical description of the textblock support leaves."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#textblockWatermarks
+yul:textblockWatermarks rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Malvina Makarieva"@en ;
+                        rdfs:label "Textblock, watermark(s)"@en ;
+                        skos:definition "Technical description of any watermarks, includes type, location on sheet, motif, and size."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#treatmentNeeded
+yul:treatmentNeeded rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Malvina Makarieva"@en ;
+                    rdfs:label "Treatment needed"@en ;
+                    skos:definition "Description of the cultural object treatment needs."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#treatmentNotes
+yul:treatmentNotes rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Treatment notes"@en ;
+                   skos:definition "Any additional information for needed treatment."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#treatmentState
+yul:treatmentState rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Treatment state, watermark(s)"@en ;
+                   skos:definition "Treatment state."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#venue
+yul:venue rdf:type owl:DatatypeProperty ;
+          rdfs:range xsd:string ;
+          dc:creator "Malvina Makarieva"@en ;
+          rdfs:label "YUL Venue"@en ;
+          skos:definition "YUL location of the exhibition; may select multiple values."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#volume
+yul:volume rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Volume/Box/Reel"@en ;
+           skos:definition "Used for multi-volume sets (bound), archival collections; or microforms to provide a more specific identification, especially for archival collections where individual objects are not assigned unique ID numbers."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#watermarks
+yul:watermarks rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Watermark(s)"@en ;
+               skos:definition "Technical description of any watermarks, includes type, location on sheet, motif, and size."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#weight
+yul:weight rdf:type owl:DatatypeProperty ;
+           rdfs:domain chc:CulturalObject ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Weight"@en ;
+           skos:definition "Cultural object weight."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#yaleProvider
+yul:yaleProvider rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Yale provider"@en ;
+                 skos:definition "Yale provider."@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject
+chc:CulturalObject emf:isSearchable "true"^^xsd:boolean .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Activity
+yul:Activity rdf:type owl:Class ;
+             rdfs:subClassOf emf:Activity ;
+             emf:classCategory "caseinstance" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Malvina Makarieva"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Activity"@en ;
+             skos:definition "Activities that are connected with conservation of a cultural objects"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Artifact
+yul:Artifact rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Malvina Makarieva"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Artifact"@en ;
+             skos:definition "Physical object, that is not easily classified as decorative art objects, tools/equipment, or as specimens.  Artifact is often used to distinguish man-made items from natural specimens. Generally found in archival collections. Examples: human hair cuttings kept as memorial, false teeth belong to historic figure."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#BoundVolume
+yul:BoundVolume rdf:type owl:Class ;
+                rdfs:subClassOf chc:CulturalObject ;
+                emf:classCategory "culturalobject" ;
+                emf:definitionId "objectinstance" ;
+                emf:isCreateable "true"^^xsd:boolean ;
+                emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Malvina Makarieva"@en ;
+                sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                rdfs:label "Book/Bound Volume"@en ;
+                skos:definition "Items comprising a collection of leaves of paper, parchment, wood, stiffened textile, ivory, metal tablets, or other flat material, that are blank, written on, or printed, and are strung or bound together in a volume. Often works in codex form. Includes serial or continuing publications and pamphlets. (Getty AAT)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#DecorativeArt
+yul:DecorativeArt rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Decorative Art/Object"@en ;
+                  skos:definition "The decorative arts are arts or crafts concerned with the design and manufacture of beautiful objects that are also functional. It includes interior design, but not usually architecture . Examples include things like candle sticks, furniture, porcelain dinnerware, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Digital
+yul:Digital rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Malvina Makarieva"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Computer File/Digital Object"@en ;
+            skos:definition "Used to describe something, as an arrangement of visible forms or of data, that is produced by a computer, especially when the programming generates automatically a relatively large number of the steps between what is input and what is produced. Machine-readable records. (Getty AAT)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Drawing
+yul:Drawing rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Malvina Makarieva"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Drawing"@en ;
+            skos:definition "Visual works produced by drawing, which is the application of lines on a surface, often paper, by using a pencil, pen, chalk, or some other tracing instrument to focus on the delineation of form rather than the application of color. (Getty AAT)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Equipment
+yul:Equipment rdf:type owl:Class ;
+              rdfs:subClassOf chc:CulturalObject ;
+              emf:classCategory "culturalobject" ;
+              emf:definitionId "objectinstance" ;
+              emf:isCreateable "true"^^xsd:boolean ;
+              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+              emf:isSearchable "true"^^xsd:boolean ;
+              dc:creator "Lidiya Dimitrowa"@en ;
+              sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+              sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+              rdfs:label "Tools/Equipment"@en ;
+              skos:definition "A device or implement, especially one held in the hand, used to carry out a particular function; implements used in an operation or activity (not activities related to art creation); examples are scientific instruments and hand tools."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Manuscript
+yul:Manuscript rdf:type owl:Class ;
+               rdfs:subClassOf chc:CulturalObject ;
+               emf:classCategory "culturalobject" ;
+               emf:definitionId "objectinstance" ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Lidiya Dimitrowa"@en ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               rdfs:label "Document/Manuscript"@en ;
+               skos:definition "A single archival, record or manuscript item. Usually physically indivisible. (ICA). Record information which is preserved for future use as a memory aid, not as art or for aesthetic purposes.For library/archives, handwritten materials that primarily convey information such as letters, and manuscripts (unbound)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Painting
+yul:Painting rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Malvina Makarieva"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Painting"@en ;
+             skos:definition "Painting is the practice of applying paint, pigment, color or other medium to a surface (support base). The medium is commonly applied to the base with a brush but other implements, such as knives, sponges, and airbrushes, can be used. In art, the term painting describes both the act and the result of the action. However, painting is also used outside of art as a common trade among craftsmen and builders. Paintings may have for their support such surfaces as walls, paper, canvas, wood, glass, lacquer, clay, leaf, copper or concrete, and may incorporate multiple other materials including sand, clay, paper, gold leaf as well as objects. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Photograph
+yul:Photograph rdf:type owl:Class ;
+               rdfs:subClassOf chc:CulturalObject ;
+               emf:classCategory "culturalobject" ;
+               emf:definitionId "objectinstance" ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Malvina Makarieva"@en ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               rdfs:label "Photograph"@en ;
+               skos:definition "A photograph or photo is an image created by light falling on a light-sensitive surface, usually photographic film or an electronic image such as a CCD or a CMOS chip. Most photographs are created using a camera, which uses a lens to focus the scene's visible wavelengths of light into a reproduction of what the human eye would see. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Print
+yul:Print rdf:type owl:Class ;
+          rdfs:subClassOf chc:CulturalObject ;
+          emf:classCategory "culturalobject" ;
+          emf:definitionId "objectinstance" ;
+          emf:isCreateable "true"^^xsd:boolean ;
+          emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+          emf:isSearchable "true"^^xsd:boolean ;
+          dc:creator "Malvina Makarieva"@en ;
+          sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+          sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+          rdfs:label "Print"@en ;
+          skos:definition "A picture or design printed from a block or plate or copied from a painting by photography. A piece of fabric or clothing with a decorative colored pattern or design printed on it."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Sculpture
+yul:Sculpture rdf:type owl:Class ;
+              rdfs:subClassOf chc:CulturalObject ;
+              emf:classCategory "culturalobject" ;
+              emf:definitionId "objectinstance" ;
+              emf:isCreateable "true"^^xsd:boolean ;
+              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+              emf:isSearchable "true"^^xsd:boolean ;
+              dc:creator "Malvina Makarieva"@en ;
+              sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+              sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+              rdfs:label "Sculpture"@en ;
+              skos:definition "Sculpture is the branch of the visual arts that operates in three dimensions, and one of the plastic arts. Durable sculptural processes originally used carving (the removal of material) and modelling (the addition of material, as clay), in stone, metal, ceramics, wood and other materials but, since modernism, shifts in sculptural process led to an almost complete freedom of materials and process. A wide variety of materials may be worked by removal such as carving, assembled by welding or modelling, or molded, or cast. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Specimen
+yul:Specimen rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Malvina Makarieva"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Specimen"@en ;
+             skos:definition "An object of natural origin. An item that is a representative example of class. Specimen is often used to distinguish biological, botanical, and geological materials from man-made artifacts. (SAA)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#TechnicalMaterial
+yul:TechnicalMaterial rdf:type owl:Class ;
+                      rdfs:subClassOf chc:CulturalObject ;
+                      emf:classCategory "culturalobject" ;
+                      emf:definitionId "objectinstance" ;
+                      emf:isCreateable "true"^^xsd:boolean ;
+                      emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                      emf:isSearchable "true"^^xsd:boolean ;
+                      dc:creator "Malvina Makarieva"@en ;
+                      sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                      sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                      rdfs:label "Technical Material"@en ;
+                      skos:definition "Technical Material are accessioned cultural objects that are related to the production of works of art. The best example of these types of materials are metal plates, usually copper, that have been etched or engraved by the artist in order to make a series of prints on paper. Another example could be a mold that an artist made to cast a series of three dimensional sculptures."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Textile
+yul:Textile rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Malvina Makarieva"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Textile"@en ;
+            skos:definition "Materials produced by weaving, felting, knotting, twining, or otherwise processing natural or synthetic fibers so that they cohere into a form or unit; traditionally excludes fiberboard, paper, papier-mâché, and papyrus, which, though also fiber products, are considered as separate types of material. ( Getty AAT)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Visual
+yul:Visual rdf:type owl:Class ;
+           rdfs:subClassOf chc:CulturalObject ;
+           emf:classCategory "culturalobject" ;
+           emf:definitionId "objectinstance" ;
+           emf:isCreateable "true"^^xsd:boolean ;
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           emf:isSearchable "true"^^xsd:boolean ;
+           dc:creator "Malvina Makarieva"@en ;
+           sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+           sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+           rdfs:label "Audio/Visual Material"@en ;
+           skos:definition "Non-print materials, such as slides, transparencies, motion pictures, or filmstrips, that make use of sight and sound to convey information; refers especially to such materials when used for instruction."@en .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+emf:hasPrimaryImage emf:auditEvent "+addHasPrimaryImage|-removeHasPrimaryImage|changeHasPrimaryImage" .
+
+
+emf:hasWatcher emf:auditEvent "+addHasWatcher|-removeHasWatcher|changeHasWatcher" ;
+               sec:autoAssignPermissionRole "CONSUMER" .
+
+
+emf:processedBy emf:auditEvent "+addProcessedBy|-removeProcessedBy|changeProcessedBy" .
+
+
+emf:processes emf:isSearchable "true"^^xsd:boolean .
+
+
+ptop:hasParticipant sec:autoAssignPermissionRole "COLLABORATOR" ;
+                    sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                    emf:auditEvent "+addHasParticipant|-removeHasParticipant|changeHasParticipant" .
+
+
+ptop:involvedIn emf:auditEvent "+addInvolvedIn|-removeInvolvedIn|changeInvolvedIn" .
+
+
+chc:Sample emf:isCreateable "true"^^xsd:boolean ;
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           emf:isSearchable "true"^^xsd:boolean ;
+           sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+           sec:allowInheritParentPermissions "false"^^xsd:boolean .
+
+
+chc:hasAuthor sec:autoAssignParentPermissionRole "CONSUMER" ;
+              sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+chc:hasSupervisor sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                  sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

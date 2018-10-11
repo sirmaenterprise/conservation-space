@@ -1,0 +1,62 @@
+<div class="idoc-wrapper idoc-mode-{{idocPage.context.getMode()}}">
+  <div ng-if="::idocPage.currentObject">
+    <seip-sidebar context="::idocPage.context" class="no-print"></seip-sidebar>
+    <div class="fixed-container" seip-ui-preference ui-preference-config="::idocPage.fixedContainerUIPreferenceConfig">
+      <div class="idoc-context-wrapper" ng-show="idocPage.isHeaderVisible">
+        <div class="idoc-header no-print">
+          <seip-instance-header header-type="::idocPage.headerType" context="::idocPage.context"></seip-instance-header>
+        </div>
+        <div class="idoc-context-body no-print">
+          <div class="idoc-template-selector-wrapper">
+            <seip-idoc-template-selector
+              ng-if="idocPage.actionContext && idocPage.context.isEditMode() && idocPage.context.isShowTemplateSelector()"
+              instance-object="::idocPage.currentObject"
+              selected-template="idocPage.selectedTemplate"
+              on-template-content-loaded="idocPage.initViewFromTemplate(event)"
+              on-template-selected="idocPage.templateSelectedCallback(event)">
+            </seip-idoc-template-selector>
+          </div>
+          <div class="idoc-info-area-wrapper">
+            <seip-info-area context="::idocPage.context"></seip-info-area>
+          </div>
+          <div class="idoc-context-actions-wrapper" ng-class="::{'has-help' : !!idocPage.helpTarget}">
+            <seip-contextual-help ng-if="::idocPage.helpTarget" target="idocPage.helpTarget">
+            </seip-contextual-help>
+            <div class="idoc-context-actions-body">
+              <seip-idoc-actions context="idocPage.context"
+                                 action-context="::idocPage.actionContext"
+                                 actions-config="::idocPage.actionsConfig">
+              </seip-idoc-actions>
+            </div>
+          </div>
+        </div>
+      </div>
+      <seip-toolbar config="::idocPage.actionContext"></seip-toolbar>
+      <seip-idoc-tabs config="::idocPage.tabsConfig" mode="idocPage.context.getMode()" context="::idocPage.context"
+                      class="no-print"></seip-idoc-tabs>
+      <div class="idoc-editor-toolbar-container"
+           ng-show="idocPage.context.isEditMode() && !idocPage.tabsConfig.getActiveTab().locked">
+        <div id="idoc-editor-toolbar"></div>
+        <div class="idoc-editor-toolbar-addons">
+          <a class="seip-btn-toggle-header fa" ng-click="idocPage.toggleHeader()">
+            <i class="fa"
+               ng-class="{'fa-angle-double-up' :idocPage.isHeaderVisible,'fa-angle-double-down': !idocPage.isHeaderVisible}"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="idoc-body" seip-ui-preference
+         ui-preference-config="::idocPage.idocBodyUIPreferenceConfig">
+      <div class="tab-content">
+        <section ng-repeat="tab in idocPage.tabsConfig.tabs" id="tab-{{::tab.id}}"
+                 class="idoc-tab tab-pane fade"
+                 ng-class="{'in active': idocPage.showTab(tab), 'system-tab': tab.system === true}">
+          <footer ng-if="$index > 0"></footer>
+          <idoc-tab-body tab="::tab" context="::idocPage.wrappedContext"
+                         tabs-config="::idocPage.tabsConfig"></idoc-tab-body>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,7 +11,6 @@
                     var LinkedList = Java.type('java.util.LinkedList');
                     var Arrays = Java.type('java.util.Arrays');
                     var Locale = Java.type('java.util.Locale');
-
                     // Object initialization:
                     // Calendar initialization with specified locale - current locale US
                     var calendar = Calendar.getInstance(Locale.US);
@@ -39,26 +38,23 @@
                     searchArguments.setPageSize(batchSize);
                     // Setting context (external source system) from where SEIP will search and update modified objects. 
                     searchArguments.setContext('CMS');
-                    // Search tree initialization.
-                    var searchTree = new com.sirma.itt.seip.domain.search.model.SearchTree();
+					// Condition builder, the root of the search tree
+                    var conditionBuilder = new com.sirma.itt.seip.domain.search.tree.ConditionBuilder();
                     // Setting search treen condition.
-                    searchTree.setCondition("AND");
-                    // List initialization which contains the tree rules.
-                    var list = new LinkedList();
-                    // Tree rule initialization.
-                    var treeRule = new com.sirma.itt.seip.domain.search.model.SearchTreeRule();
-                    // Setting tree rule operator. E.g "between"" two dates.
-                    treeRule.setOperator("between");
-                    // Seeting tree rule field. E.g modifiedOn, title
-                    treeRule.setField("emf:modifiedOn");
-                    // Setting value to tree rule fields.
-                    treeRule.setValue(Arrays.asList(from.getTime(), to.getTime()));
-                    // Adding tree rule to tree rule list. The SEIP SearchTree can handle multiple tree rules. E.g except with modifiedOn date range, the user can set additional rules for searching (title, accessionNumber and etc.).
-                    list.add(treeRule);
-                    // Setting search rules.
-                    searchTree.setRules(list);
-                    // Adding search tree to searchArguments.
-                    searchArguments.setSearchTree(searchTree);
+					// By default the conditon junction is AND
+                    // conditionBuilder.setCondition(com.sirma.itt.seip.domain.search.tree.Condition.Junction.AND);
+                    // Rule builder
+                    var ruleBuilder = new com.sirma.itt.seip.domain.search.tree.RuleBuilder();
+                    // Setting the fields in the tree rule builder - e.g "between" two dates for emf:modifiedOn
+                    ruleBuilder.setOperation("between").setField("emf:modifiedOn").setValues(Arrays.asList(from.getTime(), to.getTime()));
+                    // Building the rule
+                    var rule = ruleBuilder.build();
+                    // Adding the rule to the condition builder
+                    conditionBuilder.addRule(rule);
+					// Building the rule
+					var condition = conditionBuilder.build();
+                    // Adding he condition to searchArguments as the base tree node
+                    searchArguments.setCondition(condition);
                     // Trigger external search with search arguments.
                     eaiScriptService.searchAndImport(searchArguments);
                    
@@ -66,7 +62,7 @@
 			</value>
 			<control id="schedulerConfiguration">
                 <!-- Cron expression can be generated in http://www.cronmaker.com/   -->
-				<control-param id="config" name="cronExpression">0 0 7 1/1 * ? * </control-param>
+				<control-param id="config" name="cronExpression">0 1 0 1/1 * ? *</control-param>
 			</control>
 		</field>
 	</fields>

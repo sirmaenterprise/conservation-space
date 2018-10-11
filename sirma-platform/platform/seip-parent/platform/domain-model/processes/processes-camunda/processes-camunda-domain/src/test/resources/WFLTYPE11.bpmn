@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.6.0">
+  <bpmn:process id="WFLTYPE11" name="Workflow With Timer and Message" isExecutable="true">
+    <bpmn:sequenceFlow id="SequenceFlow_0et2lnv" sourceRef="StartEvent_1" targetRef="TASKST100" />
+    <bpmn:userTask id="TASKST100" name="Review and Approve Report&#10;" camunda:assignee="${assignee}" camunda:dueDate="${plannedEndDate}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="taskNotes" type="string" />
+          <camunda:formField id="assignee" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="hasWatcher">${createdBy}</camunda:inputParameter>
+          <camunda:inputParameter name="references">${processes}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0et2lnv</bpmn:incoming>
+      <bpmn:incoming>skip_afterMessage</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_12m6g3k</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1xzmx93">
+      <bpmn:incoming>SequenceFlow_12m6g3k</bpmn:incoming>
+      <bpmn:outgoing>approve</bpmn:outgoing>
+      <bpmn:outgoing>implementRecommendations</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_12m6g3k" sourceRef="TASKST100" targetRef="ExclusiveGateway_1xzmx93" />
+    <bpmn:endEvent id="EndEvent_0m3liiu">
+      <bpmn:incoming>approve</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="approve" name="Approve" sourceRef="ExclusiveGateway_1xzmx93" targetRef="EndEvent_0m3liiu">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='approve'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="implementRecommendations" name="Implement Recommendations" sourceRef="ExclusiveGateway_1xzmx93" targetRef="TASKST101">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='implementRecommendations'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="complete" name="Complete" sourceRef="TASKST101" targetRef="timer">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='complete'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="TASKST101" name="Implement recommendations update" camunda:assignee="${assignee}">
+      <bpmn:incoming>implementRecommendations</bpmn:incoming>
+      <bpmn:outgoing>complete</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="priority" type="long" />
+          <camunda:formField id="plannedEndDate" type="date" />
+          <camunda:formField id="plannedStartDate" type="date" />
+          <camunda:formField id="createdBy" type="string" />
+          <camunda:formField id="processes" type="string" />
+          <camunda:formField id="hasAttachment" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_0et2lnv</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:intermediateCatchEvent id="timer" name="Timer that will wait five minutes">
+      <bpmn:incoming>complete</bpmn:incoming>
+      <bpmn:outgoing>skip_afterComplete</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT5M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="skip_afterComplete" sourceRef="timer" targetRef="messageCatchEvent" />
+    <bpmn:sequenceFlow id="skip_afterMessage" sourceRef="messageCatchEvent" targetRef="TASKST100" />
+    <bpmn:intermediateCatchEvent id="messageCatchEvent" name="Message Catch Event">
+      <bpmn:incoming>skip_afterComplete</bpmn:incoming>
+      <bpmn:outgoing>skip_afterMessage</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_0b16lpf" />
+    </bpmn:intermediateCatchEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_1eodnuv" name="start_WFLTYPE10" />
+  <bpmn:message id="Message_0b16lpf" name="testMessage" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="WFLTYPE11">
+      <bpmndi:BPMNEdge id="SequenceFlow_0et2lnv_di" bpmnElement="SequenceFlow_0et2lnv">
+        <di:waypoint xsi:type="dc:Point" x="209" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="277" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="243" y="105" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1yorvo4_di" bpmnElement="TASKST100">
+        <dc:Bounds x="277" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1xzmx93_di" bpmnElement="ExclusiveGateway_1xzmx93" isMarkerVisible="true">
+        <dc:Bounds x="477" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="502" y="145" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_12m6g3k_di" bpmnElement="SequenceFlow_12m6g3k">
+        <di:waypoint xsi:type="dc:Point" x="377" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="477" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="427" y="105" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0m3liiu_di" bpmnElement="EndEvent_0m3liiu">
+        <dc:Bounds x="645" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="663" y="138" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1f68jb8_di" bpmnElement="approve">
+        <di:waypoint xsi:type="dc:Point" x="527" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="645" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="565" y="95" width="41" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0bdoz2r_di" bpmnElement="implementRecommendations">
+        <di:waypoint xsi:type="dc:Point" x="502" y="145" />
+        <di:waypoint xsi:type="dc:Point" x="502" y="219" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="516" y="158" width="85" height="36" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_01ewrtj_di" bpmnElement="complete">
+        <di:waypoint xsi:type="dc:Point" x="452" y="259" />
+        <di:waypoint xsi:type="dc:Point" x="384" y="259" />
+        <di:waypoint xsi:type="dc:Point" x="384" y="315" />
+        <di:waypoint xsi:type="dc:Point" x="315" y="315" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="331" y="300" width="46" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0y5g10z_di" bpmnElement="TASKST101">
+        <dc:Bounds x="452" y="219" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_19gp25e_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="191" y="138" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_0i3v8l6_di" bpmnElement="timer">
+        <dc:Bounds x="279" y="297" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="257" y="333" width="80" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1u5h2l5_di" bpmnElement="skip_afterComplete">
+        <di:waypoint xsi:type="dc:Point" x="297" y="297" />
+        <di:waypoint xsi:type="dc:Point" x="297" y="273" />
+        <di:waypoint xsi:type="dc:Point" x="276" y="273" />
+        <di:waypoint xsi:type="dc:Point" x="276" y="249" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="287" y="258" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_10wpmyf_di" bpmnElement="skip_afterMessage">
+        <di:waypoint xsi:type="dc:Point" x="276" y="213" />
+        <di:waypoint xsi:type="dc:Point" x="276" y="187" />
+        <di:waypoint xsi:type="dc:Point" x="327" y="187" />
+        <di:waypoint xsi:type="dc:Point" x="327" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="302" y="172" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_09jv0x3_di" bpmnElement="messageCatchEvent">
+        <dc:Bounds x="258" y="213" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="249" width="80" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,15 @@
+<div>
+    <span style="float: right; margin-right: 10px;">
+		<a id="edit-mode" href="javascript:void(0)" ng-click="idocTabsBootstrap.setMode('edit')">Edit</a> |
+		<a id="preview-mode" href="javascript:void(0)" ng-click="idocTabsBootstrap.setMode('preview')">Preview</a>
+	</span><br>
+    <seip-idoc-tabs config="idocTabsBootstrap.tabsConfig" mode="idocTabsBootstrap.mode" context="idocTabsBootstrap.context"></seip-idoc-tabs>
+    <div class="tab-content">
+        <section ng-repeat="tab in idocTabsBootstrap.tabsConfig.tabs" id="tab-{{::tab.id}}"
+                 class="idoc-tab tab-pane fade" ng-class="{'in active':idocTabsBootstrap.tabsConfig.activeTabId === tab.id}">
+            <div style="float: left; width: 200px;" class="idoc-navigation-wrapper" ng-if="tab.showNavigation">Navigation</div>
+            <div style="float: left; width: 200px;" class="tab-sections"> {{::tab.content}} </div>
+            <div style="float: left; width: 200px;" class="idoc-comments-wrapper" ng-if="tab.showComments">Comments</div>
+        </section>
+    </div>
+</div>

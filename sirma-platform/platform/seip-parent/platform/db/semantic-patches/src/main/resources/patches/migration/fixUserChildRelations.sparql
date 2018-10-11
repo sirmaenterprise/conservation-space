@@ -1,0 +1,13 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+
+INSERT {
+  GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework>  {
+        ?child ptop:partOf ?instance.
+        ?instance emf:hasChild ?child.
+    }
+} WHERE {
+    ?instance emf:parentOf ?child.
+    ?instance a emf:User.
+    filter(not exists{ ?child ptop:partOf ?anyParent. }).
+}

@@ -1,35 +1,29 @@
 <?xml version="1.0"?>
-<definition id="template" parentId="GEO10001" isAbstract="false" type="object">
+<definition id="template" parentId="templateBase" isAbstract="false" type="object">
     <fields>
-		<field name="default_header" type="ANY" label="NGA_TEMPLATE_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="tooltip_header" type="an..4096" label="NGA_TEMPLATE_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="compact_header" type="an..4096" label="NGA_TEMPLATE_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-		<field name="breadcrumb_header" type="an..4096" label="NGA_TEMPLATE_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
+		<field name="default_header" type="ANY" label="NGA_TEMPLATE_DEFAULT_HEADER" />
+		<field name="tooltip_header" type="ANY" label="NGA_TEMPLATE_TOOLTIP_HEADER" />
+		<field name="compact_header" type="an..4096" label="NGA_TEMPLATE_COMPACT_HEADER" />
+		<field name="breadcrumb_header" type="an..4096" label="NGA_TEMPLATE_BREADCRUMB_HEADER" />
 
-		<field name="rdf:type" type="URI" label="type.label" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
-            <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Template</value>
-        </field>
-        <field name="type" type="an..50" codelist="CL3" label="type.label" mandatory="false" displayType="system" dmsType="emf:type" uri="emf:type">
-            <value>TEMPLATE</value>
-        </field>
-		
+		<field name="type" type="an..50" displayType="system" />
 		<field name="status" type="an..50" displayType="system" />
 		<field name="forObjectType" type="an..256" displayType="system" />
 		<field name="templatePurpose" type="an..30" displayType="system" />
 		<field name="isPrimaryTemplate" type="boolean" displayType="system" />
 		<field name="title" type="an..40" displayType="system" />
-		<field name="identifier" displayType="system" />
+		<field name="identifier" type="an..50" displayType="system" />
+		<field name="description" type="an..1024" displayType="system" />
 		<field name="emf:version" type="an..10" displayType="system" />
 		<field name="createdOn" type="dateTime" displayType="system"  />
     	<field name="createdBy" type="uri" displayType="system" />
         <field name="modifiedOn" type="dateTime" displayType="system"/>
         <field name="modifiedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasParent" type="uri" displayType="system" />
 		<field name="hasThumbnail" type="uri" displayType="system" />
 		<field name="outcome" type="an..50" displayType="system" />
 		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
+		<field name="integrated" type="boolean" label="emf.integrated.label" displayType="system" />
 		<field name="uri" type="an..50" displayType="system" />
 		<field name="hasRevision" type="uri" displayType="system" />
 		<field name="isRevisionOf" type="uri" displayType="system" />
@@ -38,33 +32,40 @@
 		<field name="nextRevision" type="uri" displayType="system" />
 		<field name="previousRevision" type="uri" displayType="system" />
 		<field name="partOf" type="uri" displayType="system" />
+		<field name="templateRuleDescription" type="an..1024" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
+		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="forObjectTypeLabel" displayType="system" />
+		<field name="parentOf" type="uri" displayType="system" />
 		<field name="hasChild" type="uri" displayType="system" />
     </fields>
 	
 	<regions>
 		<region id="systemData" order="1" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="title" type="an..40" label="nga.title.label" tooltip="nga.title.tooltip" mandatory="false" displayType="editable" previewEmpty="false" dmsType="cm:title" uri="dcterms:title"/>
-				<field name="forObjectType" type="an..256" label="template.forObjectType" mandatory="true" displayType="readonly" multiValued="false" dmsType="FORBIDDEN" uri="emf:forObjectType"/>
-				<field name="templatePurpose" type="an..30" label="template.templatePurpose" mandatory="true" displayType="readonly" multiValued="false" dmsType="FORBIDDEN" uri="emf:templatePurpose"/>
-				<field name="isPrimaryTemplate" type="boolean" label="template.isPrimaryTemplate" mandatory="false" displayType="readonly" multiValued="false" dmsType="FORBIDDEN" uri="emf:isPrimaryTemplate"/>
-		
-				<field name="identifier" type="an..50" label="nga.identifier.label" tooltip="nga.identifier.tooltip" mandatory="false" displayType="readOnly" rnc="${eval(TMP${seq({+tmpSequence})})}" uri="dcterms:identifier"/>
-				<field name="emf:version" type="an..10" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" dmsType="FORBIDDEN" uri="emf:version"/> 
-				<field name="status" type="an..50" codelist="CL351" label="status.label" mandatory="false" displayType="readOnly" previewEmpty="false" dmsType="emf:status" uri="emf:status" />
-				<field name="createdOn" type="dateTime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readOnly" dmsType="-cm:creator" uri="emf:createdBy" >
+				<field name="title" type="an..500" label="nga.title.label" tooltip="nga.title.tooltip" mandatory="true" displayType="editable" previewEmpty="false" uri="dcterms:title" unique="true"/>
+				<field name="forObjectTypeLabel" type="an..256" label="template.forObjectType" tooltip="nga.forObjectType.tooltip" displayType="readonly" uri="emf:forObjectTypeLabel" />
+				<field name="templatePurpose" type="an..30" mandatory="true" displayType="readonly" codelist="CL31" label="template.templatePurpose" tooltip="nga.templatePurpose.tooltip"  multiValued="false" uri="emf:templatePurpose"/>
+				<field name="isPrimaryTemplate" type="boolean" label="template.isPrimaryTemplate" tooltip="nga.isPrimaryTemplate.tooltip" displayType="readonly" multiValued="false" uri="emf:isPrimaryTemplate"/>
+				<field name="description" type="an..1024" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable" previewEmpty="false" uri="dcterms:description"/>
+				<field name="templateRuleDescription" type="an..1024" label="template.ruleDescription" tooltip="nga.templateRuleDescription.tooltip" displayType="readonly" multiValued="false" uri="emf:templateRuleDescription"/>
+				
+				<field name="identifier" type="an..50" label="nga.identifier.label" tooltip="nga.identifier.tooltip" displayType="readOnly" rnc="${eval(TMP${seq({+tmpSequence})})}" uri="dcterms:identifier"/>
+				<field name="emf:version" type="an..10" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" uri="emf:version"/> 
+				<field name="status" type="an..50" codelist="CL17" label="status.label" tooltip="nga.status.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:status" />
+				<field name="createdOn" type="dateTime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
+				<field name="createdBy" type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readOnly" uri="emf:createdBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" dmsType="-cm:modified"  uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" dmsType="-cm:modifier" uri="emf:modifiedBy">
+				<field name="modifiedOn" type="datetime" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedOn"/>
+				<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedBy">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="lockedBy" type="uri" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" dmsType="FORBIDDEN" previewEmpty="false">
+				<field name="lockedBy" type="uri" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
@@ -73,22 +74,25 @@
 		</region>
 		<region id="generalTemplateRelationships" order="2" displayType="editable" label="nga.relationships.region.label">
 			<fields>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" mandatory="false" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess,emf:User</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+				 <field name="type" type="an..50" codelist="CL7" label="type.label" displayType="readOnly" uri="emf:type">
+					<value>TEMPLATE</value>
+				</field> 
+				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
 				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" mandatory="false" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
+				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>
+				</field>
+				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
 					</control>
@@ -98,40 +102,82 @@
 	</regions>
 	
 	<transitions>
-		<transition id="activateTemplate" label="template.activate" tooltip="activateTemplate.tooltip" eventId="activateTemplate" purpose="activateTemplate"></transition>
+		<transition id="editDetails" order="10" actionPath="/" />
+		<transition id="setTemplateAsPrimary" order="15" />
+		<transition id="editTemplateRule" order="20" />
+		<transition id="activateTemplate" order="25" actionPath="/" />
+		<transition id="deactivateTemplate" order="30" actionPath="/" />
+		<transition id="reloadTemplate" order="35" />
+		<transition id="updateExistingObjects" order="40" />
+					
+		<group id="more" order="45" label="more.group.label" type="menu" />
+		<transition id="cloneTemplate" order="2" group="more" />
+		<transition id="lock" order="4" group="more" />
+		<transition id="unlock" order="6" actionPath="/" group="more"/>
+		<transition id="managePermissions" order="8" group="more" />
+		
+		<transition id="delete" order="100" />
 	</transitions>
 	
-	<stateTransitions>		
+	<stateTransitions>
 		<stateTransition from="INIT" transition="create" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="activateTemplate" to="ACTIVE"/>
-		<stateTransition from="ACTIVE" transition="editDetails" to="DRAFT"/>
-		<stateTransition from="INACTIVE" transition="editDetails" to="DRAFT"/>
 
+		<stateTransition from="DRAFT" transition="activateTemplate" to="ACTIVE" />
 		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="delete" to="DELETED" />
-		<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
-		<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>			
+		<stateTransition from="DRAFT" transition="lock" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="unlock" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT" />
-		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="reloadTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="editTemplateRule" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="cloneTemplate" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="delete" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="setTemplateAsPrimary" to="DRAFT">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
 
-		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE" />
-		<stateTransition from="ACTIVE" transition="delete" to="DELETED" />
-		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE"/>
-		<stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="editDetails" to="UPDATED" />
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="unlock" to="ACTIVE" />
 		<stateTransition from="ACTIVE" transition="managePermissions" to="ACTIVE" />
-		<stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
-		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
-		
-		<stateTransition from="INACTIVE" transition="editDetails" to="INACTIVE" />
-		<stateTransition from="INACTIVE" transition="delete" to="DELETED" />
-		<stateTransition from="INACTIVE" transition="lock" to="INACTIVE"/>
-		<stateTransition from="INACTIVE" transition="unlock" to="INACTIVE"/>			
-		<stateTransition from="INACTIVE" transition="managePermissions" to="INACTIVE" />
-		<stateTransition from="INACTIVE" transition="addThumbnail" to="INACTIVE" />
-		<stateTransition from="INACTIVE" transition="createInContext" to="INACTIVE"/>
-    </stateTransitions>
+		<stateTransition from="ACTIVE" transition="reloadTemplate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="editTemplateRule" to="UPDATED" />
+		<stateTransition from="ACTIVE" transition="cloneTemplate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="setTemplateAsPrimary" to="ACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		<stateTransition from="ACTIVE" transition="deactivateTemplate" to="INACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		<stateTransition from="ACTIVE" transition="updateExistingObjects" to="ACTIVE" />
 
+		<stateTransition from="UPDATED" transition="activateTemplate" to="ACTIVE" />
+		<stateTransition from="UPDATED" transition="editDetails" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="lock" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="unlock" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="managePermissions" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="reloadTemplate" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="editTemplateRule" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="cloneTemplate" to="UPDATED" />
+		<stateTransition from="UPDATED" transition="setTemplateAsPrimary" to="UPDATED">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		<stateTransition from="UPDATED" transition="deactivateTemplate" to="INACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+		
+		<stateTransition from="INACTIVE" transition="activateTemplate" to="ACTIVE" />
+		<stateTransition from="INACTIVE" transition="editDetails" to="INACTIVE" />
+		<!-- <stateTransition from="INACTIVE" transition="delete" to="INACTIVE" /> -->
+		<stateTransition from="INACTIVE" transition="unlock" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="managePermissions" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="reloadTemplate" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="editTemplateRule" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="cloneTemplate" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="setTemplateAsPrimary" to="INACTIVE">
+			<condition renderAs="PROPERTY" id="isPrimaryTemplate">false</condition>
+		</stateTransition>
+	</stateTransitions>
+	
 	<labels>
 		<label id="NGA_TEMPLATE_TOOLTIP_HEADER">
 			<value lang="en"><![CDATA[${eval(#{eval(
@@ -145,39 +191,69 @@
 						</a>
 					</span>
 					<span class="tooltip-row">
+                        <label>Type: </label>
+                        <span data-property="type">${CL([type])}</span>
+                    </span>
+					${if(${get([forObjectTypeLabel])} <> null).then(
+						<span class="tooltip-row">
+							<label>For object type: </label>
+							<span data-property="forObjectTypeLabel">${get([forObjectTypeLabel])}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+                        <label>Status: </label>
+                        <span data-property="status">${CL([status])}</span>
+                    </span>
+					${if(${get([isPrimaryTemplate])} <> null).then(
+						<span class="tooltip-row">
+							<label>Primary: </label>
+							<span data-property="isPrimaryTemplate">${if(${get([isPrimaryTemplate])} == true).then(Yes).else(No)}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>Purpose: </label>
+						<span data-property="templatePurpose">${CL([templatePurpose])}</span>
+					</span>
+					<span class="tooltip-row">
+                        <label>Version: </label>
+                        <span data-property="emf:version">${get([emf:version])}</span>
+                    </span>
+					<span class="tooltip-row">
                         <label>System modified by: </label>
                         <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
                     </span>
 					<span class="tooltip-row">
                         <label>System modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
                     </span>
 				</span>
 			)})}]]></value>
 		</label>	
 	    <label id="NGA_TEMPLATE_DEFAULT_HEADER">
 			<value lang="en"><![CDATA[${eval(
-			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")}}
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(64)}"/></span>
-			<span>
+			${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9;>).else(<span>)}
 				<span class="truncate-element">
-					<span data-property="type">${CL([type])}</span>
+					<span data-property="type">${CL([type])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
 				</span>
 				<br />
 				<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
-					<span data-title="${get([title])}">${get([title])}</span>
+					${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
+					
 				</a>
+				,&nbsp;Last&nbsp;modified&nbsp;by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>,&nbsp;${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}
 				${if(${var.isVersion}).then(
 					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 				)}
-				&nbsp;Last&nbsp;modified&nbsp;by:&nbsp;<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>,&nbsp;${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}
 				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
             </span>)}]]></value>
 		</label>
 		 <label id="NGA_TEMPLATE_COMPACT_HEADER">
             <value lang="en"><![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")}}
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
             <span ><img src="${thumbnailUri(16)}"/></span>
             <span>
@@ -185,23 +261,25 @@
 				<span>
 					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
 						<span data-title="${get([title])}">${get([title])}</span>
-					</a>
+					</a>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
 				</span>
 			</span>)}]]></value>
         </label>
-		 <label id="NGA_TEMPLATE_BREADCRUMB_HEADER">
+		<label id="NGA_TEMPLATE_BREADCRUMB_HEADER">
             <value lang="en"><![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${searchLink(currentInstance)}")}}
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
             <span ><img src="${thumbnailUri(16)}"/></span>
             <span>
 				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-				<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-title="${get([title])}">${get([title])}</span>
 				</a>
-			</span>)}]]></value>
+			</span>)}]]></value> 
         </label>
     </labels>
 </definition>

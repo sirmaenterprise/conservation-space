@@ -1,0 +1,107 @@
+@import '../../style/variables';
+@import '../../style/mixins';
+
+.instance-header {
+  display: inline;
+  width: 100%;
+
+  &.disabled-link {
+    .instance-link {
+      display: inline-block;
+      pointer-events: none;
+      cursor: default;
+      color: $link-disabled-color;
+    }
+  }
+
+  .instance-data {
+    display: inline-flex;
+    align-items: center;
+
+    &.icon-16 > .header-icon {
+      @include icon-dimensions(16px);
+    }
+
+    &.icon-32 > .header-icon {
+      @include icon-dimensions(32px);
+    }
+
+    &.icon-64 > .header-icon {
+      @include icon-dimensions(64px);
+    }
+
+    span[data-property].header-icon {
+      @include icon-dimensions(16px);
+    }
+
+    span:not(.header-icon):not(.lock-label) {
+
+      img {
+        margin-right: 0.3em;
+      }
+
+      &.instance-link.disabled {
+        pointer-events: none;
+        cursor: default;
+      }
+
+      &.document-version:empty, .object-version:empty {
+        visibility: hidden;
+      }
+
+      &.truncate-element {
+        .document-version:empty {
+          min-width: 0;
+        }
+
+        a:hover {
+          text-decoration: none;
+          position: relative;
+        }
+
+        a:hover:after {
+          content: '';
+          width: 100%;
+          position: absolute;
+          right: 0;
+          bottom: 1px;
+          border-width: 0 0 1px;
+          border-style: solid;
+        }
+      }
+
+      span:not(.badge) {
+        display: inline;
+        @include media-font-size();
+        vertical-align: middle;
+        @include word-wrap();
+      }
+
+      &.badge {
+        display: inline;
+        font-size: 10px;
+        padding: 1px 5px;
+        margin: 0 3px;
+      }
+
+      /* override the default margin that comes from the bootstrap */
+      label {
+        margin-bottom: 0;
+      }
+
+      &.label:empty {
+        display: none;
+      }
+
+      &.lock-label {
+        padding-right: 0.3em;
+      }
+    }
+  }
+
+  &.overflow-hidden span:not(.header-icon):not(.lock-label) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+}

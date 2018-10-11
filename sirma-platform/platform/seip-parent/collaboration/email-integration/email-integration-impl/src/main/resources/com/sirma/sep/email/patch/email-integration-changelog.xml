@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="email-2.8.0-1" author="sdjulgerova">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="emf_mailboxsupportable" />
+			</not>
+		</preConditions>
+		<comment>Create emf_mailboxsupportable table</comment>
+		<createTable tableName="emf_mailboxsupportable">
+			<column autoIncrement="true" name="id" type="bigserial">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="emf_mailboxsupportable_pkey" />
+			</column>
+			<column name="classname" type="VARCHAR(150)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet id="email-2.9.0-1" author="sdjulgerova">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="emf_emailaddress"/>
+		</preConditions>
+		<dropTable tableName="emf_emailaddress"/>
+	</changeSet>
+</databaseChangeLog>

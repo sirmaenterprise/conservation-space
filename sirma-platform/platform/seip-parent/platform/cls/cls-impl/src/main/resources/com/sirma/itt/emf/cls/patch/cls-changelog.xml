@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<include file="cls-init.xml" relativeToChangelogFile="true" />
+
+	<changeSet author="nvelkov" id="1392898506568-14">
+		<modifyDataType columnName="EXTRA1" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODELIST" />
+		<modifyDataType columnName="EXTRA2" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODELIST" />
+		<modifyDataType columnName="EXTRA3" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODELIST" />
+		<modifyDataType columnName="EXTRA4" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODELIST" />
+		<modifyDataType columnName="EXTRA5" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODELIST" />
+		<modifyDataType columnName="EXTRA1" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODEVALUE" />
+		<modifyDataType columnName="EXTRA2" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODEVALUE" />
+		<modifyDataType columnName="EXTRA3" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODEVALUE" />
+		<modifyDataType columnName="EXTRA4" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODEVALUE" />
+		<modifyDataType columnName="EXTRA5" newDataType="VARCHAR(1000)"
+			tableName="CLS_CODEVALUE" />
+	</changeSet>
+	<changeSet author="vtsonev" id="1392898506568-15">
+		<comment>Modifies display_type to be of integer type instead of varchar. That's because there is a BA convention to pass the
+				 display type in the excel file as an integer in the range 1-3, to be compatible with the SRAD forms' codelist components.
+		</comment>
+		<modifyDataType columnName="display_type" newDataType="tinyint"
+			tableName="cls_codelist" />
+	</changeSet>
+
+    <changeSet id="2.19.0-01" author="mradkov">
+        <comment>Add "active" column in code values table for determining if the value is active or not</comment>
+        <addColumn tableName="cls_codevalue">
+            <column name="active" type="BOOLEAN" defaultValue="TRUE"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

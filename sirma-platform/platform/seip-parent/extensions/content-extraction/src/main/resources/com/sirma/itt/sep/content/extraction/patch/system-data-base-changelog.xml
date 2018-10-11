@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="content-extraction-patches-2.19.0-1" author="btonchev">
+        <comment>Update unsupported mimetypes of tika for text extraction. There are two possible parameters:
+            "addMimetypes" - comma separated mimetypes which will be added to currently set and
+            "removeMimetypes" - comma separated mimetypes which will be removed from currently set
+        </comment>
+        <customChange class="com.sirma.itt.sep.content.extraction.patch.UpdateMimeTypePatternTask">
+            <param name="addMimetypes"
+                   value="application/x-iso9660-image,application/x-tar,application/gzip,application/x-gzip,application/x-gunzip,application/gzipped,application/gzip-compressed,application/x-gzip-compressed,gzip/document,application/x-7z-compressed,application/x-abiword,application/vnd.android.package-archive,application/java-archive,application/x-tika-java-enterprise-archive,application/x-rar-compressed,application/x-rar,application/x-compress,application/x-bzip2,application/x-bzip,application/x-xz,application/zip,application/x-zip-compressed"/>
+        </customChange>
+    </changeSet>
+</databaseChangeLog>

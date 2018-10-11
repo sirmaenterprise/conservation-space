@@ -1,0 +1,70 @@
+<schema name="seip-audit" version="1.5">
+	<!-- Audit version - 1.7.0 -->
+
+	<!-- Fields -->
+	<field name="_version_" type="long" indexed="true" stored="true"/>
+	<field name="_root_" type="string" indexed="true" stored="false"/>
+	
+	<field name="id" type="long" indexed="true" stored="true" required="true" /> 
+	<field name="eventdate" type="tdate" indexed="true" stored="false"/>
+	<field name="username" type="string_ci" indexed="true" stored="false"/>
+	<field name="actionid" type="string_ci" indexed="true" stored="false"/>
+	<field name="objectid" type="string_ci" indexed="true" stored="false"/>
+	<field name="objectsystemid" type="string_ci" indexed="true" stored="false"/>
+	<field name="objecttype" type="string_ci" indexed="true" stored="false"/>
+	<field name="objectsubtype" type="string_ci" indexed="true" stored="false"/>
+	<field name="objecttitle" type="string_ci" indexed="true" stored="false"/>
+	<field name="objectpreviousstate" type="string_ci" indexed="true" stored="false"/>
+	<field name="objectstate" type="string_ci" indexed="true" stored="false"/>
+	<field name="objecturl" type="string_ci" indexed="true" stored="false"/>
+	<field name="context" type="semicolon_separated" indexed="true" stored="true" multiValued="true"/>
+	<field name="datereceived" type="tdate" indexed="true" stored="false"/>
+
+	<!-- Copy field for filtering query -->
+	<field name="collector" type="string_ci" indexed="true" stored="false" multiValued="true"/>
+
+	<copyField source="id" dest="collector"/>
+	<copyField source="eventdate" dest="collector"/>
+	<copyField source="username" dest="collector"/>
+	<copyField source="actionid" dest="collector"/>
+	<copyField source="objectid" dest="collector"/>
+	<copyField source="objectsystemid" dest="collector"/>
+	<copyField source="objecttype" dest="collector"/>
+	<copyField source="objectsubtype" dest="collector"/>
+	<copyField source="objecttitle" dest="collector"/>
+	<copyField source="objectstate" dest="collector"/>
+	<copyField source="objectpreviousstate" dest="collector"/>
+	<copyField source="objecturl" dest="collector"/>
+	<copyField source="datereceived" dest="collector"/>
+
+	<uniqueKey>id</uniqueKey>
+
+	<!-- Field types -->
+	<fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+	<fieldType name="tdate" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
+	<fieldType name="long" class="solr.TrieLongField"/>
+	
+	<!-- Case insensitive string -->
+	<fieldType name="string_ci" class="solr.TextField" sortMissingLast="true">
+		<analyzer type="index">
+			<tokenizer class="solr.KeywordTokenizerFactory"/>           
+			<filter class="solr.LowerCaseFilterFactory" />
+		</analyzer>
+		<analyzer type="query">
+			<tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />
+		</analyzer>
+	</fieldType>
+
+	<!-- Field type for the context -->
+	<fieldType name="semicolon_separated" class="solr.TextField">
+		<analyzer>
+			<tokenizer class="solr.PatternTokenizerFactory" pattern=";\s*" />
+		</analyzer>
+	</fieldType>
+	
+	<!-- Ping -->
+	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+	<fieldType name="text_general" class="solr.TextField" positionIncrementGap="100" />
+
+</schema>

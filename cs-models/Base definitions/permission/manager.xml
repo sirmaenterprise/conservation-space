@@ -1,55 +1,74 @@
 <roles>
 	<role name="MANAGER" priority="20">
 		<include>manager_external</include>
-	</role>
-		
+	</role>	
 	<role name="manager_external" external="false">
 		<permission name="create">   
-	 		<actions>
-        		<action name="create" />
-     		</actions>
+			<actions>
+				<action name="create" />
+			</actions>
 		</permission>
-	 
 		<permission name="edit">
 			<actions>     	
-        		<action name="editDetails" />
-        		<action name="download" />
-        		<action name="uploadNewVersion" />       
+				<action name="editDetails" />
+				<action name="download" />
+				<action name="uploadNewVersion" />       
 				<action name="move" /> 
-        		<action name="addThumbnail" /> 
-        		<action name="saveAsTemplate" />    
-		        <action name="managePermissions" />
-		        <action name="addIcons" />
+				<action name="addThumbnail" /> 
+				<action name="saveAsTemplate" />    
+				<action name="managePermissions" />
+				<action name="addIcons" />
+				<action name="composeEmail">
+					<filter value="NOT_MAILBOX_SUPPORTABLE" />
+				</action>
 				<action name="createTemplate" />
 				<action name="revertVersion" />
 				<action name="activateTemplate" />
-      		</actions>
+				<action name="deactivateTemplate" />
+				<action name="editTemplateRule" />
+				<action name="setTemplateAsPrimary" />
+				<action name="updateExistingObjects" />
+				<action name="changeTemplate" />
+				<action name="updateTemplate" />
+				<action name="cloneTemplate" />
+			</actions>
 		</permission>		
 		<permission name="transition">
-      		<actions>
-      			<action name="claim">
-            		<filter value="IS_CLAIMED" />
-            	</action>
-            	<action name="release">
-            		<filter value="IS_RELEASED" />
-            	</action>
-        		<action name="approve" />
-        		<action name="reject" />
-        		<action name="publish" >
-        			 <filter value="IS_UPLOADED" />
-        		</action>
-        		<action name="publishAsPdf" >
-        			 <filter value="IS_CREATED" />
-        		</action>
-        		<action name="complete" /> 
-        		<action name="re-open" />
-        		<action name="start" />
-        		<action name="restart" />
-        		<action name="suspend" />
-        		<action name="stop" />
-        		<action name="reassign" />
-        		<action name="importFile" />
- 		    </actions>			
+			<actions>
+				<action name="claim">
+					<filter value="IS_CLAIMED" />
+				</action>
+				<action name="release">
+					<filter value="IS_RELEASED" />
+				</action>
+				<action name="approve" />
+				<action name="reject" />
+				<action name="publish" >
+					<filter value="IS_UPLOADED" />
+				</action>
+				<action name="publishAsPdf" >
+					<filter value="IS_CREATED" />
+				</action>
+				<action name="uploadRevision" />
+				<action name="completeTask"> 
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="re-open" />
+				<action name="start" />
+				<action name="restart" />
+				<action name="suspend" />
+				<action name="stop">
+					<filter value="NOT_PART_OF_WORKFLOW" />
+				</action>
+				<action name="complete" />
+				<action name="reassign" />
+				<action name="importFile" />
+				<action name="reopen" />
+				<action name="resolveIssue" />
+				<action name="clarified" />
+				<action name="clarify" />
+				<action name="startProgress" />
+			</actions>			
 		</permission>	
 		<permission name="lock">
 			<actions>

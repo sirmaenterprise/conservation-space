@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<definition id="rangeValidationDef" type="object">
+    <fields>
+        <field name="fieldWithoutRange" type="uri" label="Field without range" uri="emf:fieldWithoutRange"/>
+        <field name="fieldWithNotRegisteredUri" type="uri" label="Field with not registered uri" uri="emf:notRegisteredUri">
+            <control id="PICKER">
+                <control-param id="range" name="range">emf:Customer</control-param>
+            </control>
+        </field>
+        <field name="fieldWithEmptyRange" type="uri" label="Field with empty range" uri="emf:modifiedBy">
+            <control id="PICKER">
+                <control-param id="range" name="range"></control-param>
+            </control>
+        </field>
+        <field name="fieldWithRange" type="uri" label="Field with range" uri="emf:createdBy">
+            <control id="PICKER">
+                <control-param id="range" name="range">, , emf:Customer, emf:Document, ptop:Agent,emf:NotExistingUri</control-param>
+            </control>
+        </field>
+        <field name="fieldWithNonRegisteredSemanticRange" type="uri" label="Field with non registered semantic range" uri="emf:nonRegisteredSemanticRange">
+            <control id="PICKER">
+                <control-param id="range" name="range">emf:Document</control-param>
+            </control>
+        </field>
+
+        <!-- object property with uri data type property -->
+        <field name="author" type="uri" label="Object field with data property" mandatory="true" displayType="editable" multiValued="true" previewEmpty="false" uri="emf:DataProperty" >
+            <control id="PICKER">
+                <control-param id="range" name="range">emf:User</control-param>
+            </control>
+        </field>
+
+        <!-- All fields of type="uri" and without uri attribute will be skipped for validation. They have not representation in
+        semantic which mean they have not rdfs:range.-->
+        <!-- validation of this field have to be skipped. -->
+        <field name="assignees" type="uri" label="Field with range">
+            <control id="PICKER">
+                <control-param id="range" name="range">, , emf:Customer, emf:Document, ptop:Agent,emf:NotExistingUri</control-param>
+            </control>
+        </field>
+        <!-- validation of this field have to be skipped. -->
+        <field name="lockedBy" type="uri" label="Field locked by">
+            <control id="PICKER">
+                <control-param id="range" name="range">, , emf:Customer, emf:Document, ptop:Agent,emf:NotExistingUri</control-param>
+            </control>
+        </field>
+    </fields>
+</definition>

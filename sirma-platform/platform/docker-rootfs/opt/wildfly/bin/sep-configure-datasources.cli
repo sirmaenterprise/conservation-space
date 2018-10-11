@@ -1,0 +1,27 @@
+embed-server --server-config=standalone.xml
+
+batch
+
+/subsystem=datasources/jdbc-driver=postgresql:add(driver-name="postgresql",driver-module-name="org.postgresql",driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource)
+
+xa-data-source add \
+	--name=system.tenant \
+	--jndi-name="java:jboss/datasources/system.tenant" \
+	--driver-name=postgresql \
+	--use-java-context=true \
+	--user-name=${DB_USER} \
+	--password=${DB_USER_PASS} \
+	--check-valid-connection-sql="SELECT 1" \
+	--xa-datasource-properties=[{ServerName=${DB_HOST},PortNumber=${DB_PORT},DatabaseName=${DB_NAME}}]
+
+xa-data-source add \
+	--name=system.tenant_audit \
+	--jndi-name="java:jboss/datasources/system.tenant_audit" \
+	--driver-name=postgresql \
+	--use-java-context=true \
+	--user-name=${DB_USER} \
+	--password=${DB_USER_PASS} \
+	--check-valid-connection-sql="SELECT 1" \
+	--xa-datasource-properties=[{ServerName=${DB_HOST},PortNumber=${DB_PORT},DatabaseName=${DB_NAME_AUDIT}}]
+
+run-batch

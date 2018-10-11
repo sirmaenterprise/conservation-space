@@ -1,0 +1,24 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+delete {
+	emf:Case sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+	emf:DataImportSource sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+		sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+	emf:DataImportReport sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+	emf:Email sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+} insert {
+GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework>{
+	emf:Case sec:allowInheritLibraryPermissions "false"^^xsd:boolean .
+	emf:DataImportSource sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+		sec:allowInheritLibraryPermissions "false"^^xsd:boolean .
+	emf:DataImportReport sec:allowInheritLibraryPermissions "false"^^xsd:boolean .
+	emf:Email sec:allowInheritLibraryPermissions "false"^^xsd:boolean .
+}
+} where {
+	emf:Case sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+	emf:DataImportSource sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+		sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+	emf:DataImportReport sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+	emf:Email sec:allowInheritLibraryPermissions "true"^^xsd:boolean .
+}

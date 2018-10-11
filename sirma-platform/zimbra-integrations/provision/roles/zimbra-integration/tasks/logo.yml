@@ -1,0 +1,42 @@
+
+- name: Copy the login logo to the server
+  when: zmlogologin is defined
+  copy:
+    src: '{{ zmlogologin }}'
+    dest: /opt/zimbra/jetty/webapps/zimbra/img/logoLoginBanner.png
+    owner: zimbra
+    group: zimbra
+    mode: 0644
+
+- name: Copy the application logo to the server
+  when: zmlogoapp is defined
+  copy:
+    src: '{{ zmlogoapp }}'
+    dest: /opt/zimbra/jetty/webapps/zimbra/img/logoAppBanner.png
+    owner: zimbra
+    group: zimbra
+    mode: 0644
+
+- name: Configure the Zimbra Server to find the new logos
+  when: zmlogologin is defined or zmlogoapp is defined
+  shell: './zmprov md {{ domain }} zimbraSkinLogoURL https://{{ fqdn }}'
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Configure the path for the login logo file
+  when: zmlogologin is defined
+  shell: './zmprov md {{ domain }} zimbraSkinLogoLoginBanner /img/logoLoginBanner.png'
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
+
+- name: Configure the path for the webmail logo file
+  when: zmlogoapp is defined
+  shell: './zmprov md {{ domain }} zimbraSkinLogoAppBanner /img/logoAppBanner.png'
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra

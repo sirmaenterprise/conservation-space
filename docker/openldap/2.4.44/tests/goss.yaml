@@ -1,0 +1,75 @@
+package:
+  bash:
+    installed: true
+  rsyslog:
+    installed: true
+  logrotate:
+    installed: true
+  openldap:
+    installed: true
+  openldap-clients:
+    installed: true
+
+file:
+  /etc/openldap:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /var/lib/openldap:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /var/lib/openldap/slapd.d:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /var/lib/openldap/slapd.d/cn=config:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /var/log/openldap:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /var/run/openldap:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /etc/logrotate.d/openldap:
+    exists: true
+    contains:
+    - "/var/log/openldap/ldap.log"
+    - "daily"
+  /etc/rsyslog.d/openldap.conf:
+    exists: true
+    contains:
+    - "local4.*"
+    - "/var/log/openldap/ldap.log"
+
+mount:
+  "/var/lib/openldap":
+    exists: true
+  "/var/log/openldap":
+    exists: true
+
+command:
+  cat "/proc/$(cat /var/run/openldap/slapd.pid)/limits" | grep "open files":
+    exit-status: 0
+    stdout:
+    - "1024"
+
+process:
+  rsyslogd:
+    running: true
+  slapd:
+    running: true
+
+addr:
+  tcp://0.0.0.0:10389:
+    reachable: true

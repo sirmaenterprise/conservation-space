@@ -1,0 +1,13 @@
+#Remove Draft Status And Insert Current State On Media
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#>
+delete {
+     ?instance emf:status "DRAFT"
+} insert {
+    graph <http://ittruse.ittbg.com/data/enterpriseManagementFramework>{
+        ?instance  emf:status "CURRENT"   
+    }
+}where  {
+    ?instance a emf:Media .
+    ?instance emf:status "DRAFT" .
+}

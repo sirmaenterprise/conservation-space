@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="yulWflType02" parentId="yulWorkflow" type="workflow">
+	<regions>
+		<region id="generalWorkflowInformation" order="10" displayType="editable" label="yulWorkflow.generalWorkflowInformation.region.label">
+			<fields>
+				<field name="type" type="an..50" codelist="CL10" >
+					<value>YULWFLTYPE02</value>
+				</field>
+			</fields>
+		</region>
+		<region id="yulActivityDefinitionRelationships" order="40" displayType="editable" label="yul.relationships.region.label">
+			<fields>
+				<field name="processes" type="uri" displayType="editable" label="yul.processes.label" tooltip="yul.processes.tooltip" multiValued="true" uri="emf:processes" >
+					<condition id="readonlyField" renderAs="READONLY">[status] NOTIN ('INIT','NOT_YET_STARTED')</condition>
+					<condition id="mandatoryField" renderAs="MANDATORY">[status] IN ('NOT_YET_STARTED','INIT')</condition>
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document</control-param>
+						<control-param id="restrictions" name="restrictions">
+							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["DRAFT"]}
+						</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+	</regions>
+</definition>

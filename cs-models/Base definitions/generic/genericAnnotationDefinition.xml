@@ -1,38 +1,38 @@
 <?xml version="1.0"?>
 <definition id="annotation" type="annotation">
 	<fields>
-		<field name="default_header" type="ANY" label="ANNOTATION_DEFAULT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="compact_header" type="an..4096" label="ANNOTATION_COMPACT_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="breadcrumb_header" type="an..4096" label="ANNOTATION_BREADCRUMB_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-        <field name="tooltip_header" type="an..4096" label="ANNOTATION_TOOLTIP_HEADER" mandatory="false" displayType="system" dmsType="FORBIDDEN" />
-	
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" dmsType="FORBIDDEN">
+		<field name="default_header" type="ANY" label="ANNOTATION_DEFAULT_HEADER" displayType="system"/>
+        <field name="compact_header" type="an..4096" label="ANNOTATION_COMPACT_HEADER" displayType="system"/>
+        <field name="breadcrumb_header" type="an..4096" label="ANNOTATION_BREADCRUMB_HEADER" displayType="system"/>
+        <field name="tooltip_header" type="ANY" label="ANNOTATION_TOOLTIP_HEADER" displayType="system" />
+
+		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
 			<value>http://www.w3.org/ns/oa#Annotation</value>
 		</field>
-		<field name="emf:status" type="an..10" uri="emf:status" codelist="CL4" dmsType="FORBIDDEN"/>
-		<field name="emf:reply" type="URI" multiValued="true" displayType="system" uri="emf:reply" dmsType="FORBIDDEN"/>
-		<field name="emf:content" type="an..4096" uri="emf:content" displayType="system" dmsType="FORBIDDEN"/>
-		<field name="oa:hasTarget" type="URI" uri="oa:hasTarget" displayType="system" dmsType="FORBIDDEN" />
-		<field name="oa:hasBody" type="URI" uri="oa:hasBody" displayType="editable" dmsType="FORBIDDEN" />
-		<field name="oa:motivatedBy" type="URI" uri="FORBIDDEN" displayType="system" dmsType="FORBIDDEN" />
-		<field name="emf:createdBy" type="uri" uri="emf:createdBy" displayType="readonly" dmsType="FORBIDDEN">
+		<field name="emf:status" label="status.label" type="an..10" codelist="CL11" uri="emf:status"/>
+		<field name="emf:reply" type="URI" displayType="system" multiValued="true" uri="emf:reply"/>
+		<field name="emf:content" type="an..4096" displayType="system" uri="emf:content" />
+		<field name="oa:hasTarget" type="URI" displayType="system" uri="oa:hasTarget" />
+		<field name="oa:hasBody" type="URI" displayType="system" uri="oa:hasBody" />
+		<field name="oa:motivatedBy" type="URI" displayType="system" uri="FORBIDDEN" />
+		<field name="emf:createdBy" label="createdBy.label" type="uri" displayType="readonly" uri="emf:createdBy" >
 		    <control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
-	    </field>		
-			
-		<field name="emf:createdOn" type="datetime" uri="emf:createdOn" displayType="readonly" dmsType="FORBIDDEN"/>
-		<field name="emf:modifiedBy" type="uri" label="modifiedBy.label" uri="emf:modifiedBy" displayType="readonly" dmsType="FORBIDDEN">
+	    </field>
+
+		<field name="emf:createdOn" label="createdOn.label" type="datetime" displayType="readonly" uri="emf:createdOn" />
+		<field name="emf:modifiedBy" type="uri" label="modifiedBy.label" displayType="readonly" uri="emf:modifiedBy" >
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>
-		<field name="emf:modifiedOn" type="datetime" label="modifiedOn.label" uri="emf:modifiedOn" displayType="readonly" dmsType="FORBIDDEN"/>		
-				
-		<field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted" dmsType="FORBIDDEN">
+		<field name="emf:modifiedOn" type="datetime" label="modifiedOn.label" displayType="readonly" uri="emf:modifiedOn" />
+
+		<field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted">
 			<value>false</value>
 		</field>
-		<field name="emf:mentionedUsers" type="URI" uri="emf:mentionedUsers" displayType="system"  multiValued="true" dmsType="FORBIDDEN" />
+		<field name="emf:mentionedUsers" type="URI" displayType="system" multiValued="true" uri="emf:mentionedUsers"/>
 	</fields>
 
 	<transitions>
@@ -58,9 +58,8 @@
 	<allowedChildren>
 		<child type="annotation" id="ALL" />
 	</allowedChildren>
-
 	<labels>
-        <label id="TOPIC_DEFAULT_HEADER">
+        <label id="ANNOTATION_DEFAULT_HEADER">
 			<value lang="en"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
 			<span class="truncate-element">
@@ -71,9 +70,6 @@
 					</b>
 				</a>
 			</span>
-			<span class="header-icons" data-instanceId="${id.db}">
-				${label(default.favouries.icon)}
-			</span>
 			<br />
 			<span>
 				<label>Modified by: </label>
@@ -82,7 +78,27 @@
 			<span>
 				<label>, Modified on: </label>
 				<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
-				<span data-property="status">${get(status)}</span>
+				<span data-property="status">${get([status])}</span>
+			</span>)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
+			<span class="truncate-element">
+				<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
+					<b>
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
+						<span data-property="title">${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
+					</b>
+				</a>
+			</span>
+			<br />
+			<span>
+				<label>Geändert von: </label>
+				<span data-property="modifiedBy"><a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a></span>
+			</span>
+			<span>
+				<label>, Geändert am: </label>
+				<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				<span data-property="status">${get([status])}</span>
 			</span>)}]]></value>
 			<value lang="bg"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
@@ -94,9 +110,6 @@
 					</b>
 				</a>
 			</span>
-			<span class="header-icons" data-instanceId="${id.db}">
-				${label(default.favouries.icon)}
-			</span>
 			<br />
 			<span>
 				<label>Променил: </label>
@@ -105,11 +118,32 @@
 			<span>
 				<label>, Променил на: </label>
 				<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
-				<span data-property="status">${get(status)}</span>
+				<span data-property="status">${get([status])}</span>
 			</span>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
+				<span class="truncate-element">
+					<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
+						<b>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span> )}
+							<span data-property="title">${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
+						</b>
+					</a>
+				</span>
+				<br />
+				<span>
+					<label>Opdateret af: </label>
+					<span data-property="modifiedBy"><a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a></span>
+				</span>
+				<span>
+					<label>, Opdateret: </label>
+					<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>&nbsp;
+					<span data-property="status">${get([status])}</span>
+				</span>
+			)}]]></value>
          </label>
-         <label id="TOPIC_COMPACT_HEADER">
-               <value lang="en"><![CDATA[${eval(
+         <label id="ANNOTATION_COMPACT_HEADER">
+            <value lang="en"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
 			<span class="truncate-element">
 				<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
@@ -119,9 +153,18 @@
 					</b>
 				</a>
 			</span>
-			<span class="header-icons" data-instanceId="${id.db}">
-				${label(default.favouries.icon)}
-			</span>)}]]></value>
+			)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
+			<span class="truncate-element">
+				<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
+					<b>
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
+						<span data-property="title">${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
+					</b>
+				</a>
+			</span>
+			)}]]></value>
             <value lang="bg"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
             <span class="truncate-element">
@@ -132,24 +175,127 @@
             		</b>
             	</a>
             </span>
-            <span class="header-icons" data-instanceId="${id.db}">
-				${label(default.favouries.icon)}
-			</span>)}]]></value>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
+				<span class="truncate-element">
+					<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
+						<b>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span> )}
+							<span data-property="title">${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
+						</b>
+					</a>
+				</span>
+			)}]]></value>
            </label>
-           <label id="TOPIC_BREADCRUMB_HEADER">
-              <value lang="bg"><![CDATA[${eval(
+           <label id="ANNOTATION_BREADCRUMB_HEADER">
+            <value lang="bg"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
 			<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
 				${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
 				<span data-property="title"> ${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
 			</a>)}]]></value>
-
             <value lang="en"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
             <a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
 				${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
             	<span data-property="title"> ${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
             </a>)}]]></value>
-        </label>       
+            <value lang="de"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
+            <a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
+				${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+            	<span data-property="title"> ${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
+            </a>)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(${shortUri(${get([about])})})}")} }
+				<a class="${get([status])} ${id.db} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+					<span data-property="title"> ${if(${get([title])}==).then(${getPlain([content])}).else(${get([title])})}</span>
+				</a>
+			)}]]></value>
+        </label>
+        <label id="ANNOTATION_TOOLTIP_HEADER">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-row">
+						<label>Created on: </label>
+						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Modified on: </label>
+						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+				</span>
+			)})}]]></value>
+			<value lang="de"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-row">
+						<label>Erstellt am: </label>
+						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Geändert am: </label>
+						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+				</span>
+			)})}]]></value>
+			<value lang="bg"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-row">
+						<label>Създаден на: </label>
+						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Променил на: </label>
+						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+				</span>
+			)})}]]></value>
+			<value lang="da"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-header">
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						<span data-title="${get([title])}">${get([title])}</span>
+					</a>
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-row">
+						<label>Oprettet: </label>
+						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Opdateret: </label>
+						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+					</span>
+				</span>
+			)})}]]></value>
+		</label>
 	</labels>
 </definition>

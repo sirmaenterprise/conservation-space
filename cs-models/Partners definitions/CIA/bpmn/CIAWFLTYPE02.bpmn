@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.6.0">
+  <bpmn:process id="CIAWFLTYPE02" name="Collective Assignment Workflow" isExecutable="true">
+    <bpmn:endEvent id="EndEvent_1fmcb9o">
+      <bpmn:incoming>finish</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StarProcess">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="createdBy" type="string" />
+          <camunda:formField id="department" type="string" />
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="priority" type="string" />
+          <camunda:formField id="workflowType" type="string" defaultValue="CIAWFLTYPE02" />
+          <camunda:formField id="subType" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="ciaStandaloneCommonTask" name="Collective Assignment Task&#10;" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="assignees" type="string" />
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="plannedEndDate" type="string" />
+          <camunda:formField id="hasWatcher" type="string" />
+          <camunda:formField id="priority" type="string" />
+          <camunda:formField id="workflowType" type="string" defaultValue="CIAWFLTYPE02" />
+          <camunda:formField id="subType" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="plannedEndDate"><![CDATA[${execution.getVariable("plannedEndDate")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher"><![CDATA[${execution.getVariable("hasWatcher")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="priority"><![CDATA[${execution.getVariable("priority")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="workflowType"><![CDATA[${execution.getVariable("type")}]]></camunda:inputParameter>
+          <camunda:inputParameter name="subType"><![CDATA[${execution.getVariable("subType")}]]></camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:taskListener expression="${ execution.getVariableLocal(&#39;outcome&#39;)==&#39;approveAndPublish&#39; ? execution.setVariable(&#34;nrOfApproved&#34;, execution.getVariable(&#34;nrOfApproved&#34;) + 1 )  : execution.setVariable(&#34;nrOfRejected&#34;, execution.getVariable(&#34;nrOfRejected&#34;) + 1 )}" event="complete" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_start</bpmn:incoming>
+      <bpmn:outgoing>finish</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="#{collectMultiInstanceUsers.resolveUsers(execution, &#39;assignees&#39;)}" camunda:elementVariable="assignee">
+        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">${nrOfCompletedInstances == nrOfInstances}</bpmn:completionCondition>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_start" sourceRef="StarProcess" targetRef="ciaStandaloneCommonTask">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="${execution.setVariable(&#34;nrOfRejected&#34;,0)} ${execution.setVariable(&#34;nrOfApproved&#34;,0)}" event="take" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="finish" name="Finish" sourceRef="ciaStandaloneCommonTask" targetRef="EndEvent_1fmcb9o">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.SendWorkflowMail" event="take">
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="users">          <camunda:string>createdBy,hasWatcher</camunda:string>
+</camunda:field>
+          <camunda:field name="mailTemplate">          <camunda:expression>email_complete_object_cia</camunda:expression>
+</camunda:field>
+          <camunda:field name="subject">          <camunda:string>(Completed) Review and Approve Report Workflow</camunda:string>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='finish'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="CIAWFLTYPE02">
+      <bpmndi:BPMNShape id="EndEvent_1fmcb9o_di" bpmnElement="EndEvent_1fmcb9o">
+        <dc:Bounds x="487" y="93" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="505" y="129" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StarProcess">
+        <dc:Bounds x="214" y="93" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="232" y="129" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0z6dekk_di" bpmnElement="ciaStandaloneCommonTask">
+        <dc:Bounds x="315" y="71" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ga9xcm_di" bpmnElement="SequenceFlow_start">
+        <di:waypoint xsi:type="dc:Point" x="250" y="111" />
+        <di:waypoint xsi:type="dc:Point" x="315" y="111" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="283" y="96" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0mvgxb8_di" bpmnElement="finish">
+        <di:waypoint xsi:type="dc:Point" x="415" y="111" />
+        <di:waypoint xsi:type="dc:Point" x="487" y="111" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="434" y="92" width="29" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

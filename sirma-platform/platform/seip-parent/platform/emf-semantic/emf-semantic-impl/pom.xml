@@ -1,0 +1,122 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sirma.itt.emf</groupId>
+		<artifactId>emf-semantic</artifactId>
+		<version>2.22.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>emf-semantic-impl</artifactId>
+	<dependencies>
+
+
+		<dependency>
+			<groupId>com.sirma.itt.emf</groupId>
+			<artifactId>emf-semantic-api</artifactId>
+		</dependency>
+
+		<!-- Dependencies for Tests -->
+
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
+			<version>1.57</version>
+			<scope>test</scope>
+
+			<!-- Include everything below here if you have dependency conflicts -->
+			<!-- http://wiremock.org/getting-started.html#maven -->
+			<classifier>standalone</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.emf</groupId>
+			<artifactId>emf-core-impl</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sirma.itt.emf</groupId>
+			<artifactId>emf-core-impl</artifactId>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>test-module</artifactId>
+			<scope>test</scope>
+			<classifier>tests</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>db-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>instance-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>commons-synchronization</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sirma.itt.seip</groupId>
+			<artifactId>semantic-patches</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-runtime</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>create-test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

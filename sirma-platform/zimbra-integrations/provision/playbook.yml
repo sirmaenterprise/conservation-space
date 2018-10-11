@@ -1,0 +1,20 @@
+---
+# Supported variables are:
+# * hostname - example: mail, required
+# * domain - example sirmaplatform.com, required
+# * passwords - path to a vault encrypred file containing passwords in key-value format, required
+# * provision_path - path to a folder where the SEP integrations are located, required
+# * zmnetwork - example: 172.17.8.0/24, required
+# * timezone - example: Europe/Sofia, required
+# * zmlogologin - path to a login logo, can be undefined
+# * zmlogoapp - path to a app logo, can be undefined
+# * zmsafeips - list of <ip>/<mask> to be whitelisted, can be undefined
+- hosts: all
+  become: yes
+  vars_files:
+    - "{{ passwords }}"
+  roles:
+    - role: zimbra-setup
+      zmpasswd: "{{ vault_zmpasswd }}"
+      fqdn: "{{ hostname }}.{{ domain }}"
+    - role: zimbra-integration

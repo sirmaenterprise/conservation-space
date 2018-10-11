@@ -1,0 +1,61 @@
+<div class="versions">
+
+  <div class="versions-header">
+    <div class="versions-toolbar">
+      <seip-contextual-help target="'idoc.tab.versions'"></seip-contextual-help>
+      <div class="versions-actions">
+        <button class="btn btn-sm btn-primary compare-versions"
+                ng-click="versions.compareVersions()"
+                ng-disabled="versions.disableCompareButton()"
+                data-tooltip="{{::'versions.btn.compare.tooltip' | translate}}">
+          <i class="fa fa-spinner fa-spin"
+             ng-show="versions.comparisonStarted"/>
+          {{::'versions.compare' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="versions-view">
+    <table class="table table-bordered">
+      <thead>
+      <tr>
+        <th class="caption" colspan="5">{{::'versions.historical.versions' | translate}}</th>
+      </tr>
+      <tr>
+        <th class="versions-object">{{::'versions.object' | translate}}</th>
+        <th class="versions-version">{{::'versions.version' | translate}}</th>
+        <th class="versions-created-by">{{::'versions.created.by' | translate}}</th>
+        <th class="versions-created-on">{{::'versions.created.on' | translate}}</th>
+        <th class="versions-description">{{::'versions.description' | translate}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="version in versions.versions">
+        <td>
+          <label class="checkbox" data-tooltip="{{version.config.notComparableTooltip}}">
+            <input type="checkbox" ng-checked="version.selected"
+                   ng-click="versions.handleSelection(version)"
+                   ng-disabled="versions.checkDisabled(version)"/>
+            <i class="result-select"></i></label>
+          <seip-static-instance-header header-type="'compact_header'" header="::version.headers.compact_header"
+                                       config="version.config" data-tooltip="{{version.config.tooltip}}">
+          </seip-static-instance-header>
+        </td>
+        <td>{{::version.properties['emf:version']}}</td>
+        <td>
+          <seip-static-instance-header header-type="'compact_header'"
+                                       header="version.versionModifiedByHeader">
+          </seip-static-instance-header>
+        </td>
+        <td>{{::versions.getCreatedOn(version)}}</td>
+        <td></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <seip-pagination ng-if="::versions.paginationConfig" total="versions.paginationConfig.total"
+                   page="versions.paginationConfig.page" config="::versions.paginationConfig"
+                   callback="::versions.paginationCallback">
+  </seip-pagination>
+</div>

@@ -1,0 +1,22 @@
+<div>
+  <div ng-if="objectDataWidget.errorMessage" class="message error">{{ objectDataWidget.errorMessage |
+    translate }}
+  </div>
+  <div ng-if="objectDataWidget.modelsAreLoaded()" magic-line-disabled>
+    <div class="selected-object-wrapper">
+      <div ng-if="objectDataWidget.isLinkToInstanceVisible()" class="selected-object-header">
+        <seip-static-instance-header header-type="objectDataWidget.config.instanceLinkType"
+                                     header="objectDataWidget.selectedObject.getHeader(objectDataWidget.config.instanceLinkType)"
+                                     config="objectDataWidget.objectLinkConfig"
+                                     event-emitter="objectDataWidget.control"></seip-static-instance-header>
+      </div>
+    </div>
+    <seip-form-wrapper config="objectDataWidget.config" form-config="objectDataWidget.formConfig"></seip-form-wrapper>
+    <a href="javascript: void(0)" ng-if="objectDataWidget.config.showMore && objectDataWidget.showAll()"
+       ng-click="objectDataWidget.toggleShowAllProperties()" class="show-more">
+      <i class="fa"
+         ng-class="objectDataWidget.config.showAllProperties ? 'fa-angle-double-up' : 'fa-angle-double-down'"></i>
+      {{ objectDataWidget.config.showAllProperties ? 'showLess.button' : 'showMore.button' | translate }}
+    </a>
+  </div>
+</div>

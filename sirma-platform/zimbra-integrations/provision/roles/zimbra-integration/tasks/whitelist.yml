@@ -1,0 +1,7 @@
+- name: Whitelist provided IPs
+  when: zmsafeips is defined
+  shell: ./zmprov mcf zimbraHttpThrottleSafeIPs {{ zmsafeips }}
+  args:
+    chdir: /opt/zimbra/bin
+  become: true
+  become_user: zimbra
