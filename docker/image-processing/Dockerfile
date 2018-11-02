@@ -3,7 +3,8 @@ FROM ubuntu:16.04
 COPY rootfs/ /
 
 RUN \
-	# Update packages and install tools
+	# needed for `apt-get build-dep` just before installing ImageMagick
+	sed -i 's/# deb-src/deb-src/' /etc/apt/sources.list && \
 	apt-get update -y && apt-get install -y  \
 	build-essential \
 	git \
