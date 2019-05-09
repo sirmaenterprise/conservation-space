@@ -32,7 +32,6 @@ import com.sirma.sep.content.preview.jms.ContentPreviewMessageAttributes;
 import com.sirma.sep.content.preview.jms.ContentPreviewQueue;
 import com.sirma.sep.content.preview.remote.ContentPreviewRemoteService;
 import com.sirma.sep.content.preview.remote.mimetype.MimeTypeSupport;
-import com.sirma.sep.content.rendition.RenditionService;
 import com.sirma.sep.content.rendition.ThumbnailService;
 import com.sirmaenterprise.sep.jms.api.SendOptions;
 import com.sirmaenterprise.sep.jms.api.SenderService;
@@ -90,8 +89,8 @@ public class ContentPreviewMigration {
 		}
 
 		if (!mimeTypeSupport.supportsThumbnail()) {
-			thumbnailService.removeThumbnail(instanceId, RenditionService.DEFAULT_PURPOSE);
-			instancesWithoutPreview.forEach(id -> thumbnailService.removeThumbnail(id, RenditionService.DEFAULT_PURPOSE));
+			thumbnailService.removeSelfThumbnail(instanceId);
+			instancesWithoutPreview.forEach(thumbnailService::removeSelfThumbnail);
 		}
 
 		if (mimeTypeSupport.supportsPreview() || mimeTypeSupport.supportsThumbnail()) {

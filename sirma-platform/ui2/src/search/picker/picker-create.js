@@ -1,7 +1,7 @@
 import {Component, View, Inject} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {CreatePanelService} from 'services/create/create-panel-service';
-import {InstanceCreatePanel} from 'create/instance-create-panel';
+import 'create/instance-create-panel';
 import {ModelsService} from 'services/rest/models-service';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 
@@ -22,9 +22,7 @@ import template from './picker-create.html!text';
     context: 'context'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(CreatePanelService, WindowAdapter)
 export class PickerCreate extends Configurable {
   constructor(createPanelService, windowAdapter) {

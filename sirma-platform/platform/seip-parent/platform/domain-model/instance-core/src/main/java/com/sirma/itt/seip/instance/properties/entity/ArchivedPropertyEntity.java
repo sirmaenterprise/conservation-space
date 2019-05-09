@@ -31,6 +31,7 @@ import com.sirma.itt.seip.instance.properties.PropertyModelValue;
 @NamedQueries({
 		@NamedQuery(name = ArchivedPropertyEntity.QUERY_ARCHIVED_PROPERTIES_BY_ENTITY_ID_KEY, query = ArchivedPropertyEntity.QUERY_ARCHIVED_PROPERTIES_BY_ENTITY_ID),
 		@NamedQuery(name = ArchivedPropertyEntity.DELETE_ARCHIVED_PROPERTIES_KEY, query = ArchivedPropertyEntity.DELETE_ARCHIVED_PROPERTIES),
+		@NamedQuery(name = ArchivedPropertyEntity.DELETE_ARCHIVED_PROPERTY_VALUES_KEY, query = ArchivedPropertyEntity.DELETE_ARCHIVED_PROPERTY_VALUES),
 		@NamedQuery(name = ArchivedPropertyEntity.QUERY_ARCHIVED_PROPERTIES_KEY, query = ArchivedPropertyEntity.QUERY_ARCHIVED_PROPERTIES),
 		@NamedQuery(name = ArchivedPropertyEntity.DELETE_ALL_PROPERTIES_FOR_ARCHIVED_BEAN_KEY, query = ArchivedPropertyEntity.DELETE_ALL_PROPERTIES_FOR_ARCHIVED_BEAN) })
 public class ArchivedPropertyEntity extends BasePropertyEntity implements Serializable {
@@ -44,6 +45,10 @@ public class ArchivedPropertyEntity extends BasePropertyEntity implements Serial
 	/** Delete ArchivedPropertyEntitys by <code>id</code>s, <code>beanType</code> and <code>beanId</code>. */
 	public static final String DELETE_ARCHIVED_PROPERTIES_KEY = "DELETE_ARCHIVED_PROPERTIES";
 	static final String DELETE_ARCHIVED_PROPERTIES = "delete from ArchivedPropertyEntity p where p.key.propertyId in (:id) and p.entityId.beanId=:beanId and p.entityId.beanType=:beanType";
+
+	/** Delete ArchivedPropertyValues by <code>id</code>s, <code>beanType</code> and <code>beanId</code>. */
+	public static final String DELETE_ARCHIVED_PROPERTY_VALUES_KEY = "DELETE_ARCHIVED_PROPERTY_VALUES";
+	static final String DELETE_ARCHIVED_PROPERTY_VALUES = "delete from ArchivedPropertyValue pv where pv.id in (select p.value.id from ArchivedPropertyEntity p where p.key.propertyId in (:id) and p.entityId.beanId=:beanId and p.entityId.beanType=:beanType)";
 
 	/** Query ArchivedPropertyEntitys by <code>beanType</code>s and <code>beanId</code>s. */
 	public static final String QUERY_ARCHIVED_PROPERTIES_KEY = "QUERY_ARCHIVED_PROPERTIES";

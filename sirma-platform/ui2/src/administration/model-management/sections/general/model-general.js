@@ -1,7 +1,13 @@
 import {View, Component} from 'app/app';
+import {ModelBase} from 'administration/model-management/model/model-base';
 import {ModelEvents} from 'administration/model-management/model/model-events';
-import {ModelDefinition} from 'administration/model-management/model/model-definition';
-import 'administration/model-management/components/model-attribute-view';
+import {ModelSection} from 'administration/model-management/sections/model-section';
+import {ModelManagementUtility} from 'administration/model-management/utility/model-management-utility';
+
+import 'administration/model-management/components/attributes/model-attribute-view';
+import 'administration/model-management/components/controls/model-controls';
+import 'administration/model-management/components/controls/save/model-save';
+import 'administration/model-management/components/controls/cancel/model-cancel';
 
 import './model-general.css!css';
 import template from './model-general.html!text';
@@ -32,12 +38,18 @@ import template from './model-general.html!text';
   properties: {
     'model': 'model',
     'emitter': 'emitter'
-  }
+  },
+  events: ['onModelSave', 'onSectionStateChange', 'onModelStateChange', 'onModelActionCreateRequest',
+    'onModelActionExecuteRequest', 'onModelActionRevertRequest']
 })
 @View({
   template
 })
-export class ModelGeneral {
+export class ModelGeneral extends ModelSection {
+
+  constructor() {
+    super();
+  }
 
   ngOnInit() {
     this.subscribeToModelChanged();
@@ -48,6 +60,21 @@ export class ModelGeneral {
     this.model = model;
     this.class = this.getModelClass(model);
     this.definition = this.getModelDefinition(model);
+    this.getSectionModels().forEach(m => this.notifyForModelStateCalculation(m, m));
+    this.afterModelChange();
+  }
+
+  //@Override
+  getSectionModels() {
+    let models = [];
+    this.class && models.push(this.class);
+    this.definition && models.push(this.definition);
+    return models;
+  }
+
+  //@Override
+  isModelValid(model) {
+    return ModelBase.areModelsValid(model.getOwnAttributes());
   }
 
   subscribeToModelChanged() {
@@ -55,43 +82,26 @@ export class ModelGeneral {
   }
 
   getClassName() {
-    return this.getModelName(this.class);
+    return ModelManagementUtility.getModelName(this.class);
   }
 
   getClassIdentifier() {
-    return this.getModelIdentifier(this.class);
+    return ModelManagementUtility.getModelIdentifier(this.class);
   }
 
   getDefinitionName() {
-    return this.getModelName(this.definition);
+    return ModelManagementUtility.getModelName(this.definition);
   }
 
   getDefinitionIdentifier() {
-    return this.getModelIdentifier(this.definition);
-  }
-
-  getModelName(model) {
-    return this.getModelValue(model.getDescription());
-  }
-
-  getModelIdentifier(model) {
-    return this.getModelValue(model.getId());
-  }
-
-  getModelValue(model) {
-    // handle proper model value case or do a fallback
-    return (model.getValue && model.getValue()) || model;
+    return ModelManagementUtility.getModelIdentifier(this.definition);
   }
 
   getModelClass(model) {
-    return this.isModelDefinition(model) ? model.getType() : model;
+    return ModelManagementUtility.isModelDefinition(model) ? model.getType() : model;
   }
 
   getModelDefinition(model) {
-    return this.isModelDefinition(model) ? model : null;
-  }
-
-  isModelDefinition(model) {
-    return model instanceof ModelDefinition;
+    return ModelManagementUtility.isModelDefinition(model) ? model : null;
   }
 }

@@ -1,5 +1,6 @@
 package com.sirma.sep.model;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -24,5 +25,13 @@ public interface ModelService {
 	 * @return a list of all classes belonging to that ontology
 	 */
 	List<ClassInfo> getClassesForOntology(String ontologyId);
+
+	/**
+	 * Exports the listed ontologies into ttl files. The returned file is a zip, containing a separate .ttl file for
+	 * each ontology.
+	 *
+	 * @return a zipped file with ontologies.
+	 */
+	File exportOntologies(List<Ontology> ontologies);
 
 }

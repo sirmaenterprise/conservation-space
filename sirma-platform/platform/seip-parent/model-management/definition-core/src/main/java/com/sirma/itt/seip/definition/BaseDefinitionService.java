@@ -112,10 +112,10 @@ public abstract class BaseDefinitionService {
 		accessorsCollection = Collections.unmodifiableCollection(accessorMapping.values());
 
 		if (!cacheContext.containsCache(TYPE_DEFINITION_ID_CACHE)) {
-			cacheContext.createCache(TYPE_DEFINITION_ID_CACHE, new TypeDefinitionIdLookup());
+			cacheContext.createCache(TYPE_DEFINITION_ID_CACHE, new TypeDefinitionIdLookup().enableSecondaryKeyManagement());
 		}
 		if (!cacheContext.containsCache(TYPE_DEFINITION_CACHE)) {
-			cacheContext.createCache(TYPE_DEFINITION_CACHE, new TypeDefinitionLookup());
+			cacheContext.createCache(TYPE_DEFINITION_CACHE, new TypeDefinitionLookup().enableSecondaryKeyManagement());
 		}
 		if (!cacheContext.containsCache(TYPE_DEFINITION_URI_CACHE)) {
 			cacheContext.createCache(TYPE_DEFINITION_URI_CACHE, new TypeDefinitionUriLookup());
@@ -124,7 +124,7 @@ public abstract class BaseDefinitionService {
 			cacheContext.createCache(MAX_REVISIONS_CACHE, new MaxRevisionsLookup());
 		}
 		if (!cacheContext.containsCache(PROTOTYPE_CACHE)) {
-			cacheContext.createCache(PROTOTYPE_CACHE, new PrototypeDefinitionLookup());
+			cacheContext.createCache(PROTOTYPE_CACHE, new PrototypeDefinitionLookup().enableSecondaryKeyManagement());
 		}
 	}
 
@@ -482,7 +482,7 @@ public abstract class BaseDefinitionService {
 
 		@Override
 		public Pair<Class, List<DefinitionModel>> createValue(List<DefinitionModel> value) {
-			throw new UnsupportedOperationException("Max revison cannot be created");
+			throw new UnsupportedOperationException("Max revision cannot be created");
 		}
 	}
 

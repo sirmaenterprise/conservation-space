@@ -240,13 +240,12 @@ public class RuleStore {
 	 */
 	public void activateRule(String ruleName) {
 		InstanceRule instanceRule = ruleMapping.get(ruleName);
-		if (instanceRule instanceof ActivatingInstanceRule) {
-			if (!((ActivatingInstanceRule) instanceRule).isActive()) {
-				((ActivatingInstanceRule) instanceRule).activate();
-			}
-		} else {
-			LOGGER.warn("Could not activate rule {} because is not activatable or not found");
+		if (!(instanceRule instanceof ActivatingInstanceRule)) {
+			LOGGER.warn("Could not activate rule {} because is not activatable or not found", ruleName);
+			return;
 		}
+
+		((ActivatingInstanceRule) instanceRule).activate();
 	}
 
 	/**
@@ -258,11 +257,12 @@ public class RuleStore {
 	 */
 	public void deactivateRule(String ruleName) {
 		InstanceRule instanceRule = ruleMapping.get(ruleName);
-		if (instanceRule instanceof ActivatingInstanceRule) {
-			((ActivatingInstanceRule) instanceRule).deactivate();
-		} else {
-			LOGGER.warn("Could not deactivate rule {} because is not deactivatable or not found");
+		if (!(instanceRule instanceof ActivatingInstanceRule)) {
+			LOGGER.warn("Could not deactivate rule {} because is not deactivatable or not found", ruleName);
+			return;
 		}
+
+		((ActivatingInstanceRule) instanceRule).deactivate();
 	}
 
 	void onDefinitionLoaded(@Observes DefinitionsChangedEvent event) {

@@ -173,13 +173,28 @@ public class PropertyDefinitionProxy extends MergeableBase<PropertyDefinitionPro
 	}
 
 	@Override
+	public Boolean getOverride() {
+		return getTarget().getOverride();
+	}
+
+	@Override
 	public Boolean isMultiValued() {
 		return getTarget().isMultiValued();
 	}
 
 	@Override
+	public Boolean getMultiValued() {
+		return getTarget().getMultiValued();
+	}
+
+	@Override
 	public Boolean isMandatory() {
 		return getTarget().isMandatory();
+	}
+
+	@Override
+	public Boolean getMandatory() {
+		return getTarget().getMandatory();
 	}
 
 	@Override
@@ -207,11 +222,7 @@ public class PropertyDefinitionProxy extends MergeableBase<PropertyDefinitionPro
 		return getTarget().isPreviewEnabled();
 	}
 
-	/**
-	 * Getter method for previewEmpty.
-	 *
-	 * @return the previewEmpty
-	 */
+	@Override
 	public Boolean getPreviewEmpty() {
 		return getTarget().isPreviewEnabled();
 	}

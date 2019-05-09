@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="PR0002" parentId="PR0001" type="project"> <!-- E-mail notification Project -->
+    <fields>
+        <field name="hasWatcher" type="uri" label="hasWatcher" displayType="editable" multiValued="true" previewEmpty="false"
+               uri="emf:hasWatcher">
+            <control id="PICKER">
+                <control-param id="range" name="range">emf:User</control-param>
+            </control>
+        </field>
+    </fields>
+    <regions>
+        <region id="generalDetails">
+            <fields>
+                <field name="type" type="ANY">
+                    <value>PR0002</value>
+                </field>
+            </fields>
+        </region>
+    </regions>
+    <transitions>
+        <transition id="addWatchers" label="addWatchers.label" purpose="addRelation">
+            <fields>
+                <field name="addAttachmentConfig" type="json">
+                    <value>
+                        {
+                        "predefinedTypes" : ["emf:User"],
+                        "selection" : "multiple",
+                        "relation" : ["emf:hasWatcher"]
+                        }
+                    </value>
+                    <control id="configuration"/>
+                </field>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							function copyArr(source) {
+								var result = [];
+								if(recipients != null) {
+									for(var i = 0; i < source.length; i++) {
+										result[i] = source[i].toString();
+									}
+								}
+								return result;
+							}
+							// Copy the array of original watchers of the instance. So that when the new users are added we have the original watcheer to send the emails.
+							// Because a simple link gets a java reference.
+							var recipients = root.get("hasWatcher");
+							var oldRecipientsArr = copyArr(recipients);
+
+							context.put('recipients', oldRecipientsArr);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">before</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+                <field name="sendMail2" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Watcher Assignment) ' + type + ': ' + title;
+
+							function includes(arr, k) {
+								return arr.indexOf(k) > -1;
+							}
+
+							var newlyAddedUsersList = [];
+							var watchers = root.get("hasWatcher");
+							var recipients = context.get('recipients');
+
+							// Gets the newly added users as watchers.
+							if(recipients != null) {
+								for(var i=0; i < watchers.length; i++) {
+									if(!includes(recipients, watchers[i])) {
+										newlyAddedUsersList.push(watchers[i]);
+									}
+								}
+							} else {
+								newlyAddedUsersList = recipients;
+							}
+							context.put("usersList", newlyAddedUsersList);
+
+							// Converts the object array to a String array so it can be passed safely to the script.
+							// If we don't do this then the engine enterprets this as object array and throws and
+							// exception for missing method.
+							var usersToNotify = [];
+							if (recipients != null) {
+								for(var i=0; i < recipients.length; i++) {
+									usersToNotify[i] = recipients[i].toString();
+								}
+							}
+							log.info('Users that are going to be notified for adding watcher(s) are : ' + usersToNotify)
+
+							// Note the usersToNotify array might be empty if this is the first user being added.
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_add_watchers", usersToNotify, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="create" purpose="create">
+            <fields>
+                <field name="sendCreateMail" type="an..200">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Created) ' + type + ': ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_upload_or_create_instance", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="editDetails" label="editDetails.label" purpose="editDetails" actionPath="/">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Edited) ' + type + ': ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var modifiedOn = root.get('modifiedOn');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_edit_instance", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="approve" label="PR0002.approveProject.btn.title" purpose="transition" immediate="true">
+            <fields>
+                <field name="onApproveAfter" type="an10">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Approved) ' + type + ': ' + title;
+
+							//extract warchers and users
+							var watchers = root.get('emf:hasWatcher');
+							var modifiedBy = root.get('modifiedBy');
+							var createdBy = root.get('createdBy');
+							var completedBy = root.get('completedBy');
+							var approvedBy = root.get('approvedBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_approve_instance", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="move" label="move.label" purpose="move">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Moved) ' + type + ': ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_move_instance", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="complete" label="complete.label" purpose="transition" immediate="true" tooltip="complete.tooltip">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get("title");
+							var subject = '(Completed): ' + type + ' - ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get("emf:hasWatcher");
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complete_instance", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="delete" label="delete.label" purpose="delete" confirmation="project_delete.confirm">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Deleted) ' + type +': ' + title;
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_delete_instance", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+    </transitions>
+    <stateTransitions>
+        <stateTransition from="INIT" transition="create" to="SUBMITTED"/>
+
+        <stateTransition from="SUBMITTED" transition="editDetails" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="delete" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="start" to="IN_PROGRESS"/>
+        <stateTransition from="SUBMITTED" transition="approve" to="APPROVED">
+            <condition id="requiredFields" renderAs="REQUIRED">[description] AND [notes] AND [approvedBy] AND [plannedStartDate] AND
+                [visibility]
+            </condition>
+        </stateTransition>
+        <stateTransition from="SUBMITTED" transition="move" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="lock" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="unlock" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="createIDocument" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="addThumbnail" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="addWatchers" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="saveAsTemplate" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="addAttachments" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="print" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="printTab" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportTabPDF" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportPDF" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportWord" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportTabWord" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="managePermissions" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="createInContext" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="revertVersion" to="SUBMITTED"/>
+
+        <stateTransition from="APPROVED" transition="editDetails" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="start" to="IN_PROGRESS"/>
+        <stateTransition from="APPROVED" transition="stop" to="STOPPED"/>
+        <stateTransition from="APPROVED" transition="move" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="lock" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="unlock" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addWatchers" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addAttachments" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="print" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="printTab" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="createInContext" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="revertVersion" to="SUBMITTED"/>
+
+        <stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="suspend" to="ON_HOLD"/>
+        <stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED"/>
+        <stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>
+        <stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addWatchers" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addAttachments" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportPDF" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportWord" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportTabWord" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="revertVersion" to="SUBMITTED"/>
+
+        <stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS"/>
+        <stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="stop" to="STOPPED"/>
+        <stateTransition from="ON_HOLD" transition="move" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="lock" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="unlock" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addThumbnail" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addWatchers" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="saveAsTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addAttachments" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="print" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="printTab" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportTabPDF" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportPDF" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportWord" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportTabWord" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="managePermissions" to="ON_HOLD"/>
+
+        <stateTransition from="STOPPED" transition="print" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="printTab" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportTabPDF" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportPDF" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportWord" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportTabWord" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="managePermissions" to="STOPPED"/>
+
+        <stateTransition from="COMPLETED" transition="print" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="printTab" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportTabPDF" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportPDF" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED"/>
+    </stateTransitions>
+</definition>

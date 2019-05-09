@@ -5,13 +5,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,15 +21,18 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,11 +53,10 @@ import com.sirma.itt.seip.adapters.ftp.BaseFtpContentStore;
 import com.sirma.itt.seip.adapters.ftp.FTPClientImpl;
 import com.sirma.itt.seip.adapters.ftp.FtpClientBuilder;
 import com.sirma.itt.seip.adapters.iip.IIPServerImageProvider;
-import com.sirma.itt.seip.adapters.remote.DMSClientException;
 import com.sirma.itt.seip.adapters.remote.FTPConfiguration;
 import com.sirma.itt.seip.adapters.remote.FtpClient;
-import com.sirma.itt.seip.adapters.remote.RESTClient;
 import com.sirma.itt.seip.io.FileDescriptor;
+import com.sirma.itt.seip.rest.client.HTTPClient;
 import com.sirma.itt.seip.tasks.SchedulerEntry;
 import com.sirma.itt.seip.tasks.SchedulerEntryStatus;
 import com.sirma.itt.seip.testutil.CustomMatcher;
@@ -67,6 +71,7 @@ import com.sirma.sep.content.StoreException;
 import com.sirma.sep.content.StoreItemInfo;
 import com.sirmaenterprise.sep.jms.api.SendOptions;
 import com.sirmaenterprise.sep.jms.api.SenderService;
+
 import com.srima.itt.seip.adapters.mock.ImageServerConfigurationsMock;
 
 /**
@@ -85,10 +90,7 @@ public class IiifImageContentStoreTest {
 	private ImageServerConfigurationsMock imageServerConfigurations = new ImageServerConfigurationsMock();
 
 	@Mock
-	private RESTClient restClientMock;
-
-	@Spy
-	private InstanceProxyMock<RESTClient> restClient = new InstanceProxyMock<>(null);
+	private HTTPClient httpClient;
 
 	@Spy
 	private FtpClientBuilder clientBuilder;
@@ -130,7 +132,6 @@ public class IiifImageContentStoreTest {
 	@Before
 	public void beforeMethod() {
 		MockitoAnnotations.initMocks(this);
-		restClient.set(restClientMock);
 		ftpClient.set(ftpClientInstance);
 		ReflectionUtils.setFieldValue(ftpClientInstance, "senderService", senderService);
 
@@ -393,11 +394,7 @@ public class IiifImageContentStoreTest {
 
 	@Test
 	public void getReadChannel_nonExistingContent() throws Exception {
-		when(restClientMock.rawRequest(any(GetMethod.class), any(URI.class))).then(a -> {
-			HttpMethod method = mock(HttpMethod.class);
-			when(method.getResponseBodyAsStream()).thenThrow(IOException.class);
-			return method;
-		});
+		when(httpClient.execute(any(URI.class), any(ResponseHandler.class))).thenThrow(IOException.class);
 
 		imageServerConfigurations.setAccessAddress("localhost/store/");
 
@@ -423,7 +420,7 @@ public class IiifImageContentStoreTest {
 
 	@Test
 	public void getPreviewChannel() throws Exception {
-		when(iipServerImageProvider.getImageUrl(any(String.class), any(Dimension.class)))
+		when(iipServerImageProvider.getImageUrl(any(String.class), any(Dimension.class), anyBoolean()))
 				.thenReturn("localhost/iip-server?IIIF=emf:dummy/full/full/0/default.jpg");
 
 		imageServerConfigurations.setIiifServerAddress("localhost/iip-server?IIIF=");
@@ -435,14 +432,45 @@ public class IiifImageContentStoreTest {
 		assertEquals("localhost/iip-server?IIIF=emf:dummy/full/full/0/default.jpg", readChannel.getId());
 	}
 
-	private void mockValidRemoteContent() throws DMSClientException {
-		String metaDataResponse = "{\"height\":10, \"width\":10 }";
-		when(restClientMock.rawRequest(any(GetMethod.class), any(URI.class))).then(a -> {
-			HttpMethod method = mock(HttpMethod.class);
-			when(method.getResponseBodyAsStream())
-					.thenReturn(new ByteArrayInputStream(metaDataResponse.getBytes(StandardCharsets.UTF_8)));
-			return method;
+	@Test
+	public void should_UseRealImageContentDimension_When_RealWidthIsLesThanConfigurationOne() {
+		verifyWightAndHeight(0, 44, 0, 44);
+	}
+
+	@Test
+	public void should_ConfigurationWightAndCalculatedHeight_When_RealWidthIsBiggerThanConfigurationOne() {
+		verifyWightAndHeight(3840, 4521, 1920, 2260);
+	}
+
+	private void verifyWightAndHeight(int imageWidth, int imageHeight, int expectedWidth, int expectedHeight) {
+		when(iipServerImageProvider.getImageUrl(any(String.class), any(Dimension.class), anyBoolean())).thenReturn(
+				"localhost/iip-server?IIIF=emf:dummy/full/full/0/default.jpg");
+		imageServerConfigurations.setIiifServerAddress("localhost/iip-server?IIIF=");
+
+		Map<String, Serializable> additionalData = new HashMap<>();
+		additionalData.put("width", imageWidth);
+		additionalData.put("height", imageHeight);
+
+		Map<String, Map<String, Serializable>> imageMetadata = new HashMap<>();
+		imageMetadata.put("imageMetadata", additionalData);
+		StoreItemInfo storeInfo = new StoreItemInfo().setProviderType(IiifImageContentStore.STORE_NAME)
+				.setRemoteId("dummy.png").setAdditionalData((Serializable) imageMetadata);
+		FileDescriptor readChannel = contentStore.getPreviewChannel(storeInfo);
+
+		verify(iipServerImageProvider).getImageUrl(eq(null), argThat(matchesWidthAndHeight(expectedWidth, expectedHeight)), eq(true));
+	}
+
+	private CustomMatcher<Dimension<Integer>> matchesWidthAndHeight(int wight, int height) {
+		return CustomMatcher.of(invocation -> {
+			assertEquals(wight, (int) invocation.getWidth());
+			assertEquals(height, (int) invocation.getHeight());
 		});
+	}
+
+	private void mockValidRemoteContent() {
+		String metaDataResponse = "{\"height\":10, \"width\":10 }";
+		when(httpClient.execute(any(URI.class), any(ResponseHandler.class)))
+				.thenReturn(new ByteArrayInputStream(metaDataResponse.getBytes(StandardCharsets.UTF_8)));
 	}
 
 	@Test
@@ -509,20 +537,14 @@ public class IiifImageContentStoreTest {
 		StoreItemInfo itemInfo = new StoreItemInfo("remoteId", contentStore.getName(), 10, "text/plain", null);
 		String metaDataResponse = "{\"height\":10, \"width\":10 }";
 
-		Matcher<URI> getValidResponse = CustomMatcher.of((URI uri) -> {
-			return uri != null && uri.toString().contains("remoteId");
-		});
-		when(restClientMock.rawRequest(any(GetMethod.class), argThat(getValidResponse))).then(a -> {
-			HttpMethod method = mock(HttpMethod.class);
-			when(method.getResponseBodyAsStream())
-					.thenReturn(new ByteArrayInputStream(metaDataResponse.getBytes(StandardCharsets.UTF_8)));
-			return method;
-		});
+		Matcher<URI> getValidResponse = CustomMatcher
+				.of((URI uri) -> uri != null && uri.toString().contains("remoteId"));
+		mockHttpClientResponse(metaDataResponse, getValidResponse);
 
-		Matcher<URI> getInvalidResponse = CustomMatcher.of((URI uri) -> {
-			return uri != null && uri.toString().contains("someId");
-		});
-		when(restClientMock.rawRequest(any(GetMethod.class), argThat(getInvalidResponse))).thenThrow(IOException.class);
+		Matcher<URI> getInvalidResponse = CustomMatcher
+				.of((URI uri) -> uri != null && uri.toString().contains("someId"));
+		when(httpClient.execute(argThat(getInvalidResponse), any(ResponseHandler.class)))
+				.thenThrow(IOException.class);
 
 		ContentMetadata metadata = contentStore.getMetadata(itemInfo);
 
@@ -541,29 +563,22 @@ public class IiifImageContentStoreTest {
 		assertEquals(10, metadata.getInt("width"));
 		assertEquals("remoteId", metadata.getString("id"));
 
-		verify(restClientMock).rawRequest(any(HttpMethod.class), any(URI.class));
+		verify(httpClient).execute(any(URI.class), any(ResponseHandler.class));
 	}
 
 	@Test
 	public void getMetadata_DefaultImage() throws Exception {
 		imageServerConfigurations.setIiifServerAddress("localhost");
-		StoreItemInfo itemInfo = new StoreItemInfo("remoteId", contentStore.getName(), 10, "text/plain", null);
+		StoreItemInfo itemInfo = new StoreItemInfo("defaultImage", contentStore.getName(), 10, "text/plain", null);
 		String metaDataResponse = "{\"height\":10, \"width\":10 }";
 
-		Matcher<URI> getValidResponse = CustomMatcher.of((URI uri) -> {
-			return uri != null && uri.toString().contains("defaultImage");
-		});
-		when(restClientMock.rawRequest(any(GetMethod.class), argThat(getValidResponse))).then(a -> {
-			HttpMethod method = mock(HttpMethod.class);
-			when(method.getResponseBodyAsStream())
-					.thenReturn(new ByteArrayInputStream(metaDataResponse.getBytes(StandardCharsets.UTF_8)));
-			return method;
-		});
+		Matcher<URI> getValidResponse = CustomMatcher
+				.of((URI uri) -> uri != null && uri.toString().contains("defaultImage"));
+		mockHttpClientResponse(metaDataResponse, getValidResponse);
 
-		Matcher<URI> getInvalidResponse = CustomMatcher.of((URI uri) -> {
-			return uri != null && uri.toString().contains("remoteId");
-		});
-		when(restClientMock.rawRequest(any(GetMethod.class), argThat(getInvalidResponse))).thenThrow(IOException.class);
+		Matcher<URI> getInvalidResponse = CustomMatcher
+				.of((URI uri) -> uri != null && uri.toString().contains("remoteId"));
+		doThrow(IOException.class).when(httpClient).execute(argThat(getInvalidResponse), any(ResponseHandler.class));
 
 		ContentMetadata metadata = contentStore.getMetadata(itemInfo);
 
@@ -583,7 +598,22 @@ public class IiifImageContentStoreTest {
 		assertEquals(10, metadata.getInt("width"));
 		assertEquals("defaultImage", metadata.getString("id"));
 
-		verify(restClientMock, times(4)).rawRequest(any(HttpMethod.class), any(URI.class));
+		verify(httpClient).execute(any(URI.class), any(ResponseHandler.class));
+	}
+
+	private void mockHttpClientResponse(String metaDataResponse, Matcher<URI> getValidResponse) {
+		doAnswer(invocation -> {
+			ResponseHandler responseReader = invocation.getArgumentAt(1, ResponseHandler.class);
+			HttpResponse httpResponse = mock(HttpResponse.class);
+			HttpEntity httpEntity = mock(HttpEntity.class);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(200);
+			when(httpResponse.getStatusLine()).thenReturn(statusLine);
+			when(httpEntity.getContent())
+					.thenReturn(new ByteArrayInputStream(metaDataResponse.getBytes(StandardCharsets.UTF_8)));
+			when(httpResponse.getEntity()).thenReturn(httpEntity);
+			return responseReader.handleResponse(httpResponse);
+		}).when(httpClient).execute(argThat(getValidResponse), any(ResponseHandler.class));
 	}
 
 	@AfterClass

@@ -29,8 +29,6 @@ public class SemanticDefinitionServiceMock extends SemanticDefinitionServiceImpl
 		ReflectionUtils.setFieldValue(this, "searchService", new SearchServiceMock(context));
 		ReflectionUtils.setFieldValue(this, "namespaceRegistryService", new NamespaceRegistryMock(context));
 		ReflectionUtils.setFieldValue(this, "definitionService", new DefinitionServiceMock());
-		HeadersService headersService = Mockito.mock(HeadersService.class);
-		ReflectionUtils.setFieldValue(this, "headersService", headersService);
 
 		initialize();
 	}

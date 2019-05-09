@@ -1,6 +1,5 @@
 package com.sirma.itt.seip;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -9,7 +8,7 @@ import java.util.Objects;
  * @author <a href="mailto:borislav.bonev@sirma.bg">Borislav Bonev</a>
  * @since 31/05/2018
  */
-public class PropertyChange<V extends Serializable> implements Serializable {
+public class PropertyChange<V> {
 	private final String property;
 	private final ChangeType changeType;
 	private final V newValue;
@@ -23,8 +22,22 @@ public class PropertyChange<V extends Serializable> implements Serializable {
 	 * @param <S> is the value type
 	 * @return the change instance
 	 */
-	public static <S extends Serializable> PropertyChange<S> add(String property, S newValue) {
+	public static <S> PropertyChange<S> add(String property, S newValue) {
 		return new PropertyChange<>(property, ChangeType.ADD, newValue, null);
+	}
+
+	/**
+	 * Creates a change that represents an appending a value to an existing value. This is special case where we have an
+	 * update but does not specify the whole old value (not possible or not cost effective to clone the old value on
+	 * change). Mainly used when modifying a collection of elements.
+	 *
+	 * @param property is the property identifier that got new value
+	 * @param newValue the new value appended to the property
+	 * @param <S> is the value type
+	 * @return the change instance
+	 */
+	public static <S> PropertyChange<S> append(String property, S newValue) {
+		return new PropertyChange<>(property, ChangeType.APPEND, newValue, null);
 	}
 
 	/**
@@ -35,7 +48,7 @@ public class PropertyChange<V extends Serializable> implements Serializable {
 	 * @param <S> is the value type
 	 * @return the change instance
 	 */
-	public static <S extends Serializable> PropertyChange<S> remove(String property, S oldValue) {
+	public static <S> PropertyChange<S> remove(String property, S oldValue) {
 		return new PropertyChange<>(property, ChangeType.REMOVE, null, oldValue);
 	}
 
@@ -48,7 +61,7 @@ public class PropertyChange<V extends Serializable> implements Serializable {
 	 * @param <S> is the value type
 	 * @return the change instance
 	 */
-	public static <S extends Serializable> PropertyChange<S> update(String property, S newValue, S oldValue) {
+	public static <S> PropertyChange<S> update(String property, S newValue, S oldValue) {
 		return new PropertyChange<>(property, ChangeType.UPDATE, newValue, oldValue);
 	}
 
@@ -113,6 +126,7 @@ public class PropertyChange<V extends Serializable> implements Serializable {
 	public enum ChangeType {
 		ADD,
 		REMOVE,
-		UPDATE
+		UPDATE,
+		APPEND
 	}
 }

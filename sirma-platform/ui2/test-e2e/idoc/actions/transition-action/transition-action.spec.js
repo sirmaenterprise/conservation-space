@@ -2,7 +2,6 @@
 
 let TransitionActionSandboxPage = require('./transition-action-sandbox-page').TransitionActionSandboxPage;
 
-
 describe('TransitionAction', () => {
 
   let sandboxPage = new TransitionActionSandboxPage();
@@ -11,7 +10,7 @@ describe('TransitionAction', () => {
     sandboxPage.open();
   });
 
-  it('should open dialog with mandatory fields for the state only and invalid fields before transition', () => {
+  it('should open dialog with fields which are static mandatory or for the state only and invalid fields before transition', () => {
     // Given I have an object in preview mode.
     // And The object has an invalid optional field.
     // And The object has 2 fields which are mandatory for the APPROVE state.
@@ -22,8 +21,8 @@ describe('TransitionAction', () => {
     let form = dialog.getForm();
     expect(form.getAllFields().then(fields => {
       return fields.length;
-    })).to.eventually.equal(3);
-    expect(form.getMandatoryFieldsCount()).to.eventually.equal(2);
+    })).to.eventually.equal(4);
+    expect(form.getMandatoryFieldsCount()).to.eventually.equal(3);
     expect(form.getInputText('optionalInvalidField').hasError()).to.eventually.be.true;
 
     // When I complete the fields.

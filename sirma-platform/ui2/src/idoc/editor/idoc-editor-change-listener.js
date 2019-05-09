@@ -80,7 +80,22 @@ export class IdocEditorChangeListener {
           node.$.removeAttribute(STYLE);
         }
       } else if (node.getName() === 'p') {
-        node.$.removeAttribute(STYLE);
+        // There was a bugfix introduced for the following bug: // https://jira.sirmaplatform.com/jira/browse/CMF-29208
+        // https://git.sirmaplatform.com/stash/projects/SEIP/repos/ui2/pull-requests/4235/diff
+        // As the reason for removing all the styles from paragraphs is not clear, we are removing all styles but
+        // text-align because it's being applied by the justify content ckeditor plugin. Removing all the styles might
+        // as well brake other plugins behavior but for now the justify content plugin is the only one we fix here.
+        // The reason for this to break plugins behavior is tha fact that the undo/redo plugin handles the ckeditor's
+        // beforeCommandExec and afterCommandExec hooks and calls onchange which finally ends up here, resulting in styles
+        // being removed after the justify content plugin applied them. In platform versions after 2.23, the handler for
+        // afterCommandExec was removed from undo plugin and this behavior is not the same although it still exists.
+        let stylesLength = node.$.style.length;
+        for(let i = 0; i < stylesLength; i++) {
+          let styleName = node.$.style.item(0);
+          if (styleName !== 'text-align') {
+            node.$.style.removeProperty(styleName);
+          }
+        }
       }
     }
   }

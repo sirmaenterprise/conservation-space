@@ -32,6 +32,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +140,7 @@ public class SolrSearchEngine implements SearchEngine {
 		try {
 			SolrQuery parameters = buildSolrQuery(arguments);
 
-			QueryResponse queryResponse = solrConnector.queryWithPost(parameters);
+			QueryResponse queryResponse = solrConnector.query(parameters);
 
 			parseResponse(arguments, queryResponse);
 		} catch (Exception e) {
@@ -161,7 +162,7 @@ public class SolrSearchEngine implements SearchEngine {
 			SolrDocumentList solrDocumentList = queryResponse.getResults();
 
 			// update the total count
-			arguments.setTotalItems(Long.valueOf(solrDocumentList.getNumFound()).intValue());
+			arguments.setTotalItems((int) solrDocumentList.getNumFound());
 
 			// we only care for the count no need to create all results
 			if (arguments.isCountOnly()) {
@@ -522,7 +523,7 @@ public class SolrSearchEngine implements SearchEngine {
 	 * @throws Exception
 	 *             on any error during parse
 	 */
-	private static void parseQuery(SolrQuery parameters, String stringQuery) throws Exception {
+	private static void parseQuery(SolrQuery parameters, String stringQuery) throws JSONException {
 		// some default query - instead of throwing exception from Solr
 		String q = SolrQueryConstants.QUERY_DEFAULT_ALL;
 
@@ -704,7 +705,7 @@ public class SolrSearchEngine implements SearchEngine {
 		if (!subTypeArg.isEmpty()) {
 			for (String subTypeString : subTypeArg) {
 				// check the subType if it is URI
-				if (subTypeString.indexOf(':') > 0) {
+				if (subTypeString.contains(":")) {
 					rdfTypes.add(subTypeString);
 				} else {
 					subTypes.add(subTypeString);

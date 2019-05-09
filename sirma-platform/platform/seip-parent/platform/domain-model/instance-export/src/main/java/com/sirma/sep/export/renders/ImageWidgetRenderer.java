@@ -26,8 +26,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.batik.transcoder.TranscoderException;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.docx4j.org.xhtmlrenderer.util.XMLUtil;
 import org.jsoup.nodes.Element;
@@ -38,11 +36,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.github.jsonldjava.utils.JsonUtils;
 import com.sirma.itt.seip.Quad;
 import com.sirma.itt.seip.adapters.iiif.ImageServerConfigurations;
-import com.sirma.itt.seip.adapters.remote.RESTClient;
 import com.sirma.itt.seip.annotations.AnnotationSearchRequest;
 import com.sirma.itt.seip.annotations.AnnotationService;
 import com.sirma.itt.seip.annotations.model.Annotation;
@@ -51,6 +46,7 @@ import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.util.DateConverter;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.plugin.Extension;
+import com.sirma.itt.seip.rest.client.HTTPClient;
 import com.sirma.itt.seip.rest.utils.JSON;
 import com.sirma.itt.seip.time.DateRange;
 import com.sirma.itt.seip.util.file.FileUtil;
@@ -64,6 +60,9 @@ import com.sirma.sep.export.renders.html.table.HtmlTableBuilder;
 import com.sirma.sep.export.renders.html.table.HtmlValueImageBuilder;
 import com.sirma.sep.export.renders.utils.ImageUtils;
 import com.sirma.sep.export.services.HtmlTableAnnotationService;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.github.jsonldjava.utils.JsonUtils;
 
 /**
  * Represents the iDoc Image Widget.
@@ -102,7 +101,7 @@ public class ImageWidgetRenderer extends BaseRenderer {
 	private ImageServerConfigurations imageServerConfigurations;
 
 	@Inject
-	private javax.enterprise.inject.Instance<RESTClient> restClient;
+	private HTTPClient httpClient;
 
 	@Inject
 	private AnnotationService annotationService;
@@ -630,15 +629,14 @@ public class ImageWidgetRenderer extends BaseRenderer {
 	 * @return the image
 	 */
 	private BufferedImage loadImage(String imageAddress) {
-		RESTClient client = restClient.get();
-		try (InputStream inputStream = client
-				.rawRequest(new GetMethod(), new URI(imageAddress, false))
-					.getResponseBodyAsStream()) {
-			return ImageIO.read(inputStream);
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			throw new EmfRuntimeException(e);
-		}
+		return httpClient.execute(imageAddress, response -> {
+			try (InputStream inputStream = response.getEntity().getContent()) {
+				return ImageIO.read(inputStream);
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage(), e);
+				throw new EmfRuntimeException(e);
+			}
+		});
 	}
 
 	/**

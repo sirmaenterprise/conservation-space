@@ -39,6 +39,10 @@ export class CodelistRestService {
       }
     };
 
+    if (opts.filterSource && opts.filterSource.indexOf('extra') === -1) {
+      config.params.values = opts.filterSource.replace(/\s/g,'').split(',');
+    }
+
     if (!CodelistRestService.hasAdditionalOptions(opts)) {
       if (!this.cache[opts.codelistNumber]) {
         this.cache[opts.codelistNumber] = this.restClient.get(url, config);
@@ -48,6 +52,12 @@ export class CodelistRestService {
     return this.requestsCacheService.cache(url, config, this.requestsMap, () => {
       return this.restClient.get(url, config);
     });
+  }
+
+  // New Code list API interface and restful access methods
+
+  getCodeList(codeList) {
+    return this.restClient.get(`${MANAGEMENT_URL}/${codeList}`);
   }
 
   getCodeLists() {

@@ -22,7 +22,7 @@ public interface CodeValidator {
 	 * @throws CodeValidatorException
 	 *             thrown when the validation for the code list fails.
 	 */
-	void validateCodeList(CodeList codeList) throws CodeValidatorException;
+	void validateCodeList(CodeList codeList);
 
 	/**
 	 * Validates a single code value. Code value validation depends on the specific implementation. This interface does
@@ -33,7 +33,7 @@ public interface CodeValidator {
 	 * @throws CodeValidatorException
 	 *             thrown when the validation for the code value fails.
 	 */
-	void validateCodeValue(CodeValue codeValue) throws CodeValidatorException;
+	void validateCodeValue(CodeValue codeValue);
 
 	/**
 	 * Validates a collection of code lists. Code lists validation depends on the specific implementation. This
@@ -44,7 +44,7 @@ public interface CodeValidator {
 	 * @throws CodeValidatorException
 	 *             thrown when the validation for the code lists fails.
 	 */
-	void validateCodeLists(List<CodeList> codeLists) throws CodeValidatorException;
+	void validateCodeLists(List<CodeList> codeLists);
 
 	/**
 	 * Validates a collection of code values. Code values validation depends on the specific implementation. This
@@ -55,5 +55,5 @@ public interface CodeValidator {
 	 * @throws CodeValidatorException
 	 *             thrown when the validation for the code values fails.
 	 */
-	void validateCodeValues(List<CodeValue> codeValues) throws CodeValidatorException;
+	void validateCodeValues(List<CodeValue> codeValues);
 }

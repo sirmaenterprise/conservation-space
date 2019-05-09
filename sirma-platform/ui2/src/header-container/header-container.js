@@ -1,12 +1,12 @@
 import {View, Component, Inject, NgScope} from 'app/app';
 import {HEADER_BREADCRUMB} from 'instance-header/header-constants';
 import {InstanceObject} from 'models/instance-object';
-import {ActionsMenu} from 'idoc/actions-menu/actions-menu';
+import 'idoc/actions-menu/actions-menu';
 import {Configurable} from 'components/configurable';
 import {EventEmitter} from 'common/event-emitter';
 import 'instance-header/static-instance-header/static-instance-header';
 import 'header-container/header-container.css!css';
-import headerContainerTpl from 'header-container/header-container.html!text';
+import template from 'header-container/header-container.html!text';
 
 const TRIGGER_ICON_GLYPH = '<i class="fa fa-circle-column"></i>';
 
@@ -23,9 +23,7 @@ const TRIGGER_ICON_GLYPH = '<i class="fa fa-circle-column"></i>';
     'config': 'config'
   }
 })
-@View({
-  template: headerContainerTpl
-})
+@View({template})
 @Inject(NgScope)
 export class HeaderContainer extends Configurable {
   constructor($scope) {

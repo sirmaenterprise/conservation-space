@@ -8,6 +8,8 @@ import com.sirma.sep.content.preview.remote.mimetype.MimeTypeSupport;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;
@@ -26,7 +28,6 @@ import javax.json.Json;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -122,10 +123,13 @@ public class ContentPreviewRemoteServiceTest {
 		previewRemoteService.getMimeTypeSupport(APP_JSON);
 	}
 
-	private MimeTypeSupport applyResponseHandler(InvocationOnMock invocation, int statusCode, HttpResponse response) {
-		BiFunction<Integer, HttpResponse, MimeTypeSupport> responseHandler =
-				invocation.getArgumentAt(3, BiFunction.class);
-		return responseHandler.apply(statusCode, response);
+	private MimeTypeSupport applyResponseHandler(InvocationOnMock invocation, int statusCode, HttpResponse response)
+			throws IOException {
+		StatusLine statusLine = Mockito.mock(StatusLine.class);
+		Mockito.when(statusLine.getStatusCode()).thenReturn(statusCode);
+		Mockito.when(response.getStatusLine()).thenReturn(statusLine);
+		ResponseHandler<MimeTypeSupport> responseHandler = invocation.getArgumentAt(3, ResponseHandler.class);
+		return responseHandler.handleResponse(response);
 	}
 
 	private Object applyErrorHandler(InvocationOnMock invocation) {

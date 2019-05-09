@@ -14,7 +14,7 @@ export class RelationshipsService {
   find(opts) {
     let config = {
       params: {
-        'q': opts.q || ''
+        q: opts.q || ''
       }
     };
     return this.client.get(RELATIONSHIPS_URL, config);

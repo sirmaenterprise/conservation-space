@@ -1,14 +1,7 @@
 package com.sirma.sep.content.idoc.extract;
 
-import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.instance.save.event.AfterInstanceSaveEvent;
-import com.sirma.itt.seip.instance.state.Operation;
-import com.sirma.itt.seip.tasks.SchedulerConfiguration;
-import com.sirma.itt.seip.tasks.SchedulerContext;
-import com.sirma.itt.seip.tasks.SchedulerEntryType;
-import com.sirma.itt.seip.tasks.SchedulerService;
-import com.sirma.itt.seip.tasks.TransactionMode;
-import com.sirma.itt.seip.testutil.CustomMatcher;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +11,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.instance.save.event.AfterInstanceSaveEvent;
+import com.sirma.itt.seip.instance.state.Operation;
+import com.sirma.itt.seip.tasks.SchedulerConfiguration;
+import com.sirma.itt.seip.tasks.SchedulerContext;
+import com.sirma.itt.seip.tasks.SchedulerEntryType;
+import com.sirma.itt.seip.tasks.SchedulerService;
+import com.sirma.itt.seip.tasks.TransactionMode;
+import com.sirma.itt.seip.testutil.CustomMatcher;
 
 /**
  * Tests for {@link ViewContentExtractor}.
@@ -47,7 +46,7 @@ public class ViewContentExtractorTest {
                           Matchers.argThat(contextMatcher()));
     }
 
-    private AfterInstanceSaveEvent createAfterInstanceSaveEvent() {
+	private static AfterInstanceSaveEvent createAfterInstanceSaveEvent() {
         Instance instance = Mockito.mock(Instance.class);
         Mockito.when(instance.getId()).thenReturn(EMF_ID);
         return new AfterInstanceSaveEvent(instance, instance, Operation.NO_OPERATION);

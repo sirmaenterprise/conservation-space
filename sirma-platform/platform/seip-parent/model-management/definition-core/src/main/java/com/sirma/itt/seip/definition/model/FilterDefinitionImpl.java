@@ -20,7 +20,9 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.db.PersistenceUnits;
+import com.sirma.itt.seip.db.customtype.StringSetCustomType;
 import com.sirma.itt.seip.db.discovery.PersistenceUnitBinding;
 import com.sirma.itt.seip.domain.filter.Filter;
 
@@ -65,65 +67,43 @@ public class FilterDefinitionImpl implements Filter, Serializable {
 	@Type(type = "com.sirma.itt.seip.db.customtype.StringSetCustomType")
 	private Set<String> filterValues;
 
+	@Column(name = "defined_in", length = 2048)
+	@Type(type = StringSetCustomType.TYPE_NAME)
+	private Set<String> definedIn;
+
 	/** The xml value. */
 	@Transient
 	private String xmlValue;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Long getId() {
 		return id;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getIdentifier() {
 		return filterId;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void setIdentifier(String identifier) {
 		this.filterId = identifier;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getMode() {
 		return mode;
 	}
 
-	/**
-	 * Setter method for mode.
-	 *
-	 * @param mode
-	 *            the mode to set
-	 */
 	public void setMode(String mode) {
 		this.mode = mode;
 	}
 
-	/**
-	 * Getter method for filterValues.
-	 *
-	 * @return the filterValues
-	 */
 	@Override
 	public Set<String> getFilterValues() {
 		if (filterValues == null) {
@@ -132,31 +112,30 @@ public class FilterDefinitionImpl implements Filter, Serializable {
 		return filterValues;
 	}
 
-	/**
-	 * Setter method for filterValues.
-	 *
-	 * @param filterValues
-	 *            the filterValues to set
-	 */
 	public void setFilterValues(Set<String> filterValues) {
 		this.filterValues = filterValues;
 	}
 
-	/**
-	 * Getter method for xmlValue.
-	 *
-	 * @return the xmlValue
-	 */
 	public String getXmlValue() {
 		return xmlValue;
 	}
 
-	/**
-	 * Setter method for xmlValue.
-	 *
-	 * @param xmlValue
-	 *            the xmlValue to set
-	 */
+	@Override
+	public Set<String> getDefinedIn() {
+		return definedIn;
+	}
+
+	public void setDefinedIn(Set<String> definedIn) {
+		this.definedIn = definedIn;
+	}
+
+	public void addDefinedIn(String definitionId) {
+		if (definedIn == null) {
+			definedIn = new LinkedHashSet<>();
+		}
+		CollectionUtils.addNonNullValue(definedIn, definitionId);
+	}
+
 	public void setXmlValue(String xmlValue) {
 		this.xmlValue = xmlValue;
 		if (xmlValue != null) {
@@ -185,12 +164,9 @@ public class FilterDefinitionImpl implements Filter, Serializable {
 		return nullSafeEquals(filterId, other.filterId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder(256);
 		builder.append("FilterDefinitionImpl [id=");
 		builder.append(id);
 		builder.append(", filterId=");
@@ -199,6 +175,8 @@ public class FilterDefinitionImpl implements Filter, Serializable {
 		builder.append(mode);
 		builder.append(", filterValues=");
 		builder.append(filterValues);
+		builder.append(", definedIn=");
+		builder.append(definedIn);
 		builder.append("]");
 		return builder.toString();
 	}

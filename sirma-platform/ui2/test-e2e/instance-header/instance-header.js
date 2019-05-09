@@ -84,4 +84,11 @@ class InstanceHeader {
 
 }
 
-module.exports = {InstanceHeaderSandboxPage, InstanceHeader};
+const INSTANCE_HEADERS = {
+  HEADER_DEFAULT: 'default_header',
+  HEADER_COMPACT: 'compact_header',
+  HEADER_BREADCRUMB: 'breadcrumb_header',
+  HEADER_TOOLTIP: 'tooltip_header'
+};
+
+module.exports = {InstanceHeaderSandboxPage, InstanceHeader, INSTANCE_HEADERS};

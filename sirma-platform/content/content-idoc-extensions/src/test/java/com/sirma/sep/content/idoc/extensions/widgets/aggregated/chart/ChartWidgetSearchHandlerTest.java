@@ -33,7 +33,6 @@ import com.sirma.itt.seip.domain.search.SearchRequest;
 import com.sirma.itt.seip.domain.search.tree.SearchCriteriaBuilder;
 import com.sirma.itt.seip.search.SearchService;
 import com.sirma.itt.seip.search.converters.JsonToConditionConverter;
-import com.sirma.sep.content.idoc.extensions.widgets.aggregated.chart.ChartWidgetSearchHandler;
 import com.sirma.sep.content.idoc.extensions.widgets.utils.WidgetMock;
 import com.sirma.sep.content.idoc.handler.ContentNodeHandler;
 import com.sirma.sep.content.idoc.nodes.widgets.chart.ChartWidget;
@@ -91,6 +90,7 @@ public class ChartWidgetSearchHandlerTest {
 		testHandle(CHART_WIDGET_CONFIG_WITHOUT_GROUPBY);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void testHandle(String resource) throws IOException {
 		Element node = new Element(Tag.valueOf("div"), "");
 		when(jsonToConditionConverter.parseCondition(any(JsonObject.class))).thenReturn(
@@ -119,6 +119,7 @@ public class ChartWidgetSearchHandlerTest {
 
 			Map<String, Object> handlerResultMap = optional.get();
 			assertEquals(2, handlerResultMap.size());
+
 			Map<String, Map<String, Serializable>> aggregatedResults = (Map<String, Map<String, Serializable>>) handlerResultMap
 					.get("aggregatedData");
 			assertEquals(4, aggregatedResults.get("aggregation-property").size());

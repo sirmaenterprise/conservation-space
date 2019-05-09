@@ -13,7 +13,7 @@ import com.sirma.itt.seip.plugin.Extension;
  * @author <a href="mailto:borislav.bonev@sirma.bg">Borislav Bonev</a>
  * @since 31/05/2018
  */
-@Extension(target = InstanceLoadDecorator.TARGET_NAME, order = InstanceLoadDecorator.MAX_ORDER)
+@Extension(target = InstanceLoadDecorator.INSTANCE_DECORATOR, order = InstanceLoadDecorator.MAX_ORDER)
 public class EnableTrackingInstanceChanges implements InstanceLoadDecorator{
 
 	@Override
@@ -24,5 +24,10 @@ public class EnableTrackingInstanceChanges implements InstanceLoadDecorator{
 	@Override
 	public <I extends Instance> void decorateResult(Collection<I> collection) {
 		collection.forEach(Trackable::enableTracking);
+	}
+
+	@Override
+	public boolean allowParallelProcessing() {
+		return false;
 	}
 }

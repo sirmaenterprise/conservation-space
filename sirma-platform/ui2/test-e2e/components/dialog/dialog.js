@@ -89,6 +89,24 @@ class Dialog {
     this.waitUntilClosed();
   }
 
+  confirm() {
+    this.getConfirmButton().click();
+    this.waitUntilClosed();
+  }
+
+  getConfirmButton() {
+    return this.element.$('.modal-footer .seip-btn-confirm');
+  }
+
+  cancelChanges() {
+    this.getCancelChangesButton().click();
+    this.waitUntilClosed();
+  }
+
+  getCancelChangesButton() {
+    return this.element.$('.modal-footer .seip-btn-cancel');
+  }
+
   getOkButton() {
     // don't look for .seip-btn-* because the suffix is dynamic and can differ according
     // to any specific dialog config

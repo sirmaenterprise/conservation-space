@@ -256,10 +256,11 @@
   padding: 0;
   border: none;
   border-left: 1px solid #e0e0e0;
+  color: $icon-base-color;
   background: none;
 
   &:hover {
-    background-color: rgba(0, 0, 0, .05);
+    color: $link-hover-color;
   }
 }
 
@@ -277,6 +278,65 @@
       }
       .banner {
         float: left;
+      }
+    }
+  }
+}
+
+@mixin editor-lists-position() {
+  ul {
+    padding-left: 20px;
+
+    li {
+      list-style-position: inside;
+    }
+  }
+
+  /* Numbered list styles */
+  ol {
+    padding-left: 20px;
+    counter-reset: item;
+
+    li {
+      display: block;
+
+      &:before {
+        content: counters(item, '.') '. ';
+        counter-increment: item
+      }
+
+      > :first-child:not(li):not(ol):not(div) {
+        display: inline;
+      }
+    }
+
+    &.decimal {
+      > li:before {
+        content: counters(item, '.', decimal) '. ';
+      }
+    }
+
+    &.lower-roman {
+      > li:before {
+        content: counters(item, '.', lower-roman) '. ';
+      }
+    }
+
+    &.upper-roman {
+      > li:before {
+        content: counters(item, '.', upper-roman) '. ';
+      }
+    }
+
+    &.lower-alpha {
+      > li:before {
+        content: counters(item, '.', lower-alpha) '. ';
+      }
+    }
+
+    &.upper-alpha {
+      > li:before {
+        content: counters(item, '.', upper-alpha) '. ';
       }
     }
   }

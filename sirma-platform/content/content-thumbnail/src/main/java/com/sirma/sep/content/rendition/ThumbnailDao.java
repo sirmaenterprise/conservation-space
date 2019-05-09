@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -62,15 +63,18 @@ class ThumbnailDao {
 	 *            the generic key type
 	 * @param ids
 	 *            the key set
-	 * @param purpose
+	 * @param type
 	 *            the purpose to look for
 	 * @return the map
 	 */
 	@SuppressWarnings({ "unchecked", "boxing" })
-	<S extends Serializable> Map<S, String> loadThumbnails(Collection<S> ids, String purpose) {
+	<S extends Serializable> Map<S, String> loadThumbnails(Collection<S> ids, ThumbnailType type) {
+		if (CollectionUtils.isEmpty(ids)) {
+			return Collections.emptyMap();
+		}
 		List<Pair<String, Object>> args = new ArrayList<>(1);
 		args.add(new Pair<>("ids", ids));
-		args.add(new Pair<>(PURPOSE, purpose));
+		args.add(new Pair<>(PURPOSE, type.toString()));
 		List<Object[]> fetched = dbDao.fetchWithNamed(ThumbnailMappingEntity.QUERY_THUMBNAILS_BY_IDS_KEY, args);
 		if (fetched.isEmpty()) {
 			return Collections.emptyMap();
@@ -90,6 +94,24 @@ class ThumbnailDao {
 	}
 
 	/**
+	 * Load thumbnail for the given instance. The executed query will sort the results by their priority and will return
+	 * the thumbnail with the highest priority.
+	 *
+	 * @param id
+	 *            the instance id
+	 * @return the thumbnail if any or <code>null</code>
+	 */
+	String loadThumbnail(Serializable id) {
+		List<Object[]> fetched = dbDao
+				.fetchWithNamed(ThumbnailMappingEntity.QUERY_INSTANCE_THUMBNAIL_KEY,
+						Collections.singletonList(new Pair<>("id", id)));
+		if (fetched.isEmpty()) {
+			return null;
+		}
+		return Objects.toString(fetched.get(0)[0], null);
+	}
+
+	/**
 	 * Load thumbnail for the given instance and purpose.
 	 *
 	 * @param id
@@ -98,28 +120,17 @@ class ThumbnailDao {
 	 *            the purpose
 	 * @return the thumbnail if any or <code>null</code>
 	 */
-	String loadThumbnail(Serializable id, String purpose) {
+	String loadThumbnail(Serializable id, ThumbnailType purpose) {
 		List<Pair<String, Object>> args = new ArrayList<>(1);
 		args.add(new Pair<>("id", id));
-		args.add(new Pair<>(PURPOSE, purpose));
+		args.add(new Pair<>(PURPOSE, purpose.toString()));
 
-		List<String> fetched = dbDao
+		List<String[]> fetched = dbDao
 				.fetchWithNamed(ThumbnailMappingEntity.QUERY_THUMBNAIL_BY_INSTANCE_ID_AND_PURPOSE_KEY, args);
 		if (fetched.isEmpty()) {
 			return null;
 		}
-		return fetched.get(0);
-	}
-
-	/**
-	 * Adds the new thumbnail that will store the given thumbnail content.
-	 *
-	 * @param thumbnail
-	 *            the thumbnail
-	 * @return the thumbnail identifier that can be used for loading
-	 */
-	String addNewThumbnail(String thumbnail) {
-		return saveThumbnail(null, thumbnail, null, null);
+		return fetched.get(0)[0];
 	}
 
 	/**
@@ -192,6 +203,17 @@ class ThumbnailDao {
 	}
 
 	/**
+	 * Adds the new thumbnail that will store the given thumbnail content.
+	 *
+	 * @param thumbnail
+	 *            the thumbnail
+	 * @return the thumbnail identifier that can be used for loading
+	 */
+	String addNewThumbnail(String thumbnail) {
+		return saveThumbnail(null, thumbnail, null, null);
+	}
+
+	/**
 	 * Gets the or create thumbnail entity.
 	 *
 	 * @param id
@@ -215,28 +237,29 @@ class ThumbnailDao {
 	 * Prepares/populates new thumbnail mapping entity. First tries to find, if there is record for the given instance,
 	 * if so this entity is returned. If there is no record for the passed instance, new entity is created and returned.
 	 *
-	 * @param instance
+	 * @param instanceId
 	 *            the instance for which we set or search thumbnail record
 	 * @param purpose
 	 *            the purpose
 	 * @return new or existing thumbnail mapping entity
 	 */
-	ThumbnailMappingEntity getOrCreateThumbnailMappingEntity(InstanceReference instance, String purpose) {
+	ThumbnailMappingEntity getOrCreateThumbnailMappingEntity(String instanceId, ThumbnailType purpose) {
 		List<Pair<String, Object>> args = new ArrayList<>(2);
-		args.add(new Pair<>("id", instance.getId()));
-		args.add(new Pair<>(PURPOSE, purpose));
+		args.add(new Pair<>("id", instanceId));
+		args.add(new Pair<>(PURPOSE, purpose.toString()));
 		List<ThumbnailMappingEntity> list = dbDao
 				.fetchWithNamed(ThumbnailMappingEntity.QUERY_THUMBNAIL_MAPPING_BY_ID_AND_PURPOSE_KEY, args);
 
 		ThumbnailMappingEntity entity;
 		if (list.isEmpty()) {
 			entity = new ThumbnailMappingEntity();
-			entity.setInstanceId(instance.getId());
-			entity.setInstanceType(instance.getReferenceType());
+			entity.setInstanceId(instanceId);
+			entity.setTimestamp(new Date());
 		} else {
 			entity = list.get(0);
 		}
-		entity.setPurpose(purpose);
+		entity.setPurpose(purpose.toString());
+		entity.setPriority(purpose.getPriority());
 		return entity;
 	}
 
@@ -250,12 +273,18 @@ class ThumbnailDao {
 	 * @return the number of updated database entries
 	 */
 	<S extends Serializable> int scheduleThumbnailChecks(Collection<S> ids) {
+		Pair<String, Object> purpose = new Pair<>(PURPOSE, ThumbnailType.ASSIGNED.toString());
 		List<Pair<String, Object>> args = new ArrayList<>(3);
 		args.add(new Pair<>("instanceId", ids));
-		args.add(new Pair<>(PURPOSE, RenditionService.DEFAULT_PURPOSE));
+		args.add(purpose);
 		args.add(new Pair<>("thumbnail", ThumbnailService.MAX_RETRIES));
 		args.add(new Pair<>("lastFailTimeThreshold", getOneHourBack().getTime()));
-		return dbDao.executeUpdate(ThumbnailEntity.UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES_KEY, args);
+
+		int assignedUpdated = dbDao.executeUpdate(ThumbnailEntity.UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES_KEY, args);
+
+		purpose.setSecond(ThumbnailType.SELF.toString());
+		int selfUpdated = dbDao.executeUpdate(ThumbnailEntity.UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES_KEY, args);
+		return assignedUpdated + selfUpdated;
 	}
 
 	/**
@@ -282,14 +311,14 @@ class ThumbnailDao {
 	 *            the purpose
 	 * @return the number of deleted rows
 	 */
-	int deleteThumbnail(Serializable instanceId, String purpose) {
+	int deleteThumbnail(Serializable instanceId, ThumbnailType purpose) {
 		List<Pair<String, Object>> args = new ArrayList<>(2);
 		args.add(new Pair<>("id", instanceId));
 
 		String query = ThumbnailMappingEntity.DELETE_THUMBNAIL_MAPPINGS_BY_INSTANCE_ID_KEY;
 		if (purpose != null) {
 			query = ThumbnailMappingEntity.DELETE_THUMBNAIL_MAPPINGS_BY_INSTANCE_ID_AND_PURPOSE_KEY;
-			args.add(new Pair<>(PURPOSE, purpose));
+			args.add(new Pair<>(PURPOSE, purpose.toString()));
 		}
 
 		return dbDao.executeUpdate(query, args);

@@ -18,7 +18,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
   });
 
   it('should be configured to show header and borders by default', () => {
-    let helloConfigDialog = new HelloWidgetConfigDialog();
+    let helloConfigDialog = openHellowWidgetConfig(idocPage);
     expect(helloConfigDialog.isShowWidgetHeaderSelected()).to.eventually.be.true;
     expect(helloConfigDialog.isShowWidgetHeaderBordersSelected()).to.eventually.be.true;
     expect(helloConfigDialog.isShowWidgetBordersSelected()).to.eventually.be.true;
@@ -41,7 +41,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
       describe('in EDIT and PREVIEW', () => {
 
         it('in unlocked tab', () => {
-          let helloConfigDialog = new HelloWidgetConfigDialog();
+          let helloConfigDialog = openHellowWidgetConfig(idocPage);
           helloConfigDialog.showWidgetHeader();
           helloConfigDialog.showWidgetHeaderBorders();
           helloConfigDialog.save();
@@ -66,7 +66,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
         });
 
         // it('in locked tab', () => {
-        //   let helloConfigDialog = new HelloWidgetConfigDialog();
+        //   let helloConfigDialog = openHellowWidgetConfig(idocPage);
         //   helloConfigDialog.showWidgetHeader();
         //   helloConfigDialog.showWidgetHeaderBorders();
         //   helloConfigDialog.save();
@@ -96,7 +96,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
       describe('in EDIT and PREVIEW', () => {
 
         it('in unlocked tab', () => {
-          let helloConfigDialog = new HelloWidgetConfigDialog();
+          let helloConfigDialog = openHellowWidgetConfig(idocPage);
           helloConfigDialog.showWidgetHeader();
           helloConfigDialog.hideWidgetHeaderBorders();
           helloConfigDialog.save();
@@ -133,7 +133,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
         });
 
         // it('in locked tab', () => {
-        //   let helloConfigDialog = new HelloWidgetConfigDialog();
+        //   let helloConfigDialog = openHellowWidgetConfig(idocPage);
         //   helloConfigDialog.showWidgetHeader();
         //   helloConfigDialog.hideWidgetHeaderBorders();
         //   helloConfigDialog.save();
@@ -173,7 +173,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
       describe('in EDIT and PREVIEW', () => {
 
         it('in unlocked tab', () => {
-          let helloConfigDialog = new HelloWidgetConfigDialog();
+          let helloConfigDialog = openHellowWidgetConfig(idocPage);
           helloConfigDialog.save();
 
           let helloWidget = new HelloWidget(widgetElement);
@@ -213,7 +213,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
         });
 
         // it('in locked tab', () => {
-        //   let helloConfigDialog = new HelloWidgetConfigDialog();
+        //   let helloConfigDialog = openHellowWidgetConfig(idocPage);
         //   helloConfigDialog.hideWidgetHeader();
         //   helloConfigDialog.showWidgetHeaderBorders();
         //   helloConfigDialog.save();
@@ -253,7 +253,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
       describe('in EDIT and PREVIEW', () => {
 
         it('in unlocked tab', () => {
-          let helloConfigDialog = new HelloWidgetConfigDialog();
+          let helloConfigDialog = openHellowWidgetConfig(idocPage);
           helloConfigDialog.save();
 
           let helloWidget = new HelloWidget(widgetElement);
@@ -293,7 +293,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
         });
 
         // it('in locked tab', () => {
-        //   let helloConfigDialog = new HelloWidgetConfigDialog();
+        //   let helloConfigDialog = openHellowWidgetConfig(idocPage);
         //   helloConfigDialog.hideWidgetHeader();
         //   helloConfigDialog.hideWidgetHeaderBorders();
         //   helloConfigDialog.save();
@@ -330,7 +330,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
   });
 
   it('should hide widget body borders if configured', () => {
-    let helloConfigDialog = new HelloWidgetConfigDialog();
+    let helloConfigDialog = openHellowWidgetConfig(idocPage);
     helloConfigDialog.toggleShowWidgetBorders();
     helloConfigDialog.save();
     let helloWidget = new HelloWidget(widgetElement);
@@ -347,7 +347,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
   });
 
   it('should hide widget header borders if configured', () => {
-    let helloConfigDialog = new HelloWidgetConfigDialog();
+    let helloConfigDialog = openHellowWidgetConfig(idocPage);
     helloConfigDialog.toggleShowWidgetHeaderBorders();
     helloConfigDialog.save();
     let helloWidget = new HelloWidget(widgetElement);
@@ -370,7 +370,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
   it('should change header background color when configured', () => {
     let backgroundColor = 'rgb(182, 215, 168)';
     let expectedBackgroundColor = 'rgba(182, 215, 168, 1)';
-    let helloConfigDialog = new HelloWidgetConfigDialog();
+    let helloConfigDialog = openHellowWidgetConfig(idocPage);
     let colorPicker = helloConfigDialog.getHeaderBackgroundColorPicker();
     colorPicker.selectColor(backgroundColor);
     helloConfigDialog.save();
@@ -383,7 +383,7 @@ describe('WidgetCommonDisplayConfigurations', () => {
   it('should change widget background color when configured', () => {
     let backgroundColor = 'rgb(162, 196, 201)';
     let expectedBackgroundColor = 'rgba(162, 196, 201, 1)';
-    let helloConfigDialog = new HelloWidgetConfigDialog();
+    let helloConfigDialog = openHellowWidgetConfig(idocPage);
     let colorPicker = helloConfigDialog.getWidgetBackgroundColorPicker();
     colorPicker.selectColor(backgroundColor);
     helloConfigDialog.save();
@@ -451,4 +451,9 @@ function lockTab(idocPage) {
   let idocTabs = idocPage.getIdocTabs(false);
   let tab = idocTabs.getTabByIndex(0);
   tab.openTabConfiguration().lockTab().save();
+}
+
+function openHellowWidgetConfig(idocPage) {
+  idocPage.getTabEditor(1).insertWidget('hello-widget');
+  return new HelloWidgetConfigDialog();
 }

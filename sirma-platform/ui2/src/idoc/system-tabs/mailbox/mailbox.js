@@ -5,7 +5,7 @@ import {InstanceList} from 'instance/instance-list';
 import {NotificationService} from 'services/notification/notification-service';
 import {CreatePanelService} from 'services/create/create-panel-service';
 import {DialogService} from 'components/dialog/dialog-service';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {LocalStorageService} from 'services/storage/local-storage-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {EMF_MODIFIED_ON} from 'instance/instance-properties';
@@ -410,7 +410,8 @@ export class Mailbox {
    */
   postMessageToMailClient(data, zimlet) {
     data.topic = zimlet;
-    this.getMailClientWindow().postMessage(data, '*');
+    // CMF-29950
+    this.getMailClientWindow().postMessage(data, '*');// NOSONAR
   }
 
   incrementDelegatedRightsCounter(objectId, openInTabCount) {

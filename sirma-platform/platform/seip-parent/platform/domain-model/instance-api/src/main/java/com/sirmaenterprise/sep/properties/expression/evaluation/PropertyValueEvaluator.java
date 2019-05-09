@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.plugin.Plugin;
 
 /**
@@ -48,17 +48,17 @@ public interface PropertyValueEvaluator extends Plugin { // NOSONAR
 
 	/**
 	 * Get resolved instances as stream
-	 * 
+	 *
 	 * @param instance
 	 *            - instance which property have to be processed.
 	 * @param propertyName
 	 *            - processed property name
-	 * @param instanceTypeResolver
-	 *            - type resolver
+	 * @param instanceService
+	 *            - service for instance loading
 	 * @return Stream of resolved instances
 	 */
 	default Stream<Instance> getInstances(Instance instance, String propertyName,
-			InstanceTypeResolver instanceTypeResolver) {
+			DomainInstanceService instanceService) {
 		Serializable propertyValue = instance.get(propertyName);
 		Collection<String> objectsIds = Collections.emptyList();
 		if (propertyValue instanceof String) {
@@ -67,6 +67,6 @@ public interface PropertyValueEvaluator extends Plugin { // NOSONAR
 			// noinspection unchecked
 			objectsIds = (List<String>) propertyValue;
 		}
-		return instanceTypeResolver.resolveInstances(objectsIds).stream();
+		return instanceService.loadInstances(objectsIds).stream();
 	}
 }

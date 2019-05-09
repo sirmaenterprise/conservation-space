@@ -2,7 +2,7 @@ import {SessionKeepAliveHandler} from 'layout/session/session-keep-alive-handler
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {Component, Inject, View} from 'app/app';
 import {Configuration} from 'common/application-config';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {LocalStorageService} from 'services/storage/local-storage-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {UserActivityEvent} from 'layout/session/user-activity-event';

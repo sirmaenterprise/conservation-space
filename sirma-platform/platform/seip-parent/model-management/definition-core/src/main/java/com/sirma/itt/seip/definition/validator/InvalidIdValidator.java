@@ -1,22 +1,13 @@
 package com.sirma.itt.seip.definition.validator;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sirma.itt.seip.definition.RegionDefinition;
-import com.sirma.itt.seip.definition.RegionDefinitionModel;
-import com.sirma.itt.seip.definition.ValidationLoggingUtil;
-import com.sirma.itt.seip.definition.label.LabelDefinition;
-import com.sirma.itt.seip.domain.Identity;
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.domain.definition.Condition;
-import com.sirma.itt.seip.domain.definition.Conditional;
-import com.sirma.itt.seip.domain.definition.DefinitionModel;
-import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.definition.ControlDefinition;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 
 /**
  * Validator class that checks the identifiers.
@@ -25,107 +16,114 @@ import com.sirma.itt.seip.domain.definition.PropertyDefinition;
  */
 public class InvalidIdValidator implements DefinitionValidator {
 
-	public static final String ASCII_CHAR = "[\\x20-\\x7E\\r\\n\\t:]";
+	private static final String ASCII_CHAR = "[\\x20-\\x7E\\r\\n\\t:]";
 	private static final Pattern ID_PATTERN = Pattern.compile("[\\w$:]+", Pattern.UNICODE_CHARACTER_CLASS);
 	private static final Pattern ASCII_CHARACTER_PATTERN = Pattern.compile("^" + ASCII_CHAR + "+$");
 	private static final Pattern ASCII_CHAR_PATTERN = Pattern.compile(ASCII_CHAR);
-	private static final Logger LOGGER = LoggerFactory.getLogger(InvalidIdValidator.class);
 
 	@Override
-	public List<String> validate(RegionDefinitionModel model) {
-		if (model == null) {
-			return Collections.emptyList();
-		}
+	public List<ValidationMessage> validate(GenericDefinition definition) {
+		InvalidIdMessageBuilder messageBuilder = new InvalidIdMessageBuilder(definition);
 
-		List<String> errors = new ArrayList<>();
+		// TODO: configs ?
+		// TODO: control param id ?
+		validateDefinitionIdentifier(definition.getIdentifier(), messageBuilder);
 
-		errors.addAll(validate((DefinitionModel) model));
-		for (RegionDefinition regionDefinition : model.getRegions()) {
-			errors.addAll(validate(regionDefinition));
-			if (regionDefinition.getControlDefinition() != null) {
-				errors.addAll(validate(regionDefinition.getControlDefinition()));
-			}
-			errors.addAll(validateCondition(regionDefinition));
-		}
-		return errors;
+		validateFields(definition, messageBuilder);
+
+		validateRegions(definition, messageBuilder);
+
+		return messageBuilder.getMessages();
 	}
 
-	@Override
-	public List<String> validate(DefinitionModel model) {
-		if (model == null) {
-			return Collections.emptyList();
-		}
-
-		List<String> errors = new ArrayList<>();
-
-		errors.addAll(validate((Identity) model));
-		for (PropertyDefinition propertyDefinition : model.getFields()) {
-			errors.addAll(validate(propertyDefinition));
-			if (propertyDefinition.getControlDefinition() != null) {
-				errors.addAll(validate(propertyDefinition.getControlDefinition()));
-			}
-			errors.addAll(validateCondition(propertyDefinition));
-		}
-
-		return errors;
+	private void validateFields(GenericDefinition definition, InvalidIdMessageBuilder messageBuilder) {
+		// Root + region fields
+		definition.fieldsStream()
+				.forEach(propertyDefinition -> {
+					validateIdentifier(propertyDefinition.getIdentifier(), "<field>", messageBuilder);
+					validateConditions(propertyDefinition.getConditions(), messageBuilder);
+					validateControl(propertyDefinition.getControlDefinition(), messageBuilder);
+				});
 	}
 
-	private List<String> validateCondition(Conditional conditional) {
-		List<String> errors = new ArrayList<>();
-
-		if (conditional.getConditions() != null && !conditional.getConditions().isEmpty()) {
-			for (Condition condition : conditional.getConditions()) {
-				errors.addAll(validate(condition));
-			}
-		}
-		return errors;
+	private void validateRegions(GenericDefinition definition, InvalidIdMessageBuilder messageBuilder) {
+		definition.getRegions().forEach(regionDefinition -> {
+			validateIdentifier(regionDefinition.getIdentifier(), "<region>", messageBuilder);
+			validateConditions(regionDefinition.getConditions(), messageBuilder);
+			validateControl(regionDefinition.getControlDefinition(), messageBuilder);
+		});
 	}
 
-	@Override
-	public List<String> validate(Identity model) {
-		if (model == null) {
-			return Collections.emptyList();
+	private void validateControl(ControlDefinition controlDefinition, InvalidIdMessageBuilder messageBuilder) {
+		if (controlDefinition != null) {
+			validateIdentifier(controlDefinition.getIdentifier(), "<control>", messageBuilder);
 		}
+	}
 
-		List<String> errors = new ArrayList<>();
+	private void validateConditions(List<Condition> conditions, InvalidIdMessageBuilder messageBuilder) {
+		if (CollectionUtils.isNotEmpty(conditions)) {
+			conditions.forEach(condition -> validateIdentifier(condition.getIdentifier(), "<condition>", messageBuilder));
+		}
+	}
 
-		// check for non ASCII characters
-		String identifier = model.getIdentifier();
+	private void validateDefinitionIdentifier(String definitionId, InvalidIdMessageBuilder messageBuilder) {
+		if (!ASCII_CHARACTER_PATTERN.matcher(definitionId).matches()) {
+			messageBuilder.nonAsciiDefinitionIdentifier(getNonAsciiCharacters(definitionId));
+		} else if (!ID_PATTERN.matcher(definitionId).matches()) {
+			// the ID should have only word characters [a-zA-Z0-9_:.]
+			messageBuilder.nonWordCharactersDefinitionIdentifier();
+		}
+	}
 
+	private void validateIdentifier(String identifier, String type, InvalidIdMessageBuilder messageBuilder) {
 		if (!ASCII_CHARACTER_PATTERN.matcher(identifier).matches()) {
-			StringBuilder builder = new StringBuilder("Found non ASCII character in ID='").append(identifier)
-					.append("'. The invalid characters are: ");
-			for (int i = 0; i < identifier.length(); i++) {
-				char c = identifier.charAt(i);
-				if (!ASCII_CHAR_PATTERN.matcher("" + c).matches()) {
-					builder.append(c).append(", ");
-				}
-			}
-			builder.deleteCharAt(builder.length() - 1);
-			builder.deleteCharAt(builder.length() - 1);
-
-			String message = builder.toString();
-
-			errors.add(message);
-			LOGGER.error(message);
-			ValidationLoggingUtil.addErrorMessage(message);
-			return errors;
+			messageBuilder.nonAsciiIdentifier(type, identifier, getNonAsciiCharacters(identifier));
+		} else if (!ID_PATTERN.matcher(identifier).matches()) {
+			// the ID should have only word characters [a-zA-Z0-9_:.]
+			messageBuilder.nonWordCharactersIdentifier(type, identifier);
 		}
-
-		// skip validation for labels of the label id for word characters
-		if (model instanceof LabelDefinition) {
-			return errors;
-		}
-
-		// the ID should have only word characters [a-zA-Z0-9_:.]
-		if (!ID_PATTERN.matcher(identifier).matches()) {
-			String message = "Found non word character in ID='" + identifier + "'";
-			errors.add(message);
-			LOGGER.error(message);
-			ValidationLoggingUtil.addErrorMessage(message);
-		}
-
-		return errors;
 	}
 
+	private static String getNonAsciiCharacters(String identifier) {
+		StringBuilder builder = new StringBuilder();
+
+		for (int i = 0; i < identifier.length(); i++) {
+			char c = identifier.charAt(i);
+			if (!ASCII_CHAR_PATTERN.matcher("" + c).matches()) {
+				builder.append(c).append(", ");
+			}
+		}
+		builder.deleteCharAt(builder.length() - 1);
+		builder.deleteCharAt(builder.length() - 1);
+
+		return builder.toString();
+	}
+
+	public class InvalidIdMessageBuilder extends DefinitionValidationMessageBuilder {
+
+		public static final String NON_ASCII_DEFINITION_ID = "definition.validation.non.ascii.definition.identifier";
+		public static final String NON_ASCII_ID = "definition.validation.non.ascii.identifier";
+		public static final String NON_WORD_CHARACTERS_DEFINITION_ID = "definition.validation.non.word.definition.identifier";
+		public static final String NON_WORD_CHARACTERS_ID = "definition.validation.non.word.identifier";
+
+		public InvalidIdMessageBuilder(GenericDefinition genericDefinition) {
+			super(genericDefinition);
+		}
+
+		private void nonAsciiDefinitionIdentifier(String nonAsciiCharacters) {
+			error(getId(), NON_ASCII_DEFINITION_ID, getId(), nonAsciiCharacters);
+		}
+
+		private void nonAsciiIdentifier(String type, String identifier, String nonAsciiCharacters) {
+			error(getId(), NON_ASCII_ID, getId(), type, identifier, nonAsciiCharacters);
+		}
+
+		private void nonWordCharactersDefinitionIdentifier() {
+			error(getId(), NON_WORD_CHARACTERS_DEFINITION_ID, getId());
+		}
+
+		private void nonWordCharactersIdentifier(String type, String identifier) {
+			error(getId(), NON_WORD_CHARACTERS_ID, getId(), type, identifier);
+		}
+	}
 }

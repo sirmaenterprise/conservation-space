@@ -23,7 +23,7 @@ import com.sirma.itt.seip.annotations.model.Annotation;
 import com.sirma.itt.seip.annotations.rest.AnnotationWriter;
 import com.sirma.itt.seip.domain.util.DateConverter;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
-import com.sirma.itt.seip.instance.version.VersionProperties;
+import com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties;
 import com.sirma.itt.seip.time.DateRange;
 import com.sirma.sep.content.idoc.ContentNode;
 import com.sirma.sep.content.idoc.WidgetResults;
@@ -151,7 +151,7 @@ public class CommentsWidgetSearchHandler extends AbstractWidgetSearchHandler<Com
 	 */
 	private DateRange getDateRange(CommentsWidgetConfiguration configuration, HandlerContext context) {
 		JsonObject dateFilter = configuration.getFilterCriteria();
-		Date versionDate = context.getIfSameType(VersionProperties.HANDLERS_CONTEXT_VERSION_DATE_KEY, Date.class);
+		Date versionDate = context.getIfSameType(WidgetsHandlerContextProperties.VERSION_DATE_KEY, Date.class);
 		if (dateFilter == null && versionDate == null) {
 			return new DateRange(null, null);
 		}

@@ -12,11 +12,14 @@ import {UploadCompletedEvent} from './events';
 import {BeforeIdocSaveEvent} from 'idoc/actions/events/before-idoc-save-event';
 import {InstanceCreatedEvent} from 'idoc/events/instance-created-event';
 import {FileUploadIntegration} from './file-upload-integration';
-import {InstanceCreateConfiguration} from 'create/instance-create-configuration';
+import 'create/instance-create-configuration';
 import {ModelsService} from 'services/rest/models-service';
 import {TemplateDataPanel} from 'idoc/template/template-data-panel';
 import {UPLOAD_ALL} from 'create/file-upload-panel';
 import {CONTEXT_VALIDATED} from 'create/instance-create-panel';
+import {TEMPLATE_LOADED} from 'create/instance-create-configuration';
+import {AuthenticationService} from 'security/authentication-service';
+import {AUTHORIZATION} from 'services/rest/http-headers';
 
 import 'filters/to-trusted-html';
 import fileItemTemplate from './file-item.html!text';
@@ -34,9 +37,9 @@ import fileItemTemplate from './file-item.html!text';
 @View({
   template: fileItemTemplate
 })
-@Inject(Eventbus, NgScope, ActionsService, TranslateService, InstanceRestService, NotificationService, FileUploadIntegration, ModelsService)
+@Inject(Eventbus, NgScope, ActionsService, TranslateService, InstanceRestService, NotificationService, FileUploadIntegration, ModelsService, AuthenticationService)
 export class FileUploadItem {
-  constructor(eventbus, $scope, actionsService, translateService, instanceRestService, notificationService, fileUploadIntegration, modelsService) {
+  constructor(eventbus, $scope, actionsService, translateService, instanceRestService, notificationService, fileUploadIntegration, modelsService, authenticationService) {
     this.$scope = $scope;
     this.instanceRestService = instanceRestService;
     this.actionsService = actionsService;
@@ -44,7 +47,9 @@ export class FileUploadItem {
     this.fileUploadIntegration = fileUploadIntegration;
     this.modelsService = modelsService;
     this.translateService = translateService;
+    this.authenticationService = authenticationService;
     this.eventbus = eventbus;
+    this.eventHandlers = [];
   }
 
   ngOnInit() {
@@ -64,8 +69,9 @@ export class FileUploadItem {
       eventEmitter: this.fileUpload.config.eventEmitter
     };
 
-    this.uploadAllSubscription = this.config.eventEmitter.subscribe(UPLOAD_ALL, this.checkValidAndUpload.bind(this));
-    this.contextChangedSubscription = this.config.eventEmitter.subscribe(CONTEXT_VALIDATED, this.onContextValidated.bind(this));
+    this.eventHandlers.push(this.config.eventEmitter.subscribe(UPLOAD_ALL, this.checkValidAndUpload.bind(this)));
+    this.eventHandlers.push(this.config.eventEmitter.subscribe(CONTEXT_VALIDATED, this.onContextValidated.bind(this)));
+    this.eventHandlers.push(this.config.eventEmitter.subscribe(TEMPLATE_LOADED, this.onTemplateLoaded.bind(this)));
 
     this.config.formConfig = {
       models: {
@@ -80,13 +86,21 @@ export class FileUploadItem {
     this.removeEnabled = true;
     this.uploadAllowed = true;
 
+    // when uploading a new version
     if (this.existingEntity) {
-      // when uploading a new version, the properties form is not shown
+      //the properties form is not shown
       this.valid = true;
+      // and template is loaded.
+      this.templateLoaded = true;
       this.onValidityChange(this.buildValidityChangeEvent(true));
     }
 
     this.validateFileSize();
+  }
+
+  onTemplateLoaded() {
+    this.templateLoaded = true;
+    this.onValidityChange(this.buildValidityChangeEvent(this.valid && this.templateLoaded));
   }
 
   /**
@@ -98,7 +112,7 @@ export class FileUploadItem {
   }
 
   checkValidAndUpload() {
-    if (this.valid && this.uploadEnabled) {
+    if (this.valid && this.uploadEnabled && this.templateLoaded) {
       this.upload();
     }
   }
@@ -127,7 +141,7 @@ export class FileUploadItem {
 
     this.config.formConfig.models.validationModel.subscribe('modelValidated', (isValid) => {
       this.valid = isValid;
-      this.onValidityChange(this.buildValidityChangeEvent(isValid));
+      this.onValidityChange(this.buildValidityChangeEvent(isValid && this.templateLoaded));
     });
 
     this.instanceType = event.type;
@@ -159,22 +173,24 @@ export class FileUploadItem {
       'userOperation': this.fileUpload.config.userOperation
     };
 
-    this.uploader = this.fileUploadIntegration.submit(this.entry.uploadControl).done((result) => {
-      _.merge(this.properties, result);
-      this.uploader = null;
+    this.addAuthHeader().then(() => {
+      this.uploader = this.fileUploadIntegration.submit(this.entry.uploadControl).done((result) => {
+        _.merge(this.properties, result);
+        this.uploader = null;
 
-      if (this.skipEntityUpdate) {
-        this.onPersist(result);
-      } else {
-        this.onUploadComplete();
-      }
-      this.$scope.$digest();
-    }).fail((data) => {
-      if (data.responseJSON && data.responseJSON.message) {
-        this.notifyForError(data.responseJSON.message);
-      }
-      this.onFail();
-      this.$scope.$digest();
+        if (this.skipEntityUpdate) {
+          this.onPersist(result);
+        } else {
+          this.onUploadComplete();
+        }
+        this.$scope.$digest();
+      }).fail((data) => {
+        if (data.responseJSON && data.responseJSON.message) {
+          this.notifyForError(data.responseJSON.message);
+        }
+        this.onFail();
+        this.$scope.$digest();
+      });
     });
 
     this.uploadEnabled = false;
@@ -189,6 +205,14 @@ export class FileUploadItem {
         positionClass: DEFAULT_POSITION
       },
       message
+    });
+  }
+
+  addAuthHeader() {
+    return this.authenticationService.buildAuthHeader().then(authHeaderValue => {
+      this.entry.uploadControl.headers = this.entry.uploadControl.headers || {};
+      this.entry.uploadControl.headers[AUTHORIZATION] = authHeaderValue;
+      return true;
     });
   }
 
@@ -276,8 +300,7 @@ export class FileUploadItem {
     });
     this.eventbus.publish(new UploadCompletedEvent(entity));
     this.eventbus.publish(new InstanceCreatedEvent({currentObject: entity}));
-    this.uploadAllSubscription.unsubscribe();
-    this.contextChangedSubscription.unsubscribe();
+    this.unsubscribeEventHandlers();
   }
 
   onFail() {
@@ -287,8 +310,13 @@ export class FileUploadItem {
     this.message = this.translateService.translateInstant('fileupload.fail');
   }
 
+  unsubscribeEventHandlers() {
+    this.eventHandlers.forEach((handler) => {
+      handler && handler.unsubscribe();
+    });
+  }
+
   ngOnDestroy() {
-    this.uploadAllSubscription.unsubscribe();
-    this.contextChangedSubscription.unsubscribe();
+    this.unsubscribeEventHandlers();
   }
 }

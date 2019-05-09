@@ -9,7 +9,7 @@ import {ObjectSelectorHelper} from 'idoc/widget/object-selector/object-selector-
 import {CodelistRestService} from 'services/rest/codelist-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {TranslateService} from 'services/i18n/translate-service';
-import {TableView} from 'idoc/widget/aggregated-table/table-view/table-view';
+import 'idoc/widget/aggregated-table/table-view/table-view';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {DefinitionModel} from 'models/definition-model';
 import {InstanceModel} from 'models/instance-model';
@@ -23,9 +23,7 @@ import './widget.css!';
 const ERROR_MESSAGE_KEY = 'select.object.results.none';
 
 @Widget
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgElement, NgInterval, ObjectSelectorHelper, CodelistRestService, InstanceRestService, Logger, TranslateService, Eventbus, PromiseAdapter, PropertiesSelectorHelper)
 export class AggregatedTable {
 
@@ -53,17 +51,17 @@ export class AggregatedTable {
     };
 
     this.config.styles = this.config.styles || {
-        columns: {},
-        grid: this.config.grid
-      };
+      columns: {},
+      grid: this.config.grid
+    };
 
     this.tableConfig = this.tableConfig || {
-        layout: LAYOUT.TABLE,
-        labelPosition: LABEL_POSITION_HIDE,
-        styles: this.config.styles,
-        formViewMode: FormWrapper.FORM_VIEW_MODE_PREVIEW,
-        showFooter: this.config.showFooter
-      };
+      layout: LAYOUT.TABLE,
+      labelPosition: LABEL_POSITION_HIDE,
+      styles: this.config.styles,
+      formViewMode: FormWrapper.FORM_VIEW_MODE_PREVIEW,
+      showFooter: this.config.showFooter
+    };
 
     $scope.$watch(() => {
       return this.config.grid;
@@ -181,13 +179,13 @@ export class AggregatedTable {
     };
     headerCells.resizable({
       handles: 'e',
-      start: function (event, ui) {
+      start(event, ui) {
         AggregatedTable.onResizeStart(ui, paramsObject);
       },
-      stop: function (event, ui) {
+      stop(event, ui) {
         AggregatedTable.onResizeStop(ui, paramsObject, widget, $(this).attr('data-header-cell-name'));
       },
-      resize: function (event, ui) {
+      resize(event, ui) {
         AggregatedTable.onResize(ui, paramsObject, element, this);
       }
     });
@@ -202,7 +200,7 @@ export class AggregatedTable {
   static onResize(ui, paramsObject, element, cell) {
     let nextColumnWidth = paramsObject.subTotalWidth - ui.size.width;
     let resizedColumnSelector = '.table-body form #' + $(cell).attr('data-header-cell-name') + '-wrapper';
-    resizedColumnSelector = resizedColumnSelector.replace(/:/i, "\\:");
+    resizedColumnSelector = resizedColumnSelector.replace(/:/i, '\\:');
     element.find(resizedColumnSelector).width(paramsObject.subTotalWidth - nextColumnWidth).next().width(nextColumnWidth);
     paramsObject.nextColumn.width(nextColumnWidth);
   }
@@ -263,7 +261,8 @@ export class AggregatedTable {
 
     this.headers = [
       {name: 'count', labels: [this.labels.numberColumnLabel]},
-      {name: name, labels: [this.config.groupBy.label]}];
+      {name, labels: [this.config.groupBy.label]}
+    ];
     this.setColumnsWidth(this.headers);
   }
 

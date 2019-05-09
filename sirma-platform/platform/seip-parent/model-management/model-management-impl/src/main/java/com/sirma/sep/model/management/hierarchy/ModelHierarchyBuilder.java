@@ -38,24 +38,12 @@ public class ModelHierarchyBuilder {
 				.collect(Collectors.groupingBy(ModelDefinition::getRdfType));
 
 		return modelClasses.values().stream().map(modelClass -> {
-			ModelHierarchyClass classNode = new ModelHierarchyClass();
-			classNode.setId(modelClass.getId());
-			classNode.setParentId(modelClass.getParent());
-			classNode.setLabels(modelClass.getLabels());
+			ModelHierarchyClass classNode = new ModelHierarchyClass(modelClass);
 
 			List<ModelDefinition> subTypes = rdfTypeToDefinition.getOrDefault(modelClass.getId(), Collections.emptyList());
-			classNode.setSubTypes(subTypes.stream().map(ModelHierarchyBuilder::toDefinitionNode).collect(Collectors.toList()));
+			classNode.setSubTypes(subTypes.stream().map(ModelHierarchyDefinition::new).collect(Collectors.toList()));
 
 			return classNode;
 		}).collect(Collectors.toList());
-	}
-
-	private static ModelHierarchyDefinition toDefinitionNode(ModelDefinition modelDefinition) {
-		ModelHierarchyDefinition definitionNode = new ModelHierarchyDefinition();
-		definitionNode.setId(modelDefinition.getId());
-		definitionNode.setParentId(modelDefinition.getParent());
-		definitionNode.setAbstract(modelDefinition.isAbstract());
-		definitionNode.setLabels(modelDefinition.getLabels());
-		return definitionNode;
 	}
 }

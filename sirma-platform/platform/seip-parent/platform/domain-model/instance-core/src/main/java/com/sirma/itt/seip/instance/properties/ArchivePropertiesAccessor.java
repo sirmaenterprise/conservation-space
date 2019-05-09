@@ -82,6 +82,11 @@ public class ArchivePropertiesAccessor extends BasePropertyStorageAccessor {
 	}
 
 	@Override
+	protected String getDeleteValuesQuery() {
+		return ArchivedPropertyEntity.DELETE_ARCHIVED_PROPERTY_VALUES_KEY;
+	}
+
+	@Override
 	protected String getBatchLoadQuery() {
 		return ArchivedPropertyEntity.QUERY_ARCHIVED_PROPERTIES_KEY;
 	}

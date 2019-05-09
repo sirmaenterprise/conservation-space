@@ -22,7 +22,7 @@ class FormWrapper {
    * ".form-wrapper" should be selected whiting the context of the argument.
    */
   constructor(wrapperElement, useProvidedElement) {
-    if(useProvidedElement) {
+    if (useProvidedElement) {
       this.formWrapper = wrapperElement;
     } else {
       this.formWrapper = wrapperElement.$('.form-wrapper');
@@ -166,6 +166,33 @@ class FormWrapper {
     return $(`#${propertyName}-model`).getAttribute('value');
   }
 
+  /**
+   * Returns a string constant denoting the actual form fields label position by checking the applied marker
+   * class on the form.
+   * @return {*}
+   */
+  getFieldsLabelPosition() {
+    return this.formWrapper.$('.form-content').getAttribute('class').then(classAttribute => {
+      if (classAttribute.indexOf('label-above') !== -1) {
+        return FormWrapper.LABEL_POSITION.LABEL_ABOVE;
+      } else if (classAttribute.indexOf('label-left') !== -1) {
+        if (classAttribute.indexOf('label-text-right') !== -1) {
+          return FormWrapper.LABEL_POSITION.LABEL_LEFT_TEXT_RIGHT;
+        } else if (classAttribute.indexOf('label-text-left') !== -1) {
+          return FormWrapper.LABEL_POSITION.LABEL_LEFT_TEXT_LEFT;
+        }
+      } else if (classAttribute.indexOf('label-hidden') !== -1) {
+        return FormWrapper.LABEL_POSITION.LABEL_HIDDEN;
+      }
+    });
+  }
+
 }
+
+FormWrapper.LABEL_POSITION = {};
+FormWrapper.LABEL_POSITION.LABEL_ABOVE = 'label-above';
+FormWrapper.LABEL_POSITION.LABEL_LEFT_TEXT_LEFT = 'label-left-text-left';
+FormWrapper.LABEL_POSITION.LABEL_LEFT_TEXT_RIGHT = 'label-left-text-right';
+FormWrapper.LABEL_POSITION.LABEL_HIDDEN = 'label-hidden';
 
 module.exports.FormWrapper = FormWrapper;

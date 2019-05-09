@@ -2,7 +2,7 @@ import {View, Component, Inject, NgScope, NgElement} from 'app/app';
 import {FormControl} from 'form-builder/form-control';
 import {Configuration} from 'common/application-config';
 import {DEFAULT_VALUE_PATTERN} from 'form-builder/validation/calculation/calculation';
-import {DatetimePicker} from 'components/datetimepicker/datetimepicker';
+import 'components/datetimepicker/datetimepicker';
 import {MomentAdapter} from 'adapters/moment-adapter';
 import {NavigatorAdapter} from 'adapters/navigator-adapter';
 import template from './datetime.html!text';
@@ -14,9 +14,7 @@ import template from './datetime.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(Configuration, NgScope, MomentAdapter, NgElement)
 export class Datetime extends FormControl {
 

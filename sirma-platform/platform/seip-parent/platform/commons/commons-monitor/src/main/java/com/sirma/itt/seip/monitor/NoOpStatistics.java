@@ -1,9 +1,6 @@
 package com.sirma.itt.seip.monitor;
 
-import java.util.concurrent.Callable;
-
 import com.sirma.itt.seip.annotation.NoOperation;
-import com.sirma.itt.seip.time.TimeTracker;
 
 /**
  * Empty statistics object. This is default implementation. If the statistics module is not present.
@@ -11,38 +8,32 @@ import com.sirma.itt.seip.time.TimeTracker;
  * @author BBonev
  */
 @NoOperation
-@StatisticsImplementation
 public class NoOpStatistics implements Statistics {
 
-	private static final StatCounter STAT_COUNTER = new NoOpStatCounter();
+	public static final NoOpStatistics INSTANCE = new NoOpStatistics();
 
-	@Override
-	public boolean areStatisticsEnabled() {
-		return false;
+	public NoOpStatistics() {
+		// use a single instance
 	}
 
 	@Override
-	public void updateMeter(Class<?> caller, String functionName) {
+	public void track(Metric def) {
 		// nothing to do
 	}
 
 	@Override
-	public TimeTracker createTimeStatistics(Class<?> caller, String functionName) {
-		return new TimeTracker();
+	public Number value(String metric) {
+		// nothing to do
+		return null;
 	}
 
 	@Override
-	public void registerHealthCheck(String systemName, Callable<Boolean> checker) {
+	public void value(String metric, Number value) {
 		// nothing to do
 	}
 
 	@Override
-	public void logTrend(Class<?> caller, String functionName, Object value) {
+	public void end(Metric def) {
 		// nothing to do
-	}
-
-	@Override
-	public StatCounter getCounter(Class<?> caller, String functionName) {
-		return STAT_COUNTER;
 	}
 }

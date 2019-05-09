@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +40,8 @@ import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.InstanceType;
+import com.sirma.itt.seip.instance.types.NoClassInstnaceTypeResolver;
+import com.sirma.itt.seip.plugin.Plugins;
 import com.sirma.itt.seip.testutil.CustomMatcher;
 import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceProxyMock;
@@ -66,6 +69,19 @@ public class SemanticInstanceTypesTest {
 	@Mock
 	private TypeMappingProvider typeMapping;
 
+	@Mock
+	private NoClassInstnaceTypeResolver noClassInstnaceTypeResolver;
+
+	// used as proxy to call 'typeResolver' when id of instance is passed
+	@Mock
+	private NoClassInstnaceTypeResolver idInstnaceTypeResolver;
+
+	private List<NoClassInstnaceTypeResolver> resolvers = new ArrayList<>();
+
+	@Spy
+	private Plugins<NoClassInstnaceTypeResolver> noClassInstnaceTypeResolvers = new Plugins<>(
+			NoClassInstnaceTypeResolver.PluginConfiguration.NAME, resolvers);
+
 	@Before
 	public void beforeMethod() {
 		MockitoAnnotations.initMocks(this);
@@ -88,6 +104,14 @@ public class SemanticInstanceTypesTest {
 			}
 			return result;
 		});
+
+		resolvers.clear();
+		resolvers.add(noClassInstnaceTypeResolver);
+
+		when(idInstnaceTypeResolver.canResolve(anyString())).thenReturn(true);
+		when(idInstnaceTypeResolver.resolve(anyString()))
+				.thenAnswer(a -> typeResolver.resolve(a.getArgumentAt(0, String.class)));
+		resolvers.add(idInstnaceTypeResolver);
 	}
 
 	@Test
@@ -112,6 +136,15 @@ public class SemanticInstanceTypesTest {
 		assertNotNull(type);
 		assertTrue(type.isPresent());
 		assertEquals("emf:Case", type.get().getId());
+	}
+
+	@Test
+	public void fromSerializableNoClassInstance() throws Exception {
+		when(semanticDefinitionService.getClassInstance("emf:noClassInstance")).thenReturn(null);
+		when(noClassInstnaceTypeResolver.canResolve("emf:noClassInstance")).thenReturn(true);
+		instanceTypes.from("emf:noClassInstance");
+		verify(noClassInstnaceTypeResolver).canResolve("emf:noClassInstance");
+		verify(noClassInstnaceTypeResolver).resolve("emf:noClassInstance");
 	}
 
 	@Test

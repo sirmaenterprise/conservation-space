@@ -1,5 +1,5 @@
 import {Injectable, Inject} from 'app/app';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {ContentRestService} from 'services/rest/content-service';
 import {EditorContentProcessor} from 'idoc/editor/editor-content-processor';
 import {DynamicElementsRegistry} from 'idoc/dynamic-elements-registry';
@@ -49,19 +49,22 @@ export class EditorContentImageProcessor extends EditorContentProcessor {
   }
 
   setImgLazyProperties(image, tenantId) {
+    let srcAttr = image.attr('src');
     if (this.getDataEmbeddedId(image)) {
       let imageUrl = this.contentRestService.getImageUrl(this.getDataEmbeddedId(image), tenantId);
       image.attr('data-original', imageUrl);
       // In order not to break CKEditor undo/redo ability, we have to set 'data-cke-saved-src' - an attribute of CKEditor that holds the image source.
       image.attr('data-cke-saved-src', imageUrl);
     } else {
-      if (!image.attr('data-original') && image.attr('src') !== EditorContentImageProcessor.IMAGE_ONE_PIXEL) {
-        image.attr('data-original', image.attr('src'));
-        image.attr('data-cke-saved-src', image.attr('src'));
+      if (!image.attr('data-original') && srcAttr !== EditorContentImageProcessor.IMAGE_ONE_PIXEL) {
+        image.attr('data-original', srcAttr);
+        image.attr('data-cke-saved-src', srcAttr);
       }
     }
-    // set dummy pixel src because img tag without src is not valid
-    image.attr('src', EditorContentImageProcessor.IMAGE_ONE_PIXEL);
+    if(!srcAttr) {
+      // set dummy pixel src because img tag without src is not valid
+      image.attr('src', EditorContentImageProcessor.IMAGE_ONE_PIXEL);
+    }
   }
 
   setImgPrintProperties(image, tenantId) {

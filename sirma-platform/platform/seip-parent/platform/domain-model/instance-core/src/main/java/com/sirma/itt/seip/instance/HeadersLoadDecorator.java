@@ -20,7 +20,8 @@ import com.sirma.itt.seip.plugin.Extension;
  * @author BBonev
  */
 // Should be executed last but not to be last last
-@Extension(target = InstanceLoadDecorator.TARGET_NAME, order = InstanceLoadDecorator.MAX_ORDER - 1000)
+@Extension(target = InstanceLoadDecorator.INSTANCE_DECORATOR, order = InstanceLoadDecorator.MAX_ORDER - 1000)
+@Extension(target = InstanceLoadDecorator.VERSION_INSTANCE_DECORATOR, order = InstanceLoadDecorator.MAX_ORDER - 1000)
 public class HeadersLoadDecorator implements InstanceLoadDecorator {
 
 	private static final String[] ALL_HEADERS = CollectionUtils.toArray(DEFAULT_HEADERS, String.class);
@@ -31,18 +32,17 @@ public class HeadersLoadDecorator implements InstanceLoadDecorator {
 	@Override
 	public <I extends Instance> void decorateInstance(I instance) {
 		// when loading a single instance eval all headers including tooltip
-		headersService.generateInstanceHeaders(instance, false, ALL_HEADERS);
+		headersService.generateInstanceHeaders(instance, ALL_HEADERS);
 	}
 
 	@Override
 	public <I extends Instance> void decorateResult(Collection<I> collection) {
 		// here tooltip header is not loaded because when batch loading that header is not shown
-		collection.forEach(instance -> headersService.generateInstanceHeaders(instance, false));
+		collection.forEach(instance -> headersService.generateInstanceHeaders(instance));
 	}
 
 	@Override
 	public boolean allowParallelProcessing() {
 		return false;
 	}
-
 }

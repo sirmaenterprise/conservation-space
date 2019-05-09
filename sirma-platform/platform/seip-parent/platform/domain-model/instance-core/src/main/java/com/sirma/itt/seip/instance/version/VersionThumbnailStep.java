@@ -26,7 +26,7 @@ import com.sirma.sep.content.rendition.ThumbnailService;
  * <b>If the instance has no thumbnail as property or the target instance is not uploaded, the step will do nothing.</b>
  *
  * @author A. Kunchev
- * @see ThumbnailService#addThumbnail
+ * @see ThumbnailService#addAssignedThumbnail
  * @see ThumbnailService#register
  */
 // TODO at the moment this is implemented in the previews/thumbnails generation service
@@ -57,7 +57,7 @@ public class VersionThumbnailStep implements VersionStep {
 		Instance version = versionOptional.get();
 		// when the thumbnail is added through action, add it directly
 		if (version.isValueNotNull(THUMBNAIL_IMAGE)) {
-			thumbnailService.addThumbnail(version.toReference(), version.getAsString(THUMBNAIL_IMAGE));
+			thumbnailService.addAssignedThumbnail(version.getId(), version.getAsString(THUMBNAIL_IMAGE));
 		} else {
 			// register thumbnail, if the target instance is uploaded
 			thumbnailService.register(version);

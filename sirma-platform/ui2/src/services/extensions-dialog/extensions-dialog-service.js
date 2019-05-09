@@ -33,8 +33,8 @@ export class ExtensionsDialogService {
 
   openDialog(config, context, dialogConfig) {
     let componentConfig = {
-      'config': config,
-      'context': context
+      config,
+      context
     };
     dialogConfig = dialogConfig || {};
 
@@ -61,7 +61,7 @@ export class ExtensionsDialogService {
         id: DialogService.CANCEL,
         label: 'dialog.button.cancel'
       }],
-      onButtonClick: function (buttonId, componentScope, dialogConfig) {
+      onButtonClick(buttonId, componentScope, dialogConfig) {
         if (buttonId === DialogService.OK) {
           resolve(componentScope.extensionsPanel.config.extensions);
           dialogConfig.dismiss();

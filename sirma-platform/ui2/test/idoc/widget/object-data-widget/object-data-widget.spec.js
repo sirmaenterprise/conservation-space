@@ -156,7 +156,7 @@ describe('ObjectDataWidget', () => {
         $destroy: sinon.stub()
       };
       objectDataWidget.control.baseWidget = {
-        $onDestroy: sinon.stub()
+        ngOnDestroy: sinon.stub()
       };
       // usually this is set in a watcher but for simplicity of the test it is defined immediately
       // objectDataWidget.formContentReadyWatcher = () => {};

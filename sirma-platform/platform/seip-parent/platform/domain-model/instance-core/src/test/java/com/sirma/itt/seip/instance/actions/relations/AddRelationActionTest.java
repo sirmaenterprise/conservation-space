@@ -24,14 +24,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.definition.DefinitionService;
-import com.sirma.itt.seip.domain.instance.EmfInstance;
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.exceptions.InstanceNotFoundException;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
 import com.sirma.itt.seip.rest.exceptions.BadRequestException;
 import com.sirma.itt.seip.testutil.CustomMatcher;
 import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
+import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.testutil.mocks.PropertyDefinitionMock;
 
 /**
@@ -48,6 +48,8 @@ public class AddRelationActionTest {
 	private DomainInstanceService instanceService;
 	@Mock
 	private DefinitionService definitionService;
+	@Mock
+	private LabelProvider labelProvider;
 
 	private PropertyDefinitionMock propertyDefinition;
 	private AddRelationRequest request;
@@ -59,8 +61,8 @@ public class AddRelationActionTest {
 
 		request = new AddRelationRequest();
 		request.setTargetId("targetId");
-		instance = new EmfInstance(request.getTargetId());
-		when(instanceService.loadInstance(any())).thenReturn(instance);
+		request.setTargetReference(InstanceReferenceMock.createGeneric("targetId"));
+		instance = request.getTargetReference().toInstance();
 
 		when(instanceService.save(any(InstanceSaveContext.class)))
 		.then(a -> a.getArgumentAt(0, InstanceSaveContext.class).getInstance());
@@ -79,13 +81,18 @@ public class AddRelationActionTest {
 		assertEquals(AddRelationRequest.OPERATION_NAME, action.getName());
 	}
 
-	@SuppressWarnings("unchecked")
-	@Test(expected = InstanceNotFoundException.class)
-	public void addRelation_withoutResolvedSource() {
+	@Test(expected = BadRequestException.class)
+	public void validate_shouldFailIfRelationIsNotDefinedInInstance() {
 		request.setRelations(
-				Collections.singletonMap("withInverse", new HashSet<>(Collections.singletonList("emf:destination"))));
-		when(instanceService.loadInstance(any())).thenThrow(InstanceNotFoundException.class);
-		action.perform(request);
+				Collections.singletonMap("emf:someUndefinedRelation", new HashSet<>(Collections.singletonList("emf:destination"))));
+		action.validate(request);
+	}
+
+	@Test
+	public void validate_shouldNotFailIfRelationIsDefinedInInstance() {
+		request.setRelations(
+				Collections.singletonMap("emf:withInverse", new HashSet<>(Collections.singletonList("emf:destination"))));
+		action.validate(request);
 	}
 
 	@Test

@@ -1,27 +1,19 @@
 package com.sirma.itt.seip.domain.definition.label;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import com.sirma.itt.seip.plugin.Plugin;
-
 /**
- * Provides an information about the names of the deployed bundle name. The bundle name should be defined in the
- * faces-config.xml
+ * This extension point represented by this class was renamed to {@link LabelResolverProvider}. <br>
+ * This class should act as a proxy for that code to work properly.
  *
- * @author BBonev
+ * @deprecated Replaced by {@link LabelResolverProvider} since 31/10/2018 (2.25)
+ *
+ * @author <a href="mailto:borislav.bonev@sirma.bg">Borislav Bonev</a>
+ * @since 31/10/2018
  */
-public interface LabelBundleProvider extends Plugin {
+@Deprecated
+public class LabelBundleProvider {
+	public static final String TARGET_NAME = LabelResolverProvider.TARGET_NAME;
 
-	/** The plugin name. */
-	String TARGET_NAME = "bundleProvider";
-
-	/**
-	 * Gets the bundle.
-	 *
-	 * @param locale
-	 *            language for which a bundle should be fetched.
-	 * @return the bundle
-	 */
-	ResourceBundle getBundle(Locale locale);
+	private LabelBundleProvider() {
+		// dummy class
+	}
 }

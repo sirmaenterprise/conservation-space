@@ -10,11 +10,9 @@ import template from 'form-builder/checkbox/checkbox.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(TranslateService, NgElement)
-class Checkbox extends FormControl {
+export class Checkbox extends FormControl {
   constructor(translateService, $element) {
     super();
     this.$element = $element;

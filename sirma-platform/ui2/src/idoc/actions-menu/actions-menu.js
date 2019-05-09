@@ -2,7 +2,7 @@ import {View, Component, Inject} from 'app/app';
 import {ActionsService} from 'services/rest/actions-service';
 import {ActionExecutor} from 'services/actions/action-executor';
 import {ActionsHelper} from 'idoc/actions/actions-helper';
-import {DropdownMenu} from 'components/dropdownmenu/dropdownmenu';
+import 'components/dropdownmenu/dropdownmenu';
 import template from './actions-menu.html!text';
 import './actions-menu.css!';
 

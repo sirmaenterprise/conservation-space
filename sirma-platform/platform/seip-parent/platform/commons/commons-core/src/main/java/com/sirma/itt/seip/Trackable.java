@@ -36,11 +36,32 @@ public interface Trackable<S extends Serializable> {
 	 * Disable tracking if applicable and tracked. If tracking is already disabled nothing will be done.
 	 *
 	 * @param trackable the instance to disable tracking
+	 * @return true if tracking was disabled successfully and false if not applicable
 	 */
-	static void disableTracking(Object trackable) {
+	static boolean disableTracking(Object trackable) {
 		if (trackable instanceof Trackable && ((Trackable) trackable).isTracked()) {
 			((Trackable) trackable).disableChangesTracking();
+			return true;
 		}
+		return false;
+	}
+
+	/**
+	 * Apply any changes from the source Trackable object to the target trackable object using the
+	 * {@link #applyChanges(Stream)} method of the target instance.
+	 *
+	 * @param source the source of changes to be used. On this object the method {@link #changes()} will be called
+	 * @param target the recipient of the changes. On this object the method {@link #applyChanges(Stream)} will be called.
+	 * @return true if both objects are of type trackable and the method {@link #applyChanges(Stream)} of the target is
+	 * called successfully. false if any of the arguments is not instanceof {@link Trackable}
+	 */
+	@SuppressWarnings("unchecked")
+	static boolean transferChanges(Object source, Object target) {
+		if (!(source instanceof Trackable) || !(target instanceof Trackable)) {
+			return false;
+		}
+		((Trackable<Serializable>)target).applyChanges(((Trackable<Serializable>) source).changes());
+		return true;
 	}
 
 	/**
@@ -83,4 +104,11 @@ public interface Trackable<S extends Serializable> {
 	 * @return a stream of all changes recorded in the order of their occurrence
 	 */
 	Stream<PropertyChange<S>> changes();
+
+	/**
+	 * Transfer compatible changes from one {@link Trackable} instance to another.
+	 *
+	 * @param newChanges the changes to apply in the order they occurred in the source trackable instance
+	 */
+	void applyChanges(Stream<PropertyChange<S>> newChanges);
 }

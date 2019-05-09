@@ -12,10 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.collections.CollectionUtils;
-import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.plugin.ExtensionPoint;
 import com.sirma.itt.seip.plugin.Plugins;
+import com.sirma.itt.seip.util.EqualsHelper;
 
 /**
  * The default implementation of {@link ThumbnailService} works with asynchronous thumbnail retrieval via
@@ -26,8 +25,6 @@ import com.sirma.itt.seip.plugin.Plugins;
 public class ThumbnailServiceImpl implements ThumbnailService {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
-	/** Default purpose used to store trumbnails when no purpose is provided. */
-	private static final String DEFAULT_PURPOSE = RenditionService.DEFAULT_PURPOSE;
 	private static final Logger LOGGER = LoggerFactory.getLogger(ThumbnailServiceImpl.class);
 
 	/**
@@ -47,99 +44,34 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 	private ThumbnailDao thumbnailDao;
 
 	@Override
-	public void register(Instance instance) {
-		if (instance == null) {
-			return;
-		}
-		registerInternal(instance.toReference(), instance, DEFAULT_PURPOSE, null);
+	public void register(Serializable targetId, Serializable thumbnailSourceId, ThumbnailType purpose) {
+		registerInternal(targetId, thumbnailSourceId, computePurpose(targetId, thumbnailSourceId, purpose), null);
 	}
 
-	@Override
-	public void register(Instance target, Instance thumbnailSource) {
-		if (target == null) {
-			return;
-		}
-		registerInternal(target.toReference(), thumbnailSource, DEFAULT_PURPOSE, null);
-	}
-
-	@Override
-	public void register(Instance target, Instance thumbnailSource, String purpose) {
-		if (target == null) {
-			return;
-		}
-		registerInternal(target.toReference(), thumbnailSource, purpose, null);
-	}
-
-	@Override
-	public void register(InstanceReference target, Instance thumbnailSource, String purpose) {
-		if (target == null) {
-			return;
-		}
-
-		if (StringUtils.isBlank(purpose)) {
-			registerInternal(target, thumbnailSource, DEFAULT_PURPOSE, null);
-		} else {
-			registerInternal(target, thumbnailSource, purpose, null);
-		}
-	}
-
-	@Override
-	public void copyThumbnailFromSource(InstanceReference target, InstanceReference thumbnailSource) {
-		if (target == null || thumbnailSource == null) {
-			return;
-		}
-
-		ThumbnailMappingEntity sourceEntity = thumbnailDao.getOrCreateThumbnailMappingEntity(thumbnailSource,
-				DEFAULT_PURPOSE);
-		if (sourceEntity.getId() == null) {
-			return;
-		}
-
-		ThumbnailMappingEntity entity = new ThumbnailMappingEntity();
-		entity.setThumbnailId(sourceEntity.getThumbnailId());
-		entity.setInstanceType(target.getReferenceType());
-		entity.setPurpose(sourceEntity.getPurpose());
-		entity.setInstanceId(target.getId());
-		thumbnailDao.persist(entity);
-	}
-
-	/**
-	 * Register instance internal.
-	 *
-	 * @param target
-	 *            the target
-	 * @param thumbnailSource
-	 *            the thumbnail source
-	 * @param purpose
-	 *            the purpose
-	 * @param thumbnail
-	 *            the thumbnail
-	 */
-	private void registerInternal(InstanceReference target, Instance thumbnailSource, String purpose,
-			String thumbnail) {
-		boolean targetNull = target == null;
-		boolean sourceNull = thumbnailSource == null && thumbnail == null;
+	private void registerInternal(Serializable targetId, Serializable thumbnailSourceId, ThumbnailType purpose, String thumbnail) {
+		boolean targetNull = targetId == null;
+		boolean sourceNull = thumbnailSourceId == null && thumbnail == null;
 		if (targetNull || sourceNull) {
 			LOGGER.warn(
 					"Tried to register instance for thumbnail but some required data is missing! Target - {} OK, source - {} OK",
 					targetNull ? "NOT" : "", sourceNull ? "NOT" : "");
 			return;
 		}
-		String[] endPointInfo = getEndPoint(thumbnailSource);
+		String[] endPointInfo = getEndPoint(thumbnailSourceId);
 		boolean hasValidEndpoint = endPointInfo.length != 0;
 		if (hasValidEndpoint || StringUtils.isNotEmpty(thumbnail)) {
 			// cannot handle instance or no providers at all
-			saveThumbnailEntry(target, thumbnailSource, purpose, thumbnail, endPointInfo, hasValidEndpoint);
+			saveThumbnailEntry(targetId, thumbnailSourceId, purpose, thumbnail, endPointInfo, hasValidEndpoint);
 		}
 	}
 
-	private void saveThumbnailEntry(InstanceReference target, Instance thumbnailSource, String purpose,
+	private void saveThumbnailEntry(Serializable target, Serializable thumbnailSource, ThumbnailType purpose,
 			String thumbnail, String[] endPointInfo, boolean hasValidEndpoint) {
-		ThumbnailMappingEntity entity = thumbnailDao.getOrCreateThumbnailMappingEntity(target, purpose);
+		ThumbnailMappingEntity entity = thumbnailDao.getOrCreateThumbnailMappingEntity(target.toString(), purpose);
 		String thumbnailId;
 		if (hasValidEndpoint && thumbnailSource != null && endPointInfo != null) {
 			// update the end point
-			thumbnailId = thumbnailDao.saveThumbnail(thumbnailSource.getId(), thumbnail, endPointInfo[0],
+			thumbnailId = thumbnailDao.saveThumbnail(thumbnailSource, thumbnail, endPointInfo[0],
 					endPointInfo[1]);
 		} else {
 			// if we already have a thumbnail we should save it and set the id
@@ -154,16 +86,16 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 	/**
 	 * Gets the end point for the given source instance if possible.
 	 *
-	 * @param thumbnailSource
+	 * @param thumbnailSourceId
 	 *            the thumbnail source
 	 * @return the end point or <code>null</code>
 	 */
-	private String[] getEndPoint(Instance thumbnailSource) {
-		if (thumbnailSource == null) {
+	private String[] getEndPoint(Serializable thumbnailSourceId) {
+		if (thumbnailSourceId == null) {
 			return EMPTY_STRING_ARRAY;
 		}
 		for (ThumbnailProvider provider : providers) {
-			String endPoint = provider.createThumbnailEndPoint(thumbnailSource);
+			String endPoint = provider.createThumbnailEndPoint(thumbnailSourceId);
 			if (endPoint != null) {
 				return new String[] { endPoint, provider.getName() };
 			}
@@ -191,6 +123,24 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 		} finally {
 			releaseConflictingIds(copy);
 		}
+	}
+
+	@Override
+	public void addThumbnail(Serializable targetId, String thumbnail, ThumbnailType purpose) {
+		registerInternal(targetId, null, computePurpose(targetId, null, purpose), thumbnail);
+	}
+
+	private ThumbnailType computePurpose(Serializable targetId, Serializable thumbnailSourceId, ThumbnailType purpose) {
+		if (purpose != null) {
+			return purpose;
+		}
+		if (thumbnailSourceId == null) {
+			return ThumbnailType.SELF;
+		}
+		if (EqualsHelper.nullSafeEquals(targetId, thumbnailSourceId)) {
+			return ThumbnailType.SELF;
+		}
+		return ThumbnailType.ASSIGNED;
 	}
 
 	/**
@@ -229,47 +179,21 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 	}
 
 	@Override
-	public void addThumbnail(InstanceReference reference, String thumbnail) {
-		addThumbnailInternal(reference, thumbnail, DEFAULT_PURPOSE);
-	}
-
-	@Override
-	public void addThumbnail(InstanceReference reference, String thumbnail, String purpose) {
-		addThumbnailInternal(reference, thumbnail, purpose);
-	}
-
-	@Override
-	public void deleteThumbnail(Serializable sourceInstanceId) {
-		if (sourceInstanceId == null) {
+	public void deleteThumbnail(Serializable instanceId) {
+		if (instanceId == null) {
 			return;
 		}
-		int deleted = thumbnailDao.deleteThumbnail(sourceInstanceId);
+		int deleted = thumbnailDao.deleteThumbnail(instanceId);
 		LOGGER.trace("Removed {} thumbnail entries", deleted);
 	}
 
 	@Override
-	public void removeThumbnail(Serializable instanceId, String purpose) {
+	public boolean removeThumbnail(Serializable instanceId, ThumbnailType purpose) {
 		if (instanceId == null) {
-			return;
+			return false;
 		}
 		int deleted = thumbnailDao.deleteThumbnail(instanceId, purpose);
 		LOGGER.trace("Removed {} thumbnail entries for instance {}", deleted, instanceId);
+		return deleted > 0;
 	}
-
-	/**
-	 * Adds the thumbnail internal. *
-	 *
-	 * @param reference
-	 *            the reference
-	 * @param thumbnail
-	 *            the thumbnail
-	 * @param purpose
-	 *            the purpose
-	 */
-	private void addThumbnailInternal(InstanceReference reference, String thumbnail, String purpose) {
-		registerInternal(reference, null, purpose, thumbnail);
-	}
-
-
-
 }

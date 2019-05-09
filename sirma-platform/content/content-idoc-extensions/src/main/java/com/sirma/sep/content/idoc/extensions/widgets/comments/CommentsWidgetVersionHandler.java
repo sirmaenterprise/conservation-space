@@ -47,7 +47,7 @@ public class CommentsWidgetVersionHandler extends AbstractWidgetVersionHandler<C
 	}
 
 	@Override
-	protected HandlerResult processResults(CommentsWidget widget, WidgetResults searchResults, Date versionDate) {
+	protected HandlerResult processResults(CommentsWidget widget, WidgetResults searchResults, HandlerContext context) {
 		Map<String, Object> resultMap = searchResults.getResultsAsMap();
 		CommentsWidgetConfiguration configuration = widget.getConfiguration();
 		setDateRangeConfiguration(resultMap.get(CommentsWidgetSearchHandler.DATE_RANGE_KEY), configuration);

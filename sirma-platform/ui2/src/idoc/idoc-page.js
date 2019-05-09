@@ -9,8 +9,8 @@ import {ModelUtils} from 'models/model-utils';
 import {HEADER_DEFAULT} from 'instance-header/header-constants';
 import {ConfigureIdocTabs} from 'idoc/idoc-tabs/configure-idoc-tabs';
 import {IdocTabOpenedEvent} from 'idoc/idoc-tabs/idoc-tab-opened-event';
-import {Toolbar} from 'components/toolbars/toolbar';
-//TODO this is not used anymore and might be removed
+import 'components/toolbars/toolbar';
+// TODO this is not used anymore and might be removed
 import 'idoc/info-area/info-area';
 import {TOPIC as INFO_AREA_TOPIC} from 'idoc/info-area/info-area';
 import 'components/ui-preference/ui-preference';
@@ -32,7 +32,6 @@ import {
   STATE_PARAM_TAB,
   STATE_PARAM_MODE,
   STATE_PARAM_ID,
-  PERMISSIONS_TAB_ID,
   SHOW_TEMPLATE_SELECTOR
 } from 'idoc/idoc-constants';
 import {SELECT_OBJECT_AUTOMATICALLY, SELECT_OBJECT_MANUALLY} from 'idoc/widget/object-selector/object-selector';
@@ -59,7 +58,7 @@ import {CustomEventDispatcher} from 'services/dom/custom-event-dispatcher';
 import 'components/help/contextual-help';
 import {HelpService, HELP_INSTANCE_TYPE} from 'services/help/help-service';
 import {ModelingIdocContextBuilder} from 'idoc/template/modeling-idoc-context-builder';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import _ from 'lodash';
 import base64 from 'common/lib/base64';
 import 'font-awesome/css/font-awesome.css!';
@@ -116,7 +115,7 @@ export class IdocPage {
     this.wrappedContext = modelingIdocContextBuilder.wrapIdocContext(this.context);
 
     this.actionsConfig = {
-      disableSaveButton: true
+      disableSaveButton: false
     };
 
     this.sessionStorageService = sessionStorageService;
@@ -141,7 +140,6 @@ export class IdocPage {
       this.eventbus.subscribe(IdocReadyEvent, () => {
         if (this.tabsConfig.getActiveTab()) {
           this.tabsConfig.getActiveTab().loaded = true;
-          this.disableSaveButton(false);
         }
         this.idocIsReady = true;
         window.status = 'export-ready';
@@ -329,8 +327,8 @@ export class IdocPage {
       return this.pluginsService.loadComponentModules('idoc-system-tabs').then((modules) => {
 
         let filterContext = {
-          currentUser: userInfo,
-          currentObject: currentObject
+          currentObject,
+          currentUser: userInfo
         };
         Object.keys(modules)
           .filter((moduleId) => {
@@ -393,10 +391,7 @@ export class IdocPage {
    * @param content either from template or from saved iDoc
    */
   appendContent(content) {
-    // manage save button state only if the idoc page has been initialized.
-    if (this.idocIsReady) {
-      this.disableSaveButton(true);
-    }
+    this.disableSaveButton(true);
     let isPrintMode = this.context.isPrintMode();
     let templateDom = $(content);
     let activeTabExist = false;
@@ -436,9 +431,7 @@ export class IdocPage {
       }
     }
     this.setDefaultActiveTab(activeTabExist);
-    if (this.idocIsReady) {
-      this.disableSaveButton(false);
-    }
+    this.disableSaveButton(false);
     this.dynamicElementsRegistry.reload();
 
     // preventing big detached DOM memory leak
@@ -449,10 +442,6 @@ export class IdocPage {
    * Updates idoc content to prepare it when displaying a version.
    * Automatically selected objects are changed with manually selected versioned URIs.
    * Manually selected objects are changed with their versioned URIs.
-   * @param content
-   * @param queriesMap
-   * @param uriToVersionUriMap
-   * @returns {*}
    */
   updateContentForVersion(content, queriesMap, uriToVersionUriMap) {
     let contentDOM = $(content);
@@ -490,8 +479,8 @@ export class IdocPage {
    */
   isWidgetVersioned(widgetDOM) {
     return _.findIndex(UNVERSIONED_WIDGETS, (widgetClassToBeSkipped) => {
-        return widgetDOM.hasClass(widgetClassToBeSkipped);
-      }) === -1;
+      return widgetDOM.hasClass(widgetClassToBeSkipped);
+    }) === -1;
   }
 
   buildTabModel(htmlSectionContent) {
@@ -590,10 +579,10 @@ export class IdocPage {
   }
 
   configureContextualHelp(currentObject, helpService) {
-    var models = currentObject.getModels();
+    let models = currentObject.getModels();
     if (models.definitionId && models.instanceType !== HELP_INSTANCE_TYPE) {
-      var helpTarget = `object.${models.definitionId}`;
-      var instanceId = helpService.getHelpInstanceId(helpTarget);
+      let helpTarget = `object.${models.definitionId}`;
+      let instanceId = helpService.getHelpInstanceId(helpTarget);
       if (instanceId) {
         this.helpTarget = helpTarget;
       }

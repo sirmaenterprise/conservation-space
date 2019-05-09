@@ -79,7 +79,7 @@ class SchedulerEntryStore {
 
 	@PostConstruct
 	void initialize() {
-		cacheContext.createCacheIfAbsent(SCHEDULER_ACTION_CACHE, true, new SchedulerEntityLookup());
+		cacheContext.createCacheIfAbsent(SCHEDULER_ACTION_CACHE, true, new SchedulerEntityLookup().enableSecondaryKeyManagement());
 		cacheContext.createCacheIfAbsent(SCHEDULER_ACTION_EVENT_CACHE, true, new SchedulerActionEventLookup());
 	}
 

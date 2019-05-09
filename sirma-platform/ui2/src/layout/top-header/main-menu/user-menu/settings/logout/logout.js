@@ -1,5 +1,5 @@
 import {View, Component, Inject} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {LogoutEvent} from './logout-event';
 

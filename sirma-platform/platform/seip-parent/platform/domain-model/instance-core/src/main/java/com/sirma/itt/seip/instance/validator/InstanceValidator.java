@@ -29,7 +29,6 @@ import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.time.TimeTracker;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

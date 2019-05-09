@@ -1,7 +1,5 @@
 package com.sirma.itt.seip.instance.version;
 
-import static com.sirma.itt.seip.instance.version.VersionProperties.HANDLERS_CONTEXT_VERSION_DATE_KEY;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
@@ -9,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,9 +19,11 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.Executable;
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
+import com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties;
 import com.sirma.itt.seip.tasks.DefaultSchedulerConfiguration;
 import com.sirma.itt.seip.tasks.SchedulerActionAdapter;
 import com.sirma.itt.seip.tasks.SchedulerConfiguration;
@@ -66,7 +67,6 @@ public class ScheduleVersionContentCreate extends SchedulerActionAdapter {
 	private static final String IS_VERSION_MODE_UPDATE = "isVersionModeUpdate";
 
 	private static final List<Pair<String, Class<?>>> ARGUMENTS_VALIDATION = Arrays.asList(
-			new Pair<>(CONTENT_ID, String.class), new Pair<>(CONTENT_ID, Serializable.class),
 			new Pair<>(VERSION_INSTANCE_ID, Serializable.class), new Pair<>(VERSION_CREATED_ON_DATE, Date.class),
 			new Pair<>(PROCESS_WIDGETS, Boolean.class), new Pair<>(IS_VERSION_MODE_UPDATE, Boolean.class));
 
@@ -77,6 +77,9 @@ public class ScheduleVersionContentCreate extends SchedulerActionAdapter {
 
 	@Inject
 	private InstanceContentService instanceContentService;
+
+	@Inject
+	private VersionDao versionDao;
 
 	@Override
 	protected List<Pair<String, Class<?>>> validateInput() {
@@ -145,12 +148,19 @@ public class ScheduleVersionContentCreate extends SchedulerActionAdapter {
 
 	@Override
 	public void execute(SchedulerContext context) throws Exception {
-		String contentId = context.get(CONTENT_ID).toString();
 		String originalInstanceId = context.get(ORIGINAL_INSTANCE_ID).toString();
+		// for backward compatibility: the content id is added later in the lifecycle of the action
+		// there are old actions that when reexecuted failed due to missing content id
+		String contentId = Objects.toString(context.get(CONTENT_ID), originalInstanceId);
 		String versionId = context.get(VERSION_INSTANCE_ID).toString();
 		TimeTracker tracker = TimeTracker.createAndStart();
 		try {
 			ContentInfo content = instanceContentService.getContent(contentId, Content.PRIMARY_VIEW);
+			if (!content.exists()) {
+				LOGGER.debug("There is no [{}] content for instance - [{}]. Version content won't be stored!",
+						Content.PRIMARY_VIEW, originalInstanceId);
+				return;
+			}
 			String contentAsString;
 			if (context.getIfSameType(PROCESS_WIDGETS, Boolean.class)) {
 				contentAsString = processContent(content, originalInstanceId,
@@ -171,12 +181,14 @@ public class ScheduleVersionContentCreate extends SchedulerActionAdapter {
 		}
 	}
 
-	private static Idoc processContent(ContentInfo content, String originalInstanceId, Date versionCreatedOn) {
+	private Idoc processContent(ContentInfo content, String originalInstanceId, Date versionCreatedOn) {
 		try {
 			Idoc idoc = Idoc.parse(content.getInputStream());
 			// current instance id is used in the widget searches, but it should be the original id, not the version
 			HandlerContext context = new HandlerContext(originalInstanceId);
-			context.put(HANDLERS_CONTEXT_VERSION_DATE_KEY, versionCreatedOn);
+			VersionIdsCache cache = new VersionIdsCache(versionCreatedOn, versionDao::findVersionIdsByTargetIdAndDate);
+			context.put(WidgetsHandlerContextProperties.VERSIONED_INSTANCES_CACHE_KEY, cache);
+			context.put(WidgetsHandlerContextProperties.VERSION_DATE_KEY, versionCreatedOn);
 			SearchContentNodeHandler.handle(idoc.widgets(), context);
 			// search results are stored in the WidgetConfiguration from where the version handlers will retrieve them
 			VersionContentNodeHandler.handle(idoc.widgets(), context);

@@ -28,6 +28,7 @@ import com.sirma.itt.seip.event.EmfEvent;
 import com.sirma.itt.seip.exception.EmfConfigurationException;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.state.Operation;
+import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.serialization.SerializationHelper;
 import com.sirma.itt.seip.serialization.kryo.KryoHelper;
 import com.sirma.itt.seip.tasks.entity.EventTriggerEntity;
@@ -71,6 +72,9 @@ public class SchedulerServiceImpl implements SchedulerService, Serializable {
 
 	@Inject
 	private SenderService senderService;
+
+	@Inject
+	private SecurityContext securityContext;
 
 	@Override
 	public SchedulerEntry schedule(Class<? extends SchedulerAction> action, SchedulerConfiguration configuration) {
@@ -358,6 +362,11 @@ public class SchedulerServiceImpl implements SchedulerService, Serializable {
 		if (eventTrigger != null) {
 			EventTriggerEntity triggerEntity = convertToTriggerEntity(eventTrigger);
 			entity.setEventTrigger(triggerEntity);
+		}
+
+		// initialize the current user id if no user id is set and is needed for correct runAs execution
+		if (config.getRunAs() == RunAs.USER && config.getRunUserId() == null) {
+			config.setRunAs(securityContext.getAuthenticated().getSystemId().toString());
 		}
 
 		entity.setContextData(serializationHelper, config, context);

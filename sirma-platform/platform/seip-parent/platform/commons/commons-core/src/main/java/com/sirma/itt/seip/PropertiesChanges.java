@@ -1,6 +1,7 @@
 package com.sirma.itt.seip;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,21 +15,39 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sirma.itt.seip.collections.CollectionUtils;
+
 /**
  * Properties changes container. Stores all tracked changes and provides means for retrieving them. <br>
- * To add a change one of the methods {@link #add(String, Serializable) add},
- * {@link #update(String, Serializable, Serializable) update} or {@link #remove(String, Serializable) remove}
+ * To add a change one of the methods {@link #add(String, Object) add},
+ * {@link #update(String, Object, Object) update} or {@link #remove(String, Object) remove}
  * could be used. <br>
  * There are methods for automatic changes recording for collections and maps. To create such instance one of the methods
- * {@link #trackChanges(Map)} or {@link #trackChanges(String, Collection)} could be used
+ * {@link #trackChanges(Map)} or {@link #trackChanges(String, Collection)} could be used.<br>
+ * Note that the changes are not serializable. The wrapping collections are serializable but not the changes in them.
+ * This allows them to be serialized like the delegating collections but the changes will be lost when serialized and
+ * deserialized. <br>
+ * Upon deserialization of wrapped collection it will no longer track any changes. To enable tracking again they should
+ * be wrapped gain via one of the methods {@link #trackChanges(String, Collection)} or {@link #trackChanges(Map)}.<br>
+ * This decision was made due to the fact that in the tracked collection is kept a reference to the all changes and some
+ * of the value may not be fully serializable. Also serializing a complex object graph like tracked map with values
+ * tracked collections will cause changes to be serialized multiple times.
  *
  * @param <S> the type if values stored in the changes
  * @author <a href="mailto:borislav.bonev@sirma.bg">Borislav Bonev</a>
  * @since 30/05/2018
  */
-public class PropertiesChanges<S extends Serializable> implements Serializable {
+public class PropertiesChanges<S> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private LinkedList<PropertyChange<S>> changes = new LinkedList<>();
+	private boolean pauseTracking;
 
 	/**
 	 * Register property change for adding new value to a property
@@ -37,7 +56,58 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 	 * @param value the added property value
 	 */
 	public void add(String property, S value) {
-		changes.add(PropertyChange.add(property, value));
+		if (isRecordingActive()) {
+			changes.add(PropertyChange.add(property, cloneValue(value)));
+		}
+	}
+
+	/**
+	 * Register property change for adding new value to a property
+	 *
+	 * @param property the property name
+	 * @param value the added property value
+	 */
+	public void append(String property, S value) {
+		if (isRecordingActive()) {
+			changes.add(PropertyChange.append(property, cloneValue(value)));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <V> V cloneValue(Object value) {
+		if (value instanceof Serializable) {
+			Serializable valueToClone = null;
+			if (value instanceof Collection) {
+				valueToClone = (Serializable) unTrackChanges((Collection<V>) value);
+			} else if (value instanceof Map) {
+				valueToClone = (Serializable) unTrackChanges((Map<String, V>) value);
+			}
+			// clone only collection or map values, do not touch other serializable values
+			if (valueToClone != null) {
+				try {
+					return (V) SerializationUtils.deserialize(SerializationUtils.serialize(valueToClone));
+				} catch (SerializationException e) {
+					LOGGER.trace("Can't clone value using serialization. Performing shallow value copy.", e);
+					return shallowValuesCopy(valueToClone);
+				}
+			}
+		}
+		return (V) value;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <V> V shallowValuesCopy(Serializable valueToClone) {
+		if (valueToClone instanceof Collection) {
+			int valueSize = ((Collection<?>) valueToClone).size();
+			Collection<?> output = new ArrayList<>(valueSize);
+			output.addAll((Collection) valueToClone);
+			return (V) output;
+		} else if (valueToClone instanceof Map) {
+			Map<?, ?> output = CollectionUtils.createLinkedHashMap(((Map<?, ?>) valueToClone).size());
+			output.putAll((Map) valueToClone);
+			return (V) output;
+		}
+		return (V) valueToClone;
 	}
 
 	/**
@@ -48,8 +118,8 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 	 * @param oldValue the old value that's being overridden
 	 */
 	public void update(String property, S newValue, S oldValue) {
-		if (!Objects.equals(newValue, oldValue)) {
-			changes.add(PropertyChange.update(property, newValue, oldValue));
+		if (isRecordingActive() && !Objects.equals(newValue, oldValue)) {
+			changes.add(PropertyChange.update(property, cloneValue(newValue), cloneValue(oldValue)));
 		}
 	}
 
@@ -60,7 +130,33 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 	 * @param value the removed value
 	 */
 	public void remove(String property, S value) {
-		changes.add(PropertyChange.remove(property, value));
+		if (isRecordingActive()) {
+			changes.add(PropertyChange.remove(property, cloneValue(value)));
+		}
+	}
+
+	/**
+	 * Pause recording changes. Any changes done after calling this method will not be recorded. No changes to the
+	 * objects graph are made by this method.
+	 */
+	public void pause() {
+		pauseTracking = true;
+	}
+
+	/**
+	 * Resume recording changes if recoding was paused
+	 */
+	public void resume() {
+		pauseTracking = false;
+	}
+
+	/**
+	 * Check if changes recording is paused or not
+	 *
+	 * @return true if recording is performed at the moment and false if it's not performed
+	 */
+	public boolean isRecordingActive() {
+		return !pauseTracking;
 	}
 
 	/**
@@ -87,7 +183,7 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		if (isTracking(delegate)) {
 			return delegate;
 		}
-		return new TrackedList<>(unTrackChanges(delegate), this, ChangesRecorder.collectionRecorder(key));
+		return new TrackedList<>(key, unTrackChanges(delegate), this);
 	}
 
 	/**
@@ -125,13 +221,12 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 			return delegate;
 		}
 		C originalDelegate = unTrackChanges(delegate);
-		ChangesRecorder<E, S> changesRecorder = ChangesRecorder.collectionRecorder(key);
 		if (originalDelegate instanceof Set) {
-			return new TrackedSet<>((Set<E>) originalDelegate, this, changesRecorder);
+			return new TrackedSet<>(key, (Set<E>) originalDelegate, this);
 		} else if (originalDelegate instanceof List) {
-			return new TrackedList<>((List<E>) originalDelegate, this, changesRecorder);
+			return new TrackedList<>(key, (List<E>) originalDelegate, this);
 		}
-		return new TrackedCollection<>(originalDelegate, this, changesRecorder);
+		return new TrackedCollection<>(key, originalDelegate, this);
 	}
 
 	/**
@@ -142,7 +237,7 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 	 * 		returns the argument itself
 	 */
 	@SuppressWarnings("unchecked")
-	public static <E extends Serializable, C extends Collection<E>> C unTrackChanges(C collection) {
+	public static <E, C extends Collection<E>> C unTrackChanges(C collection) {
 		if (collection instanceof TrackedCollection) {
 			return ((TrackedCollection<E, E, C>) collection).delegate;
 		}
@@ -173,7 +268,7 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 	 * @return the original map instance passed to the method {@link #trackChanges(Map)} otherwise
 	 * 		returns the argument itself
 	 */
-	public static <S extends Serializable> Map<String, S> unTrackChanges(Map<String, S> map) {
+	public static <S> Map<String, S> unTrackChanges(Map<String, S> map) {
 		if (map instanceof TrackedMap) {
 			return ((TrackedMap<S>) map).delegate;
 		}
@@ -207,10 +302,10 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		changes.clear();
 	}
 
-	private static class TrackedMap<V extends Serializable> implements Map<String, V>, Serializable{
+	private static class TrackedMap<V> implements Map<String, V>, Serializable {
 
 		private final Map<String, V> delegate;
-		private final PropertiesChanges<V> changes;
+		private final transient PropertiesChanges<V> changes;
 
 		private TrackedMap(Map<String, V> delegate, PropertiesChanges<V> changes) {
 			this.delegate = delegate;
@@ -298,7 +393,13 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 
 		@Override
 		public boolean equals(Object obj) {
-			return obj instanceof Map && delegate.equals(obj);
+			if (!(obj instanceof Map)) {
+				return false;
+			}
+			if (obj instanceof TrackedMap) {
+				return delegate.equals(((TrackedMap) obj).delegate);
+			}
+			return delegate.equals(obj);
 		}
 
 		@Override
@@ -312,16 +413,16 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		}
 	}
 
-	private static class TrackedCollection<E, C extends Serializable, X extends Collection<E>>
-			implements Collection<E>, Serializable {
+	private static class TrackedCollection<E, C, X extends Collection<E>> implements Collection<E>, Serializable {
+		final String assignedKey;
 		protected final X delegate;
-		protected final PropertiesChanges<C> changes;
-		final ChangesRecorder<E, C> changesRecorder;
+		protected transient PropertiesChanges<C> changes;
+		private transient ChangesRecorder<E, C> changesRecorder;
 
-		private TrackedCollection(X delegate, PropertiesChanges<C> changes, ChangesRecorder<E, C> changesRecorder) {
+		private TrackedCollection(String assignedKey, X delegate, PropertiesChanges<C> changes) {
+			this.assignedKey = assignedKey;
 			this.delegate = delegate;
 			this.changes = changes;
-			this.changesRecorder = changesRecorder;
 		}
 
 		@Override
@@ -341,7 +442,7 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 
 		@Override
 		public Iterator<E> iterator() {
-			return new TrackedIterator<>(delegate.iterator(), changes, changesRecorder);
+			return new TrackedIterator<>(delegate.iterator(), changes, getChangesRecorder());
 		}
 
 		@Override
@@ -357,7 +458,7 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		@Override
 		public boolean add(E e) {
 			if (delegate.add(e)) {
-				changesRecorder.add(e, changes);
+				getChangesRecorder().append(e, changes);
 				return true;
 			}
 			return false;
@@ -370,10 +471,17 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 			// value and added it to the changes
 			// this is mainly used for map key set as the change happens before recording the old value
 			if (delegate.contains((E) o)) {
-				changesRecorder.remove((E) o, changes);
+				getChangesRecorder().remove((E) o, changes);
 				return delegate.remove(o);
 			}
 			return false;
+		}
+
+		ChangesRecorder<E, C> getChangesRecorder() {
+			if (changesRecorder == null) {
+				changesRecorder = ChangesRecorder.collectionRecorder(assignedKey);
+			}
+			return changesRecorder;
 		}
 
 		@Override
@@ -420,46 +528,83 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 				it.remove();
 			}
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof TrackedCollection)) {
+				return false;
+			}
+			TrackedCollection<?, ?, ?> that = (TrackedCollection<?, ?, ?>) o;
+			return Objects.equals(assignedKey, that.assignedKey) && Objects.equals(delegate, that.delegate);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(assignedKey, delegate);
+		}
+
+		@Override
+		public String toString() {
+			return delegate.toString();
+		}
 	}
 
-	private static class ChangesRecorder<E, C extends Serializable> implements Serializable {
+	private static class ChangesRecorder<E, C> {
 		private BiConsumer<E, PropertiesChanges<C>> onAdd;
+		private BiConsumer<E, PropertiesChanges<C>> onAppend;
 		private TriConsumer<E, E, PropertiesChanges<C>> onUpdate;
 		private BiConsumer<E, PropertiesChanges<C>> onRemove;
 
 		private ChangesRecorder(BiConsumer<E, PropertiesChanges<C>> onAdd,
+				BiConsumer<E, PropertiesChanges<C>> onAppend,
 				TriConsumer<E, E, PropertiesChanges<C>> onUpdate,
 				BiConsumer<E, PropertiesChanges<C>> onRemove) {
 			this.onAdd = onAdd;
+			this.onAppend = onAppend;
 			this.onUpdate = onUpdate;
 			this.onRemove = onRemove;
 		}
 
-		static <E, C extends Serializable> ChangesRecorder<E, C> removeOnly(
+		static <E, C> ChangesRecorder<E, C> removeOnly(
 				BiConsumer<E, PropertiesChanges<C>> onRemove) {
-			return new ChangesRecorder<>(null, null, onRemove);
+			return new ChangesRecorder<>(null, null, null, onRemove);
 		}
 
 		@SuppressWarnings("unchecked")
-		static <E extends Serializable, S extends E> ChangesRecorder<S, E> collectionRecorder(String key) {
-			return new ChangesRecorder<>((value, c) -> c.add(key, (E) value),
+		static <E, S> ChangesRecorder<S, E> collectionRecorder(String key) {
+			return new ChangesRecorder<>((value, c) -> c.add(key, (E) value), (value, c) -> c.append(key, (E) value),
 					(newValue, oldValue, c) -> c.update(key, (E) newValue, (E) oldValue), (value, c) -> c.remove(key, (E) value));
 		}
 
 		void add(E addedValue, PropertiesChanges<C> changes) {
-			onAdd.accept(addedValue, changes);
+			if (changes != null) {
+				onAdd.accept(addedValue, changes);
+			}
+		}
+
+		void append(E addedValue, PropertiesChanges<C> changes) {
+			if (changes != null) {
+				onAppend.accept(addedValue, changes);
+			}
 		}
 
 		void update(E newValue, E oldValue, PropertiesChanges<C> changes) {
-			onUpdate.accept(newValue, oldValue, changes);
+			if (changes != null) {
+				onUpdate.accept(newValue, oldValue, changes);
+			}
 		}
 
 		void remove(E removedValue, PropertiesChanges<C> changes) {
-			onRemove.accept(removedValue, changes);
+			if (changes != null) {
+				onRemove.accept(removedValue, changes);
+			}
 		}
 	}
 
-	private static class TrackedIterator<E, C extends Serializable> implements Iterator<E> {
+	private static class TrackedIterator<E, C> implements Iterator<E> {
 		private final Iterator<E> delegate;
 		private final PropertiesChanges<C> changes;
 		private final ChangesRecorder<E, C> changesRecorder;
@@ -491,22 +636,39 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		}
 	}
 
-	private static class TrackedSet<E, C extends Serializable> extends TrackedCollection<E, C, Set<E>>
+	private static class TrackedSet<E, C> extends TrackedCollection<E, C, Set<E>>
 			implements Set<E> {
+		private final transient ChangesRecorder<E, C> changesRecorder;
+
+		private TrackedSet(String assignedKey, Set<E> delegate, PropertiesChanges<C> changes) {
+			super(assignedKey, delegate, changes);
+			changesRecorder = null;
+		}
+
 		private TrackedSet(Set<E> delegate, PropertiesChanges<C> changes, ChangesRecorder<E, C> changesRecorder) {
-			super(delegate, changes, changesRecorder);
+			super(null, delegate, changes);
+			this.changesRecorder = changesRecorder;
+		}
+
+		@Override
+		ChangesRecorder<E, C> getChangesRecorder() {
+			if (changesRecorder != null) {
+				return changesRecorder;
+			}
+			return super.getChangesRecorder();
 		}
 	}
 
-	private static class TrackedList<E, C extends Serializable> extends TrackedCollection<E, C, List<E>>
+	private static class TrackedList<E, C> extends TrackedCollection<E, C, List<E>>
 			implements List<E> {
-		private TrackedList(List<E> delegate, PropertiesChanges<C> changes, ChangesRecorder<E, C> changesRecorder) {
-			super(delegate, changes, changesRecorder);
+		private TrackedList(String assignedKey, List<E> delegate, PropertiesChanges<C> changes) {
+			super(assignedKey, delegate, changes);
 		}
 
 		@Override
 		public boolean addAll(int index, Collection<? extends E> c) {
-			c.forEach(e -> changesRecorder.add(e, changes));
+			ChangesRecorder<E, C> changesRecorder = getChangesRecorder();
+			c.forEach(e -> changesRecorder.append(e, changes));
 			return delegate.addAll(index, c);
 		}
 
@@ -518,20 +680,20 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		@Override
 		public E set(int index, E element) {
 			E previousValue = delegate.set(index, element);
-			changesRecorder.update(element, previousValue, changes);
+			getChangesRecorder().update(element, previousValue, changes);
 			return previousValue;
 		}
 
 		@Override
 		public void add(int index, E element) {
-			changesRecorder.add(element, changes);
+			getChangesRecorder().append(element, changes);
 			delegate.add(index, element);
 		}
 
 		@Override
 		public E remove(int index) {
 			E removed = delegate.remove(index);
-			changesRecorder.remove(removed, changes);
+			getChangesRecorder().remove(removed, changes);
 			return removed;
 		}
 
@@ -547,21 +709,21 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 
 		@Override
 		public ListIterator<E> listIterator() {
-			return new TrackedListIterator<>(delegate.listIterator(), changes, changesRecorder);
+			return new TrackedListIterator<>(delegate.listIterator(), changes, getChangesRecorder());
 		}
 
 		@Override
 		public ListIterator<E> listIterator(int index) {
-			return new TrackedListIterator<>(delegate.listIterator(index), changes, changesRecorder);
+			return new TrackedListIterator<>(delegate.listIterator(index), changes, getChangesRecorder());
 		}
 
 		@Override
 		public List<E> subList(int fromIndex, int toIndex) {
-			return new TrackedList<>(delegate.subList(fromIndex, toIndex), changes, changesRecorder);
+			return new TrackedList<>(assignedKey, delegate.subList(fromIndex, toIndex), changes);
 		}
 	}
 
-	private static class TrackedListIterator<E, C extends Serializable> implements ListIterator<E> {
+	private static class TrackedListIterator<E, C> implements ListIterator<E> {
 		private final ListIterator<E> delegate;
 		private final PropertiesChanges<C> changes;
 		private final ChangesRecorder<E, C> changesRecorder;
@@ -622,7 +784,7 @@ public class PropertiesChanges<S extends Serializable> implements Serializable {
 		@Override
 		public void add(E e) {
 			delegate.add(e);
-			changesRecorder.add(e, changes);
+			changesRecorder.append(e, changes);
 		}
 	}
 }

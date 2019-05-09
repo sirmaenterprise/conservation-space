@@ -53,10 +53,14 @@ import com.sirma.itt.seip.domain.instance.DMSInstance;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.InstanceTypes;
+import com.sirma.itt.seip.monitor.Metric;
+import com.sirma.itt.seip.monitor.Metric.Builder;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.search.NamedQueries;
 import com.sirma.itt.seip.security.context.SecurityContext;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.util.EqualsHelper;
 import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirma.itt.semantic.NamespaceRegistryService;
@@ -74,6 +78,13 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 
 	private static final long serialVersionUID = -4449835928429136986L;
 	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticDbDaoImpl.class);
+
+	private static final Metric SEMANTIC_SAVE_DURATION_SEC = Builder
+			.timer("semantic_save_duration_seconds", "Instance save in semantic duration in seconds.").build();
+
+	private static final Metric SEMANTIC_DEL_DURATION_SEC = Builder
+			.timer("semantic_delete_duration_seconds", "Instance delete in semantic duration in seconds.")
+			.build();
 
 	@Inject
 	private DefinitionService definitionService;
@@ -149,8 +160,6 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 		}
 		LOGGER.debug("Begin instance save {}", entity.getId());
 
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "saveInstance").begin();
-
 		// create the RDF model to be stored in the repository
 		final Model addModel = new LinkedHashModel();
 		Model removeModel = new LinkedHashModel();
@@ -160,6 +169,7 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 		IRI dataGraph = namespaceRegistryService.getDataGraph();
 
 		try {
+			statistics.track(SEMANTIC_SAVE_DURATION_SEC);
 			// if there is no old entity we should not remove anything
 			if (oldEntity != null) {
 				Model diff = new LinkedHashModel(addModel);
@@ -182,16 +192,15 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 			// update the id
 			idManager.persisted(entity);
 			if (!addModel.isEmpty()) {
-				LOGGER.trace("Model [{}]  added to reporitory.", addModel);
+				LOGGER.trace("Model [{}]  added to repository.", addModel);
 			}
 			if (!removeModel.isEmpty()) {
-				LOGGER.trace("Model [{}]  removed from reporitory.", removeModel);
+				LOGGER.trace("Model [{}]  removed from repository.", removeModel);
 			}
+			return entity;
 		} finally {
-			LOGGER.debug("End saving {} = {} in SemanticDb and it took {} ms", entity.getClass().getSimpleName(),
-					entity.getId(), timeTracker.stop());
+			statistics.end(SEMANTIC_SAVE_DURATION_SEC);
 		}
-		return entity;
 	}
 
 	/**
@@ -236,8 +245,8 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	@Monitored(@MetricDefinition(name = "semantic_load_duration_seconds", type = Type.TIMER, descr = "Instance load from semantic duration in seconds."))
 	public <R, E extends Pair<String, Object>> List<R> fetchWithNamed(String namedQuery, List<E> params) {
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "loadInstance").begin();
 		String query = queryBuilder.buildQueryByName(namedQuery, params);
 		if (StringUtils.isBlank(query)) {
 			throw new SemanticPersistenceException("Undefined named query [" + namedQuery + "]");
@@ -253,8 +262,6 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 
 		} catch (QueryEvaluationException | RepositoryException e) {
 			throw new SemanticPersistenceException("Failed evaluating named query [" + namedQuery + "]", e);
-		} finally {
-			LOGGER.debug("SemanticDb load took {} ms", timeTracker.stop());
 		}
 	}
 
@@ -279,7 +286,7 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 		DataTypeDefinition dataTypeDefinition = resolveDataType(types);
 
 		if (dataTypeDefinition == null) {
-			LOGGER.error("Invalid entity {} = {}", EMF.INSTANCE_TYPE, types);
+			LOGGER.error("Invalid entity {} -> {} = {}", uri, EMF.INSTANCE_TYPE, types);
 			return null;
 		}
 
@@ -316,8 +323,9 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 		Stream<Value> types = getInstanceTypes(instanceProperties);
 		DefinitionModel definition = resolveInstanceDefinition(types, instance);
 		if (definition == null) {
+			List<Value> collect = getInstanceTypes(instanceProperties).collect(Collectors.toList());
 			LOGGER.warn("No definition found for Instance with IRI = {}, definition type={}", instance.getId(),
-					instance.getIdentifier());
+					collect);
 		}
 		return definition;
 	}
@@ -357,7 +365,6 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 
 	private DataTypeDefinition resolveDataType(Set<Value> types) {
 		if (CollectionUtils.isEmpty(types)) {
-			LOGGER.error("Invalid entity: no emf:instanceType present!");
 			return null;
 		}
 
@@ -418,8 +425,8 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 			return 0;
 		}
 		LOGGER.debug("Deleting resource/s [{}]", entityId);
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "deleteInstance").begin();
 		try {
+			statistics.track(SEMANTIC_DEL_DURATION_SEC);
 			if (softDelete) {
 				if (entityId instanceof Collection) {
 					Model model = new LinkedHashModel();
@@ -443,7 +450,7 @@ public class SemanticDbDaoImpl extends AbstractDbDao {
 				deleteHard(entityId.toString(), repositoryConnection);
 			}
 		} finally {
-			LOGGER.debug("SemanticDb delete instance took {} ms", timeTracker.stop());
+			statistics.end(SEMANTIC_DEL_DURATION_SEC);
 		}
 		return 1;
 	}

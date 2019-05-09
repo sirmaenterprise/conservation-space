@@ -4,6 +4,7 @@ import static com.sirma.itt.seip.domain.instance.DefaultProperties.PRIMARY_CONTE
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -16,30 +17,29 @@ import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import com.sirma.itt.seip.domain.instance.DefaultProperties;
-import com.sirma.itt.seip.domain.instance.EmfInstance;
-import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.instance.InstanceReferenceImpl;
-import com.sirma.itt.seip.instance.actions.Actions;
-import com.sirma.itt.seip.instance.content.publish.UploadRevisionAction;
-import com.sirma.itt.seip.instance.content.publish.UploadRevisionRequest;
-import com.sirma.itt.seip.instance.revision.PublishInstanceRequest;
-import com.sirma.itt.seip.instance.revision.RevisionService;
-import com.sirma.itt.seip.testutil.CustomMatcher;
-import com.sirma.sep.content.InstanceContentService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sirma.itt.seip.domain.instance.InstanceReference;
+import com.sirma.itt.seip.domain.instance.DefaultProperties;
+import com.sirma.itt.seip.domain.instance.EmfInstance;
+import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.instance.InstanceReferenceImpl;
 import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.actions.Actions;
+import com.sirma.itt.seip.instance.content.publish.UploadRevisionAction;
+import com.sirma.itt.seip.instance.content.publish.UploadRevisionRequest;
+import com.sirma.itt.seip.instance.revision.PublishInstanceRequest;
+import com.sirma.itt.seip.instance.revision.RevisionService;
+import com.sirma.itt.seip.rest.exceptions.ResourceException;
 import com.sirma.itt.seip.rest.exceptions.ResourceNotFoundException;
+import com.sirma.itt.seip.testutil.CustomMatcher;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
+import com.sirma.sep.content.InstanceContentService;
 import com.sirma.sep.content.upload.ContentUploader;
 import com.sirma.sep.content.upload.UploadRequest;
 
@@ -73,10 +73,7 @@ public class InstanceContentUploadRestTest {
 		InstanceType instanceType = mock(InstanceType.class);
 		when(instanceType.isVersionable()).thenReturn(Boolean.TRUE);
 		when(instanceType.getId()).thenReturn("emf:document");
-		InstanceReference reference = mock(InstanceReference.class);
-		when(reference.getType()).thenReturn(instanceType);
-
-		when(instanceTypeResolver.resolveReference("emf:instanceId")).thenReturn(Optional.of(reference));
+		when(instanceTypeResolver.resolve("emf:instanceId")).thenReturn(Optional.of(instanceType));
 
 		when(contentUploader.uploadForInstance(eq(request), any(Instance.class), eq(Content.PRIMARY_CONTENT), eq(true)))
 				.thenReturn(mock(ContentInfo.class));
@@ -92,7 +89,7 @@ public class InstanceContentUploadRestTest {
 	@Test(expected = ResourceNotFoundException.class)
 	public void uploadContentToNotFoundInstance() throws Exception {
 		UploadRequest request = mock(UploadRequest.class);
-		when(instanceTypeResolver.resolveReference("emf:instanceId")).thenReturn(Optional.empty());
+		when(instanceTypeResolver.resolve("emf:instanceId")).thenReturn(Optional.empty());
 
 		uploadRest.uploadContentToInstance(request, "emf:instanceId", Content.PRIMARY_CONTENT);
 	}
@@ -102,7 +99,6 @@ public class InstanceContentUploadRestTest {
 		String instanceId = "emf:instance";
 		String contentId = "emf:uploaded";
 		UploadRequest request = mockRequest();
-		InstanceType instanceType = mock(InstanceType.class);
 		mockActionCall(null);
 		ContentInfo contentInfo = mock(ContentInfo.class);
 		when(contentInfo.getContentId()).thenReturn(contentId);
@@ -115,7 +111,7 @@ public class InstanceContentUploadRestTest {
 				argThat(matchesPublishInstanceRequest(instanceId, contentId, null, null, null)));
 	}
 
-	private UploadRequest mockRequest() {
+	private static UploadRequest mockRequest() {
 		UploadRequest request = mock(UploadRequest.class);
 		when(request.resolveFormField(anyString(), anyString())).then(a -> a.getArgumentAt(1, String.class));
 		return request;
@@ -124,7 +120,6 @@ public class InstanceContentUploadRestTest {
 	@Test(expected = RuntimeException.class)
 	public void uploadRevisionShouldThrowException() throws Exception {
 		UploadRequest request = mockRequest();
-		InstanceType instanceType = mock(InstanceType.class);
 		mockActionCall("emf:contetentId");
 		ContentInfo contentInfo = mock(ContentInfo.class);
 		when(contentInfo.getContentId()).thenReturn("emf:uploaded");
@@ -137,7 +132,6 @@ public class InstanceContentUploadRestTest {
 	@Test
 	public void uploadRevisionExceptionShouldDeleteContent() throws Exception {
 		UploadRequest request = mockRequest();
-		InstanceType instanceType = mock(InstanceType.class);
 		mockActionCall("emf:contetentId");
 		ContentInfo contentInfo = mock(ContentInfo.class);
 		when(contentInfo.getContentId()).thenReturn("emf:uploaded");
@@ -147,6 +141,7 @@ public class InstanceContentUploadRestTest {
 		try {
 			uploadRest.uploadRevisionToInstance(request, "emf:instance");
 		} catch (RuntimeException e) {
+			assertTrue(e instanceof ResourceException);
 		}
 
 		verify(contentUploader).uploadForInstance(eq(request), eq("emf:instance"), eq(Content.PRIMARY_CONTENT),
@@ -177,7 +172,7 @@ public class InstanceContentUploadRestTest {
 				argThat(matchesPublishInstanceRequest(instanceId, null, fileName, mimetype, fileSize)));
 	}
 
-	private ContentInfo createContentInfo(String contentId, String fileName, String mimetype, long fileSize) {
+	private static ContentInfo createContentInfo(String contentId, String fileName, String mimetype, long fileSize) {
 		ContentInfo contentInfo = mock(ContentInfo.class);
 		when(contentInfo.getContentId()).thenReturn(contentId);
 		when(contentInfo.getName()).thenReturn(fileName);
@@ -186,7 +181,7 @@ public class InstanceContentUploadRestTest {
 		return contentInfo;
 	}
 
-	private CustomMatcher<PublishInstanceRequest> matchesPublishInstanceRequest(Serializable instanceId,
+	private static CustomMatcher<PublishInstanceRequest> matchesPublishInstanceRequest(Serializable instanceId,
 			String contentIdToPublish, String filename, String mimetype, Long size) {
 		return CustomMatcher.of((PublishInstanceRequest publishInstanceRequest) -> {
 			assertFalse(publishInstanceRequest.isAsPdf());

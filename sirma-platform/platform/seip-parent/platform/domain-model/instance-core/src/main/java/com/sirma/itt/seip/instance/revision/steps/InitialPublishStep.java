@@ -5,7 +5,10 @@ import java.io.InputStream;
 
 import javax.inject.Inject;
 
+import com.sirma.itt.seip.domain.instance.CMInstance;
+import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.util.PropertiesUtil;
 import com.sirma.itt.seip.exception.RollbackedRuntimeException;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.template.Template;
@@ -44,6 +47,12 @@ public class InitialPublishStep implements PublishStep {
 			throw new RollbackedRuntimeException("Could not load instance view: " + instanceToPublish.getId());
 		}
 		publishContext.setView(idoc);
+
+		Instance revision = publishContext.getRevision();
+		PropertiesUtil.copyValue(instanceToPublish, revision, DefaultProperties.UNIQUE_IDENTIFIER);
+		if (instanceToPublish instanceof CMInstance) {
+			CMInstance.setContentManagementId(revision, ((CMInstance) instanceToPublish).getContentManagementId());
+		}
 	}
 
 	private static Idoc buildIdocFromContent(Instance instanceToPublish, ContentInfo info) {

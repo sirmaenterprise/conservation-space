@@ -1,7 +1,5 @@
 package com.sirma.itt.seip.instance.content;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -14,12 +12,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.fileupload.FileItem;
-
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.actions.Actions;
@@ -67,12 +62,9 @@ public class InstanceContentUploadRest {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public ContentInfo uploadContentToInstance(UploadRequest uploadRequest, @PathParam(JsonKeys.ID) String instanceId,
 			@DefaultValue(Content.PRIMARY_CONTENT) @QueryParam("purpose") String purpose) {
-
-		Optional<InstanceReference> reference = instanceTypeResolver.resolveReference(instanceId);
-		if (!reference.isPresent()) {
-			throw new ResourceNotFoundException(instanceId);
-		}
-		InstanceType instanceType = reference.get().getType();
+		InstanceType instanceType = instanceTypeResolver
+				.resolve(instanceId)
+					.orElseThrow(() -> new ResourceNotFoundException(instanceId));
 		EmfInstance instance = new EmfInstance();
 		instance.add(DefaultProperties.SEMANTIC_TYPE, instanceType.getId());
 		// We upload it without instance in order to assign the instance id inside {@link AssignPrimaryContentStep}
@@ -82,7 +74,6 @@ public class InstanceContentUploadRest {
 
 	@POST
 	@Path("/{id}/revision")
-	@Transactional
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Instance uploadRevisionToInstance(UploadRequest uploadRequest, @PathParam(JsonKeys.ID) String instanceId) {
 		UploadRevisionRequest revisionRequest = new UploadRevisionRequest(uploadRequest, resolveContentPurpose(uploadRequest));
@@ -91,11 +82,11 @@ public class InstanceContentUploadRest {
 		return (Instance) actions.callAction(revisionRequest);
 	}
 
-	private String resolveUserOperation(UploadRequest uploadRequest) {
+	private static String resolveUserOperation(UploadRequest uploadRequest) {
 		return uploadRequest.resolveFormField(JsonKeys.USER_OPERATION, UploadRevisionRequest.OPERATION_NAME);
 	}
 
-	private String resolveContentPurpose(UploadRequest uploadRequest) {
+	private static String resolveContentPurpose(UploadRequest uploadRequest) {
 		return uploadRequest.resolveFormField("purpose", Content.PRIMARY_CONTENT);
 	}
 }

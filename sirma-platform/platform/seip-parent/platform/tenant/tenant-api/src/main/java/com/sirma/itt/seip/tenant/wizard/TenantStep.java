@@ -2,7 +2,6 @@ package com.sirma.itt.seip.tenant.wizard;
 
 import com.sirma.itt.seip.domain.Identity;
 import com.sirma.itt.seip.plugin.Plugin;
-import com.sirma.itt.seip.tenant.context.TenantInfo;
 
 /**
  * The TenantStep represents a configuration step. Order of extension denote the execution order
@@ -42,14 +41,11 @@ public interface TenantStep extends Plugin, Identity {
 	 *
 	 * @param data
 	 *            the data to use during step
-	 * @param tenantInfo
-	 *            the tenant info
-	 * @param rollback
-	 *            control boolean used when different logic is needed depending if this is called
-	 *            from a rollback or a delete operation.
+	 * @param context
+	 *            contextual information that could be accessed/updated during step execution
 	 * @return true, if successful
 	 */
-	default boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	default boolean delete(TenantStepData data, TenantDeletionContext context) {
 		return true;
 	}
 

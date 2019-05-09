@@ -12,7 +12,7 @@ export class ThemeRestClient {
     this.config = {
       headers: {
         'Accept': HEADER_V2_JSON,
-        'Content-Type': HEADER_V2_JSON,
+        'Content-Type': HEADER_V2_JSON
       }
     };
   }
@@ -20,5 +20,4 @@ export class ThemeRestClient {
   getThemeData() {
     return this.restClient.get(SERVICE_URL);
   }
-
 }

@@ -28,10 +28,11 @@ import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.configuration.Options;
 import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.db.SemanticDb;
+import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
-import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.event.AuditableEvent;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.properties.PropertiesChangeEvent;
 import com.sirma.itt.seip.instance.properties.SemanticNonPersistentPropertiesExtension;
@@ -58,6 +59,12 @@ public abstract class BaseSemanticInstanceDaoImpl<T extends Instance, P extends 
 	@Inject
 	@SemanticDb
 	protected javax.enterprise.inject.Instance<DbDao> semanticDbDao;
+
+	@Inject
+	private SemanticDefinitionService semanticDefinitionService;
+
+	@Inject
+	private InstancePropertyNameResolver propertyNameResolver;
 
 	private Set<String> forbiddenProperties;
 
@@ -174,9 +181,8 @@ public abstract class BaseSemanticInstanceDaoImpl<T extends Instance, P extends 
 		T oldCached = instanceLoader.getPersistCallback().persistAndUpdateCache(entity);
 		onAfterSave(instance);
 
-		// remove referenced entities from the cache so their relations to be updated as well
+		//schedule removal of referenced entities from the cache so their relations to be updated as well
 		removeFromCache((T) instance);
-
 		// generate properties change event
 		Map<String, Serializable> added = CollectionUtils.createLinkedHashMap(entity.getProperties().size() << 1);
 		int oldSize = 10;
@@ -199,7 +205,7 @@ public abstract class BaseSemanticInstanceDaoImpl<T extends Instance, P extends 
 		EntityLookupCache<Serializable, Entity<? extends Serializable>, Serializable> cache = getCache();
 		List<Serializable> referencedIds = collectReferencedIds(entity).collect(Collectors.toList());
 		// skip the current instance from cache removal as we updated it's cache value in the same transaction
-		referencedIds.remove(entity.getId());
+		referencedIds.removeIf(id -> id.equals(entity.getId()));
 
 		changedInstancesBuffer.addAll(referencedIds);
 		// the clear should happen in the before transaction, because it causes problems with instance save
@@ -222,21 +228,35 @@ public abstract class BaseSemanticInstanceDaoImpl<T extends Instance, P extends 
 
 	@SuppressWarnings("unchecked")
 	private Stream<Serializable> collectReferencedIds(T entity) {
-		Set<String> objectProperties = definitionService
-				.getInstanceDefinition(entity)
-				.fieldsStream()
-				.filter(PropertyDefinition.isObjectProperty())
-				.flatMap(prop -> Stream.of(prop.getName(), PropertyDefinition.resolveUri().apply(prop)))
-				.filter(Objects::nonNull)
-				.collect(Collectors.toSet());
-		// we will process with the new way only if the instance is tracked when it entered here
-		// if the instance is just created without tracking and saved then it will execute the old logic bellow
-		if (entity instanceof Trackable && ((Trackable) entity).isTracked()) {
-			return ((Trackable<Serializable>) entity).changes()
-					.filter(change -> objectProperties.contains(change.getProperty()))
-					.flatMap(BaseSemanticInstanceDaoImpl::changedValues);
+		Set<String> objectProperties = semanticDefinitionService.getRelationsMap().keySet();
+		Set<String> propertyNames = objectProperties.stream().map(propertyNameResolver.resolverFor(entity)).collect(Collectors.toSet());
+		try {
+			// we will process with the new way only if the instance is tracked when it entered here
+			// if the instance is just created without tracking and saved then it will execute the old logic bellow
+			// Note that the last statement does not apply for instances created by InstanceService.create methods
+			// IMPORTANT: cannot add check for isTracking enabled as it's disabled during instance cloning and persist
+			// and changes will not be processed. This causes changed instances to be left in the cache.
+			if (entity instanceof Trackable) {
+				return ((Trackable<Serializable>) entity).changes()
+						.filter(objectPropertyChanges(objectProperties, propertyNames))
+						.flatMap(BaseSemanticInstanceDaoImpl::changedValues);
+			}
+			return getAllObjectPropertyValues(entity, objectProperties, propertyNames);
+		} catch (IllegalStateException e) {
+			LOGGER.warn("Tried to get changes from trackable object without enabling the tracking in the first place.", e);
+			// in case tracking was not enabled at all for trackable object
+			return getAllObjectPropertyValues(entity, objectProperties, propertyNames);
 		}
-		return objectProperties.stream()
+	}
+
+	private <S extends Serializable> Predicate<PropertyChange<S>> objectPropertyChanges(Set<String> objectProperties,
+			Set<String> propertyNames) {
+		return change -> objectProperties.contains(change.getProperty()) || propertyNames.contains(change.getProperty());
+	}
+
+	private Stream<Serializable> getAllObjectPropertyValues(T entity, Set<String> objectProperties,
+			Set<String> propertyNames) {
+		return Stream.concat(objectProperties.stream(), propertyNames.stream())
 				.map(entity::get)
 				.filter(Objects::nonNull)
 				.flatMap(BaseSemanticInstanceDaoImpl::streamValue);
@@ -245,6 +265,7 @@ public abstract class BaseSemanticInstanceDaoImpl<T extends Instance, P extends 
 	private static Stream<String> changedValues(PropertyChange<Serializable> change) {
 		switch (change.getChangeType()) {
 			case ADD:
+			case APPEND:
 				return streamValue(change.getNewValue());
 			case REMOVE:
 				return streamValue(change.getOldValue());

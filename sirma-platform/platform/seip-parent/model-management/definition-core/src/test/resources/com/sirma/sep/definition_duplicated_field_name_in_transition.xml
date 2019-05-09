@@ -1,0 +1,93 @@
+<?xml version="1.0" ?>
+<definition id="duplicateFieldNameInTransition" type="object">
+    <transitions>
+        <transition id="addWatchers" label="addWatchers.label" purpose="addRelation">
+            <fields>
+                <field name="addAttachmentConfig" type="json">
+                    <value>
+                        {
+                        "predefinedTypes" : ["emf:User"],
+                        "selection" : "multiple",
+                        "relation" : ["emf:hasWatcher"]
+                        }
+                    </value>
+                    <control id="configuration"/>
+                </field>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							function copyArr(source) {
+								var result = [];
+								if(recipients != null) {
+									for(var i = 0; i < source.length; i++) {
+										result[i] = source[i].toString();
+									}
+								}
+								return result;
+							}
+							// Copy the array of original watchers of the instance. So that when the new users are added we have the original watcheer to send the emails.
+							// Because a simple link gets a java reference.
+							var recipients = root.get("hasWatcher");
+							var oldRecipientsArr = copyArr(recipients);
+
+							context.put('recipients', oldRecipientsArr);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">before</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value>
+                        <![CDATA[
+							var type = codelist.getDescription(2, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Watcher Assignment) ' + type + ': ' + title;
+
+							function includes(arr, k) {
+								return arr.indexOf(k) > -1;
+							}
+
+							var newlyAddedUsersList = [];
+							var watchers = root.get("hasWatcher");
+							var recipients = context.get('recipients');
+
+							// Gets the newly added users as watchers.
+							if(recipients != null) {
+								for(var i=0; i < watchers.length; i++) {
+									if(!includes(recipients, watchers[i])) {
+										newlyAddedUsersList.push(watchers[i]);
+									}
+								}
+							} else {
+								newlyAddedUsersList = recipients;
+							}
+							context.put("usersList", newlyAddedUsersList);
+
+							// Converts the object array to a String array so it can be passed safely to the script.
+							// If we don't do this then the engine enterprets this as object array and throws and
+							// exception for missing method.
+							var usersToNotify = [];
+							if (recipients != null) {
+								for(var i=0; i < recipients.length; i++) {
+									usersToNotify[i] = recipients[i].toString();
+								}
+							}
+							log.info('Users that are going to be notified for adding watcher(s) are : ' + usersToNotify)
+
+							// Note the usersToNotify array might be empty if this is the first user being added.
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_add_watchers", usersToNotify, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+    </transitions>
+</definition>

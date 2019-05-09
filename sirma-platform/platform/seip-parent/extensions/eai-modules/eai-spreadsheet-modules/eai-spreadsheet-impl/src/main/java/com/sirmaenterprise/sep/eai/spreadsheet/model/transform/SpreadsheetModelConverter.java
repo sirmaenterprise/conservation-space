@@ -52,7 +52,7 @@ public class SpreadsheetModelConverter extends DefaultModelConverter {
 	@Override
 	public Map<String, Serializable> convertExternaltoSEIPProperties(Map<String, Object> properties, Instance consumer)
 			throws EAIModelException {
-		return convertExternaltoSEIPProperties(properties, definitionService.getInstanceDefinition(consumer),
+		return convertExternaltoSEIPProperties(properties, getInstanceDefinition(consumer),
 				new ErrorBuilderProvider());
 	}
 

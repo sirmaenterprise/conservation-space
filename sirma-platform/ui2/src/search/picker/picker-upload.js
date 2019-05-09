@@ -1,7 +1,7 @@
 import {Component, Inject, View} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {CreatePanelService} from 'services/create/create-panel-service';
-import {FileUploadPanel} from 'create/file-upload-panel';
+import 'create/file-upload-panel';
 import {ModelsService} from 'services/rest/models-service';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 
@@ -22,9 +22,7 @@ import template from './picker-upload.html!text';
     context: 'context'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(CreatePanelService, WindowAdapter)
 export class PickerUpload extends Configurable {
   constructor(createPanelService, windowAdapter) {

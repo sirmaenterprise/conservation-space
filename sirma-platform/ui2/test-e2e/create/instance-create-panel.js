@@ -1,10 +1,10 @@
 'use strict';
 
-var SandboxPage = require('../page-object').SandboxPage;
-var SingleSelectMenu = require('../form-builder/form-control').SingleSelectMenu;
-var InputField = require('../form-builder/form-control').InputField;
-var FormWrapper = require('../form-builder/form-wrapper').FormWrapper;
-var ContextSelector = require('../components/contextselector/context-selector');
+let SandboxPage = require('../page-object').SandboxPage;
+let SingleSelectMenu = require('../form-builder/form-control').SingleSelectMenu;
+let InputField = require('../form-builder/form-control').InputField;
+let FormWrapper = require('../form-builder/form-wrapper').FormWrapper;
+let ContextSelector = require('../components/contextselector/context-selector');
 
 const INSTANCE_CREATE_PANEL_PAGE_URL = '/sandbox/create/instance-create-panel';
 
@@ -19,7 +19,11 @@ class InstanceCreatePanelSandboxPage extends SandboxPage {
   }
 
   getInstanceCreatePanel() {
-    return new InstanceCreatePanel(element(by.className('instance-create-panel')));
+    // For some dumb reason there are two nested instances of instance-create-panel in the create dialog
+    // so the element.by returns both and defaults to the first one which is also reported in test result.
+    // So changing it to multi-selection and getting the first result gives the same result without the
+    // annoying logging in the test report.
+    return new InstanceCreatePanel($$('.instance-create-panel').first());
   }
 }
 
@@ -27,7 +31,7 @@ class InstanceCreatePanel {
 
   constructor(element) {
     this.panel = element;
-    browser.wait(EC.visibilityOf(this.panel), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.panel), DEFAULT_TIMEOUT, 'Instance create panel should be visible!');
   }
 
   getTypesDropdown() {
@@ -39,18 +43,18 @@ class InstanceCreatePanel {
   }
 
   selectSubType(subtype) {
-    var subtypesDropdown = this.getSubTypesDropdown();
+    let subtypesDropdown = this.getSubTypesDropdown();
     subtypesDropdown.selectOption(subtype);
   }
 
   getTemplateSelector() {
-    var element = new SingleSelectMenu(this.panel.$('.idoc-template-selector'));
-    browser.wait(EC.visibilityOf($('.idoc-template-selector')), DEFAULT_TIMEOUT);
-    return element;
+    let element = this.panel.$('.idoc-template-selector');
+    browser.wait(EC.visibilityOf(element), DEFAULT_TIMEOUT, 'Template selector menu should be visible!');
+    return new SingleSelectMenu(element);
   }
 
   getForm() {
-    var formWrapper = new FormWrapper($('.form-container'));
+    let formWrapper = new FormWrapper($('.form-container'));
     formWrapper.waitUntilVisible();
     return formWrapper;
   }
@@ -106,7 +110,7 @@ class InstanceCreatePanel {
   }
 
   fillDescription(text) {
-    var descriptionField = this.getForm().getInputText('description');
+    let descriptionField = this.getForm().getInputText('description');
     descriptionField.setValue(null, text);
   }
 

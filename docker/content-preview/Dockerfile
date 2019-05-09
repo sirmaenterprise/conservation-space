@@ -1,4 +1,6 @@
-FROM docker-reg.sirmaplatform.com/libreoffice:5.1
+FROM docker-reg.sirmaplatform.com/libreoffice:6.1-u1
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 ENV JMS_HOST="wildfly" \
     JMS_PORT="5445" \

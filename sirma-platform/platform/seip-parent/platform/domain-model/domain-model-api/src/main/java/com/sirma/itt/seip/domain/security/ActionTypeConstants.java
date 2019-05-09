@@ -32,6 +32,7 @@ public interface ActionTypeConstants {
 	// ######## GENERAL #########
 	String EDIT_DETAILS = "editDetails";
 	String CLONE = "clone";
+	String CHANGE_TYPE = "changeType";
 	String CREATE_TOPIC = "createTopic";
 	String TOPIC_REPLY = "createComment";
 	String LINK = "link";
@@ -83,6 +84,7 @@ public interface ActionTypeConstants {
 	String UPLOAD_NEW_VERSION = "uploadNewVersion";
 	String UPDATE_INSTANCE_TEMPLATE = "updateInstanceTemplate";
 	String UPDATE_SINGLE_INSTANCE_TEMPLATE = "updateTemplate";
+	String UPDATE_EXISTING_OBJECTS = "updateExistingObjects";
 	String EDIT_OFFLINE = "editOffline";
 	String HISTORY_PREVIEW = "historyPreview";
 	String HISTORY_DOWNLOAD = "historyDownload";

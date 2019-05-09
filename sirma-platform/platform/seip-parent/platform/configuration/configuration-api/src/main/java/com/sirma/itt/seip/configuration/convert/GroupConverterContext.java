@@ -40,10 +40,8 @@ public interface GroupConverterContext extends TypeConverterContext {
 	 * @param name
 	 *            the name
 	 * @return the configuration value.
-	 * @throws ConfigurationException
-	 *             the configuration exception
 	 */
-	<T> ConfigurationProperty<T> getValue(String name) throws ConfigurationException;
+	<T> ConfigurationProperty<T> getValue(String name);
 
 	/**
 	 * Gets the value from the configuration property identified by the given name. The method may return
@@ -56,10 +54,8 @@ public interface GroupConverterContext extends TypeConverterContext {
 	 * @param name
 	 *            the name
 	 * @return the configuration value or <code>null</code>.
-	 * @throws ConfigurationException
-	 *             the configuration exception
 	 */
-	<T> T get(String name) throws ConfigurationException;
+	<T> T get(String name);
 
 	/**
 	 * Provides access to the raw values that was used to build the complex configuration object.

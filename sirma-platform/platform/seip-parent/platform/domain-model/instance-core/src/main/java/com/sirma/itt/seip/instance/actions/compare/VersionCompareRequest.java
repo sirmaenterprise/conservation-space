@@ -1,7 +1,6 @@
 package com.sirma.itt.seip.instance.actions.compare;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import com.sirma.itt.seip.instance.actions.ActionRequest;
 
@@ -20,7 +19,7 @@ public class VersionCompareRequest extends ActionRequest {
 
 	private Serializable secondSourceId;
 
-	private Map<String, String> authenticationHeaders;
+	private String authentication;
 
 	@Override
 	public String getOperation() {
@@ -43,12 +42,12 @@ public class VersionCompareRequest extends ActionRequest {
 		this.secondSourceId = secondSourceId;
 	}
 
-	public Map<String, String> getAuthenticationHeaders() {
-		return authenticationHeaders;
+	public String getAuthentication() {
+		return authentication;
 	}
 
-	public void setAuthenticationHeaders(Map<String, String> authenticationHeaders) {
-		this.authenticationHeaders = authenticationHeaders;
+	public void setAuthentication(String authentication) {
+		this.authentication = authentication;
 	}
 
 }

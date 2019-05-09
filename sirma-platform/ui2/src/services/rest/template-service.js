@@ -13,7 +13,7 @@ export class TemplateService {
     this.config = {
       headers: {
         'Accept': HEADER_V2_JSON,
-        'Content-Type': HEADER_V2_JSON,
+        'Content-Type': HEADER_V2_JSON
       }
     };
   }
@@ -34,9 +34,9 @@ export class TemplateService {
     // TODO feature toggle. Remove the call to the old (get endpoint) service when the new one gets stable
     if (purpose || filterCriteria) {
       let payload = {
-        'group': definitions,
-        'purpose': purpose,
-        'filter': filterCriteria
+        group: definitions,
+        purpose,
+        filter: filterCriteria
       };
 
       return this.restClient.post(URL + '/search', payload, this.config);
@@ -83,21 +83,21 @@ export class TemplateService {
     let payload = {
       templateInstance: templateInstanceId
     };
-    return this.restClient.post(`/instances/actions/update-instance-template`, payload, this.config);
+    return this.restClient.post('/instances/actions/update-instance-template', payload, this.config);
   }
 
   updateSingleInstanceTemplate(instanceId) {
     let payload = {
       instance: instanceId
     };
-    return this.restClient.post(`/instances/actions/update-to-latest-template`, payload, this.config);
+    return this.restClient.post('/instances/actions/update-to-latest-template', payload, this.config);
   }
 
   getActualTemplateVersion(instanceId) {
     let payload = {
       instance: instanceId
     };
-    return this.restClient.post(`/instances/template-version`, payload, this.config);
+    return this.restClient.post('/instances/template-version', payload, this.config);
   }
 
 }

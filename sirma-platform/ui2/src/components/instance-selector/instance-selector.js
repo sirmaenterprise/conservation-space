@@ -14,7 +14,7 @@ import {FormWrapper} from 'form-builder/form-wrapper';
 import {EventEmitter} from 'common/event-emitter';
 import {ModelUtils} from 'models/model-utils';
 import {RelationshipsService} from 'services/rest/relationships-service';
-import {SearchCriteriaUtils, AND_CONDITION} from 'search/utils/search-criteria-utils';
+import {SearchCriteriaUtils} from 'search/utils/search-criteria-utils';
 import _ from 'lodash';
 import {getNestedObjectValue} from 'common/object-utils';
 import 'instance-header/static-instance-header/static-instance-header';
@@ -74,7 +74,7 @@ export class InstanceSelector extends Configurable {
     super({
       selection: SINGLE_SELECTION,
       mode: MODE_EDIT,
-      visibleItemsCount: configuration.get(Configuration.OBJECT_PROP_INITIAL_LOAD_LIMIT),
+      visibleItemsCount: 0,
       excludedObjects: []
     });
 
@@ -91,10 +91,17 @@ export class InstanceSelector extends Configurable {
     this.selectionPool = new Map();
     this.$timeout = $timeout;
     this.relationshipsService = relationshipsService;
+    this.configuration = configuration;
+    this.setInitialVisibleItems();
+    this.eventHandlers = [];
   }
 
   ngOnInit() {
-    this.valueChangeHandler = this.instanceModelProperty.subscribe('propertyChanged', this.onValueChanged.bind(this));
+    this.eventHandlers.push(this.instanceModelProperty.subscribe('propertyChanged', this.onValueChanged.bind(this)));
+    this.eventHandlers.push(this.eventEmitter.subscribe('destroy', this.ngOnDestroy.bind(this)));
+
+    // set instance suggest configuration
+    this.createSelectConfiguration();
 
     // Properties that don't have values come with value=undefined and all the logic below should account this. In order
     // to prevent many checks, the value is initialized with empty results and total=0
@@ -103,9 +110,6 @@ export class InstanceSelector extends Configurable {
     } else {
       ModelUtils.normalizeObjectPropertyValue(this.instanceModelProperty);
     }
-
-    // set proper loaded flag depending if the needed headers are present in the model.
-    this.setLoadedFlag();
 
     this.resolveHeaderType();
 
@@ -120,9 +124,9 @@ export class InstanceSelector extends Configurable {
     this.calculateItemsCount();
 
     let compiledHeadersCount = 0;
-    let loadedSubscription = this.eventEmitter.subscribe('loaded', () => {
-      if (compiledHeadersCount + 1 === this.displayObjectsCount) {
-        loadedSubscription.unsubscribe();
+    this.loadedSubscription = this.eventEmitter.subscribe('loaded', () => {
+      if (compiledHeadersCount + 1 === this.displayObjectsCount || compiledHeadersCount + 1 === this.displayObjectsInSelectCount || compiledHeadersCount + 1 === this.instanceModelProperty.value.total) {
+        this.loadedSubscription.unsubscribe();
         this.publishSelectorRendered();
       }
       compiledHeadersCount += 1;
@@ -134,18 +138,14 @@ export class InstanceSelector extends Configurable {
           // empty object properties need to also publish loaded event.
           if (!result) {
             this.publishSelectorRendered();
-            loadedSubscription.unsubscribe();
+            this.loadedSubscription.unsubscribe();
           }
         });
       });
     }
+    this.eventHandlers.push(this.eventEmitter.subscribe('selecting', this.handleSuggestedSelection.bind(this)));
+    this.eventHandlers.push(this.eventEmitter.subscribe('unselecting', this.handleSuggestedRemoval.bind(this)));
 
-    this.eventEmitter.subscribe('selecting', this.handleSuggestedSelection.bind(this));
-    // set instance suggest configuration
-    this.selectConfig.definitionId = this.config.definitionId;
-    this.selectConfig.propertyName = this.config.propertyName;
-    this.selectConfig.eventEmitter = this.eventEmitter;
-    this.selectConfig.selectionPool = this.selectionPool;
 
     // By default this component would receive only predefined number of relations in the value.results array where the
     // number depends on a configuration. Still it's possible in the property model to be populated a fare amount of
@@ -163,10 +163,35 @@ export class InstanceSelector extends Configurable {
         } else {
           // empty object properties need to also publish loaded event.
           this.publishSelectorRendered();
-          loadedSubscription.unsubscribe();
+          this.loadedSubscription.unsubscribe();
         }
       });
     }
+
+    // set proper loaded flag depending if the needed headers are present in the model.
+    this.setLoadedFlag();
+  }
+
+  createSelectConfiguration() {
+    this.selectConfig.definitionId = this.config.definitionId;
+    this.selectConfig.propertyName = this.config.propertyName;
+    this.selectConfig.eventEmitter = this.eventEmitter;
+    this.selectConfig.selectionPool = this.selectionPool;
+    this.selectConfig.displayObjectsInSelectCount = this.displayObjectsInSelectCount;
+  }
+
+  setInitialVisibleItems() {
+    if (this.isEditable()) {
+      this.displayObjectsInSelectCount = this.getInitialLoadLimit();
+      this.config.visibleItemsCount = 0;
+    } else {
+      this.displayObjectsInSelectCount = 0;
+      this.config.visibleItemsCount = this.getInitialLoadLimit();
+    }
+  }
+
+  getInitialLoadLimit() {
+    return this.configuration.get(Configuration.OBJECT_PROP_INITIAL_LOAD_LIMIT);
   }
 
   // set proper loaded flag depending if the needed headers are present in the model.
@@ -195,26 +220,38 @@ export class InstanceSelector extends Configurable {
 
         // then update the pool
         this.instanceModelProperty.value.results.forEach(item => {
-          this.selectionPool.set(item, {
-            id: item,
-            headers: this.instanceModelProperty.value.headers && this.instanceModelProperty.value.headers[item]
-          });
+          let headers = this.instanceModelProperty.value.headers && this.instanceModelProperty.value.headers[item];
+          if (headers || !this.selectionPool.get(item)) {
+            this.selectionPool.set(item, {
+              id: item,
+              headers
+            });
+          }
         });
       }
+    }).then(() => {
+      this.eventEmitter.publish('updatedSelection', [this.headerType, this.displayObjectsInSelectCount]);
       this.setLoadedFlag();
     });
   }
 
   onValueChanged(propertyChanged) {
     if (Object.keys(propertyChanged)[0] === 'value' && this.instanceModelProperty.value) {
-      if (!this.showingMore) {
-        let resultsLength = this.instanceModelProperty.value.results.length;
-        this.displayObjectsCount = resultsLength > this.config.visibleItemsCount ? this.config.visibleItemsCount : resultsLength;
+      let resultsLength = this.instanceModelProperty.value.results.length;
+      let limit = this.getInitialLoadLimit();
+
+      if (!this.showingMore && !this.isEditable()) {
+        this.displayObjectsCount = resultsLength > limit ? limit : resultsLength;
         this.loadHeaders(this.instanceModelProperty.value.results, this.displayObjectsCount).then(() => {
           this.updateSelectionPool();
         });
+      } else if (this.isEditable()) {
+        this.loadHeaders(this.instanceModelProperty.value.results, this.displayObjectsInSelectCount).then(() => {
+          this.updateSelectionPool();
+        });
       } else {
-        this.loadHeaders(this.instanceModelProperty.value.results).then(() => {
+        this.displayObjectsCount = resultsLength;
+        this.loadHeaders(this.instanceModelProperty.value.results, this.displayObjectsCount).then(() => {
           this.updateSelectionPool();
         });
       }
@@ -258,7 +295,7 @@ export class InstanceSelector extends Configurable {
    * @returns {number}
    */
   getHiddenObjectsCount() {
-    let count = this.instanceModelProperty.value.total - this.displayObjectsCount;
+    let count = this.instanceModelProperty.value.total - this.displayObjectsCount - this.displayObjectsInSelectCount;
     return count > 0 ? count : 0;
   }
 
@@ -295,7 +332,11 @@ export class InstanceSelector extends Configurable {
         this.instanceModelProperty.value.total = this.instanceModelProperty.value.results.length;
 
         if (this.showingMore) {
-          this.displayObjectsCount = this.instanceModelProperty.value.total;
+          if (this.isEditable()) {
+            this.displayObjectsCount = this.instanceModelProperty.value.total - this.displayObjectsInSelectCount;
+          } else {
+            this.displayObjectsCount = this.instanceModelProperty.value.total;
+          }
         }
 
         this.setIsLoading(false);
@@ -315,7 +356,7 @@ export class InstanceSelector extends Configurable {
       });
     } else {
       // otherwise load missing headers and set total count to displayObjectsCount in order to display them all
-      this.loadHeaders(this.instanceModelProperty.value.results).then(() => {
+      this.loadHeaders(this.instanceModelProperty.value.results, undefined).then(() => {
         this.displayObjectsCount = this.instanceModelProperty.value.total;
         this.updateSelectionPool();
       });
@@ -335,9 +376,10 @@ export class InstanceSelector extends Configurable {
    * @param loadedHeaders map of loaded headers.
    * @param headerType type of headers that are needed to be present in the map.
    */
-  static filterObjectsWithLoadedHeaders(ids, loadedHeaders = {}, headerType) {
+  static filterObjectsWithLoadedHeaders(ids, loadedHeaders, headerType) {
+    let loaded = loadedHeaders || {};
     return ids.filter((id) => {
-      return !loadedHeaders[id] || !getNestedObjectValue(loadedHeaders, [id, headerType]);
+      return !loaded[id] || !getNestedObjectValue(loaded, [id, headerType]);
     });
   }
 
@@ -348,19 +390,26 @@ export class InstanceSelector extends Configurable {
    * @param limit limit of loaded headers count
    * @returns Promise which resolves when headers are loaded.
    */
-  loadHeaders(ids = [], limit) {
-    let idsWithMissingHeaders = InstanceSelector.filterObjectsWithLoadedHeaders(ids, this.instanceModelProperty.value.headers, this.headerType);
-    let nothingForLoad = ids.length === 0 || idsWithMissingHeaders.length === 0;
+  loadHeaders(ids, limit) {
+    let headerIds = ids || [];
+    let toLoad;
+    if (limit) {
+      if (this.isEditable()) {
+        toLoad = _.takeRight(headerIds, limit);
+      } else {
+        toLoad = headerIds.slice(0, limit);
+      }
+    } else {
+      toLoad = headerIds;
+    }
+
+    let idsWithMissingHeaders = InstanceSelector.filterObjectsWithLoadedHeaders(toLoad, this.instanceModelProperty.value.headers, this.headerType);
+    let nothingForLoad = toLoad.length === 0 || idsWithMissingHeaders.length === 0;
     if (nothingForLoad) {
       return this.promiseAdapter.resolve();
     }
 
     this.setIsLoading(true);
-
-    if (limit) {
-      idsWithMissingHeaders = idsWithMissingHeaders.slice(0, limit);
-    }
-
     return this.headersService.loadHeaders(idsWithMissingHeaders, this.headerType, this.instanceModelProperty.value.headers).then(results => {
       this.instanceModelProperty.value.results.forEach(instanceId => {
         if (!results[instanceId]) {
@@ -379,13 +428,17 @@ export class InstanceSelector extends Configurable {
   }
 
   isShowMoreButtonVisible() {
-    return this.instanceModelProperty.value && this.instanceModelProperty.value.total > this.displayObjectsCount
-      && this.config.selection === MULTIPLE_SELECTION;
+    return this.instanceModelProperty.value && this.instanceModelProperty.value.total - this.displayObjectsInSelectCount > this.displayObjectsCount
+      && InstanceSelector.isMultipleSelection(this.config.selection);
   }
 
   isShowLessButtonVisible() {
-    return this.displayObjectsCount > this.config.visibleItemsCount
-      && this.config.selection === MULTIPLE_SELECTION;
+    return this.displayObjectsCount > this.getInitialLoadLimit()
+      && InstanceSelector.isMultipleSelection(this.config.selection);
+  }
+
+  static isMultipleSelection(selection) {
+    return selection === MULTIPLE_SELECTION;
   }
 
   static removeItemFromTargetIfExists(targetArray, sourceArray, index) {
@@ -396,20 +449,29 @@ export class InstanceSelector extends Configurable {
   }
 
   /**
-   * Remove selected item from the instanceModelProperty value and from the selection pool by index. If selected objects are already loaded, then
+   * Remove selected item from the instanceModelProperty value and from the selection pool by index or id. If selected objects are already loaded, then
    * update visible items count. Otherwise load another object if necessary.
-   * @param index
+   * @param itemIndex index of removed item in selectionPoolEntries
+   * @param id of removed instance object
    */
-  removeSelectedItem(index) {
-    this.selectionPool.delete(this.instanceModelProperty.value.results[index]);
+  removeSelectedItem(itemIndex, id) {
+    let index = itemIndex;
+    let itemId = id;
+    if (itemId) {
+      index = this.instanceModelProperty.value.results.indexOf(itemId);
+      this.selectionPool.delete(itemId);
+    } else {
+      itemId = this.instanceModelProperty.value.results[index];
+      this.selectionPool.delete(itemId);
+    }
 
     // maintain duplications free array
-    if (this.instanceModelProperty.value.remove.indexOf(this.instanceModelProperty.value.results[index]) === -1) {
+    if (this.instanceModelProperty.value.remove.indexOf(itemId) === -1) {
       // in single selection mode, add the default value to be removed, else the property was originally empty.
       if (this.config.selection === SINGLE_SELECTION && this.instanceModelProperty.defaultValue) {
         this.instanceModelProperty.value.remove.splice(0, 1, this.instanceModelProperty.defaultValue.results[0]);
       } else {
-        this.instanceModelProperty.value.remove.push(this.instanceModelProperty.value.results[index]);
+        this.instanceModelProperty.value.remove.push(itemId);
       }
     }
     // If the selected object has been previously added to the selection, it has to be removed from there as well.
@@ -470,6 +532,7 @@ export class InstanceSelector extends Configurable {
    * @param selected
    */
   handleSuggestedSelection(selected) {
+    this.displayObjectsInSelectCount++;
     if (this.config.selection === SINGLE_SELECTION) {
       this.selectionPool.clear();
     } else {
@@ -480,6 +543,13 @@ export class InstanceSelector extends Configurable {
     this.handleSelection(Array.from(this.selectionPool.values()));
   }
 
+  handleSuggestedRemoval(removedId) {
+    if (this.getInitialLoadLimit() < this.displayObjectsInSelectCount) {
+      this.displayObjectsInSelectCount--;
+    }
+    this.removeSelectedItem(undefined, removedId);
+    this.eventEmitter.publish('updatedSelection', [this.headerType, this.displayObjectsInSelectCount]);
+  }
 
   /**
    * Handles selection coming from the picker. Some of the items might have been in the result as default values and
@@ -490,6 +560,10 @@ export class InstanceSelector extends Configurable {
    */
   handlePickerSelection(selectedItems) {
     this.selectionPool.clear();
+
+    // reset the visible items in holder to initial size
+    this.setInitialVisibleItems();
+
     // Only object ids are needed
     let selectedIds = selectedItems.map((item) => {
       this.selectionPool.set(item.id, item);
@@ -500,8 +574,8 @@ export class InstanceSelector extends Configurable {
 
   handleSelection(selectedItems, selectedIds) {
     let _selectedIds = selectedIds || selectedItems.map((item) => {
-        return item.id;
-      });
+      return item.id;
+    });
 
     this.instanceModelProperty.value.total = _selectedIds.length;
 
@@ -536,6 +610,15 @@ export class InstanceSelector extends Configurable {
     return [...this.selectionPool.keys()];
   }
 
+  /* Makes a copy array of the selected objects IDs and removes all shown in select2.
+   * The array is used to handle show more button items properly
+   */
+  getSelectionPoolEntriesInHolder() {
+    let arr = [...this.selectionPool.keys()];
+    arr.splice(-this.displayObjectsInSelectCount, this.displayObjectsInSelectCount);
+    return arr;
+  }
+
   getUniqueItems(oldSelectedItems, newSelectedItems) {
     return oldSelectedItems.filter(function (item) {
       return !newSelectedItems.some(function (newItem) {
@@ -548,15 +631,18 @@ export class InstanceSelector extends Configurable {
     return this.config.mode === MODE_EDIT;
   }
 
-  getSearchCriteria(uri = '') {
+  isEditable() {
+    return this.isEditMode() && this.config.formViewMode && FormWrapper.isEditMode(this.config.formViewMode);
+  }
+
+  getSearchCriteria(uri = []) {
     return {
       rules: [SearchCriteriaUtils.getDefaultObjectTypeRule(uri)]
-    }
+    };
   }
 
   initPicker(currentContext) {
     this.relationshipsService.getRelationInfo(this.config.fieldUri).then((response) => {
-
       let selectedItems = this.getSelectionPoolEntries().map((item) => {
         return {id: item};
       });
@@ -566,10 +652,19 @@ export class InstanceSelector extends Configurable {
         tabs: {}
       };
 
+      let restriction;
+      if (!this.config.pickerRestrictions) {
+        restriction = this.getSearchCriteria(response.data.rangeClass);
+      } else {
+        restriction = SearchCriteriaUtils.getDefaultAdvancedSearchCriteria('AND');
+        let typesRule = SearchCriteriaUtils.getDefaultObjectTypeRule([response.data.rangeClass]);
+        restriction.rules[0].rules.push(typesRule);
+        restriction.rules.unshift(this.config.pickerRestrictions);
+      }
+
       pickerConfig.extensions[SEARCH_EXTENSION] = {
         predefinedTypes: this.config.predefinedTypes,
-        restrictions: this.config.pickerRestrictions,
-        criteria: this.getSearchCriteria(response.data.rangeClass),
+        restrictions: restriction,
         useRootContext: true,
         results: {
           config: {
@@ -592,7 +687,9 @@ export class InstanceSelector extends Configurable {
   }
 
   ngOnDestroy() {
-    this.valueChangeHandler.unsubscribe();
-    this.eventEmitter.unsubscribeAll();
+    this.loadedSubscription && this.loadedSubscription.unsubscribe();
+    this.eventHandlers.forEach((handler) => {
+      handler && handler.unsubscribe();
+    });
   }
 }

@@ -1,0 +1,39 @@
+<div class="model-header-view"
+     ng-class="{ 'has-error': modelHeaderView.isCurrentHeaderInvalid() }">
+
+  <div class="form-control panel panel-default"
+       ng-class="{ 'expanded': modelHeaderView.expanded }" collapsible-panel>
+
+    <div class="panel-heading" ng-click="modelHeaderView.toggleView()"
+         ng-class="{ 'dirty-model': modelHeaderView.isCurrentHeaderDirty(), 'has-error': modelHeaderView.isCurrentHeaderInvalid()}">
+
+      <i class="panel-caret fa"
+         ng-class="{ 'fa-caret-right': !modelHeaderView.expanded, 'fa-caret-down': modelHeaderView.expanded }"></i>
+
+      <h4 class="panel-title">
+        <span class="header-type-title">{{ modelHeaderView.getHeaderTypeLabel() | translate }}</span>
+        <i ng-if="modelHeaderView.isInherited()" class="inherited">({{modelHeaderView.getInheritedParentLabel()}})</i>
+
+        <span class="toolbar btn-group">
+          <button ng-if="!modelHeaderView.isDefaultLanguageLoaded()" class="btn btn-default btn-xs copy-default"
+                  ng-click="modelHeaderView.copyDefaultValue($event)"
+                  title="{{ ::'administration.models.management.header.copy.default.title' | translate }}">
+            <i class="fa fa-level-down"></i>
+            <span>{{ ::'administration.models.management.header.copy.default' | translate }}</span>
+          </button>
+        </span>
+      </h4>
+      <ng-transclude class="pull-right controls"></ng-transclude>
+    </div>
+
+    <div class="panel-body container-fluid model-header-attribute" ng-if="modelHeaderView.expanded">
+      <seip-sourcearea ng-model="modelHeaderView.getCurrentHeaderValue().value"
+                       config="::modelHeaderView.sourceareaConfig"
+                       ng-change="modelHeaderView.onModelChange('{{modelHeaderView.getValue()}}')"
+                       class="header-value"></seip-sourcearea>
+
+      <model-validation-messages ng-if="modelHeaderView.isCurrentHeaderInvalid()"
+                                 validation="modelHeaderView.getCurrentHeaderValidation()"></model-validation-messages>
+    </div>
+  </div>
+</div>

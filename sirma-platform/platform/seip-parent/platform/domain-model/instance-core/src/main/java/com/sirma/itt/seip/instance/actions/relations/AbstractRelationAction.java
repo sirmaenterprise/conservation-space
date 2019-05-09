@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -12,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.sirma.itt.seip.configuration.Options;
 import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.domain.definition.DefinitionModel;
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
@@ -26,11 +29,14 @@ import com.sirma.itt.seip.rest.exceptions.BadRequestException;
  */
 public abstract class AbstractRelationAction<A extends ActionRequest> implements Action<A> {
 
+	private static final String KEY_ERROR_MESSAGE_FIELD_RELATION_NOT_DEFINED = "validation.error.field.relation.not.defined";
 	@Inject
 	private DomainInstanceService instanceService;
 
 	@Inject
 	protected DefinitionService definitionService;
+	@Inject
+	private LabelProvider labelProvider;
 
 	@Override
 	public void validate(A request) {
@@ -51,6 +57,23 @@ public abstract class AbstractRelationAction<A extends ActionRequest> implements
 		// return new instance data. when the instance is serialized the added relations should be returned as well
 		return Options.DISABLE_AUDIT_LOG.wrap(
 				() -> instanceService.save(InstanceSaveContext.create(instance, request.toOperation()))).get();
+	}
+
+	protected void verifyRelationsAreDefined(Instance instance, Set<String> relations) {
+		DefinitionModel instanceDefinition = definitionService.getInstanceDefinition(instance);
+		relations.forEach(checkIsRelationDefined(instanceDefinition));
+	}
+
+	private Consumer<String> checkIsRelationDefined(DefinitionModel instanceDefinition) {
+		return relationId -> {
+			if (!instanceDefinition.getField(relationId).isPresent()) {
+				throw createMissingFieldException();
+			}
+		};
+	}
+
+	private BadRequestException createMissingFieldException() {
+		return new BadRequestException(labelProvider.getLabel(KEY_ERROR_MESSAGE_FIELD_RELATION_NOT_DEFINED));
 	}
 
 	/**
@@ -98,10 +121,11 @@ public abstract class AbstractRelationAction<A extends ActionRequest> implements
 	 * @param propertyName - property name where <code>linkTo</code> have to be removed.
 	 * @param linkTo set with instance ids which relations have to be removed.
 	 */
-	protected static void removeRelation(Instance instance, String propertyName, Set<String> linkTo) {
+	@SuppressWarnings("unchecked")
+	static void removeRelation(Instance instance, String propertyName, Set<String> linkTo) {
 		Serializable oldValue = instance.remove(propertyName);
 		if (oldValue instanceof Collection) {
-			Collection<?> collection = (Collection<?>) oldValue;
+			Collection collection = (Collection) oldValue;
 
 			if (collection.removeAll(linkTo)) {
 				// if we had values to remove at all that matches the one we need to remove
@@ -117,9 +141,5 @@ public abstract class AbstractRelationAction<A extends ActionRequest> implements
 			// if the single value does not match any of the requested for removal we should put it back
 			instance.add(propertyName, oldValue);
 		}
-	}
-
-	protected Instance getInstance(Serializable instanceId) {
-		return instanceService.loadInstance(instanceId.toString());
 	}
 }

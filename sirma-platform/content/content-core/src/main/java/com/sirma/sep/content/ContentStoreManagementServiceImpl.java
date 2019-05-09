@@ -220,6 +220,31 @@ public class ContentStoreManagementServiceImpl implements ContentStoreManagement
 		return new StoreInfo(sourceStoreName, uniqueCount.get(), occupiedSpace.get());
 	}
 
+	@Override
+	public void scheduleSingleContentMove(String contentId, String targetStoreName) {
+		findStore(targetStoreName);
+
+		LOGGER.info("Triggered content move of '{}' to '{}'", contentId, targetStoreName);
+
+		// used to store a sender service instance
+		Function<SenderService, MessageSender> senderBuilder = service -> service.createSender(
+				ContentDestinations.MOVE_CONTENT_QUEUE, SendOptions.create().asTenantAdmin());
+		JmsTxStore senderServiceProvider = new JmsTxStore(senderService::get, senderBuilder);
+
+		Consumer<ContentEntity> sendMoveOp = sendMessageForContentMove(targetStoreName, senderServiceProvider);
+
+		ContentEntity entity = contentEntityDao.getEntity(contentId, "any");
+		if (entity == null) {
+			throw new ContentNotFoundRuntimeException("Could not find content to move " + contentId);
+		}
+		senderServiceProvider.beginTx();
+		try {
+			sendMoveOp.accept(entity);
+		} finally {
+			senderServiceProvider.endTx();
+		}
+	}
+
 	private Consumer<ContentEntity> sendMessageForContentMove(String targetStoreName,
 			JmsTxStore senderServiceProvider) {
 		return entity -> {
@@ -283,7 +308,8 @@ public class ContentStoreManagementServiceImpl implements ContentStoreManagement
 		// at this point the content should be stored in the new store
 		// we should check if all of it got there
 		if (movedFileInfo.getContentLength() != contentEntity.getContentSize()) {
-			throw new RollbackedRuntimeException(
+			targetStore.delete(movedFileInfo);
+			throw new ContentCorruptedException(
 					String.format("Failed to transfer content %s to '%s'. File size does not match %d!=%d", contentId,
 							targetStoreName, contentEntity.getContentSize(), movedFileInfo.getContentLength()));
 		}

@@ -7,13 +7,11 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
-
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.sirma.itt.seip.instance.version.compare.VersionCompareContext;
 import com.sirma.itt.seip.instance.version.compare.VersionCompareException;
@@ -27,6 +25,7 @@ import com.sirma.itt.seip.testutil.CustomMatcher;
  *
  * @author A. Kunchev
  */
+@RunWith(MockitoJUnitRunner.class)
 public class VersionCompareActionTest {
 
 	@InjectMocks
@@ -34,12 +33,6 @@ public class VersionCompareActionTest {
 
 	@Mock
 	private VersionCompareService versionCompareService;
-
-	@Before
-	public void setup() {
-		action = new VersionCompareAction();
-		MockitoAnnotations.initMocks(this);
-	}
 
 	@Test
 	public void getName() {
@@ -49,7 +42,7 @@ public class VersionCompareActionTest {
 	@Test(expected = BadRequestException.class)
 	public void perform_failedValidation() {
 		when(versionCompareService.compareVersionsContent(any(VersionCompareContext.class)))
-				.thenThrow(new IllegalArgumentException());
+		.thenThrow(new IllegalArgumentException());
 		action.perform(new VersionCompareRequest());
 	}
 
@@ -65,15 +58,15 @@ public class VersionCompareActionTest {
 		request.setTargetId("instance-id");
 		request.setFirstSourceId("instance-id-v1.5");
 		request.setSecondSourceId("instance-id-v1.8");
-		request.setAuthenticationHeaders(new HashMap<>());
+		request.setAuthentication("xxx.yyy.zzz");
 		action.perform(request);
 		verify(versionCompareService)
-				.compareVersionsContent(argThat(CustomMatcher.of((VersionCompareContext context) -> {
-					assertEquals("instance-id", context.getOriginalInstanceId());
-					assertEquals("instance-id-v1.5", context.getFirstIdentifier());
-					assertEquals("instance-id-v1.8", context.getSecondIdentifier());
-					assertNotNull(context.getAuthenticationHeaders());
-				})));
+		.compareVersionsContent(argThat(CustomMatcher.of((VersionCompareContext context) -> {
+			assertEquals("instance-id", context.getOriginalInstanceId());
+			assertEquals("instance-id-v1.5", context.getFirstIdentifier());
+			assertEquals("instance-id-v1.8", context.getSecondIdentifier());
+			assertNotNull("xxx.yyy.zzz", context.getAuthentication());
+		})));
 	}
 
 }

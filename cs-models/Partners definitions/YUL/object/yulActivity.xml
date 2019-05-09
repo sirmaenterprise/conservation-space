@@ -2,86 +2,72 @@
 <definition id="yulActivity" parentId="baseObject" type="object"> <!-- Activity -->
 	<fields>
 		<field name="default_header" type="ANY" label="ACTIVITY_DEFAULT_HEADER_YUL" />
-		<field name="compact_header" type="an..4096" label="ACTIVITY_COMPACT_HEADER_YUL" />
-		<field name="breadcrumb_header" type="an..4096" label="ACTIVITY_BREADCRUMB_HEADER_YUL" />
+		<field name="compact_header" type="ANY" label="ACTIVITY_COMPACT_HEADER_YUL" />
+		<field name="breadcrumb_header" type="ANY" label="ACTIVITY_BREADCRUMB_HEADER_YUL" />
 		<field name="tooltip_header" type="ANY" label="ACTIVITY_TOOLTIP_HEADER_YUL" />
 		
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+		<field name="rdf:type" >
 			<value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/YUL#Activity</value>
 		</field>
-		<field name="type" type="an..50" displayType="system" />
-		
-		<field name="identifier" type="an..50" displayType="system" />
-		<field name="title" type="an..180" displayType="system"/>
-		<field name="status" type="an..50" displayType="system" />		
-		<field name="description" type="an..5000" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-		<field name="createdBy" type="uri" displayType="system" />
-		<field name="modifiedOn" type="dateTime" displayType="system"/>
-		<field name="modifiedBy" type="uri" displayType="system" />		
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri"  displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="hasRevision" type="uri" displayType="system" />
-		<field name="isRevisionOf" type="uri" displayType="system" />
-		<field name="lastPublishedRevision" type="uri" displayType="system" />
-		<field name="lastRevision" type="uri" displayType="system" />
-		<field name="nextRevision" type="uri" displayType="system" />
-		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="integrated" displayType="system" />
+		<field name="uri" displayType="system" />
+		<field name="hasRevision" displayType="system" />
+		<field name="isRevisionOf" displayType="system" />
+		<field name="lastPublishedRevision" displayType="system" />
+		<field name="lastRevision" displayType="system" />
+		<field name="nextRevision" displayType="system" />
+		<field name="previousRevision" displayType="system" />
 	</fields>
 	
 	<regions>	
 		<region id="generalData" displayType="editable" order="10" label="yul.generalData.region.label">
 			<fields>
-				<field name="department" type="an..20" displayType="editable" mandatory="true" codelist="CL245" multiValued="true" label="yul.department.label" tooltip="yul.department.tooltip" uri="emf:departmentName" >
-					<control id="DEFAULT_VALUE_PATTERN">
+				<field name="subType" type="ANY" displayType="editable" mandatory="true" codelist="CL239" label="yul.subType.label" tooltip="yul.subType.tooltip" uri="yul:subType" />
+				<field name="department" type="ANY" displayType="editable" mandatory="true" codelist="CL245" label="yul.department.label" tooltip="yul.department.tooltip" uri="emf:departmentName" >
+					<control id="RELATED_FIELDS">							
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">subType</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra2</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
 						<control-param type="default_value_pattern" id="template" name="template">$[emf:hasAssignee.department]</control-param>
 					</control>
 				</field>
-				<field name="subType" type="an..20" displayType="editable" mandatory="true" codelist="CL239" label="yul.subType.label" tooltip="yul.subType.tooltip" uri="yul:subType" />
-				<field name="title" type="an..1024" displayType="editable" mandatory="true" label="yul.title.label" tooltip="yul.title.tooltip" uri="dcterms:title" />
-				<field name="description" type="an..1024" displayType="editable" label="yul.description.label" tooltip="yul.description.tooltip" uri="dcterms:description" />
+				<field name="title" type="an..1024" tooltip="yul.title.tooltip" />
+				<field name="description" type="an..1024" displayType="editable" tooltip="yul.description.tooltip" />
 				<field name="processes" type="uri" displayType="editable" label="yul.processesCO.label" tooltip="yul.processesCO.tooltip" multiValued="true" uri="emf:processes" >
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}</control-param>
 					</control>
 				</field>
-				<field name="priority" type="an..20" displayType="editable" codelist="CL29" label="yul.priority.label" tooltip="yul.priority.tooltip" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>
-				<field name="reasonForSuspension" type="an..1024" displayType="hidden" label="yul.reasonForSuspension.label" tooltip="yul.reasonForSuspension.tooltip" uri="yul:reasonForSuspension" />
+				<field name="priority" type="ANY" displayType="editable" codelist="CL29" label="yul.priority.label" tooltip="yul.priority.tooltip" uri="emf:priority"><value>0006-000084</value></field>
+				<field name="reasonForSuspension" type="an..1024" displayType="hidden" label="yul.reasonForSuspension.label" tooltip="yul.reasonForSuspension.tooltip" uri="yul:reasonForSuspension"  >
+					<control id="RICHTEXT"/>
+				</field>
 				<field name="assignee" type="uri" displayType="editable" mandatory="true" label="yul.assignee.label" tooltip="yul.assignee.tooltip" uri="emf:hasAssignee">
 					<condition id="readonlyField" renderAs="READONLY">[identifier] NOTIN ('NO_ID')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 					<value>${currentUser.id}</value>
 				</field>
 				<field name="hasSupervisor" type="uri" displayType="editable" label="yul.hasSupervisor.label" tooltip="yul.hasSupervisor.tooltip" multiValued="true" uri="chc:hasSupervisor">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User,emf:Group</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 				</field>
 				<field name="hasParticipant" type="uri" displayType="editable" label="yul.hasParticipant.label" tooltip="yul.hasParticipant.tooltip" multiValued="true" uri="ptop:hasParticipant">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User,emf:Group</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
+					</control>
+				</field>
+				<field name="yul:isAssignedConsActOf" type="uri" displayType="readOnly" label="yul.isAssignedConsActOf.label" tooltip="yul.isAssignedConsActOf.tooltip" multiValued="true" uri="yul:isAssignedConsActOf">
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document</control-param>
 					</control>
 				</field>
 			</fields>
@@ -95,134 +81,42 @@
 		</region>
 		<region id="systemData" displayType="editable" order="30" label="yul.systemData.region.label">
 			<fields>	
-				<field name="type" type="an..20" displayType="readonly" codelist="CL7" label="yul.type.label" tooltip="yul.type.tooltip" uri="emf:type">
+				<field name="type" tooltip="yul.type.tooltip" >
 					<value>FC236002</value>
 				</field>
-				<field name="identifier" type="an..50" displayType="readOnly" label="yul.identifier.label" tooltip="yul.identifier.tooltip" rnc="${eval(ACT${seq({+actSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..20" displayType="readOnly" codelist="CL106" label="yul.status.label" tooltip="yul.status.tooltip" uri="emf:status" />
-				<field name="emf:version" type="an..10" displayType="readOnly" label="yul.version.label" tooltip="yul.version.tooltip" uri="emf:version"/> 
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" label="yul.lockedBy.label" tooltip="yul.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="yul:isAssignedConsActOf" type="uri" displayType="readOnly" label="yul.isAssignedConsActOf.label" tooltip="yul.isAssignedConsActOf.tooltip" multiValued="true" uri="yul:isAssignedConsActOf">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document</control-param>
-					</control>
-				</field>
+				<field name="identifier" tooltip="yul.identifier.tooltip" rnc="${eval(ACT${seq({+actSequence})})}" />
+				<field name="status" tooltip="yul.status.tooltip" />
+				<field name="emf:version" tooltip="yul.version.tooltip" /> 
+				<field name="createdOn" tooltip="yul.createdOn.tooltip" />
+				<field name="createdBy" tooltip="yul.createdBy.tooltip" />
+				<field name="modifiedOn" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="yul.lockedBy.tooltip" />
 				<field name="attachmentOf" type="uri" displayType="editable" label="yul.attachmentOf.label" tooltip="yul.attachmentOf.tooltip" multiValued="true" uri="emf:isAttachedTo" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,yul:Activity,chc:Sample,emf:Task,emf:Project,emf:BusinessProcess</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,yul:Activity,chc:Sample,emf:Task,emf:Project,emf:BusinessProcess,ptop:Organization</control-param>
 					</control>
 				</field>
 				<field name="hasAttachment" type="uri" displayType="editable" label="yul.attachments.label" tooltip="yul.hasAttachment.tooltip" multiValued="true" uri="emf:hasAttachment" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,yul:Activity,chc:Sample,emf:Task,emf:Project,emf:BusinessProcess</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,yul:Activity,chc:Sample,emf:Task,emf:Project,emf:BusinessProcess,ptop:Organization</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" label="yul.hasWatcher.label" tooltip="yul.hasWatcher.tooltip" multiValued="true" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="hasThumbnail" type="uri" displayType="readOnly" label="yul.hasThumbnail.label" tooltip="yul.hasThumbnail.tooltip" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" label="yul.parentOf.label" tooltip="yul.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" label="yul.hasParent.label" tooltip="yul.hasParent.tooltip" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" label="yul.partOf.label" tooltip="yul.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" label="yul.hasChild.label" tooltip="yul.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasWatcher" label="yul.hasWatcher.label" tooltip="yul.hasWatcher.tooltip" />
+				<field name="hasThumbnail" label="yul.hasThumbnail.label" tooltip="yul.hasThumbnail.tooltip" />
+				<field name="parentOf" tooltip="yul.parentOf.tooltip" />
+				<field name="hasParent" tooltip="yul.hasParent.tooltip" previewEmpty="true" />
+				<field name="partOf" displayType="readOnly" tooltip="yul.partOf.tooltip" previewEmpty="true" />
+				<field name="hasChild" tooltip="yul.hasChild.tooltip" />
+				<field name="emf:hasTemplate" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" />
 			</fields>
 		</region> 
 	</regions>
 
 	<transitions>	
-		<transition id="create" eventId="create" purpose="create">
-			<!-- <fields>
-				<field name="sendMail" type="an..200" displayType="system" >
-                    <value>
-						<![CDATA[
-
-							function includes(arr, k) {
-                              return arr.indexOf(k) > -1;
-                            }
-							var subType = codelist.getDescription(239, root.get('subType'), 'en');
-							var title = root.get('title');
-							var subject = '(New assignment) Activity: ' + subType + " - " + title;
-
-							//extract assignee, participants and createdBy
-							var assignee = root.get('assignee');
-							var participants = root.get('hasParticipant');
-							var createdBy = root.get('createdBy');
-
-							//add all users to recipients
-							var recipients = [];
-							var i = 0;
-							 if(participants != null) {
-							   for (i = 0; i < participants.length; i++) {
-							   recipients.push(participants[i].toString());
-							   }
-							 }
-
-							if(!includes(recipients, assignee.toString())){
-								recipients.push(assignee.toString());
-							}
-							if(!includes(recipients, createdBy.toString())){
-								recipients.push(createdBy.toString());
-							}
-
-							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_assignee_object_yul", recipients, context, null);
-						]]>
-					</value>
-					<control id="SCRIPT">
-                        <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async">true</control-param>
-                    </control>
-				</field> 
-			</fields> -->
-		</transition> 
-	
+		<transition id="create" label="create" purpose="create"/>
 		<transition id="editDetails" order="10" actionPath="/actions" />
-		<transition id="reassign" order="15" label="reassign.label" tooltip="yul.reassign.tooltip" eventId="reassign" purpose="addRelation" confirmation="reassign.confirm" >
+		<transition id="reassign" order="15" label="reassign.label" tooltip="yul.reassign.tooltip" purpose="addRelation" confirmation="reassign.confirm" >
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -279,7 +173,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="complete" order="20" label="complete.label" tooltip="yul.complete.action.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" actionPath="/" >
+		<transition id="complete" order="20" label="complete.label" tooltip="yul.complete.action.tooltip" purpose="transition" confirmation="complete.confirm" actionPath="/" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -309,7 +203,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="reopen" order="25" label="yul.reopen.action.label" tooltip="yul.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" actionPath="/" confirmation="reopen.confirm" >
+		<transition id="reopen" order="25" label="yul.reopen.action.label" tooltip="yul.reopen.action.tooltip" purpose="transition" actionPath="/" confirmation="reopen.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -339,7 +233,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="stop" order="30" label="stop.label" tooltip="yul.stop.tooltip" eventId="stop" purpose="transition" immediate="true" confirmation="stop.confirm" >
+		<transition id="stop" order="30" label="stop.label" tooltip="yul.stop.tooltip" purpose="transition" confirmation="stop.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -369,7 +263,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="suspend" order="35" label="suspend.label" tooltip="suspend.tooltip" eventId="suspend" purpose="transition" immediate="true"  >
+		<transition id="suspend" order="35" label="suspend.label" tooltip="suspend.tooltip" purpose="transition"  >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -399,7 +293,7 @@
 				</field>
 			</fields>
 		</transition>		
-		<transition id="restart" order="40" label="restart.label" eventId="restart" purpose="transition" immediate="true" tooltip="restart.tooltip" actionPath="/" >
+		<transition id="restart" order="40" label="restart.label" purpose="transition" tooltip="restart.tooltip" actionPath="/" >
 			<fields>
 				<field name="cleanReasonForSuspension" type="an..200" displayType="system" >
 					<value><![CDATA[
@@ -440,14 +334,14 @@
 		</transition>
 		
 		<group id="add" order="45" label="add.group.label" type="menu" />
-		<transition id="addCulturalObject" label="yul.addCulturalObject.action.label" tooltip="yul.addCulturalObject.action.tooltip" eventId="addCulturalObject" purpose="addRelation" actionPath="/" group="add" >
+		<transition id="addCulturalObject" label="yul.addCulturalObject.action.label" tooltip="yul.addCulturalObject.action.tooltip" purpose="addRelation" actionPath="/" group="add" >
 			<fields>
 				<field name="addCOToConfig" type="json">
 					<value>
 						{
 							"predefinedTypes" : ["chc:CulturalObject"],
 							"selection" : "multiple",
-							"relation" : ["emf:hasAttachment"],
+							"relation" : ["emf:processes"],
 							"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
 						}
 					</value>
@@ -455,12 +349,12 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>
 							{
-								"predefinedTypes" : ["chc:CulturalObject","emf:Image","emf:Audio","emf:Video","emf:Project","yul:Activity","emf:Document","chc:Sample", "emf:Task","emf:BusinessProcess"],
+								"predefinedTypes" : ["chc:CulturalObject","emf:Image","emf:Audio","emf:Video","emf:Project","yul:Activity","emf:Document","chc:Sample", "emf:Task","emf:BusinessProcess","ptop:Organization"],
 								"selection" : "multiple",
 								"relation" : ["emf:hasAttachment"]
 							}
@@ -470,7 +364,7 @@
 			</fields>
 		</transition>
 		<transition id="addThumbnail" group="add" />	
-		<transition id="addWatchers" label="addWatchers.label" tooltip="yul.addWatchers.action.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+		<transition id="addWatchers" label="addWatchers.label" tooltip="yul.addWatchers.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addWatcherConfig" type="json">
 					<value>						
@@ -487,7 +381,7 @@
 		</transition>
 		
 		<group id="create" order="50" label="create.group.label" type="menu" />
-		<transition id="createDocument" label="yul.createDocument.action.label" tooltip="yul.createDocument.action.tooltip" eventId="createDocument" purpose="createInstance" actionPath="/" group="create" >
+		<transition id="createDocument" label="yul.createDocument.action.label" tooltip="yul.createDocument.action.tooltip" purpose="createInstance" actionPath="/" group="create" >
       		<fields>
 				<field name="createDocumentConfig" type="json">
 					<value>
@@ -500,7 +394,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="createTask" label="yul.createTask.action.label" tooltip="yul.createSubTask.action.tooltip" eventId="createTask" purpose="createInstance" group="create" >
+		<transition id="createTask" label="yul.createTask.action.label" tooltip="yul.createSubTask.action.tooltip" purpose="createInstance" group="create" >
       		<fields>
 				<field name="createTaskConfig" type="json">
 					<value>
@@ -526,8 +420,8 @@
 		
 		<group id="template" order="61" label="template.group.label" type="menu" />
 		<transition id="saveAsTemplate" group="template" />
-		<transition id="updateTemplate" tooltip="yul.updateTemplate.action.tooltip" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
-		<transition id="changeTemplate" tooltip="yul.changeTemplate.action.tooltip" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="yul.updateTemplate.action.tooltip" label="updateTemplate.label" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" tooltip="yul.changeTemplate.action.tooltip" label="changeTemplate.label" purpose="changeTemplate" group="template" />
 		
 		<group id="more" order="65" label="more.group.label" type="menu" />
 		<transition id="move" confirmation="move.confirm" group="more" >
@@ -713,6 +607,12 @@
                         <label>Department: </label>
                         <span data-property="department">${CL([department])}</span>
                     </span>
+					${if(${get([processes])}<>null).then(
+						<span class="tooltip-row">
+							<label>Related cultural object(s): </label>
+							<span data-property="processes">${objectProperty(${get([processes])})}</span>
+						</span>
+					)}
 					<span class="tooltip-row">
                         <label>Priority: </label>
                         <span data-property="priority">${CL([priority])}</span>
@@ -724,13 +624,13 @@
 					${if(${get([plannedStartDate])}<>null).then(
 						<span class="tooltip-row">
 	                        <label>Start date: </label>
-	                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(MM/dd/yyyy)}</span>
+	                        <span data-property="plannedStartDate">${date([plannedStartDate])}</span>
 	                    </span>
 					)}
 					${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
 	                        <label>End date: </label>
-	                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(MM/dd/yyyy)}</span>
+	                        <span data-property="plannedEndDate">${date([plannedEndDate])}</span>
 	                    </span>
 					)}
 					${if(${get([estimatedEffortHours])}<>null).then(
@@ -741,12 +641,18 @@
 					)}
 					<span class="tooltip-row">
 						<label>System modified by: </label>
-						<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(MM/dd/yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
     	</label>
@@ -756,19 +662,21 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>:&nbsp;
 					<span data-property="subType">${CL([subType])}</span>&nbsp;
 					(<span data-property="status">${CL([status])}</span>)
 					<br/>
 					<span class="truncate-element">
-						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-							<span data-property="title">${get([title])}</span>
-						</a>&nbsp;
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								<span data-property="title">${get([title])}</span>
+							</a>&nbsp;
+						</b>	
 						<span data-property="departmentName">${CL([departmentName])}</span>
 						${if(${var.isVersion}).then(
 							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 						)}
-						${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 					</span>
 				</span>
 			)}]]></value>
@@ -780,7 +688,7 @@
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
 					<span class="truncate-element">
-						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 							<span data-property="subType">${CL([subType])}</span>:&nbsp;
@@ -799,7 +707,7 @@
 				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						<span data-property="title">${get([title])}</span> 

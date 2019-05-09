@@ -15,10 +15,10 @@ export function decorate(originalObject, decoratedMethods) {
   Object.keys(originalObject).forEach(function (property) {
     if (typeof originalObject[property] !== 'function') {
       Object.defineProperty(result, property, {
-        set: function (value) {
+        set(value) {
           originalObject[property] = value;
         },
-        get: function () {
+        get() {
           return originalObject[property];
         }
       });

@@ -22,9 +22,12 @@ public class EAIServicesConstants {
 
 	/** uri for external id. */
 	public static final String URI_EXTERNAL_ID = "emf:externalID";
+	/** uri for external type. */
+	public static final String URI_EXTERNAL_TYPE = "chc:externalType";
 	/** uri for external system id. */
 	public static final String URI_SUB_SYSTEM_ID = "chc:sourceSystemId";
 
+	public static final String PROPERTY_EXTERNAL_TYPE = "externalType";
 	/** property for flag for integration. */
 	public static final String PROPERTY_INTEGRATED_FLAG_ID = "integrated";
 	/** property for flag for the integraion system id - TMS. */

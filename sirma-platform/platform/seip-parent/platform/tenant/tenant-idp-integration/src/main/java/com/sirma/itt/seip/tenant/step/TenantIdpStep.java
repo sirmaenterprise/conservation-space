@@ -23,6 +23,7 @@ import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.provision.IdpTenantInfo;
 import com.sirma.itt.seip.tenant.provision.IdpTenantProvisioning;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -74,9 +75,17 @@ public class TenantIdpStep extends AbstractTenantStep {
 		context.setNewTenantAdminPassword(data.getPropertyValue(KEY_MODEL_ADMINPASS, true));
 		String tenantId = context.getTenantInfo().getTenantId();
 		String idpProvider = data.getPropertyValue(KEY_MODEL_IDP_PROVIDER, true);
+		context.setIdpProvider(idpProvider);
 
 		if (!SecurityContext.isDefaultTenant(tenantId)) {
-			retrieveProvisioning(idpProvider).provision(buildIdpTenantInfo(data, context));
+			IdpTenantProvisioning idpTenantProvisioning = retrieveProvisioning(idpProvider);
+
+			try {
+				idpTenantProvisioning.provision(buildIdpTenantInfo(data, context));
+			} catch (Exception e) {
+				idpTenantProvisioning.delete(tenantId);
+				throw e;
+			}
 
 			data.completedSuccessfully();
 		}
@@ -88,6 +97,8 @@ public class TenantIdpStep extends AbstractTenantStep {
 	private static IdpTenantInfo buildIdpTenantInfo(TenantStepData data, TenantInitializationContext context) {
 		IdpTenantInfo tenantInfo = new IdpTenantInfo();
 		tenantInfo.setTenantId(context.getTenantInfo().getTenantId());
+		tenantInfo.setTenantDisplayName(context.getTenantInfo().getTenantDisplayName());
+		tenantInfo.setTenantDescription(context.getTenantInfo().getTenantDescription());
 		tenantInfo.setAdminUsername(context.getAdminUser());
 		tenantInfo.setAdminPassword(context.getNewTenantAdminPassword());
 		// if email is missing set full username - admin@tenantId
@@ -99,9 +110,10 @@ public class TenantIdpStep extends AbstractTenantStep {
 	}
 
 	private IdpTenantProvisioning retrieveProvisioning(String idpProvider) {
-		return availableIdpProvisioners.select(provisioner -> provisioner.isApplicable(idpProvider))
-				.orElseThrow(() -> new EmfRuntimeException("No applicable " + IdpTenantProvisioning.class
-						+ " implementation could be found with name " + idpProvider));
+		return availableIdpProvisioners.select(provisioner -> provisioner.isApplicable(idpProvider)).orElseThrow(
+				() -> new EmfRuntimeException(
+						"No applicable " + IdpTenantProvisioning.class + " implementation could be found with name "
+								+ idpProvider));
 	}
 
 	private void insertConfigurations(TenantInitializationContext context, String idpProvider) {
@@ -126,13 +138,16 @@ public class TenantIdpStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
-		String idpProvider = securityConfiguration.getIdpProviderName().get();
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
+		TenantInfo tenantInfo = context.getTenantInfo();
+		String idpProvider = context.getConfigValue(securityConfiguration.getIdpProviderName().getName());
 
-		try {
-			deleteConfigurations(tenantInfo);
-		} catch (Exception e) {
-			LOGGER.error("Failed to remove configurations", e);
+		if (context.shouldRollback()) {
+			try {
+				deleteConfigurations(tenantInfo);
+			} catch (Exception e) {
+				LOGGER.error("Failed to remove configurations", e);
+			}
 		}
 
 		if (data.isCompleted()) {

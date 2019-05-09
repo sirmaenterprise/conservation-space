@@ -213,7 +213,7 @@ export class ValidationService {
     } else if (!valid) {
       ValidationService.setMessages(valid, validationModel[fieldName], validatorDef, translateService);
       ValidationService.setValidity(fieldName, validationModel, valid);
-    } else if (!fieldValidationModel.messages.length && valid) {
+    } else if (!fieldValidationModel.messages.length) {
       ValidationService.setValidity(fieldName, validationModel, valid);
     }
   }

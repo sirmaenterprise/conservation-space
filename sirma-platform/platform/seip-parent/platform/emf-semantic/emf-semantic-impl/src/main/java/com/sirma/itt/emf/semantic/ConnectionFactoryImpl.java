@@ -21,9 +21,7 @@ import com.sirma.itt.emf.semantic.exception.SemanticPersistenceException;
 import com.sirma.itt.seip.Destroyable;
 import com.sirma.itt.seip.context.Contextual;
 import com.sirma.itt.seip.context.ContextualReference;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.security.context.SecurityContext;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.semantic.ConnectionFactory;
 import com.sirma.itt.semantic.ReadOnly;
 import com.sirma.itt.semantic.configuration.SemanticConfiguration;
@@ -44,7 +42,6 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private Statistics statistics;
 	private SemanticConfiguration semanticConfiguration;
 	private SecurityContext securityContext;
 
@@ -57,12 +54,11 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 	@Inject
 	public ConnectionFactoryImpl(SemanticConfiguration semanticConfiguration, TransactionManager transactionManager,
 			TransactionSynchronizationRegistry transactionSynchronizationRegistry,
-			SecurityContext securityContext, Statistics statistics) {
+			SecurityContext securityContext) {
 		this.semanticConfiguration = semanticConfiguration;
 		this.securityContext = securityContext;
-		this.statistics = statistics;
 
-		transactionCoordinator = new TransactionCoordinator(transactionManager, transactionSynchronizationRegistry, statistics, this::createUnmanagedConnection);
+		transactionCoordinator = new TransactionCoordinator(transactionManager, transactionSynchronizationRegistry, this::createUnmanagedConnection);
 	}
 
 	/**
@@ -95,7 +91,6 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 	@Override
 	@Produces
 	public RepositoryConnection produceManagedConnection() {
-		statistics.updateMeter(getClass(), "semanticTxRate");
 		return new ManagedRepositoryConnection(transactionCoordinator, produceReadOnlyConnection());
 	}
 
@@ -169,7 +164,6 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 
 	private void rollbackTransaction(RepositoryConnection connection) {
 		try {
-			statistics.getCounter(getClass(), "semanticRollbackTxCount").increment();
 			connection.rollback();
 		} catch (RepositoryException e) {
 			throw new SemanticPersistenceException("Failed to rollback connection", e);
@@ -178,9 +172,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 
 	private void commitTransaction(RepositoryConnection connection) {
 		if (connection.isActive()) {
-			TimeTracker tracker = statistics.createTimeStatistics(getClass(), "semanticTransactionCommit").begin();
 			connection.commit();
-			LOGGER.trace("Commit active connection {} took {} ms", System.identityHashCode(connection), tracker.stop());
 		} else {
 			LOGGER.warn("Tried to commit not active transaction for connection {}", System.identityHashCode(connection));
 		}

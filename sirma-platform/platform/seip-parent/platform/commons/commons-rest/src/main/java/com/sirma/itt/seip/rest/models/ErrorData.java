@@ -1,5 +1,6 @@
 package com.sirma.itt.seip.rest.models;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -7,12 +8,11 @@ import java.util.Map;
  * Error payload used when there is an error in request to the API.
  * @author yasko
  */
-public class ErrorData {
+public class ErrorData implements Serializable {
 
 	private int code;
 	private String message;
 
-	/** The errors. */
 	private Map<String, Error> errors = new LinkedHashMap<>();
 
 	/**

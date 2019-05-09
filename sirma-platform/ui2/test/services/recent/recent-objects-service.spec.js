@@ -1,7 +1,7 @@
 import {RecentObjectsService} from 'services/recent/recent-objects-service';
 import {Configuration} from 'common/application-config';
 import {Eventbus} from 'services/eventbus/eventbus';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {LocalStorageService} from 'services/storage/local-storage-service';
 import {RecentObjectAddedEvent, RecentObjectUpdatedEvent, RecentObjectRemovedEvent} from 'recent-objects/events';
 

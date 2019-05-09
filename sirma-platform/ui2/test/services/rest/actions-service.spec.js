@@ -2,6 +2,8 @@ import {ActionsService} from 'services/rest/actions-service';
 import {HEADER_V2_JSON, BASE_PATH} from 'services/rest-client';
 import {LOCK, UNLOCK} from 'idoc/actions/action-constants';
 
+import {PromiseStub} from 'test/promise-stub';
+
 describe('ActionsService', () => {
 
   let restClient;
@@ -32,9 +34,7 @@ describe('ActionsService', () => {
       })
     };
     let authenticationService = {
-      getToken: sinon.spy(() => {
-        return 'jwtToken';
-      })
+      getToken: () => PromiseStub.resolve('jwtToken')
     };
 
     let windowAdapter = {
@@ -177,7 +177,7 @@ describe('ActionsService', () => {
     let data = {
       operation: 'exportPDF'
     };
-    let expected = {operation: 'exportPDF', url: 'http://localhost:5000/#/idoc/emf:123456?mode=print&jwt=jwtToken'};
+    let expected = {operation: 'exportPDF', url: 'http://localhost:5000/#/idoc/emf:123456?mode=print'};
     actionsService.exportPDF(id, null, data);
     expect(restClient.post.calledOnce);
     expect(restClient.post.getCall(0).args[0]).to.equal('/export/pdf');
@@ -190,7 +190,7 @@ describe('ActionsService', () => {
     let data = {
       operation: 'exportWord'
     };
-    let expected = {operation: 'exportWord', url: '/#/idoc/emf:123456?mode=print&jwt=jwtToken&tab=tab2'};
+    let expected = {operation: 'exportWord', url: '/#/idoc/emf:123456?mode=print&tab=tab2'};
     actionsService.exportWord(id, 'tab2', data);
     expect(restClient.post.calledOnce);
     expect(restClient.post.getCall(0).args[0]).to.equal('/instances/emf:123456/actions/export-word');
@@ -307,13 +307,13 @@ describe('ActionsService', () => {
 
   it('should return properly combined edit offline check out rest url', ()=> {
     let expected = '/remote/api/instances/emf:123456/actions/edit-offline-check-out?jwt=jwtToken';
-    expect(actionsService.downloadForEditOffline('emf:123456')).to.equal(expected);
+    expect(actionsService.downloadForEditOffline('emf:123456')).to.eventually.equal(expected);
   });
-  
+
   it('should call the actions endpoint to delete and instance providing the user operation', () => {
     let payload = { userOperation: 'delete' };
     actionsService.delete('emf:123456', payload.userOperation);
-    
+
     expect(restClient.post.calledWithExactly('/instances/emf:123456/actions/delete', payload, {
       headers: {
         'Accept': HEADER_V2_JSON,

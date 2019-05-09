@@ -34,9 +34,12 @@ import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
 import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
+import com.sirma.itt.seip.domain.security.ActionTypeConstants;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.event.AfterInstancePersistEvent;
 import com.sirma.itt.seip.instance.event.ParentChangedEvent;
+import com.sirma.itt.seip.instance.save.event.AfterInstanceSaveEvent;
+import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.permissions.EntityPermissions;
 import com.sirma.itt.seip.permissions.InstancePermissionsHierarchyResolver;
 import com.sirma.itt.seip.permissions.PermissionService;
@@ -420,6 +423,131 @@ public class InheritedPermissionObserverTest {
 		assertFalse(allAddRoleAssignmentChange.contains(creator));
 		assertFalse(allAddRoleAssignmentChange.contains(consumer));
 		assertFalse(allAddRoleAssignmentChange.contains(viewer));
+	}
+
+	@Test
+	public void onLibraryChange_shouldDoNothingIfLibraryIsTheSame() throws Exception {
+		TransactionalPermissionChangesFake permissionsChangeBuilder = mockPermissionChanges();
+		EmfInstance instance = create("emf:instance", false, false);
+
+		permissionObserver.onLibraryChange(new AfterInstanceSaveEvent(instance, instance, new Operation(
+				ActionTypeConstants.CHANGE_TYPE)));
+		// this will actually trigger the save
+		permissionsChangeBuilder.beforeCompletion();
+
+		verify(permissionService, never()).setPermissions(any(), any());
+	}
+
+	@Test
+	public void onLibraryChange_shouldDoNothingIfDuringCreate() throws Exception {
+		TransactionalPermissionChangesFake permissionsChangeBuilder = mockPermissionChanges();
+		EmfInstance instance = create("emf:instance", false, false);
+
+		permissionObserver.onLibraryChange(new AfterInstanceSaveEvent(instance, null, new Operation(
+				ActionTypeConstants.CREATE)));
+		// this will actually trigger the save
+		permissionsChangeBuilder.beforeCompletion();
+
+		verify(permissionService, never()).setPermissions(any(), any());
+	}
+
+	@Test
+	public void onLibraryChange_shouldUpdateLibraryPermissions() throws Exception {
+		TransactionalPermissionChangesFake permissionsChangeBuilder = mockPermissionChanges();
+		EmfInstance instanceToSave = create("emf:instance", false, true);
+		((ClassInstance)instanceToSave.type()).setId("someOtherType");
+		EmfInstance oldInstance = create("emf:instance", false, false);
+
+		EmfInstance library = create("emf:library", false, true);
+		when(hierarchyResolver.getLibrary(any())).thenReturn(library.toReference());
+
+		permissionObserver.onLibraryChange(new AfterInstanceSaveEvent(instanceToSave, oldInstance, new Operation(
+				ActionTypeConstants.CHANGE_TYPE)));
+		// this will actually trigger the save
+		permissionsChangeBuilder.beforeCompletion();
+
+		verify(permissionService).setPermissions(any(), captor.capture());
+
+		Collection<PermissionsChange> changes = captor.getValue();
+
+		assertEquals(3, changes.size());
+
+		LibraryChange libraryChange = findChange(changes, LibraryChange.class);
+		assertEquals(library.getId(), libraryChange.getValue());
+
+		InheritFromLibraryChange inheritFromLibraryChange = findChange(changes, InheritFromLibraryChange.class);
+		assertEquals(true, inheritFromLibraryChange.getValue());
+
+		InheritFromParentChange inheritFromParentChange = findChange(changes, InheritFromParentChange.class);
+		assertEquals(false, inheritFromParentChange.getValue());
+	}
+
+	@Test
+	public void onLibraryChange_shouldUpdateParentPermissions_ifParentApplicable() throws Exception {
+		TransactionalPermissionChangesFake permissionsChangeBuilder = mockPermissionChanges();
+		EmfInstance instanceToSave = create("emf:instance", true, true);
+		((ClassInstance)instanceToSave.type()).setId("someOtherType");
+		EmfInstance oldInstance = create("emf:instance", false, false);
+
+		EmfInstance library = create("emf:library", true, true);
+		when(hierarchyResolver.getLibrary(any())).thenReturn(library.toReference());
+		EmfInstance parent = create("emf:parent", false, false);
+		when(contextService.getContext(instanceToSave)).thenReturn(Optional.of(parent.toReference()));
+		when(hierarchyResolver.isAllowedForPermissionSource(any())).thenReturn(Boolean.TRUE);
+
+		permissionObserver.onLibraryChange(new AfterInstanceSaveEvent(instanceToSave, oldInstance, new Operation(
+				ActionTypeConstants.CHANGE_TYPE)));
+		// this will actually trigger the save
+		permissionsChangeBuilder.beforeCompletion();
+
+		verify(permissionService).setPermissions(any(), captor.capture());
+
+		Collection<PermissionsChange> changes = captor.getValue();
+
+		assertEquals(3, changes.size());
+
+		LibraryChange libraryChange = findChange(changes, LibraryChange.class);
+		assertEquals(library.getId(), libraryChange.getValue());
+
+		InheritFromLibraryChange inheritFromLibraryChange = findChange(changes, InheritFromLibraryChange.class);
+		assertEquals(true, inheritFromLibraryChange.getValue());
+
+		InheritFromParentChange inheritFromParentChange = findChange(changes, InheritFromParentChange.class);
+		assertEquals(true, inheritFromParentChange.getValue());
+	}
+
+	@Test
+	public void onLibraryChange_shouldNotEnableParentPermissions_ifParentIsNotApplicable() throws Exception {
+		TransactionalPermissionChangesFake permissionsChangeBuilder = mockPermissionChanges();
+		EmfInstance instanceToSave = create("emf:instance", true, true);
+		((ClassInstance)instanceToSave.type()).setId("someOtherType");
+		EmfInstance oldInstance = create("emf:instance", false, false);
+
+		EmfInstance library = create("emf:library", true, true);
+		when(hierarchyResolver.getLibrary(any())).thenReturn(library.toReference());
+		EmfInstance parent = create("emf:parent", false, false);
+		when(contextService.getContext(instanceToSave)).thenReturn(Optional.of(parent.toReference()));
+		when(hierarchyResolver.isAllowedForPermissionSource(any())).thenReturn(Boolean.FALSE);
+
+		permissionObserver.onLibraryChange(new AfterInstanceSaveEvent(instanceToSave, oldInstance, new Operation(
+				ActionTypeConstants.CHANGE_TYPE)));
+		// this will actually trigger the save
+		permissionsChangeBuilder.beforeCompletion();
+
+		verify(permissionService).setPermissions(any(), captor.capture());
+
+		Collection<PermissionsChange> changes = captor.getValue();
+
+		assertEquals(3, changes.size());
+
+		LibraryChange libraryChange = findChange(changes, LibraryChange.class);
+		assertEquals(library.getId(), libraryChange.getValue());
+
+		InheritFromLibraryChange inheritFromLibraryChange = findChange(changes, InheritFromLibraryChange.class);
+		assertEquals(true, inheritFromLibraryChange.getValue());
+
+		InheritFromParentChange inheritFromParentChange = findChange(changes, InheritFromParentChange.class);
+		assertEquals(false, inheritFromParentChange.getValue());
 	}
 
 	private void addPermissionAssignments(Map<String, ResourceRole> permissionAssignments, String authority,

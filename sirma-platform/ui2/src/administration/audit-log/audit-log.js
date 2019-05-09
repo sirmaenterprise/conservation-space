@@ -19,6 +19,8 @@ import {Configuration} from 'common/application-config';
 import {TranslateService} from 'services/i18n/translate-service';
 import {MomentAdapter} from 'adapters/moment-adapter';
 
+import 'components/compilable/compilable';
+
 import template from './audit-log.html!text';
 import './audit-log.css!css';
 
@@ -28,7 +30,7 @@ import './audit-log.css!css';
     'config': 'config'
   }
 })
-@View({template: template})
+@View({template})
 @Inject(AuditLogService, TranslateService, PromiseAdapter, Configuration, MomentAdapter)
 export class AuditLog extends SearchCriteriaComponent {
 
@@ -148,7 +150,7 @@ export class AuditLog extends SearchCriteriaComponent {
       this.config.paginationConfig = {
         showFirstLastButtons: true,
         page: 1,
-        pageSize: pageSize
+        pageSize
       };
     }
 
@@ -176,5 +178,4 @@ export class AuditLog extends SearchCriteriaComponent {
     this.assignCriteria();
     this.clearResults();
   }
-
 }

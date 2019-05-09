@@ -1,9 +1,11 @@
 'use strict';
-var TestUtils = require('../../test-utils');
+
+let TestUtils = require('../../test-utils');
 
 const SELECT_LOADER = '.loading';
 const SELECT_MENU_DROPDOWN = '.dropdown-menu';
 const SELECT_ITEM = '.menu-item';
+const FIRST_SELECT_ITEM = SELECT_ITEM + ':first-of-type';
 
 class DropdownMenu {
   constructor(element) {
@@ -12,13 +14,26 @@ class DropdownMenu {
 
   open() {
     this.getTriggerButton().click();
-    browser.wait(EC.visibilityOf(this.triggerMenuButton.$(SELECT_ITEM)), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.triggerMenuButton.$(FIRST_SELECT_ITEM)), DEFAULT_TIMEOUT, 'Dropdown menu should be opened!');
     return this;
+  }
+
+  close() {
+    this.getActionContainer().isDisplayed().then(isDisplayed => {
+      if (isDisplayed) {
+        this.getTriggerButton().click();
+        this.isClosed();
+      }
+    });
+  }
+
+  isClosed() {
+    browser.wait(EC.invisibilityOf(this.triggerMenuButton.$(FIRST_SELECT_ITEM)), DEFAULT_TIMEOUT, 'Dropdown menu should be closed!');
   }
 
   hasLoadingIndicator() {
     this.getTriggerButton().click();
-    browser.wait(EC.presenceOf($(SELECT_LOADER)), DEFAULT_TIMEOUT);
+    browser.wait(EC.presenceOf($(SELECT_LOADER)), DEFAULT_TIMEOUT, 'Loading indicator in dropdown menu should be present!');
     return this;
   }
 
@@ -83,8 +98,9 @@ class DropdownMenu {
     if (subMenu) {
       browser.actions().mouseMove(subMenu).perform();
     }
-    browser.wait(EC.visibilityOf(action), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(action), DEFAULT_TIMEOUT, 'Action should be visible in dropdown menu!');
     action.click();
   }
 }
+
 module.exports.DropdownMenu = DropdownMenu;

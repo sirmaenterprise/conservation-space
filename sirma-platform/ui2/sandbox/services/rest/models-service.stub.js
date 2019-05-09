@@ -1,7 +1,12 @@
 import {Inject, Injectable} from 'app/app';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
+
 import _ from 'lodash';
 import data from 'sandbox/services/rest/models-service.data.json!';
+
+const DATA_TYPE = 'DATA_TYPE';
+const OBJECT_TYPE = 'OBJECT_TYPE';
+const TYPES = [DATA_TYPE, OBJECT_TYPE];
 
 @Injectable()
 @Inject(PromiseAdapter)
@@ -13,6 +18,11 @@ export class ModelsService {
 
   getOntologies() {
     return this.promiseAdapter.resolve(data.ontologies);
+  }
+
+  getTypes(type) {
+    return this.promiseAdapter.resolve(TYPES.indexOf(type) > -1 ?
+      data.types[type] : _.flatten(_.map(Object.values(data.types))));
   }
 
   getModels(purpose, contextId, mimetype, fileExtension) {
@@ -74,6 +84,13 @@ export class ModelsService {
     return this.promiseAdapter.resolve({
       data: '',
       fileName: 'models.zip'
+    });
+  }
+
+  downloadOntology() {
+    return this.promiseAdapter.resolve({
+      data: '',
+      fileName: 'ontologies.zip'
     });
   }
 }

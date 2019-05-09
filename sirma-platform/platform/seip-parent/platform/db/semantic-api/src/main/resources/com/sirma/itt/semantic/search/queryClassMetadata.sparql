@@ -1,5 +1,8 @@
-SELECT distinct ?instance (emf:ClassDescription as ?instanceType) ?title (if(lang(?title)= "", "en", lang(?title)) as ?titleLanguage) 
-?superClass ((if(!bound(?isSearchable), "false"^^xsd:boolean , ?isSearchable)) as ?searchable) 
+SELECT distinct ?instance (emf:ClassDescription as ?instanceType) ?superClass ?title
+(if(lang(?title)= "", "en", lang(?title)) as ?titleLanguage)
+(if (lang(?description)= "", "en", lang(?description)) as ?descriptionLanguage)
+(if (lang(?creator)= "", "en", lang(?creator)) as ?creatorLanguage)
+((if(!bound(?isSearchable), "false"^^xsd:boolean , ?isSearchable)) as ?searchable)
 ((if(!bound(?isCreateable), "false"^^xsd:boolean , ?isCreateable)) as ?createable) 
 ((if(!bound(?isUploadable), "false"^^xsd:boolean , ?isUploadable)) as ?uploadable) 
 ((if(!bound(?isVersionable), "true"^^xsd:boolean , ?isVersionable)) as ?versionable)
@@ -9,6 +12,10 @@ SELECT distinct ?instance (emf:ClassDescription as ?instanceType) ?title (if(lan
 ?allowInheritParentPermissions ?allowInheritLibraryPermissions
 where {
     ?instance a owl:Class .
+    ?instance dcterms:title ?title .
+    OPTIONAL {
+        ?instance dcterms:description ?description .
+    }
     OPTIONAL{
         ?instance dc:creator ?creator 
     }
@@ -33,8 +40,8 @@ where {
         }
         UNION {
             FILTER(! EXISTS {
-                ?instance emf:classCategory ?tempClassCategory.
-            })
+                    ?instance emf:classCategory ?tempClassCategory.
+                })
             ?instance rdfs:subClassOf ?superClass.
             ?superClass emf:classCategory ?classCategory.
         }
@@ -54,8 +61,8 @@ where {
         }
         UNION{
             FILTER(! EXISTS {
-                ?instance emf:definitionId ?tempDefId.
-            })
+                    ?instance emf:definitionId ?tempDefId.
+                })
             ?instance rdfs:subClassOf ?superClass.
             ?superClass emf:definitionId ?definitionId.
         }
@@ -66,8 +73,8 @@ where {
         }
         UNION {
             FILTER(! EXISTS {
-                ?instance emf:isVersionable ?tempVersionable.
-            })
+                    ?instance emf:isVersionable ?tempVersionable.
+                })
             ?instance rdfs:subClassOf ?superClass.
             ?superClass emf:isVersionable ?isVersionable.
         } 
@@ -75,12 +82,10 @@ where {
     OPTIONAL{
         ?instance rdfs:subClassOf ?superClass.
     }
-    ?instance rdfs:label ?title ;
-        skos:definition | rdfs:comment ?description .
     OPTIONAL {
         ?instance emf:status ?status ;
-            emf:defaultTemplate ?defaultTemplate ;
-            emf:type ?type ;
-            emf:isDeleted ?isDeleted .
+                  emf:defaultTemplate ?defaultTemplate ;
+                  emf:type ?type ;
+                  emf:isDeleted ?isDeleted .
     }
 }

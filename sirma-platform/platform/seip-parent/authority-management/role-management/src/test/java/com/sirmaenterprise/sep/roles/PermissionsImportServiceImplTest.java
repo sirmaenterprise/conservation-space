@@ -154,11 +154,14 @@ public class PermissionsImportServiceImplTest {
 
 		permissionsImportService.importPermissions(tempFolder.getRoot().getPath());
 
-		ArgumentCaptor<LabelDefinition> argCaptor = ArgumentCaptor.forClass(LabelDefinition.class);
-		verify(labelService, times(2)).saveLabel(argCaptor.capture());
-		List<LabelDefinition> allValues = argCaptor.getAllValues();
-		assertEquals("viewDetails.label", allValues.get(0).getIdentifier());
-		assertEquals("viewDetails.tooltip", allValues.get(1).getIdentifier());
+		ArgumentCaptor<List<LabelDefinition>> argCaptor = ArgumentCaptor.forClass(List.class);
+		verify(labelService).saveLabels(argCaptor.capture());
+		Set<String> labelIds = argCaptor.getValue()
+				.stream()
+				.map(LabelDefinition::getIdentifier)
+				.collect(Collectors.toSet());
+		assertTrue("There should be label with id 'viewDetails.label'", labelIds.contains("viewDetails.label"));
+		assertTrue("There should be label with id 'viewDetails.tooltip'", labelIds.contains("viewDetails.tooltip"));
 	}
 
 	@Test

@@ -32,7 +32,7 @@ describe('Calculation validator', function () {
 
       let name = form.getInputText('name');
       name.clearValue();
-      expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p><i></i> <strong>(Infrastructure department)</strong>, created by: <span style="color:#c0392b;">John Doe</span> / <span style="color:#c0392b;">11/11/2017</span>.</p>');
+      expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p><strong>(Infrastructure department)</strong>, created by: <span style="color:#c0392b;">John Doe</span> / <span style="color:#c0392b;">11/11/2017</span>.</p>');
       name.setValue(null, 'Document with suggested value');
       expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p><i>Document with suggested value</i> <strong>(Infrastructure department)</strong>, created by: <span style="color:#c0392b;">John Doe</span> / <span style="color:#c0392b;">11/11/2017</span>.</p>');
 
@@ -48,12 +48,15 @@ describe('Calculation validator', function () {
       let form = instanceCreatePanel.getForm();
       let mandatoryDescription = form.getRichTextField('mandatoryDescription');
 
-      mandatoryDescription.clear().focusEditor().type('New document title');
-      expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p>New document title</p>');
+      mandatoryDescription.clear().focusEditor().then(() => {
+        mandatoryDescription.type('New document title').then(() => {
+          expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p>New document title</p>');
 
-      let name = form.getInputText('name');
-      name.setValue(null, 'Document with suggested value');
-      expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p>New document title</p>');
+          let name = form.getInputText('name');
+          name.setValue(null, 'Document with suggested value');
+          expect(mandatoryDescription.getAsHtml()).to.eventually.equal('<p>New document title</p>');
+        });
+      });
     });
   });
 
@@ -133,6 +136,21 @@ describe('Calculation validator', function () {
       form.getCodelistField('department4', true).selectFromMenuByIndex(2);
       // Then I expect the first multiple select dropdown to remine unchanged
       expect(departmentField3.getSelectedValue()).to.eventually.deep.equal(['ENG']);
+    });
+
+    it('should suggest value in multivalued related codelist field', () => {
+      // Given I have opened instance create dialog
+      // When I select a document subtype
+      // When I fill first multiple select dropdown
+      instanceCreatePanel.selectSubType('Document with related fields');
+      let form = instanceCreatePanel.getForm();
+      let functionalField5 = form.getCodelistField('functional5', true);
+      // Then I expect dropdown to be empty because suggested value is not in filtered resultset
+      expect(functionalField5.getSelectedValue()).to.eventually.deep.equal([]);
+      // When I change department value and functional is filtered
+      form.getCodelistField('department5', true).selectFromMenuByIndex(1);
+      // Then I expect suggested vallue to be filled in dropdown
+      expect(functionalField5.getSelectedValue()).to.eventually.deep.equal(['MDG']);
     });
 
     it('should ignore suggested value if it\'s not in filtered codelist resultset', () => {
@@ -271,7 +289,7 @@ describe('Calculation validator', function () {
       owner.clickSelectButton();
       searchAndSelectResult(1);
       new Dialog($('.modal-dialog.modal-lg.ui-draggable')).ok();
-      expect(owner.getSelectedObjectsCount()).to.eventually.equal(1);
+      expect(owner.getSelectedObjectsCount(1)).to.eventually.equal(1);
     });
   });
 

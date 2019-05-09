@@ -26,13 +26,8 @@ class UserPreferencesImpl implements UserPreferences {
 
 	@Inject
 	@Configuration
-	@ConfigurationPropertyDefinition(name = "session.timeout.period", type = Integer.class, defaultValue = "30", label = "Used when session.timeout is true. Define the session timeout time in minutes.")
+	@ConfigurationPropertyDefinition(name = "session.timeout.period", type = Integer.class, defaultValue = "30", label = "Define the session timeout time in minutes. The default value is 30.")
 	private ConfigurationProperty<Integer> sessionTimeoutPeriod;
-
-	@Inject
-	@Configuration
-	@ConfigurationPropertyDefinition(name = "session.timeout", type = Boolean.class, defaultValue = "false", label = "If true the session will times out and the user will be redirected to the login page.")
-	private ConfigurationProperty<Boolean> redirectOnSessionTimeout;
 
 	@Inject
 	@Configuration
@@ -73,13 +68,13 @@ class UserPreferencesImpl implements UserPreferences {
 	}
 
 	@Override
-	public Boolean shouldRedirectOnSessionTimeout() {
-		return redirectOnSessionTimeout.get();
+	public Integer getRecentObjectsSize() {
+		return recentObjectsSize.get();
 	}
 
 	@Override
-	public Integer getRecentObjectsSize() {
-		return recentObjectsSize.get();
+	public ConfigurationProperty<Integer> getSessionTimeoutPeriodConfig() {
+		return sessionTimeoutPeriod;
 	}
 
 	@Override

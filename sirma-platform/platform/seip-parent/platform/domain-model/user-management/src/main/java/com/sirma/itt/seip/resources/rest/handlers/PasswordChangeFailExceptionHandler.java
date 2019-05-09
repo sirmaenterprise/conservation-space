@@ -1,8 +1,7 @@
 package com.sirma.itt.seip.resources.rest.handlers;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.MessageFormat;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -12,6 +11,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,18 +32,6 @@ public class PasswordChangeFailExceptionHandler implements ExceptionMapper<Passw
 	private static final String VALIDATION_MESSAGE_KEY = "passwordValidationMessage";
 	private static final String WRONG_PASSWORD_MESSAGE_KEY = "passwordWrongMessage"; //NOSONAR
 	private static final String RESPONSE_MESSAGES_KEY = "messages";
-	private static final Map<PasswordFailType, String> LABEL_MAPPING;
-
-	static {
-		LABEL_MAPPING = new HashMap<>(8);
-		LABEL_MAPPING.put(PasswordFailType.WRONG_OLD_PASSWORD, "change.password.errors.wrong");
-		LABEL_MAPPING.put(PasswordFailType.OLD_PASSWORD_EMPTY, "change.password.errors.current_required");
-		LABEL_MAPPING.put(PasswordFailType.SAME_PASSWORD, "change.password.errors.same");
-		LABEL_MAPPING.put(PasswordFailType.NEW_PASSWORD_EMPTY, "change.password.errors.new_required");
-		LABEL_MAPPING.put(PasswordFailType.SHORT_PASSWORD, "change.password.errors.new_required");
-		LABEL_MAPPING.put(PasswordFailType.LONG_PASSWORD, "change.password.errors.new_required");
-		LABEL_MAPPING.put(PasswordFailType.UNKNOWN_TYPE, "change.password.errors.generic");
-	}
 
 	@Inject
 	private LabelProvider labelProvider;
@@ -56,13 +44,16 @@ public class PasswordChangeFailExceptionHandler implements ExceptionMapper<Passw
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 
 		PasswordFailType type = exception.getType();
+		String labelValue = labelProvider.getValue(type.getLabelKey());
+		String policyValue = exception.getPolicyValue();
+		if (StringUtils.isNotBlank(policyValue)) {
+			labelValue = MessageFormat.format(labelValue, exception.getPolicyValue());
+		}
 
 		if (type.equals(PasswordFailType.WRONG_OLD_PASSWORD)) {
-			result.add(RESPONSE_MESSAGES_KEY,
-					builder.add(WRONG_PASSWORD_MESSAGE_KEY, labelProvider.getValue(LABEL_MAPPING.get(type))));
+			result.add(RESPONSE_MESSAGES_KEY, builder.add(WRONG_PASSWORD_MESSAGE_KEY, labelValue));
 		} else {
-			result.add(RESPONSE_MESSAGES_KEY,
-					builder.add(VALIDATION_MESSAGE_KEY, labelProvider.getValue(LABEL_MAPPING.get(type))));
+			result.add(RESPONSE_MESSAGES_KEY, builder.add(VALIDATION_MESSAGE_KEY, labelValue));
 		}
 
 		ExceptionMapperUtil.appendExceptionMessages(result, exception);

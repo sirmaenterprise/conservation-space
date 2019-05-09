@@ -63,7 +63,6 @@ import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.instance.SemanticInstanceTypes;
 import com.sirma.itt.seip.instance.convert.InstanceToInstanceReferenceConverterProvider;
 import com.sirma.itt.seip.instance.dao.InstanceDao;
-import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.testutil.EmfTest;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.util.ReflectionUtils;
@@ -82,7 +81,7 @@ import com.sirma.itt.semantic.namespaces.DefaultNamespaces;
 public abstract class GeneralSemanticTest<E> extends EmfTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GeneralSemanticTest.class);
-	
+
 	private static final SPARQLParserFactory QUERY_PARSER = new SPARQLParserFactory();
 
 	public static final String TEST_DATA_REPOSITORY = "/data/";
@@ -176,7 +175,7 @@ public abstract class GeneralSemanticTest<E> extends EmfTest {
 		synchronizationRegistry = mock(TransactionSynchronizationRegistry.class);
 
 		connectionFactory = new ConnectionFactoryImpl(semanticConfiguration, transactionManager, synchronizationRegistry,
-				securityContext, new NoOpStatistics());
+				securityContext);
 		// initialize the context
 		context = new HashMap<>();
 		context.put("securityContext", securityContext);
@@ -266,7 +265,7 @@ public abstract class GeneralSemanticTest<E> extends EmfTest {
 		}
 
 		RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForFileName(testDataFileLocation).orElse(RDFFormat.TURTLE);
-		try (InputStream stream = getClass().getResourceAsStream(TEST_DATA_REPOSITORY + testDataFileLocation);
+		try (InputStream stream = loadDataFile(testDataFileLocation);
 				Reader reader = new InputStreamReader(stream)) {
 
 			final Model model = new LinkedHashModel();
@@ -290,6 +289,10 @@ public abstract class GeneralSemanticTest<E> extends EmfTest {
 			}
 			commitTransaction();
 		}
+	}
+
+	protected InputStream loadDataFile(String location) {
+		return getClass().getResourceAsStream(TEST_DATA_REPOSITORY + location);
 	}
 
 	/**
@@ -335,7 +338,7 @@ public abstract class GeneralSemanticTest<E> extends EmfTest {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public static void assertValidSparqlQuery(String query) {
 		String localQuery = query;
 		if (!localQuery.contains("PREFIX ")) {

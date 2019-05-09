@@ -10,19 +10,27 @@ class ContextSelector {
   }
 
   getSelectButton() {
-    let selectButton = this.element.$('.open-picker-btn');
-    browser.wait(EC.visibilityOf(selectButton), DEFAULT_TIMEOUT);
-    return selectButton;
+    return this.element.$('.open-picker-btn');
+  }
+
+  isSelectContextButtonVisible() {
+    browser.wait(EC.visibilityOf(this.getSelectButton()), DEFAULT_TIMEOUT, 'Select context button should be visible!');
+    return true;
   }
 
   clickSelectButton() {
     let selectButton = this.getSelectButton();
-    browser.wait(EC.elementToBeClickable(selectButton), DEFAULT_TIMEOUT);
+    browser.wait(EC.elementToBeClickable(selectButton), DEFAULT_TIMEOUT, 'Context select button should be clickable!');
     selectButton.click();
   }
 
   getClearContextButton() {
     return this.element.$('.clear-context-btn');
+  }
+
+  isClearContextButtonVisible() {
+    browser.wait(EC.visibilityOf(this.getClearContextButton()), DEFAULT_TIMEOUT, 'Clear context button should be visible in context selector!');
+    return true;
   }
 
   clickClearContextButton() {

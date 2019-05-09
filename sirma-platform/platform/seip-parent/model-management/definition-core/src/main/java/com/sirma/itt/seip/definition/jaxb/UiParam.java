@@ -40,7 +40,7 @@ public class UiParam {
 	protected String value;
 	@XmlAttribute(name = "id", required = true)
 	protected String id;
-	@XmlAttribute(name = "type", required = false)
+	@XmlAttribute(name = "type")
 	protected String type; // NOSONAR
 	@XmlAttribute(name = "name", required = true)
 	protected String name;
@@ -110,5 +110,9 @@ public class UiParam {
 	 */
 	public String getType() {
 		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

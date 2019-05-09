@@ -18,9 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.sirma.itt.seip.domain.event.AuditableEvent;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
@@ -41,6 +43,9 @@ public class InstanceCloneActionTest {
 
 	@Mock
 	private InstanceContentService instanceContentService;
+
+	@Mock
+	private EventService eventService;
 
 	@Mock
 	private DomainInstanceService domainInstanceService;
@@ -66,40 +71,31 @@ public class InstanceCloneActionTest {
 	@Test
 	public void perform_noPrimatyContentAndViewInInstance() throws IOException {
 		InstanceCloneRequest request = new InstanceCloneRequest();
-
 		request.setTargetId("target-instance-id");
 		when(instanceContentService.getContent("target-instance-id", Content.PRIMARY_CONTENT))
 				.thenReturn(ContentInfo.DO_NOT_EXIST);
 
-		EmfInstance clonedInstance = new EmfInstance();
-		clonedInstance.setId("cloned-instance-id");
-
 		try (InputStream stream = getClass()
 				.getClassLoader()
 					.getResourceAsStream("clone-action-view-content-test.html")) {
-
+			EmfInstance clonedInstance = new EmfInstance("cloned-instance-id");
 			clonedInstance.add(DefaultProperties.TEMP_CONTENT_VIEW, IOUtils.toString(stream));
 			request.setClonedInstance(clonedInstance);
 			action.perform(request);
 
-			verify(domainInstanceService).save(argThat(CustomMatcher.of((InstanceSaveContext context) -> {
-				return "clone".equals(context.getOperation().getOperation());
-			})));
+			verify(domainInstanceService).save(argThat(CustomMatcher.ofPredicate(
+					(InstanceSaveContext context) -> "clone".equals(context.getOperation().getOperation()))));
+			verify(eventService).fire(any(AuditableEvent.class));
 		}
 	}
 
 	@Test
 	public void perform_withPrimatyContentAndViewNotInInstance() throws IOException {
-		InstanceCloneRequest request = new InstanceCloneRequest();
-
 		ContentInfo info = mock(ContentInfo.class);
 		when(info.exists()).thenReturn(true);
 		when(info.asString(StandardCharsets.UTF_8)).thenReturn("target-primary-content");
-		request.setTargetId("target-instance-id");
 		when(instanceContentService.getContent("target-instance-id", Content.PRIMARY_CONTENT)).thenReturn(info);
 
-		EmfInstance clonedInstance = new EmfInstance();
-		clonedInstance.setId("cloned-instance-id");
 		try (InputStream stream = getClass()
 				.getClassLoader()
 					.getResourceAsStream("clone-action-view-content-test.html")) {
@@ -107,16 +103,19 @@ public class InstanceCloneActionTest {
 			ContentInfo contentInfo = mock(ContentInfo.class);
 			when(contentInfo.asString(StandardCharsets.UTF_8)).thenReturn(IOUtils.toString(stream));
 			when(instanceContentService.getContent("target-instance-id", Content.PRIMARY_VIEW)).thenReturn(contentInfo);
-
-			ContentInfo clonedPrimaryContent = mock(ContentInfo.class);
-			when(clonedPrimaryContent.getContentId()).thenReturn("primary-content-id");
-			when(instanceContentService.saveContent(any(Instance.class), any(Content.class)))
-					.thenReturn(clonedPrimaryContent);
-			request.setClonedInstance(clonedInstance);
-			action.perform(request);
-
-			verify(domainInstanceService).save(any(InstanceSaveContext.class));
 		}
-	}
 
+		ContentInfo clonedPrimaryContent = mock(ContentInfo.class);
+		when(clonedPrimaryContent.getContentId()).thenReturn("primary-content-id");
+		when(instanceContentService.saveContent(any(Instance.class), any(Content.class)))
+				.thenReturn(clonedPrimaryContent);
+
+		InstanceCloneRequest request = new InstanceCloneRequest();
+		request.setTargetId("target-instance-id");
+		request.setClonedInstance(new EmfInstance("cloned-instance-id"));
+		action.perform(request);
+
+		verify(domainInstanceService).save(any(InstanceSaveContext.class));
+		verify(eventService).fire(any(AuditableEvent.class));
+	}
 }

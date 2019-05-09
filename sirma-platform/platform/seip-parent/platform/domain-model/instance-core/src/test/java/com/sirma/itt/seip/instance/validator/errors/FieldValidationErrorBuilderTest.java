@@ -102,6 +102,12 @@ public class FieldValidationErrorBuilderTest {
 	}
 
 	@Test
+	public void buildMandatoryControlParamError() {
+		PropertyValidationError error = cut.buildMandatoryControlParamError(property);
+		validate(MandatoryControlParamValidationError.class, error);
+	}
+	
+	@Test
 	public void buildTextFieldError() {
 		PropertyValidationError error = cut.buildTextFieldError(property, "message");
 		validate(TextFieldValidationError.class, error);

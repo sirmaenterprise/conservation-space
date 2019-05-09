@@ -35,16 +35,19 @@ import com.sirma.itt.seip.configuration.db.Configuration;
 import com.sirma.itt.seip.configuration.db.ConfigurationManagement;
 import com.sirma.itt.seip.json.JsonUtil;
 import com.sirma.itt.seip.plugin.Extension;
+import com.sirma.itt.seip.security.configuration.SecurityConfiguration;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
 import com.sirma.itt.seip.tenant.wizard.SubsystemTenantAddressProvider;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 import com.sirma.itt.seip.tenant.wizard.exception.TenantCreationException;
 import com.sirma.itt.seip.tx.TransactionSupport;
+import com.sirma.sep.threads.ThreadSleeper;
 
 /**
  * Tenant initialization in alfresco - initialize new tenant and site and optionally may apply definitions to it
@@ -86,6 +89,9 @@ public class TenantAlfresco4Step extends AbstractTenantStep {
 	@Inject
 	private TransactionSupport transactionSupport;
 
+	@Inject
+	private ThreadSleeper threadSleeper;
+
 	@Override
 	public String getIdentifier() {
 		return "DMSInitialization";
@@ -107,16 +113,21 @@ public class TenantAlfresco4Step extends AbstractTenantStep {
 			return true;
 		}
 		try {
-			// create tenant using the system admin - required by Alfresco
-			createTenant(addressForNewTenant, tenantId, context.getNewTenantAdminPassword());
+			if (SecurityConfiguration.WSO_IDP.equals(context.getIdpProvider())) {
+				// create tenant using the system admin - required by Alfresco
+				createTenant(addressForNewTenant, tenantId, context.getNewTenantAdminPassword());
 
-			// now login with tenant admin
-			securityContextManager.initializeTenantContext(tenantId);
-			InitConfiguration configuration = new InitConfiguration();
-			configuration.setSiteId(siteId);
-			configuration.setFailOnMissing(false);
+				// now login with tenant admin
+				securityContextManager.initializeTenantContext(tenantId);
+				InitConfiguration configuration = new InitConfiguration();
+				configuration.setSiteId(siteId);
+				configuration.setFailOnMissing(false);
 
-			initController.initialize(configuration);
+				tryToInitialize(configuration);
+			} else {
+				securityContextManager.initializeTenantContext(tenantId);
+				disableAlfresco(tenantId);
+			}
 		} catch (Exception e) {
 			throw new TenantCreationException("DMS tenant creation failed!", e);
 		} finally {
@@ -126,14 +137,39 @@ public class TenantAlfresco4Step extends AbstractTenantStep {
 		return true;
 	}
 
+	private void tryToInitialize(InitConfiguration configuration) throws Exception {
+		for (int tries = 2; tries != 0; tries--) {
+			try {
+				initController.initialize(configuration);
+				return;
+			} catch (DMSClientException e) {
+				LOGGER.debug("Failed to initialize Alfresco. The process will be retried after 5 sec."
+						+ " Remaining retries: {}", tries);
+				LOGGER.trace("", e);
+				threadSleeper.sleepFor(5);
+			}
+		}
+
+		// final try, don't catch the exception (if any) in order to propagate it
+		initController.initialize(configuration);
+	}
+
+	private void disableAlfresco(String tenantId) {
+		Configuration alfrescoStoreConfig = new Configuration(adaptersConfiguration.getAlfrescoStoreEnabled().getName(),
+				Boolean.FALSE.toString(), tenantId);
+		Configuration alfrescoViewStoreConfig = new Configuration(adaptersConfiguration.getAlfrescoViewStoreEnabled().getName(),
+				Boolean.FALSE.toString(), tenantId);
+		configurationManagement.addConfigurations(Arrays.asList(alfrescoStoreConfig, alfrescoViewStoreConfig));
+	}
+
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
-		String tenantId = tenantInfo.getTenantId();
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
+		String tenantId = context.getTenantInfo().getTenantId();
 		if (data.isCompleted()) {
 			try {
 				securityContextManager.initializeTenantContext(tenantId);
-				if (!rollback || deleteTenantOnRollback.get()) {
-					deleteTenant(tenantInfo.getTenantId());
+				if (!context.shouldRollback() || deleteTenantOnRollback.get()) {
+					deleteTenant(tenantId);
 				}
 			} catch (Exception e) {
 				LOGGER.warn("DMS couldn't be cleared due to {}!", e.getMessage());
@@ -273,8 +309,7 @@ public class TenantAlfresco4Step extends AbstractTenantStep {
 		JSONObject searchResponse = executeTenantRequest(request, SEIP_SEARCH_SERVICE, true);
 		JSONObject data = JsonUtil.getJsonObject(searchResponse, "data");
 		JSONObject item = JsonUtil.getFromArray(JsonUtil.getJsonArray(data, "items"), 0, JSONObject.class);
-		String nodeRef = JsonUtil.getStringValue(item, "nodeRef");
-		return nodeRef;
+		return JsonUtil.getStringValue(item, "nodeRef");
 	}
 
 	private JSONObject executeTenantRequest(JSONObject request, String uri, boolean isRelativeUri) {

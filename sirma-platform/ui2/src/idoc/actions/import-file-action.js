@@ -8,7 +8,7 @@ import {InstanceRestService} from 'services/rest/instance-service';
 import {ContextSelector} from 'components/contextselector/context-selector';
 import {Configuration} from 'common/application-config';
 import {BASE_PATH} from 'services/rest-client';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 
 @Injectable()
 @Inject(TranslateService, NotificationService, DialogService, ImportService, InstanceRestService, Configuration, AuthenticationService)
@@ -51,7 +51,7 @@ export class ImportFileAction extends ActionHandler {
       modalCls: 'file-import-dialog',
       header: 'dialog.header.select.context',
       largeModal: false,
-      buttons: buttons,
+      buttons,
       onButtonClick: (buttonId, componentScope, dialogConfig) => {
         if (buttonId === DialogService.OK) {
           this.launchApplication();
@@ -119,24 +119,23 @@ export class ImportFileAction extends ActionHandler {
    * Launches java application through web start (jnlp).
    */
   launchApplication() {
-    // let eaiContentTool = this.configurationService.get('eai.spreadsheet.content.tool.path');
-    let apiUrl = this.configurationService.get('ui2.url') + BASE_PATH;
-    let jwtToken = this.authenticationService.getToken();
-    let namedParameters = {};
-    let eaiContentTool = apiUrl + '/integration/content/tool/descriptor?jwt=' + jwtToken + '&id=' + this.context.currentObject.id + '&apiUrl=' + apiUrl;
-    namedParameters.apiUrl = apiUrl;
-    namedParameters.uri = this.context.currentObject.id;
-    namedParameters.authorization = jwtToken;
-    this.triggerJnlp(namedParameters, eaiContentTool);
+    this.authenticationService.getToken().then(token => {
+      let apiUrl = this.configurationService.get('ui2.url') + BASE_PATH;
+      let namedParameters = {};
+      let eaiContentTool = apiUrl + '/integration/content/tool/descriptor?' + AuthenticationService.TOKEN_REQUEST_PARAM + '=' + token
+        + '&id=' + this.context.currentObject.id + '&apiUrl=' + apiUrl;
+      namedParameters.apiUrl = apiUrl;
+      namedParameters.uri = this.context.currentObject.id;
+      namedParameters.authorization = token;
+      this.triggerJnlp(namedParameters, eaiContentTool);
+    });
   }
 
   triggerJnlp(params, url) {
     // we launch eai-content-tool through jnlp
-    dtjava.launch({
-      url: url
-    }, {
-        // we specify jvm options for eai-content-tool
-        javafx: '8.0+'
+    dtjava.launch({url}, {
+      // we specify jvm options for eai-content-tool
+      javafx: '8.0+'
     },
     {});
   }

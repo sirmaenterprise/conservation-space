@@ -11,7 +11,7 @@ import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.HeadersService;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirmaenterprise.sep.properties.expression.evaluation.PropertyValueEvaluator;
 
@@ -28,7 +28,7 @@ public class ObjectPropertyToObjectValueEvaluator implements PropertyValueEvalua
 	private HeadersService headersService;
 
 	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
+	private DomainInstanceService instanceService;
 
 	@Override
 	public boolean canEvaluate(PropertyDefinition source, PropertyDefinition destination) {
@@ -41,7 +41,7 @@ public class ObjectPropertyToObjectValueEvaluator implements PropertyValueEvalua
 	public Serializable evaluate(Instance instance, String propertyName) {
 		JsonArrayBuilder instancePropertiesArray = Json.createArrayBuilder();
 
-		getInstances(instance, propertyName, instanceTypeResolver).forEach(resolvedInstance -> {
+		getInstances(instance, propertyName, instanceService).forEach(resolvedInstance -> {
 			JsonObjectBuilder instanceProperties = Json.createObjectBuilder();
 			JsonObjectBuilder headers = Json.createObjectBuilder();
 			headers.add(DefaultProperties.HEADER_COMPACT,

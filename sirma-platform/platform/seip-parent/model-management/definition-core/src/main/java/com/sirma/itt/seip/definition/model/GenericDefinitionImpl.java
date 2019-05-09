@@ -2,11 +2,17 @@ package com.sirma.itt.seip.definition.model;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
+
 import com.sirma.itt.seip.Copyable;
 import com.sirma.itt.seip.Sealable;
 import com.sirma.itt.seip.definition.AllowedChildDefinition;
@@ -19,7 +25,7 @@ import com.sirma.itt.seip.definition.TransitionGroupDefinition;
 import com.sirma.itt.seip.definition.WritablePropertyDefinition;
 import com.sirma.itt.seip.definition.compile.EmfMergeableFactory;
 import com.sirma.itt.seip.definition.compile.MergeHelper;
-import com.sirma.itt.seip.domain.Node;
+import com.sirma.itt.seip.definition.util.DefinitionUtil;
 import com.sirma.itt.seip.domain.PathElement;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
@@ -167,12 +173,11 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 	/**
 	 * Setter method for abstract.
 	 *
-	 * @param _abstract
-	 *            the abstract to set
+	 * @param isAbstract the abstract to set
 	 */
-	public void setAbstract(Boolean _abstract) {
+	public void setAbstract(Boolean isAbstract) {
 		if (!isSealed()) {
-			Abstract = _abstract;
+			Abstract = isAbstract;
 		}
 	}
 
@@ -180,7 +185,7 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 	public boolean isAbstract() {
 		Boolean a = getAbstract();
 		if (a != null) {
-			return a.booleanValue();
+			return a;
 		}
 		return false;
 	}
@@ -188,23 +193,6 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 	@Override
 	public boolean hasChildren() {
 		return !getRegions().isEmpty() || super.hasChildren();
-	}
-
-	@Override
-	public Node getChild(String name) {
-		Node child = super.getChild(name);
-		if (child == null) {
-			for (RegionDefinition regionDefinition : getRegions()) {
-				if (regionDefinition.hasChildren()) {
-					child = regionDefinition.getChild(name);
-					if (child != null) {
-						break;
-					}
-				}
-			}
-		}
-
-		return child;
 	}
 
 	@Override
@@ -270,8 +258,8 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 	/**
 	 * Setter method for transition groups.
 	 *
-	 * @param transitions
-	 *            the transitions to set
+	 * @param transitionGroups
+	 *            the transition groups to set
 	 */
 	public void setTransitionGroups(List<TransitionGroupDefinition> transitionGroups) {
 		if (!isSealed()) {
@@ -343,8 +331,7 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 	/**
 	 * Setter method for lastModifiedDate.
 	 *
-	 * @param lastModifiedDate
-	 *            the lastModifiedDate to set
+	 * @param lastModifiedDate the lastModifiedDate to set
 	 */
 	public void setLastModifiedDate(Date lastModifiedDate) {
 		if (!isSealed()) {
@@ -376,10 +363,10 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 	@Override
 	@SuppressWarnings("unchecked")
 	public GenericDefinitionImpl mergeFrom(GenericDefinitionImpl source) {
-		super.mergeFrom(source);
+		identifier = MergeHelper.replaceIfNull(identifier, source.getIdentifier());
+		expression = MergeHelper.replaceIfNull(expression, source.getExpression());
 
-		// update local fields using the source fields regardless of the source field position
-		fieldsStream().forEach(field -> mergeField(field, source));
+		mergeFieldsAndRegions(source);
 
 		MergeHelper.mergeLists(MergeHelper.convertToMergable(getConfigurations()),
 				MergeHelper.convertToMergable(source.getConfigurations()), EmfMergeableFactory.FIELD_DEFINITION);
@@ -411,12 +398,95 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void mergeField(PropertyDefinition field, GenericDefinitionImpl source) {
-		Optional<PropertyDefinition> optional = source.getField(field.getIdentifier());
-		if (optional.isPresent()) {
-			((Mergeable<PropertyDefinition>) field).mergeFrom(optional.get());
-		}
+	private void mergeFieldsAndRegions(GenericDefinitionImpl parent) {
+		// The manual merging here is needed to avoid issues from moving fields in and out of regions
+
+		Map<String, PropertyDefinition> parentFields = toMap(parent.getFields());
+		Map<String, PropertyDefinition> initialFields = toMap(getFields());
+
+		mergeFields(parent, parentFields, initialFields);
+		mergeRegions(parent, parentFields, initialFields);
+	}
+
+	private void mergeFields(GenericDefinitionImpl parent, Map<String, PropertyDefinition> parentFields,
+			Map<String, PropertyDefinition> initialFields) {
+
+		// Lookup maps
+		Map<String, PropertyDefinition> parentRegionFields = collectRegionFields(parent);
+		Map<String, PropertyDefinition> currentRegionFields = collectRegionFields(this);
+
+		Map<String, PropertyDefinition> parentFieldsForMerge = new LinkedHashMap<>(parentFields);
+
+		// Omit all fields that have been moved to a region in the current definition
+		parentFieldsForMerge.values().removeIf(parentField -> currentRegionFields.containsKey(parentField.getIdentifier()));
+
+		// Insert fields from parent regions in case some field have been moved out of a region
+		parentRegionFields.values().forEach(parentRegionField -> {
+			if (initialFields.containsKey(parentRegionField.getIdentifier())) {
+				parentFieldsForMerge.put(parentRegionField.getIdentifier(), parentRegionField);
+			}
+		});
+
+		// Merge the applicable fields
+		MergeHelper.copyOrMergeLists(MergeHelper.convertToMergable(getFields()),
+				MergeHelper.convertToMergable(new LinkedList<>(parentFieldsForMerge.values())));
+
+		DefinitionUtil.sort(getFields());
+	}
+
+	private void mergeRegions(GenericDefinitionImpl parent, Map<String, PropertyDefinition> parentFields,
+			Map<String, PropertyDefinition> initialFields) {
+
+		// Mapping to determine if some field is moved to another region
+		Map<String, String> fieldToRegion = collectFieldToRegion(this);
+
+		// Merge everything via RegionDefinition's mergeFrom
+		MergeHelper.mergeLists(MergeHelper.convertToMergable(getRegions()), MergeHelper.convertToMergable(parent.getRegions()),
+				getRegionFactory());
+
+		// And then clean up duplications
+		getRegions().forEach(region -> {
+			List<PropertyDefinition> regionFields = region.getFields();
+
+			// Remove those region fields that have been defined as root fields in the current definition
+			regionFields.removeIf(field -> initialFields.containsKey(field.getIdentifier()));
+
+			// Remove those region fields that have been moved from one region to another
+			regionFields.removeIf(field -> fieldToRegion.containsKey(field.getIdentifier()) && !fieldToRegion.get(field.getIdentifier())
+					.equals(region.getIdentifier()));
+
+			// Merge those fields that have been moved in a region (mergeLists cannot handle it)
+			regionFields.forEach(regionField -> {
+				String regionFieldId = regionField.getIdentifier();
+				if (parentFields.containsKey(regionFieldId)) {
+					((Mergeable) regionField).mergeFrom(parentFields.get(regionFieldId));
+				}
+			});
+
+			DefinitionUtil.sort(region.getFields());
+		});
+	}
+
+	private static Map<String, PropertyDefinition> collectRegionFields(GenericDefinition definition) {
+		return definition.getRegions().stream()
+				.flatMap(region -> region.getFields().stream())
+				.collect(propertyCollector());
+	}
+
+	private static Map<String, String> collectFieldToRegion(GenericDefinition definition) {
+		Map<String, String> fieldToRegion = new HashMap<>();
+		definition.getRegions()
+				.forEach(region -> region.getFields()
+						.forEach(property -> fieldToRegion.put(property.getIdentifier(), region.getIdentifier())));
+		return fieldToRegion;
+	}
+
+	private static Map<String, PropertyDefinition> toMap(List<PropertyDefinition> fields) {
+		return fields.stream().collect(propertyCollector());
+	}
+
+	private static Collector<PropertyDefinition, ?, Map<String, PropertyDefinition>> propertyCollector() {
+		return Collectors.toMap(PropertyDefinition::getIdentifier, Function.identity(), (p1, p2) -> p2, LinkedHashMap::new);
 	}
 
 	@Override
@@ -554,6 +624,7 @@ public class GenericDefinitionImpl extends BaseRegionDefinition<GenericDefinitio
 		}
 
 		copy.initBidirection();
+		copy.setSourceFile(sourceFile);
 		return copy;
 	}
 

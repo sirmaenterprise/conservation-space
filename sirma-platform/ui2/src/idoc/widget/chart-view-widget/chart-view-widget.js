@@ -22,9 +22,7 @@ import './chart-view-widget.css!';
 const MIN_MAX_SIZE = 400;
 
 @Widget
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement, NgScope, NgCompile, Eventbus, PluginsService, CodelistRestService, InstanceRestService, PromiseAdapter, ObjectSelectorHelper, PropertiesSelectorHelper, TranslateService)
 export class ChartViewWidget {
   constructor($element, $scope, $compile, eventbus, pluginsService, codelistRestService, instanceRestService, promiseAdapter, objectSelectorHelper, propertiesSelectorHelper, translateService) {
@@ -79,7 +77,7 @@ export class ChartViewWidget {
     }
 
     this.chartConfig = {
-      maxSize: maxSize,
+      maxSize,
       channelId: this.control.getId(),
       isPrintMode: this.context.isPrintMode()
     };
@@ -131,7 +129,7 @@ export class ChartViewWidget {
       return labelsLoader.then((labelsMap) => {
         this.chartConfig.data = Object.keys(aggregatedResult).map((name) => {
           return {
-            name: name,
+            name,
             label: labelsMap[name] || name,
             value: aggregatedResult[name]
           };
@@ -166,7 +164,7 @@ export class ChartViewWidget {
   getLabelsForCodelist(codelists) {
     let labelsMap = {};
     let codelistLoaders = codelists.map((codelistNumber) => {
-      return this.codelistRestService.getCodelist({codelistNumber: codelistNumber});
+      return this.codelistRestService.getCodelist({codelistNumber});
     });
     return this.promiseAdapter.all(codelistLoaders).then((results) => {
       results.forEach((result) => {

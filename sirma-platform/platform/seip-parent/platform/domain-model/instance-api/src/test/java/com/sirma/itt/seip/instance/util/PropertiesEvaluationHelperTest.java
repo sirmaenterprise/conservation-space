@@ -181,6 +181,11 @@ public class PropertiesEvaluationHelperTest {
 			return isOverride;
 		}
 
+		@Override
+		public Boolean getOverride() {
+			return isOverride;
+		}
+
 		public void setIsOverride(Boolean isOverride) {
 			this.isOverride = isOverride;
 		}
@@ -191,7 +196,17 @@ public class PropertiesEvaluationHelperTest {
 		}
 
 		@Override
+		public Boolean getMultiValued() {
+			return isMultiValued;
+		}
+
+		@Override
 		public Boolean isMandatory() {
+			return isMandatory;
+		}
+
+		@Override
+		public Boolean getMandatory() {
 			return isMandatory;
 		}
 
@@ -221,6 +236,11 @@ public class PropertiesEvaluationHelperTest {
 
 		@Override
 		public Boolean isPreviewEnabled() {
+			return previewEmpty;
+		}
+
+		@Override
+		public Boolean getPreviewEmpty() {
 			return previewEmpty;
 		}
 

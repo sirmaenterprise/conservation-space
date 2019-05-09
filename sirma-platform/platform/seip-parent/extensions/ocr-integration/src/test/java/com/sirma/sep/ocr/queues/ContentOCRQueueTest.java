@@ -19,9 +19,15 @@ import java.util.Optional;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.definition.SemanticDefinitionService;
-import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
@@ -32,18 +38,10 @@ import com.sirma.itt.seip.instance.messaging.InstanceCommunicationConstants;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.InstanceContentService;
 import com.sirma.sep.content.jms.ContentCommunicationConstants;
-import com.sirma.sep.ocr.jms.OCRContentMessageAttributes;
 import com.sirma.sep.ocr.jms.ContentOCRQueue;
+import com.sirma.sep.ocr.jms.OCRContentMessageAttributes;
 import com.sirmaenterprise.sep.jms.api.SendOptions;
 import com.sirmaenterprise.sep.jms.api.SenderService;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Test the {@link ContentOCRQueue}.
@@ -68,11 +66,6 @@ public class ContentOCRQueueTest {
 
 	private final Instance instance = new EmfInstance("instanceId");
 
-	@Before
-	public void init() {
-		instance.add(DefaultProperties.VERSION, "1.0");
-	}
-
 	@Test
 	public void should_addContentToOCRQueue() throws JMSException {
 		when(defaultOcrLanguage.get()).thenReturn("en");
@@ -88,8 +81,6 @@ public class ContentOCRQueueTest {
 				sendOptionsCaptor.getValue().getProperties().get(ContentCommunicationConstants.FILE_NAME));
 		assertEquals(contentInfo.getMimeType(),
 				sendOptionsCaptor.getValue().getProperties().get(InstanceCommunicationConstants.MIMETYPE));
-		assertEquals("instanceId-v1.0",
-				sendOptionsCaptor.getValue().getProperties().get(InstanceCommunicationConstants.INSTANCE_VERSION_ID));
 		assertEquals("en",
 				sendOptionsCaptor.getValue().getProperties().get(OCRContentMessageAttributes.OCR_LANGUAGE));
 	}

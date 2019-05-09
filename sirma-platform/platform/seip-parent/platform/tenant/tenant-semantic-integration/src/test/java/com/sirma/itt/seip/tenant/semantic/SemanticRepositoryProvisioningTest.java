@@ -30,6 +30,7 @@ import com.sirma.itt.emf.solr.configuration.SolrConfiguration;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.build.RawConfigurationAccessor;
 import com.sirma.itt.seip.configuration.db.ConfigurationManagement;
+import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
@@ -91,7 +92,7 @@ public class SemanticRepositoryProvisioningTest {
 	@Mock
 	private BackingPatchService patchUtilService;
 	@Mock
-	private EventService eventService;
+	private SemanticDefinitionService semanticDefinitionService;
 
 	private TenantInfo tenantInfo = new TenantInfo("tenant.com");
 	private TenantInfo defaultTenant = new TenantInfo(SecurityContext.DEFAULT_TENANT);
@@ -193,7 +194,7 @@ public class SemanticRepositoryProvisioningTest {
 
 		verify(repositoryManagement).createRepository(any(RepositoryConfiguration.class));
 		verify(patchUtilService).runPatchAndBackup(any(File.class), eq("tenant.com"));
-		verify(eventService).fire(any(SemanticModelUpdatedEvent.class));
+		verify(semanticDefinitionService).modelUpdated();
 	}
 
 	@Test

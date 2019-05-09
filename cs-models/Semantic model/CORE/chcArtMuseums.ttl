@@ -1,0 +1,1084 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix chcart: <http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums> .
+
+<http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums> rdf:type owl:Ontology ;
+                                                                                  owl:imports <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> ;
+                                                                                  owl:versionInfo "0.1"@en ;
+                                                                                  dc:creator "Lidiya Dimitrova"@en ;
+                                                                                  rdfs:label "Cultural Heritage Conservation Ontology Model for Art Museums"@en ;
+                                                                                  rdfs:comment "Cultural Heritage Conservation Ontology Model for Art Museums"@en ;
+                                                                                  dc:subject "Cultural Heritage Conservation Ontology Model for Art Museums"@en .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#auditEvent
+emf:auditEvent rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#classCategory
+emf:classCategory rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#definitionId
+emf:definitionId rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isCreateable
+emf:isCreateable rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isPartOfObjectLibrary
+emf:isPartOfObjectLibrary rdf:type owl:AnnotationProperty .
+
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isSearchable
+emf:isSearchable rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/creator
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#
+sec: rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#allowInheritLibraryPermissions
+sec:allowInheritLibraryPermissions rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#allowInheritParentPermissions
+sec:allowInheritParentPermissions rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#autoAssignParentPermissionRole
+sec:autoAssignParentPermissionRole rdf:type owl:AnnotationProperty .
+
+
+###  http://www.sirma.com/ontologies/2014/11/security#autoAssignPermissionRole
+sec:autoAssignPermissionRole rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2004/02/skos/core#definition
+skos:definition rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#associatedWith
+emf:associatedWith rdf:type owl:ObjectProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range chc:CulturalObject ;
+                   emf:auditEvent "+addAssociatedWith|-removeAssociatedWith|changeAssociatedWith" .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#condition
+chc:condition rdf:type owl:DatatypeProperty .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#accessionNumber
+chcart:accessionNumber rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Accession number"@en ;
+                       skos:definition "Unique institutional ID. Can be coded to be human readable and to express, for example, year/lot/number if acquisition or shelf location."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#artistNames
+chcart:artistNames rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Artist(s)"@en ;
+                   skos:definition "An entity primarily responsible for creating an object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#baseDescription
+chcart:baseDescription rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Base description"@en ;
+                       skos:definition "Description of the base of the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#bibliography
+chcart:bibliography rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Bibliography"@en ;
+                    skos:definition "A bibliography is a list of all of the sources used in the process of researching the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#bindingCovering
+chcart:bindingCovering rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Covering material"@en ;
+                       skos:definition "Description of stamping, labels, or decoration to the binding."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#bindingStyle
+chcart:bindingStyle rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Binding"@en ;
+                    skos:definition "Description of the binding style, materials and construction."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#callNumber
+chcart:callNumber rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Call number"@en ;
+                  skos:definition "The catalog number from Library."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#century
+chcart:century rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Century"@en ;
+               skos:definition "Century of Frame."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#collation
+chcart:collation rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Collation"@en ;
+                 skos:definition "Description of the printer's imposition and organization of the gatherings in a textblock, expressed in a shorthand formula."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#countryName
+chcart:countryName rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Country"@en ;
+                   skos:definition "Country in which the object was made."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#creationDates
+chcart:creationDates rdf:type owl:DatatypeProperty ;
+                     rdfs:domain chc:CulturalObject ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Creation date"@en ;
+                     skos:definition "Start/end dates and qualifiers such as \"circa\", \"before\", etc. Can have historical records of former attributions of creation dates."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#creditLine
+chcart:creditLine rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Credit line"@en ;
+                  skos:definition "Public credit line for the cultural Object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#culturalObjectNumber
+chcart:culturalObjectNumber rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Object number"@en ;
+                            skos:definition "Unique institutional ID."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#culturalObjectViewDescription
+chcart:culturalObjectViewDescription rdf:type owl:DatatypeProperty ;
+                                     rdfs:range xsd:string ;
+                                     dc:creator "Lidiya Dimitrova"@en ;
+                                     rdfs:label "View description"@en ;
+                                     skos:definition "The view of the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#curatorialDepartment
+chcart:curatorialDepartment rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Curatorial department"@en ;
+                            skos:definition "Department responsible for curatorial oversight of cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#curatorialRemarks
+chcart:curatorialRemarks rdf:type owl:DatatypeProperty ;
+                         rdfs:domain chc:CulturalObject ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         rdfs:label "Curatorial remarks"@en ;
+                         skos:definition "Notes made by the curator."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#currentLocation
+chcart:currentLocation rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Current location"@en ;
+                       skos:definition "The location that the cultural object is physically resides currently."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#dateCompleted
+chcart:dateCompleted rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:dateTime ;
+                     emf:isSearchable "true"^^xsd:boolean ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Date completed"@en ;
+                     skos:definition "Defines the date when report was completed."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#dateSigned
+chcart:dateSigned rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:dateTime ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Date signed"@en ;
+                  skos:definition "Defines the date when report was signed."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#design
+chcart:design rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Design"@en ;
+              skos:definition "The arrangement of the features as produced from following a plan."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#designatedOpening
+chcart:designatedOpening rdf:type owl:DatatypeProperty ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         rdfs:label "Designated opening"@en ;
+                         skos:definition "The page to be displayed on the exhibition."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#distinguishingMarks
+chcart:distinguishingMarks rdf:type owl:DatatypeProperty ;
+                           rdfs:domain chc:CulturalObject ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Lidiya Dimitrova"@en ;
+                           rdfs:label "Distinguishing mark(s)"@en ;
+                           skos:definition "Indication of distinguishing marks that have been applied to an object, including manufacturer's marks and labels, publisher's and printer's blind stamps."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#edition
+chcart:edition rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Edition"@en ;
+               skos:definition "Number of the volume or set, usually includes year."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#fabricationDescription
+chcart:fabricationDescription rdf:type owl:DatatypeProperty ;
+                              rdfs:domain chc:CulturalObject ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "Fabrication description"@en ;
+                              skos:definition "Description of the fabrication method of the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#handlingRequirements
+chcart:handlingRequirements rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Handling notes"@en ;
+                            skos:definition "Description of any special handling that the cultural object may require."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#homeLocation
+chcart:homeLocation rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Home location"@en ;
+                    skos:definition "Location could be a gallery or storage location where the cultural object normally is"@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#housingDescription
+chcart:housingDescription rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Housing"@en ;
+                          skos:definition "Description of the permanent/unusual housing when the cultural objects is in storage."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#imageLayerDescription
+chcart:imageLayerDescription rdf:type owl:DatatypeProperty ;
+                             rdfs:domain chcart:Photograph ;
+                             rdfs:range xsd:string ;
+                             dc:creator "Lidiya Dimitrova"@en ;
+                             rdfs:label "Image layer description"@en ;
+                             skos:definition "Description of the final image layer of photograph."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#imageOriginalIdentifier
+chcart:imageOriginalIdentifier rdf:type owl:DatatypeProperty ;
+                               rdfs:range xsd:string ;
+                               dc:creator "Lidiya Dimitrova"@en ;
+                               rdfs:label "Original identifier"@en ;
+                               skos:definition "Name of the file from which a user creates the derivative. .DNG, raw, master."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#innerDimensions
+chcart:innerDimensions rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chcart:Frame ;
+                       dc:creator "Malvina Makarieva"@en ;
+                       rdfs:label "Inner dimensions"@en ;
+                       skos:definition "Inside dimension of the Frame.(Text height and width)."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#inscriptions
+chcart:inscriptions rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Inscription(s)"@en ;
+                    skos:definition "Description of any writing or printing on the object's obverse or reverse. Artist signature, dealer marks, inventory codes, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#installationRequirements
+chcart:installationRequirements rdf:type owl:DatatypeProperty ;
+                                rdfs:domain chc:CulturalObject ;
+                                rdfs:range xsd:string ;
+                                dc:creator "Lidiya Dimitrova"@en ;
+                                rdfs:label "Installation instruction" ;
+                                skos:definition "Any special installation instruction that the cultural object may require." .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#materials
+chcart:materials rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Materials and techniques description" ;
+                 skos:definition "Materials and techniques description." .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#mediaDescription
+chcart:mediaDescription rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chc:CulturalObject ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Media description" ;
+                        skos:definition "Description of the media used for the print." .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#medium
+chcart:medium rdf:type owl:DatatypeProperty ;
+              rdfs:domain chc:CulturalObject ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Medium description"@en ;
+              skos:definition "Medium description often used for public."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#molding
+chcart:molding rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Malvina Makarieva"@en ;
+               rdfs:label "Molding"@en ;
+               skos:definition "The measurement from the site edge to the outer edge of the Frame."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#mountDescription
+chcart:mountDescription rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chc:CulturalObject ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Mount description"@en ;
+                        skos:definition "Description of the mounting when cultural objects is on display."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#objectDepartmentName
+chcart:objectDepartmentName rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Object department"@en ;
+                            skos:definition "The object department responsible for the curatorial management and displaying for exhibition but acquisition is done by Registrar office."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#outsideDimensions
+chcart:outsideDimensions rdf:type owl:DatatypeProperty ;
+                         rdfs:domain chcart:Frame ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Malvina Makarieva"@en ;
+                         rdfs:label "Outside dimensions"@en ;
+                         skos:definition "Outer dimension of the Frame.(Text height and width)."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#ownerNames
+chcart:ownerNames rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Owner/ Custodian"@en ;
+                  skos:definition "Owner of the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#physicalDimensions
+chcart:physicalDimensions rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Dimensions"@en ;
+                          skos:definition "The physical attributes of the object without matte and/or frame. Both US and metric. Can be complex with multi-component or 3-dimensional objects. Includes weight and other measures of the physical attributes of objects and their components."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#provenance
+chcart:provenance rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Provenance"@en ;
+                  skos:definition "Historical ownership of the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#publicationDate
+chcart:publicationDate rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Publication date"@en ;
+                       skos:definition "Date of publication."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#publicationPlace
+chcart:publicationPlace rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chcart:BoundVolume ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Place of publication"@en ;
+                        skos:definition "City of publication."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#rabbetDepth
+chcart:rabbetDepth rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Rabbet depth"@en ;
+                   skos:definition "How deep is the cavity where the artwork sits."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#relatedCulturalObjectType
+chcart:relatedCulturalObjectType rdf:type owl:DatatypeProperty ;
+                                 rdfs:range xsd:string ;
+                                 dc:creator "Malvina Makarieva"@en ;
+                                 rdfs:label "Related cultural object type"@en ;
+                                 skos:definition "Automatically taken from the selected cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#relatedObjectClassification
+chcart:relatedObjectClassification rdf:type owl:DatatypeProperty ;
+                                   rdfs:range xsd:string ;
+                                   dc:creator "Lidiya Dimitrova"@en ;
+                                   rdfs:label "Related object classification"@en ;
+                                   skos:definition "Type of object(s) associated with the task."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#reportDate
+chcart:reportDate rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:dateTime ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Date of the report"@en ;
+                  skos:definition "Defines the date of the report."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#shape
+chcart:shape rdf:type owl:DatatypeProperty ;
+             rdfs:range xsd:string ;
+             dc:creator "Malvina Makarieva"@en ;
+             rdfs:label "Shape"@en ;
+             skos:definition "Shape of the Frame."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#siteSize
+chcart:siteSize rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Site size"@en ;
+                skos:definition "This is the size of the opening from the front of the Frame."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#structureDescription
+chcart:structureDescription rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Structure/ Construction"@en ;
+                            skos:definition "Description of the structure of the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#style
+chcart:style rdf:type owl:DatatypeProperty ;
+             rdfs:domain ptop:Entity ;
+             rdfs:range xsd:string ;
+             dc:creator "Lidiya Dimitrova"@en ;
+             rdfs:label "Styles/ Periods"@en ;
+             skos:definition "Period in which the object was made."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#subClassification
+chcart:subClassification rdf:type owl:DatatypeProperty ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         rdfs:label "Sub-classification"@en ;
+                         skos:definition "Sub-classification of the item."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#substrateDescription
+chcart:substrateDescription rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Substrate description"@en ;
+                            skos:definition "Description of the material that the cultural object is made of."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#supportDescription
+chcart:supportDescription rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Support description"@en ;
+                          skos:definition "Description of any secondary support."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#surfaceDescription
+chcart:surfaceDescription rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Surface description"@en ;
+                          skos:definition "The outside part or uppermost layer of something (often used when describing its texture, form, or extent)."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#treatmentPriority
+chcart:treatmentPriority rdf:type owl:DatatypeProperty ;
+	 rdfs:range xsd:string ;
+	 dc:creator "Malvina Makarieva"@en ;
+                          rdfs:label "Treatment priority"@en ;
+                          skos:definition "Indicate treatment priority of the cultural object"@en .
+	 
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#vendorName
+chcart:vendorName rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Vendor/ Vendor manufacturer"@en ;
+                  skos:definition "The name of the Vendor who sold us the Frame."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#volume
+chcart:volume rdf:type owl:DatatypeProperty ;
+              rdfs:domain chc:CulturalObject ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Volume"@en ;
+              skos:definition "Specific volume in a set."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#volumeLanguage
+chcart:volumeLanguage rdf:type owl:DatatypeProperty ;
+                      rdfs:domain chc:CulturalObject ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Language"@en ;
+                      skos:definition "Language of volume."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#watermarks
+chcart:watermarks rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Watermark(s)" ;
+                  skos:definition "Description of any watermarks evident in the paper/support."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#weaveDescription
+chcart:weaveDescription rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chc:CulturalObject ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Weave description"@en ;
+                        skos:definition "Description of different weave characteristics in the cultural object."@en .
+	
+	
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#designHouse
+chcart:designHouse rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Anna Radeva"@en ;
+                  rdfs:label "Design house" ;
+                  skos:definition "Names of the design house manufactured cultural object."@en .			
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#designHouse
+chcart:designHouse rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:float ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Designhus"@da ,
+                              "Design house"@en ;
+                   skos:definition "Names of the design house manufactured item."@en .				  
+
+
+#################################################################
+#    Classes
+#################################################################				   
+   
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject
+chc:CulturalObject rdf:type owl:Class ;
+					emf:isSearchable "true"^^xsd:boolean .
+
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Ammunition
+chcart:Ammunition rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Ammunition"@en ;
+                  skos:definition "Implements and mechanisms designed to be used as a means of physical attack or defense. Projectiles and propellants used to operate firearms."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#BoundVolume
+chcart:BoundVolume rdf:type owl:Class ;
+                   rdfs:subClassOf chc:CulturalObject ;
+                   emf:classCategory "culturalobject" ;
+                   emf:definitionId "objectinstance" ;
+                   emf:isCreateable "true"^^xsd:boolean ;
+                   emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                   emf:isSearchable "true"^^xsd:boolean ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                   sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                   rdfs:label "Bound Volume"@en ;
+                   skos:definition "A volume is a bound collection of printed pages such as a book."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#BuiltEnvironment
+chcart:BuiltEnvironment rdf:type owl:Class ;
+                        rdfs:subClassOf chc:CulturalObject ;
+                        emf:classCategory "culturalobject" ;
+                        emf:definitionId "objectinstance" ;
+                        emf:isCreateable "true"^^xsd:boolean ;
+                        emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                        emf:isSearchable "true"^^xsd:boolean ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                        sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                        rdfs:label "Built Environment"@en ;
+                        skos:definition "Built and natural environment, covering constructed works and natural landscapes, forming a continuum from the largest natural landscapes and settled areas to the smallest of individual built works."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Costume
+chcart:Costume rdf:type owl:Class ;
+               rdfs:subClassOf chc:CulturalObject ;
+               emf:classCategory "culturalobject" ;
+               emf:definitionId "objectinstance" ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               rdfs:label "Costume"@en ;
+               skos:definition "The mode or fashion of personal attire and dress, including style of clothing and other accessories of personal adornment, belonging to a particular nation, class, period, or special occasion, including all items worn or carried by people for warmth, protection, embellishment, or symbolic purposes."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#DecorativeArt
+chcart:DecorativeArt rdf:type owl:Class ;
+                     rdfs:subClassOf chc:CulturalObject ;
+                     emf:classCategory "culturalobject" ;
+                     emf:definitionId "objectinstance" ;
+                     emf:isCreateable "true"^^xsd:boolean ;
+                     emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                     emf:isSearchable "true"^^xsd:boolean ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                     sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                     rdfs:label "Decorative Art"@en ;
+                     skos:definition "The decorative arts are arts or crafts concerned with the design and manufacture of beautiful objects that are also functional. It includes interior design, but not usually architecture."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Drawing
+chcart:Drawing rdf:type owl:Class ;
+               rdfs:subClassOf chc:CulturalObject ;
+               emf:classCategory "culturalobject" ;
+               emf:definitionId "objectinstance" ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Kiril Penev"@en ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               rdfs:label "Drawing"@en ;
+               skos:definition "Drawing is a form of visual art that makes use of any number of drawing instruments to mark a two-dimensional medium. Instruments used include graphite pencils, pen and ink, inked brushes, wax color pencils, crayons, charcoal, chalk, pastels, various kinds of erasers, markers, styluses, and various metals (such as silverpoint) (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Ephemera
+chcart:Ephemera rdf:type owl:Class ;
+                rdfs:subClassOf chc:CulturalObject ;
+                emf:classCategory "culturalobject" ;
+                emf:definitionId "objectinstance" ;
+                emf:isCreateable "true"^^xsd:boolean ;
+                emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Lidiya Dimitrova" ;
+                sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                rdfs:label "Ephemera" ;
+                skos:definition "Ephemera are any transitory written or printed matter meant for eventual repression (or not meant to be retained or preserved). However in the museum or archives context, ephemera must be preserved and accounted for." .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#EthnographicObject
+chcart:EthnographicObject rdf:type owl:Class ;
+                          rdfs:subClassOf chc:CulturalObject ;
+                          emf:classCategory "culturalobject" ;
+                          emf:definitionId "objectinstance" ;
+                          emf:isCreateable "true"^^xsd:boolean ;
+                          emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                          emf:isSearchable "true"^^xsd:boolean ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                          sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                          rdfs:label "Ethnographic Object"@en ;
+                          skos:definition "Objects originating in any culture still living or known through relatively recent history when those objects are the concern of ethnographic or ethnological study. For objects from earlier periods found in contexts of archaeological research, prefer \"archaeological objects.\""@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Frame
+chcart:Frame rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Lidiya Dimitrova"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Frame"@en ;
+             skos:definition "A frame is a decorative molding that typically is attached to a painting or other cultural object especially when that cultural object is displayed. It typically surrounds and covers the edges of the cultural object. It is typically made of wood/plaster/gold leaf, but can be any material."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Furnishing
+chcart:Furnishing rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Furnishing"@en ;
+                  skos:definition "Primarily movable articles that provide comfort, convenience, or protection in dwellings, places or business, or other public or private spaces. They may be useful or ornamental and may be used in indoor or outdoor spaces."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Installation
+chcart:Installation rdf:type owl:Class ;
+                    rdfs:subClassOf chc:CulturalObject ;
+                    emf:classCategory "culturalobject" ;
+                    emf:definitionId "objectinstance" ;
+                    emf:isCreateable "true"^^xsd:boolean ;
+                    emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                    emf:isSearchable "true"^^xsd:boolean ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                    sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                    rdfs:label "Installation"@en ;
+                    skos:definition "An installation is a construction or assemblage conceived typically for a specific space, often for a temporary period. Installations may be build up by any kind of materials or objects (man made or natural) and may contain multi-media elements (audio, video, computer programming, etc.)."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#MediaArt
+chcart:MediaArt rdf:type owl:Class ;
+                rdfs:subClassOf chc:CulturalObject ;
+                emf:classCategory "culturalobject" ;
+                emf:definitionId "objectinstance" ;
+                emf:isCreateable "true"^^xsd:boolean ;
+                emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                rdfs:label "Media Art"@en ;
+                skos:definition "Media art is a genre that encompasses artworks created with new media technologies, including digital art, computer animation, computer graphics, virtual art, internet art, interactive art, video games, computer robotics, 3-D printing, and art as biotechnology. It can also include film if not represented elsewhere."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Painting
+chcart:Painting rdf:type owl:Class ;
+                rdfs:subClassOf chc:CulturalObject ;
+                emf:classCategory "culturalobject" ;
+                emf:definitionId "objectinstance" ;
+                emf:isCreateable "true"^^xsd:boolean ;
+                emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Kiril Penev"@en ;
+                sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                rdfs:label "Painting"@en ;
+                skos:definition "Painting is the practice of applying paint, pigment, color or other medium to a surface (support base). The medium is commonly applied to the base with a brush but other implements, such as knives, sponges, and airbrushes, can be used. In art, the term painting describes both the act and the result of the action. However, painting is also used outside of art as a common trade among craftsmen and builders. Paintings may have for their support such surfaces as walls, paper, canvas, wood, glass, lacquer, clay, leaf, copper or concrete, and may incorporate multiple other materials including sand, clay, paper, gold leaf as well as objects. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Performance
+chcart:Performance rdf:type owl:Class ;
+                   rdfs:subClassOf chc:CulturalObject ;
+                   emf:classCategory "culturalobject" ;
+                   emf:definitionId "objectinstance" ;
+                   emf:isCreateable "true"^^xsd:boolean ;
+                   emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                   emf:isSearchable "true"^^xsd:boolean ;
+                   dc:creator "Kiril Penev"@en ;
+                   sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                   sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                   rdfs:label "Performance"@en ;
+                   skos:definition "Works of art that unfold over time and that combine elements of theater and object-oriented art."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Photograph
+chcart:Photograph rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Kiril Penev"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Photograph"@en ;
+                  skos:definition "A photograph or photo is an image created by light falling on a light-sensitive surface, usually photographic film or an electronic image such as a CCD or a CMOS chip. Most photographs are created using a camera, which uses a lens to focus the scene's visible wavelengths of light into a reproduction of what the human eye would see. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Portfolio
+chcart:Portfolio rdf:type owl:Class ;
+                 rdfs:subClassOf chc:CulturalObject ;
+                 emf:classCategory "culturalobject" ;
+                 emf:definitionId "objectinstance" ;
+                 emf:isCreateable "true"^^xsd:boolean ;
+                 emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                 emf:isSearchable "true"^^xsd:boolean ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                 sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                 rdfs:label "Portfolio"@en ;
+                 skos:definition "A portfolio is an edited collection of artwork. It usually has a cover or housing to keep the collection together."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Print
+chcart:Print rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Kiril Penev"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Print"@en ;
+             skos:definition """A picture or design printed from a block or plate or copied from a painting by photography.
+A piece of fabric or clothing with a decorative colored pattern or design printed on it."""@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Sculpture
+chcart:Sculpture rdf:type owl:Class ;
+                 rdfs:subClassOf chc:CulturalObject ;
+                 emf:classCategory "culturalobject" ;
+                 emf:definitionId "objectinstance" ;
+                 emf:isCreateable "true"^^xsd:boolean ;
+                 emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                 emf:isSearchable "true"^^xsd:boolean ;
+                 dc:creator "Kiril Penev"@en ;
+                 sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                 sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                 rdfs:label "Sculpture"@en ;
+                 skos:definition "Sculpture is the branch of the visual arts that operates in three dimensions, and one of the plastic arts. Durable sculptural processes originally used carving (the removal of material) and modelling (the addition of material, as clay), in stone, metal, ceramics, wood and other materials but, since modernism, shifts in sculptural process led to an almost complete freedom of materials and process. A wide variety of materials may be worked by removal such as carving, assembled by welding or modelling, or molded, or cast. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#TextileArt
+chcart:TextileArt rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Textile Art"@en ;
+                  skos:definition "Visual works created from textile materials, which are plant, animal, and synthetic fibers used in weaving, sewing, knitting, felting, knotting, etc. Textile art uses exclusively, or nearly exclusively, textiles as both the support and media, if any media are applied."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#TimeBasedMedia
+chcart:TimeBasedMedia rdf:type owl:Class ;
+                      rdfs:subClassOf chc:CulturalObject ;
+                      emf:classCategory "culturalobject" ;
+                      emf:definitionId "objectinstance" ;
+                      emf:isCreateable "true"^^xsd:boolean ;
+                      emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                      emf:isSearchable "true"^^xsd:boolean ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                      sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                      rdfs:label "Time-based media"@en ;
+                      skos:definition "Contemporary works of art that employ several distinct art forms, such as sculpture and music or painting and light art. Includes time- based and variable art."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#Weapons
+chcart:Weapons rdf:type owl:Class ;
+               rdfs:subClassOf chc:CulturalObject ;
+               emf:classCategory "culturalobject" ;
+               emf:definitionId "objectinstance" ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               rdfs:label "Weapons"@en ;
+               skos:definition "Implements and mechanisms designed to be used as a means of physical attack or defense. Implements or mechanisms used for defense or attack in combat, hunting, or war."@en .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+emf:hasAssignee sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+emf:hasAttachment emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:hasPrimaryImage emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:hasWatcher sec:autoAssignPermissionRole "CONSUMER" .
+
+
+emf:isAttachedTo emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:isPrimaryImageOf emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:isWatcherOf emf:auditEvent "+addIsWatcherOf|-removeIsWatcherOf|changeIsWatcherOf" .
+
+
+emf:processedBy emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:processes emf:isSearchable "true"^^xsd:boolean .
+
+
+ptop:hasParticipant sec:autoAssignPermissionRole "COLLABORATOR" ;
+                    sec:autoAssignParentPermissionRole "CONTRIBUTOR" ;
+                    emf:isSearchable "true"^^xsd:boolean ;
+                    emf:auditEvent "+addHasParticipant|-removeHasParticipant|changeHasParticipant" .
+
+
+ptop:involvedIn emf:auditEvent "+addInvolvedIn|-removeInvolvedIn|changeInvolvedIn" ;
+                emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:ConservationActivity emf:isCreateable "true"^^xsd:boolean ;
+                         sec: "true"^^xsd:boolean ;
+                         emf:isSearchable "true"^^xsd:boolean ;
+                         emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                         sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+                         sec:allowInheritLibraryPermissions "false"^^xsd:boolean .
+
+
+chc:Exhibition emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:Sample emf:isCreateable "true"^^xsd:boolean ;
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           emf:isSearchable "true"^^xsd:boolean ;
+           sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+           sec:allowInheritParentPermissions "false"^^xsd:boolean .
+		 
+chc:Person emf:isSearchable "true"^^xsd:boolean;
+		   emf:isCreateable "true"^^xsd:boolean.
+
+
+chc:depicts emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:documents emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasAuthor emf:isSearchable "true"^^xsd:boolean ;
+              sec:autoAssignParentPermissionRole "CONSUMER" ;
+              sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+chc:hasDepiction emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasSample emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasSupervisor sec:autoAssignParentPermissionRole "CONTRIBUTOR" ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+chc:isDocumentedIn emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isSupervisorOf emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isTakenFrom emf:isSearchable "true"^^xsd:boolean .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

@@ -3,24 +3,38 @@ package com.sirma.itt.seip.template;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.CONTENT;
 import static com.sirma.itt.seip.template.TemplateProperties.PURPOSE;
 
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.domain.codelist.CodelistService;
+import com.sirma.itt.seip.domain.codelist.model.CodeValue;
+import com.sirma.itt.seip.domain.definition.DefinitionModel;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
+import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
+import com.sirma.itt.seip.template.rules.TemplateRuleUtils;
 import com.sirma.itt.seip.template.utils.TemplateUtils;
 
 /**
  * Validates input template data. </br>
- *
+ * <p>
  * <b>Note:</b> The functionality is tested integrated in TemplateServiceImplTest from the entry point - the
  * templates reload.
  *
@@ -32,8 +46,15 @@ public class TemplateValidator {
 
 	private static final String EMAIL_TEMPLATE_TYPE = "emailTemplate";
 
-	private TemplateValidator() {
-		// disable instantiation
+	private static final String MISSING_FIELD_ERROR = "Field=%s in type=%s for template=%s is missing";
+	private static final String INVALID_FIELD_ERROR = "Field=%s in type=%s for template=%s is not of code list type";
+	private static final String MISSING_VALUE_ERROR = "Code value=%s for field=%s in type=%s for template=%s is missing or disabled";
+
+	private final CodelistService codelistService;
+
+	@Inject
+	public TemplateValidator(CodelistService codelistService) {
+		this.codelistService = codelistService;
 	}
 
 	/**
@@ -50,19 +71,94 @@ public class TemplateValidator {
 	 * @return a list of all collected errors
 	 */
 	public static List<String> validate(List<Template> templates) {
-		List<String> mandatoryFieldErros = validateNoMissingMandatoryFields(templates);
-		if (!mandatoryFieldErros.isEmpty()) {
+		List<String> mandatoryFieldErrors = validateNoMissingMandatoryFields(templates);
+		if (!mandatoryFieldErrors.isEmpty()) {
 			// Can not proceed with validation of the primary flags, if mandatory fields are missing
-			return mandatoryFieldErros;
+			return mandatoryFieldErrors;
 		}
-		List<String> correspondingInstancesErrors = validateNoDuplicateCorreposndingInstances(templates);
-		List<String> primaryFlagsErros = validatePrimaryFlags(templates);
+		List<String> correspondingInstancesErrors = validateNoDuplicateCorrespondingInstances(templates);
+		List<String> primaryFlagsErrors = validatePrimaryFlags(templates);
 		return Stream
-				.concat(correspondingInstancesErrors.stream(), primaryFlagsErros.stream())
-					.collect(Collectors.toList());
+				.concat(correspondingInstancesErrors.stream(), primaryFlagsErrors.stream())
+				.collect(Collectors.toList());
 	}
 
-	private static List<String> validateNoDuplicateCorreposndingInstances(
+	/**
+	 * Validates that all of the provided templates have a corresponding {@link GenericDefinition} (unless it's an email template)
+	 *
+	 * @param templates the templates to validate
+	 * @param definitionResolver function resolving {@link GenericDefinition} for provided identifier or <code>null</code> if none corresponds
+	 * @return list of errors for templates lacking a {@link GenericDefinition} or empty list if all of them are valid
+	 */
+	public List<String> hasDefinition(List<Template> templates, Function<String, GenericDefinition> definitionResolver) {
+		return templates.stream()
+				.filter(template -> !EMAIL_TEMPLATE_TYPE.equals(template.getForType()))
+				.filter(template -> definitionResolver.apply(template.getForType()) == null)
+				.map(template -> "Missing definition id=" + template.getForType() + " for template=" + template.getId())
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Validates that the provided templates have valid rules (if any).
+	 * The following validations are performed:
+	 * <ul>
+	 * <li>that there is a definition property for each rule</li>
+	 * <li>that each definition property has a defined code list</li>
+	 * <li>that each rule's code values exist and are enabled</li>
+	 * </ul>
+	 *
+	 * @param templates the templates which rules will be validated
+	 * @param definitionResolver function resolving {@link GenericDefinition} for provided identifier or <code>null</code> if none corresponds
+	 * @return list of validation errors or empty list if no errors are detected
+	 */
+	public List<String> validateRules(List<Template> templates, Function<String, GenericDefinition> definitionResolver) {
+		return templates.stream()
+				.map(t -> this.validateRules(t, definitionResolver))
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+	}
+
+	private List<String> validateRules(Template template, Function<String, GenericDefinition> definitionResolver) {
+		String templateId = template.getId();
+		String rule = template.getRule();
+		String forType = template.getForType();
+
+		if (StringUtils.isBlank(rule) || StringUtils.isBlank(forType)) {
+			return Collections.emptyList();
+		}
+
+		List<String> errors = new LinkedList<>();
+		Map<String, Serializable> parsedRules = TemplateRuleUtils.parseRule(rule);
+		DefinitionModel definition = definitionResolver.apply(forType);
+
+		parsedRules.forEach((field, value) -> {
+			Optional<PropertyDefinition> propertyDefinition = definition.getField(field);
+
+			if (!propertyDefinition.isPresent()) {
+				errors.add(String.format(MISSING_FIELD_ERROR, field, forType, templateId));
+			} else {
+				Integer codelist = propertyDefinition.get().getCodelist();
+				if (codelist == null) {
+					errors.add(String.format(INVALID_FIELD_ERROR, field, forType, templateId));
+				} else if (value instanceof Collection) {
+					((Collection) value).forEach(v -> validateCodeValue(templateId, codelist, v.toString(), field, forType, errors));
+				} else {
+					validateCodeValue(templateId, codelist, value.toString(), field, forType, errors);
+				}
+			}
+		});
+
+		return errors;
+	}
+
+	private void validateCodeValue(String templateId, Integer codeList, String value, String field, String forType, List<String> errors) {
+		CodeValue codeValue = codelistService.getCodeValue(codeList, value);
+		if (codeValue == null) {
+			errors.add(String.format(MISSING_VALUE_ERROR, value, field, forType, templateId));
+		}
+	}
+
+	private static List<String> validateNoDuplicateCorrespondingInstances(
 			List<Template> templates) {
 		// maps a corresponding instance to the template id
 		Map<String, String> correspondingInstancesUnique = new HashMap<>();
@@ -80,7 +176,7 @@ public class TemplateValidator {
 			}
 		}
 		if (!errors.isEmpty()) {
-			logTemlateErrors(errors);
+			logTemplateErrors(errors);
 		}
 		return errors;
 	}
@@ -93,7 +189,6 @@ public class TemplateValidator {
 
 			String errorMessage = "Template [%s] is missing a mandatory field: [%s]";
 
-			// NOSONAR
 			if (missingType) {
 				errors.add(String.format(errorMessage, template.getId(), DefaultProperties.TYPE));
 			} else if (!EMAIL_TEMPLATE_TYPE.equals(template.getForType())) {
@@ -107,7 +202,7 @@ public class TemplateValidator {
 			}
 		}
 		if (!errors.isEmpty()) {
-			logTemlateErrors(errors);
+			logTemplateErrors(errors);
 		}
 		return errors;
 	}
@@ -119,7 +214,7 @@ public class TemplateValidator {
 		}
 		if (!missingTitle && template.getId() != null && !template
 				.getId()
-					.equalsIgnoreCase(TemplateUtils.buildIdFromTitle(template.getTitle()))) {
+				.equalsIgnoreCase(TemplateUtils.buildIdFromTitle(template.getTitle()))) {
 			errors.add("Template [" + template.getId()
 					+ "] has a title which does not correspond to its identifier. "
 					+ "Identifier should be built by the system as the title is converted to lower case and the whitespaces are removed");
@@ -148,7 +243,7 @@ public class TemplateValidator {
 			}
 		}
 		if (!errors.isEmpty()) {
-			logTemlateErrors(errors);
+			logTemplateErrors(errors);
 		}
 		return errors;
 	}
@@ -160,7 +255,7 @@ public class TemplateValidator {
 				.collect(Collectors.toList());
 	}
 
-	private static void logTemlateErrors(List<String> primaryFlagErrors) {
+	private static void logTemplateErrors(List<String> primaryFlagErrors) {
 		String endLine = System.lineSeparator();
 		String separator = "====================================================================================================================";
 		StringBuilder builder = new StringBuilder().append(endLine)
@@ -174,6 +269,6 @@ public class TemplateValidator {
 
 		primaryFlagErrors.forEach(error -> builder.append(error).append(endLine));
 		builder.append(endLine).append(separator).append(endLine).append(separator).append(endLine).append(endLine);
-		LOGGER.error(builder.toString());
+		LOGGER.error("{}", builder);
 	}
 }

@@ -13,12 +13,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -51,10 +52,12 @@ public class ImageDownloaderTest {
 		URI address = URI.create("http://localhost/image.jpg");
 
 		when(httpClient.execute(any(), any(), any(), any(), any())).then(a -> {
-			BiFunction<Integer, HttpResponse, Pair<String, byte[]>> responseHandler = a.getArgumentAt(3,
-					BiFunction.class);
+			ResponseHandler<Pair<String, byte[]>> responseHandler = a.getArgumentAt(3, ResponseHandler.class);
 
 			HttpResponse response = mock(HttpResponse.class);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(200);
+			when(response.getStatusLine()).thenReturn(statusLine);
 			HttpEntity entity = mock(HttpEntity.class);
 			when(entity.getContentLength()).thenReturn(4L);
 			Header header = mock(Header.class);
@@ -65,7 +68,7 @@ public class ImageDownloaderTest {
 				aa.getArgumentAt(0, OutputStream.class).write("test".getBytes(StandardCharsets.UTF_8));
 				return null;
 			}).when(entity).writeTo(any());
-			return responseHandler.apply(200, response);
+			return responseHandler.handleResponse(response);
 		});
 
 		downloader.download(address, (contentType, data) -> {
@@ -83,17 +86,19 @@ public class ImageDownloaderTest {
 		URI address = URI.create("http://localhost/image.jpg");
 
 		when(httpClient.execute(any(), any(), any(), any(), any())).then(a -> {
-			BiFunction<Integer, HttpResponse, Pair<String, byte[]>> responseHandler = a.getArgumentAt(3,
-					BiFunction.class);
+			ResponseHandler<Pair<String, byte[]>> responseHandler = a.getArgumentAt(3, ResponseHandler.class);
 
 			HttpResponse response = mock(HttpResponse.class);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(200);
+			when(response.getStatusLine()).thenReturn(statusLine);
 			HttpEntity entity = mock(HttpEntity.class);
 			when(entity.getContentLength()).thenReturn(ImageDownloader.MAX_DOWNLOADS_SIZE + 1);
 			Header header = mock(Header.class);
 			when(header.getValue()).thenReturn("image/jpg; charset=UTF-8");
 			when(entity.getContentType()).thenReturn(header);
 			when(response.getEntity()).thenReturn(entity);
-			return responseHandler.apply(200, response);
+			return responseHandler.handleResponse(response);
 		});
 
 		String response = downloader.download(address, (contentType, data) -> {
@@ -109,10 +114,12 @@ public class ImageDownloaderTest {
 		URI address = URI.create("http://localhost/image.jpg");
 
 		when(httpClient.execute(any(), any(), any(), any(), any())).then(a -> {
-			BiFunction<Integer, HttpResponse, Pair<String, byte[]>> responseHandler = a.getArgumentAt(3,
-					BiFunction.class);
+			ResponseHandler<Pair<String, byte[]>> responseHandler = a.getArgumentAt(3, ResponseHandler.class);
 			HttpResponse response = mock(HttpResponse.class);
-			return responseHandler.apply(404, response);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(404);
+			when(response.getStatusLine()).thenReturn(statusLine);
+			return responseHandler.handleResponse(response);
 		});
 
 		String response = downloader.download(address, (contentType, data) -> {
@@ -128,9 +135,11 @@ public class ImageDownloaderTest {
 		URI address = URI.create("http://localhost/image.jpg");
 
 		when(httpClient.execute(any(), any(), any(), any(), any())).then(a -> {
-			BiFunction<Integer, HttpResponse, Pair<String, byte[]>> responseHandler = a.getArgumentAt(3,
-					BiFunction.class);
+			ResponseHandler<Pair<String, byte[]>> responseHandler = a.getArgumentAt(3, ResponseHandler.class);
 			HttpResponse response = mock(HttpResponse.class);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(200);
+			when(response.getStatusLine()).thenReturn(statusLine);
 			HttpEntity entity = mock(HttpEntity.class);
 			when(entity.getContentLength()).thenReturn(4L);
 			Header header = mock(Header.class);
@@ -138,7 +147,7 @@ public class ImageDownloaderTest {
 			when(entity.getContentType()).thenReturn(header);
 			when(response.getEntity()).thenReturn(entity);
 			doThrow(IOException.class).when(entity).writeTo(any());
-			return responseHandler.apply(200, response);
+			return responseHandler.handleResponse(response);
 		});
 
 		String response = downloader.download(address, (contentType, data) -> {

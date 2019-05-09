@@ -23,7 +23,7 @@ describe('ContentViewer', () => {
     scope = mock$scope();
 
     let objectSelectorHelper = stub(ObjectSelectorHelper);
-    objectSelectorHelper.getSelectedObject.returns(PromiseStub.reject());
+    objectSelectorHelper.getSelectedObject.returns(PromiseStub.reject({reason:''}));
 
     let result = {
       contents: () => {

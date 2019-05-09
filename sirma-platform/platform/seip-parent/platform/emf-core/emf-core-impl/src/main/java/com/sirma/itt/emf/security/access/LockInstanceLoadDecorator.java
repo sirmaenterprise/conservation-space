@@ -27,7 +27,7 @@ import com.sirma.itt.seip.plugin.Extension;
  *
  * @author BBonev
  */
-@Extension(target = InstanceLoadDecorator.TARGET_NAME, order = 15)
+@Extension(target = InstanceLoadDecorator.INSTANCE_DECORATOR, order = 15)
 public class LockInstanceLoadDecorator implements InstanceLoadDecorator {
 
 	@Inject

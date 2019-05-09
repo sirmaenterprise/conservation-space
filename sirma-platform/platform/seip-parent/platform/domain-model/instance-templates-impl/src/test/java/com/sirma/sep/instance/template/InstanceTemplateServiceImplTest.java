@@ -1,6 +1,8 @@
 package com.sirma.sep.instance.template;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -37,7 +39,6 @@ import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
 import com.sirma.itt.seip.domain.security.ActionTypeConstants;
-import com.sirma.itt.seip.event.EmfEvent;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.relation.LinkConstants;
@@ -48,7 +49,6 @@ import com.sirma.itt.seip.search.SearchService;
 import com.sirma.itt.seip.template.Template;
 import com.sirma.itt.seip.template.TemplateProperties;
 import com.sirma.itt.seip.template.TemplateService;
-import com.sirma.itt.seip.testutil.CustomMatcher;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.InstanceContentService;
@@ -177,6 +177,7 @@ public class InstanceTemplateServiceImplTest {
 				batchRequest.getProperties().get(InstanceTemplateUpdateJobProperties.TEMPLATE_INSTANCE_ID));
 		assertEquals(TEMPLATE_PUBLISHED_VERSION,
 				batchRequest.getProperties().get(InstanceTemplateUpdateJobProperties.TEMPLATE_VERSION));
+		verify(eventService).fire(any(AuditableEvent.class));
 	}
 
 	@Test
@@ -286,6 +287,38 @@ public class InstanceTemplateServiceImplTest {
 
 		Template template = new Template();
 		instanceTemplateServceImpl.createTemplate(template, SOURCE_ID);
+	}
+
+	@Test
+	public void should_allowToCheckIfTemplateExists() {
+		Instance instance = new EmfInstance("1");
+		instance.setType(InstanceType.create("project"));
+		instance.add(LinkConstants.HAS_TEMPLATE, TEMPLATE_INSTANCE_ID);
+
+		Instance instanceWithInactiveTemplate = new EmfInstance("2");
+		instanceWithInactiveTemplate.setType(InstanceType.create("project"));
+		instanceWithInactiveTemplate.add(LinkConstants.HAS_TEMPLATE, "template2");
+
+		Instance instanceWithoutTemplateProperty = new EmfInstance("3");
+		instanceWithoutTemplateProperty.setType(InstanceType.create("project"));
+
+		Instance templateInstance = new EmfInstance("4");
+		templateInstance.setType(InstanceType.create("template"));
+
+		when(templateService.hasTemplate(eq(TEMPLATE_INSTANCE_ID))).thenReturn(true);
+		when(templateService.hasTemplate(eq("template2"))).thenReturn(false);
+
+		// Should be true for existing instance and template
+		assertTrue(instanceTemplateServceImpl.hasTemplate(instance));
+
+		// Should be false for existing instance but with inactive template
+		assertFalse(instanceTemplateServceImpl.hasTemplate(instanceWithInactiveTemplate));
+
+		// Should be false for instance without template property
+		assertFalse(instanceTemplateServceImpl.hasTemplate(instanceWithoutTemplateProperty));
+
+		// Should be false for template instances
+		assertFalse(instanceTemplateServceImpl.hasTemplate(templateInstance));
 	}
 
 	private EmfInstance withSourceInstance(String type) {

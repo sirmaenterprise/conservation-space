@@ -48,6 +48,6 @@ export class DatatableNumericFilter extends Configurable {
   }
 
   static isValidNumeric(value) {
-    return !isNaN(value)
+    return !isNaN(value);
   }
 }

@@ -11,9 +11,7 @@ import template from 'form-builder/radiobutton-group/radiobutton-group.html!text
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
 export class RadiobuttonGroup extends FormControl {
   constructor($element) {
@@ -36,7 +34,7 @@ export class RadiobuttonGroup extends FormControl {
     let loadedOptions = 0;
 
     mutationRecords.forEach((mutation) => {
-      if (typeof mutation.addedNodes === "object" && mutation.removedNodes.length === 0) {
+      if (typeof mutation.addedNodes === 'object' && mutation.removedNodes.length === 0) {
         loadedOptions++;
         if (loadedOptions === this.totalOptions) {
           this.radiobuttonControl.init();
@@ -114,7 +112,7 @@ export class RadiobuttonGroup extends FormControl {
 
   setDisabled(disabled) {
     this.inputField.each(function () {
-      $(this).attr({disabled: disabled});
+      $(this).attr({disabled});
     });
     this.setLabelClass();
   }

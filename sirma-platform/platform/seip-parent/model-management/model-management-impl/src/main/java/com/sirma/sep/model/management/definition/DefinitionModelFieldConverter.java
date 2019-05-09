@@ -4,32 +4,26 @@ import static com.sirma.sep.model.management.converter.ModelConverterUtilities.a
 import static com.sirma.sep.model.management.converter.ModelConverterUtilities.addLabels;
 import static com.sirma.sep.model.management.converter.ModelConverterUtilities.addStringAttribute;
 
-import com.sirma.itt.seip.definition.RegionDefinition;
-import com.sirma.itt.seip.definition.label.LabelDefinition;
-import com.sirma.itt.seip.definition.label.LabelService;
-import com.sirma.itt.seip.domain.definition.GenericDefinition;
-import com.sirma.itt.seip.domain.definition.PropertyDefinition;
-import com.sirma.itt.semantic.NamespaceRegistryService;
-import com.sirma.sep.model.management.ModelAttribute;
-import com.sirma.sep.model.management.ModelField;
-import com.sirma.sep.model.management.meta.ModelMetaInfo;
+import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
+import com.sirma.itt.seip.collections.CollectionUtils;
+import com.sirma.itt.seip.definition.RegionDefinition;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
+import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.semantic.NamespaceRegistryService;
+import com.sirma.sep.model.management.ModelField;
+import com.sirma.sep.model.management.meta.ModelsMetaInfo;
 
 /**
  * Converts {@link PropertyDefinition} to {@link ModelField}.
@@ -41,46 +35,50 @@ public class DefinitionModelFieldConverter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final NamespaceRegistryService namespaceRegistryService;
-	private final LabelService labelService;
+	private final LabelProvider labelProvider;
+
+	private final DefinitionModelControlConverter definitionModelControlConverter;
 
 	/**
 	 * Instantiates the converter with the provided namespace service for URIs conversions.
 	 *
 	 * @param namespaceRegistryService the service for URIs conversions
-	 * @param labelService label service used for retrieving {@link LabelDefinition} of a field
+	 * @param definitionModelControlConverter converter for model controls
+	 * @param labelProvider provider for retrieving the labels of a field
 	 */
 	@Inject
-	public DefinitionModelFieldConverter(NamespaceRegistryService namespaceRegistryService, LabelService labelService) {
+	public DefinitionModelFieldConverter(NamespaceRegistryService namespaceRegistryService, LabelProvider labelProvider,
+			DefinitionModelControlConverter definitionModelControlConverter) {
 		this.namespaceRegistryService = namespaceRegistryService;
-		this.labelService = labelService;
+		this.labelProvider = labelProvider;
+		this.definitionModelControlConverter = definitionModelControlConverter;
 	}
 
 	/**
 	 * Converts the {@link PropertyDefinition} from the provided {@link GenericDefinition} into {@link ModelField}.
 	 * <p>
-	 * This will also convert fields from any {@link com.sirma.itt.seip.definition.RegionDefinition} in the provided {@link
-	 * GenericDefinition}
+	 * This will also convert fields from any {@link com.sirma.itt.seip.definition.RegionDefinition} in the provided
+	 * {@link GenericDefinition}
 	 *
 	 * @param definition the definition which will be processed
-	 * @param fieldsMetaInfo meta information mapping about the model fields
-	 * @return list of converted {@link ModelField}. It may be empty if the provided definition has no fields and/or regions
+	 * @param modelsMetaInfo models meta information mappings
+	 * @return map of converted {@link ModelField}. It may be empty if the provided definition has no fields and/or
+	 * regions
 	 */
-	public List<ModelField> constructModelFields(GenericDefinition definition,
-			Map<String, ModelMetaInfo> fieldsMetaInfo) {
+	public Map<String, ModelField> constructModelFields(GenericDefinition definition, ModelsMetaInfo modelsMetaInfo) {
 
 		Map<PropertyDefinition, RegionDefinition> propertyToRegionMapping = new HashMap<>();
 		definition.getRegions().forEach(region -> region.getFields().forEach(field -> propertyToRegionMapping.put(field, region)));
 
-		return new ArrayList<>(definition.fieldsStream()
-				.map(propertyDefinition -> constructModelField(propertyDefinition, propertyToRegionMapping, fieldsMetaInfo))
-				.collect(Collectors.toMap(ModelField::getId, f -> f, duplicateFieldMerger(definition)))
-				.values());
+		return definition.fieldsStream()
+				.map(propertyDefinition -> constructModelField(propertyDefinition, propertyToRegionMapping, modelsMetaInfo))
+				.collect(Collectors.toMap(ModelField::getId, f -> f, duplicateFieldMerger(definition), LinkedHashMap::new));
 	}
 
 	private ModelField constructModelField(PropertyDefinition propertyDefinition,
-			Map<PropertyDefinition, RegionDefinition> propertyToRegionMapping, Map<String, ModelMetaInfo> fieldsMetaInfo) {
+			Map<PropertyDefinition, RegionDefinition> propertyToRegionMapping, ModelsMetaInfo modelsMetaInfo) {
 		ModelField modelField = new ModelField();
-
+		modelField.setModelsMetaInfo(modelsMetaInfo);
 		modelField.setId(propertyDefinition.getName());
 		if (propertyDefinition.getUri() != null) {
 			modelField.setUri(getFullUri(propertyDefinition));
@@ -92,17 +90,21 @@ public class DefinitionModelFieldConverter {
 			modelField.setRegionId(region.getIdentifier());
 		}
 
-		addLabels(propertyDefinition, modelField, labelService::getLabel);
-		addTooltipAttribute(propertyDefinition, fieldsMetaInfo, modelField);
+		addLabelAttributes(propertyDefinition, modelField);
+		addTooltipAttribute(propertyDefinition, modelField);
+		addAttribute(modelField, DefinitionModelAttributes.TYPE, propertyDefinition.getType());
+		addAttribute(modelField, DefinitionModelAttributes.RNC, propertyDefinition.getRnc());
+		addAttribute(modelField, DefinitionModelAttributes.ORDER, propertyDefinition.getOrder());
+		addAttribute(modelField, DefinitionModelAttributes.NAME, propertyDefinition.getIdentifier());
+		addAttribute(modelField, DefinitionModelAttributes.CODE_LIST, propertyDefinition.getCodelist());
+		addAttribute(modelField, DefinitionModelAttributes.PREVIEW_EMPTY, propertyDefinition.getPreviewEmpty());
+		addAttribute(modelField, DefinitionModelAttributes.MULTI_VALUED, propertyDefinition.getMultiValued());
+		addAttribute(modelField, DefinitionModelAttributes.MANDATORY, propertyDefinition.getMandatory());
+		addStringAttribute(modelField, DefinitionModelAttributes.DISPLAY_TYPE, propertyDefinition.getDisplayType());
 
-		addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.TYPE, propertyDefinition.getType());
-		addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.ORDER, propertyDefinition.getOrder());
-		addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.CODE_LIST, propertyDefinition.getCodelist());
-		addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.PREVIEW_EMPTY, propertyDefinition.isPreviewEnabled());
-		addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.MULTI_VALUED, propertyDefinition.isMultiValued());
-		addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.MANDATORY, propertyDefinition.isMandatory());
-		addStringAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.DISPLAY_TYPE, propertyDefinition.getDisplayType());
+		modelField.setControls(definitionModelControlConverter.constructModelControls(propertyDefinition, modelsMetaInfo));
 
+		modelField.setAsDeployed();
 		return modelField;
 	}
 
@@ -110,38 +112,26 @@ public class DefinitionModelFieldConverter {
 		return namespaceRegistryService.buildFullUri(propertyDefinition.getUri());
 	}
 
-	private void addTooltipAttribute(PropertyDefinition propertyDefinition, Map<String, ModelMetaInfo> fieldsMetaInfo,
-			ModelField modelField) {
+	private void addLabelAttributes(PropertyDefinition propertyDefinition, ModelField modelField) {
+		addLabels(propertyDefinition, modelField, labelProvider::getLabels);
+		addAttribute(modelField, DefinitionModelAttributes.LABEL_ID, propertyDefinition.getLabelId());
+	}
+
+	private void addTooltipAttribute(PropertyDefinition propertyDefinition, ModelField modelField) {
 		String tooltipId = propertyDefinition.getTooltipId();
 		if (StringUtils.isNotBlank(tooltipId)) {
-			LabelDefinition labelDefinition = labelService.getLabel(tooltipId);
-			if (labelDefinition != null) {
-				addAttribute(fieldsMetaInfo, modelField, DefinitionModelAttributes.TOOLTIP, new HashMap<>(labelDefinition.getLabels()));
+			addAttribute(modelField, DefinitionModelAttributes.TOOLTIP_ID, tooltipId);
+			Map<String, String> labels = labelProvider.getLabels(tooltipId);
+			if (CollectionUtils.isNotEmpty(labels)) {
+				addAttribute(modelField, DefinitionModelAttributes.TOOLTIP, labels);
 			}
 		}
 	}
 
 	private static BinaryOperator<ModelField> duplicateFieldMerger(GenericDefinition definition) {
 		return (source, target) -> {
-			LOGGER.warn("Merging duplicated fields {} in {}", source.getId(), definition.getIdentifier());
-
-			source.getAttributes().forEach(attr -> {
-				Optional<ModelAttribute> secondFieldAttr = target.getAttribute(attr.getName());
-				if (secondFieldAttr.isPresent()) {
-					secondFieldAttr
-							.filter(attribute -> isValueBlank(attribute.getValue()))
-							.ifPresent(attribute -> attribute.setValue(attr.getValue()));
-				} else {
-					target.addAttribute(attr.getName(), attr.getType(), attr.getValue());
-				}
-			});
-
+			LOGGER.warn("Found duplicated field {} in {}", source.getId(), definition.getIdentifier());
 			return target;
 		};
 	}
-
-	private static boolean isValueBlank(Serializable value) {
-		return Objects.isNull(value) || StringUtils.isBlank(value.toString());
-	}
-
 }

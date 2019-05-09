@@ -1,20 +1,20 @@
 'use strict';
 
-var IdocPage = require('./idoc-page').IdocPage;
-var CSS = require('./idoc-page').IdocPage.CSS;
-var VIEW_MODE = require('./idoc-page').IdocPage.VIEW_MODE;
-var TestUtils = require('../test-utils');
+let IdocPage = require('./idoc-page').IdocPage;
+let CSS = require('./idoc-page').IdocPage.CSS;
+let VIEW_MODE = require('./idoc-page').IdocPage.VIEW_MODE;
+let TestUtils = require('../test-utils');
 
 const IDOC_ID = 'emf:123456';
 
-var idocPage = new IdocPage();
+let idocPage = new IdocPage();
 
 describe('Test idoc page', function () {
 
   describe('collapse header', function () {
     it('should hide the header when clicked (only in edit mode)', function () {
       idocPage.open(true);
-      var toggleBtn = element(by.className(CSS.BTN_TOGGLE_HEADER));
+      let toggleBtn = element(by.className(CSS.BTN_TOGGLE_HEADER));
       browser.wait(EC.visibilityOf(toggleBtn), DEFAULT_TIMEOUT);
       toggleBtn.click();
       return expect(TestUtils.hasClass(element(by.className(CSS.IDOC_CONTEXT_WRAPPER)), CSS.NG_HIDDEN)).to.eventually.be.true;
@@ -22,7 +22,7 @@ describe('Test idoc page', function () {
 
     it('should show the header when clicked given it had been hidden (only in edit mode)', function () {
       idocPage.open(true);
-      var toggleBtn = element(by.className(CSS.BTN_TOGGLE_HEADER));
+      let toggleBtn = element(by.className(CSS.BTN_TOGGLE_HEADER));
       browser.wait(EC.visibilityOf(toggleBtn), DEFAULT_TIMEOUT);
       toggleBtn.click().then(function () {
         toggleBtn.click().then(function () {
@@ -33,7 +33,7 @@ describe('Test idoc page', function () {
 
     it('should not have toggle header button presented in preview mode', function () {
       idocPage.open(false);
-      var toggleButton = element(by.className(CSS.BTN_TOGGLE_HEADER));
+      let toggleButton = element(by.className(CSS.BTN_TOGGLE_HEADER));
       browser.wait(EC.invisibilityOf(toggleButton), DEFAULT_TIMEOUT);
     });
   });
@@ -49,7 +49,7 @@ describe('Test idoc page', function () {
       browser.wait(EC.presenceOf(element(by.css('.idoc-mode-preview'))), DEFAULT_TIMEOUT);
 
       browser.getCurrentUrl().then(function (url) {
-        var baseUrl = url.substr(0, url.indexOf('#'));
+        let baseUrl = url.substr(0, url.indexOf('#'));
         expect(browser.getCurrentUrl()).to.eventually.equal(baseUrl + '#/emf:123456?mode=preview');
       });
     });
@@ -84,9 +84,9 @@ describe('Test idoc page', function () {
         });
       }).then(() => {
         // Then All three tabs have unchanged content
-        var idocTabs = idocPage.getIdocTabs();
+        let idocTabs = idocPage.getIdocTabs();
         idocTabs.getTabs().then((tabs) => {
-          for (var i = 0; i < tabs.length; i++) {
+          for (let i = 0; i < tabs.length; i++) {
             idocTabs.getTabByIndex(i).select();
             idocPage.checkSectionContent(i, 'Brand new content for tab ' + i);
           }
@@ -98,14 +98,14 @@ describe('Test idoc page', function () {
   describe('when viewing/editing existing idoc', function () {
     it('loading (view of) an existing idoc', function () {
       idocPage.open(false, IDOC_ID);
-      var idocTabs = idocPage.getIdocTabs();
+      let idocTabs = idocPage.getIdocTabs();
       idocTabs.waitUntilTabsPresent();
       expect(idocTabs.getTabsCount()).to.eventually.equal(3);
 
       idocPage.checkViewMode(VIEW_MODE.PREVIEW);
 
       idocTabs.getTabs().then((tabs) => {
-        for (var i = 0; i < tabs.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
           idocTabs.getTabByIndex(i).select();
           expect(idocTabs.getTabByIndex(i).getTabTitle()).to.eventually.equal('Tab ' + i);
           expect(idocPage.getTabEditor(i + 1).getAsText()).to.eventually.equal('Content tab ' + i);
@@ -187,9 +187,9 @@ describe('Test idoc page', function () {
         return true;
       }).then(() => {
         idocPage.setEdit(false);
-        var idocTabs = idocPage.getIdocTabs();
+        let idocTabs = idocPage.getIdocTabs();
         idocTabs.getTabs().then((tabs) => {
-          for (var i = 0; i < tabs.length; i++) {
+          for (let i = 0; i < tabs.length; i++) {
             idocTabs.getTabByIndex(i).select();
             expect(idocPage.getTabEditor(i + 1).getAsText()).to.eventually.equal('Modified content for section ' + i);
           }
@@ -201,10 +201,9 @@ describe('Test idoc page', function () {
   describe('header actions ', () => {
     it('should have multiple configuable actions', () => {
       idocPage.open(false, IDOC_ID);
-      var actions = idocPage.getActionsToolbar().getHeaderActions();
+      let actions = idocPage.getActionsToolbar().getHeaderActions();
       expect(actions.count()).to.eventually.equal(2);
       expect(actions.count()).to.eventually.not.equal(3);
     });
   });
-
 });

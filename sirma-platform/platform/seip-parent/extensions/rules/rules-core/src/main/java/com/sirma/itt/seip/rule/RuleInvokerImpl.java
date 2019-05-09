@@ -1,7 +1,6 @@
 package com.sirma.itt.seip.rule;
 
 import java.io.Serializable;
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,9 +8,6 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.emf.rule.InstanceRule;
 import com.sirma.itt.emf.rule.RuleContext;
@@ -21,9 +17,7 @@ import com.sirma.itt.emf.rule.invoker.RuleRunner;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.configuration.Options;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.security.annotation.RunAsSystem;
-import com.sirma.itt.seip.time.TimeTracker;
 
 /**
  * {@link RuleInvoker} implementation that uses a {@link RuleStore} to access rule instances and default
@@ -38,11 +32,6 @@ import com.sirma.itt.seip.time.TimeTracker;
  */
 @ApplicationScoped
 public class RuleInvokerImpl implements RuleInvoker {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-	@Inject
-	private volatile Statistics statistics;
 
 	@Inject
 	private RuleStore ruleStore;
@@ -82,14 +71,8 @@ public class RuleInvokerImpl implements RuleInvoker {
 		if (Options.DISABLE_RULES.isEnabled()) {
 			return;
 		}
-		statistics.updateMeter(null, "RuleActivationRequests");
 
-		TimeTracker allRulesTimeTracker = TimeTracker.createAndStart();
-		try {
-			collectAndRunRulesForInstance(currentInstance, oldVersionInstance, operationName);
-		} finally {
-			LOGGER.trace("All Rules Processed in {} ms", allRulesTimeTracker.stop());
-		}
+		collectAndRunRulesForInstance(currentInstance, oldVersionInstance, operationName);
 	}
 
 	private void collectAndRunRulesForInstance(Instance currentInstance, Instance oldVersionInstance,

@@ -1,6 +1,10 @@
 import {View, Inject, NgScope,NgCompile,NgElement } from 'app/app';
 import {WidgetConfig} from 'idoc/widget/widget';
-import {ObjectSelector, SELECT_OBJECT_CURRENT, SELECT_OBJECT_MANUALLY, SELECT_OBJECT_AUTOMATICALLY} from 'idoc/widget/object-selector/object-selector';
+import {
+  SELECT_OBJECT_CURRENT,
+  SELECT_OBJECT_MANUALLY,
+  SELECT_OBJECT_AUTOMATICALLY
+} from 'idoc/widget/object-selector/object-selector';
 import {SearchMediator} from 'search/search-mediator';
 import {QueryBuilder} from 'search/utils/query-builder';
 import {MULTIPLE_SELECTION} from 'search/search-selection-modes';
@@ -57,7 +61,7 @@ export class CommentsWidgetConfig {
       selection: MULTIPLE_SELECTION,
       criteria: this.config.criteria,
       selectObjectMode: this.config.selectObjectMode,
-      triggerSearch: triggerSearch,
+      triggerSearch,
       excludeOptions: [SELECT_OBJECT_CURRENT],
       onObjectSelectorChanged: (onSelectorChangedPayload) => {
         var selectObjectMode = onSelectorChangedPayload.selectObjectMode;

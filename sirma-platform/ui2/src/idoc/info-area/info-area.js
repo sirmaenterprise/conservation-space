@@ -25,7 +25,7 @@ export class InfoArea {
       channel = this.context.getUUID();
     }
     this.infoAreaUpdateEvent = eventbus.subscribe({
-      channel: channel,
+      channel,
       topic: TOPIC,
       callback: (data)=> {
         this.addMessage(data.id, data.message);

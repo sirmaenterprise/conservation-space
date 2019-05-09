@@ -1,0 +1,1301 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix smk: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK> .
+
+<http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK> rdf:type owl:Ontology ;
+                                                                            owl:imports <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> ;
+                                                                            rdfs:comment "SMK Extension of Cultural Heritage Conservation Ontology Model for Conservation Space project"@en ;
+                                                                            owl:versionInfo "0.1"@en ;
+                                                                            rdfs:label "Extension of Cultural Heritage Conservation Ontology Model for SMK"@en ;
+                                                                            dc:creator "Lidiya Dimitrova"@en ;
+                                                                            dc:rights "What rights?"@en ;
+                                                                            dc:subject "Extension of Cultural Heritage Conservation Ontology Model for SMK"@en .
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#condition
+chc:condition rdf:type owl:DatatypeProperty .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#acquisitionDate
+smk:acquisitionDate rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Acquisition date"@en ,
+                               "Erhvervelsesdatering"@da ;
+                    skos:definition "The date the object was acquired to the collections."@en ,
+									"Datoen for erhvervelsen af værket i samlingen."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#analysisDate
+smk:analysisDate rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:dateTime ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Date of analysis"@en ,
+                            "Dato for analyse"@da ;
+                 skos:definition "Date of any analysis made on the sample."@en ,
+								 "Datoen for en analyse på prøven."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#artistNames
+smk:artistNames rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                rdfs:label "Artist(s)"@en ,
+                           "Kunstner/ producent"@da ;
+                skos:definition "An entity primarily responsible for creating an object."@en ,
+								"En entitet der primært er ansvarlig for skabelsen af et objekt."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#auxiliarySupport
+smk:auxiliarySupport rdf:type owl:DatatypeProperty ;
+                     rdfs:domain chc:CulturalObject ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Auxiliary support"@en ,
+                                "Bærende underlag"@da ;
+                     skos:definition "Technical description of the Auxiliary support."@en ,
+									 "Teknisk beskrivelse af det bærende underlags tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#auxiliarySupportCondition
+smk:auxiliarySupportCondition rdf:type owl:DatatypeProperty ;
+                              rdfs:subPropertyOf chc:condition ;
+                              rdfs:range xsd:dateTime ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "Auxiliary support condition"@en ,
+                                         "Tilstand bærende underlag"@da ;
+                              skos:definition "Technical description of condition of the secondary support."@en ,
+											  "Teknisk beskrivelse af andet bærende underlags tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#auxiliarySupportDistinguishingMarks
+smk:auxiliarySupportDistinguishingMarks rdf:type owl:DatatypeProperty ;
+                                        rdfs:domain chc:CulturalObject ;
+                                        rdfs:range xsd:string ;
+                                        dc:creator "Lidiya Dimitrova"@en ;
+                                        rdfs:label "Auxiliary support distinguishing marks"@en ,
+                                                   "Kendetegn bærende underlag"@da ;
+                                        skos:definition "Marks on the auxiliary support that may help to distinguish it."@en ,
+														"Karakteristiske mærker på det bærende underlag."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#baseCondition
+smk:baseCondition rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf chc:condition ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Base condition"@en ,
+                             "Tilstand sokkel/ base"@da ;
+                  skos:definition "Description of condition of the base: \"corner damaged\" or mount \"broken\"."@en ,
+								  "Beskrivelse af basens eller monteringens tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#creationDates
+smk:creationDates rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Create date(s)"@en ,
+                             "Datering"@da ;
+                  skos:definition "Start/end dates and qualifiers such as \"circa\", \"before\", etc. Can have historical records of former attributions of creation dates."@en ,
+								  "Start-/slutdato og kvalifikatorer som \"cirka\", \"før\" etc."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#currentLocation
+smk:currentLocation rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Aktuel placering"@da ,
+                               "Current location"@en ;
+                    skos:definition "Location that the cultural object is physically resides currently."@en ,
+									"Værkets aktuelle placering."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#currentLocationMoveDate
+smk:currentLocationMoveDate rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:dateTime ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Dato placering"@da ,
+                                       "Location date"@en ;
+                            skos:definition "Date of location movement."@en ,
+											"Dato for flytning."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#currentLocationMovePurpose
+smk:currentLocationMovePurpose rdf:type owl:DatatypeProperty ;
+                               rdfs:domain chc:CulturalObject ;
+                               rdfs:range xsd:string ;
+                               dc:creator "Lidiya Dimitrova"@en ;
+                               rdfs:label "Formål placering"@da ,
+                                          "Location type"@en ;
+                               skos:definition "Business reason for movement of object."@en ,
+											   "Begrundelse for flytning af værk."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#dimensionsGross
+smk:dimensionsGross rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Bruttomål"@da ,
+                               "Dimensions, gross"@en ;
+                    skos:definition "The physical attributes of the object plus attached components, typically a base on sculpture."@en ,
+									"Værkets fysiske egenskaber inkl. forbundne elementer, typisk en skulpturs base."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#dimensionsNet
+smk:dimensionsNet rdf:type owl:DatatypeProperty ;
+                  rdfs:domain chc:CulturalObject ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Dimensions, net"@en ,
+                             "Nettomål"@da ;
+                  skos:definition "The physical attributes of the object without matte and/or frame. Both US and metric. Can be complex with multi-component or 3-dimensional objects."@en ,
+								  "Værkets fysiske egenskaber uden montering eller ramme inkl. vægt og mål af værket og dets dele."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#documentedCulturalObjectType
+smk:documentedCulturalObjectType rdf:type owl:DatatypeProperty ;
+                                 rdfs:range xsd:string ;
+                                 dc:creator "Malvina Makarieva"@en ;
+                                 rdfs:label "Related cultural object type"@en ,
+                                            "Art/ type"@da ;
+                                 skos:definition "The type of cultural object related to the document."@en ,
+												 "Typen af værk relateret til dokumentet."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#frameCondition
+smk:frameCondition rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf chc:condition ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Frame condition"@en ,
+                              "Tilstand ramme"@da ;
+                   skos:definition "Description of condition of the frame."@en ,
+								   "Beskrivelse af rammens tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#frameDescription
+smk:frameDescription rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Frame information"@en ,
+                                "Information ramme"@da ;
+                     skos:definition "Technical description of the frame's design and construction."@en ,
+									 "Teknisk beskrivelse af rammens design og konstruktion."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#frameDistinguishingMarks
+smk:frameDistinguishingMarks rdf:type owl:DatatypeProperty ;
+                             rdfs:domain chc:CulturalObject ;
+                             rdfs:range xsd:string ;
+                             dc:creator "Lidiya Dimitrova"@en ;
+                             rdfs:label "Frame distinguishing marks"@en ,
+                                        "Kendetegn ramme"@da ;
+                             skos:definition "Technical description of any marks not related to the image such notations or marks on frame."@en ,
+											 "Teknisk beskrivelse af mærker der ikke er en del af værket som f.eks. påskrifter eller mærker på rammen."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#generalConditionAppraisal
+smk:generalConditionAppraisal rdf:type owl:DatatypeProperty ;
+                              rdfs:subPropertyOf chc:condition ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "General condition appraisal"@en ,
+                                         "Generel tilstandsvurdering"@da ;
+                              skos:definition "General condition appraisal of the media/support of a particular cultural object."@en ,
+											  "Generel tilstandsvurdering af et givent værks medium/materiale."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#generalConditionAppraisalFrame
+smk:generalConditionAppraisalFrame rdf:type owl:DatatypeProperty ;
+                                   rdfs:subPropertyOf chc:condition ;
+                                   rdfs:range xsd:string ;
+                                   dc:creator "Lidiya Dimitrova"@en ;
+                                   rdfs:label "General condition appraisal - frame"@en ,
+                                              "Generel tilstandsvurdering ramme"@da ;
+                                   skos:definition "General condition appraisal of the frame of a particular cultural object."@en ,
+												   "Generel tilstandsvurdering af et givent værks prydramme."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#glazeCondition
+smk:glazeCondition rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf chc:condition ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Glaze condition"@en ,
+                              "Tilstand rammeglas"@da ;
+                   skos:definition "Description of the glaze condition."@en ,
+								   "Beskrivelse af rammeglassets tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#glazeDescription
+smk:glazeDescription rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Glazing"@en ,
+                                "Rammeglas"@da ;
+                     skos:definition "Technical description of the glazing."@en ,
+									 "Teknisk beskrivelse af rammeglassets tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#handlingNotes
+smk:handlingNotes rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Handling notes"@en ,
+                             "Håndteringsanvisning"@da ;
+                  skos:definition "Notes on preferred ways to handle a cultural object."@en ,
+								  "Anvisning på den foretrukne måde at håndtere værket på."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#hasBackSideProtection
+smk:hasBackSideProtection rdf:type owl:DatatypeProperty ;
+                          rdfs:domain chc:CulturalObject ;
+                          rdfs:range xsd:boolean ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Back side protection"@en ,
+                                     "Bagklædning"@da ;
+                          skos:definition "An indication of whether the object has back side protection or not."@en ,
+										  "En indikation af om værket har bagklædning monteret."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#historicalDetailsAttached
+smk:historicalDetailsAttached rdf:type owl:DatatypeProperty ;
+                              rdfs:domain chc:CulturalObject ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "Historical details"@en ,
+                                         "Historiske detaljer"@da ;
+                              skos:definition "Historical details physically attached to the cultural object."@en ,
+											  "Historiske detaljer der fysisk er tilføjet værket."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#homeLocation
+smk:homeLocation rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Home location"@en ,
+                            "KKS/ KAS placering"@da ;
+                 skos:definition "The place within the organization where an object is normally located."@en ,
+								 "Lokaliteten i organisationen hvor et givent værk normalt er placeret."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#humidityRequirements
+smk:humidityRequirements rdf:type owl:DatatypeProperty ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         rdfs:label "Humidity requirements"@en ,
+                                    "Krav til luftfugtighed"@da ;
+                         skos:definition "Description of any special humidity requirements that the cultural object may require."@en ,
+										 "Beskrivelse specielle krav til luftfugtighed for det aktuelle værk."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#imageDimensions
+smk:imageDimensions rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Billedmål"@da ,
+                               "Image dimensions"@en ;
+                    skos:definition "The image size of paintings, works on paper, and photographs may be smaller than the dimensions of the work."@en ,
+									"Billedstørrelsen af malerier, værker på papir og fotografier kan være mindre end det pågældende værks dimensioner."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#inMicroClimateFrame
+smk:inMicroClimateFrame rdf:type owl:DatatypeProperty ;
+                        rdfs:domain chc:CulturalObject ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Microclimate frame"@en ,
+                                   "Mikroklimaramme"@da ;
+                        skos:definition "An indication of whether the object is mounted in a microclimate frame or not."@en ,
+										"En indikation af om værket er monteret i mikroklimaramme."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#inscriptions
+smk:inscriptions rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Inscription"@en ,
+                            "Påskrift"@da ;
+                 skos:definition "Description of any writing or printing on the object's obverse or reverse such as artist signature, dealer marks, inventory codes, etc."@en ,
+								 "Beskrivelse af påskrifter eller trykte tekster på værkets recto eller verso f.eks. kunstnersignaturer, handleres mærker, inventarnumre etc."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#installationNotes
+smk:installationNotes rdf:type owl:DatatypeProperty ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Installation notes"@en ,
+                                 "Installationsnoter"@da ;
+                      skos:definition "Notes on the preferred way to install a cultural object."@en ,
+									  "Anvisning på den foretrukne måde at installere værket på."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#installationRequirements
+smk:installationRequirements rdf:type owl:DatatypeProperty ;
+                             rdfs:range xsd:string ;
+                             dc:creator "Lidiya Dimitrova"@en ;
+                             rdfs:label "Installation requirements"@en ,
+                                        "Installationskrav"@da ;
+                             skos:definition "Description of requirements to borrower."@en ,
+											 "Beskrivelse af krav til låneren."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#isFramed
+smk:isFramed rdf:type owl:DatatypeProperty ;
+             rdfs:domain chc:CulturalObject ;
+             rdfs:range xsd:boolean ;
+             dc:creator "Lidiya Dimitrova"@en ;
+             rdfs:label "Frame (Yes/No)"@en ,
+                        "Ramme (ja/nej)"@da ;
+             skos:definition "Indication of whether the object is framed or not."@en ,
+							 "Indikation af om værket er indrammet eller ej."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#isLined
+smk:isLined rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:boolean ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            rdfs:label "Dubleret (ja/nej)"@da ,
+                       "Lined (Yes/No)"@en ;
+            skos:definition "Indication of whether the object is lined or not."@en ,
+							"Indikation af om objektet er dubleret eller ej."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#legalStatus
+smk:legalStatus rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                rdfs:label "Legal status"@en ,
+                           "Sikkerhedsstatus"@da ;
+                skos:definition "An indication of the objects legal status."@en ,
+								"En indikation af værkets sikkerhedsstatus."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#lightRequirements
+smk:lightRequirements rdf:type owl:DatatypeProperty ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Light requirements (lux)"@en ,
+                                 "Lyskrav (lux)"@da ;
+                      skos:definition "Light Requirements (lux) for the cultural object."@en ,
+									  "Værkets lyskrav (lux)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#marks
+smk:marks rdf:type owl:DatatypeProperty ;
+          rdfs:domain chc:CulturalObject ;
+          rdfs:range xsd:string ;
+          dc:creator "Lidiya Dimitrova"@en ;
+          rdfs:label "Marks"@en ,
+                     "Mærker"@da ;
+          skos:definition "Description of any marks not related to the image such notations or marks made by a processes."@en ,
+						  "Beskrivelse af mærker der ikke er en del af værket f.eks. påskrifter eller spor ydre hændelser."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#materials
+smk:materials rdf:type owl:DatatypeProperty ;
+              rdfs:domain chc:CulturalObject ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Material"@en ,
+                         "Materiale"@da ;
+              skos:definition "The basic materials and media from which an object is constructed."@en ,
+							  "De grundlæggende materialer og medier som objektet er konstrueret af."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#mediaCondition
+smk:mediaCondition rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf chc:condition ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Media condition"@en ,
+                              "Tilstand medie"@da ;
+                   skos:definition "General description of condition of the media used in a drawing."@en ,
+								   "Generel beskrivelse af tilstanden af et mediet i en tegning."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#medium
+smk:medium rdf:type owl:DatatypeProperty ;
+           rdfs:domain chc:CulturalObject ;
+           rdfs:range xsd:string ;
+           dc:creator "Lidiya Dimitrova"@en ;
+           rdfs:label "Medium"@da ,
+                      "Medium"@en ;
+           skos:definition "Medium description often used for public."@en ,
+						   "Beskrivelse af medium, ofte til brug for offentliggørelse."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#mountCondition
+smk:mountCondition rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf chc:condition ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Montering tilstand"@da ,
+                              "Mount condition"@en ;
+                   skos:definition "Description of the mount condition."@en ,
+								   "Beskrivelse af monteringens tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#mountDescription
+smk:mountDescription rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Montering"@da ,
+                                "Mount"@en ;
+                     skos:definition "Technical description of the mount."@en ,
+									 "Teknisk beskrivelse af monteringen.."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#objectStatus
+smk:objectStatus rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Object status"@en ,
+                            "Værkstatus"@da ;
+                 skos:definition "A statement of the standing of an object in relation to others in existence."@en ,
+								 "Objektets relation til andre objekter."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#orientation
+smk:orientation rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                rdfs:label "Orientation"@en ,
+                           "Retning/ Orientering"@da ;
+                skos:definition "Orientation of the art item."@en ,
+								"Værkets orientering."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#ownerName
+smk:ownerName rdf:type owl:DatatypeProperty ;
+              rdfs:domain chc:CulturalObject ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Ejer"@da ,
+                         "Owner"@en ;
+              skos:definition "The owner (person or organization) of an object if not in the museum's possession."@en ,
+							  "Værkets ejer (person eller organisation) hvis ikke det er i museets eje."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#packingNotes
+smk:packingNotes rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Packing notes"@en ,
+                            "Pakningsanvisning"@da ;
+                 skos:definition "Notes on how a cultural object should best be packed for movement or transport."@en ,
+								 "Anvisning på den foretrukne måde at pakke værket på før flytning eller transport."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#paintLayersCondition
+smk:paintLayersCondition rdf:type owl:DatatypeProperty ;
+                         rdfs:subPropertyOf chc:condition ;
+                         rdfs:range xsd:string ;
+                         dc:creator "Lidiya Dimitrova"@en ;
+                         rdfs:label "Paint layers condition"@en ,
+                                    "Tilstand farvelag"@da ;
+                         skos:definition "Technical description of condition of the paint layers."@en ,
+										 "Teknisk beskrivelse af farvelagenes tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#paintLayersDescription
+smk:paintLayersDescription rdf:type owl:DatatypeProperty ;
+                           rdfs:domain chc:CulturalObject ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Lidiya Dimitrova"@en ;
+                           rdfs:label "Farvelag"@da ,
+                                      "Paint layers"@en ;
+                           skos:definition "Technical description of the paint layer or design construction."@en ,
+										   "Teknisk beskrivelse af farvelagenes konstruktion."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#portfolioTitle
+smk:portfolioTitle rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Portfolio/ Series"@da ,
+                              "Portfolio/ Serie"@en ;
+                   skos:definition "Indication of a group of works of art created as a group."@en ,
+								   "Indikation af en gruppe kunstværker der er skabt som værk i flere dele.."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#primingCondition
+smk:primingCondition rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf chc:condition ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Sizing and ground condition"@en ,
+                                "Tilstand forlimning og grundering"@da ;
+                     skos:definition "Technical description of condition of the sizing and ground."@en ,
+									 "Teknisk beskrivelse af forlimning og grunderings tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#primingDescription
+smk:primingDescription rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Forlimning og grundering"@da ,
+                                  "Sizing and ground"@en ;
+                       skos:definition "Technical description of the sizing and ground construction."@en ,
+									   "Teknisk beskrivelse af forlimning og grunderings konstruktion."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#provenance
+smk:provenance rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Provenance"@en ,
+                          "Proveniens"@da ;
+               skos:definition "The historical ownership of the object."@en ,
+							   "Objektets historiske ejerskab (proveniens)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingAnalogueMediaType
+smk:recordingAnalogueMediaType rdf:type owl:DatatypeProperty ;
+                               rdfs:range xsd:string ;
+                               dc:creator "Lidiya Dimitrova"@en ;
+                               rdfs:label "Media type (analogue)"@en ,
+                                          "Medietype (analog)"@da ;
+                               skos:definition "Description of the file format of the Media type (analogue)."@en ,
+											   "Beskrivelse af medietypens filformat (analog)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingColour
+smk:recordingColour rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Colour"@en ,
+                               "Farve"@da ;
+                    skos:definition "Indication of whether the recording is in b/w or colour."@en ,
+									"Her angives om indspilningen er i sort/hvid eller farve."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingDate
+smk:recordingDate rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  rdfs:label "Date of recording"@en ,
+                             "Dato for optagelse"@da ;
+                  skos:definition "Information on the date when the recording was made."@en ,
+								  "Information om tidpunktet for optagelsen."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingDigitalMediaType
+smk:recordingDigitalMediaType rdf:type owl:DatatypeProperty ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "Media type (digital)"@en ,
+                                         "Medietype (digital)"@da ;
+                              skos:definition "Description of the file format of the Media type (digital)."@en ,
+											  "Beskrivelse af medietypens filformat (digital)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingFormat
+smk:recordingFormat rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Format"@da ,
+                               "Format"@en ;
+                    skos:definition "Indication of the format of the recording."@en ,
+									"Beskrivelse af optagelsens billedfrekvens."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingFramerate
+smk:recordingFramerate rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Billedfrekvens"@da ,
+                                  "Framerate"@en ;
+                       skos:definition "Description of the framerate of the recording."@en ,
+									   "Description of the framerate of the recording."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingLabel
+smk:recordingLabel rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Label for artist's master and exhibition copy"@en ,
+                              "Label for kunstners master- og udstillingskopi"@da ;
+                   skos:definition "Label for artist's master and exhibition copy."@en ,
+								   "Label for kunstners master- og udstillingskopi."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingPictureQuality
+smk:recordingPictureQuality rdf:type owl:DatatypeProperty ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Billedkvalitet"@da ,
+                                       "Picture quality"@en ;
+                            skos:definition "Description of the picture quality of the recording."@en ,
+											"Beskrivelse af optagelsens billedkvalitet."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingResolution
+smk:recordingResolution rdf:type owl:DatatypeProperty ;
+                        rdfs:range xsd:string ;
+                        dc:creator "Lidiya Dimitrova"@en ;
+                        rdfs:label "Løsning/ afklaring"@da ,
+                                   "Resolution"@en ;
+                        skos:definition "Description of the resolution of the recording."@en ,
+										"Beskrivelse af optagelsens opløsning."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingSound
+smk:recordingSound rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Lyd"@da ,
+                              "Sound"@en ;
+                   skos:definition "Indication of characteristics of the sound of the recording."@en ,
+								   "Karakteristik af optagelsens lyd."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingSoundQuality
+smk:recordingSoundQuality rdf:type owl:DatatypeProperty ;
+                          rdfs:range xsd:string ;
+                          dc:creator "Lidiya Dimitrova"@en ;
+                          rdfs:label "Lydkvalitet"@da ,
+                                     "Sound quality"@en ;
+                          skos:definition "Description of the sound quality of the recording."@en ,
+										  "Beskrivelse af optagelsens lydkvalitet."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingSpokenLanguage
+smk:recordingSpokenLanguage rdf:type owl:DatatypeProperty ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Spoken language"@en ,
+                                       "Talesprog"@da ;
+                            skos:definition "Language spoken on the recording."@en ,
+											"Optagelsens talesprog."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingStandard
+smk:recordingStandard rdf:type owl:DatatypeProperty ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "TV standard"@en ,
+                                 "TV-standard"@da ;
+                      skos:definition "List for indication of TV standard to which the recording is complied."@en ,
+									  "Liste til indikation af TV-standarden for optagelsen."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingStudio
+smk:recordingStudio rdf:type owl:DatatypeProperty ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "A/V studie"@da ,
+                               "A/V studio"@en ;
+                    skos:definition "The name of the A/V studio that did the recording."@en ,
+									"Navnet på det A/V studie der lavede optagelsen (hvis kendt)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingSubtitles
+smk:recordingSubtitles rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Subtitles"@en ,
+                                  "Undertitler"@da ;
+                       skos:definition "Description of the subtitles in the recording (if any)."@en ,
+									   "Beskrivelse af optagelsens undertekst (hvis nogen)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingVideoType
+smk:recordingVideoType rdf:type owl:DatatypeProperty ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Video type"@en ,
+                                  "Videotype"@da ;
+                       skos:definition "Description of the video type."@en ,
+									   "Beskrivelse af videotype."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#recordingViewedDescription
+smk:recordingViewedDescription rdf:type owl:DatatypeProperty ;
+                               rdfs:range xsd:string ;
+                               dc:creator "Lidiya Dimitrova"@en ;
+                               rdfs:label "Set"@da ,
+                                          "Viewed"@en ;
+                               skos:definition "Description of when and and under what circumstances the recording was viewed."@en ,
+											   "Beskrivelse af hvordan og under hvilke forhold optagelsen blev gennemset."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#sampleCondition
+smk:sampleCondition rdf:type owl:DatatypeProperty ;
+                    rdfs:subPropertyOf chc:condition ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Sample condition"@en ,
+                               "Tilstand materialeprøve"@da ;
+                    skos:definition "Condition of the sample."@en ,
+									"Prøvens tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#sampleMaterialsIdentified
+smk:sampleMaterialsIdentified rdf:type owl:DatatypeProperty ;
+                              rdfs:range xsd:string ;
+                              dc:creator "Lidiya Dimitrova"@en ;
+                              rdfs:label "Identificerede materialer"@da ,
+                                         "Materials identified"@en ;
+                              skos:definition "Materials identified in the analysis of the sample: \"chrome yellow in linseed oil."@en ,
+											  "Materialer identificeret i analysen af prøven: \"kromgul i linolie\"."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#samplePhysicalLocation
+smk:samplePhysicalLocation rdf:type owl:DatatypeProperty ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Lidiya Dimitrova"@en ;
+                           rdfs:label "Fysisk placering"@da ,
+                                      "Physical location"@en ;
+                           skos:definition "Physical location of the sample so that someone could lay their hands on such as drawer number."@en ,
+										   "Prøvens fysiske placering (i organisationen)."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#sampleSite
+smk:sampleSite rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Lokalitet materialeprøve"@da ,
+                          "Sample site"@en ;
+               skos:definition "Location of the spot where the sample was taken: coordinates \"up\" and \"left\" or \"from right hand of the sitter\"."@en ,
+							   "Stedet på/i værket hvorfra prøven er udtaget."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#samplingDate
+smk:samplingDate rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:dateTime ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Date taken"@en ,
+                            "Dato for udtagelse"@da ;
+                 skos:definition "Date on which the sample was taken."@en ,
+								 "Datoen for prøvens udtagelse."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#secondarySupportDistinguishingMarks
+smk:secondarySupportDistinguishingMarks rdf:type owl:DatatypeProperty ;
+                                        rdfs:range xsd:string ;
+                                        dc:creator "Lidiya Dimitrova"@en ;
+                                        rdfs:label "Auxiliary support distinguishing marks"@en ,
+                                                   "Kendetegn bærende underlag"@da ;
+                                        skos:definition "Marks on the secondary support that may help to distinguish this cultural object from a different version"@en ,
+														"Marks on the secondary support that may help to distinguish this cultural object from a different version"@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#stretcher
+smk:stretcher rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Kileramme/ fast spændramme"@da ,
+                         "Stretcher/ strainer"@en ;
+              skos:definition "Technical description of the stretcher/ strainer."@en ,
+							  "Teknisk beskrivelse af kileramme/fast spændrammes tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#stretcherCondition
+smk:stretcherCondition rdf:type owl:DatatypeProperty ;
+                       rdfs:subPropertyOf chc:condition ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Stretcher/ strainer condition"@en ,
+                                  "Tilstand kileramme/ fast spændramme"@da ;
+                       skos:definition "Description of the stretcher/ strainer condition."@en ,
+									   "Teknisk beskrivelse af kileramme/ fast spændrammes tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#stretcherDistinguishingMarks
+smk:stretcherDistinguishingMarks rdf:type owl:DatatypeProperty ;
+                                 rdfs:range xsd:string ;
+                                 dc:creator "Lidiya Dimitrova"@en ;
+                                 rdfs:label "Kendetegn kileramme/ fast spændramme"@da ,
+                                            "Stretcher/ strainer distinguishing marks"@en ;
+                                 skos:definition "Marks on the stretcher/ strainer that may help to distinguish it."@en ,
+												 "Karakteristiske mærker på kileramme/fast spændramme."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#structureCondition
+smk:structureCondition rdf:type owl:DatatypeProperty ;
+                       rdfs:subPropertyOf chc:condition ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Structural condition"@en ,
+                                  "Tilstand strukturelt"@da ;
+                       skos:definition "Description of structural condition of a cultural object."@en ,
+									   "Beskrivelse af værkets strukturelle tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#subType
+smk:subType rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            rdfs:label "Sub-type"@en ,
+                       "Subtype"@da ;
+            skos:definition "Sub-Classification of the item."@en ,
+							"Emnets underklasse."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#supportCondition
+smk:supportCondition rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf chc:condition ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Support condition"@en ,
+                                "Tilstand bærende underlag"@da ;
+                     skos:definition "Description of the support condition of the cultural object."@en ,
+									 "Beskrivelse af værkets bærende underlags tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#supportDescription
+smk:supportDescription rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Lidiya Dimitrova"@en ;
+                       rdfs:label "Bærende underlag"@da ,
+                                  "Support"@en ;
+                       skos:definition "Technical description of the support, in case of painting on canvas - the description of canvas."@en ,
+									   "Teknisk beskrivelse af det bærende underlag."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#supportDistinguishingMarks
+smk:supportDistinguishingMarks rdf:type owl:DatatypeProperty ;
+                               rdfs:domain chc:CulturalObject ;
+                               rdfs:range xsd:string ;
+                               dc:creator "Lidiya Dimitrova"@en ;
+                               rdfs:label "Kendetegn bærende underlag"@da ,
+                                          "Support distinguishing marks"@en ;
+                               skos:definition "Description of any marks not related to the image such notations or marks on the support."@en ,
+											   "Beskrivelse af mærker der ikke er en del af værket f.eks. påskrifter eller mærker på det bærende underlag."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#supportType
+smk:supportType rdf:type owl:DatatypeProperty ;
+                rdfs:range xsd:string ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                rdfs:label "Support type"@en ,
+                           "Type bærende underlag"@da ;
+                skos:definition "Description of the type of the support of the cultural object."@en ,
+								"Beskrivelse af typen af værkets bærende underlag."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#surfaceCoating
+smk:surfaceCoating rdf:type owl:DatatypeProperty ;
+                   rdfs:domain chc:CulturalObject ;
+                   rdfs:range xsd:boolean ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Overfladebehandling (ja/nej)"@da ,
+                              "Surface coating (Yes/No)"@en ;
+                   skos:definition "Yes or No, whether a final varnish has been applied to the painting."@en ,
+								   "Ja eller Nej, om hvorvidt en sidste fernis er påført maleriet."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#surfaceCoatingCondition
+smk:surfaceCoatingCondition rdf:type owl:DatatypeProperty ;
+                            rdfs:subPropertyOf chc:condition ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Surface coating condition"@en ,
+                                       "Tilstand overfladebehandling"@da ;
+                            skos:definition "Technical description of the condition of the surface coating."@en ,
+											"Teknisk beskrivelse af overfladebehandlingens tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#surfaceCoatingMaterial
+smk:surfaceCoatingMaterial rdf:type owl:DatatypeProperty ;
+                           rdfs:domain chc:CulturalObject ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Lidiya Dimitrova"@en ;
+                           rdfs:label "Materiale overfladebehandling"@da ,
+                                      "Surface coating material"@en ;
+                           skos:definition "Technical description of the surface coating material."@en ,
+										   "Teknisk beskrivelse af overfladebehandlingens materiale."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#surfaceCondition
+smk:surfaceCondition rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf chc:condition ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Surface condition"@en ,
+                                "Tilstand overflade"@da ;
+                     skos:definition "Description of surface condition of a cultural object."@en ,
+									 "Beskrivelse af værkets overflades tilstand."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#technique
+smk:technique rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Technique"@en ,
+                         "Teknik"@da ;
+              skos:definition "Description on how the cultural object is made."@en ,
+							  "Beskrivelse af hvordan værket blev skabt."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#temperatureRequirements
+smk:temperatureRequirements rdf:type owl:DatatypeProperty ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Temperature requirements"@en ,
+                                       "Temperaturkrav"@da ;
+                            skos:definition "Temperature requirements for the cultural object."@en ,
+											"Temperaturkrav for det aktuelle værk."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#titleAlternative
+smk:titleAlternative rdf:type owl:DatatypeProperty ;
+                     rdfs:domain chc:CulturalObject ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Anden titel"@da ,
+                                "Title (alternative)"@en ;
+                     skos:definition "Temporary primary title for use strictly in the context of an exhibition or publication. May be more than one."@en ,
+									 "Midlertidig primær-titel udelukkende til brug i udstilling eller publikation. Kan være flere."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#transportNotes
+smk:transportNotes rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Transport notes"@en ,
+                              "Transportanvisning"@da ;
+                   skos:definition "Notes on the preferred way to transport a cultural object."@en ,
+								   "Anvisning på den foretrukne måde at transportere værket på."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#treatmentType
+smk:treatmentType rdf:type owl:DatatypeProperty ;
+                  rdfs:range xsd:string ;
+                  dc:creator "Malvina Makarieva"@en ;
+                  rdfs:label "Behandling"@da ,
+                             "Treatment"@en ;
+                  skos:definition "Indicates if the treatment is minor or major."@en ,
+								  "Indikerer om behandlingen er mindre eller større."@da .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#weight
+smk:weight rdf:type owl:DatatypeProperty ;
+           rdfs:domain chc:CulturalObject ;
+           rdfs:range xsd:string ;
+           dc:creator "Lidiya Dimitrova"@en ;
+           rdfs:label "Vægt"@da ,
+                      "Weight"@en ;
+           skos:definition "The weight of an object"@en ,
+						   "Et værks vægt."@da .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject
+chc:CulturalObject emf:isSearchable "true"^^xsd:boolean .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Cast
+smk:Cast rdf:type owl:Class ;
+         rdfs:subClassOf chc:CulturalObject ;
+         emf:classCategory "culturalobject" ;
+         emf:definitionId "objectinstance" ;
+         emf:isCreateable "true"^^xsd:boolean ;
+         emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+         emf:isSearchable "true"^^xsd:boolean ;
+         dc:creator "Lidiya Dimitrova"@en ;
+         sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+         sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+         rdfs:label "Afstøbning"@da ,
+                    "Cast"@en ;
+         skos:definition "In art a plaster cast is a copy made in plaster of another 3-dimensional form. The original from which the cast is taken may be a sculpture, or a fragment of a building. Typically cast collections were created as study collections containing copies of masterworks from Western antiquity, medieval, and renaissance art."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Collage
+smk:Collage rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Malvina Makarieva"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Collage"@da ,
+                       "Collage"@en ;
+            skos:definition "Collage is a technique of an art production, primarily used in the visual arts, where the artwork is made from an assemblage of different forms, thus creating a new whole. A collage may sometimes include magazine and newspaper clippings, ribbons, paint, bits of colored or handmade papers, portions of other artwork or texts, photographs and other found objects, glued to a piece of paper or canvas. The origins of collage can be traced back hundreds of years, but this technique made a dramatic reappearance in the early 20th century as an art form of novelty. The term collage was coined by both Georges Braque and Pablo Picasso in the beginning of the 20th century when collage became a distinctive part of modern art. (Wikipedia)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#DecorativeArt
+smk:DecorativeArt rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Decorative Art"@en ,
+                             "Kunsthåndværk"@da ;
+                  skos:definition "The decorative arts are arts or crafts concerned with the design and manufacture of beautiful objects that are also functional. It includes interior design, but not usually architecture . Examples include things like candle sticks, furniture, porcelain dinnerware, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Drawing
+smk:Drawing rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Kiril Penev"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Drawing"@en ,
+                       "Tegning"@da ;
+            skos:definition "Drawing is a form of visual art that makes use of any number of drawing instruments to mark a two-dimensional medium. Instruments used include graphite pencils, pen and ink, inked brushes, wax color pencils, crayons, charcoal, chalk, pastels, various kinds of erasers, markers, styluses, and various metals (such as silverpoint) (Wikipedia)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Frame
+smk:Frame rdf:type owl:Class ;
+          rdfs:subClassOf chc:CulturalObject ;
+          emf:classCategory "culturalobject" ;
+          emf:definitionId "objectinstance" ;
+          emf:isCreateable "true"^^xsd:boolean ;
+          emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+          emf:isSearchable "true"^^xsd:boolean ;
+          dc:creator "Lidiya Dimitrova"@en ;
+          sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+          sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+          rdfs:label "Frame"@en ,
+                     "Ramme"@da ;
+          skos:definition "A frame is a decorative molding that typically is attached to a painting or other cultural object especially when that cultural object is displayed. It typically surrounds and covers the edges of the cultural object. It is typically made of wood/plaster/gold leaf, but can be any material."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Installation
+smk:Installation rdf:type owl:Class ;
+                 rdfs:subClassOf chc:CulturalObject ;
+                 emf:classCategory "culturalobject" ;
+                 emf:definitionId "objectinstance" ;
+                 emf:isCreateable "true"^^xsd:boolean ;
+                 emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                 emf:isSearchable "true"^^xsd:boolean ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                 sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                 rdfs:label "Installation"@da ,
+                            "Installation"@en ;
+                 skos:definition "Installation art is an artistic genre of three-dimensional works that often are site-specific and designed to transform the perception of a space. Generally, the term is applied to interior spaces, whereas exterior interventions are often called public art, land art or intervention art; however, the boundaries between these terms overlap. (Wikipedia)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#MediaArt
+smk:MediaArt rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Lidiya Dimitrova"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Audiovisuel kunst"@da ,
+                        "Media Art"@en ;
+             skos:definition "Media art is a genre that encompasses artworks created with new media technologies, including digital art, computer animation, computer graphics, virtual art, internet art, interactive art, video games, computer robotics, 3-D printing, and art as biotechnology. It can also include film if not represented elsewhere."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Painting
+smk:Painting rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Kiril Penev"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Maleri"@da ,
+                        "Painting"@en ;
+             skos:definition "Painting is the practice of applying paint, pigment, color or other medium to a surface (support base). The medium is commonly applied to the base with a brush but other implements, such as knives, sponges, and airbrushes, can be used. In art, the term painting describes both the act and the result of the action. However, painting is also used outside of art as a common trade among craftsmen and builders. Paintings may have for their support such surfaces as walls, paper, canvas, wood, glass, lacquer, clay, leaf, copper or concrete, and may incorporate multiple other materials including sand, clay, paper, gold leaf as well as objects (Wikipedia)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Photograph
+smk:Photograph rdf:type owl:Class ;
+               rdfs:subClassOf chc:CulturalObject ;
+               emf:classCategory "culturalobject" ;
+               emf:definitionId "objectinstance" ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean ;
+               dc:creator "Kiril Penev"@en ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               rdfs:label "Fotografi"@da ,
+                          "Photograph"@en ;
+               skos:definition "A photograph or photo is an image created by light falling on a light-sensitive surface, usually photographic film or an electronic image such as a CCD or a CMOS chip. Most photographs are created using a camera, which uses a lens to focus the scene's visible wavelengths of light into a reproduction of what the human eye would see. (Wikipedia)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Print
+smk:Print rdf:type owl:Class ;
+          rdfs:subClassOf chc:CulturalObject ;
+          emf:classCategory "culturalobject" ;
+          emf:definitionId "objectinstance" ;
+          emf:isCreateable "true"^^xsd:boolean ;
+          emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+          emf:isSearchable "true"^^xsd:boolean ;
+          dc:creator "Kiril Penev"@en ;
+          sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+          sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+          rdfs:label "Grafik"@da ,
+                     "Print"@en ;
+          skos:definition """A picture or design printed from a block or plate or copied from a painting by photography.
+A piece of fabric or clothing with a decorative colored pattern or design printed on it."""@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#Sculpture
+smk:Sculpture rdf:type owl:Class ;
+              rdfs:subClassOf chc:CulturalObject ;
+              emf:classCategory "culturalobject" ;
+              emf:definitionId "objectinstance" ;
+              emf:isCreateable "true"^^xsd:boolean ;
+              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+              emf:isSearchable "true"^^xsd:boolean ;
+              dc:creator "Kiril Penev"@en ;
+              sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+              sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+              rdfs:label "Sculpture"@en ,
+                         "Skulptur"@da ;
+              skos:definition "Sculpture is the branch of the visual arts that operates in three dimensions, and one of the plastic arts. Durable sculptural processes originally used carving (the removal of material) and modelling (the addition of material, as clay), in stone, metal, ceramics, wood and other materials but, since modernism, shifts in sculptural process led to an almost complete freedom of materials and process. A wide variety of materials may be worked by removal such as carving, assembled by welding or modelling, or molded, or cast. (Wikipedia)."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/SMK#WorksOfArtOnPaperInMultipleParts
+smk:WorksOfArtOnPaperInMultipleParts rdf:type owl:Class ;
+                                     rdfs:subClassOf chc:CulturalObject ;
+                                     emf:classCategory "culturalobject" ;
+                                     emf:definitionId "objectinstance" ;
+                                     emf:isCreateable "true"^^xsd:boolean ;
+                                     emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                                     emf:isSearchable "true"^^xsd:boolean ;
+                                     dc:creator "Malvina Makrieva"@en ;
+                                     sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                                     sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                                     rdfs:label "KKS værk i flere dele"@da ,
+                                                "Works of Art on Paper in Multiple Parts"@en ;
+                                     skos:definition "A work of art on paper in multiple parts is a work of art consisting of several prints, drawings, or photographs which in concept is a single work of art (analogue to installations). The term may also be applied to portfolios or bound volumes such as sketchbooks, artist's books, and printed books etc."@en .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+emf:hasAssignee sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+emf:hasPrimaryImage emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:hasWatcher sec:autoAssignPermissionRole "CONSUMER" .
+
+
+emf:isPrimaryImageOf emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:processedBy emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:processes emf:isSearchable "true"^^xsd:boolean .
+
+
+ptop:hasParticipant sec:autoAssignPermissionRole "COLLABORATOR" ;
+                    sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                    emf:isSearchable "true"^^xsd:boolean ;
+                    emf:auditEvent "+addHasParticipant|-removeHasParticipant|changeHasParticipant" .
+
+
+ptop:involvedIn emf:auditEvent "+addInvolvedIn|-removeInvolvedIn|changeInvolvedIn" ;
+                emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:Exhibition emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+               sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+               sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+               emf:isCreateable "true"^^xsd:boolean ;
+               emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:Sample emf:isCreateable "true"^^xsd:boolean ;
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           emf:isSearchable "true"^^xsd:boolean ;
+           sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+           sec:allowInheritParentPermissions "false"^^xsd:boolean .
+
+
+chc:approvedBy sec:autoAssignPermissionRole "COLLABORATOR" ;
+               sec:autoAssignParentPermissionRole "CONSUMER" ;
+               emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:attachmentOf emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:documents emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:duplicates emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasApproved emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasAssignedConservator emf:isSearchable "true"^^xsd:boolean ;
+                           sec:autoAssignPermissionRole "COLLABORATOR" ;
+                           sec:autoAssignParentPermissionRole "COLLABORATOR" .
+
+
+chc:hasAttachment emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasSample emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isAssignedConservator emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isDocumentedIn emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isTakenFrom emf:isSearchable "true"^^xsd:boolean .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

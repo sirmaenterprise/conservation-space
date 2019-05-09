@@ -18,9 +18,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.domain.instance.EmfInstance;
+import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
 import com.sirma.itt.seip.template.rules.TemplateRuleTranslator;
+import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 
 /**
  * Tests the functionality of {@link EditTemplateRuleAction}.
@@ -50,7 +52,8 @@ public class EditTemplateRuleActionTest {
 		request.setUserOperation(EditTemplateRuleActionRequest.OPERATION_NAME);
 		request.setRule("testRule");
 
-		mockExistingInstance();
+		Instance instance = mockExistingInstance();
+		request.setTargetReference(instance.toReference());
 
 		editTemplateRuleAction.perform(request);
 
@@ -59,6 +62,7 @@ public class EditTemplateRuleActionTest {
 
 		assertEquals("testRule", captor.getValue().getInstance().get(TEMPLATE_RULE));
 		assertEquals("emf:loadedInstance", captor.getValue().getInstance().getId());
+		assertEquals("editTemplateRule", captor.getValue().getOperation().getUserOperationId());
 	}
 
 	@Test
@@ -68,7 +72,8 @@ public class EditTemplateRuleActionTest {
 		request.setUserOperation(EditTemplateRuleActionRequest.OPERATION_NAME);
 		request.setRule("");
 
-		mockExistingInstance();
+		Instance instance = mockExistingInstance();
+		request.setTargetReference(instance.toReference());
 
 		editTemplateRuleAction.perform(request);
 
@@ -78,6 +83,7 @@ public class EditTemplateRuleActionTest {
 		assertNull(captor.getValue().getInstance().get(TEMPLATE_RULE));
 		assertNull(captor.getValue().getInstance().get(TEMPLATE_RULE_DESCRIPTION));
 		assertEquals("emf:loadedInstance", captor.getValue().getInstance().getId());
+		assertEquals("editTemplateRule", captor.getValue().getOperation().getUserOperationId());
 	}
 
 	@Test
@@ -87,7 +93,8 @@ public class EditTemplateRuleActionTest {
 		request.setUserOperation(EditTemplateRuleActionRequest.OPERATION_NAME);
 		request.setRule("testRule");
 
-		mockExistingInstance();
+		Instance instance = mockExistingInstance();
+		request.setTargetReference(instance.toReference());
 		when(ruleTranslator.translate(eq("testRule"), eq("sampleForType"))).thenReturn("testRuleDescription");
 
 		editTemplateRuleAction.perform(request);
@@ -98,13 +105,16 @@ public class EditTemplateRuleActionTest {
 		assertEquals("testRule", captor.getValue().getInstance().get(TEMPLATE_RULE));
 		assertEquals("testRuleDescription", captor.getValue().getInstance().get(TEMPLATE_RULE_DESCRIPTION));
 		assertEquals("emf:loadedInstance", captor.getValue().getInstance().getId());
+		assertEquals("editTemplateRule", captor.getValue().getOperation().getUserOperationId());
 	}
 
-	private void mockExistingInstance() {
+	private Instance mockExistingInstance() {
 		EmfInstance templateInstance = new EmfInstance();
 		templateInstance.setId("emf:loadedInstance");
 		templateInstance.add(FOR_OBJECT_TYPE, "sampleForType");
+		templateInstance.setReference(new InstanceReferenceMock(templateInstance));
 		when(domainInstanceService.loadInstance(eq("emf:instance"))).thenReturn(templateInstance);
 		when(domainInstanceService.save(any())).thenReturn(templateInstance);
+		return templateInstance;
 	}
 }

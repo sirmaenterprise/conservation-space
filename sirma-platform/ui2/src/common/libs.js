@@ -7,7 +7,7 @@ import 'angular-sanitize';
 import 'twbs/bootstrap-sass';
 import 'angular-loading-bar/src/loading-bar.css!';
 
-var libsModule = angular.module('libs', ['angular-loading-bar', 'ngSanitize', 'ngAnimate']);
+let libsModule = angular.module('libs', ['angular-loading-bar', 'ngSanitize', 'ngAnimate']);
 
 // register the libs module with the main application module
 application.requires.push(libsModule.name);
@@ -15,19 +15,6 @@ application.requires.push(libsModule.name);
 libsModule.config(['cfpLoadingBarProvider',
   function (cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
-  }
-]);
-
-//configure angular-loader-bar
-libsModule.run(['$rootScope', 'cfpLoadingBar',
-  function ($rootScope, cfpLoadingBar) {
-    $rootScope.$on('$stateChangeStart', function () {
-      cfpLoadingBar.start();
-    });
-
-    $rootScope.$on('$stateChangeSuccess', function () {
-      cfpLoadingBar.complete();
-    });
   }
 ]);
 

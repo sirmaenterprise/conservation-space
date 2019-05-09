@@ -93,7 +93,7 @@ public class DefinitionEntry extends BaseEntity implements TopLevelDefinition, G
 
 	// revision 0 is a system revision and should not be fetched
 	public static final String QUERY_FETCH_IMPORTED_DEFINITIONS_KEY = "QUERY_FETCH_IMPORTED_DEFINITIONS";
-	static final String QUERY_FETCH_IMPORTED_DEFINITIONS = "select identifier, file_name, modified_by, modified_on, isabstract from emf_definitionentry def left join sep_definition_content on def.identifier = sep_definition_content.definition_id where id = (select max(id) from emf_definitionentry where identifier = def.identifier) and revision <> 0";
+	static final String QUERY_FETCH_IMPORTED_DEFINITIONS = "select identifier, file_name, modified_by, modified_on, isabstract from emf_definitionentry def inner join sep_definition_content on def.identifier = sep_definition_content.definition_id where id = (select max(id) from emf_definitionentry where identifier = def.identifier) and revision <> 0";
 
 	@Column(name = "hash", nullable = false)
 	private Integer hash;

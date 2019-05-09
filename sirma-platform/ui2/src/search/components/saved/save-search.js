@@ -41,9 +41,7 @@ export const BUTTON_UPDATE = 'UPDATE';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(InstanceRestService, DialogService, PermissionsRestService, TranslateService, NotificationService, Eventbus)
 export class SaveSearch extends Configurable {
 

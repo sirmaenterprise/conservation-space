@@ -1,6 +1,8 @@
 package com.sirma.sep.definition.patches;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +25,9 @@ import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.definition.DefintionAdapterService;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.io.FileDescriptor;
+import com.sirma.itt.seip.security.configuration.SecurityConfiguration;
 import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
+import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.sep.definition.db.DefinitionContent;
 
@@ -42,6 +46,9 @@ public class DefinitionContentMigrationPatchTest {
 
 	@Spy
 	private TransactionSupport transactionSupport = new TransactionSupportFake();
+
+	@Mock
+	private SecurityConfiguration securityConfiguration;
 
 	@Test
 	public void should_MigrateDefinitionContentFilesFromDMS() throws CustomChangeException {
@@ -75,6 +82,15 @@ public class DefinitionContentMigrationPatchTest {
 		definitionContentMigrationPatch.execute(null);
 	}
 
+	@Test
+	public void should_DoNothing_When_IdpProviderIsKeycloak() throws CustomChangeException {
+		when(securityConfiguration.getIdpProviderName()).thenReturn(new ConfigurationPropertyMock<>(SecurityConfiguration.KEYCLOAK_IDP));
+
+		definitionContentMigrationPatch.execute(null);
+
+		verify(dbDao, never()).saveOrUpdate(any());
+	}
+
 	private void withDefinition(String fileName) {
 		FileDescriptor descriptor = mock(FileDescriptor.class);
 		when(descriptor.getFileName()).thenReturn(fileName);
@@ -90,6 +106,8 @@ public class DefinitionContentMigrationPatchTest {
 		MockitoAnnotations.initMocks(this);
 
 		when(definitionAdapterService.getDefinitions(GenericDefinition.class)).thenReturn(descriptors);
+
+		when(securityConfiguration.getIdpProviderName()).thenReturn(new ConfigurationPropertyMock<>(SecurityConfiguration.WSO_IDP));
 	}
 
 }

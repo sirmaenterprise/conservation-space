@@ -199,6 +199,8 @@
 												<#assign rdfType = target.properties['rdf:type']>
 												<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
 													Workflow is deleted
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													Document is deleted
 												<#else>
 													${codelists.getCodeValue(7, target.properties['type']).properties['en']} is deleted
 												</#if>	
@@ -213,6 +215,8 @@
 													(Task) ${codelists.getCodeValue(28, target.properties['subType']).properties['en']}	
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
 													${codelists.getCodeValue(10, target.properties['type']).properties['en']}
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													(Document: ${codelists.getCodeValue(6, target.properties['type']).properties['en']}) ${target.properties['title']}
 												<#else>
 													(${codelists.getCodeValue(7, target.properties['type']).properties['en']})
 													${target.properties['title']}
@@ -226,7 +230,7 @@
 													<#list properties["processes"]?values as processes>
 														<a href="${notifications.buildFullURI(processes)}">
 															<#if processes.properties['rdf:type'] == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
-																(${codelists.getCodeValue(6, processes.properties['subType']).properties['en']})
+																(${codelists.getCodeValue(6, processes.properties['type']).properties['en']})
 															<#else> 
 																(${codelists.getCodeValue(7, processes.properties['type']).properties['en']})
 															</#if>
@@ -253,6 +257,10 @@
 													<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
 														<a href="${notifications.buildFullURI(parent)}">
 															(Workflow: ${codelists.getCodeValue(10, parent.properties['type']).properties['en']}) 
+														</a>
+													<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+														<a href="${notifications.buildFullURI(parent)}">
+															(Document: ${codelists.getCodeValue(6, parent.properties['type']).properties['en']}) ${parent.properties['title']}
 														</a>
 													<#else>	
 														<a href="${notifications.buildFullURI(parent)}">
@@ -296,7 +304,7 @@
                                   <td valign="top" bgcolor="#eeeeee">
 
                                      <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
-                                     <div>Powered by <a href="http://www.sirmaplatform.com/" target="_blank">Sirma Enterprise Platform</a></div>
+                                     <div>This is an automatic e-mail notification. Please do not reply!</div>
                                     </div>
 
                                   </td>

@@ -1,80 +1,72 @@
 import angular from 'angular';
 import application from 'app/app';
-import translateModule from 'common/translate';
-import libsModule from'common/libs';
+import 'common/translate';
+import 'common/libs';
 import routerConfig from 'adapters/router/router';
 import {Configuration} from 'common/application-config';
+import 'security/authentication-interceptor';
 import 'services/interceptors/http-error-interceptor';
 import 'services/interceptors/active-requests-counter-interceptor';
 import 'services/interceptors/request-headers-update-interceptor';
 import jstz from 'jstz';
-import {ExtendedExceptionHandler} from 'services/logging/extended-exception-handler';
-import {AuthenticationService} from 'services/security/authentication-service';
+import 'services/logging/extended-exception-handler';
+import {AuthenticationService} from 'security/authentication-service';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {RestClient} from 'services/rest-client';
 import {PluginsService} from 'services/plugin/plugins-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {TranslateService} from 'services/i18n/translate-service';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
+import {JwtAuthenticator} from 'security/jwt/jwt-authenticator';
+import {KeycloakAuthenticator} from 'security/keycloak/keycloak-authenticator';
+import {UrlUtils} from 'common/url-utils';
+import Keycloak from 'keycloak-js';
 
-application.run([TranslateService.name, UserService.name, AuthenticationService.name, RestClient.name, WindowAdapter.name, Configuration.name, PluginsService.name, PromiseAdapter.name, '$compile', '$rootScope',
-  function (translateService, userService, authenticationService, restClient, windowAdapter, configuration, pluginsService, promiseAdapter, $compile, $rootScope) {
-    if (windowAdapter.location.href.indexOf('/public') !== -1) {
-      // if public page load public layout
-      $(document.body).append('<div id="public-layout" extension-point="public-layout"></div>');
-      return;
-    } else if (authenticationService.authenticate()) {
-      configureRestClient(authenticationService, restClient);
+let keycloakAdapter;
+
+application.run([TranslateService.name, UserService.name, AuthenticationService.name, RestClient.name, WindowAdapter.name, Configuration.name, PluginsService.name, PromiseAdapter.name, JwtAuthenticator.name, KeycloakAuthenticator.name, '$compile', '$rootScope',
+  function (translateService, userService, authenticationService, restClient, windowAdapter, configuration, pluginsService, promiseAdapter, jwtAuthenticator, keycloakAuthenticator, $compile, $rootScope) {
+    if (keycloakAdapter) {
+      keycloakAuthenticator.init(keycloakAdapter);
+      authenticationService.init(keycloakAuthenticator);
     } else {
-      // don't bootstrap the application if the user is not authenticated
-      return;
+      authenticationService.init(jwtAuthenticator);
     }
 
-    // on page refresh always check if there is token in the url, because the cookie for jwt token is not removed after logout,
-    // and then after login the old cookie is still present which causes the previous check here authenticationService.authenticate()
-    // to not pass, therefore not removing the jwt token from the url
-    if (windowAdapter.location.href.indexOf(AuthenticationService.TOKEN_REQUEST_PARAM + '=') !== -1) {
-      // change the browser url to "pure" url without request parameters (doesn't count for hashtag params) because
-      // there are cases where the security token is append to the url as request param if there isn't a hash tag and
-      // this causes the app to keep that request param for the entire session. In result the router appends the hashtag
-      // after the request parameter. I.e. http://localhost/?jwt=something#/idoc/.
+    if (authenticationService.authenticate()) {
+      UrlUtils.removeQueryParam(windowAdapter.window, AuthenticationService.TOKEN_REQUEST_PARAM);
 
-      var regex = new RegExp(AuthenticationService.TOKEN_REQUEST_PARAM + '=[^&#]+');
-      var hash = windowAdapter.location.hash;
-      hash = hash.replace(regex, '');
+      configureRestClient(restClient);
 
-      // remove trailing ? or &
-      var lastChar = hash.substr(-1);
-      if (lastChar === "?" || lastChar === "&") {
-        hash = hash.substring(0, hash.length - 1);
-      }
-
-      window.history.pushState({}, "", '/' + hash);
+      bootstrapApp(pluginsService, promiseAdapter, configuration, userService, translateService, $compile, $rootScope);
     }
-
-    pluginsService.loadPluginServiceModules('eventbus.global', 'component');
-    let currentUser;
-    // First, load all required stuff before invoking of any application code
-    promiseAdapter.all([
-      configuration.load(),
-      userService.getCurrentUser()
-    ]).then((data) => {
-      currentUser = data[1];
-      return bootstrapServices(pluginsService, promiseAdapter);
-    }).then(() => {
-      let language = currentUser.language;
-      if (!language) {
-        language = configuration.get(Configuration.SYSTEM_LANGUAGE);
-      }
-      translateService.changeLanguage(language);
-
-      insertLayout($compile, $rootScope);
-
-      if (!application.$rootScope.$$phase) {
-        application.$rootScope.$digest();
-      }
-    });
   }]);
+
+function bootstrapApp(pluginsService, promiseAdapter, configuration, userService, translateService, $compile, $rootScope) {
+  pluginsService.loadPluginServiceModules('eventbus.global', 'component');
+
+  let currentUser;
+  // First, load all required stuff before invoking of any application code
+  promiseAdapter.all([
+    configuration.load(),
+    userService.getCurrentUser()
+  ]).then((data) => {
+    currentUser = data[1];
+    return bootstrapServices(pluginsService, promiseAdapter);
+  }).then(() => {
+    let language = currentUser.language;
+    if (!language) {
+      language = configuration.get(Configuration.SYSTEM_LANGUAGE);
+    }
+    translateService.changeLanguage(language);
+
+    insertLayout($compile, $rootScope);
+
+    if (!application.$rootScope.$$phase) {
+      application.$rootScope.$digest();
+    }
+  });
+}
 
 /**
  * Collects all services registered under the "bootstrap-services" extension point and initializes them.
@@ -98,10 +90,9 @@ function insertLayout($compile, $scope) {
   $compile(document.getElementById('layout'))($scope);
 }
 
-function configureRestClient(authenticationService, restClient) {
+function configureRestClient(restClient) {
   restClient.configure({
     'headers': {
-      'Authorization': 'Bearer ' + authenticationService.getToken(),
       'Accept': 'application/vnd.seip.v2+json, application/json',
       'Timezone-Offset': new Date().getTimezoneOffset(),
       'Timezone': jstz.determine().name()
@@ -114,12 +105,12 @@ application.run(['$rootScope', '$state', function ($rootScope, $state) {
   $rootScope.$state = $state;
 }]);
 
-var routes = PluginRegistry.get('route');
+let routes = PluginRegistry.get('route');
 
 application.config(routerConfig(application, routes));
 
 application.config(['$urlRouterProvider', function ($urlRouterProvider) {
-  $urlRouterProvider.otherwise("/userDashboard");
+  $urlRouterProvider.otherwise('/userDashboard');
 }]);
 
 // Added to enable debug info like the $watch counter plugin for Chrome
@@ -132,9 +123,47 @@ application.config(['$compileProvider', function ($compileProvider) {
 }]);
 
 angular.element(document).ready(function () {
+
+  if (hasJwtParam()) {
+    return bootstrapAngular();
+  }
+
+  // init keycloak before angular bootstrap to avoid issues with broken url parameters
+  initKeycloakAdapter()
+    .then(bootstrapAngular)
+    .catch(console.error);
+
+});
+
+function hasJwtParam() {
+  return window.location.href.indexOf(AuthenticationService.TOKEN_REQUEST_PARAM + '=') !== -1;
+}
+
+function bootstrapAngular() {
+  UrlUtils.replaceUrl(window, decodeURIComponent(window.location.href));
+
   return angular.bootstrap(document.body, [application.name], {
     strictDi: true
   });
-});
+}
+
+function initKeycloakAdapter() {
+  keycloakAdapter = new Keycloak({
+    url: '/auth',
+    realm: getTenantParam() || KeycloakAuthenticator.MASTER_TENANT,
+    clientId: KeycloakAuthenticator.CLIENT_ID
+  });
+  return keycloakAdapter.init({onLoad: KeycloakAuthenticator.LOGIN_REQUIRED});
+}
+
+function getTenantParam() {
+  if (window.location.href.indexOf(KeycloakAuthenticator.TENANT + '=') !== -1) {
+    let tenant = UrlUtils.getParameter(window.location, KeycloakAuthenticator.TENANT);
+    UrlUtils.removeQueryParam(window, KeycloakAuthenticator.TENANT);
+    localStorage.setItem(KeycloakAuthenticator.TENANT, tenant);
+    return tenant;
+  }
+  return localStorage.getItem(KeycloakAuthenticator.TENANT);
+}
 
 export default application;

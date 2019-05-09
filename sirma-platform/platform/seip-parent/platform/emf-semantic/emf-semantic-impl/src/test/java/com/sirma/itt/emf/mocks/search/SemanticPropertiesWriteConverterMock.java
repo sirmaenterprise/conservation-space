@@ -11,7 +11,6 @@ import com.sirma.itt.emf.mocks.SemanticDefinitionServiceMock;
 import com.sirma.itt.emf.semantic.persistence.PersistStepFactoryBuilderMock;
 import com.sirma.itt.emf.semantic.persistence.SemanticPropertiesWriteConverter;
 import com.sirma.itt.seip.event.EventService;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.util.ReflectionUtils;
 
 /**
@@ -36,8 +35,7 @@ public class SemanticPropertiesWriteConverterMock extends SemanticPropertiesWrit
 				context.computeIfAbsent("definitionService", key -> new DefinitionServiceMock()));
 		ReflectionUtils.setFieldValue(this, "semanticDefinitionService", new SemanticDefinitionServiceMock(context));
 		ReflectionUtils.setFieldValue(this, "idManager", context.get("idManager"));
-		ReflectionUtils.setFieldValue(this, "eventService", mock(EventService.class));
-		ReflectionUtils.setFieldValue(this, "statistics", Statistics.NO_OP);
+		ReflectionUtils.setFieldValue(this, "eventService", context.getOrDefault("eventService", mock(EventService.class)));
 		ReflectionUtils.setFieldValue(this, "persistStepFactoryBuilder", new PersistStepFactoryBuilderMock(context));
 	}
 }

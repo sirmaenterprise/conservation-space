@@ -84,6 +84,17 @@ public class FieldValidationErrorBuilder {
 	}
 
 	/**
+	 * Constructs a {@link MandatoryControlParamValidationError}.
+	 *
+	 * @param property the property definitions, used in the message to show for which field the validation has failed.
+	 * @return the error.
+	 */
+	public PropertyValidationError buildMandatoryControlParamError(PropertyDefinition property) {
+		return new MandatoryControlParamValidationError(property,
+				type -> getMessageOrDefault(type, property.getName()));
+	}
+
+	/**
 	 * Constructs a {@link TextFieldValidationError}.
 	 *
 	 * @param property the property definitions, used in the message to show for which field the validation has failed.

@@ -18,9 +18,7 @@ const EMPTY_BASKET_MESSAGE = 'picker.basket.none';
     config: 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 export class PickerBasket extends Configurable {
   constructor() {
     super({

@@ -116,7 +116,7 @@
 		</field>
 
 		<field>
-			<!-- isMandatory returns false if the value is null, which makes dozer skip mapping it (in case it equals the source field). 
+			<!-- isMandatory returns false if the value is null, which makes dozer skip mapping it (in case it equals the source field).
 				 That's why we use getMandatory method, which returns the field as it is. Same applies for getMultiValued -->
 			<a get-method="getMandatory" set-method="setMandatory">mandatory</a>
 			<b get-method="isMandatory" set-method="setMandatory">mandatory</b>
@@ -130,12 +130,8 @@
 			<b get-method="getType" set-method="setType">type</b>
 		</field>
 		<field>
-			<a>previewEmpty</a>
+			<a get-method="getPreviewEmpty" set-method="setPreviewEmpty">previewEmpty</a>
 			<b get-method="isPreviewEmpty" set-method="setPreviewEmpty">previewEmpty</b>
-		</field>
-		<field>
-			<a>mandatory</a>
-			<b get-method="isMandatory" set-method="setMandatory">mandatory</b>
 		</field>
 
 		<field>
@@ -161,13 +157,17 @@
 			<b>uri</b>
 		</field>
 		<field>
-			<a>unique</a>
-			<b>unique</b>
+			<a get-method="isUnique" set-method="setUnique">unique</a>
+			<b get-method="getUnique" set-method="setUnique">unique</b>
 		</field>
 		<field>
-			<a>override</a>
-			<b>override</b>
+			<a get-method="isOverride" set-method="setOverride">override</a>
+			<b get-method="getOverride" set-method="setOverride">override</b>
 		</field>
+        <field>
+            <a get-method="getDefaultValue" set-method="setValue">value</a>
+            <b get-method="getValue" set-method="setValue">value</b>
+        </field>
 	</mapping>
 
 	<mapping>
@@ -406,7 +406,7 @@
 			<b>group</b>
 		</field>
 	</mapping>
-	
+
 	<mapping>
 		<class-a>com.sirma.itt.seip.definition.model.TransitionGroupDefinitionImpl</class-a>
 		<class-b>com.sirma.itt.seip.definition.jaxb.TransitionGroupDefinition</class-b>
@@ -482,7 +482,11 @@
 		</field>
 		<field>
 			<a get-method="getDefaultChild" set-method="setDefaultChild">defaultChild</a>
-			<b>defaultChild</b>
+			<b get-method="isDefaultChild" set-method="setDefaultChild">defaultChild</b>
+		</field>
+		<field custom-converter="com.sirma.itt.seip.definition.dozer.ObjectTypeConverter">
+			<a>type</a>
+			<b>type</b>
 		</field>
 	</mapping>
 

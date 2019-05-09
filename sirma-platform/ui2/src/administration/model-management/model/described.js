@@ -18,21 +18,6 @@ export class Described {
   }
 
   /**
-   * Returns the map of all descriptions.
-   */
-  getDescriptions() {
-    return this.descriptions;
-  }
-
-  /**
-   * Replaces the map of descriptions with the provided one.
-   */
-  setDescriptions(descriptions) {
-    this.descriptions = descriptions;
-    return this;
-  }
-
-  /**
    * Returns a description for the given language/locale.
    */
   getDescriptionByLanguage(locale) {
@@ -65,4 +50,15 @@ export class Described {
     return this;
   }
 
+  copyFrom(src) {
+    Object.values(src.descriptions).forEach(value => {
+      let cpy = new ModelDescription();
+      this.addDescription(cpy.copyFrom(value));
+    });
+    if (src.getDescription()) {
+      let lang = src.getDescription().getLanguage();
+      this.setDescription(this.getDescriptionByLanguage(lang));
+    }
+    return this;
+  }
 }

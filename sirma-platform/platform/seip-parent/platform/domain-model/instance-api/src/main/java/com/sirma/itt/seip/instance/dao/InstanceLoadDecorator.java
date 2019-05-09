@@ -21,8 +21,8 @@ import com.sirma.itt.seip.plugin.Plugin;
  */
 public interface InstanceLoadDecorator extends Plugin {
 
-	/** The plugin name. */
-	String TARGET_NAME = "instanceLoadDecorator";
+	String INSTANCE_DECORATOR = "instanceLoadDecorator";
+	String VERSION_INSTANCE_DECORATOR = "versionLoadDecorator";
 	double MAX_ORDER = 1_000_000.0;
 
 	/**
@@ -54,5 +54,36 @@ public interface InstanceLoadDecorator extends Plugin {
 	 */
 	default boolean allowParallelProcessing() {
 		return true;
+	}
+
+	/**
+	 * Optional operation. Mark the given instance as decorated to skip it's future decoration of the given instance in
+	 * the current session. Node that the decoration status will be cleared if the method
+	 * {@link #clearDecoratedStatus(Instance)} is called with the same instance or instance is refreshed or new instance
+	 * copy is loaded.
+	 *
+	 * @param instance the instance to mark as decorated
+	 */
+	default void markAsDecorated(Instance instance) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Optional operation. Clear the decoration status of the instance.
+	 *
+	 * @param instance the instance to clear its status
+	 */
+	default void clearDecoratedStatus(Instance instance) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Optional operation. Check if the given instance is decorated or not
+	 *
+	 * @param instance the instance to check
+	 * @return true if the instance have already been decorated and false if not.
+	 */
+	default boolean isDecorated(Instance instance) {
+		throw new UnsupportedOperationException();
 	}
 }

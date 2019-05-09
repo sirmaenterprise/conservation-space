@@ -17,22 +17,19 @@ describe('InstanceRestService', () => {
     instanceRestService = new InstanceRestService(restClient, PromiseStub, new RequestsCacheService());
   });
 
-  it('compareVersions() should perform create request with proper arguments', () => {
-    let instanceId = 'emf:id';
-    let instanceVersionOneId = 'emf:id-v.1';
-    let instanceVersionTwoId = 'emf:id-v.2';
+  it('compareVersions() should call get on restClient', () => {
+    let id = 'emf:id';
+    let v1 = 'emf:id-v.1';
+    let v2 = 'emf:id-v.2';
 
-    instanceRestService.compareVersions(instanceId, instanceVersionOneId, instanceVersionTwoId);
+    instanceRestService.compareVersions(id, v1, v2);
 
-    let expectedDataParameter = {
-      userOperation: 'compareVersions',
-      firstSourceId: instanceVersionOneId,
-      secondSourceId: instanceVersionTwoId
-    };
-    expect(restClient.post.calledOnce);
-    expect(restClient.post.getCall(0).args[0]).to.equal('/instances/emf:id/actions/compare-versions');
-    expect(restClient.post.getCall(0).args[1]).to.deep.equal(expectedDataParameter);
-    expect(restClient.post.getCall(0).args[2].headers.Accept).to.equal('application/vnd.seip.v2+json');
+    expect(restClient.get.calledOnce);
+    expect(restClient.get.getCall(0).args[0]).to.equal(`/instances/${id}/actions/compare-versions?first=${v1}&second=${v2}`);
+
+    let config = restClient.get.getCall(0).args[1];
+    expect(config.responseType).to.equal('arraybuffer');
+    expect(config.headers.Accept).to.equal('application/pdf');
   });
 
   describe('create()', () => {

@@ -118,7 +118,7 @@ export class CreateInstanceAction extends ActionHandler {
       predefinedSubTypes: actionConfig.predefinedSubTypes,
       forceCreate: actionConfig.forceCreate,
       openInNewTab: actionConfig.openInNewTab,
-      exclusions: exclusions,
+      exclusions,
       instanceType: initialInstanceType,
       contextSelectorDisabled: CreatePanelService.resolveContextSelectorDisabled(actionConfig, true),
       onClosed: (result) => {

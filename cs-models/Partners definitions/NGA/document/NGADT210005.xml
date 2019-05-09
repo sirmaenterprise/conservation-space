@@ -1,28 +1,31 @@
 <?xml version="1.0" ?>
 <definition id="NGADT210005" type="document" parentId="NGADT210004"> <!-- Treatment Report	-->
+	<configuration>
+		<fields>
+			<field name="revisionContextConfiguration" type="json">
+				<value>
+					{
+						"recordContextDefinitionId" : "csRecordSpace",
+						"recordContextName" : "Treatment Report Published Revisions"
+					}
+				</value>
+			</field>
+		</fields>
+	</configuration>
 	<fields>
 		<field name="type"><value>NGADT210005</value></field>
-		<field name="emf:hasTemplate" type="uri" order="1" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Template</control-param>
-			</control>
-		</field>
-		<field name="treatmentType" type="an..10" displayType="editable" codelist="CL213" label="ngaDocument.treatmentType.label" tooltip="ngaDocument.treatmentType.tooltip" mandatory="true" order="12" uri="nga:treatmentType" >
+		<field name="emf:hasTemplate" order="1" />
+		<field name="treatmentType" type="ANY" displayType="editable" codelist="CL213" tooltip="ngaDocument.treatmentType.tooltip" mandatory="true" order="12" uri="nga:treatmentType" >
 			<value>NGA213001</value>
 		</field>
-		<field name="purpose" type="an..10" order="12" />
+		<field name="purpose" order="12" />
 	</fields>
 	<regions>
-		<region id="generalDocumentInformation" order="70" displayType="editable" label="nga.spcificDocInformation.region.label">
+		<region id="generalDocumentInformation" label="nga.spcificDocInformation.region.label" order="70" >
 			<fields>
-				<field name="reportDate" type="date" label="ngaDocument.reportDate.label" tooltip="ngaDocument.reportDate.tooltip" displayType="editable" uri="nga:reportDate" >
+				<field name="reportDate" type="date" tooltip="ngaDocument.reportDate.tooltip" displayType="editable" uri="nga:reportDate" >
 					<value>${today}</value>
 				</field>
-			</fields>
-		</region>
-		<region id="systemInformation" >
-			<fields>
-				<field name="emf:hasTemplate" type="uri" displayType="system" />
 			</fields>
 		</region>
 	</regions>

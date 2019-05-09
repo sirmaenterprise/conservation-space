@@ -1,23 +1,25 @@
 import {Component, View, Inject, NgScope} from 'app/app';
 import {InstanceRestService} from 'services/rest/instance-service';
-import {StaticInstanceHeader} from 'instance-header/static-instance-header/static-instance-header';
 import {Configuration} from 'common/application-config';
 import {MomentAdapter} from 'adapters/moment-adapter';
-import {Pagination} from 'search/components/common/pagination';
-import {ContextualHelp} from 'components/help/contextual-help';
 import {TranslateService} from 'services/i18n/translate-service';
-import {AuthenticationService} from 'services/security/authentication-service';
 import {NotificationService} from 'services/notification/notification-service';
-import {BASE_PATH} from 'services/rest-client';
 import {HEADER_COMPACT} from 'instance-header/header-constants';
-import {UrlUtils} from 'common/url-utils';
+import {EMF_VERSION} from 'instance/instance-properties';
+import {CONTENT_ID} from 'instance/instance-properties';
+
+import FileSaver from 'file-saver';
+
+import 'search/components/common/pagination';
+import 'components/help/contextual-help';
+import 'instance-header/static-instance-header/static-instance-header';
+
 import './versions.css!css';
 import versionsTemplate from 'idoc/system-tabs/versions/versions.html!text';
 
 const NOT_PROCESSED_VERSION = 'versions.not.processed';
 const NOT_COMPARABLE_TOOLTIP = 'versions.not.comparable';
 const INCOMPARABLE_MIME_TYPES = ['image', 'video', 'audio', 'executable', 'octet-stream'];
-const CONTENT_ID_PROPERTY = 'emf:contentId';
 
 @Component({
   selector: 'seip-versions',
@@ -28,15 +30,14 @@ const CONTENT_ID_PROPERTY = 'emf:contentId';
 @View({
   template: versionsTemplate
 })
-@Inject(InstanceRestService, Configuration, MomentAdapter, TranslateService, AuthenticationService, NgScope, NotificationService)
+@Inject(InstanceRestService, Configuration, MomentAdapter, TranslateService, NgScope, NotificationService)
 export class Versions {
-  constructor(instanceRestService, configuration, momentAdapter, translateService, authenticationService, $scope, notificationService) {
+  constructor(instanceRestService, configuration, momentAdapter, translateService, $scope, notificationService) {
     this.momentAdapter = momentAdapter;
     this.translateService = translateService;
     this.datePattern = configuration.get(Configuration.UI_DATE_FORMAT) + ' ' + configuration.get(Configuration.UI_TIME_FORMAT);
     this.pageSize = configuration.get('search.result.pager.pagesize');
     this.instanceRestService = instanceRestService;
-    this.authenticationService = authenticationService;
     this.notificationService = notificationService;
     this.notComparableTooltip = this.translateService.translateInstant(NOT_COMPARABLE_TOOLTIP);
     this.selectedVersions = [];
@@ -74,7 +75,7 @@ export class Versions {
   //Can't compare images, videos, audios or instances without preview
   checkIfComparable() {
     return this.context.getCurrentObject().then((object)=> {
-      return !!(this.isComparableMimetype(object.instanceType) && object.models.validationModel[CONTENT_ID_PROPERTY] && object.models.validationModel[CONTENT_ID_PROPERTY].defaultValue);
+      return !!(this.isComparableMimetype(object.instanceType) && object.models.validationModel[CONTENT_ID] && object.models.validationModel[CONTENT_ID].defaultValue);
     }
     );
   }
@@ -149,14 +150,16 @@ export class Versions {
 
   compareVersions() {
     this.comparisonStarted = true;
-    return this.instanceRestService.compareVersions(this.context.getCurrentObjectId(), this.selectedVersions[0].id, this.selectedVersions[1].id).then((response) => {
-      if (response && response.data) {
-        let iframe = document.createElement('iframe');
-        iframe.id = 'downloadDocumentFrame';
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-        iframe.src = this.decorateDownloadURI(response.data);
-      }
+    let id = this.context.getCurrentObjectId();
+    let first = this.selectedVersions[0];
+    let second = this.selectedVersions[1];
+    return this.instanceRestService.compareVersions(id, first.id, second.id).then((response) => {
+
+      let blob = new Blob([response.data], {
+        type: 'application/octet-stream'
+      });
+
+      FileSaver.saveAs(blob, `${id}-${first.properties[EMF_VERSION]}-vs-${second.properties[EMF_VERSION]}.pdf`);
       this.comparisonStarted = false;
     }).catch(()=> {
       this.comparisonStarted = false;
@@ -164,12 +167,6 @@ export class Versions {
       this.notificationService.warning(this.translateService.translateInstant('versions.compare.error'));
     });
   }
-
-  decorateDownloadURI(downloadURI) {
-    let url = `${BASE_PATH}${downloadURI}`;
-    return UrlUtils.appendQueryParam(url, AuthenticationService.TOKEN_REQUEST_PARAM, this.authenticationService.getToken());
-  }
-
 
   handleSelection(newVersion) {
     if (newVersion.selected) {

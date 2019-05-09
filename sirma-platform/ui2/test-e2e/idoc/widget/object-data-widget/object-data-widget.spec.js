@@ -49,30 +49,19 @@ describe('ObjectDataWidget', function () {
 
   it('should bind widgets displaying one and the same objects to same object values model', () => {
     // given I have inserted first ODW for current object and selected field 1 to be visible
-    idocPage.getTabEditor(1).insertWidget(ObjectDataWidget.WIDGET_NAME);
-    var widgetConfig = new ObjectDataWidgetConfig();
-    widgetConfig.selectObjectSelectTab().selectObjectSelectionMode(ObjectSelector.CURRENT_OBJECT);
-    var propertiesSelector = widgetConfig.selectObjectDetailsTab();
-    propertiesSelector.selectProperty(FIELDS.FIELD_ONE);
-    widgetConfig.save();
+    let widget1 = idocPage.insertODWWithFields([FIELDS.FIELD_ONE], {type: ObjectSelector.CURRENT_OBJECT}, 0);
 
     // given I have inserted a second ODW for current object and selected field 1 to be visible
-    var idocContent = idocPage.getTabEditor(1);
-    idocContent.getParagraph(1).click();
-    idocPage.getTabEditor(1).insertWidget(ObjectDataWidget.WIDGET_NAME);
-    widgetConfig.selectObjectSelectTab().selectObjectSelectionMode(ObjectSelector.CURRENT_OBJECT);
-    propertiesSelector = widgetConfig.selectObjectDetailsTab();
-    propertiesSelector.selectProperty(FIELDS.FIELD_ONE);
-    propertiesSelector.selectProperty(FIELDS.FIELD_TWO);
-    widgetConfig.save();
+    let widget2 = idocPage.insertODWWithFields([FIELDS.FIELD_ONE, FIELDS.FIELD_TWO], {type: ObjectSelector.CURRENT_OBJECT}, 1);
 
     // when I change field1 value in the first ODW
-    var widget1 = idocContent.getWidgetByNameAndOrder(ObjectDataWidget.WIDGET_NAME, 0);
-    clearField(widget1.$$('#' + FIELDS.FIELD_ONE).first()).sendKeys('One');
+    let widget1Field1 = widget1.getForm().getInputText('field1');
+    widget1Field1.clearValue();
+    widget1Field1.setValue(null, 'One');
 
     // then the field1 value in second ODW should be the same as those in the first ODW
-    var widget2 = idocContent.getWidgetByNameAndOrder(ObjectDataWidget.WIDGET_NAME, 1);
-    expect(widget2.$$('#' + FIELDS.FIELD_ONE).first().getAttribute('value')).to.eventually.equal('One');
+    let widget2Field1 = widget2.getForm().getInputText('field1');
+    expect(widget2Field1.getValue()).to.eventually.equal('One');
   });
 
   it('can be inserted in idoc when in edit mode', () => {
@@ -93,16 +82,17 @@ describe('ObjectDataWidget', function () {
     widgetConfig.selectObjectDetailsTab().selectAllProperties();
     widgetConfig.save();
 
-    browser.wait(EC.visibilityOf(widgetElement.element(by.id(FIELDS.FIELD_ONE))), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(widgetElement.element(by.css(`input#${FIELDS.FIELD_ONE}`))), DEFAULT_TIMEOUT);
 
-    widgetElement.element(by.id(FIELDS.FIELD_ONE)).clear().sendKeys('One');
-    widgetElement.element(by.id(FIELDS.FIELD_TWO)).clear().sendKeys('Two');
-    widgetElement.element(by.id(FIELDS.FIELD_THREE)).clear().sendKeys('Test');
+    widgetElement.element(by.css(`input#${FIELDS.FIELD_ONE}`)).clear().click().sendKeys('One');
+    widgetElement.element(by.css(`input#${FIELDS.FIELD_TWO}`)).clear().click().sendKeys('Two');
+    widgetElement.element(by.css(`input#${FIELDS.FIELD_THREE}`)).clear().click().sendKeys('Test');
+
     idocPage.getActionsToolbar().saveIdoc();
 
-    expect(element(by.id(FIELDS.FIELD_ONE)).getAttribute('value')).to.eventually.equal('One');
-    expect(element(by.id(FIELDS.FIELD_TWO)).getAttribute('value')).to.eventually.equal('Two');
-    expect(element(by.id(FIELDS.FIELD_THREE)).getAttribute('value')).to.eventually.equal('Test');
+    expect($(`span#${FIELDS.FIELD_ONE}.preview-field`).getText()).to.eventually.equal('One');
+    expect($(`span#${FIELDS.FIELD_TWO}.preview-field`).getText()).to.eventually.equal('Two');
+    expect($(`span#${FIELDS.FIELD_THREE}.preview-field`).getText()).to.eventually.equal('Test');
   });
 
   it('should show initial data if iDoc cancel button is pressed ', () => {
@@ -118,9 +108,9 @@ describe('ObjectDataWidget', function () {
     idocPage.waitForEditMode();
     browser.wait(EC.presenceOf(widgetElement.$(`input#${FIELDS.FIELD_ONE}`)), DEFAULT_TIMEOUT);
 
-    widgetElement.$(`input#${FIELDS.FIELD_ONE}`).clear().sendKeys('One');
-    widgetElement.$(`input#${FIELDS.FIELD_TWO}`).clear().sendKeys('Two');
-    widgetElement.$(`input#${FIELDS.FIELD_THREE}`).clear().sendKeys('Test');
+    widgetElement.$(`input#${FIELDS.FIELD_ONE}`).clear().click().sendKeys('One');
+    widgetElement.$(`input#${FIELDS.FIELD_TWO}`).clear().click().sendKeys('Two');
+    widgetElement.$(`input#${FIELDS.FIELD_THREE}`).clear().click().sendKeys('Test');
     actionsToolbar.cancelSave();
 
     let conformation = idocPage.getConformationPopup();

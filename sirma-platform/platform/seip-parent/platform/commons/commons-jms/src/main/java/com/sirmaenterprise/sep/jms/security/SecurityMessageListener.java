@@ -39,6 +39,11 @@ public class SecurityMessageListener implements MessageConsumerListener {
 	@Inject
 	private UserStore userStore;
 
+	/**
+	 * For tracking if the context is initialized twice so it can be destroyed twice.
+	 */
+	private boolean doubleContextExecution = false;
+
 	@Override
 	public void beforeMessage(Message message) {
 		boolean authenticated = tryAuthenticate(message);
@@ -51,11 +56,17 @@ public class SecurityMessageListener implements MessageConsumerListener {
 	@Override
 	public void onSuccess() {
 		securityContextManager.endContextExecution();
+		if (doubleContextExecution) {
+			securityContextManager.endContextExecution();
+		}
 	}
 
 	@Override
 	public void onError(Exception e) {
 		securityContextManager.endContextExecution();
+		if (doubleContextExecution) {
+			securityContextManager.endContextExecution();
+		}
 	}
 
 	private boolean tryAuthenticate(Message message) {
@@ -65,6 +76,7 @@ public class SecurityMessageListener implements MessageConsumerListener {
 			User effectiveAuthentication = getEffectiveAuthentication(message);
 			if (effectiveAuthentication != null) {
 				securityContextManager.beginContextExecution(effectiveAuthentication);
+				doubleContextExecution = true;
 			}
 			return true;
 		}

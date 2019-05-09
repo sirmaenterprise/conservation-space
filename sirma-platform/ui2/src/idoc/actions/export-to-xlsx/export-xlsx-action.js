@@ -5,7 +5,7 @@ import { NotificationService } from 'services/notification/notification-service'
 import { ExportHandler } from 'idoc/actions/export-handler';
 import { SearchResolverService } from 'services/resolver/search-resolver-service';
 import { ActionsService } from 'services/rest/actions-service';
-import { AuthenticationService } from 'services/security/authentication-service';
+import { AuthenticationService } from 'security/authentication-service';
 import _ from 'lodash';
 
 export const NOTIFICATION_LABEL_ID = 'action.export.xlsx.idoc.notification';

@@ -55,7 +55,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -94,7 +93,9 @@ import com.sirma.itt.seip.domain.search.tree.SearchCriteriaBuilder;
 import com.sirma.itt.seip.domain.util.DateConverter;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.CommonInstance;
-import com.sirma.itt.seip.monitor.Statistics;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.permissions.action.AuthorityService;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.search.AbstractResultItem;
@@ -105,7 +106,6 @@ import com.sirma.itt.seip.search.SearchQueryParameters;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.time.DateRange;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.ReadOnly;
@@ -168,9 +168,6 @@ public class SemanticSearchEngine implements SearchEngine {
 	private AuthorityService authorityService;
 
 	@Inject
-	private Statistics statistics;
-
-	@Inject
 	private SemanticConfiguration semanticConfiguration;
 
 	@Inject
@@ -192,6 +189,7 @@ public class SemanticSearchEngine implements SearchEngine {
 	public void init() {
 		typeMapping.put(EMF.CLASS_DESCRIPTION.stringValue(), ClassInstance.class);
 		typeMapping.put(OWL.DATATYPEPROPERTY.stringValue(), CommonInstance.class);
+		typeMapping.put(OWL.ANNOTATIONPROPERTY.stringValue(), CommonInstance.class);
 		typeMapping.put(EMF.RELATION.stringValue(), CommonInstance.class);
 		typeMapping.put(Security.ROLE.stringValue(), CommonInstance.class);
 		typeMapping.put(SKOS.CONCEPT.stringValue(), CommonInstance.class);
@@ -208,9 +206,9 @@ public class SemanticSearchEngine implements SearchEngine {
 
 	@Override
 	@SuppressWarnings("boxing")
+	@Monitored(@MetricDefinition(name = "semantic_search_duration_seconds", type = Type.TIMER, descr = "Sematic search duration in seconds."))
 	public <E extends Instance, S extends SearchArguments<E>> void search(Class<?> target, S arguments) {
 		printSearchArguments(arguments);
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "semanticSearch").begin();
 
 		Map<String, Serializable> bindings = new HashMap<>();
 		final int maxSize = arguments.getMaxSize();
@@ -219,12 +217,8 @@ public class SemanticSearchEngine implements SearchEngine {
 
 		if (arguments.shouldGroupBy()) {
 			aggregatedSearch(arguments, bindings, query);
-			LOGGER.debug("Semantic DB aggregation took {} seconds for {} property/properties", tracker.stopInSeconds(),
-					arguments.getAggregatedData().size());
 		} else {
 			search(arguments, bindings, query);
-			LOGGER.debug("Semantic DB search took {} seconds and returning {} entries out of {} in total",
-					tracker.stopInSeconds(), arguments.getResult().size(), arguments.getTotalItems());
 		}
 	}
 
@@ -523,14 +517,8 @@ public class SemanticSearchEngine implements SearchEngine {
 					includeInferred, arguments.getQueryTimeout(TimeUnit.SECONDS));
 
 			// evaluate query
-			TimeTracker tracker = statistics.createTimeStatistics(getClass(), "semanticSearchQueryExecution").begin();
 			try (TupleQueryResultIterator resultIterator = new TupleQueryResultIterator(tupleQuery.evaluate())) {
-				LOGGER.debug("Semantic query execution took {} ms", tracker.stop());
-
-				tracker = statistics.createTimeStatistics(getClass(), "semanticSearchProcessingResults").begin();
-				List<E> resultList = parseTupleQueryResult(resultIterator, arguments, groupBy);
-				LOGGER.debug("Processing results took {} ms", tracker.stop());
-				return resultList;
+				return parseTupleQueryResult(resultIterator, arguments, groupBy);
 			}
 		} catch (QueryInterruptedException e) {
 			LOGGER.error("Semantic query execution exceeded the allowed execution time of {} s. The error is: {}",
@@ -558,11 +546,7 @@ public class SemanticSearchEngine implements SearchEngine {
 					includeInferred, arguments.getQueryTimeout(TimeUnit.SECONDS));
 
 			// evaluate query
-			TimeTracker tracker = statistics.createTimeStatistics(getClass(), "semanticSearchQueryExecution").begin();
-
 			resultIterator = new TupleQueryResultIterator(tupleQuery.evaluate());
-			LOGGER.debug("Semantic query execution for streaming took {} ms", tracker.stop());
-
 			queryExecuted = true;
 			final TupleQueryResultIterator iterator = resultIterator;
 
@@ -1183,9 +1167,6 @@ public class SemanticSearchEngine implements SearchEngine {
 		} else if (value instanceof IRI) {
 			IRI uri = (IRI) value;
 
-			if (XMLSchema.NAMESPACE.equals(uri.getNamespace())) {
-				return uri.getLocalName();
-			}
 			return namespaceRegistryService.getShortUri(uri);
 		} else {
 			return ValueConverter.convertValue(value);

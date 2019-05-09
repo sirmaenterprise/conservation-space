@@ -26,23 +26,26 @@ public class RemoveRelationAction extends AbstractRelationAction<RemoveRelationR
 	}
 
 	@Override
+	public void validate(RemoveRelationRequest request) {
+		super.validate(request);
+		verifyRelationsAreDefined(request.getTargetReference().toInstance(), request.getRelations().keySet());
+	}
+
+	@Override
 	public Instance performAction(RemoveRelationRequest request) {
 		if (isEmpty(request.getRelations())) {
 			throw new BadRequestException("Invalid request");
 		}
 
-		Instance instance = getInstance(request.getTargetId());
+		Instance instance = request.getTargetReference().toInstance();
 		DefinitionModel definitionModel = definitionService.getInstanceDefinition(instance);
 
 		for (Entry<String, Set<String>> entry : request.getRelations().entrySet()) {
 			String property = entry.getKey();
-
-			String propertyName = definitionModel
-					.findField(PropertyDefinition.hasName(property).or(PropertyDefinition.hasUri(property)))
-					.map(PropertyDefinition::getName)
-					.orElse(property);
-
-			removeRelation(instance, propertyName, entry.getValue());
+			Set<String> relations = entry.getValue();
+			definitionModel
+					.getField(property)
+					.ifPresent(propertyDefinition -> removeRelation(instance, propertyDefinition.getName(), relations));
 		}
 		return instance;
 	}

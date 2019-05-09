@@ -55,7 +55,6 @@ import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.state.Operation;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.tasks.RunAs;
 import com.sirma.itt.seip.tasks.SchedulerConfiguration;
 import com.sirma.itt.seip.tasks.SchedulerContext;
@@ -70,7 +69,6 @@ import com.sirma.itt.seip.template.rules.TemplateRuleTranslator;
 import com.sirma.itt.seip.template.rules.TemplateRuleUtils;
 import com.sirma.itt.seip.template.schedule.TemplateActivateScheduler;
 import com.sirma.itt.seip.template.utils.TemplateUtils;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.itt.seip.util.DigestUtils;
 import com.sirma.itt.seip.util.EqualsHelper;
@@ -114,6 +112,7 @@ public class TemplateServiceImpl implements TemplateService {
 
 	private static final String TEMPLATES_DEFAULT_TITLE_ID = "templates.default.title";
 	private static final String DETECTED_CHANGE_IN_TEMPLATE = "Detected change in template [{}] , field [{}] . Old value: [{}] , New value: [{}]";
+	private static final String DETECTED_CHANGE_IN_TEMPLATE_SYNC = DETECTED_CHANGE_IN_TEMPLATE + ". Synchronizing its relational record...";
 
 	@Inject
 	private DbDao dbDao;
@@ -135,9 +134,6 @@ public class TemplateServiceImpl implements TemplateService {
 
 	@Inject
 	private InstanceService instanceService;
-
-	@Inject
-	private Statistics statistics;
 
 	private final TemplateDao templateDao;
 
@@ -169,7 +165,7 @@ public class TemplateServiceImpl implements TemplateService {
 	}
 
 	/**
-	 * Constructs the template service
+	 * Constructs the template service with the supplied dependent services.
 	 *
 	 * @param templateInstanceHelper
 	 *            is a {@link TemplateInstanceHelper} instance
@@ -215,7 +211,6 @@ public class TemplateServiceImpl implements TemplateService {
 	@Override
 	public void setAsPrimaryTemplate(String templateInstanceId) {
 		Objects.requireNonNull(templateInstanceId, "Instance Id is required when setting template as primary");
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "setTemplateAsPrimary").begin();
 
 		InstanceReference templateReference = instanceTypeResolver
 				.resolveReference(templateInstanceId)
@@ -234,8 +229,7 @@ public class TemplateServiceImpl implements TemplateService {
 			return;
 		}
 		setAsPrimaryInternal(templateInstance);
-		LOGGER.info("Template [{}] successfully set as primary. Operation took {} ms.", templateInstanceId,
-				timeTracker.stop());
+		LOGGER.info("Template [{}] successfully set as primary.", templateInstanceId);
 	}
 
 	private void setAsPrimaryInternal(Instance templateInstance) {
@@ -279,7 +273,6 @@ public class TemplateServiceImpl implements TemplateService {
 
 	@Override
 	public List<Template> getTemplates(TemplateSearchCriteria criteria) {
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "searchTemplatesByRule").begin();
 		List<Template> foundTemplates = templateDao.getTemplates(criteria.getGroup(), criteria.getPurpose());
 
 		// Creating a new list, because the returned one by the DAO is not modifiable
@@ -287,12 +280,6 @@ public class TemplateServiceImpl implements TemplateService {
 
 		if (criteria.getFilter() != null) {
 			results = TemplateRuleUtils.filter(results, criteria.getFilter());
-			LOGGER.trace("{} templates matching the given criteria found and filtered for {} ms", results.size(),
-					timeTracker.stop());
-		} else {
-			LOGGER.trace(
-					"{} templates for the provided type and purpose were retrieved for {} ms. Filter is empty, so no additional filtering will be performed",
-					foundTemplates.size(), timeTracker.stop());
 		}
 
 		putPrimaryTemplateInFirstPlace(results);
@@ -358,7 +345,6 @@ public class TemplateServiceImpl implements TemplateService {
 
 	private Instance activateInternal(String templateInstanceId, boolean controlPrimaryFlag) {
 		Objects.requireNonNull(templateInstanceId, "Instance Id is required when activating a template");
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "activateTemplate").begin();
 
 		InstanceReference templateReference = instanceTypeResolver
 				.resolveReference(templateInstanceId)
@@ -383,8 +369,8 @@ public class TemplateServiceImpl implements TemplateService {
 					new Operation(ACTIVATE_TEMPLATE));
 			// save the instance, so that the state transition to active state is performed
 			templateInstance = domainInstanceService.save(context);
-			LOGGER.info("Template instance [{}] for type {} successfully activated for {} ms", templateInstance.getId(),
-					templateData.getForType(), timeTracker.stop());
+			LOGGER.info("Template instance [{}] for type {} successfully activated.", templateInstance.getId(),
+					templateData.getForType());
 		}
 
 		templateData.setPublishedInstanceVersion(templateInstance.getString(DefaultProperties.VERSION));
@@ -484,11 +470,11 @@ public class TemplateServiceImpl implements TemplateService {
 
 		templateDao.saveOrUpdate(template);
 
-		TemplateContentEntity contentEnity = new TemplateContentEntity();
-		contentEnity.setId(template.getId());
-		contentEnity.setContent(template.getContent());
-		contentEnity.setFileName(template.getId() + ".xml");
-		dbDao.saveOrUpdate(contentEnity);
+		TemplateContentEntity contentEntity = new TemplateContentEntity();
+		contentEntity.setId(template.getId());
+		contentEntity.setContent(template.getContent());
+		contentEntity.setFileName(template.getId() + ".xml");
+		dbDao.saveOrUpdate(contentEntity);
 	}
 
 	private static void setDefaultTemplateProperties(Template template) {
@@ -515,7 +501,6 @@ public class TemplateServiceImpl implements TemplateService {
 	@Override
 	public void deactivate(String templateInstanceId) {
 		Objects.requireNonNull(templateInstanceId, "Instance Id is required when deactivating a template");
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "deactivateTemplate").begin();
 
 		InstanceReference templateReference = instanceTypeResolver
 				.resolveReference(templateInstanceId)
@@ -545,7 +530,7 @@ public class TemplateServiceImpl implements TemplateService {
 				new Operation(DEACTIVATE_TEMPLATE));
 		domainInstanceService.save(saveContext);
 
-		LOGGER.info("Template [{}] successfully deactivated for {} ms", templateInstanceId, timeTracker.stop());
+		LOGGER.info("Template [{}] successfully deactivated.", templateInstanceId);
 	}
 
 	@Override
@@ -556,8 +541,6 @@ public class TemplateServiceImpl implements TemplateService {
 	}
 
 	private Instance createTemplateInstanceInternal(Template templateData, String id, String content) {
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "createNewTemplateInstance").begin();
-
 		// the corresponding library will be set as a parent of the template
 		String parent = getSemanticClass(templateData.getForType());
 
@@ -581,8 +564,7 @@ public class TemplateServiceImpl implements TemplateService {
 		InstanceSaveContext context = InstanceSaveContext.create(templateInstance,
 				new Operation(ActionTypeConstants.CREATE));
 		Instance savedInstance = domainInstanceService.save(context);
-		LOGGER.info("Template instance for type [{}] successfully created for {} ms", templateData.getForType(),
-				timeTracker.stop());
+		LOGGER.info("Template instance for type [{}] successfully created.", templateData.getForType());
 		return savedInstance;
 	}
 
@@ -691,6 +673,11 @@ public class TemplateServiceImpl implements TemplateService {
 		return templateDao.getAllTemplates();
 	}
 
+	@Override
+	public boolean hasTemplate(String templateInstanceId) {
+		return templateDao.hasTemplate(templateInstanceId);
+	}
+
 	private void synchronizeRelationalRecord(Template importedTemplate) {
 		Optional<TemplateEntity> entityOptional = fetchTemplateById(importedTemplate.getId());
 		if (!entityOptional.isPresent()) {
@@ -701,7 +688,7 @@ public class TemplateServiceImpl implements TemplateService {
 
 		if (!EqualsHelper.nullSafeEquals(existingTemplate.getCorrespondingInstance(),
 				importedTemplate.getCorrespondingInstance())) {
-			LOGGER.debug(DETECTED_CHANGE_IN_TEMPLATE + ". Synchronizing its relational record...",
+			LOGGER.debug(DETECTED_CHANGE_IN_TEMPLATE_SYNC,
 					importedTemplate.getId(), TemplateProperties.CORRESPONDING_INSTANCE,
 					existingTemplate.getCorrespondingInstance(), importedTemplate.getCorrespondingInstance());
 			existingTemplate.setCorrespondingInstance(importedTemplate.getCorrespondingInstance());
@@ -722,7 +709,7 @@ public class TemplateServiceImpl implements TemplateService {
 					.setPersistent(true)
 					.setMaxRetryCount(5)
 					.setRetryDelay(60L)
-					.setRunAs(RunAs.ADMIN);
+					.setRunAs(RunAs.USER);
 		LOGGER.debug("Scheduling template for activation: {}", id);
 		schedulerService.schedule(TemplateActivateScheduler.BEAN_ID, configuration, schedulerContext);
 	}

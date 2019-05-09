@@ -100,7 +100,7 @@ describe('Search', () => {
   it('should reset search toolbar back to default ordering when switching from advanced to search bar and fts field is empty', () => {
     openAdvancedSearch();
     closeAdvancedSearch();
-    expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified On');
+    expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified on');
   });
 
   it('should reset order by to default ordering when coming from advanced search with free text', () => {
@@ -113,7 +113,7 @@ describe('Search', () => {
       expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Relevance');
 
       closeAdvancedSearch();
-      expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified On');
+      expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified on');
     });
   });
 

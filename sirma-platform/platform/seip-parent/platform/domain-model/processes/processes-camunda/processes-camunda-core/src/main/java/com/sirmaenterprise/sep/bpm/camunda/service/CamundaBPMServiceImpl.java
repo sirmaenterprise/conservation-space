@@ -7,11 +7,8 @@ import static com.sirmaenterprise.sep.bpm.camunda.service.CamundaBPMService.getA
 import static com.sirmaenterprise.sep.bpm.camunda.service.CamundaBPMService.getSingleValue;
 import static com.sirmaenterprise.sep.bpm.camunda.service.CamundaBPMService.isActivity;
 
-import java.lang.invoke.MethodHandles;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,8 +21,6 @@ import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirmaenterprise.sep.bpm.camunda.bpmn.service.CamundaBPMNServiceImpl;
@@ -39,12 +34,6 @@ import com.sirmaenterprise.sep.bpm.camunda.exception.CamundaIntegrationRuntimeEx
  */
 @ApplicationScoped
 public class CamundaBPMServiceImpl implements CamundaBPMService {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-	private static final int TASK_LOAD_RETRY_COUNT = 3;
-
-	private static final long DELAY_BEFORE_NEXT_LOAD_ATTEMPT = 300;
 
 	@Inject
 	private ProcessEngine processEngine;
@@ -69,37 +58,9 @@ public class CamundaBPMServiceImpl implements CamundaBPMService {
 			return Optional.empty();
 		}
 		String activityId = getActivityId(activity);
-		List<Task> tasks = getWithRetry(loadTaskFunction(taskService), activityId);
+		List<Task> tasks = taskService.createTaskQuery().taskId(activityId).list();
 		return Optional.ofNullable(getSingleValue(tasks, () -> new CamundaIntegrationRuntimeException(
 				"Found " + tasks.size() + " activities for id " + activityId)));
-	}
-
-	private static Function<String, List<Task>> loadTaskFunction(TaskService taskService) {
-		return id -> taskService.createTaskQuery().taskId(id).list();
-	}
-
-	/**
-	 * Executes the passed function, if the result collection is empty, the function will be called
-	 * {@value #TASK_LOAD_RETRY_COUNT} more times with specified delay ({@value #DELAY_BEFORE_NEXT_LOAD_ATTEMPT} ms)
-	 * between each retry.
-	 *
-	 * @param function to execute
-	 * @param arg to pass to the function
-	 * @return the result from the function execution as {@link Collection}
-	 */
-	private static <T, R extends Collection<?>> R getWithRetry(Function<T, R> function, T arg) {
-		R result = function.apply(arg);
-		int count = 0;
-		while (result.isEmpty() && count < TASK_LOAD_RETRY_COUNT) {
-			try {
-				Thread.sleep(DELAY_BEFORE_NEXT_LOAD_ATTEMPT);
-			} catch (InterruptedException e) {
-				LOGGER.trace("Sleep was interrupted, but the process will continue..", e);
-			}
-			result = function.apply(arg);
-			count++;
-		}
-		return result;
 	}
 
 	/**
@@ -197,5 +158,4 @@ public class CamundaBPMServiceImpl implements CamundaBPMService {
 		}
 		return Optional.empty();
 	}
-
 }

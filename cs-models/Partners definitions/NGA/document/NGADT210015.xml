@@ -1,24 +1,31 @@
 <?xml version="1.0" ?>
 <definition id="NGADT210015" type="document" parentId="ngaDocument"> <!-- Analysis Report -->
+	<configuration>
+		<fields>
+			<field name="revisionContextConfiguration" type="json">
+				<value>
+					{
+						"recordContextDefinitionId" : "csRecordSpace",
+						"recordContextName" : "Analysis Report Published Revisions"
+					}
+				</value>
+			</field>
+		</fields>
+	</configuration>
 	<fields>
 		<field name="type">
 			<value>NGADT210015</value>
 		</field>
-		<field name="nga:requestNumber" type="an..50" displayType="editable" label="nga.requestNumber.label" tooltip="nga.requestNumber.tooltip" mandatory="true" order="11" uri="nga:requestNumber" />
-		<field name="purpose" type="an..10" displayType="editable" codelist="CL214" label="nga.purpose.label" tooltip="ngaDocument.purpose.tooltip" mandatory="true" order="12" filters="ngaAnalysisDocPurpose" uri="nga:purpose" />
-		<field name="chc:documents" type="uri" displayType="hidden" >
+		<field name="purpose" type="ANY" displayType="editable" codelist="CL214" tooltip="ngaDocument.purpose.tooltip" mandatory="true" order="12" uri="nga:purpose" >
+			<control id="RELATED_FIELDS">
+				<control-param type="related_field" id="fieldsToRerender" name="RERENDER">purpose</control-param>
+				<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGA214012,NGA214013,NGA214014</control-param>
+				<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+			</control>
+		</field>
+		<field name="chc:documents" displayType="hidden" >
 			<condition id="visibleFields" renderAs="VISIBLE">[purpose] IN ('NGA214012')</condition>
 			<condition id="mandatoryFields" renderAs="MANDATORY">[purpose] IN ('NGA214012')</condition>
 		</field>	
-	</fields>	
-	<!-- <regions>
-		<region id="generalDocumentInformation" order="70" displayType="editable" label="nga.spcificDocInformation.region.label">	
-			<fields>
-				<field name="analysisDate" type="date" order="700" label="ngaDocument.analysisDate.label" tooltip="ngaDocument.analysisDate.tooltip" displayType="editable" previewEmpty="false" uri="nga:analysisDate" />
-				<field name="analysisSummary" type="an..1800" order="705" label="NGADT210015.analysisSummary.label" tooltip="NGADT210015.analysisSummary.tooltip" displayType="editable" previewEmpty="false" uri="nga:analysisSummary" />	
-				<field name="sampleCondition" type="an..1800" order="710" label="NGADT210015.sampleCondition.label" tooltip="NGADT210015.sampleCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:sampleCondition" />	
-				<field name="sampleMaterialsIdentified" type="an..1800" order="715" label="NGADT210015.sampleMaterialsIdentified.label" tooltip="NGADT210015.sampleMaterialsIdentified.tooltip" displayType="editable" previewEmpty="false" uri="nga:sampleMaterialsIdentified" />
-			</fields>
-		</region>
-	</regions> -->
+	</fields>
 </definition>

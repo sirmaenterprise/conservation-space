@@ -39,6 +39,7 @@ import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.relation.LinkInstance;
 import com.sirma.itt.seip.instance.relation.LinkReference;
 import com.sirma.itt.seip.instance.relation.LinkService;
+import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.tasks.DefaultSchedulerConfiguration;
 import com.sirma.itt.seip.tasks.SchedulerContext;
 import com.sirma.itt.seip.tasks.SchedulerEntryType;
@@ -67,6 +68,9 @@ public class ScriptEvaluatorTest extends EmfTest {
 
 	@InjectMocks
 	private ScriptEvaluatorImpl scriptEvaluator;
+
+	@Mock
+	private Statistics stats;
 	@Mock
 	private LinkService linkService;
 	@Mock
@@ -82,6 +86,7 @@ public class ScriptEvaluatorTest extends EmfTest {
 	/**
 	 * Initializes the.
 	 */
+	@Override
 	@BeforeMethod
 	public void beforeMethod() {
 		scriptEvaluator = createTestInstance();
@@ -178,6 +183,7 @@ public class ScriptEvaluatorTest extends EmfTest {
 		try {
 			ScriptEngineManagerProvider provider = new ScriptEngineManagerProvider();
 			ReflectionUtils.setFieldValue(impl, "scriptEngineManager", provider.provide());
+			ReflectionUtils.setFieldValue(impl, "stats", stats);
 
 			Object object = impl.eval("{  2 + 2; }", null);
 			Assert.assertNotNull(object);
@@ -220,6 +226,7 @@ public class ScriptEvaluatorTest extends EmfTest {
 			ReflectionUtils.setFieldValue(impl, "scriptEngineManager", provider.provide());
 			ReflectionUtils.setFieldValue(impl, "scriptEngineName",
 					new ConfigurationPropertyMock<>(ScriptEvaluator.DEFAULT_LANGUAGE));
+			ReflectionUtils.setFieldValue(impl, "stats", stats);
 			impl.initialize();
 
 			Map<String, Object> map = new HashMap<>();
@@ -328,6 +335,7 @@ public class ScriptEvaluatorTest extends EmfTest {
 			ReflectionUtils.setFieldValue(impl, "scriptEngineManager", provider.provide());
 			ReflectionUtils.setFieldValue(impl, "scriptEngineName",
 					new ConfigurationPropertyMock<>(ScriptEvaluator.DEFAULT_LANGUAGE));
+			ReflectionUtils.setFieldValue(impl, "stats", stats);
 			impl.initialize();
 
 			Object object = impl.eval("sum(2,5)", null);

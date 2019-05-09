@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +39,11 @@ import com.sirma.itt.seip.domain.Identity;
 import com.sirma.itt.seip.domain.filter.Filter;
 import com.sirma.itt.seip.domain.filter.FilterService;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.tx.TransactionSupport;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 import com.sirma.sep.definition.compile.DefinitionCompiler;
 import com.sirma.sep.definition.db.DefinitionContent;
 import com.sirma.sep.definition.db.DefinitionEntry;
@@ -96,57 +97,61 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 	private TransactionSupport transactionSupport;
 
 	@Override
-	public Collection<String> validate(Path newDefinitionsDirectory) {
+	public DefinitionValidationResult validate(Path newDefinitionsDirectory) {
 		Objects.requireNonNull(newDefinitionsDirectory);
 
-		List<String> errors = new ArrayList<>();
+		ValidationReport validationReport = new ValidationReport();
+
+		List<GenericDefinitionImpl> definitions = Collections.emptyList();
 
 		try {
 			LOGGER.debug("Begin validating definitions before import");
 
 			definitionsDirectoryProcessor.prepareDefinitionsDirectory(newDefinitionsDirectory);
 
-			List<ParsedDefinition> parseDefinitions = new ArrayList<>();
+			List<ParsedDefinition> parsedDefinitions = new LinkedList<>();
 
-			List<String> parseErrors = definitionsDirectoryProcessor.parseDefinitions(newDefinitionsDirectory, false, parseDefinitions);
-			errors.addAll(parseErrors);
+			List<ValidationMessage> parseErrors = definitionsDirectoryProcessor.parseDefinitions(newDefinitionsDirectory, false,
+					parsedDefinitions);
+			validationReport.addMessages(parseErrors);
 
-			List<String> duplicateLabelErrors = checkForDuplicateIds(parseDefinitions, ParsedDefinition::getLabels, "label");
-			errors.addAll(duplicateLabelErrors);
+			List<ValidationMessage> duplicateLabelErrors = checkForDuplicateIds(parsedDefinitions, ParsedDefinition::getLabels, "<label>");
+			validationReport.addMessages(duplicateLabelErrors);
 
-			List<String> duplicateFiltersErrors = checkForDuplicateIds(parseDefinitions, ParsedDefinition::getFilters, "filter");
-			errors.addAll(duplicateFiltersErrors);
+			List<ValidationMessage> duplicateFiltersErrors = checkForDuplicateIds(parsedDefinitions, ParsedDefinition::getFilters,
+					"<filter>");
+			validationReport.addMessages(duplicateFiltersErrors);
 
-			List<GenericDefinitionImpl> definitions = parseDefinitions.stream()
-														.map(ParsedDefinition::getDefinition)
-														.collect(Collectors.toList());
+			definitions = parsedDefinitions.stream()
+					.map(ParsedDefinition::getDefinition)
+					.collect(Collectors.toList());
 
-			List<String> definitionErrors = validationService.validateDefinitions(definitions);
-			errors.addAll(definitionErrors);
+			// Pre compile static validation
+			List<ValidationMessage> definitionErrors = validationService.validateDefinitions(definitions);
+			validationReport.addMessages(definitionErrors);
 
-			List<String> compilationErrors = definitionCompiler.compile(definitions);
-			errors.addAll(compilationErrors);
+			definitionCompiler.compile(definitions);
 
-			List<String> validationErrors = validationService.validateCompiledDefinitions(definitions);
-			errors.addAll(validationErrors);
+			List<ValidationMessage> validationErrors = validationService.validateCompiledDefinitions(definitions);
+			validationReport.addMessages(validationErrors);
 		} catch (DefinitionValidationException e) {
-			errors.addAll(e.getErrors());
+			validationReport.addErrors(new LinkedList<>(e.getErrors()));
 		}
 
-		return new LinkedHashSet<>(errors);
+		return new DefinitionValidationResult(validationReport, new LinkedList<>(definitions));
 	}
 
 	@Override
 	public void importDefinitions(Path newDefinitionsDirectory) {
 		LOGGER.info("Begin definition import");
 
-		List<ParsedDefinition> parseDefinitions = new ArrayList<>();
+		List<ParsedDefinition> parseDefinitions = new LinkedList<>();
 
 		definitionsDirectoryProcessor.parseDefinitions(newDefinitionsDirectory, true, parseDefinitions);
 
 		List<GenericDefinitionImpl> definitions = parseDefinitions.stream()
-													.map(ParsedDefinition::getDefinition)
-													.collect(Collectors.toList());
+				.map(ParsedDefinition::getDefinition)
+				.collect(Collectors.toList());
 
 		LOGGER.info("Start importing of {} definitions", definitions.size());
 
@@ -174,7 +179,8 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 	 * @return list of only affected definitions
 	 */
 	private static List<GenericDefinitionImpl> getAffectedDefinitions(List<GenericDefinitionImpl> definitions) {
-		Map<String, GenericDefinitionImpl> index = definitions.stream().collect(Collectors.toMap(GenericDefinitionImpl::getIdentifier, Function.identity()));
+		Map<String, GenericDefinitionImpl> index = definitions.stream()
+				.collect(Collectors.toMap(GenericDefinitionImpl::getIdentifier, Function.identity()));
 
 		return definitions.stream()
 				.filter(definition -> definition.getSourceContent() != null || isAncestorChanged(index, definition.getParentDefinitionId()))
@@ -226,7 +232,7 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 
 			// if the definitions differ the revision number has to be increased
 			if (!equals) {
-				definition.setRevision(existingDefinition.getRevision().longValue() + 1L);
+				definition.setRevision(existingDefinition.getRevision() + 1L);
 				LOGGER.debug("Updating the revision of definition '{}' to '{}'", definitionId, definition.getRevision());
 			} else {
 				LOGGER.debug("Definition '{}' is not changed. Saving is skipped", definitionId);
@@ -247,8 +253,7 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 		DefinitionContent previousContent = dbDao.find(DefinitionContent.class, previousId);
 		// we need to delete the content in new transaction otherwise the database constrain kicks in
 		boolean removedSuccessfully = transactionSupport.invokeInNewTx(() -> dbDao.delete(DefinitionContent.class, previousId)) == 1;
-		LOGGER.info(
-				"Detected definition identifier change from {} to {}. The old definition was removed {}successfully",
+		LOGGER.info("Detected definition identifier change from {} to {}. The old definition was removed {}successfully",
 				previousId, definition.getIdentifier(), removedSuccessfully ? "" : "un");
 		// restore content on failed transaction otherwise it will be lost
 		transactionSupport.invokeOnFailedTransactionInTx(() -> dbDao.saveOrUpdate(previousContent));
@@ -272,28 +277,29 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 		labelService.saveLabels(allLabels);
 	}
 
-	private static List<String> checkForDuplicateIds(List<ParsedDefinition> parseDefinitions,
+	private List<ValidationMessage> checkForDuplicateIds(List<ParsedDefinition> parseDefinitions,
 			Function<ParsedDefinition, List<? extends Identity>> mapper, String objectKind) {
 
-		Map<String, List<String>> labels = new HashMap<>();
+		// Label/Filter ID -> definition IDs
+		Map<String, Set<String>> labels = new HashMap<>();
 
 		for (ParsedDefinition parsedDefinition : parseDefinitions) {
 			for (Identity label : mapper.apply(parsedDefinition)) {
-				List<String> definitionsIds = labels.computeIfAbsent(label.getIdentifier(), id -> new ArrayList<>());
+				Set<String> definitionsIds = labels.computeIfAbsent(label.getIdentifier(), id -> new HashSet<>());
 				definitionsIds.add(parsedDefinition.getDefinition().getIdentifier());
 			}
 		}
 
-		return labels.entrySet()
-					.stream()
-					.filter(entry -> entry.getValue().size() > 1)
-					.map(entry -> {
-						String message = "Duplicate " + objectKind + " with id '" + entry.getKey() + "' found in definitions "
-							+ StringUtils.join(entry.getValue(), ", ");
-						LOGGER.debug(message);
-						return message;
-					})
-					.collect(Collectors.toList());
+		DefinitionImportMessageBuilder messageBuilder = new DefinitionImportMessageBuilder();
+
+		// Using the first definition to map the validation message
+		labels.entrySet()
+				.stream()
+				.filter(entry -> entry.getValue().size() > 1)
+				.forEach(entry -> messageBuilder.duplicatedLabels(entry.getValue().iterator().next(), entry.getKey(), objectKind,
+						entry.getValue()));
+
+		return messageBuilder.getMessages();
 	}
 
 	@Override
@@ -313,7 +319,7 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 
 	@Override
 	public List<File> exportAllDefinitions() {
-		File tempDir = tempFileProvider.createTempDir("definitionsExport");
+		File tempDir = tempFileProvider.createUniqueTempDir("definitionsExport");
 		List<DefinitionContent> existingContents = dbDao
 				.fetchWithNamed(DefinitionContent.FETCH_CONTENT_OF_ALL_DEFINITIONS_KEY, Collections.emptyList());
 		return existingContents
@@ -324,7 +330,7 @@ public class DefinitionImportServiceImpl implements DefinitionImportService {
 
 	@Override
 	public List<File> exportDefinitions(List<String> ids) {
-		File tempDir = tempFileProvider.createTempDir("definitionsExport");
+		File tempDir = tempFileProvider.createUniqueTempDir("definitionsExport");
 		List<DefinitionContent> existingContents = dbDao.fetchWithNamed(
 				DefinitionContent.FETCH_CONTENT_BY_DEFINITION_IDS_KEY,
 				Collections.singletonList(new Pair<>("ids", ids)));

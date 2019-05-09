@@ -2,12 +2,14 @@ package com.sirma.itt.seip.db.patch;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.exception.RollbackedException;
 
 import liquibase.Liquibase;
@@ -16,6 +18,12 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
+import liquibase.exception.LockException;
+import liquibase.lockservice.DatabaseChangeLogLock;
+import liquibase.lockservice.LockService;
+import liquibase.lockservice.LockServiceFactory;
+import liquibase.util.NetUtil;
 
 /**
  * Executes the database patches at provided data source using Liquibase library.
@@ -25,6 +33,26 @@ import liquibase.exception.DatabaseException;
 public class DatabasePatcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private static final String HOST_NAME;
+	private static final String HOST_ADDRESS;
+	private static final String HOST_DESCRIPTION;
+
+	static {
+		try {
+			// this is used by liqubase to determine the host name and address used when specifying who locked the patched database
+			// we are using it to check if the lock was not left behind previous start of the current node or failed to unlock due to
+			// some other reason
+			HOST_NAME = NetUtil.getLocalHostName();
+			HOST_ADDRESS = NetUtil.getLocalHostAddress();
+			HOST_DESCRIPTION = System.getProperty("liquibase.hostDescription") == null ?
+					null :
+					"#" + System.getProperty("liquibase.hostDescription");
+		} catch (Exception e) {
+			throw new EmfRuntimeException(e);
+		}
+	}
+
 	/**
 	 * Instantiates a new database patcher.
 	 */
@@ -43,7 +71,7 @@ public class DatabasePatcher {
 	 *             the rollbacked exception
 	 */
 	public static void runPatch(DbPatch patch, DataSource dataSource) throws RollbackedException {
-		patchDatabase(dataSource, Arrays.asList(patch));
+		patchDatabase(dataSource, Collections.singletonList(patch));
 	}
 
 	/**
@@ -69,9 +97,12 @@ public class DatabasePatcher {
 		try {
 			DatabaseConnection dbConnection = new JdbcConnection(dataSource.getConnection());
 			database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(dbConnection);
-			Liquibase base = new Liquibase(DBSchemaPatchResourceAccessor.FICTIVE_CHANGELOG,
-					new DBSchemaPatchResourceAccessor(patches), database);
-			base.update((String) null);
+
+			if (isLockedByCurrentNode(database)) {
+				LOGGER.info("Current database is locked by previous failed patch operation. Forcing unlock!");
+				forceUnlockDatabase(database);
+			}
+			executePatches(patches, database);
 		} catch (Exception e) {
 			throw new RollbackedException(e);
 		} finally {
@@ -82,6 +113,43 @@ public class DatabasePatcher {
 					LOGGER.warn("Problem during database connection after patching", e);
 				}
 			}
+		}
+	}
+
+	private static void forceUnlockDatabase(Database database) throws LockException, DatabaseException {
+		LockService lockService = LockServiceFactory.getInstance().getLockService(database);
+		lockService.forceReleaseLock();
+	}
+
+	private static boolean isLockedByCurrentNode(Database database) {
+		LockService lockService = LockServiceFactory.getInstance().getLockService(database);
+		DatabaseChangeLogLock[] locks = new DatabaseChangeLogLock[0];
+		try {
+			locks = lockService.listLocks();
+		} catch (LockException e) {
+			LOGGER.warn("Could not list available locks due to: {}", e.getMessage());
+		}
+		return Arrays.stream(locks)
+				.filter(lock -> lock.getLockGranted() != null && lock.getLockedBy() != null)
+				.map(DatabaseChangeLogLock::getLockedBy)
+				.anyMatch(DatabasePatcher::isCurrentNode);
+	}
+
+	private static boolean isCurrentNode(String lockedBy) {
+		if (HOST_DESCRIPTION != null) {
+			return lockedBy.contains(HOST_DESCRIPTION);
+		}
+		return lockedBy.contains(HOST_NAME) || lockedBy.contains(HOST_ADDRESS);
+	}
+
+	private static <D extends DbPatch> void executePatches(Iterable<D> patches, Database database) throws LiquibaseException {
+		Liquibase base = new Liquibase(DBSchemaPatchResourceAccessor.FICTIVE_CHANGELOG, new DBSchemaPatchResourceAccessor(patches), database);
+		try {
+			base.update((String) null);
+		} catch (LockException e) {
+			LOGGER.warn("{}. Forcing unlock and will try again", e.getMessage());
+			forceUnlockDatabase(database);
+			base.update((String) null);
 		}
 	}
 }

@@ -2,12 +2,12 @@
 <definition id="classDefinition" type="class">
     <fields>
         <field name="default_header" type="ANY" label="CLASS_DEFAULT_HEADER" displayType="system" />
-        <field name="compact_header" type="an..4096" label="CLASS_COMPACT_HEADER" displayType="system" />
-        <field name="breadcrumb_header" type="an..4096" label="CLASS_BREADCRUMB_HEADER" displayType="system" />
+        <field name="compact_header" type="ANY" label="CLASS_COMPACT_HEADER" displayType="system" />
+        <field name="breadcrumb_header" type="ANY" label="CLASS_BREADCRUMB_HEADER" displayType="system" />
         <field name="tooltip_header" type="ANY" label="CLASS_TOOLTIP_HEADER" displayType="system" />
 		
-	    <field name="creator" type="an..35" label="CREATOR" displayType="editable" uri="dc:creator" />
-        <field name="type" type="an..50" label="classDefinition.type" codelist="CL7" displayType="readOnly" uri="emf:type" previewEmpty="true">
+	    <field name="creator" type="an..35" displayType="editable" uri="dc:creator" />
+        <field name="type" type="ANY" label="classDefinition.type" codelist="CL7" displayType="readOnly" uri="emf:type" previewEmpty="true">
     		<value>classDefinition</value>
   		</field>
   		 <field name="rdf:type" type="uri" label="ontologyType.label" displayType="system" uri="rdf:type" >
@@ -25,13 +25,13 @@
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>	 	
-	    <field name="emf:version" 	type="an..10" label="object.version" displayType="readOnly" uri="emf:version"/>         
+	    <field name="emf:version" type="an..10" displayType="readOnly" uri="emf:version"/>         
         <field name="defaultTemplate" type="an..50" displayType="system" uri="emf:defaultTemplate">
                 <value>ontologyClassTemplate</value>
         </field>
-        <field name="status" type="an..50" label="status.label" codelist="CL117" displayType="system" previewEmpty="false" uri="emf:status" />
+        <field name="status" type="ANY" codelist="CL117" displayType="system" previewEmpty="false" uri="emf:status" />
         <field name="title" type="an..40" label="title.label" mandatory="true" displayType="editable" previewEmpty="false" uri="dcterms:title" />
-        <field name="description" type="an..10000" label="smk.description.label" displayType="editable" previewEmpty="false" uri="dcterms:description" />
+        <field name="description" type="an..10000" displayType="editable" previewEmpty="false" uri="dcterms:description" />
         <field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted" >
         	<value>false</value>
         </field>
@@ -47,7 +47,7 @@
 		<field name="searchable" type="boolean" label="classDefinition.searchable" displayType="readonly" uri="emf:isSearchable" >
 			<value>false</value>
 		</field>
-		<field name="creatable" type="boolean" label="classDefinition.creatable" displayType="readonly" uri="emf:isCreateable" >
+		<field name="createable" type="boolean" label="classDefinition.creatable" displayType="readonly" uri="emf:isCreateable" >
 			<value>false</value>
 		</field>
 		<field name="uploadable" type="boolean" label="classDefinition.uploadable" displayType="readonly" uri="emf:isUploadable" >
@@ -56,29 +56,29 @@
 		<field name="versionable" type="boolean" label="classDefinition.versionable" displayType="readonly" uri="emf:isVersionable" >
 			<value>true</value>
 		</field>
-		<field name="acceptDataTypePattern" type="an..1024" label="classDefinition.acceptDataTypePattern" displayType="readonly" uri="emf:acceptDataTypePattern" >
+		<field name="acceptDataTypePattern" type="an..1024" displayType="readonly" uri="emf:acceptDataTypePattern" >
 		</field>
-		<field name="classCategory" type="an..100" label="classDefinition.classCategory" displayType="readonly" uri="emf:classCategory" >
+		<field name="classCategory" type="an..100" displayType="readonly" uri="emf:classCategory" >
 		</field>
-		<field name="allowInheritParentPermissions" type="boolean" label="classDefinition.allowInheritParentPermissions" displayType="system" uri="sec:allowInheritParentPermissions"/>
-		<field name="allowInheritLibraryPermissions" type="boolean" label="classDefinition.allowInheritLibraryPermissions" displayType="system" uri="sec:allowInheritLibraryPermissions"/>
+		<field name="allowInheritParentPermissions" type="boolean" displayType="system" uri="sec:allowInheritParentPermissions"/>
+		<field name="allowInheritLibraryPermissions" type="boolean" displayType="system" uri="sec:allowInheritLibraryPermissions"/>
     </fields>
     
     <transitions>
-		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" actionPath="/" />
-		<transition id="addIcons" label="addIcons.label" eventId="addIcons" purpose="addIcons" tooltip="addIcon.tooltip" />
-		<transition id="manageModel" label="manageModel.label" eventId="manageModel" purpose="manageModel" tooltip="manageModel.tooltip" />	
+		<transition id="editDetails" label="editDetails.label" purpose="editDetails" tooltip="editDetails.tooltip" actionPath="/" />
+		<transition id="addIcons" label="addIcons.label" purpose="addIcons" tooltip="addIcon.tooltip" />
+		<transition id="manageModel" label="manageModel.label" purpose="manageModel" tooltip="manageModel.tooltip" />	
 		
 		<group id="template" label="template.group.label" type="menu" />
-		<transition id="createTemplate" label="template.create" eventId="createTemplate" purpose="createTemplate" tooltip="createTemplate.tooltip" group="template" />
+		<transition id="createTemplate" label="template.create" purpose="createTemplate" tooltip="createTemplate.tooltip" group="template" />
 		
 		<group id="more" label="more.group.label" type="menu" />
-		<transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" group="more" />
-		<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" group="more" />
-        <transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" group="more" />
+		<transition id="lock" label="lock.label" purpose="lock" tooltip="lock.tooltip" group="more" />
+		<transition id="unlock" label="unlock.label" purpose="unlock" tooltip="unlock.tooltip" group="more" />
+        <transition id="managePermissions" label="managePermissions.label" purpose="managePermissions" tooltip="managePermissions.tooltip" group="more" />
 			
-		<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
-		<transition id="viewDetails" label="viewDetails.label" eventId="viewDetails" purpose="viewDetails" displayType="hidden" />
+		<transition id="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
+		<transition id="viewDetails" label="viewDetails.label" purpose="viewDetails" displayType="hidden" />
     </transitions>
     
     <stateTransitions>
@@ -128,7 +128,7 @@
 					${if(${get([modifiedOn])}<>null).then(
 						<span class="tooltip-row">
 							<label>System modified on: </label>
-							<span data-property="modifiedOn">${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}</span>
+							<span data-property="modifiedOn">${date([modifiedOn])}</span>
 						</span>
 					)}
                 </span>
@@ -159,7 +159,7 @@
 					${if(${get([modifiedOn])}<>null).then(
 						<span class="tooltip-row">
 							<label>System modified on: </label>
-							<span data-property="modifiedOn">${date([modifiedOn]).format(MM.dd.yyyy, HH:mm)}</span>
+							<span data-property="modifiedOn">${date([modifiedOn])}</span>
 						</span>
 					)}
                 </span>

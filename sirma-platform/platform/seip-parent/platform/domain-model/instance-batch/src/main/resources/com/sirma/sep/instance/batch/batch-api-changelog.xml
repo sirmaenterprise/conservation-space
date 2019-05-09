@@ -21,4 +21,41 @@
             <column name="processed" type="int2" />
         </createTable>
     </changeSet>
+    <changeSet id="sep-2.27.0-1" author="bbonev">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="sep_batch_job" />
+            </not>
+        </preConditions>
+        <comment>Adds a table for storing the data used to trigger a batch job execution</comment>
+        <createTable tableName="sep_batch_job">
+            <column name="id" type="bigserial" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="sep_batch_job_pkey"/>
+            </column>
+            <column name="job_instance_id" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="job_name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="execution_id" type="int8"/>
+            <column name="properties" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="sep-2.27.0-2" author="bbonev">
+        <preConditions>
+            <tableExists tableName="sep_batch_job"/>
+        </preConditions>
+        <comment>Add date columns to the table sep_batch_job</comment>
+        <addColumn tableName="sep_batch_job">
+            <column name="created_on" type="timestamp" />
+        </addColumn>
+        <addColumn tableName="sep_batch_job">
+            <column name="updated_on" type="timestamp" />
+        </addColumn>
+        <addColumn tableName="sep_batch_job">
+            <column name="alias" type="varchar(100)" />
+        </addColumn>
+        <sql>update sep_batch_job set alias = job_name</sql>
+    </changeSet>
 </databaseChangeLog>

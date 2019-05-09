@@ -6,14 +6,12 @@ import {DialogService} from 'components/dialog/dialog-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {RefreshWidgetsCommand} from 'idoc/actions/events/refresh-widgets-command';
 import {Eventbus} from 'services/eventbus/eventbus';
-import createNewTemplate from './create-new.html!text';
+import template from './create-new.html!text';
 
 @Component({
   selector: 'seip-create-new'
 })
-@View({
-  template: createNewTemplate
-})
+@View({template})
 @Inject(CreatePanelService, NgScope, WindowAdapter, IdocContextFactory, DialogService, TranslateService, Eventbus)
 export class CreateNew {
 
@@ -55,7 +53,7 @@ export class CreateNew {
 
   openCreateInstanceDialog(parentId) {
     let params = {
-      parentId: parentId,
+      parentId,
       returnUrl: this.windowAdapter.location.href,
       operation: 'create',
       scope: this.$scope,

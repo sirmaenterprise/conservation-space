@@ -16,10 +16,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -202,6 +205,20 @@ public class ContentDownloadServiceTest {
 	}
 
 	@Test
+	public void getContent_FileWithCyrillyChars() throws Exception {
+		ContentInfoMock contentInfo = new ContentInfoMock("Заглавие на БГ.pdf", true);
+		when(instanceContentService.getContent(anyString(), anyString())).thenReturn(contentInfo);
+
+		HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+		when(servletResponse.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+
+		service.sendContent("contentId", "purpose", Range.ALL, true, servletResponse, null);
+		verifyOkResponseForDownload(servletResponse, contentInfo, contentInfo.getLength(), "Zaglavie na BG.pdf",
+				"%D0%97%D0%B0%D0%B3%D0%BB%D0%B0%D0%B2%D0%B8%D0%B5%20%D0%BD%D0%B0%20%D0%91%D0%93.pdf");
+		verify(servletResponse).getOutputStream();
+	}
+
+	@Test
 	public void getContent_download_interruptedWrite() throws Exception {
 		ContentInfo contentInfo = mockExistingContent();
 
@@ -274,12 +291,12 @@ public class ContentDownloadServiceTest {
 		HttpServletResponse servletResponse = mock(HttpServletResponse.class);
 		when(servletResponse.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
 		File file = File.createTempFile("test", ".tmp");
-		when(tempFileProvider.createTempFile(anyString(), eq(""))).thenReturn(file);
+		when(tempFileProvider.createTempFile(anyString(), anyString())).thenReturn(file);
 
 		service.sendPreview("contentId", "purpose", servletResponse, Range.ALL);
 		verifyOkPreviewResponse(servletResponse);
 		verify(servletResponse).getOutputStream();
-		verify(tempFileProvider).createTempFile(anyString(), eq(""));
+		verify(tempFileProvider).createTempFile(anyString(), anyString());
 		verify(tempFileProvider).deleteFile(any(File.class));
 		FileTestUtils.deleteFile(file);
 	}
@@ -308,7 +325,7 @@ public class ContentDownloadServiceTest {
 		HttpServletResponse servletResponse = mock(HttpServletResponse.class);
 		when(servletResponse.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
 		File file = File.createTempFile("test", ".tmp");
-		when(tempFileProvider.createTempFile(anyString(), eq(""))).thenReturn(file);
+		when(tempFileProvider.createTempFile(anyString(), anyString())).thenReturn(file);
 
 		service.sendPreview("contentId", "purpose", servletResponse, BYTE_RANGE);
 		verifyOkPreviewResponse(servletResponse);
@@ -372,17 +389,22 @@ public class ContentDownloadServiceTest {
 
 	private static void verifyOkResponseForDownload(HttpServletResponse servletResponse, ContentInfo contentInfo,
 			long expectedLength, String customName) {
+		String name = contentInfo.getName();
+		if (StringUtils.isNotBlank(customName)) {
+			name = customName;
+		}
+		verifyOkResponseForDownload(servletResponse, contentInfo, expectedLength, name, name);
+	}
+
+	private static void verifyOkResponseForDownload(HttpServletResponse servletResponse, ContentInfo contentInfo,
+			long expectedLength, String nonEncodedName, String encodedName) {
 		verify(servletResponse).setStatus(Matchers.intThat(responseMatcher));
 		verify(servletResponse).setContentLengthLong(expectedLength);
 		verify(servletResponse).setHeader("Accept-Ranges", Range.BYTES);
 		verify(servletResponse).setCharacterEncoding("UTF-8");
 		verify(servletResponse).setContentType(contentInfo.getMimeType());
-		String name = contentInfo.getName();
-		if (StringUtils.isNotBlank(customName)) {
-			name = customName;
-		}
 		verify(servletResponse).setHeader("Content-Disposition",
-				"attachment; filename=\"" + name + "\"; filename*=utf-8''" + name);
+				"attachment; filename=\"" + nonEncodedName + "\"; filename*=utf-8''" + encodedName);
 		if (expectedLength == contentInfo.getLength()) {
 			verify(servletResponse, never()).setHeader(eq("Content-Range"), anyString());
 		} else {
@@ -403,7 +425,7 @@ public class ContentDownloadServiceTest {
 	}
 
 	private ContentInfo mockExistingContentPreview() {
-		ContentInfoMock contentInfo = new ContentInfoMock(true);
+		ContentInfoMock contentInfo = new ContentInfoMock(RandomStringUtils.randomAlphabetic(5) + ".tmp", true);
 		when(instanceContentService.getContentPreview(anyString(), anyString())).thenReturn(contentInfo);
 		return contentInfo;
 	}
@@ -426,14 +448,14 @@ public class ContentDownloadServiceTest {
 	private static class ContentInfoMock implements ContentInfo {
 
 		private static final long serialVersionUID = -1L;
+		private String name;
 		private boolean exists;
 		private Long length;
 
 		/**
 		 * Instantiates a new content info mock.
 		 *
-		 * @param exists
-		 *            the exists
+		 * @param exists the exists
 		 */
 		public ContentInfoMock(boolean exists) {
 			this.exists = exists;
@@ -442,10 +464,18 @@ public class ContentDownloadServiceTest {
 		/**
 		 * Instantiates a new content info mock.
 		 *
-		 * @param exists
-		 *            the exists
-		 * @param length
-		 *            the length
+		 * @param exists the exists
+		 */
+		public ContentInfoMock(String name, boolean exists) {
+			this.name = name;
+			this.exists = exists;
+		}
+
+		/**
+		 * Instantiates a new content info mock.
+		 *
+		 * @param exists the exists
+		 * @param length the length
 		 */
 		public ContentInfoMock(boolean exists, long length) {
 			this.exists = exists;
@@ -464,7 +494,10 @@ public class ContentDownloadServiceTest {
 
 		@Override
 		public InputStream getInputStream() {
-			return getClass().getResourceAsStream(getName());
+			if (name == null) {
+				return getClass().getResourceAsStream(getName());
+			}
+			return new ByteArrayInputStream(getName().getBytes(StandardCharsets.UTF_8));
 		}
 
 		@Override
@@ -474,7 +507,10 @@ public class ContentDownloadServiceTest {
 
 		@Override
 		public String getName() {
-			return ContentDownloadServiceTest.class.getSimpleName() + ".class";
+			if (name == null) {
+				return ContentDownloadServiceTest.class.getSimpleName() + ".class";
+			}
+			return name;
 		}
 
 		@Override

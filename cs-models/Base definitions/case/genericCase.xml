@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="GEC10001" parentId="entity" isAbstract="true" type="case">
+<definition id="baseCase" parentId="entity" isAbstract="true" type="case">
 	<!-- Base Case definition -->
 	<fields>
 		<!-- HEADERS AND TOOLTIP -->
 		<field name="default_header" type="ANY" label="CASE_DEFAULT_HEADER" displayType="system"/>
-		<field name="compact_header" type="an..4096" label="CASE_COMPACT_HEADER" displayType="system"/>
-		<field name="breadcrumb_header" type="an..4096" label="CASE_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="compact_header" type="ANY" label="CASE_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="ANY" label="CASE_BREADCRUMB_HEADER" displayType="system"/>
 		<field name="tooltip_header" type="ANY" label="CASE_TOOLTIP_HEADER" displayType="system"/>
 
 		<!-- SYSTEM FIELDS -->
 		<field name="activeWorkflow" type="an..50" displayType="system" previewEmpty="false" multiValued="true" />
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+		<field name="rdf:type">
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Case</value>
 		</field>
-		<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
-		<field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
+		<field name="activityId" type="an..180" displayType="system" uri="emf:activityId" />
+		<field name="transitionMatrix" type="an..1024" displayType="system" uri="emf:transitionMatrix" />
 
 		<!-- GENERAL DATA FIELDS FOR CASE -->
-		<field name="type" type="an..180" codelist="CL4">
+		<field name="type" codelist="CL4">
 			<value>baseCase</value>
 		</field>
-		<field name="status" type="an..35" codelist="CL3">
+		<field name="status" codelist="CL3">
 			<condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
 		</field>
-		<field name="identifier" type="an..50" label="uniqueIdentifier.label" displayType="readonly" previewEmpty="false" rnc="${eval(${today.format(dd-MM-yyyy-HH-mm-ss-SSS)}-${seq({+caseSequence})})}" uri="dcterms:identifier">
+		<field name="identifier" type="an..50" displayType="readonly" previewEmpty="false" rnc="${eval(${today.format(dd-MM-yyyy-HH-mm-ss-SSS)}-${seq({+caseSequence})})}" uri="dcterms:identifier">
 			<condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
 		</field>
-		<field name="priority" type="an..20" label="priority.label" displayType="system" uri="emf:priority" />
-		<field name="plannedStartDate" type="dateTime" label="plannedStartDate.label" displayType="readOnly" uri="emf:plannedStartDate" /> <!-- sort -->
-		<field name="plannedEndDate" type="dateTime" label="plannedEndDate.label" displayType="readOnly" uri="emf:plannedEndDate" /> <!-- sort -->
-		<field name="estimatedEffortHours" type="n..10" label="estimatedEffortHours.label" displayType="editable" previewEmpty="false" uri="emf:estimatedEffort" />
-		<field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
-		<field name="integrated" type="boolean" label="integrated.label" displayType="readOnly" uri="emf:integrated">
+		<field name="priority" type="ANY" displayType="system" uri="emf:priority" />
+		<field name="plannedStartDate" type="dateTime" displayType="readOnly" uri="emf:plannedStartDate" /> <!-- sort -->
+		<field name="plannedEndDate" type="dateTime" displayType="readOnly" uri="emf:plannedEndDate" /> <!-- sort -->
+		<field name="estimatedEffortHours" type="n..10" displayType="editable" previewEmpty="false" uri="emf:estimatedEffort" />
+		<field name="outcome" type="ANY" codelist="CL22" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
+		<field name="integrated" type="boolean" displayType="readOnly" uri="emf:integrated">
 			<value>false</value>
 		</field>
-		<field name="uri" type="an..50" label="uri.label" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri" />
-		<field name="emailAddress" type="an..255" label="email.integration.emailAddress" displayType="readOnly" rnc="${eval(${CL([type])}-${get([identifier])})}" uri="emf:mailboxAddress">
-			<control id="EMAIL" />
-		</field>
-		<field name="completedOn" type="datetime" label="completedOn.label" displayType="readOnly" previewEmpty="false" uri="emf:completedOn" />
+		<field name="uri" type="an..50" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri" />
+		<field name="emailAddress" type="an..255" displayType="readOnly" rnc="${eval(${CL([type])}-${get([identifier])})}" uri="emf:mailboxAddress"/>
+		<field name="completedOn" type="datetime" displayType="readOnly" previewEmpty="false" uri="emf:completedOn" />
 	</fields>
 
 	<transitions>
-		<transition id="start" label="start.label" eventId="start" purpose="transition" immediate="true" tooltip="start.tooltip" />
-		<transition id="approve" label="approve.label" eventId="approve" purpose="transition" immediate="true" tooltip="approve.tooltip" />
-		<transition id="stop" label="stop.label" eventId="stop" purpose="transition" confirmation="confirmation.action" immediate="true" tooltip="stop.tooltip" /> <!--immediate="false" -->
-		<transition id="suspend" label="suspend.label" eventId="suspend" purpose="transition" immediate="true" tooltip="suspend.tooltip" />
-		<transition id="restart" label="restart.label" eventId="restart" purpose="transition" immediate="true" tooltip="restart.tooltip" />
-		<transition id="complete" label="complete.label" eventId="complete" purpose="transition" immediate="true" tooltip="complete.tooltip" /> <!--immediate="false" -->
-		<transition id="composeEmail" label="composeEmail.label" eventId="composeEmail" purpose="composeEmail" />
+		<transition id="start" label="start.label" purpose="transition" tooltip="start.tooltip" />
+		<transition id="approve" label="approve.label" purpose="transition" tooltip="approve.tooltip" />
+		<transition id="stop" label="stop.label" purpose="transition" confirmation="confirmation.action" tooltip="stop.tooltip" />
+		<transition id="suspend" label="suspend.label" purpose="transition" tooltip="suspend.tooltip" />
+		<transition id="restart" label="restart.label" purpose="transition" tooltip="restart.tooltip" />
+		<transition id="complete" label="complete.label" purpose="transition" tooltip="complete.tooltip" />
+		<transition id="composeEmail" label="composeEmail.label" purpose="composeEmail" />
+		<transition id="changeType" label="changeType.label" purpose="changeType" tooltip="changeType.tooltip" group="tools" />
 	</transitions>
 
 	<stateTransitions>
 		<stateTransition from="INIT" transition="create" to="APPROVED" />
 		<stateTransition from="INIT" transition="clone" to="APPROVED" />
+		<stateTransition from="INIT" transition="changeType" to="APPROVED" />
 
 		<stateTransition from="APPROVED" transition="editDetails" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="start" to="IN_PROGRESS" />
@@ -72,6 +72,7 @@
 		<stateTransition from="APPROVED" transition="exportWord" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="clone" to="APPROVED" />
+		<stateTransition from="APPROVED" transition="changeType" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="createInContext" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="revertVersion" to="APPROVED" />
 		<stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED" />
@@ -157,16 +158,12 @@
                         </a>
                     </span>
                     <span class="tooltip-row">
-                        <label>Description: </label>
-                        <span data-property="description">${get([description])}</span>
-                    </span>
-                    <span class="tooltip-row">
                         <label>Planned start date: </label>
-                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="plannedStartDate">${date([plannedStartDate])}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Planned end date: </label>
-                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="plannedEndDate">${date([plannedEndDate])}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Estimated effort hours: </label>
@@ -178,8 +175,14 @@
                     </span>
                     <span class="tooltip-row">
                         <label>Modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 			<value lang="de"><![CDATA[${eval(
@@ -195,16 +198,12 @@
                         </a>
                     </span>
                     <span class="tooltip-row">
-                        <label>Beschreibung: </label>
-                        <span data-property="description">${get([description])}</span>
-                    </span>
-                    <span class="tooltip-row">
                         <label>Geplantes Startdatum: </label>
-                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="plannedStartDate">${date([plannedStartDate])}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Geplantes Enddatum: </label>
-                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="plannedEndDate">${date([plannedEndDate])}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Geschätzte Arbeitsstunden: </label>
@@ -216,8 +215,14 @@
                     </span>
                     <span class="tooltip-row">
                         <label>Geändert am: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 			<value lang="bg"><![CDATA[${eval(
@@ -233,16 +238,12 @@
                         </a>
                     </span>
                     <span class="tooltip-row">
-                        <label>Описание: </label>
-                        <span data-property="description">${get([description])}</span>
-                    </span>
-                    <span class="tooltip-row">
                         <label>Планирана начална дата: </label>
-                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="plannedStartDate">${date([plannedStartDate])}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Планирана крайна дата: </label>
-                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="plannedEndDate">${date([plannedEndDate])}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Прогнозни работни часове: </label>
@@ -254,8 +255,14 @@
                     </span>
                     <span class="tooltip-row">
                         <label>Последно актуализиран на: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -270,20 +277,16 @@
                             (<span data-status="${get([status])}">${CL([status])}</span>)
                         </a>
                     </span>
-                    <span class="tooltip-row">
-                        <label>Beskrivelse: </label>
-                        <span data-property="description">${get([description])}</span>
-                    </span>
 					${if(${get([plannedStartDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>Planlagt startdato: </label>
-							<span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy, HH:mm)}</span>
+							<span data-property="plannedStartDate">${date([plannedStartDate])}</span>
 						</span>
 					)}
 					${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>Planlagt slutdato: </label>
-							<span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy, HH:mm)}</span>
+							<span data-property="plannedEndDate">${date([plannedEndDate])}</span>
 						</span>
 					)}
 					${if(${get([estimatedEffortHours])}<>null).then(
@@ -298,8 +301,14 @@
                     </span>
                     <span class="tooltip-row">
                         <label>Opdateret: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 		</label>
@@ -314,6 +323,7 @@
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						<b>
 							${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит)</b></span>&nbsp;)}
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 							<span data-property="type">${CL([type])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -328,8 +338,7 @@
 					<label>актуализирана от: </label>&nbsp;
 					<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
 				</span>
-				<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				<span>, <span data-property="modifiedOn">${date([modifiedOn])}</span></span>
 			</span>
 			)}]]></value>
 			<value lang="en"><![CDATA[${eval(
@@ -342,6 +351,7 @@
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						<b>
 							${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span>&nbsp;)}
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 							<span data-property="type">${CL([type])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -356,8 +366,7 @@
 					<label>Last modified by: </label>&nbsp;
 					<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
 				</span>
-				<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				<span>, <span data-property="modifiedOn">${date([modifiedOn])}</span></span>
 			</span>
 			)}]]></value>
 			<value lang="de"><![CDATA[${eval(
@@ -370,6 +379,7 @@
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						<b>
 							${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht)</b></span>&nbsp;)}
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 							<span data-property="type">${CL([type])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -384,8 +394,7 @@
 					<label>Zuletzt geändert von: </label>&nbsp;
 					<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
 				</span>
-				<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt von)}${user([lockedBy])}</span>)}
+				<span>, <span data-property="modifiedOn">${date([modifiedOn])}</span></span>
 			</span>
 			)}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -398,6 +407,7 @@
 						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 							<b>
 								${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet)</b></span>&nbsp;)}
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
 								<span data-property="type">${CL([type])}</span>&nbsp;
 								(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -412,8 +422,7 @@
 						<label>Senest ændret af: </label>&nbsp;
 						<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>
 					</span>
-					<span>, <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span></span>
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+					<span>, <span data-property="modifiedOn">${date([modifiedOn])}</span></span>
 				</span>
 			)}]]></value>
 		</label>
@@ -424,7 +433,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 			<span class="truncate-element">
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит)</b></span>)}
@@ -442,7 +451,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
             <span><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 			<span class="truncate-element">
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted)</b></span>)}
@@ -460,7 +469,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
             <span><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 			<span class="truncate-element">
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht)</b></span>)}
@@ -478,7 +487,7 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 				${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(16)}"/></span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet)</b></span>)}
@@ -496,7 +505,7 @@
 			<value lang="bg"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			<span><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 			<span>
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
@@ -507,7 +516,7 @@
 			<value lang="en"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
             <span><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
             <span>
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span> )}
@@ -518,7 +527,7 @@
 			<value lang="de"><![CDATA[${eval(
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
             <span><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
             <span>
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
@@ -529,7 +538,7 @@
 			<value lang="da"><![CDATA[${eval(
 				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				<span><img src="${thumbnailUri(16)}"/></span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span>
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span> )}

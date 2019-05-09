@@ -76,7 +76,21 @@ public class RecentActivitiesSolrImporter {
 			SolrResponse response = importService.addData(getRecentActivitiesClient(), dataToImport);
 			LOGGER.trace("Imported {} for {} ms", dataToImport.size(), response.getElapsedTime());
 		} catch (SolrClientException e) {
+			if (e.getCause() instanceof SolrServerException) {
+				checkIfCoreNotFound(e.getCause());
+			}
 			throw new RollbackedException(e);
+		} catch (RemoteSolrException exc) {
+			checkIfCoreNotFound(exc);
+			throw new RollbackedException(exc);
+		}
+	}
+
+	private void checkIfCoreNotFound(Throwable exc) throws RollbackedException {
+		if (exc.getMessage() != null && (exc.getMessage().contains("Error 404 Not Found") || exc.getMessage()
+				.contains("Server refused connection at"))) {
+			throw new SolrCoreNotFoundException(
+					((HttpSolrClient) getRecentActivitiesClient()).getBaseURL() + " core not found", exc);
 		}
 	}
 
@@ -90,12 +104,11 @@ public class RecentActivitiesSolrImporter {
 	public Date getLastKnownActivityDate() throws RollbackedException {
 		try {
 			return queryLastKnownActivityDate();
-		} catch (SolrServerException | IOException e) {
+		} catch (SolrServerException | RemoteSolrException e) {
+			checkIfCoreNotFound(e);
 			throw new RollbackedException(e);
-		} catch (RemoteSolrException exc) {
-			LOGGER.error("Error while accessing " + ((HttpSolrClient) getRecentActivitiesClient()).getBaseURL()
-					+ " (Perhaps the tenant hasn't been updated yet?).");
-			throw new RollbackedException(exc);
+		} catch (IOException e) {
+			throw new RollbackedException(e);
 		}
 	}
 
@@ -131,5 +144,14 @@ public class RecentActivitiesSolrImporter {
 			throw new RollbackedException("Recent activities solr core is not configured!");
 		}
 		return auditConfiguration.getRecentActivitiesSolrClient().get();
+	}
+
+	/**
+	 * Exception thrown when the solr core does not exists
+	 */
+	public static class SolrCoreNotFoundException extends RollbackedException {
+		SolrCoreNotFoundException(String message, Throwable throwable) {
+			super(message, throwable);
+		}
 	}
 }

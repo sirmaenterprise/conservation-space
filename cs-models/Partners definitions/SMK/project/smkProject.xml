@@ -1,175 +1,99 @@
 <?xml version="1.0"?>
-<definition id="smkProject" parentId="genericProject" type="project">
+<definition id="smkProject" parentId="baseProject" type="project">
 	<fields>
 		<field name="default_header" type="ANY" label="PROJECT_DEFAULT_HEADER_SMK" />
-		<field name="compact_header" type="an..4096" label="PROJECT_COMPACT_HEADER_SMK" />
-		<field name="breadcrumb_header" type="an..4096" label="PROJECT_BREADCRUMB_HEADER_SMK" />
+		<field name="compact_header" type="ANY" label="PROJECT_COMPACT_HEADER_SMK" />
+		<field name="breadcrumb_header" type="ANY" label="PROJECT_BREADCRUMB_HEADER_SMK" />
 		<field name="tooltip_header" type="ANY" label="PROJECT_TOOLTIP_HEADER_SMK" />
 
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
-			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project</value>
-		</field>		
-
 		<!-- system fieds -->
-		<field name="identifier" type="an..50" displayType="system"/>
-		<field name="description" type="an..1024" displayType="system"/>
-		<field name="type" type="an..180" displayType="system" />
-		<field name="title" type="an..50"  displayType="system" />
-		<field name="status" type="an..50" displayType="system"/>
-		<field name="priority" 	type="an..20" displayType="system"/>
-		<field name="createdOn" type="datetime" displayType="system" />
-		<field name="createdBy" type="uri" displayType="system"/>
-		<field name="modifiedOn" type="datetime" displayType="system"/>
-		<field name="modifiedBy" type="uri" displayType="system"/>
-		<field name="hasParent" type="uri" displayType="system"/>
-		<field name="hasThumbnail" type="uri" displayType="system"/>
-		<field name="owner" type="uri" displayType="system"/>
-		<field name="outcome" type="an..50" displayType="system"/>
-		<field name="plannedStartDate" type="date" displayType="system"/>
-		<field name="plannedEndDate"   type="date" displayType="system"/>
-		<field name="actualStartDate" type="date" displayType="system"/>
-		<field name="actualEndDate" type="date" displayType="system"/>
-		<field name="actualEffortHours" type="n..10" displayType="system"/>
+		<field name="outcome" displayType="system"/>
+		<field name="actualEffortHours" displayType="system"/>
 		<field name="accumulatedEstimatedEffortHours" displayType="system"/>
-		<field name="accumulatedActualEffortHours" type="n..10" displayType="system"/>
-		<field name="duration" type="n..10"  displayType="system"/>
-		<field name="estimatedEffortHours" type="n..10" displayType="system"/>
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="emailAddress" type="an..255" displayType="system" />
-		<field name="ownedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+		<field name="accumulatedActualEffortHours" displayType="system"/>
+		<field name="duration" displayType="system"/>
+		<field name="estimatedEffortHours" displayType="system"/>
+		<field name="completedOn" displayType="system" />
+		<field name="uri" displayType="system" />
+		<field name="emailAddress" displayType="system" />
+		<field name="ownedBy" displayType="system" />
 	</fields>
 	<regions>
 		<region id="generalData" displayType="editable" order="10" label="smk.generalData.region.label">
 			<fields>
-				<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL2" label="smk.subType.label" tooltip="smk.subType.tooltip" uri="smk:subType" >
+				<field name="subType" type="ANY" mandatory="true" displayType="editable" codelist="CL2" tooltip="smk.subType.tooltip" uri="smk:subType" >
 					<value>SMKPR001</value>
 				</field>
-				<field name="departmentName" type="an..180" mandatory="true" displayType="editable" codelist="CL245" multiValued="true" label="smk.departmentName.label" tooltip="smk.departmentName.tooltip" uri="emf:departmentName" >
+				<field name="departmentName" type="ANY" mandatory="true" displayType="editable" codelist="CL245" multiValued="true" label="smk.departmentName.label" tooltip="smk.departmentName.tooltip" uri="emf:departmentName" >
 					<control id="RELATED_FIELDS">
 						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
-
-						<control-param id="fieldsToRerender" name="RERENDER">activityPurpose</control-param>
-						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
 					</control>
 				</field>
-				<field name="activityPurpose" type="an..180" mandatory="true" displayType="editable" codelist="CL241" label="smk.activityPurpose.label" tooltip="smk.activityPurpose.tooltip" uri="chc:activityPurpose" />
-				<field name="title" type="an..1024" mandatory="true" displayType="editable" label="smk.title.label" tooltip="smk.title.tooltip" uri="dcterms:title" />
-				<field name="description" type="an..1024" displayType="editable" label="smk.description.label" tooltip="smk.description.tooltip" previewEmpty="false" uri="dcterms:description" />
+				<field name="activityPurpose" type="ANY" mandatory="true" displayType="editable" codelist="CL241" uri="chc:activityPurpose" >
+					<control id="RELATED_FIELDS">
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">departmentName</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
+				<field name="title" type="an..1024" tooltip="smk.title.tooltip" />
+				<field name="description" type="an..1024" tooltip="smk.description.tooltip" />
 				<field name="assignee" type="uri" displayType="editable" label="smk.assignee.label" tooltip="smk.assignee.tooltip" mandatory="true" previewEmpty="false" uri="emf:hasAssignee">
 					<condition id="readonlyField" renderAs="READONLY">[identifier] NOTIN ('NO_ID')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 					<value>${currentUser.id}</value>
 				</field>
 				<field name="hasParticipant" type="uri" displayType="editable" label="smk.hasParticipant.label" tooltip="smk.hasParticipant.tooltip" previewEmpty="false" multiValued="true" uri="ptop:hasParticipant">
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User,emf:Group</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 				</field>
-				<field name="priority" type="an..20" displayType="editable" codelist="CL29" label="smk.priority.label" tooltip="smk.priority.tooltip" previewEmpty="false" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>
-				<field name="plannedStartDate" type="date" displayType="editable"  label="smk.plannedStartDate.label" tooltip="smk.plannedStartDate.tooltip"  previewEmpty="false" uri="emf:plannedStartDate" />
-				<field name="actualStartDate"  type="date" displayType="editable" label="smk.actualStartDate.label" tooltip="smk.actualStartDate.tooltip" previewEmpty="false" uri="emf:actualStartDate" />
-				<field name="plannedEndDate"   type="date" displayType="editable" label="smk.plannedEndDate.label"  tooltip="smk.plannedEndDate.tooltip" previewEmpty="false" uri="emf:plannedEndDate" />
-				<field name="actualEndDate"    type="date" displayType="editable" label="smk.actualEndDate.label" tooltip="smk.actualEndDate.tooltip" previewEmpty="false" uri="emf:actualEndDate" />
+				<field name="priority" tooltip="smk.priority.tooltip" ><value>0006-000084</value></field>
+				<field name="plannedStartDate" tooltip="smk.plannedStartDate.tooltip" />
+				<field name="actualStartDate" tooltip="smk.actualStartDate.tooltip" />
+				<field name="plannedEndDate" tooltip="smk.plannedEndDate.tooltip" />
+				<field name="actualEndDate" type="date" tooltip="smk.actualEndDate.tooltip" />
 			</fields>
 		</region>
 		<region id="systemData" order="20" displayType="editable" label="smk.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="smk.type.label" tooltip="smk.type.tooltip" uri="emf:type" ><value>FC236001</value></field>
-				<field name="identifier" type="an..50" displayType="readOnly" label="smk.identifier.label" tooltip="smk.identifier.tooltip" rnc="${eval(PRJ${seq({+prjSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50" displayType="readOnly" codelist="CL1" label="smk.status.label" tooltip="smk.status.tooltip" previewEmpty="false" uri="emf:status" >
-					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT')</condition>
-				</field>
-				<field name="emf:version" type="an..10" displayType="readOnly" label="smk.version.label" tooltip="smk.version.tooltip" uri="emf:version"/> 
+				<field name="type" codelist="CL7" tooltip="smk.type.tooltip" ><value>FC236001</value></field>
+				<field name="identifier" tooltip="smk.identifier.tooltip" rnc="${eval(PRJ${seq({+prjSequence})})}" />
+				<field name="status" tooltip="smk.status.tooltip" />
+				<field name="emf:version" tooltip="smk.version.tooltip" /> 
 				<field name="integrated" type="boolean" displayType="hidden" uri="emf:integrated"/>
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" label="smk.lockedBy.label" tooltip="smk.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>	
-				<field name="hasThumbnail" type="uri" displayType="readOnly" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="hasAttachment" type="uri" displayType="editable" label="smk.hasAttachment.label" tooltip="smk.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
+				<field name="createdOn" tooltip="smk.createdOn.tooltip" />
+				<field name="createdBy" tooltip="smk.createdBy.tooltip" />
+				<field name="modifiedOn" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="smk.lockedBy.tooltip" />
+				<field name="hasThumbnail" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" />
+				<field name="hasAttachment" type="uri" displayType="editable" label="smk.hasAttachment.label" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,emf:Case,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="attachmentOf" type="uri" displayType="editable" label="smk.attachmentOf.label" tooltip="smk.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
+				<field name="attachmentOf" type="uri" displayType="editable" label="smk.attachmentOf.label" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,emf:Case,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" label="smk.parentOf.label" tooltip="smk.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" label="smk.hasParent.label" tooltip="smk.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" label="smk.partOf.label" tooltip="smk.partOf.tooltip"  multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasWatcher" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip" previewEmpty="false" />
+				<field name="parentOf" tooltip="smk.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasParent" tooltip="smk.hasParent.tooltip" />
+				<field name="emf:hasTemplate" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" />
+				<field name="partOf" displayType="readonly" tooltip="smk.partOf.tooltip" />
+				<field name="hasChild" tooltip="smk.hasChild.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 	</regions> 
 	<transitions>	
-		<transition id="create" eventId="create" purpose="create">
+		<transition id="create" label="create" purpose="create">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -214,7 +138,7 @@
 		</transition> 
 	
 		<transition id="editDetails" order="10" actionPath="/actions" />
-		<transition id="reassign" order="15" label="reassign.label" tooltip="smk.reassign.tooltip" eventId="reassign" purpose="addRelation" confirmation="reassign.confirm" >
+		<transition id="reassign" order="15" label="reassign.label" tooltip="smk.reassign.tooltip" purpose="addRelation" confirmation="reassign.confirm" >
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -329,7 +253,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="reopen" order="30" label="reopen.label" tooltip="smk.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true" confirmation="reopen.confirm" actionPath="/" >
+		<transition id="reopen" order="30" label="reopen.action.label" tooltip="smk.reopen.action.tooltip" purpose="transition" confirmation="reopen.confirm" actionPath="/" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -359,7 +283,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="complete" order="35" label="complete.label" tooltip="smk.complete.tooltip" eventId="complete" purpose="transition" immediate="true" confirmation="complete.confirm" actionPath="/" >
+		<transition id="complete" order="35" label="complete.label" tooltip="smk.complete.tooltip" purpose="transition" confirmation="complete.confirm" actionPath="/" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -391,7 +315,7 @@
 		</transition>
 		
 		<group id="create" order="40" label="create.group.label" type="menu" />
-		<transition id="createDocument" label="smk.createDocument.action.label" tooltip="smk.createDocument.action.tooltip" eventId="createDocument" purpose="createInstance" actionPath="/" group="create" >
+		<transition id="createDocument" label="smk.createDocument.action.label" tooltip="smk.createDocument.action.tooltip" purpose="createInstance" actionPath="/" group="create" >
       		<fields>
 				<field name="createDocumentConfig" type="json">
 					<value>
@@ -404,7 +328,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="createCase" label="smk.createCase.action.label" tooltip="smk.createCase.action.tooltip" eventId="createCase" purpose="createInstance" actionPath="/" group="create" >
+		<transition id="createCase" label="smk.createCase.action.label" tooltip="smk.createCase.action.tooltip" purpose="createInstance" actionPath="/" group="create" >
       		<fields>
 				<field name="createCaseConfig" type="json">
 					<value>
@@ -417,7 +341,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="createTask" label="smk.createTask.action.label" tooltip="smk.createSubTask.action.tooltip" eventId="createTask" purpose="createInstance" group="create" >
+		<transition id="createTask" label="smk.createTask.action.label" tooltip="smk.createSubTask.action.tooltip" purpose="createInstance" group="create" >
       		<fields>
 				<field name="createTaskConfig" type="json">
 					<value>
@@ -432,7 +356,7 @@
 		</transition>		
 		
 		<group id="add" order="45" label="add.group.label" type="menu" />		
-		<transition id="addAttachment" label="smk.addAttachment.action.label"  tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" actionPath="/"  group="add" >
+		<transition id="addAttachment" label="smk.addAttachment.action.label"  tooltip="smk.addAttachment.action.tooltip" purpose="addRelation" actionPath="/"  group="add" >
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>
@@ -447,7 +371,7 @@
 			</fields>
 		</transition>
 		<transition id="addThumbnail" group="add" />	
-		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addWatcherConfig" type="json">
 					<value>						
@@ -475,8 +399,8 @@
 		
 		<group id="template" order="56" label="template.group.label" type="menu" />
 		<transition id="saveAsTemplate" group="template" />
-		<transition id="updateTemplate" label="updateTemplate.label" tooltip="smk.updateTemplate.action.tooltip" eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
-		<transition id="changeTemplate" label="changeTemplate.label" tooltip="smk.changeTemplate.action.tooltip" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		<transition id="updateTemplate" label="updateTemplate.label" tooltip="smk.updateTemplate.action.tooltip" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" label="changeTemplate.label" tooltip="smk.changeTemplate.action.tooltip" purpose="changeTemplate" group="template" />
 		
 		<group id="more" order="60" label="more.group.label" type="menu" />
 		<transition id="move" confirmation="move.confirm" group="more" >
@@ -656,13 +580,13 @@
 					${if(${get([plannedStartDate])}<>null).then(
 					<span class="tooltip-row">
                         <label>Planned start date: </label>
-                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy)}</span>
+                        <span data-property="plannedStartDate">${date([plannedStartDate])}</span>
                     </span>
 					)}
 					${if(${get([plannedEndDate])}<>null).then(
 					<span class="tooltip-row">
                         <label>Planned end date: </label>
-                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy)}</span>
+                        <span data-property="plannedEndDate">${date([plannedEndDate])}</span>
                     </span>
 					)}
 					${if(${get([estimatedEffortHours])}<>null).then(
@@ -677,8 +601,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
     		<value lang="da"><![CDATA[${eval(#{eval(
@@ -710,13 +640,13 @@
 					${if(${get([plannedStartDate])}<>null).then(
 					<span class="tooltip-row">
                         <label>Planlagt startdato: </label>
-                        <span data-property="plannedStartDate">${date([plannedStartDate]).format(dd.MM.yyyy)}</span>
+                        <span data-property="plannedStartDate">${date([plannedStartDate])}</span>
                     </span>
 					)}
 					${if(${get([plannedEndDate])}<>null).then(
 					<span class="tooltip-row">
                         <label>Planlagt slutdato: </label>
-                        <span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy)}</span>
+                        <span data-property="plannedEndDate">${date([plannedEndDate])}</span>
                     </span>
 					)}
 					${if(${get([estimatedEffortHours])}<>null).then(
@@ -731,8 +661,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>Opdateret: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
     	</label>
@@ -744,9 +680,12 @@
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
 					<span class="truncate-element">
-						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-							<span data-property="title">${get([title])}</span>
-						</a>&nbsp;
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								<span data-property="title">${get([title])}</span>
+							</a>&nbsp;
+						</b>	
 						(<span data-property="status">${CL([status])}</span>)
 					</span>
 					<br />
@@ -757,7 +696,6 @@
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
 				</span>
 			)}]]></value>
 			<value lang="da">
@@ -767,9 +705,12 @@
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
 					<span class="truncate-element">
-						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-							<span data-property="title">${get([title])}</span>
-						</a>&nbsp;
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								<span data-property="title">${get([title])}</span>
+							</a>&nbsp;
+						</b>	
 						(<span data-property="status">${CL([status])}</span>)
 					</span>
 					<br />
@@ -779,8 +720,7 @@
 					Afdeling/enhed:&nbsp;<span data-property="departmentName">${CL([departmentName])}</span>
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
-					)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
+					)}	
 				</span>
 			)}]]></value>
 		</label>
@@ -792,7 +732,7 @@
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
 					<span class="truncate-element">
-						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 							<span data-property="title">${get([title])}</span> 
@@ -812,7 +752,7 @@
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
 					<span class="truncate-element">
-						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 							${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
 							<span data-property="title">${get([title])}</span> 
@@ -832,7 +772,7 @@
 				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						<span data-property="title">${get([title])}</span> 
@@ -844,7 +784,7 @@
 				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
 						<span data-property="title">${get([title])}</span> 

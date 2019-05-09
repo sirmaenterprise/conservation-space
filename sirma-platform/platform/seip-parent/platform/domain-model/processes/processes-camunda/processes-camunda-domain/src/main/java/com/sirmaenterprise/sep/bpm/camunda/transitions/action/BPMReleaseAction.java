@@ -20,7 +20,7 @@ import com.sirmaenterprise.sep.bpm.exception.BPMException;
  * Action implementation that can execute the {@link BPMReleaseRequest.RELEASE_OPERATION} action.<br>
  * The provided {@link BPMReleaseRequest} should contain a task instance that should be used as source value.<br>
  * Will release camunda task and will remove task assignee.
- * 
+ *
  * @author Hristo Lungov
  */
 @Extension(target = Action.TARGET_NAME, order = 603)
@@ -43,7 +43,5 @@ public class BPMReleaseAction extends BPMTransitionAction {
 			domainInstanceService.save(InstanceSaveContext.create(taskInstance, request.toOperation()));
 		}
 		return Collections.emptyList();
-
 	}
-
 }

@@ -19,9 +19,7 @@ import template from './business-process-diagram-widget.html!text';
 import './business-process-diagram-widget.css!';
 
 @Widget
-@View({
-  template: template
-})
+@View({template})
 @Inject(BpmService, InstanceRestService, DialogService, ObjectSelectorHelper, Eventbus, PromiseAdapter, NgElement, ResizeDetectorAdapter)
 export class BusinessProcessDiagramWidget {
 
@@ -161,7 +159,7 @@ export class BusinessProcessDiagramWidget {
       let canvas = this.viewer.get('canvas');
       if (activity) {
         activity.childActivityInstances.forEach((element) => {
-          let id = element.activityId.replace("#multiInstanceBody", "");
+          let id = element.activityId.replace('#multiInstanceBody', '');
           canvas.addMarker(id, 'highlight');
         });
       }
@@ -237,7 +235,7 @@ export class BusinessProcessDiagramWidget {
       header: 'process.title',
       largeModal: true,
       customStyles: 'fullscreen',
-      buttons: buttons,
+      buttons,
       onButtonClick: (buttonId, componentScope, dialogConfig) => {
         this.handleButtonClickedEvent(buttonId, componentScope, dialogConfig);
       }

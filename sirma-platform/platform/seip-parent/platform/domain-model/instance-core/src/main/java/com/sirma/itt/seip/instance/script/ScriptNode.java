@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+
 import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.definition.TypeMappingProvider;
 import com.sirma.itt.seip.domain.Node;
@@ -347,7 +348,9 @@ public class ScriptNode implements ScriptInstance {
 		if (target == null || target.type() == null || StringUtils.isBlank(value)) {
 			return false;
 		}
-		return target.type().is(value) || target.type().getCategory().toLowerCase().contains(value);
+
+		com.sirma.itt.seip.domain.instance.InstanceType type = target.type();
+		return type.is(value) || (type.getCategory() != null && type.getCategory().toLowerCase().contains(value));
 	}
 
 	/**

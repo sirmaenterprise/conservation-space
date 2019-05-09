@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sirma.itt.seip.security.context;
 
 import static org.junit.Assert.assertNotEquals;
@@ -52,24 +49,22 @@ public class DefaultSecurityContextManagerTest {
 	Instance<SecurityConfiguration> securityConfigurationInstance;
 
 	@Mock
+	private AdminResolver adminResolverMock;
+
+	@Mock
 	Instance<AdminResolver> adminResolver;
 
 	@InjectMocks
 	DefaultSecurityContextManager contextManager;
 
-	/**
-	 * Before method.
-	 */
 	@BeforeMethod
 	public void beforeMethod() {
 		SecurityContextHolder.clear();
 		MockitoAnnotations.initMocks(this);
 		when(securityConfigurationInstance.get()).thenReturn(securityConfiguration);
+		when(adminResolver.get()).thenReturn(adminResolverMock);
 	}
 
-	/**
-	 * Test_initialize execution_authentication.
-	 */
 	public void test_initializeExecution_authentication() {
 		AuthenticationContext authenticationContext = AuthenticationContext
 				.create(Collections.singletonMap("name", "test"));
@@ -84,9 +79,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(context.getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Test_initialize execution_not authenticated.
-	 */
 	public void test_initializeExecution_notAuthenticated() {
 		AuthenticationContext authenticationContext = AuthenticationContext
 				.create(Collections.singletonMap("name", "test"));
@@ -95,9 +87,6 @@ public class DefaultSecurityContextManagerTest {
 		Assert.assertFalse(contextManager.initializeExecution(authenticationContext));
 	}
 
-	/**
-	 * Test_initialize execution_ already active.
-	 */
 	@Test
 	public void test_initializeExecution_AlreadyActive_sameUser() {
 		AuthenticationContext authenticationContext = AuthenticationContext
@@ -109,9 +98,6 @@ public class DefaultSecurityContextManagerTest {
 		contextManager.initializeExecution(authenticationContext);
 	}
 
-	/**
-	 * Test_initialize execution_ already active.
-	 */
 	@Test(expectedExceptions = SecurityException.class)
 	public void test_initializeExecution_AlreadyActive_differentUser() {
 		AuthenticationContext authenticationContext1 = AuthenticationContext
@@ -136,16 +122,10 @@ public class DefaultSecurityContextManagerTest {
 		contextManager.initializeExecution(authenticationContext);
 	}
 
-	/**
-	 * Test_initialize execution as system.
-	 */
 	@Test
 	public void test_initializeExecutionAsSystem() {
 
-		when(securityConfiguration.getSystemAdminUser())
-				.thenReturn(new UserMock("systemadmin", SecurityContext.SYSTEM_TENANT));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", SecurityContext.SYSTEM_TENANT)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeExecutionAsSystemAdmin();
 
@@ -173,7 +153,7 @@ public class DefaultSecurityContextManagerTest {
 	}
 
 	@Test
-	public void test_beginContextExecution() {
+	public void test_beginContextExecution_byRequestId() {
 		when(securityConfiguration.getSystemAdminUser())
 				.thenReturn(new UserMock("systemadmin", SecurityContext.SYSTEM_TENANT));
 
@@ -185,15 +165,9 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(context.getRequestId(), "new-request-id");
 	}
 
-	/**
-	 * Test_initialize tenant context.
-	 */
 	@Test
 	public void test_initializeTenantContext() {
-		when(securityConfiguration.getSystemUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("system", TEST_TENANT_ID)));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeTenantContext(TEST_TENANT_ID);
 
@@ -206,15 +180,9 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(context.getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Test_initialize tenant context_already active.
-	 */
 	@Test
 	public void test_initializeTenantContext_alreadyActive() {
-		when(securityConfiguration.getSystemUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("system", TEST_TENANT_ID)));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeTenantContext(TEST_TENANT_ID);
 
@@ -236,15 +204,9 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(context.getCurrentTenantId(), TEST_TENANT_ID, "should be the same tenant");
 	}
 
-	/**
-	 * Test_initialize from context.
-	 */
 	@Test
 	public void test_initializeFromContext() {
-		when(securityConfiguration.getSystemUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("system", TEST_TENANT_ID)));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeTenantContext(TEST_TENANT_ID);
 		SecurityContext securityContext = contextManager.createTransferableContext();
@@ -269,23 +231,14 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(context.getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Test_end execution_not active.
-	 */
 	@Test(expectedExceptions = ContextNotActiveException.class)
 	public void test_endExecution_notActive() {
 		contextManager.endExecution();
 	}
 
-	/**
-	 * Test_end execution.
-	 */
 	@Test
 	public void test_endExecution() {
-		when(securityConfiguration.getSystemUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("system", TEST_TENANT_ID)));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeTenantContext(TEST_TENANT_ID);
 
@@ -298,15 +251,9 @@ public class DefaultSecurityContextManagerTest {
 		assertFalse(context.isActive());
 	}
 
-	/**
-	 * Test_end execution_multiple.
-	 */
 	@Test
 	public void test_endExecution_multiple() {
-		when(securityConfiguration.getSystemUser()).thenReturn(
-				new ConfigurationPropertyMock<User>(new UserMock("systemadmin", SecurityContext.SYSTEM_TENANT)));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeTenantContext(TEST_TENANT_ID);
 		contextManager.initializeTenantContext(TEST_TENANT_ID);
@@ -321,19 +268,10 @@ public class DefaultSecurityContextManagerTest {
 		assertFalse(context.isActive());
 	}
 
-	/**
-	 * Test_end context execution.
-	 */
 	@Test
 	public void test_endContextExecution() {
 
-		when(securityConfiguration.getSystemAdminUser())
-				.thenReturn(new UserMock("systemadmin", SecurityContext.SYSTEM_TENANT));
-
-		when(securityConfiguration.getSystemUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("system", TEST_TENANT_ID)));
-		when(securityConfiguration.getAdminUser())
-				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+		setUpSecurityConfiguration();
 
 		contextManager.initializeExecutionAsSystemAdmin();
 
@@ -354,9 +292,16 @@ public class DefaultSecurityContextManagerTest {
 		assertFalse(context.isActive());
 	}
 
-	/**
-	 * Test_transferrable context validation_invalid.
-	 */
+	private void setUpSecurityConfiguration() {
+		when(securityConfiguration.getSystemAdminUser())
+				.thenReturn(new UserMock("systemadmin", SecurityContext.SYSTEM_TENANT));
+
+		when(securityConfiguration.getSystemUser())
+				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("system", TEST_TENANT_ID)));
+		when(securityConfiguration.getAdminUser())
+				.thenReturn(new ConfigurationPropertyMock<User>(new UserMock("admin", TEST_TENANT_ID)));
+	}
+
 	@Test(expectedExceptions = SecurityException.class)
 	public void test_transferrableContextValidation_invalid() {
 
@@ -368,17 +313,64 @@ public class DefaultSecurityContextManagerTest {
 		contextManager.initializeFromContext(context);
 	}
 
-	/**
-	 * Test_begin context execution_no context.
-	 */
 	@Test(expectedExceptions = ContextNotActiveException.class)
 	public void test_beginContextExecution_noContext() {
 		contextManager.beginContextExecution(new UserMock("", ""));
 	}
 
-	/**
-	 * Test_transferrable context validation_valid.
-	 */
+	@Test
+	public void test_beginContextExecution_shouldOverrideEffectiveAuthenticationOnly() {
+		setUpSecurityConfiguration();
+		contextManager.initializeExecutionAsSystemAdmin();
+		contextManager.initializeTenantContext(TEST_TENANT_ID);
+		String identityId = "user@" + TEST_TENANT_ID;
+		contextManager.beginContextExecution(new UserMock(identityId, TEST_TENANT_ID));
+		assertEquals(contextManager.getCurrentContext().getAuthenticated().getIdentityId(), "system");
+		assertEquals(contextManager.getCurrentContext().getEffectiveAuthentication().getIdentityId(), identityId);
+	}
+
+	@Test(expectedExceptions = ContextNotActiveException.class)
+	public void test_beginContextExecutionAs_noContext() {
+		contextManager.beginContextExecutionAs(new UserMock("", ""));
+	}
+
+	@Test
+	public void test_beginContextExecutionAs_shouldOverrideAllAuthentications() {
+		setUpSecurityConfiguration();
+		contextManager.initializeExecutionAsSystemAdmin();
+		contextManager.initializeTenantContext(TEST_TENANT_ID);
+		String identityId = "user@" + TEST_TENANT_ID;
+		contextManager.beginContextExecutionAs(new UserMock(identityId, TEST_TENANT_ID));
+		assertEquals(contextManager.getCurrentContext().getAuthenticated().getIdentityId(), identityId);
+		assertEquals(contextManager.getCurrentContext().getEffectiveAuthentication().getIdentityId(), identityId);
+	}
+
+	@Test(expectedExceptions = SecurityException.class)
+	public void test_beginContextExecutionAs_shouldFailIfNotSystemOrAdminUser() {
+		setUpSecurityConfiguration();
+		contextManager.initializeExecutionAsSystemAdmin();
+		contextManager.initializeTenantContext(TEST_TENANT_ID);
+		contextManager.beginContextExecutionAs(new UserMock("nonAdminUser@" + TEST_TENANT_ID, TEST_TENANT_ID));
+		contextManager.beginContextExecutionAs(new UserMock("user2@" + TEST_TENANT_ID, TEST_TENANT_ID));
+	}
+
+	@Test
+	public void test_beginContextExecutionAs_shouldNotFailIfSameUserPassedTwice() {
+		setUpSecurityConfiguration();
+		contextManager.initializeExecutionAsSystemAdmin();
+		contextManager.initializeTenantContext(TEST_TENANT_ID);
+		contextManager.beginContextExecutionAs(new UserMock("nonAdminUser@" + TEST_TENANT_ID, TEST_TENANT_ID));
+		contextManager.beginContextExecutionAs(new UserMock("nonAdminUser@" + TEST_TENANT_ID, TEST_TENANT_ID));
+	}
+
+	@Test(expectedExceptions = SecurityException.class)
+	public void test_beginContextExecutionAs_shouldFailIfNotSameTenant() {
+		setUpSecurityConfiguration();
+		contextManager.initializeExecutionAsSystemAdmin();
+		contextManager.initializeTenantContext(TEST_TENANT_ID);
+		contextManager.beginContextExecutionAs(new UserMock("user@test.com", "test.com"));
+	}
+
 	@Test
 	public void test_transferrableContextValidation_valid() {
 		when(securityConfiguration.getSystemAdminUser())
@@ -407,11 +399,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(context.getCurrentTenantId(), SecurityContext.SYSTEM_TENANT);
 	}
 
-	/**
-	 * Test_execute in context_user_callable.
-	 *
-	 * @throws Exception the exception
-	 */
 	@Test
 	public void test_executeInContext_user_callable() throws Exception {
 
@@ -432,9 +419,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(result, "test");
 	}
 
-	/**
-	 * Test_execute as tenant_executable.
-	 */
 	@Test
 	public void test_executeAsTenant_executable() {
 		when(securityConfiguration.getSystemAdminUser())
@@ -453,9 +437,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), SecurityContext.SYSTEM_TENANT);
 	}
 
-	/**
-	 * Test_execute as tenant_supplier.
-	 */
 	@Test
 	public void test_executeAsTenant_supplier() {
 		when(securityConfiguration.getSystemAdminUser())
@@ -475,9 +456,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), SecurityContext.SYSTEM_TENANT);
 	}
 
-	/**
-	 * Test_execute as tenant_function.
-	 */
 	@Test
 	public void test_executeAsTenant_function() {
 
@@ -499,9 +477,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), SecurityContext.SYSTEM_TENANT);
 	}
 
-	/**
-	 * Test_execute as system_executable.
-	 */
 	@Test
 	public void test_executeAsSystem_executable() {
 
@@ -525,11 +500,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Test_execute as system_callable.
-	 *
-	 * @throws Exception the exception
-	 */
 	@Test
 	public void test_executeAsSystem_callable() throws Exception {
 
@@ -555,11 +525,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Test_execute as system_function.
-	 *
-	 * @throws Exception the exception
-	 */
 	@Test
 	public void test_executeAsSystem_function() throws Exception {
 
@@ -585,11 +550,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Test_execute as system_consumer.
-	 *
-	 * @throws Exception the exception
-	 */
 	@Test
 	public void test_executeAsSystem_consumer() throws Exception {
 
@@ -654,9 +614,6 @@ public class DefaultSecurityContextManagerTest {
 		assertEquals(contextManager.getCurrentContext().getCurrentTenantId(), TEST_TENANT_ID);
 	}
 
-	/**
-	 * Clean up.
-	 */
 	@AfterMethod
 	@SuppressWarnings("static-method")
 	public void cleanUp() {

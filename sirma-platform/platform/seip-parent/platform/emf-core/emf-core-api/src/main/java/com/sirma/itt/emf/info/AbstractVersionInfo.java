@@ -14,16 +14,10 @@ import org.slf4j.LoggerFactory;
  * @author BBonev
  */
 public abstract class AbstractVersionInfo implements VersionInfo {
-
-	/** The Constant LOGGER. */
 	protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractVersionInfo.class);
 
-	/** The Constant SKIPPED_INFO_KEYS. */
-	public static final String[] SKIPPED_INFO_KEYS = { "m2e.projectLocation", "m2e.projectName" };
+	protected static final String[] SKIPPED_INFO_KEYS = { "m2e.projectLocation", "m2e.projectName" };
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getFileInfoLocation() {
 		String locationPath = getLocationPath();
@@ -67,13 +61,7 @@ public abstract class AbstractVersionInfo implements VersionInfo {
 		return props;
 	}
 
-	/**
-	 * Filter properties.
-	 *
-	 * @param properties
-	 *            the properties
-	 */
-	protected void filterProperties(Properties properties) {
+	private void filterProperties(Properties properties) {
 		for (String key : SKIPPED_INFO_KEYS) {
 			properties.remove(key);
 		}

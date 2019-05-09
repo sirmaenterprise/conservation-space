@@ -1,7 +1,7 @@
+import _ from 'lodash';
 import {Injectable, Inject} from 'app/app';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
-import {Labels} from 'services/rest/labels';
-import _ from 'lodash';
+import allLabels from 'services/rest/labels.json!';
 import data from 'sandbox/services/rest/label-service.data.json!';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class LabelRestService {
 
   constructor(promiseAdapter) {
     this.promiseAdapter = promiseAdapter;
-    this.labels = _.clone(Labels.DATA);
+    this.labels = _.clone(allLabels);
 
     // Prevent errors for missing labels for info and debug widgets as they don't have labels defined and are used only
     // in e2e tests.

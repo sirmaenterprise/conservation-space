@@ -1,33 +1,40 @@
 @import "../../../../style/mixins";
 @import "../../../../style/variables";
+@import "../../style/management-mixins";
+@import "../../style/management-variables";
 
 .model-fields {
-  margin-top: 10px;
+  margin-top: $section-top-margin;
 
-  .form-horizontal {
+  .model-fields-list.form-horizontal {
     width: 50%;
     margin: 0;
 
-    .control-section {
+    .filter-section {
       width: 100%;
       display: inline-flex;
 
       .filter-field {
         min-width: 250px;
       }
-
-      .fields-controls {
-        display: inline-flex;
-        margin-left: 1rem;
-
-        .create-field-button {
-          margin-right: $default-gap;
-        }
-      }
     }
 
     .display-section {
       display: inline-flex;
+    }
+
+    .control-section {
+      float: right;
+      display: inline-flex;
+      margin-top: 2 * $default-gap;
+
+      a {
+        cursor: pointer;
+
+        &:not(:last-child) {
+          margin-right: $default-gap * 2;
+        }
+      }
     }
 
     .model-field {
@@ -51,6 +58,43 @@
 
     .model-region-section {
       margin-top: 1rem;
+
+      .model-item {
+        margin-left: -15px;
+        margin-right: -15px;
+
+        // override bootstrap defaults
+        .form-horizontal .form-group {
+          margin-left: 0;
+          margin-right: 0;
+        }
+      }
+
+      .highlighted-region {
+        .panel-heading {
+          @include highlighted-model;
+        }
+      }
+
+      .dirty-region {
+        .panel-heading {
+          @include dirty-model
+        }
+      }
+    }
+  }
+
+  .filter-message {
+    margin-top: $default-gap;
+  }
+
+  .model-field-controls-panel {
+    .model-header {
+      flex-grow: 1;
+    }
+
+    .restore-controls {
+      margin-right: $default-gap;
     }
   }
 }

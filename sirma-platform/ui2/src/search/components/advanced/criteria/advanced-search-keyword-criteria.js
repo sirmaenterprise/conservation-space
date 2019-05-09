@@ -11,9 +11,7 @@ import template from './advanced-search-keyword-criteria.html!text';
     'property': 'property'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 export class AdvancedSearchKeywordCriteria extends Configurable {
 
   constructor() {

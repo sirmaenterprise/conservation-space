@@ -1,6 +1,6 @@
 import {InstanceAction} from 'idoc/actions/instance-action';
 import {BASE_PATH} from 'services/rest-client';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {UrlUtils} from 'common/url-utils';
 import {ErrorCodes} from 'services/rest/error-codes';
 import FileSaver from 'file-saver';
@@ -100,11 +100,13 @@ export class ExportHandler extends InstanceAction {
   }
 
   downloadFile(response) {
-    let iframe = document.createElement('iframe');
-    iframe.id = 'downloadDocumentFrame';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    iframe.src = this.createDownloadURL(response.data);
+    this.createDownloadURL(response.data).then(downloadUri => {
+      let iframe = document.createElement('iframe');
+      iframe.id = 'downloadDocumentFrame';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      iframe.src = downloadUri;
+    });
   }
 
   downloadBlob(response, fileName) {
@@ -115,10 +117,12 @@ export class ExportHandler extends InstanceAction {
   }
 
   createDownloadURL(fileName) {
-    let downloadURI = BASE_PATH + fileName;
-    downloadURI += UrlUtils.getParamSeparator(downloadURI);
-    downloadURI += AuthenticationService.TOKEN_REQUEST_PARAM + '=' + this.authenticationService.getToken();
-    return downloadURI;
+    return this.authenticationService.getToken().then(token => {
+      let downloadURI = BASE_PATH + fileName;
+      downloadURI += UrlUtils.getParamSeparator(downloadURI);
+      downloadURI += AuthenticationService.TOKEN_REQUEST_PARAM + '=' + token;
+      return downloadURI;
+    });
   }
 
   /**

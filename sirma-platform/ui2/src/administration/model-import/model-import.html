@@ -33,6 +33,11 @@
       </div>
     </div>
 
+    <button class="download-ontology btn btn-primary"
+            ng-click="modelImport.downloadOntology()">
+      <span>{{ ::'administration.models.import.download.ontology' | translate }}</span>
+    </button>
+
     <div class="selected-files">
       <div class="selected-file" ng-repeat="file in modelImport.uploadComponent.files">
         {{ ::file.name }}
@@ -41,91 +46,105 @@
   </div>
 
   <div class="model-download">
-    <div class="input-group">
+    <div class="input-group col-md-3">
       <input ng-model="modelImport.filterTerm" ng-change="modelImport.filter(modelImport.filterTerm)"
+             placeholder="{{ ::'administration.models.import.filter.placeholder' | translate }}"
              ng-model-options="::{ debounce: { 'default': 200, 'blur': 0 } }" class="filter-field form-control"/>
     </div>
-    <div>{{ ::'administration.models.import.definitions' | translate }}</div>
-    <table class="definition-download-table table table-bordered table-condensed table-hover">
-      <thead>
-      <tr>
-        <th class="selection-cell select-all-definitions">
-          <label class="checkbox">
-            <input type="checkbox"
-                   ng-click="modelImport.updateAll(modelImport.importedModels.definitions, modelImport.allDefinitionsSelected)"
-                   ng-model="modelImport.allDefinitionsSelected"/>
-            <i></i>
-          </label>
-        </th>
-        <th class="col-sm-2">{{ ::'objects.properties.id' | translate }}</th>
-        <th class="col-sm-4">{{ ::'objects.properties.type' | translate }}</th>
-        <th class="col-sm-1">{{ ::'administration.models.import.definition.abstract' | translate }}</th>
-        <th class="col-sm-2">{{ ::'administration.models.import.definition.filename' | translate }}</th>
-        <th class="col-sm-1">{{ ::'objects.properties.modifiedOn' | translate }}</th>
-        <th class="col-sm-2">{{ ::'objects.properties.modifiedBy' | translate }}</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr ng-repeat="definition in modelImport.definitions">
-        <td class="selection-cell">
-          <label class="checkbox">
-            <input type="checkbox" ng-model="definition.selected" ng-change="modelImport.recalculateState()"/>
-            <i></i>
-          </label>
-        </td>
-        <td>{{ ::definition.id }}</td>
-        <td>{{ ::definition.title }}</td>
-        <td>{{ ::definition.abstract }}</td>
-        <td>{{ ::definition.fileName }}</td>
-        <td>{{ ::definition.modifiedOn }}</td>
-        <td ng-bind-html="::definition.modifiedBy"></td>
-      </tr>
-      </tbody>
-    </table>
 
-    <div>{{ ::'administration.models.import.templates' | translate }}</div>
-    <table class="template-download-table table table-bordered table-condensed table-hover">
-      <thead>
-      <tr>
-        <th class="selection-cell select-all-templates">
-          <label class="checkbox">
-            <input type="checkbox"
-                   ng-click="modelImport.updateAll(modelImport.importedModels.templates, modelImport.allTemplatesSelected)"
-                   ng-model="modelImport.allTemplatesSelected"/>
-            <i></i>
-          </label>
-        </th>
-        <th>{{ ::'objects.properties.title' | translate }}</th>
-        <th>{{ ::'idoc.template.purpose' | translate }}</th>
-        <th>{{ ::'idoc.template.button.primary' | translate }}</th>
-        <th>{{ ::'idoc.template.type' | translate }}</th>
-        <th>{{ ::'objects.properties.modifiedOn' | translate }}</th>
-        <th>{{ ::'objects.properties.modifiedBy' | translate }}</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr ng-repeat="template in modelImport.templates">
-        <td class="selection-cell">
-          <label class="checkbox">
-            <input type="checkbox" ng-model="template.selected" ng-change="modelImport.recalculateState()"/>
-            <i></i>
-          </label>
-        </td>
-        <td ng-bind-html="::template.title"></td>
-        <td>{{ ::template.purpose }}</td>
-        <td>{{ ::template.primary }}</td>
-        <td>{{ ::template.forObjectType }}</td>
-        <td>{{ ::template.modifiedOn }}</td>
-        <td ng-bind-html="::template.modifiedBy"></td>
-      </tr>
-      </tbody>
-    </table>
+    <div class="panel panel-default" collapsible-panel>
+      <div class="panel-heading">
+        <i class="panel-caret fa fa-caret-down"></i>
+        <div>{{ ::'administration.models.import.definitions' | translate }}</div>
+      </div>
+      <div class="panel-body">
+        <table class="definition-download-table table table-bordered table-condensed table-hover">
+          <thead>
+          <tr>
+            <th class="selection-cell select-all-definitions">
+              <label class="checkbox">
+                <input type="checkbox"
+                       ng-click="modelImport.updateAll(modelImport.importedModels.definitions, modelImport.allDefinitionsSelected)"
+                       ng-model="modelImport.allDefinitionsSelected"/>
+                <i></i>
+              </label>
+            </th>
+            <th class="col-sm-2">{{ ::'objects.properties.id' | translate }}</th>
+            <th class="col-sm-4">{{ ::'objects.properties.type' | translate }}</th>
+            <th class="col-sm-1">{{ ::'administration.models.import.definition.abstract' | translate }}</th>
+            <th class="col-sm-2">{{ ::'administration.models.import.definition.filename' | translate }}</th>
+            <th class="col-sm-1">{{ ::'objects.properties.modifiedOn' | translate }}</th>
+            <th class="col-sm-2">{{ ::'objects.properties.modifiedBy' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="definition in modelImport.definitions">
+            <td class="selection-cell">
+              <label class="checkbox">
+                <input type="checkbox" ng-model="definition.selected" ng-change="modelImport.recalculateState()"/>
+                <i></i>
+              </label>
+            </td>
+            <td>{{ ::definition.id }}</td>
+            <td>{{ ::definition.title }}</td>
+            <td>{{ ::definition.abstract }}</td>
+            <td>{{ ::definition.fileName }}</td>
+            <td>{{ ::definition.modifiedOn }}</td>
+            <td ng-bind-html="::definition.modifiedBy"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel panel-default" collapsible-panel>
+      <div class="panel-heading">
+        <i class="panel-caret fa fa-caret-down"></i>
+        <div>{{ ::'administration.models.import.templates' | translate }}</div>
+      </div>
+      <div class="panel-body">
+        <table class="template-download-table table table-bordered table-condensed table-hover">
+          <thead>
+          <tr>
+            <th class="selection-cell select-all-templates">
+              <label class="checkbox">
+                <input type="checkbox"
+                       ng-click="modelImport.updateAll(modelImport.importedModels.templates, modelImport.allTemplatesSelected)"
+                       ng-model="modelImport.allTemplatesSelected"/>
+                <i></i>
+              </label>
+            </th>
+            <th>{{ ::'objects.properties.title' | translate }}</th>
+            <th>{{ ::'idoc.template.purpose' | translate }}</th>
+            <th>{{ ::'idoc.template.button.primary' | translate }}</th>
+            <th>{{ ::'idoc.template.type' | translate }}</th>
+            <th>{{ ::'objects.properties.modifiedOn' | translate }}</th>
+            <th>{{ ::'objects.properties.modifiedBy' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="template in modelImport.templates">
+            <td class="selection-cell">
+              <label class="checkbox">
+                <input type="checkbox" ng-model="template.selected" ng-change="modelImport.recalculateState()"/>
+                <i></i>
+              </label>
+            </td>
+            <td ng-bind-html="::template.title"></td>
+            <td>{{ ::template.purpose }}</td>
+            <td>{{ ::template.primary }}</td>
+            <td>{{ ::template.forObjectType }}</td>
+            <td>{{ ::template.modifiedOn }}</td>
+            <td ng-bind-html="::template.modifiedBy"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <button class="download-button btn btn-primary" ng-disabled="!modelImport.downloadAllowed"
             ng-click="modelImport.download()">
       {{ ::'administration.models.import.download' | translate }}
     </button>
-
   </div>
-
 </div>

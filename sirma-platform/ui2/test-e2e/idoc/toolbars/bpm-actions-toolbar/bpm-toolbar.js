@@ -1,14 +1,14 @@
-"use strict";
+'use strict';
 
 class BpmToolbar {
 
   constructor() {
     this.selector = '.bpm-actions-section';
-    this.el = $(this.selector);
+    this.element = $(this.selector);
   }
 
   waitUntilOpened() {
-    browser.wait(EC.visibilityOf(this.el), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.element), DEFAULT_TIMEOUT);
   }
 
   getWorkflow() {
@@ -20,11 +20,11 @@ class BpmToolbar {
   }
 
   getElement(selector) {
-    return this.el.$(selector);
+    return this.element.$(selector);
   }
 
   isToolbarPresent() {
-    return this.el.isPresent();
+    return this.element.isPresent();
   }
 }
 

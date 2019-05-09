@@ -3,6 +3,7 @@ const fs        = require('fs');
 const uuid      = require('uuid/v4');
 
 const config = require('./config');
+const logger = require('./logger');
 
 class TimeoutError extends Error {
   constructor(message) {
@@ -60,7 +61,7 @@ module.exports = (url, params = {}) => {
 
       resolve(fs.createReadStream(filename));
     } catch (err) {
-      console.log(err);
+      logger.error(err.toString());
       reject(err);
     } finally {
       if (browser) {

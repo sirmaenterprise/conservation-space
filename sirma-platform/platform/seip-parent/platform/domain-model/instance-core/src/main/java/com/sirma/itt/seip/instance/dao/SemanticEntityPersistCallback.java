@@ -23,7 +23,6 @@ import com.sirma.itt.seip.cache.Locking;
 import com.sirma.itt.seip.cache.Transaction;
 import com.sirma.itt.seip.cache.lookup.EntityLookupCache;
 import com.sirma.itt.seip.cache.lookup.EntityLookupCacheContext;
-import com.sirma.itt.seip.cache.lookup.NoEntityLookup;
 import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.db.SemanticDb;
 import com.sirma.itt.seip.db.VirtualDb;
@@ -46,25 +45,15 @@ public class SemanticEntityPersistCallback implements InstancePersistCallback {
 	@CacheConfiguration(transaction = @Transaction(mode = CacheTransactionMode.FULL_XA),
 			locking = @Locking(isolation = LockIsolation.READ_COMMITTED),
 			eviction = @Eviction(maxEntries = 8192, strategy = Eviction.EvictionStrategy.UNORDERED),
-			expiration = @Expiration(maxIdle = 1800000, interval = 60000) , doc = @Documentation(""
+			expiration = @Expiration(maxIdle = 180_0000, interval = 60_000) , doc = @Documentation(""
 			+ "Fully transactional cache used to contain the actively loaded instances from semantic database. "
 			+ "<br>Minimal value expression: (averageActiveUsers * 10)") )
-	public static final String SEMANTIC_INSTANCE_ENTITY_CACHE = "SEMANTIC_INSTANCE_ENTITY_CACHE";
-
-	@CacheConfiguration(transaction = @Transaction(mode = CacheTransactionMode.FULL_XA),
-			locking = @Locking(isolation = LockIsolation.READ_COMMITTED),
-			eviction = @Eviction(maxEntries = 5000, strategy = Eviction.EvictionStrategy.UNORDERED),
-			expiration = @Expiration(maxIdle = 180000, interval = 60000),
-			doc = @Documentation("Fully transactional cache used to contain just created/updated instances."
-					+ " The values of this cache are set only when instance is saved. It is used to check,"
-					+ " if the data retrieved from the DB isn't stale (primary when multiple clusters are used)."
-					+ " The values of the cache are removed automatically after definied exparation period."))
-	public static final String INSTANCE_TEMPORARY_CACHE = "INSTANCE_TEMPORARY_CACHE";
+	static final String SEMANTIC_INSTANCE_ENTITY_CACHE = "SEMANTIC_INSTANCE_ENTITY_CACHE";
 
 	private final DbDao dbDao;
 	private final EntityLookupCacheContext cacheContext;
 	private final Supplier<InstanceLoadCallback> primaryIdCallback = new CachingSupplier<>(
-			() -> new SemanticDbIdLoadCallback(getSupportedEntityClass(), getDataSource(), this::getTemporaryCache));
+			() -> new SemanticDbIdLoadCallback(getSupportedEntityClass(), getDataSource()));
 	private final CopyInstanceConverter instanceConverter;
 	private final InstanceTypes instanceTypes;
 
@@ -95,8 +84,7 @@ public class SemanticEntityPersistCallback implements InstancePersistCallback {
 	 */
 	@PostConstruct
 	protected void initializeCache() {
-		cacheContext.createCacheIfAbsent(getCacheName(), isCachingEnabled(), new EntityLookupDao(this));
-		cacheContext.createCacheIfAbsent(INSTANCE_TEMPORARY_CACHE, isCachingEnabled(), new NoEntityLookup());
+		cacheContext.createCacheIfAbsent(getCacheName(), isCachingEnabled(), new EntityLookupDao(this).enableSecondaryKeyManagement());
 	}
 
 	/**
@@ -140,15 +128,7 @@ public class SemanticEntityPersistCallback implements InstancePersistCallback {
 
 		// updates the main instance cache
 		getCache().setValue(id, saved);
-
-		// sets the instance in the temporary cache in order to be available, if it was cleared from the main
-		// cache (happens when clearing references)
-		getTemporaryCache().setValue(id, saved);
 		return old;
-	}
-
-	private EntityLookupCache<Serializable, Entity<? extends Serializable>, Serializable> getTemporaryCache() {
-		return cacheContext.getCache(INSTANCE_TEMPORARY_CACHE);
 	}
 
 	@Override

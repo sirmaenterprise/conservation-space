@@ -80,11 +80,11 @@ describe('InstanceCreatePanel', function () {
       // And I expect the Reviewer field  which was initially empty to have single value suggested.
       let reviewerField = form.getObjectControlField('reviewer');
       expect(reviewerField.getSelectedObjectsCount()).to.eventually.equal(1);
-      checkObjectHeader(reviewerField, 0, 'Header-2');
+      reviewerField.isElementSelectedByTitle('Header-2');
       // When I change the Reviewer field value
       toggleObjectSelection(reviewerField, [0]);
       // Then I expect the field to have the new value
-      checkObjectHeader(reviewerField, 0, 'Object #1 Breadcrumb header');
+      reviewerField.isElementSelectedByTitle('Object #1 Breadcrumb header');
     });
 
     it('should not suggest value for single value field that already has value', () => {
@@ -96,7 +96,7 @@ describe('InstanceCreatePanel', function () {
       let supervisorField = form.getObjectControlField('supervisor');
       // Then I expect the Supervisor field to have the default value - no suggestion
       expect(supervisorField.getSelectedObjectsCount()).to.eventually.equal(1);
-      checkObjectHeader(supervisorField, 0, 'Header-1');
+      supervisorField.isElementSelectedByTitle('Header-1');
     });
 
     // If an object property field is mandatory, then it's a subject to suggestion which loads and populates relations in
@@ -114,7 +114,7 @@ describe('InstanceCreatePanel', function () {
       // Then I expect the Documents field to be visible
       let objectControl = form.getObjectControlField('documents');
       // And I expect there to have selected 4 suggested relations
-      objectControl.waitForSelectedItems(3);
+      expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
       expect(objectControl.getHiddenObjectsCount()).to.eventually.equal('1');
       // When I activate condition that hides the Documents field
       let triggerField = form.getCheckboxField('hideDocumentsRelation');
@@ -122,25 +122,26 @@ describe('InstanceCreatePanel', function () {
       // And I deactivate the condition that hides the Documents field
       triggerField.toggleCheckbox();
       // Then I expect the field to have 4 suggested relations
-      objectControl.waitForSelectedItems(3);
-      expect(objectControl.getHiddenObjectsCount()).to.eventually.equal('1');
+      expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
 
       // When I remove two items from the field and add a new one.
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
+      objectControl.isElementSelectedByTitle('Header-3');
+      objectControl.isElementSelectedByTitle('Header-4')
+      objectControl.removeFromSelectionByTitle('Header-3');
+      objectControl.removeFromSelectionByTitle('Header-4');
       toggleObjectSelection(objectControl, [0]);
       // Then I expect to have 3 visible items selected in the field.
-      objectControl.waitForSelectedItems(3);
+      expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
       // When I activate a condition that hides the Documents field.
       triggerField.toggleCheckbox();
       // And I deactivate the condition that hides the Documents field.
       triggerField.toggleCheckbox();
       // Then I expect to have suggested the initial values again.
-      objectControl.waitForSelectedItems(3);
+      expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
       expect(objectControl.getHiddenObjectsCount()).to.eventually.equal('1');
-      checkObjectHeader(objectControl, 0, 'Header-2');
-      checkObjectHeader(objectControl, 1, 'Header-3');
-      checkObjectHeader(objectControl, 2, 'Header-4');
+      objectControl.isElementSelectedByTitle('Header-3');
+      objectControl.isElementSelectedByTitle('Header-5');
+      objectControl.isElementSelectedByTitle('Header-4');
     });
 
     it('should suggest relations when a field is made visible and mandatory by condition', () => {
@@ -157,7 +158,7 @@ describe('InstanceCreatePanel', function () {
       // Then I expect the field to become visible
       // And I expect there to have 4 suggested relations
       let objectControl = form.getObjectControlField('dependsOn');
-      objectControl.waitForSelectedItems(3);
+      expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
       expect(objectControl.getHiddenObjectsCount()).to.eventually.equal('1');
       // When I deactivate the condition
       triggerField.toggleCheckbox();
@@ -167,7 +168,7 @@ describe('InstanceCreatePanel', function () {
       triggerField.toggleCheckbox();
       // Then I expect the field to become visible
       // And I expect there to have 4 suggested relations
-      objectControl.waitForSelectedItems(3);
+      expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
       expect(objectControl.getHiddenObjectsCount()).to.eventually.equal('1');
     });
   });

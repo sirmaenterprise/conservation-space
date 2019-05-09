@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sirma.itt.seip.adapters;
 
 import java.net.URI;
@@ -48,6 +45,16 @@ public class Alfresco4Configurations implements AdaptersConfiguration {
 	@Configuration(DMS_ADDRESS)
 	private ConfigurationProperty<URI> dmsAddress;
 
+	@Inject
+	@Configuration
+	@ConfigurationPropertyDefinition(name = "content.store.alfresco4.enabled", defaultValue = "true", type = Boolean.class, sensitive = true, subSystem = "content", label = "Determines if instance primary content should go to Alfresco or to the Local content store")
+	private ConfigurationProperty<Boolean> alfrescoStoreEnabled;
+
+	@Inject
+	@Configuration
+	@ConfigurationPropertyDefinition(name = "content.store.alfresco4view.enabled", defaultValue = "true", type = Boolean.class, sensitive = true, subSystem = "content", label = "Determines if instance primary view should go to Alfresco or to the Local content store")
+	private ConfigurationProperty<Boolean> alfrescoViewStoreEnabled;
+
 	@ConfigurationConverter(DMS_ADDRESS)
 	static URI buildAddess(GroupConverterContext converterContext) {
 		converterContext.getValue(DMS_HOST).requireConfigured();
@@ -88,4 +95,13 @@ public class Alfresco4Configurations implements AdaptersConfiguration {
 		return DMS_PORT;
 	}
 
+	@Override
+	public ConfigurationProperty<Boolean> getAlfrescoStoreEnabled() {
+		return alfrescoStoreEnabled;
+	}
+
+	@Override
+	public ConfigurationProperty<Boolean> getAlfrescoViewStoreEnabled() {
+		return alfrescoViewStoreEnabled;
+	}
 }

@@ -18,13 +18,13 @@ class RichText extends FormControl {
   }
 
   focusEditor() {
-    this.getContentArea().click();
-    return this;
+    return this.getContentArea().click();
   }
 
   blurEditor() {
-    this.getContentArea().sendKeys(protractor.Key.TAB);
-    this.isToolbarHidden();
+    return this.getContentArea().sendKeys(protractor.Key.TAB).then(() => {
+      return this.isToolbarHidden();
+    });
   }
 
   isValid() {
@@ -58,7 +58,9 @@ class RichText extends FormControl {
         return isEditable === 'true';
       });
     }, DEFAULT_TIMEOUT, 'Field should be editable!');
-    this.getEditorToolbar().isVisible();
+    this.getEditorToolbar().then((toolbar) => {
+      toolbar.isVisible();
+    });
     return this;
   }
 
@@ -112,18 +114,15 @@ class RichText extends FormControl {
   }
 
   type(text) {
-    this.getContentArea().sendKeys(text);
-    return this;
+    return this.getContentArea().sendKeys(text);
   }
 
   newLine() {
-    this.getContentArea().sendKeys(protractor.Key.ENTER);
-    return this;
+    return this.getContentArea().sendKeys(protractor.Key.ENTER);
   }
 
   tab() {
-    this.getContentArea().sendKeys(protractor.Key.TAB);
-    return this;
+    return this.getContentArea().sendKeys(protractor.Key.TAB);
   }
 
   clear() {
@@ -137,12 +136,13 @@ class RichText extends FormControl {
   }
 
   isToolbarHidden() {
-    new EditorToolbar(this.control).isHidden();
+    return new EditorToolbar(this.control).isHidden();
   }
 
   getEditorToolbar() {
-    this.focusEditor();
-    return new EditorToolbar(this.control);
+    return this.focusEditor().then(() => {
+      return new EditorToolbar(this.control);
+    });
   }
 }
 
@@ -177,8 +177,9 @@ class EditorToolbar {
   }
 
   isHidden() {
-    this.getToolbarElement().then((toolbar) => {
+    return this.getToolbarElement().then((toolbar) => {
       browser.wait(EC.invisibilityOf(toolbar), DEFAULT_TIMEOUT, 'Richtext field toolbar should be hidden!');
+      return true;
     });
   }
 
@@ -213,10 +214,10 @@ class EditorToolbar {
   }
 
   fontSize(size) {
-    this.getActionFontSize().then((fontSizeMenu) => {
+    return this.getActionFontSize().then((fontSizeMenu) => {
       return fontSizeMenu.click();
     }).then(() => {
-      browser.switchTo().frame(0).then(() => {
+      return browser.switchTo().frame(0).then(() => {
         browser.driver.findElement(by.css(`[title='${size}']`)).click();
         browser.switchTo().defaultContent();
       });
@@ -242,7 +243,7 @@ class EditorToolbar {
   }
 
   bold() {
-    this.getActionBold().then((button) => {
+    return this.getActionBold().then((button) => {
       button.click();
     });
   }
@@ -260,7 +261,7 @@ class EditorToolbar {
   }
 
   italic() {
-    this.getActionItalic().then((button) => {
+    return this.getActionItalic().then((button) => {
       button.click();
     });
   }
@@ -302,22 +303,28 @@ class EditorToolbar {
   }
 
   fontColor(color) {
-    this.getActionFontColor().then((fontMenu) => {
+    return this.getActionFontColor().then((fontMenu) => {
       return fontMenu.click();
     }).then(() => {
-      browser.switchTo().frame(0).then(() => {
-        browser.driver.findElement(by.css(`[title='${color}']`)).click();
+      return browser.switchTo().frame(0).then(() => {
+        let elem = browser.driver.findElement(by.css(`[title='${color}']`));
+        browser.wait(() => elem.isDisplayed(), DEFAULT_TIMEOUT);
+
+        elem.click();
         browser.switchTo().defaultContent();
       });
     });
   }
 
   backgroundColor(color) {
-    this.getActionBackgroundColor().then((backgroundMenu) => {
+    return this.getActionBackgroundColor().then((backgroundMenu) => {
       return backgroundMenu.click();
     }).then(() => {
-      browser.switchTo().frame(0).then(() => {
-        browser.driver.findElement(by.css(`[title='${color}']`)).click();
+      return browser.switchTo().frame(0).then(() => {
+        let elem = browser.driver.findElement(by.css(`[title='${color}']`));
+        browser.wait(() => elem.isDisplayed(), DEFAULT_TIMEOUT);
+
+        elem.click();
         browser.switchTo().defaultContent();
       });
     });

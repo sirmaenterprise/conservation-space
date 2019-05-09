@@ -1,102 +1,45 @@
 <?xml version="1.0"?>
-<definition id="template" parentId="templateBase" isAbstract="false" type="object">
+<definition id="template" parentId="baseTemplate" isAbstract="false" type="object">
     <fields>
 		<field name="default_header" type="ANY" label="NGA_TEMPLATE_DEFAULT_HEADER" />
 		<field name="tooltip_header" type="ANY" label="NGA_TEMPLATE_TOOLTIP_HEADER" />
-		<field name="compact_header" type="an..4096" label="NGA_TEMPLATE_COMPACT_HEADER" />
-		<field name="breadcrumb_header" type="an..4096" label="NGA_TEMPLATE_BREADCRUMB_HEADER" />
+		<field name="compact_header" type="ANY" label="NGA_TEMPLATE_COMPACT_HEADER" />
+		<field name="breadcrumb_header" type="ANY" label="NGA_TEMPLATE_BREADCRUMB_HEADER" />
 
-		<field name="type" type="an..50" displayType="system" />
-		<field name="status" type="an..50" displayType="system" />
-		<field name="forObjectType" type="an..256" displayType="system" />
-		<field name="templatePurpose" type="an..30" displayType="system" />
-		<field name="isPrimaryTemplate" type="boolean" displayType="system" />
-		<field name="title" type="an..40" displayType="system" />
-		<field name="identifier" type="an..50" displayType="system" />
-		<field name="description" type="an..1024" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-    	<field name="createdBy" type="uri" displayType="system" />
-        <field name="modifiedOn" type="dateTime" displayType="system"/>
-        <field name="modifiedBy" type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="integrated" type="boolean" label="emf.integrated.label" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="hasRevision" type="uri" displayType="system" />
-		<field name="isRevisionOf" type="uri" displayType="system" />
-		<field name="lastPublishedRevision" type="uri" displayType="system" />
-		<field name="lastRevision" type="uri" displayType="system" />
-		<field name="nextRevision" type="uri" displayType="system" />
-		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="templateRuleDescription" type="an..1024" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="forObjectTypeLabel" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
+		<field name="hasThumbnail" displayType="system" />
+		<field name="integrated" label="emf.integrated.label" displayType="system" />
+		<field name="emf:hasTemplate" displayType="system" />
+		<field name="hasChild" displayType="system" />
+		<field name="parentOf" displayType="system" />
     </fields>
 	
 	<regions>
 		<region id="systemData" order="1" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="title" type="an..500" label="nga.title.label" tooltip="nga.title.tooltip" mandatory="true" displayType="editable" previewEmpty="false" uri="dcterms:title" unique="true"/>
-				<field name="forObjectTypeLabel" type="an..256" label="template.forObjectType" tooltip="nga.forObjectType.tooltip" displayType="readonly" uri="emf:forObjectTypeLabel" />
-				<field name="templatePurpose" type="an..30" mandatory="true" displayType="readonly" codelist="CL31" label="template.templatePurpose" tooltip="nga.templatePurpose.tooltip"  multiValued="false" uri="emf:templatePurpose"/>
-				<field name="isPrimaryTemplate" type="boolean" label="template.isPrimaryTemplate" tooltip="nga.isPrimaryTemplate.tooltip" displayType="readonly" multiValued="false" uri="emf:isPrimaryTemplate"/>
-				<field name="description" type="an..1024" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable" previewEmpty="false" uri="dcterms:description"/>
-				<field name="templateRuleDescription" type="an..1024" label="template.ruleDescription" tooltip="nga.templateRuleDescription.tooltip" displayType="readonly" multiValued="false" uri="emf:templateRuleDescription"/>
+				<field name="title" type="an..500" label="nga.title.label" tooltip="nga.title.tooltip" />
+				<field name="forObjectTypeLabel" tooltip="nga.forObjectType.tooltip" />
+				<field name="templatePurpose" tooltip="nga.templatePurpose.tooltip" />
+				<field name="isPrimaryTemplate" tooltip="nga.isPrimaryTemplate.tooltip" />
+				<field name="description" tooltip="nga.description.tooltip" previewEmpty="false" />
+				<field name="templateRuleDescription" tooltip="nga.templateRuleDescription.tooltip" />
 				
-				<field name="identifier" type="an..50" label="nga.identifier.label" tooltip="nga.identifier.tooltip" displayType="readOnly" rnc="${eval(TMP${seq({+tmpSequence})})}" uri="dcterms:identifier"/>
-				<field name="emf:version" type="an..10" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" uri="emf:version"/> 
-				<field name="status" type="an..50" codelist="CL17" label="status.label" tooltip="nga.status.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:status" />
-				<field name="createdOn" type="dateTime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readOnly" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="identifier" tooltip="nga.identifier.tooltip" rnc="${eval(TMP${seq({+tmpSequence})})}" />
+				<field name="emf:version" tooltip="nga.version.tooltip" /> 
+				<field name="status" tooltip="nga.status.tooltip" />
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" />
+				<field name="createdBy" tooltip="nga.createdBy.tooltip" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" />
 			</fields>
 		</region>
 		<region id="generalTemplateRelationships" order="2" displayType="editable" label="nga.relationships.region.label">
 			<fields>
-				 <field name="type" type="an..50" codelist="CL7" label="type.label" displayType="readOnly" uri="emf:type">
+				 <field name="type" >
 					<value>TEMPLATE</value>
-				</field> 
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
 				</field>
-				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasParent" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" />
+				<field name="partOf" displayType="readOnly" tooltip="nga.partOf.tooltip" />
 			</fields>
 		</region>
 	</regions>
@@ -220,12 +163,18 @@
                     </span>
 					<span class="tooltip-row">
                         <label>System modified by: </label>
-                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
                     </span>
 					<span class="tooltip-row">
                         <label>System modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>	
@@ -235,20 +184,21 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(64)}"/></span>
 			${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9;>).else(<span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<span data-property="type">${CL([type])}</span>&nbsp;
 					(<span data-property="status">${CL([status])}</span>)
 				</span>
 				<br />
-				<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
-					${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
-					
-				</a>
-				,&nbsp;Last&nbsp;modified&nbsp;by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>,&nbsp;${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}
+				<b>
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
+					</a>
+				</b>	
+				,&nbsp;Last&nbsp;modified&nbsp;by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>,&nbsp;${date([modifiedOn])}
 				${if(${var.isVersion}).then(
 					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 				)}
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
             </span>)}]]></value>
 		</label>
 		 <label id="NGA_TEMPLATE_COMPACT_HEADER">
@@ -257,7 +207,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
             <span ><img src="${thumbnailUri(16)}"/></span>
             <span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span>
 					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
 						<span data-title="${get([title])}">${get([title])}</span>
@@ -274,7 +224,7 @@
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
             <span ><img src="${thumbnailUri(16)}"/></span>
             <span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-title="${get([title])}">${get([title])}</span>

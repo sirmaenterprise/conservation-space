@@ -63,6 +63,8 @@ public class EditOfflineCheckOutAction implements Action<EditOfflineCheckOutRequ
 			LockInfo status = lockService.lockStatus(instanceReference);
 			throw new LockException(status, "Instance already locked");
 		}
+
+		request.setTargetReference(instanceReference);
 	}
 
 	@Override

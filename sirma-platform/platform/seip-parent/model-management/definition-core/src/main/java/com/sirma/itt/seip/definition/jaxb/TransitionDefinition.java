@@ -121,6 +121,10 @@ public class TransitionDefinition {
         return this.condition;
     }
 
+    public void setCondition(List<ConditionDefinition> condition) {
+        this.condition = condition;
+    }
+
     /**
      * Gets the value of the fields property.
      *
@@ -178,11 +182,7 @@ public class TransitionDefinition {
      *
      */
     public String getDisplayType() {
-        if (displayType == null) {
-            return "editable";
-        } else {
-            return displayType;
-        }
+		return displayType;
     }
 
     /**
@@ -325,12 +325,8 @@ public class TransitionDefinition {
      *     {@link Boolean }
      *
      */
-    public boolean isDefaultTransition() {
-        if (defaultTransition == null) {
-            return false;
-        } else {
-            return defaultTransition;
-        }
+    public Boolean isDefaultTransition() {
+         return defaultTransition;
     }
 
     /**
@@ -353,12 +349,8 @@ public class TransitionDefinition {
      *     {@link Boolean }
      *
      */
-    public boolean isImmediate() {
-        if (immediate == null) {
-            return false;
-        } else {
-            return immediate;
-        }
+    public Boolean isImmediate() {
+        return immediate;
     }
 
     /**
@@ -497,8 +489,12 @@ public class TransitionDefinition {
 		return group;
 	}
 
+	// TODO: WTF
     public void setOrder(String value) {
         this.group = value;
     }
 
+    public void setGroup(String group) {
+        this.group = group;
+    }
 }

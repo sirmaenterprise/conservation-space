@@ -29,7 +29,6 @@ import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
-import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.testutil.mocks.DataTypeDefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceProxyMock;
@@ -54,7 +53,6 @@ public class DefaultRelationInitializerTest extends GeneralSemanticTest<DefaultR
 		ReflectionUtils.setFieldValue(service, "repositoryConnection", connection);
 		ReflectionUtils.setFieldValue(service, "valueFactory", valueFactory);
 		ReflectionUtils.setFieldValue(service, "registryService", namespaceRegistry);
-		ReflectionUtils.setFieldValue(service, "statistics", new NoOpStatistics());
 	}
 
 	/**

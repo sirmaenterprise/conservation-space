@@ -25,12 +25,12 @@ export class DatatableSortableIntegration {
       containerSelector: '.table-header',
       delay: 200,
       handle: '.title-cell',
-      onDragStart: function ($item, container, _super) {
+      onDragStart($item, container, _super) {
         _super($item, container);
         container.el.css({'padding-left': '5px'});
         DatatableSortableIntegration.onDragStart($item, paramsObject);
       },
-      onDrop: function ($item, container, _super) {
+      onDrop($item, container, _super) {
         _super($item, container);
         container.el.css({'padding': '0px'});
         DatatableSortableIntegration.onDrop($item, paramsObject, widget);

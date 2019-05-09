@@ -38,4 +38,11 @@ describe('CodeDescriptions', () => {
     value.validationModel['name'] = {valid: false};
     expect(descriptions.isValueFieldInvalid(value, 'name')).to.be.true;
   });
+
+  it('should provide a sorted sequence of descriptions based on their respective language', () => {
+    descriptions.descriptions = {
+      'EN': {name: 'English'}, 'BG': {name: 'Bulgarian'}, 'AR': {name: 'Arabic'}
+    };
+    expect(descriptions.getDescriptions()).to.deep.eq([{name: 'Arabic'}, {name: 'Bulgarian'}, {name: 'English'}]);
+  });
 });

@@ -20,6 +20,7 @@ import com.sirma.itt.seip.resources.Group;
 import com.sirma.itt.seip.resources.RemoteStoreException;
 import com.sirma.itt.seip.resources.RemoteUserStoreAdapter;
 import com.sirma.itt.seip.resources.User;
+import com.sirma.itt.seip.security.configuration.SecurityConfiguration;
 
 /**
  * Proxy implementation for {@link RemoteUserStoreAdapter} that uses a configuration that specify what actual
@@ -33,9 +34,9 @@ public class RemoteUserStoreAdapterProxy implements RemoteUserStoreAdapter {
 
 	@Inject
 	@Configuration
-	@ConfigurationPropertyDefinition(name = "synchronization.resource.provider", defaultValue = "wso2Idp", sensitive =
+	@ConfigurationPropertyDefinition(name = "synchronization.resource.provider", defaultValue = SecurityConfiguration.KEYCLOAK_IDP, sensitive =
 			true, subSystem = "resources",
-			label = "The provider name for the user and group source. One of the possible values are: wso2Idp (default), alfresco")
+			label = "The provider name for the user and group source. One of the possible values are: keycloak (default), wso2Idp")
 	private ConfigurationProperty<String> synchronizationProviderName;
 
 	@Inject
@@ -153,5 +154,9 @@ public class RemoteUserStoreAdapterProxy implements RemoteUserStoreAdapter {
 
 	private RemoteUserStoreAdapter getDelegate() {
 		return delegate.getContextValue();
+	}
+
+	public ConfigurationProperty<String> getSynchronizationProviderName() {
+		return synchronizationProviderName;
 	}
 }

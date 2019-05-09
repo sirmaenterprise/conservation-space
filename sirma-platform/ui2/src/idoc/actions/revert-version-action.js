@@ -1,9 +1,9 @@
-import {Injectable, Inject} from "app/app";
-import {InstanceAction} from "idoc/actions/instance-action";
-import {Logger} from "services/logging/logger";
-import {ActionsService} from "services/rest/actions-service";
+import {Injectable, Inject} from 'app/app';
+import {InstanceAction} from 'idoc/actions/instance-action';
+import {Logger} from 'services/logging/logger';
+import {ActionsService} from 'services/rest/actions-service';
 import {Router} from 'adapters/router/router';
-import {StateParamsAdapter} from "adapters/router/state-params-adapter";
+import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {STATE_PARAM_ID, IDOC_STATE} from 'idoc/idoc-constants';
 import {NotificationService} from 'services/notification/notification-service';
 import {TranslateService} from 'services/i18n/translate-service';

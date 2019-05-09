@@ -10,4 +10,5 @@ public final class ErrorCode {
 	}
 
 	public static final int TIMEOUT = 1;
+	public static final int VALIDATION = 2;
 }

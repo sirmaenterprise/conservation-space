@@ -449,7 +449,7 @@ public class RepositoryUtils {
 		}
 		String sparqlQuery;
 		try {
-			sparqlQuery = IOUtils.toString(modelStream);
+			sparqlQuery = IOUtils.toString(modelStream, StandardCharsets.UTF_8);
 
 			if (StringUtils.isNotBlank(sparqlQuery)) {
 				Update updateQuery = repositoryConnection.prepareUpdate(QueryLanguage.SPARQL, sparqlQuery);

@@ -4,19 +4,25 @@ import com.sirma.itt.emf.solr.configuration.RankConfigurations;
 import com.sirma.itt.emf.solr.configuration.SolrSearchConfigurations;
 import com.sirma.itt.emf.solr.constants.SolrQueryConstants;
 import com.sirma.itt.semantic.search.FreeTextSearchProcessor;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.DisMaxParams;
+import org.apache.solr.common.params.SimpleParams;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Solr specific implementation for {@link FreeTextSolrProcessor}.
@@ -38,6 +44,8 @@ public class FreeTextSolrProcessor implements FreeTextSearchProcessor {
 	 */
 	private static final Pattern TERM_EXTRACT_PATTERN = Pattern.compile("(\".*?\"|\\S+)");
 
+	private static final String AUTO_SUGGEST_QUERY_TEMPLATE = "({!edismax v=$uq qf=%s})";
+
 	@Inject
 	private RankConfigurations rankConfigurations;
 
@@ -45,7 +53,7 @@ public class FreeTextSolrProcessor implements FreeTextSearchProcessor {
 	private SolrSearchConfigurations solrSearchConfigurations;
 
 	@Override
-	public String process(String searchTerms) {
+	public String buildFreeTextSearchQuery(String searchTerms) {
 		if (StringUtils.isBlank(searchTerms)) {
 			throw new IllegalArgumentException("Cannot process null or empty search terms!");
 		}
@@ -54,25 +62,29 @@ public class FreeTextSolrProcessor implements FreeTextSearchProcessor {
 		if (solrSearchConfigurations.enableTermWildcards().get()) {
 			processedTerms = addTermsWildcards(searchTerms);
 		}
-		processedTerms = escapeTerms(processedTerms);
-		return buildJsonStringRequest(processedTerms);
+		String query = escapeTerms(processedTerms);
+		return new SolrDismaxQueryBuilder().setUserQuery(query)
+				.setQuery(rankConfigurations.getQueryTemplate().get())
+				.setQueryField(rankConfigurations.getQueryFields().get())
+				.setPhraseField(rankConfigurations.getPhraseFields().get())
+				.setScoreTieBreaker(rankConfigurations.getTieBreaker().get())
+				.build();
 	}
 
 	@Override
-	public String process(String field, String searchTerms, boolean enableTermWildcards) {
-		if (StringUtils.isBlank(searchTerms)) {
+	public String buildFieldSuggestionQuery(String field, String searchPhrase) {
+		if (StringUtils.isBlank(searchPhrase)) {
 			throw new IllegalArgumentException("Cannot process null or empty search terms!");
 		}
 		if (StringUtils.isBlank(field)) {
 			throw new IllegalArgumentException("Cannot process search without field!");
 		}
 
-		String processedTerms = searchTerms;
-		if (enableTermWildcards && solrSearchConfigurations.enableTermWildcards().get()) {
-			processedTerms = addTermsWildcards(searchTerms);
-		}
-		processedTerms = escapeTerms(processedTerms);
-		return buildJsonStringRequest(field, processedTerms);
+		String query = StringUtils.wrap(escapeSearchPhrase(searchPhrase), "*");
+		String queryTemplate = String.format(AUTO_SUGGEST_QUERY_TEMPLATE, field);
+		return new SolrDismaxQueryBuilder().setUserQuery(query)
+				.setQuery(queryTemplate)
+				.build();
 	}
 
 	private String escapeTerms(String searchTerms) {
@@ -94,24 +106,51 @@ public class FreeTextSolrProcessor implements FreeTextSearchProcessor {
 		return StringUtils.join(processedTerms, " ");
 	}
 
-	private String buildJsonStringRequest(String searchTerms) {
-		JsonObjectBuilder requestBuilder = Json.createObjectBuilder();
-
-		requestBuilder.add(SolrQueryConstants.USER_QUERY, searchTerms);
-		requestBuilder.add(CommonParams.Q, rankConfigurations.getQueryTemplate().get());
-		requestBuilder.add(DisMaxParams.QF, rankConfigurations.getQueryFields().get());
-		requestBuilder.add(DisMaxParams.PF, rankConfigurations.getPhraseFields().get());
-		requestBuilder.add(DisMaxParams.TIE, rankConfigurations.getTieBreaker().get());
-		requestBuilder.add(SolrQueryConstants.DEF_TYPE, SolrQueryConstants.EDISMAX_DEF_TYPE);
-
-		return requestBuilder.build().toString();
+	private String escapeSearchPhrase(String searchPhrase) {
+		return Arrays.stream(searchPhrase.split(" ")).filter(StringUtils::isNotBlank).map(term -> {
+			if (SimpleParams.AND_OPERATOR.equalsIgnoreCase(term) || SimpleParams.OR_OPERATOR.equalsIgnoreCase(term)) {
+				return StringUtils.wrap(term, "\"");
+			}
+			return term;
+		}).map(ClientUtils::escapeQueryChars).collect(Collectors.joining(" AND "));
 	}
 
-	private String buildJsonStringRequest(String field, String searchTerms) {
-		JsonObjectBuilder requestBuilder = Json.createObjectBuilder();
-		requestBuilder.add(CommonParams.Q, searchTerms);
-		requestBuilder.add(CommonParams.DF, field);
+	private final class SolrDismaxQueryBuilder {
 
-		return requestBuilder.build().toString();
+		private JsonObjectBuilder requestBuilder = Json.createObjectBuilder();
+
+		private SolrDismaxQueryBuilder() {
+			requestBuilder.add(SolrQueryConstants.DEF_TYPE, SolrQueryConstants.EDISMAX_DEF_TYPE);
+			setScoreTieBreaker(SolrQueryConstants.DEFAULT_TIE_BREAKER);
+		}
+
+		private SolrDismaxQueryBuilder setScoreTieBreaker(String tie) {
+			requestBuilder.add(DisMaxParams.TIE, tie);
+			return this;
+		}
+
+		private SolrDismaxQueryBuilder setPhraseField(String phraseField) {
+			requestBuilder.add(DisMaxParams.PF, phraseField);
+			return this;
+		}
+
+		private SolrDismaxQueryBuilder setQueryField(String queryField) {
+			requestBuilder.add(DisMaxParams.QF, queryField);
+			return this;
+		}
+
+		private SolrDismaxQueryBuilder setUserQuery(String userQuery) {
+			requestBuilder.add(SolrQueryConstants.USER_QUERY, userQuery);
+			return this;
+		}
+
+		private SolrDismaxQueryBuilder setQuery(String query) {
+			requestBuilder.add(CommonParams.Q, query);
+			return this;
+		}
+
+		private String build() {
+			return requestBuilder.build().toString();
+		}
 	}
 }

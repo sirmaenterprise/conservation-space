@@ -66,7 +66,7 @@ $.fn.select2.amd.define('select2/data/CustomAdapter', ['select2/data/ajax', 'sel
         resolve();
       });
     });
-  }
+  };
 
   CustomDataAdapter.prototype._map = function (ids) {
     let mapper = this.options.get('mapper');
@@ -87,7 +87,7 @@ $.fn.select2.amd.define('select2/data/CustomAdapter', ['select2/data/ajax', 'sel
         resolve(results);
       });
     });
-  }
+  };
 
   CustomDataAdapter.prototype.current = function (callback, defaultValue) {
     let value = this.options.get('value') || defaultValue;

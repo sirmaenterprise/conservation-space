@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.sirma.itt.emf.semantic.queries.SPARQLQueryHelper;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.definition.DefinitionService;
 import com.sirma.itt.seip.definition.SemanticDefinitionService;
@@ -22,6 +23,7 @@ import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.domain.search.SearchArguments;
 import com.sirma.itt.seip.domain.search.SearchRequest;
+import com.sirma.itt.seip.domain.search.Sorter;
 import com.sirma.itt.seip.domain.search.tree.Condition;
 import com.sirma.itt.seip.domain.search.tree.Rule;
 import com.sirma.itt.seip.domain.search.tree.SearchNode;
@@ -88,6 +90,26 @@ public class InstanceSuggestRestServiceTest {
 		Mockito.when(model.getField(PROPERTY_NAME_WITH_RESTRICTION)).thenReturn(createPropertyWithRestriction());
 		Mockito.when(instanceSuggestResultsCount.get()).thenReturn(3);
 		Mockito.when(searchService.parseRequest(Matchers.any())).thenReturn(searchArguments);
+	}
+
+	@Test
+	public void should_NotExecuteSearchWithRelevantSorter_When_KeyWordsAreEmpty() {
+		InstanceSuggestRelationsRequest instanceSuggestRelationsRequest = createRequest(DEFINITION_ID,
+																						PROPERTY_NAME_WITH_SEMANTIC_RESTRICTION,
+																						"");
+		instanceSuggestRestService.suggestRelation(instanceSuggestRelationsRequest);
+
+		Mockito.verify(searchArguments, Mockito.never()).addSorter(Mockito.any(Sorter.class));
+	}
+
+	@Test
+	public void should_ExecuteSearchWithRelevantSorter_When_KeyWordsAreNotEmpty() {
+		InstanceSuggestRelationsRequest instanceSuggestRelationsRequest = createRequest(DEFINITION_ID,
+																						PROPERTY_NAME_WITH_SEMANTIC_RESTRICTION,
+																						KEYWORDS);
+		instanceSuggestRestService.suggestRelation(instanceSuggestRelationsRequest);
+
+		Mockito.verify(searchArguments).addSorter(Mockito.argThat(isRelevantSorterAdded()));
 	}
 
 	@Test
@@ -259,6 +281,13 @@ public class InstanceSuggestRestServiceTest {
 			Assert.assertEquals(keywords, searchNode.getValues().get(0));
 
 			Assert.assertEquals(restrictionsCondition, rules.get(1));
+		});
+	}
+
+	private CustomMatcher<Sorter> isRelevantSorterAdded() {
+		return CustomMatcher.of((sorter) -> {
+			Assert.assertEquals(SPARQLQueryHelper.RANKING_SORTER_FIELD, sorter.getSortField());
+			Assert.assertFalse(sorter.isAscendingOrder());
 		});
 	}
 

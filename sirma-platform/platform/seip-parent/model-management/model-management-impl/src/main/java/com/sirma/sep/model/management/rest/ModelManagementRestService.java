@@ -3,17 +3,24 @@ package com.sirma.sep.model.management.rest;
 import com.sirma.itt.seip.rest.annotations.security.AdminResource;
 import com.sirma.sep.model.management.ModelManagementService;
 import com.sirma.sep.model.management.ModelProperty;
+import com.sirma.sep.model.management.DeploymentValidationReport;
 import com.sirma.sep.model.management.hierarchy.ModelHierarchyClass;
 import com.sirma.sep.model.management.meta.ModelsMetaInfo;
+import com.sirma.sep.model.management.request.ModelUpdateRequest;
+import com.sirma.sep.model.management.request.ModelDeploymentRequest;
 import com.sirma.sep.model.management.response.ModelResponse;
+import com.sirma.sep.model.management.response.ModelUpdateResponse;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -25,6 +32,8 @@ import java.util.List;
 @Path("/administration/model-management")
 @AdminResource
 @Singleton
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ModelManagementRestService {
 
 	@Inject
@@ -37,7 +46,6 @@ public class ModelManagementRestService {
 	 */
 	@GET
 	@Path("/hierarchy")
-	@Produces(MediaType.APPLICATION_JSON)
 	public List<ModelHierarchyClass> getHierarchy() {
 		return managementService.getModelHierarchy();
 	}
@@ -51,7 +59,6 @@ public class ModelManagementRestService {
 	 */
 	@GET
 	@Path("/meta-info")
-	@Produces(MediaType.APPLICATION_JSON)
 	public ModelsMetaInfo getMetaInfo() {
 		return managementService.getMetaInfo();
 	}
@@ -63,7 +70,6 @@ public class ModelManagementRestService {
 	 */
 	@GET
 	@Path("/properties")
-	@Produces(MediaType.APPLICATION_JSON)
 	public List<ModelProperty> getProperties() {
 		return managementService.getProperties();
 	}
@@ -76,8 +82,47 @@ public class ModelManagementRestService {
 	 * be empty.
 	 */
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
 	public ModelResponse getModel(@QueryParam("model") String id) {
 		return managementService.getModel(id);
+	}
+
+	/**
+	 * Updates the model by applying the given changes
+	 *
+	 * @param updateRequest the update request to process
+	 * @return a response containing the model nodes
+	 */
+	@POST
+	public ModelUpdateResponse updateModel(ModelUpdateRequest updateRequest) {
+		return managementService.updateModel(updateRequest);
+	}
+
+	/**
+	 * Run validation for deployment of all non deployed model nodes
+	 *
+	 * @return the list of non deployed models and any validation information if applicable
+	 */
+	@GET
+	@Path("/deploy")
+	public DeploymentValidationReport runDeploymentValidation() {
+		return managementService.validateDeploymentCandidates();
+	}
+
+	/**
+	 * Trigger deploy process of the given non deployed models. Can use the response from the GET /deploy call
+	 *
+	 * @param deploymentRequest the requested models to deploy
+	 * @return the accepted status or error
+	 */
+	@POST
+	@Path("/deploy")
+	public Response deploy(ModelDeploymentRequest deploymentRequest) {
+		DeploymentValidationReport report = managementService.deployChanges(deploymentRequest);
+
+		Response.Status responseStatus = Response.Status.ACCEPTED;
+		if (!report.isValid()) {
+			responseStatus = Response.Status.BAD_REQUEST;
+		}
+		return Response.status(responseStatus).entity(report).build();
 	}
 }

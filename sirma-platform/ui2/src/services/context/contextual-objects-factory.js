@@ -36,7 +36,7 @@ export class ContextualObjectsFactory {
   constructObject(id, labelKey) {
     let label = this.translateService.translateInstant(labelKey);
     let currentObject = {
-      id: id,
+      id,
       properties: {
         title: label
       },

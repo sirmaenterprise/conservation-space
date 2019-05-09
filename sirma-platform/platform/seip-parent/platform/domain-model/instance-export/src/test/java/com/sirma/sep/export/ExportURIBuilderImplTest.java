@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.configuration.SystemConfiguration;
+import com.sirma.itt.seip.resources.EmfUser;
 import com.sirma.itt.seip.rest.secirity.SecurityTokensManager;
+import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 
 /**
@@ -32,6 +33,9 @@ public class ExportURIBuilderImplTest {
 
 	@Mock
 	private SecurityTokensManager securityTokensManager;
+
+	@Mock
+	private SecurityContext securityContext;
 
 	@Before
 	public void setup() {
@@ -51,7 +55,8 @@ public class ExportURIBuilderImplTest {
 
 	@Test
 	public void generateURI_defaultToken() {
-		when(securityTokensManager.getCurrentJwtToken()).thenReturn(Optional.of("current-user-jwt-token"));
+		mockToken("current-user-jwt-token");
+
 		when(systemConfiguration.getUi2Url()).thenReturn(new ConfigurationPropertyMock<>("http://localhost:5000/"));
 		URI generatedURI = builder.generateURI("instance-id", null);
 		assertEquals("http://localhost:5000/#/idoc/instance-id?jwt=current-user-jwt-token&mode=print",
@@ -60,23 +65,22 @@ public class ExportURIBuilderImplTest {
 
 	@Test
 	public void generateURIForTabs_withTokenAndTabs() {
-		when(securityTokensManager.getCurrentJwtToken()).thenReturn(Optional.of("current-user-jwt-token"));
 		when(systemConfiguration.getUi2Url()).thenReturn(new ConfigurationPropertyMock<>("http://localhost:5000/"));
 		URI generatedURI = builder.generateURIForTabs(Arrays.asList("tab-1", "tab-2"), "instance-id", "user-token");
 		assertEquals("http://localhost:5000/#/idoc/instance-id?tab=tab-1&tab=tab-2&jwt=user-token&mode=print",
 				generatedURI.toString());
 	}
 
-	@Test(expected = SecurityException.class)
-	public void getCurrentJwtToken_noAuthenticatedUser() {
-		when(securityTokensManager.getCurrentJwtToken()).thenReturn(Optional.empty());
-		builder.getCurrentJwtToken();
-	}
-
 	@Test
 	public void getCurrentJwtToken_withAuthenticatedUser() {
-		when(securityTokensManager.getCurrentJwtToken()).thenReturn(Optional.of("current-user-token"));
+		mockToken("current-user-token");
 		assertEquals("current-user-token", builder.getCurrentJwtToken());
+	}
+
+	private void mockToken(String token) {
+		EmfUser user = new EmfUser();
+		when(securityContext.getAuthenticated()).thenReturn(user);
+		when(securityTokensManager.generate(user)).thenReturn(token);
 	}
 
 }

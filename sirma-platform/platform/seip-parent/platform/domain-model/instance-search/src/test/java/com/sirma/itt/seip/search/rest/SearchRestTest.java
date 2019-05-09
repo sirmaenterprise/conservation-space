@@ -11,14 +11,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.rest.BadRequestException;
 import com.sirma.itt.seip.domain.search.SearchArguments;
 import com.sirma.itt.seip.domain.search.SearchRequest;
+import com.sirma.itt.seip.rest.exceptions.BadRequestException;
 import com.sirma.itt.seip.search.SearchService;
 
 /**
  * Tests the logic in {@link SearchRest}.
- * 
+ *
  * @author Mihail Radkov
  */
 public class SearchRestTest {

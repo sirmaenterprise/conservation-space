@@ -406,12 +406,9 @@ describe('Calculation validator', function () {
       let result = validator.parseObjectsBindingResponseToObjectValue(objectsBindingResponse);
       expect(result).to.eql({
         results: [idOne, idTwo],
-        add: [idOne, idTwo],
-        remove: [],
-        total: 2,
         headers: {
-          [idOne]: { id: idOne, compact_header: headerOne },
-          [idTwo]: { id: idTwo, compact_header: headerTwo }
+          [idOne]: {compact_header: headerOne },
+          [idTwo]: {compact_header: headerTwo }
         }
       });
     });
@@ -420,9 +417,6 @@ describe('Calculation validator', function () {
       let result = validator.parseObjectsBindingResponseToObjectValue(null);
       expect(result).to.eql({
         results: [],
-        total: 0,
-        add: [],
-        remove: [],
         headers: {}
       });
     });

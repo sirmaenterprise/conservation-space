@@ -15,9 +15,7 @@ import './comments-filter-panel.css!css';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgCompile, NgScope, NgElement, TranslateService, Configuration)
 export class CommentsFilterPanel extends Configurable {
   constructor($compile, $scope, $element, translateService, configuration) {
@@ -68,16 +66,16 @@ export class CommentsFilterPanel extends Configurable {
       cssClass: 'from-date-field',
       defaultValue: this.filters.fromDate,
       placeholder: 'search.date.from.placeholder',
-      dateFormat: dateFormat,
-      timeFormat: timeFormat
+      dateFormat,
+      timeFormat
     };
 
     this.toDateConfig = {
       cssClass: 'end-date-field',
       defaultValue: this.filters.toDate,
       placeholder: 'search.date.to.placeholder',
-      dateFormat: dateFormat,
-      timeFormat: timeFormat
+      dateFormat,
+      timeFormat
     };
   }
 

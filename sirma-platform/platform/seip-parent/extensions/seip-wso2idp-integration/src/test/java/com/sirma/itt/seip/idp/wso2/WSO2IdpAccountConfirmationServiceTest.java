@@ -44,11 +44,12 @@ public class WSO2IdpAccountConfirmationServiceTest {
 	private IDPConfiguration idpConfig;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 
 		informationRecoveryService.set(recoveryService);
-		when(idpConfig.getIdpServerURL()).thenReturn(new ConfigurationPropertyMock<>("https://localhost:9443/samlsso"));
+		when(idpConfig.getIdpServerURL())
+				.thenReturn(new ConfigurationPropertyMock<>("https://localhost:9443/sso/samlsso"));
 	}
 
 	@Test
@@ -56,12 +57,21 @@ public class WSO2IdpAccountConfirmationServiceTest {
 		when(recoveryService.getCaptcha()).thenReturn(getCaptchaInfoBean());
 
 		String captchaLink = service.retrieveCaptchaLink("aCode");
-		assertEquals("https://localhost:9443/images/captcha1.jpg", captchaLink);
+		assertEquals("https://localhost:9443/sso/images/captcha1.jpg", captchaLink);
 	}
 
 	@Test
 	public void retrieveCaptchaLink_ShouldPrependForwardSlash_When_ImagePathHasNone() throws Exception {
 		when(recoveryService.getCaptcha()).thenReturn(getCaptchaInfoBean("images/captcha1.jpg"));
+
+		String captchaLink = service.retrieveCaptchaLink("aCode");
+		assertEquals("https://localhost:9443/sso/images/captcha1.jpg", captchaLink);
+	}
+
+	@Test
+	public void retrieveCaptchaLink_ShouldBuildCorrectLink_When_NoPath() throws Exception {
+		when(recoveryService.getCaptcha()).thenReturn(getCaptchaInfoBean("images/captcha1.jpg"));
+		when(idpConfig.getIdpServerURL()).thenReturn(new ConfigurationPropertyMock<>("https://localhost:9443/samlsso"));
 
 		String captchaLink = service.retrieveCaptchaLink("aCode");
 		assertEquals("https://localhost:9443/images/captcha1.jpg", captchaLink);

@@ -3,6 +3,7 @@ package com.sirma.itt.emf.cls.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -13,9 +14,8 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
@@ -26,12 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.sirma.itt.emf.cls.persister.CodeListPersister;
 import com.sirma.itt.emf.cls.persister.SheetParser;
-import com.sirma.itt.emf.cls.persister.SheetPersister;
-import com.sirma.itt.emf.cls.service.CodeListManagementService;
-import com.sirma.itt.emf.cls.validator.CodeValidator;
 import com.sirma.itt.emf.cls.validator.SheetValidator;
 import com.sirma.itt.emf.cls.validator.exception.CodeValidatorException;
 import com.sirma.itt.emf.cls.validator.exception.SheetValidatorException;
@@ -39,6 +38,7 @@ import com.sirma.itt.seip.domain.codelist.event.ResetCodelistEvent;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.rest.annotations.security.AdminResource;
+import com.sirma.itt.seip.rest.exceptions.ResourceNotFoundException;
 import com.sirma.sep.cls.CodeListService;
 import com.sirma.sep.cls.model.CodeList;
 import com.sirma.sep.cls.model.CodeValue;
@@ -53,13 +53,10 @@ import jxl.Sheet;
 public class CodeListResourceManagementTest {
 
 	@Mock
-	private CodeValidator codeValidator;
-
-	@Mock
 	private SheetValidator sheetValidator;
 
 	@Mock
-	private SheetPersister processor;
+	private CodeListPersister persister;
 
 	@Mock
 	private SheetParser sheetParser;
@@ -71,9 +68,6 @@ public class CodeListResourceManagementTest {
 	private CodeListService codeListService;
 
 	@Mock
-	private CodeListManagementService managementService;
-
-	@Mock
 	private EventService eventService;
 
 	@InjectMocks
@@ -83,7 +77,7 @@ public class CodeListResourceManagementTest {
 	public void initializeTest() throws CodeValidatorException, SheetValidatorException {
 		MockitoAnnotations.initMocks(this);
 		mockCodeListSheetParser();
-		mockCodeListValidator(true);
+		mockPersister(true);
 		mockCodeSheetValidator(true);
 	}
 
@@ -91,6 +85,20 @@ public class CodeListResourceManagementTest {
 	public void testMarkedAsAdminResource() {
 		AdminResource annotation = CodeListResourceManagement.class.getAnnotation(AdminResource.class);
 		assertNotNull(annotation);
+	}
+
+	@Test(expected = ResourceNotFoundException.class)
+	public void shouldNotExtractSingleCodeList() throws JSONException, IOException {
+		mockCodeListService((CodeList) null);
+		codeListResource.getCodeList("999");
+	}
+
+	@Test
+	public void shouldExtractSingleCodeList() throws JSONException, IOException {
+		CodeList code = mockCodeList(true);
+		mockCodeListService(code);
+		CodeList response = codeListResource.getCodeList(code.getValue());
+		assertEquals(code, response);
 	}
 
 	@Test
@@ -126,7 +134,7 @@ public class CodeListResourceManagementTest {
 		CodeList updated = mockCodeList(false);
 		Response response = codeListResource.updateCodelist(updated);
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-		verify(managementService, times(1)).saveCodeList(eq(updated));
+		verify(persister, times(1)).persist(eq(updated));
 	}
 
 	@Test
@@ -138,7 +146,7 @@ public class CodeListResourceManagementTest {
 
 	@Test(expected = CodeValidatorException.class)
 	public void shouldReturnBadRequestForInvalidListData() throws CodeValidatorException, SheetValidatorException {
-		mockCodeListValidator(false);
+		mockPersister(false);
 		UploadRequest request = mockRequest();
 		codeListResource.addCodelists(request);
 	}
@@ -173,12 +181,19 @@ public class CodeListResourceManagementTest {
 	}
 
 	private void mockCodeListService(List<CodeList> codeLists) {
-		when(codeListService.getCodeLists()).thenReturn(codeLists);
+		when(codeListService.getCodeLists(Mockito.anyBoolean())).thenReturn(codeLists);
 	}
 
-	private void mockCodeListValidator(boolean valid) throws CodeValidatorException {
+	private void mockCodeListService(CodeList codeList) {
+		Optional<CodeList> returnValue = codeList == null ? Optional.empty() : Optional.of(codeList);
+		when(codeListService.getCodeList(Mockito.any(), Mockito.anyBoolean())).thenReturn(returnValue);
+	}
+
+	private void mockPersister(boolean valid) throws CodeValidatorException {
 		if (!valid) {
-			doThrow(new CodeValidatorException("Error")).when(codeValidator).validateCodeLists(any());
+			doThrow(new CodeValidatorException("Error")).when(persister).override(any());
+			doThrow(new CodeValidatorException("Error")).when(persister).persist(anyList());
+			doThrow(new CodeValidatorException("Error")).when(persister).persist(any(CodeList.class));
 		}
 	}
 
@@ -192,11 +207,4 @@ public class CodeListResourceManagementTest {
 		when(sheetParser.parseFromSheet(any(Sheet.class))).thenReturn(mockCodeListSheet(true));
 	}
 
-	private static Map<String, String> getErrorMap(boolean valid) {
-		Map<String, String> errors = new HashMap<>();
-		if (!valid) {
-			errors.put("id", "missing");
-		}
-		return errors;
-	}
 }

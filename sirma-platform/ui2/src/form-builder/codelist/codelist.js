@@ -63,7 +63,7 @@ export class Codelist extends FormControl {
       };
     }
     return {
-      placeholder: this.translateService.translateInstant('select.codelist.placeholder'),
+      placeholder: this.translateService.translateInstant('select.value.placeholder'),
       dataLoader: (term) => {
         opts.q = term !== null ? term.data.q : undefined;
         const codelistFilters = this.codelistFilterProvider.getFilterConfig(this.objectId || this.definitionId, this.fieldViewModel.identifier);

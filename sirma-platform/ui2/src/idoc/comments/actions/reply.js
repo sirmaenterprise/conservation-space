@@ -19,7 +19,7 @@ export class ReplyCommentAction extends ActionHandler {
       let target = comment.getTarget();
       let config = {
         currentObject: {
-          getId: function () {
+          getId() {
             return target;
           }
         },

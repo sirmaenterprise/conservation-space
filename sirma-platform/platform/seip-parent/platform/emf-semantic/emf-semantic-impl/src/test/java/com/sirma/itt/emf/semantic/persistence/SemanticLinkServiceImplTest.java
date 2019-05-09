@@ -178,7 +178,7 @@ public class SemanticLinkServiceImplTest extends GeneralSemanticTest<LinkService
 		Pair<Serializable, Serializable> pair2 = cut.link(from.toReference(), to.toReference(), "emf:dependsOn", null,
 				null);
 		assertNotNull(pair2.getFirst());
-		assertNull(pair2.getSecond());
+		assertNotNull(pair2.getSecond());
 
 		commitTransaction();
 

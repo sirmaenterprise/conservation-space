@@ -1,4 +1,3 @@
-import {$stateParams} from 'angular-ui-router';
 import {Inject,Injectable} from 'app/app';
 
 @Injectable()

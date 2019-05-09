@@ -44,6 +44,11 @@ import com.sirma.itt.seip.testutil.mocks.InstanceContextServiceMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.util.ReflectionUtils;
 
+/**
+ * Test for {@link InstanceResource}.
+ * 
+ * @author A. Kunchev
+ */
 public class InstanceResourceTest {
 
 	@InjectMocks

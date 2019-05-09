@@ -36,12 +36,12 @@ export class SearchCriteriaUtils {
    */
   static getDefaultAdvancedSearchCriteria(condition) {
     return {
-      id: uuid(),
+      id: SearchCriteriaUtils.getUuid(),
       // Sections rules
       condition: condition || OR_CONDITION,
       rules: [
         {
-          id: uuid(),
+          id: SearchCriteriaUtils.getUuid(),
           // Object type <-> groups rules
           condition: AND_CONDITION,
           rules: []
@@ -59,7 +59,7 @@ export class SearchCriteriaUtils {
 
   static buildRule(field, type, operator, value) {
     return {
-      id: uuid(),
+      id: SearchCriteriaUtils.getUuid(),
       field,
       type,
       operator,
@@ -77,7 +77,7 @@ export class SearchCriteriaUtils {
 
   static buildCondition(condition, rules) {
     return {
-      id: uuid(),
+      id: SearchCriteriaUtils.getUuid(),
       condition: condition || AND_CONDITION,
       rules: rules || []
     };
@@ -86,14 +86,8 @@ export class SearchCriteriaUtils {
   /**
    * Generates an empty object type criteria rule with unique id.
    */
-  static getDefaultObjectTypeRule(predefinedTypes) {
-    return {
-      id: uuid(),
-      field: CRITERIA_TYPES_RULE_FIELD,
-      type: '',
-      operator: AdvancedSearchCriteriaOperators.EQUALS.id,
-      value: predefinedTypes || []
-    };
+  static getDefaultObjectTypeRule(predefinedTypes = []) {
+    return SearchCriteriaUtils.buildRule(SearchCriteriaUtils.CRITERIA_TYPES_RULE_FIELD, '', AdvancedSearchCriteriaOperators.EQUALS.id, predefinedTypes);
   }
 
   static getDefaultFreeTextRule(value = '') {
@@ -337,6 +331,10 @@ export class SearchCriteriaUtils {
       return rules && criteria.id === rules[0].id;
     }
     return false;
+  }
+
+  static getUuid() {
+    return uuid();
   }
 }
 

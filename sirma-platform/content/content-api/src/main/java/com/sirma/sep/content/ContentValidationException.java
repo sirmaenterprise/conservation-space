@@ -1,16 +1,11 @@
-/**
- *
- */
 package com.sirma.sep.content;
-
-import com.sirma.itt.seip.exception.EmfRuntimeException;
 
 /**
  * Exception thrown to indicate problem with the instance view structure or format.
  *
  * @author BBonev
  */
-public class ContentValidationException extends EmfRuntimeException {
+public class ContentValidationException extends RuntimeException {
 
 	private static final long serialVersionUID = 4331490992665491261L;
 

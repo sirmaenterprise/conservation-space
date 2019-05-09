@@ -8,6 +8,8 @@ import {TabsConfig} from 'idoc/idoc-tabs/idoc-tabs-config';
 import {PromiseStub} from 'test/promise-stub';
 import {PromiseAdapterMock} from '../adapters/angular/promise-adapter-mock';
 import {ModelingIdocContextBuilder} from 'idoc/template/modeling-idoc-context-builder';
+import {PluginsService} from 'services/plugin/plugins-service';
+import {Eventbus} from 'services/eventbus/eventbus';
 import {stub} from 'test/test-utils';
 
 export class IdocMocks {
@@ -103,8 +105,7 @@ export class IdocMocks {
 
   static mockStateParamsAdapter(id, mode) {
     let stateParams = {
-      'id': id,
-      'mode': mode
+      id, mode
     };
     return new StateParamsAdapter(stateParams);
   }
@@ -115,7 +116,7 @@ export class IdocMocks {
       return '0';
     };
     locationAdapter.url = () => {
-      return url
+      return url;
     };
     return locationAdapter;
   }
@@ -225,8 +226,10 @@ export class IdocMocks {
   }
 
   static mockIdocContextFactory(id, sessionStorageService) {
+    let pluginsService = stub(PluginsService);
+    pluginsService.loadPluginServiceModules.returns([]);
     return new IdocContextFactory(IdocMocks.mockInstanceRestService(id), sessionStorageService,
-      PromiseAdapterMock.mockAdapter(), IdocMocks.mockEventBus());
+      PromiseAdapterMock.mockAdapter(), IdocMocks.mockEventBus(), pluginsService);
   }
 
   static mockIdocDraftService() {
@@ -234,13 +237,13 @@ export class IdocMocks {
       saveDraft: () => PromiseStub.resolve(),
       loadDraft: () => PromiseStub.resolve({}),
       deleteDraft: () => PromiseStub.resolve()
-    }
+    };
   }
 
   static mockConfiguration() {
     return {
       get: sinon.stub()
-    }
+    };
   }
 
   static mockPluginsService() {
@@ -322,7 +325,7 @@ export class IdocMocks {
   }
 
   static generateTabsConfig() {
-    var tabsConfig = new TabsConfig(IdocMocks.mockEventBus());
+    let tabsConfig = new TabsConfig(IdocMocks.mockEventBus());
     let tabs = [];
     for (let i = 0; i <= 3; i++) {
       tabs.push({

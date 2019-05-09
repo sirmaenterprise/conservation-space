@@ -8,8 +8,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +21,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +39,7 @@ import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.archive.ArchivedEntity;
 import com.sirma.itt.seip.instance.archive.ArchivedInstanceDao;
 import com.sirma.itt.seip.mapping.ObjectMapper;
+import com.sirma.itt.seip.testutil.CustomMatcher;
 
 /**
  * Test for {@link VersionDao}.
@@ -182,6 +188,40 @@ public class VersionDaoTest {
 		Map<Serializable, Serializable> resultMap = dao.findVersionIdsByTargetIdAndDate(Arrays.asList("targetId-1"),
 				new Date());
 		assertEquals(1, resultMap.size());
+	}
+
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void findVersionIdsByTargetIdAndDate_withResultsFound_properPagination() {
+		List<Serializable> request = IntStream.range(0, 40000)
+				.boxed()
+				.map(index -> "targetId-" + index)
+				.collect(Collectors.toList());
+		when(dbDao.fetchWithNamed(eq(ArchivedEntity.QUERY_LAST_VERSION_ID_BY_TARGET_ID_AND_CREATED_ON_DATE_KEY),
+				anyListOf(Pair.class))).then(a -> { List<Pair<String, Object>> params = a.getArgumentAt(1, List.class);
+			List ids = params.stream()
+					.filter(p -> p.getFirst().equals("ids"))
+					.map(Pair::getSecond)
+					.map(List.class::cast)
+					.findFirst()
+					.orElse(Collections.emptyList());
+			return ids.stream().map(id -> new Object[] { id, id + "-1.0" }).collect(Collectors.toList());
+		});
+
+		Map<Serializable, Serializable> resultMap = dao.findVersionIdsByTargetIdAndDate(request,
+				new Date());
+		assertEquals(40000, resultMap.size());
+		verify(dbDao, times(3)).fetchWithNamed(anyString(), argThat(CustomMatcher.of((List<Pair<String, Object>> args) -> {
+			int size = args.stream()
+					.filter(p -> p.getFirst().equals("ids"))
+					.map(Pair::getSecond)
+					.map(List.class::cast)
+					.map(List::size)
+					.findFirst()
+					.orElse(0);
+			return (size * 2) + 1 <= Short.MAX_VALUE;
+		}, "The argument count exceeds Short.MAX_VALUE")));
 	}
 
 	@Test

@@ -125,11 +125,11 @@ export class IdocDraftService {
 
   publishInfoAreaMessage(channel, message) {
     this.eventbus.publish({
-      channel: channel,
+      channel,
       topic: INFO_AREA_TOPIC,
       data: {
         id: DRAFT_INFO_MESSAGE_ID,
-        message: message
+        message
       }
     });
   }

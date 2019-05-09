@@ -15,7 +15,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -37,6 +36,9 @@ import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.actions.Actions;
 import com.sirma.itt.seip.instance.actions.delete.DeleteRequest;
 import com.sirma.itt.seip.instance.actions.save.SaveRequest;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.rest.annotations.http.method.PATCH;
 import com.sirma.itt.seip.rest.exceptions.BadRequestException;
 import com.sirma.itt.seip.rest.exceptions.ResourceException;
@@ -52,7 +54,6 @@ import com.sirma.itt.seip.rest.utils.request.params.RequestParams;
  * @author yasko
  * @author A. Kunchev
  */
-@Transactional
 @Path("/instances")
 @Consumes(Versions.V2_JSON)
 @Produces(Versions.V2_JSON)
@@ -73,8 +74,8 @@ public class InstanceResource {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param instance Instance to create.
-	 * @return Persisted instance.
+	 * @param instance to create
+	 * @return persisted instance
 	 * @see SaveRequest
 	 */
 	@POST
@@ -91,9 +92,9 @@ public class InstanceResource {
 	 * Update an instance by merging the provided instance with the one retrieved by the specified identifier. For the
 	 * instance is created version if it is not entirely new.
 	 *
-	 * @param id Identifier of the instance to be updated.
-	 * @param instance Updated instance data.
-	 * @return The updated instance.
+	 * @param id of the instance
+	 * @param instance to update
+	 * @return updated instance
 	 * @see SaveRequest
 	 */
 	@PATCH
@@ -114,6 +115,10 @@ public class InstanceResource {
 	 * @see SaveRequest
 	 */
 	@PATCH
+	@Monitored({
+		@MetricDefinition(name = "http_instance_batch_save_duration_seconds", type = Type.TIMER, descr = "Instance batch save request duration in seconds."),
+		@MetricDefinition(name = "http_instance_batch_save_hit_count", type = Type.COUNTER, descr = "Hit counter on the instance batch save rest service.")
+	})
 	public InstancesLoadResponse updateAll(List<Instance> instances,
 			@QueryParam(KEY_PROPERTIES) List<String> properties) {
 		Date versionTimestamp = new Date();
@@ -189,6 +194,10 @@ public class InstanceResource {
 	 */
 	@POST
 	@Path("/batch")
+	@Monitored({
+		@MetricDefinition(name = "http_instance_batch_load_duration_seconds", type = Type.TIMER, descr = "Instance batch load request duration in seconds."),
+		@MetricDefinition(name = "http_instance_batch_load_hit_count", type = Type.COUNTER, descr = "Hit counter on the instance batch load rest service.")
+	})
 	public InstancesLoadResponse batch(InstancesLoadRequest request) {
 		return findAllInternal(request);
 	}

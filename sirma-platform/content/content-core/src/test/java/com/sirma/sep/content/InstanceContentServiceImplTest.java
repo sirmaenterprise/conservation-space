@@ -48,6 +48,7 @@ import org.mockito.Spy;
 
 import com.sirma.itt.seip.Entity;
 import com.sirma.itt.seip.Pair;
+import com.sirma.itt.seip.annotation.PurposeQualifier;
 import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.db.DatabaseIdManager;
 import com.sirma.itt.seip.db.DbDao;
@@ -69,6 +70,7 @@ import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.sep.content.event.ContentAddEvent;
 import com.sirma.sep.content.event.ContentAssignedEvent;
+import com.sirma.sep.content.event.ContentImportedEvent;
 import com.sirma.sep.content.event.ContentUpdatedEvent;
 import com.sirma.sep.content.event.InstanceViewAddedEvent;
 import com.sirma.sep.content.event.InstanceViewUpdatedEvent;
@@ -133,7 +135,7 @@ public class InstanceContentServiceImplTest {
 		when(tempStore.add(any(), any())).thenReturn(mock(StoreItemInfo.class));
 		when(contentStoreProvider.getTempStore()).thenReturn(tempStore);
 		when(idManager.generateStringId(any(Entity.class), anyBoolean())).then(a -> {
-			Entity entity = a.getArgumentAt(0, Entity.class);
+			Entity<String> entity = a.getArgumentAt(0, Entity.class);
 			entity.setId(UUID.randomUUID().toString());
 			return entity;
 		});
@@ -804,6 +806,7 @@ public class InstanceContentServiceImplTest {
 					.setView(true);
 
 		assertNotNull(service.importContent(contentImport));
+		verify(eventService).fire(any(ContentImportedEvent.class), eq(new PurposeQualifier(Content.PRIMARY_CONTENT)));
 	}
 
 	@Test
@@ -865,11 +868,16 @@ public class InstanceContentServiceImplTest {
 		assertNull(ids.get(2));
 		assertNotNull(ids.get(3));
 		assertNull(ids.get(4));
+
+		// 2 successfully imported
+		verify(eventService, times(2)).fire(any(ContentImportedEvent.class),
+				eq(new PurposeQualifier(Content.PRIMARY_CONTENT)));
 	}
 
 	@Test
 	public void importContent_emptyList() {
 		assertTrue(service.importContent(Collections.emptyList()).isEmpty());
+		verifyZeroInteractions(eventService);
 	}
 
 	@Test

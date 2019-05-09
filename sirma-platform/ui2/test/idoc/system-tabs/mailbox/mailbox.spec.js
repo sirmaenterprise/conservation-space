@@ -2,7 +2,7 @@ import {Mailbox} from 'idoc/system-tabs/mailbox/mailbox';
 import {EmailAccountDelegationService} from 'services/rest/email-account-delegation-service';
 import {LocalStorageService} from 'services/storage/local-storage-service';
 import {NotificationService} from 'services/notification/notification-service';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {Configuration} from 'common/application-config';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {LogoutEvent} from 'layout/top-header/main-menu/user-menu/settings/logout/logout-event';

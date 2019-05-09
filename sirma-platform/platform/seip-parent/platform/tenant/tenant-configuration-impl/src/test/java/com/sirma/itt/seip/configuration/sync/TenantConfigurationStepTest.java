@@ -28,6 +28,7 @@ import com.sirma.itt.seip.io.ResourceLoadUtil;
 import com.sirma.itt.seip.json.JsonUtil;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 import com.sirma.itt.seip.testutil.CustomMatcher;
@@ -82,7 +83,7 @@ public class TenantConfigurationStepTest {
 		TenantInfo tenantInfo = new TenantInfo("tenant.com");
 		context.setTenantInfo(tenantInfo);
 
-		configurationInitStep.delete(stepData, tenantInfo, true);
+		configurationInitStep.delete(stepData, new TenantDeletionContext(tenantInfo, true));
 
 		verify(configurationManagement, times(1)).removeAllConfigurations();
 	}

@@ -49,6 +49,11 @@ public class SecurityContextManagerFake implements SecurityContextManager {
 	}
 
 	@Override
+	public void beginContextExecutionAs(User user) {
+		activateContext++;
+	}
+
+	@Override
 	public void beginContextExecution(String requestId) {
 		activateContext++;
 	}

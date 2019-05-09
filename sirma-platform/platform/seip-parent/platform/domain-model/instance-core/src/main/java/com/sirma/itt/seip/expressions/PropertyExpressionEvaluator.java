@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
@@ -16,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.convert.TypeConversionException;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
-import com.sirma.itt.seip.expressions.ExpressionContext;
 
 /**
  * Evaluator that can fetch a property from current instance. The expression could have a second argument that is the
@@ -102,8 +102,29 @@ public class PropertyExpressionEvaluator extends BaseEvaluator {
 	 */
 	protected Serializable validateAndReturn(Serializable result, Serializable valueIfInvalid, Matcher matcher,
 			String castType, boolean escape) {
-		if (isResultValid(result, matcher)) {
-			return escapeConditional(flatValue(result), escape);
+		Serializable localResult = result;
+		if (result instanceof Map) {
+			Object value = ((Map) result).get(userPreferences.getLanguage());
+			if (value == null) {
+				value = ((Map) result).get("en");
+			}
+			if (value instanceof Serializable) {
+				localResult = (Serializable) value;
+			} else if (((Map) result).isEmpty()) {
+				return null;
+			} else {
+				return ((Map<?, ?>) result).values()
+						.stream()
+						.map(Object::toString)
+						.map(v -> validateAndReturn(v, valueIfInvalid, matcher, castType, escape))
+						.map(Object::toString)
+						.collect(Collectors.joining(", "));
+			}
+		} else if (result instanceof Collection && ((Collection) result).isEmpty()) {
+			return null;
+		}
+		if (isResultValid(localResult, matcher)) {
+			return escapeConditional(flatValue(localResult), escape);
 		}
 		if (StringUtils.isBlank(castType)) {
 			return escapeConditional(valueIfInvalid, escape);

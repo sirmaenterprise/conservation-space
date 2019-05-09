@@ -44,7 +44,7 @@ public class ThumbnailEntity extends BaseStringIdEntity {
 	static final String UPDATE_THUMBNAIL_DATA = "update ThumbnailEntity set thumbnail=:thumbnail, retries = :retries, lastFailTime = :lastFailTime where id = :id OR endPoint in (select t.endPoint from ThumbnailEntity t where t.id = :id)";
 
 	public static final String UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES_KEY = "UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES";
-	static final String UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES = "update ThumbnailEntity set thumbnail= null, retries = null where id in (select tm.thumbnailId from ThumbnailMappingEntity tm where tm.instanceId in (:instanceId) AND purpose = :purpose) AND (thumbnail is null or thumbnail = :thumbnail) AND lastFailTime < :lastFailTimeThreshold";
+	static final String UPDATE_RESCHEDULE_THUMBNAIL_CHECK_FOR_INSTANCES = "update ThumbnailEntity set thumbnail= null, retries = null where id in (select tm.thumbnailId from ThumbnailMappingEntity tm where tm.instanceId in (:instanceId) AND tm.purpose = :purpose) AND (thumbnail is null or thumbnail = :thumbnail) AND lastFailTime < :lastFailTimeThreshold and endPoint is not null";
 
 	public static final String QUERY_THUMBNAILS_FOR_SYNC_KEY = "QUERY_THUMBNAILS_FOR_SYNC";
 	static final String QUERY_THUMBNAILS_FOR_SYNC = "select t.id, t.endPoint, t.providerName, t.retries from ThumbnailEntity t where t.thumbnail is null and (t.retries is null or t.retries < :retries) and (t.lastFailTime is null or t.lastFailTime < :lastFailTimeThreshold)";

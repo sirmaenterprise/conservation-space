@@ -15,7 +15,7 @@ export class InstanceAction extends ActionHandler {
    */
   buildActionPayload(actionDefinition, currentObject, operation) {
     return {
-      operation: operation,
+      operation,
       userOperation: actionDefinition.action,
       contextPath: currentObject.getContextPathIds(),
       targetInstance: {

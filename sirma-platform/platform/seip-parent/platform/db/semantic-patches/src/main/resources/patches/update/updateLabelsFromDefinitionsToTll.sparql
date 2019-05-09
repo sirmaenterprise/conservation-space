@@ -1,0 +1,39 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+		emf:plannedEndDate rdfs:label "Планирана крайна дата"@bg, "Planlagt slutdato"@da, "Geplantes Enddatum"@de, "Planned end date"@en, "Suunniteltu paattymispaiva"@fi .
+        emf:plannedEndDate dcterms:title "Планирана крайна дата"@bg, "Planlagt slutdato"@da, "Geplantes Enddatum"@de, "Planned end date"@en, "Suunniteltu paattymispaiva"@fi .
+        
+        emf:hasWatcher rdfs:label "Наблюдаващ"@bg, "Har observator"@da, "Hat watcher"@de, "Has watcher"@en, "Onko Watcher"@fi .
+        emf:hasWatcher dcterms:title "Наблюдаващ"@bg, "Har observator"@da, "Hat watcher"@de, "Has watcher"@en, "Onko Watcher"@fi .
+        
+        emf:isTopConcept rdfs:label "Главна концепция"@bg, "Er øvre koncept"@da, "Is top concept"@en, "Is top concept"@fi, "Ist top-konzept"@de .
+        emf:isTopConcept dcterms:title "Главна концепция"@bg, "Er øvre koncept"@da, "Is top concept"@en, "Is top concept"@fi, "Ist top-konzept"@de .
+        
+        emf:widthOfSubject rdfs:label "Ширина на обекта"@bg, "Værkets bredde"@da, "Breite des betreffs"@de, "Width of subject"@en, "Aiheen leveys"@fi .
+        emf:widthOfSubject dcterms:title "Ширина на обекта"@bg, "Værkets bredde"@da, "Breite des betreffs"@de, "Width of subject"@en, "Aiheen leveys"@fi .
+        
+        emf:isPrimaryTemplate rdfs:label "Главен шаблон"@bg, "Primær skabelon"@da, "Primary template"@en, "Ensisijainen malli"@fi, "Primäre vorlage"@de .
+        emf:isPrimaryTemplate dcterms:title "Главен шаблон"@bg, "Primær skabelon"@da, "Primary template"@en, "Ensisijainen malli"@fi, "Primäre vorlage"@de .
+        
+        emf:uniqueId rdfs:label "Уникално ИД на колекция"@bg, "Unik samlings-id"@da, "Eindeutige sammlungs-ID"@de, "Unique collection ID"@en , "Unique collection ID"@fi .
+        emf:uniqueId dcterms:title "Уникално ИД на колекция"@bg, "Unik samlings-id"@da, "Eindeutige sammlungs-ID"@de, "Unique collection ID"@en , "Unique collection ID"@fi .
+        
+        emf:Group rdfs:label "Потребителска Група"@bg, "Gruppe"@da, "Benutzergruppe"@de, "User Group"@en, "Käyttäjäryhmä"@fi .
+        emf:Group dcterms:title "Потребителска Група"@bg, "Gruppe"@da, "Benutzergruppe"@de, "User Group"@en, "Käyttäjäryhmä"@fi .
+} 
+} where {
+    {
+        ## titles only
+        ?property rdfs:label ?label.
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:plannedEndDate, emf:hasWatcher, emf:isTopConcept, emf:widthOfSubject, emf:isPrimaryTemplate, emf:uniqueId, emf:Group))
+    }
+}

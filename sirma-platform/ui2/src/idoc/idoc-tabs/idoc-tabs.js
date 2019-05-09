@@ -1,7 +1,7 @@
 import {View, Component, Inject, NgScope, NgElement} from 'app/app';
 import {MODE_EDIT} from 'idoc/idoc-constants';
 import {Eventbus} from 'services/eventbus/eventbus';
-import {IdocTab} from 'idoc/idoc-tabs/idoc-tab';
+import 'idoc/idoc-tabs/idoc-tab';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import $ from 'jquery';
 import {DragAndDrop} from 'components/draganddrop/drag-and-drop';
@@ -42,11 +42,11 @@ export class IdocTabs {
       helper: 'clone',
       delay: 50,
       // set $item relative to cursor position
-      onDragStart: function ($item, container, _super) {
+      onDragStart($item, container, _super) {
         itemIndex = $item.index();
         _super($item, container);
       },
-      onDrop: function ($item, container, _super) {
+      onDrop($item, container, _super) {
         _super($item, container);
 
         // This is needed to prevent new entered tab to be placed at wrong position (after the last but moved tab)

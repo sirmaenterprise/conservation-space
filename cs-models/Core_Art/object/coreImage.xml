@@ -2,38 +2,38 @@
 <definition id="coreImage" parentId="coreMedia" type="object">
 	<fields>
 		<field name="default_header" type="ANY" label="IMAGE_DEFAULT_HEADER_CORE" />
-		<field name="compact_header" type="an..4096" label="IMAGE_COMPACT_HEADER_CORE" />
-		<field name="breadcrumb_header" type="an..4096" label="MEDIA_BREADCRUMB_HEADER_CORE" />
+		<field name="compact_header" type="ANY" label="IMAGE_COMPACT_HEADER_CORE" />
+		<field name="breadcrumb_header" type="ANY" label="MEDIA_BREADCRUMB_HEADER_CORE" />
 		<field name="tooltip_header" type="ANY" label="IMAGE_TOOLTIP_HEADER_CORE" />
 
 		<!-- all properties from the generic definition will be organized in regions --> 
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+		<field name="rdf:type" >
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image</value>
 		</field>
 	</fields>	
 	<regions>	
 		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
 			<fields>
-				<field name="chc:imageDate" type="date" displayType="editable" label="core.imageDate.label" tooltip="core.imageDate.tooltip" uri="chc:imageDate" />
-				<field name="chc:imageRestrictions" type="an..180" displayType="editable" label="core.imageRestrictions.label" tooltip="core.imageRestrictions.tooltip" uri="chc:imageRestrictions" />
-				<field name="chc:spectralRange" type="an..20" displayType="editable" codelist="CL127" label="core.spectralRange.label" tooltip="core.spectralRange.tooltip" uri="chc:spectralRange" />
-				<field name="chc:imageColor" type="an..20" displayType="editable" codelist="CL128" label="core.imageColor.label" tooltip="core.imageColor.tooltip" uri="chc:imageColor" />
+				<field name="chc:imageDate" type="date" displayType="editable" uri="chc:imageDate" />
+				<field name="chc:imageRestrictions" type="an..180" displayType="editable" uri="chc:imageRestrictions" />
+				<field name="chc:spectralRange" type="ANY" displayType="editable" codelist="CL127" uri="chc:spectralRange" />
+				<field name="chc:imageColor" type="ANY" displayType="editable" codelist="CL128" uri="chc:imageColor" />
 				<field name="chc:depicts" type="uri" displayType="editable" label="core.depicts.label" tooltip="core.depicts.tooltip" multiValued="true" uri="chc:depicts" >
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject,chc:Sample</control-param>
 					</control>
 				</field>
-				<field name="chc:depictionType" type="an..20" displayType="editable" codelist="CL129" label="core.depictionType.label" tooltip="core.depictionType.tooltip" uri="chc:depictionType" />
+				<field name="chc:depictionType" type="ANY" displayType="editable" codelist="CL129" uri="chc:depictionType" />
 				<field name="isPrimaryImageOf" type="uri" displayType="editable" label="core.isPrimaryImageOf.label" tooltip="core.isPrimaryImageOf.tooltip" multiValued="true" uri="emf:isPrimaryImageOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param></control>
 				</field>
-				<field name="chc:viewType" type="an..20" displayType="editable" codelist="CL130" label="core.viewType.label" tooltip="core.viewType.tooltip" uri="chc:viewType" />
-				<field name="chc:viewDescription" type="an..20" displayType="editable" codelist="CL131" label="core.viewDescription.label" tooltip="core.viewDescription.tooltip" uri="chc:viewDescription" />
+				<field name="chc:viewType" type="ANY" displayType="editable" codelist="CL130" tooltip="core.viewType.tooltip" uri="chc:viewType" />
+				<field name="chc:viewDescription" type="ANY" displayType="editable" codelist="CL131" tooltip="core.viewDescription.tooltip" uri="chc:viewDescription" />
 				<field name="widthOfSubject" type="n..10,5" displayType="editable" label="core.widthOfSubject.label" tooltip="core.widthOfSubject.tooltip" uri="emf:widthOfSubject" />
 				<field name="heightOfSubject" type="n..10,5" displayType="editable" label="core.heightOfSubject.label" tooltip="core.heightOfSubject.tooltip" uri="emf:heightOfSubject" />
-				<field name="dimensionUnit" type="an..50" displayType="editable" codelist="CL14" label="core.dimensionUnit.label" tooltip="core.dimensionUnit.tooltip" uri="emf:dimensionUnit" />
-				<field name="chc:treatmentStage" type="an..50" displayType="editable" codelist="CL132" label="core.treatmentStage.label" tooltip="core.treatmentStage.tooltip" uri="chc:treatmentStage" />
+				<field name="dimensionUnit" type="ANY" displayType="editable" codelist="CL14" label="core.dimensionUnit.label" tooltip="core.dimensionUnit.tooltip" uri="emf:dimensionUnit" />
+				<field name="chc:treatmentStage" type="ANY" displayType="editable" codelist="CL132" uri="chc:treatmentStage" />
 				<field name="isThumbnailOf" type="uri" displayType="readOnly" label="core.isThumbnailOf.label" tooltip="core.isThumbnailOf.tooltip" multiValued="true" uri="emf:isThumbnailOf">
 					<control id="PICKER">
 						<control-param id="range" name="range"></control-param>
@@ -43,8 +43,8 @@
 		</region>
 		<region id="systemData" displayType="editable" order="20" label="core.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" ><value>FC236009</value></field>
-				<field name="identifier" type="an..50" rnc="${eval(IMG${seq({+imgSequence})})}" />
+				<field name="type" ><value>FC236009</value></field>
+				<field name="identifier" rnc="${eval(IMG${seq({+imgSequence})})}" />
 			</fields>
 		</region>
 	</regions>
@@ -69,7 +69,7 @@
 					${if(${get([chc:imageDate])} <> null).then(
 						<span class="tooltip-row">
 							<label>Image date: </label>
-							<span data-property="chc:imageDate">${date([chc:imageDate]).format(YYYY-MM-dd)}</span>
+							<span data-property="chc:imageDate">${date([chc:imageDate])}</span>
 						</span>
 					)}
 					${if(${get([chc:imageRestrictions])} <> null).then(
@@ -144,9 +144,16 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
-			</span>)})}]]></value>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}	
+				</span>
+			)})}]]></value>
 		</label>	
 		<label id="IMAGE_DEFAULT_HEADER_CORE">
 			<value lang="en"><![CDATA[${eval(
@@ -155,16 +162,19 @@
 				${var.contentSize=${if(${get([size], 0)} <> 0).then(${get([size])}).else(${get([fileSize])})}}
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>
 					${if(${get([chc:spectralRange])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:spectralRange">${CL([chc:spectralRange])}</span>)}
 					${if(${get([chc:viewDescription])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:viewDescription">${CL([chc:viewDescription])}</span>)}
 					${if(${get([chc:treatmentStage])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:treatmentStage">${CL([chc:treatmentStage])}</span>)}
 					<br />
 					<span class="truncate-element">
-						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-							${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
-							<span data-property="name">${get([name])}</span>
-						</a>
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
+								<span data-property="name">${get([name])}</span>
+							</a>
+						</b>	
 						${if(${get([mimetype])}<>null).then(&nbsp;Mimetype: <span data-property="mimetype">${CL([mimetype])}</span>)}
 						${if(${get([size])}<>null).then(,&nbsp;Size: <span data-property="size">${getReadableFormat(${var.contentSize})}</span>)}
 						${if(${var.isVersion}).then(
@@ -172,7 +182,6 @@
 						)}
 					</span>
 					${if(${get([chc:depicts])}<>null).then(<br />Depicts:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
 				</span>
 			)}]]></value>
 		</label>
@@ -182,7 +191,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span class="truncate-element">
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-property="name">${get([name])}</span>

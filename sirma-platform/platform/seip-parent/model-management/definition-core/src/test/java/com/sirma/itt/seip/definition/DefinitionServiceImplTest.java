@@ -11,8 +11,11 @@ import static org.mockito.Mockito.when;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -212,4 +215,37 @@ public class DefinitionServiceImplTest {
 		assertEquals(1, result.count());
 	}
 
+	@Test
+	public void should_NotFindDefinitions_When_TypeValueOfDefinitionIsNull() {
+		DefinitionMock document = new DefinitionMock();
+		when(accessor.getAllDefinitions()).thenReturn(Arrays.asList(document));
+		List<DefinitionModel> definitions = service.getAllDefinitions("DOCUMENT").collect(Collectors.toList());
+		Assert.assertEquals(0, definitions.size());
+	}
+
+	@Test
+	public void should_NotFindDefinitions_When_ParameterCategoryIsNull() {
+		DefinitionMock document = new DefinitionMock();
+		document.setType("DOCUMENT");
+		when(accessor.getAllDefinitions()).thenReturn(Arrays.asList(document));
+
+		String category = null;
+		List<DefinitionModel> definitions = service.getAllDefinitions(category).collect(Collectors.toList());
+		Assert.assertEquals(0, definitions.size());
+	}
+
+	@Test
+	public void should_ReturnDocumentDefinition_In_CaseInsensitiveWay() {
+		DefinitionMock document = new DefinitionMock();
+		document.setType("DOCUMENT");
+		DefinitionMock object = new DefinitionMock();
+		object.setType("OBJECT");
+		when(accessor.getAllDefinitions()).thenReturn(Arrays.asList(document, object));
+		List<String> categories = Arrays.asList("document", "DOCUMENT", "doCUMEnt");
+		for (String category: categories) {
+			List<DefinitionModel> definitions = service.getAllDefinitions(category).collect(Collectors.toList());
+			Assert.assertEquals(1, definitions.size());
+			Assert.assertEquals(document, definitions.get(0));
+		}
+	}
 }

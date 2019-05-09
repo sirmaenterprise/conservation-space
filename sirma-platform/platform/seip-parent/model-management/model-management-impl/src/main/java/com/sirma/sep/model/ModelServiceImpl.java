@@ -1,18 +1,30 @@
 package com.sirma.sep.model;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.sirma.itt.seip.io.TempFileProvider;
+import com.sirma.itt.seip.util.file.ArchiveUtil;
+import com.sirma.itt.semantic.NamespaceRegistryService;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -20,6 +32,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +45,12 @@ import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.context.InstanceContextService;
 import com.sirma.itt.seip.io.ResourceLoadUtil;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.semantic.ReadOnly;
+import com.sirma.itt.semantic.model.vocabulary.EMF;
+import com.sirma.sep.model.management.deploy.configuration.ModelManagementDeploymentConfigurations;
 
 /**
  * Default implementation of {@link ModelService}.
@@ -48,6 +64,9 @@ public class ModelServiceImpl implements ModelService {
 	private static final String TITLE_KEY = "title";
 	private static final String ONTOLOGY_KEY = "ontology";
 
+	private static final Set<IRI> SKIPPED_PREDICATES = Stream.of(EMF.CREATED_BY, EMF.CREATED_ON, EMF.MODIFIED_ON,
+			EMF.MODIFIED_BY, EMF.VERSION).collect(Collectors.toSet());
+
 	static final String QUERY_ONTOLOGIES = ResourceLoadUtil.loadResource(ModelServiceImpl.class,
 			"queryOntologies.sparql");
 
@@ -59,16 +78,20 @@ public class ModelServiceImpl implements ModelService {
 	private SemanticDefinitionService semanticDefinitionService;
 
 	@Inject
-	private Statistics statistics;
-
-	@Inject
 	private InstanceContextService contextService;
 
+	@Inject
+	private TempFileProvider tempFileProvider;
+
+	@Inject
+	private NamespaceRegistryService namespaceRegistryService;
+
+	@Inject
+	private ModelManagementDeploymentConfigurations modelManagementDeploymentConfigurations;
+
 	@Override
+	@Monitored(@MetricDefinition(name = "ontology_retrieve_duration_seconds", type = Type.TIMER, descr = "Retrieval of all ontologies duration in seconds."))
 	public List<Ontology> getOntologies() {
-		TimeTracker timeTracker = statistics
-				.createTimeStatistics(getClass(), "ontologiesRetrievalQueryExecution")
-				.begin();
 		try {
 			TupleQuery tupleQuery = SPARQLQueryHelper.prepareTupleQuery(repositoryConnection, QUERY_ONTOLOGIES,
 					Collections.emptyMap(), false);
@@ -77,25 +100,73 @@ public class ModelServiceImpl implements ModelService {
 			}
 		} catch (QueryEvaluationException | RepositoryException e) {
 			throw new SemanticPersistenceException("Failed evaluating query for ontologies retrieval", e);
-		} finally {
-			LOGGER.debug("Ontologies retrieval took {} ms", timeTracker.stop());
 		}
 	}
 
 	@Override
+	@Monitored(@MetricDefinition(name = "ontology_class_retrieve_duration_seconds", type = Type.TIMER, descr = "Retrieval of all classes for ontology duration in seconds."))
 	public List<ClassInfo> getClassesForOntology(String ontologyId) {
 		if (StringUtils.isBlank(ontologyId)) {
 			return CollectionUtils.emptyList();
 		}
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "getClassesForOntology").begin();
 		List<ClassInstance> classes = semanticDefinitionService.getClassesForOntology(ontologyId);
-		LOGGER.debug("{} classes for ontology [{}] retrieved for {} ms", classes.size(), ontologyId,
-				timeTracker.stop());
+		LOGGER.debug("{} classes for ontology [{}] retrieved.", classes.size(), ontologyId);
 
 		// if classes from the requested ontology have parents from other ontologies (external), add them to the result
 		Stream<ClassInstance> externalSuperClasses = getExternalSuperClasses(ontologyId, classes);
 		return Stream.concat(classes.stream(), externalSuperClasses).map(this::toClassInfo).collect(
 				Collectors.toList());
+	}
+
+	@Override
+	public File exportOntologies(List<Ontology> ontologies) {
+		File ontologiesDir = tempFileProvider.createUniqueTempDir("ONTOLOGIES");
+
+		ontologies.forEach(ontology -> exportSingleOntology(ontology, ontologiesDir));
+		return zipOntologiesDir(ontologiesDir);
+	}
+
+	private void exportSingleOntology(Ontology ontology, File ontologiesDir) {
+		IRI ontologyIri = namespaceRegistryService.buildUri(ontology.getId());
+		String filename = createFileName(ontologyIri);
+		Boolean prettyPrintEnabled = modelManagementDeploymentConfigurations.getPrettyPrintEnabled()
+				.computeIfNotSet(() -> Boolean.TRUE);
+
+		try (OutputStream outputStream = new FileOutputStream(new File(ontologiesDir, filename))) {
+			SepTurtleWriter statementWriter = new SepTurtleWriter(outputStream);
+			if (prettyPrintEnabled) {
+				statementWriter.setPrettyPrintEnabled();
+			}
+			RDFWriter filteredWriter = new FilteringRDFWriter(statementWriter).setStatementFilter(filerSystemPredicates());
+			repositoryConnection.export(filteredWriter, ontologyIri);
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private Predicate<Statement> filerSystemPredicates() {
+		return st -> !SKIPPED_PREDICATES.contains(st.getPredicate());
+	}
+
+	private String createFileName(IRI ontologyIri) {
+		return URI.create(ontologyIri.toString())
+				.getPath()
+				// remove any path separators
+				.replaceAll("[/#:]+", " ")
+				// remove any dates from the URI
+				.replaceAll("\\d+", "")
+				// remove any leading and trailing white spaces
+				.trim()
+				// remove intermediate white spaces
+				.replaceAll("\\s+", "_") + ".ttl";
+	}
+
+	private File zipOntologiesDir(File ontologiesDir) {
+		// the empty zip file is created in a separate dir, because otherwise it will archive itself
+		File archiveDir = tempFileProvider.createUniqueTempDir("modelArchiveDir");
+		File ontologiesZip = new File(archiveDir, "ontologies.zip");
+		ArchiveUtil.zipFile(ontologiesDir, ontologiesZip);
+		return ontologiesZip;
 	}
 
 	private static Stream<ClassInstance> getExternalSuperClasses(String ontologyId,

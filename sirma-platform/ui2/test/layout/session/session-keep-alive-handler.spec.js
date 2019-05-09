@@ -32,7 +32,6 @@ describe('SessionKeepAliveHandler', () => {
     var config = getConfigurationInstance();
     config.configs = {};
     config.configs[Configuration.SESSION_TIMEOUT_PERIOD] = 1;
-    config.configs[Configuration.SESSION_TIMEOUT] = true;
     var handler = new SessionKeepAliveHandler(config, null, mockWindowAdapter(), mockLocalStorageService(), eventbus);
     handler.ngOnInit();
     handler.ngOnDestroy();
@@ -43,22 +42,9 @@ describe('SessionKeepAliveHandler', () => {
     var config = getConfigurationInstance();
     config.configs = {};
     config[Configuration.SESSION_TIMEOUT_PERIOD] = -1;
-    config[Configuration.SESSION_TIMEOUT] = false;
-
-    it('should not setup handler if redirect on timeout config is false', () => {
-      config.configs[Configuration.SESSION_TIMEOUT_PERIOD] = 1;
-      config.configs[Configuration.SESSION_TIMEOUT] = false;
-
-      var handler = new SessionKeepAliveHandler(config, null, mockWindowAdapter(), mockLocalStorageService());
-      handler.ngOnInit();
-
-      expect(handler.addActivityMonitors.called).to.be.false;
-      expect(handler.startSessionTimer.called).to.be.false;
-    });
 
     it('should not setup handler if session ttl is less than 1', () => {
       config.configs[Configuration.SESSION_TIMEOUT_PERIOD] = -1;
-      config.configs[Configuration.SESSION_TIMEOUT] = true;
 
       var handler = new SessionKeepAliveHandler(config, null, mockWindowAdapter(), mockLocalStorageService());
       handler.ngOnInit();
@@ -69,7 +55,6 @@ describe('SessionKeepAliveHandler', () => {
 
     it('should setup handler if both session ttl is greater than zero and redirect on timeout is true', () => {
       config.configs[Configuration.SESSION_TIMEOUT_PERIOD] = 1;
-      config.configs[Configuration.SESSION_TIMEOUT] = true;
 
       var handler = new SessionKeepAliveHandler(config, null, mockWindowAdapter(), mockLocalStorageService());
       handler.ngOnInit();
@@ -159,7 +144,7 @@ describe('SessionKeepAliveHandler', () => {
     return {
       get: getSpy ? getSpy : () => {},
       set: setSpy ? setSpy : () => {},
-      remove: removeSpy ? removeSpy : () => {},
+      remove: removeSpy ? removeSpy : () => {}
     };
   }
 

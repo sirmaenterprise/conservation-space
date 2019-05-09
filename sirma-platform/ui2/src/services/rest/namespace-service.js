@@ -20,6 +20,11 @@ export class NamespaceService {
     this.cache = {};
   }
 
+  convertToShortURI(uris) {
+    let url = `${serviceUrl}/uri/conversion/to-short`;
+    return this.restClient.post(url, uris, this.config);
+  }
+
   /**
    * Converts the provided array of URIs to full URI format. The array could contain short and full URIs. Ignores all
    * entries that are not URIs to avoid unexpected behaviour. This conversion creates new array and preserves
@@ -95,6 +100,7 @@ export class NamespaceService {
   }
 
   isUri(uri) {
-    return uri.indexOf(':') > 0;
+    // The colon cannot be in the beginning of the uri
+    return uri.indexOf(':') > 0; // NOSONAR
   }
 }

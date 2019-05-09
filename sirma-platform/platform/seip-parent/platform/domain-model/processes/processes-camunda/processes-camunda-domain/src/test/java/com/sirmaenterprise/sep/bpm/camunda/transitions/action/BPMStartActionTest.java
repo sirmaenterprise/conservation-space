@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelInstanceImpl;
@@ -32,7 +31,6 @@ import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.lock.LockService;
 import com.sirma.itt.seip.testutil.CustomMatcher;
@@ -51,8 +49,6 @@ import com.sirmaenterprise.sep.bpm.camunda.transitions.model.TransitionModelServ
 @RunWith(MockitoJUnitRunner.class)
 public class BPMStartActionTest {
 	private final String processId = "emf:targetId";
-	@Mock
-	private InstanceTypeResolver instanceResolver;
 	@Mock
 	private InstanceService instanceService;
 	@Mock
@@ -158,7 +154,7 @@ public class BPMStartActionTest {
 		when(instance.toReference()).thenReturn(instanceRef);
 		when(instanceRef.toInstance()).thenReturn(instance);
 		when(instanceRef.getId()).thenReturn(targetId);
-		when(instanceResolver.resolveReference(eq(targetId))).thenReturn(Optional.of(instanceRef));
+		when(domainInstanceService.loadInstance(eq(targetId))).thenReturn(instance);
 		return instance;
 	}
 

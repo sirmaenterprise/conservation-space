@@ -20,7 +20,7 @@ describe('InstanceSelector', () => {
   let instanceSelector;
 
   beforeEach(() => {
-    InstanceSelector.prototype.config = {eventEmitter : new EventEmitter()};
+    InstanceSelector.prototype.config = {eventEmitter: new EventEmitter()};
     instanceSelector = getComponentInstance();
     instanceSelector.instanceModelProperty = new InstanceModelProperty({
       value: {results: ['id:1']}
@@ -64,17 +64,17 @@ describe('InstanceSelector', () => {
     it('should load and show all selected objects', () => {
       instanceSelector = getComponentInstance();
       instanceSelector.instanceModelProperty = new InstanceModelProperty({
-        value: {results: [], total: 3}
+        value: {results: [], total: 9}
       });
       instanceSelector.ngOnInit();
       instanceSelector.instanceRestService.getInstanceProperty.returns(PromiseStub.resolve({
-        data: ['id:0', 'id:1', 'id:3']
+        data: ['id:0', 'id:1', 'id:3', 'id:4', 'id:5', 'id:6', 'id:7', 'id:8', 'id:9']
       }));
 
       instanceSelector.showMore();
 
-      expect(instanceSelector.displayObjectsCount).to.equal(3);
-      expect(instanceSelector.instanceModelProperty.value.results).to.eql(['id:0', 'id:1', 'id:3']);
+      expect(instanceSelector.displayObjectsCount).to.equal(9);
+      expect(instanceSelector.instanceModelProperty.value.results).to.eql(['id:0', 'id:1', 'id:3', 'id:4', 'id:5', 'id:6', 'id:7', 'id:8', 'id:9']);
     });
 
     it('should not trigger loading when there is nothing more to load', () => {
@@ -94,20 +94,19 @@ describe('InstanceSelector', () => {
 
   describe('showLess', () => {
     it('should show only configured number of objects or less', () => {
-      instanceSelector = getComponentInstance();
       instanceSelector.instanceModelProperty = new InstanceModelProperty({
-        value: {results: []}
+        value: {results: ['1', '2', '3', '4'], total: 4}
       });
-      instanceSelector.config.visibleItemsCount = 5;
       instanceSelector.ngOnInit();
       instanceSelector.showLess();
-      expect(instanceSelector.displayObjectsCount).to.equal(5);
+      expect(instanceSelector.displayObjectsInSelectCount).to.equal(0);
+      expect(instanceSelector.displayObjectsCount).to.equal(3);
     });
   });
 
   describe('isShowMoreButtonVisible', () => {
     let data = [
-      {config: 3, total: 5, results: ['1', '2', '3'], expectedVisibility: true},
+      {config: 3, total: 5, results: ['1', '2', '3', '4', '5'], expectedVisibility: true},
       {config: 3, total: 0, results: [], expectedVisibility: false},
       {config: 3, total: 1, results: ['1'], expectedVisibility: false},
       {config: 3, total: 2, results: ['1', '2'], expectedVisibility: false},
@@ -117,7 +116,6 @@ describe('InstanceSelector', () => {
 
     it('should be visible when total selected objects count is greater than calculated visible objects count', () => {
       data.forEach((set) => {
-        instanceSelector = getComponentInstance();
         instanceSelector.instanceModelProperty = new InstanceModelProperty({
           value: {
             results: set.results,
@@ -125,15 +123,14 @@ describe('InstanceSelector', () => {
           }
         });
         instanceSelector.instanceRestService.getInstanceProperty.returns(PromiseStub.resolve({
-          data: ['1', '2', '3', '4', '5']
+          data: set.results
         }));
         instanceSelector.config.selection = MULTIPLE_SELECTION;
-        instanceSelector.config.visibleItemsCount = set.config;
         instanceSelector.ngOnInit();
 
         let isVisible = instanceSelector.isShowMoreButtonVisible();
         expect(isVisible, `Show more button should be [${set.expectedVisibility ? 'visible' : 'hidden'}] with data: 
-        ${JSON.stringify(set)}, calculated visible objects count [${instanceSelector.displayObjectsCount}]`).to.equal(set.expectedVisibility);
+        ${JSON.stringify(set)}, calculated visible objects count [${instanceSelector.displayObjectsInSelectCount}]`).to.equal(set.expectedVisibility);
       });
     });
 
@@ -154,15 +151,15 @@ describe('InstanceSelector', () => {
 
   describe('isShowLessButtonVisible', () => {
     let data = [
-      {config: 3, total: 5, results: [], expectedVisibility: false},
-      {config: 3, total: 5, results: ['1'], expectedVisibility: false},
-      {config: 3, total: 5, results: ['1', '2'], expectedVisibility: false},
-      {config: 3, total: 5, results: ['1', '2', '3'], expectedVisibility: false},
-      {config: 3, total: 5, results: ['1', '2', '3', '4'], expectedVisibility: false},
-      {config: 3, total: 5, results: ['1', '2', '3', '4', '5'], expectedVisibility: false},
-      {config: 3, total: 2, results: [], expectedVisibility: false},
-      {config: 3, total: 2, results: ['1'], expectedVisibility: false},
-      {config: 3, total: 2, results: ['1', '2'], expectedVisibility: false}
+      {config: 0, total: 5, results: [], expectedVisibility: false},
+      {config: 0, total: 5, results: ['1'], expectedVisibility: false},
+      {config: 0, total: 5, results: ['1', '2'], expectedVisibility: false},
+      {config: 0, total: 5, results: ['1', '2', '3'], expectedVisibility: false},
+      {config: 0, total: 5, results: ['1', '2', '3', '4'], expectedVisibility: false},
+      {config: 0, total: 5, results: ['1', '2', '3', '4', '5'], expectedVisibility: false},
+      {config: 0, total: 2, results: [], expectedVisibility: false},
+      {config: 0, total: 2, results: ['1'], expectedVisibility: false},
+      {config: 0, total: 2, results: ['1', '2'], expectedVisibility: false}
     ];
 
     it('should be visible when calculated visible objects count is greater than configuration', () => {
@@ -269,12 +266,40 @@ describe('InstanceSelector', () => {
     });
 
     it('should configure the picker with restrictions if they are provided', () => {
-      let restrictions = SearchCriteriaUtils.getDefaultRule();
-      instanceSelector.config.pickerRestrictions = restrictions;
+      sinon.stub(SearchCriteriaUtils, 'getUuid').returns("emf:uuid");
+      instanceSelector.config.pickerRestrictions = SearchCriteriaUtils.getDefaultRule();
+
+      let expected = {
+        "id": "emf:uuid",
+        "condition": "AND",
+        "rules": [
+          {
+            "id": "emf:uuid",
+            "field": "",
+            "type": "",
+            "operator": "",
+            "value": ""
+          },
+          {
+            "id": "emf:uuid",
+            "condition": "AND",
+            "rules": [
+              {
+                "id": "emf:uuid",
+                "field": "types",
+                "type": "",
+                "operator": "equals",
+                "value": [
+                  "ptop:Agent"
+                ]
+              }]
+          }]
+      };
+
       instanceSelector.select();
       let openSpy = instanceSelector.pickerService.extensionsDialogService.openDialog;
       let searchConfig = openSpy.getCall(0).args[0].extensions[SEARCH_EXTENSION];
-      expect(searchConfig.restrictions).to.deep.equal(restrictions);
+      expect(searchConfig.restrictions).to.deep.equal(expected);
     });
   });
 
@@ -536,16 +561,19 @@ describe('InstanceSelector', () => {
   describe('getHiddenObjectsCount', () => {
     it('should calculate count of the hidden objects', () => {
       let data = [
-        {total: 0, displayObjectsCount: 0, expected: 0},
-        {total: 1, displayObjectsCount: 1, expected: 0},
-        {total: 5, displayObjectsCount: 3, expected: 2}
+        {total: 0, results: [], displayObjectsCount: 0, expected: 0},
+        {total: 1, results: ['1'], displayObjectsCount: 1, expected: 0},
+        {total: 5, results: ['1', '2', '3', '4', '5'], displayObjectsCount: 3, expected: 2}
       ];
       data.forEach((set) => {
         instanceSelector = getComponentInstance();
+        instanceSelector.displayObjectsCount = 3;
         instanceSelector.instanceModelProperty = new InstanceModelProperty({
-          value: {results: [], total: set.total}
+          value: {results: set.results, total: set.total}
         });
-        instanceSelector.displayObjectsCount = set.displayObjectsCount;
+        instanceSelector.instanceRestService.getInstanceProperty.returns(PromiseStub.resolve({
+          data: set.results
+        }));
         expect(instanceSelector.getHiddenObjectsCount(),
           `Expected counter [${set.expected}] with data ${JSON.stringify(set)}`).to.equal(set.expected);
       });
@@ -771,19 +799,6 @@ describe('InstanceSelector', () => {
     });
   });
 
-  it('isEditMode should return true if mode is edit', () => {
-    instanceSelector.config.mode = 'edit';
-    expect(instanceSelector.isEditMode()).to.be.true;
-    instanceSelector.config.mode = 'preview';
-    expect(instanceSelector.isEditMode()).to.be.false;
-  });
-
-  it('should set header type according to the configuration', () => {
-    instanceSelector.config.instanceHeaderType = HEADER_DEFAULT;
-    instanceSelector.ngOnInit();
-    expect(instanceSelector.headerType).to.equal(HEADER_DEFAULT);
-  });
-
   describe('getUniqueItems', () => {
 
     it('should return empty array if arrays are equal', () => {
@@ -812,6 +827,10 @@ describe('InstanceSelector', () => {
             },
             'id:1': {
               id: 'id:1',
+              breadcrumb_header: 'header'
+            },
+            'id:3': {
+              id: 'id:3',
               breadcrumb_header: 'header'
             }
           },
@@ -879,6 +898,18 @@ describe('InstanceSelector', () => {
   });
 
   describe('handleSuggestedSelection', () => {
+    it('isEditMode should return true if mode is edit', () => {
+      instanceSelector.config.mode = 'edit';
+      expect(instanceSelector.isEditMode()).to.be.true;
+      instanceSelector.config.mode = 'preview';
+      expect(instanceSelector.isEditMode()).to.be.false;
+    });
+
+    it('should set header type according to the configuration', () => {
+      instanceSelector.config.instanceHeaderType = HEADER_DEFAULT;
+      instanceSelector.ngOnInit();
+      expect(instanceSelector.headerType).to.equal(HEADER_DEFAULT);
+    });
 
     it('should add to selection pool new entry in multiple mode', () => {
       instanceSelector = getComponentInstance();
@@ -1000,11 +1031,20 @@ describe('InstanceSelector', () => {
     let loggerStub = stub(Logger);
 
     let configurationStub = stub(Configuration);
+    configurationStub.get.returns(3);
 
     let headersServiceStub = stub(HeadersService);
     headersServiceStub.loadHeaders.returns(PromiseStub.resolve({}));
     let relationshipsService = stub(RelationshipsService);
-    relationshipsService.getRelationInfo.returns(PromiseStub.resolve({data: {}}));
+    relationshipsService.getRelationInfo.returns(PromiseStub.resolve({
+      data: {
+        id: "emf:hasAssignee",
+        name: "emf:hasAssignee",
+        domainClass: "emf:Activity",
+        rangeClass: "ptop:Agent",
+        title: "Agent"
+      }
+    }));
 
     return new InstanceSelector(pickerService, instanceRestService, mockContextFactoryService(), PromiseStub, loggerStub, configurationStub, headersServiceStub, mockTimeout(), relationshipsService);
   }
@@ -1044,9 +1084,8 @@ describe('InstanceSelector', () => {
   }
 
   function mockTimeout() {
-    return (fn) => {
-      fn();
-    };
+    return (fn) => Promise.resolve(fn());
+
   }
 });
 

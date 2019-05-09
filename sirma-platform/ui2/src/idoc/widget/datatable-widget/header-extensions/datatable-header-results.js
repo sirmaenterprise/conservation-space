@@ -1,5 +1,4 @@
 import {View, Component, Inject, NgScope} from 'app/app';
-import _ from 'lodash';
 import {SELECT_OBJECT_MANUALLY, SELECT_OBJECT_AUTOMATICALLY} from 'idoc/widget/object-selector/object-selector';
 import {HEADER_DEFAULT} from 'instance-header/header-constants';
 import {DialogService} from 'components/dialog/dialog-service';
@@ -26,7 +25,7 @@ export class DatatableHeaderResults {
     this.$scope = $scope;
 
     if(this.config.expanded) {
-      this.control.subscribe('dataLoaded', (results) => {
+      this.dataloadedEvent = this.control.subscribe('dataLoaded', (results) => {
         if(results.size > 0){
           this.totalResults = results.size;
         } else {
@@ -39,7 +38,7 @@ export class DatatableHeaderResults {
   }
 
   ngOnInit() {
-    this.control.subscribe('orderChanged', (payload) => {
+    this.orderChangedEvent = this.control.subscribe('orderChanged', (payload) => {
       this.orderBy = payload.orderBy;
       this.orderDirection = payload.orderDirection;
       this.orderByCodelistNumbers = payload.orderByCodelistNumbers;
@@ -119,4 +118,8 @@ export class DatatableHeaderResults {
     });
   }
 
+  ngOnDestroy() {
+    this.dataloadedEvent && this.dataloadedEvent.unsubscribe();
+    this.orderChangedEvent && this.orderChangedEvent.unsubscribe();
+  }
 }

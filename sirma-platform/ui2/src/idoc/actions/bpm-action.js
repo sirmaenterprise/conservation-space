@@ -2,7 +2,6 @@ import _ from 'lodash';
 import {Injectable, Inject} from 'app/app';
 import {TransitionAction} from 'idoc/actions/transition-action';
 import {ActionsService} from 'services/rest/actions-service';
-import {FormWrapper} from 'form-builder/form-wrapper';
 import {SaveDialogService} from 'idoc/save-idoc-dialog/save-dialog-service';
 import {ValidationService} from 'form-builder/validation/validation-service';
 import {InstanceRestService} from 'services/rest/instance-service';

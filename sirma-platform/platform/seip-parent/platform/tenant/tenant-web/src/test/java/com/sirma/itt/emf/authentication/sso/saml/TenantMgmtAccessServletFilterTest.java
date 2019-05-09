@@ -107,14 +107,6 @@ public class TenantMgmtAccessServletFilterTest {
 		verify(chain).doFilter(request, response);
 	}
 
-	@Test
-	public void should_logoutSystemTenant() throws Exception {
-		mockSystemTenant();
-		when(request.getRequestURI()).thenReturn("/emf/ServiceLogout");
-		filter.doFilter(request, response, chain);
-		verify(chain).doFilter(request, response);
-	}
-
 	@SuppressWarnings("boxing")
 	private void mockSystemTenant() {
 		when(securityContext.isActive()).thenReturn(Boolean.TRUE);

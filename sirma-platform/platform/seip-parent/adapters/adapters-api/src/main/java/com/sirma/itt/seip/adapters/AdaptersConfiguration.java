@@ -49,4 +49,18 @@ public interface AdaptersConfiguration {
 	 * @return the dms port configuration
 	 */
 	String getDmsPortConfiguration();
+
+	/**
+	 * Returns {@link ConfigurationProperty} for configuring alfresco if its enabled as content store.
+	 *
+	 * @return {@link ConfigurationProperty} which tells if alfresco is enabled as content store
+	 */
+	ConfigurationProperty<Boolean> getAlfrescoStoreEnabled();
+
+	/**
+	 * Returns {@link ConfigurationProperty} for configuring alfresco if its enabled as view store.
+	 *
+	 * @return {@link ConfigurationProperty} which tells if alfresco is enabled as view store
+	 */
+	ConfigurationProperty<Boolean> getAlfrescoViewStoreEnabled();
 }

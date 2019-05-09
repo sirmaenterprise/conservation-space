@@ -136,7 +136,7 @@ describe('IdocTemplateSelector', () => {
   it('getTemplatePurpose should return uploadable when emf:contentId is set', () => {
     selectIdocTemplate.instanceObject = new InstanceObject(null, IdocMocks.generateModels(), IdocMocks.generateIntialContent());
     selectIdocTemplate.instanceObject.getPropertyValue = () => {
-      return "emf:123";
+      return 'emf:123';
     };
 
     expect(selectIdocTemplate.getTemplatePurpose()).to.equals('uploadable');
@@ -148,25 +148,6 @@ describe('IdocTemplateSelector', () => {
   });
 
 });
-
-function mockConfiguration(persisted, content) {
-  let object = {
-    isPersisted: function () {
-      return persisted;
-    },
-    models: {definitionId: 'defid'},
-    content: content
-  };
-
-  let context = {
-    getCurrentObject: () => PromiseStub.resolve(object)
-  };
-
-  return {
-    currentObject: object,
-    idocContext: context
-  };
-}
 
 function mockTimeout() {
   return (callbackFunction) => {

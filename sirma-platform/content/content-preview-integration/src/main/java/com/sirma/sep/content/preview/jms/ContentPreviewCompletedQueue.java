@@ -1,5 +1,6 @@
 package com.sirma.sep.content.preview.jms;
 
+import static com.sirma.itt.seip.util.EqualsHelper.*;
 import static java.util.stream.Collectors.toSet;
 
 import com.sirma.itt.seip.domain.instance.EmfInstance;
@@ -34,8 +35,9 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Queue receiving generated previews of {@link Content}.
@@ -91,11 +93,13 @@ public class ContentPreviewCompletedQueue {
 
 		// fetch the concrete version of the content that this preview belongs to
 		ContentInfo content = instanceContentService.getContent(contentId, Content.PRIMARY_CONTENT);
-		Collection<String> instancesWithoutPreview = Collections.emptyList();
+		Collection<ContentEntity> instancesWithoutPreview = Collections.emptyList();
 		if (content.exists()) {
 			instancesWithoutPreview = getInstancesWithoutPreview(content, instanceVersionId);
 			// remove the current instance as we just updated it
-			instancesWithoutPreview.remove(instanceId);
+			final String contentIdCopy = contentId;
+			instancesWithoutPreview.removeIf(entity -> nullSafeEquals(entity.getId(), contentIdCopy)
+					|| nullSafeEquals(entity.getInstanceId(), instanceId));
 		}
 
 		if (StringUtils.isBlank(previewContentInfo.getContentId()) || !previewContentInfo.exists()) {
@@ -105,11 +109,13 @@ public class ContentPreviewCompletedQueue {
 
 		// import the content for the rest of the instances
 		instancesWithoutPreview.stream()
-				.map(id -> ContentImport.copyFrom(previewContentInfo).setInstanceId(id))
+				.map(entity -> ContentImport.copyFrom(previewContentInfo)
+						.setInstanceId(entity.getInstanceId())
+						.setContentId(entity.getId()))
 				.forEach(instanceContentService::importContent);
 
 		LOGGER.info("Stored content preview for instance with id={}, and similar instances {}", instanceId,
-				instancesWithoutPreview);
+				instancesWithoutPreview.stream().map(ContentEntity::getInstanceId).collect(Collectors.toSet()));
 	}
 
 	private File downloadPreview(Message message) throws JMSException {
@@ -143,19 +149,32 @@ public class ContentPreviewCompletedQueue {
 		return instanceContentService.updateContent(contentId, dummyInstance, previewContent);
 	}
 
-	private Collection<String> getInstancesWithoutPreview(ContentInfo content, String instanceVersionId) {
-		Stream<String> instancesWithSameContent = contentEntityDao.getEntityByRemoteId(content.getRemoteSourceName(),
-				content.getRemoteId())
-				.stream().map(ContentEntity::getInstanceId);
+	private Collection<ContentEntity> getInstancesWithoutPreview(ContentInfo content, String instanceVersionId) {
+		List<ContentEntity> instancesWithSameContent = contentEntityDao.getEntityByRemoteId(content.getRemoteSourceName(),
+				content.getRemoteId());
+		String baseInstanceId = content.getInstanceId().toString();
 		// make sure that the version if present will be available
 		// it may not be available if instance version is delayed and the method above may not found it
-		return Stream.concat(Stream.of(instanceVersionId).filter(Objects::nonNull), instancesWithSameContent)
-				.filter(instanceId -> instanceId.startsWith(content.getInstanceId().toString()))
+		if (instanceVersionId != null) {
+			boolean versionNotPresent = instancesWithSameContent.stream()
+					.noneMatch(entity -> instanceVersionId.equals(entity.getInstanceId()));
+			if (versionNotPresent) {
+				ContentEntity dummyVersionEntity = new ContentEntity();
+				dummyVersionEntity.setInstanceId(instanceVersionId);
+				instancesWithSameContent.add(dummyVersionEntity);
+			}
+		}
+		return instancesWithSameContent.stream()
+				.filter(entity -> entity.getInstanceId().startsWith(baseInstanceId))
 				.filter(this::withoutContentPreview)
 				.collect(toSet());
 	}
 
-	private boolean withoutContentPreview(String instanceId) {
-		return !instanceContentService.getContent(instanceId, Content.PRIMARY_CONTENT_PREVIEW).exists();
+	private boolean withoutContentPreview(ContentEntity entity) {
+		String id = entity.getId();
+		if (id == null) {
+			id = entity.getInstanceId();
+		}
+		return !instanceContentService.getContent(id, Content.PRIMARY_CONTENT_PREVIEW).exists();
 	}
 }

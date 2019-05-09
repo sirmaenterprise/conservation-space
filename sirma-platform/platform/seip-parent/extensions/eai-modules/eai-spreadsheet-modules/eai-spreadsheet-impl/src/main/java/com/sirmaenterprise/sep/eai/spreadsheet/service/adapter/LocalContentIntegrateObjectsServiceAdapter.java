@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.Executable;
+import com.sirma.itt.seip.Trackable;
 import com.sirma.itt.seip.concurrent.FragmentedWork;
 import com.sirma.itt.seip.concurrent.TaskExecutor;
 import com.sirma.itt.seip.configuration.Options;
@@ -269,8 +270,15 @@ public class LocalContentIntegrateObjectsServiceAdapter implements IntegrateObje
 		LOGGER.info("Storing existing instance {} ", instance.getId());
 		try {
 			Options.DISABLE_STALE_DATA_CHECKS.disable();
+			// load fresh instance to apply the spreadsheet changes on to prevent concurrent modifications of the same
+			// instance in parallel treads. Affected issue: CMF-30269
+			Instance freshCopy = instanceService.loadInstance(instance.getId().toString());
 			persistParent(instance, parsedInstance.getContext());
-			return instanceService.save(InstanceSaveContext.create(instance, UPDATE_OP.getOperation()));
+			boolean changesAppliedSuccessfully = Trackable.transferChanges(instance, freshCopy);
+			if (!changesAppliedSuccessfully) {
+				freshCopy = instance;
+			}
+			return instanceService.save(InstanceSaveContext.create(freshCopy, UPDATE_OP.getOperation()));
 		} finally {
 			Options.DISABLE_STALE_DATA_CHECKS.enable();
 		}

@@ -10,6 +10,7 @@ public class JmsSubsystemModel {
 
 	private boolean jmxManagementEnabled = true;
 	private boolean persistenceEnabled = true;
+	private String persistenceStoreLocation;
 	private boolean securityEnabled = false;
 	private int journalFileSize = 102400;
 	private int httpBatchDelay = 50;
@@ -79,5 +80,13 @@ public class JmsSubsystemModel {
 
 	public void setHttpBatchDelay(int httpBatchDelay) {
 		this.httpBatchDelay = httpBatchDelay;
+	}
+
+	public String getPersistenceStoreLocation() {
+		return persistenceStoreLocation;
+	}
+
+	public void setPersistenceStoreLocation(String persistenceStoreLocation) {
+		this.persistenceStoreLocation = persistenceStoreLocation;
 	}
 }

@@ -1,0 +1,71 @@
+@import "../../../../style/mixins";
+@import "../../../../style/variables";
+@import "../../style/management-mixins";
+
+.model-field {
+  display: flex;
+  padding: $default-gap $default-gap * 2 $default-gap $default-gap * 2;
+
+  .control-label {
+    flex-basis: 35%;
+    font-weight: normal;
+
+    .field-parent {
+      font-size: 75%;
+      color: $link-color;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .mandatory-mark {
+      color: #FF0000;
+    }
+  }
+
+  .control-data {
+    display: flex;
+    flex-basis: 65%;
+
+    .control-edit {
+      flex-grow: 1;
+    }
+
+    .control-view {
+      overflow: hidden;
+
+      .control-label {
+        text-align: left;
+      }
+    }
+
+    .field-hint {
+      left: -5px;
+      bottom: 1px;
+      position: relative;
+
+      min-width: 4px;
+      margin-left: -5px;
+      font-size: x-small;
+    }
+  }
+
+  .control-buttons {
+    visibility: hidden;
+  }
+
+  @include exclude-ie11-and-edge() {
+    .control-edit > textarea {
+      overflow: hidden;
+    }
+  }
+
+  &:hover {
+    @include highlighted-model;
+
+    .control-buttons {
+      visibility: visible;
+    }
+  }
+}

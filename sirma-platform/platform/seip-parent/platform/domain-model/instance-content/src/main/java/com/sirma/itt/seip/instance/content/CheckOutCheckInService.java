@@ -39,6 +39,7 @@ public interface CheckOutCheckInService {
 	 *            is the instance ID
 	 * @return the {@link ContentInfo} of the updated content
 	 */
+	// TODO remove the second argument, we have it in the upload request already
 	ContentInfo checkIn(UploadRequest uploadRequest, String instanceId);
 
 	/**

@@ -2,20 +2,20 @@
 <definition id="NGAIT211003" parentId="ngaImage" type="object"> <!-- Other Image -->
 	<fields>
 		<field name="default_header" type="ANY" label="NGAIT211003_DEFAULT_HEADER_NGA" mandatory="false" displayType="system" />
-		<field name="compact_header" type="an..4096" label="NGAIT211003_COMPACT_HEADER_NGA" mandatory="false" displayType="system" />
-		<field name="breadcrumb_header" type="an..4096" label="NGAIT211003_BREADCRUMB_HEADER_NGA" mandatory="false" displayType="system" />
+		<field name="compact_header" type="ANY" label="NGAIT211003_COMPACT_HEADER_NGA" mandatory="false" displayType="system" />
+		<field name="breadcrumb_header" type="ANY" label="NGAIT211003_BREADCRUMB_HEADER_NGA" mandatory="false" displayType="system" />
 		
-		<field name="type" type="an..50" codelist="CL211">
+		<field name="type" >
 			<value>NGAIT211003</value>
 		</field>
-		<field name="status" type="an..35" codelist="CL114" displayType="readonly" />
-		<field name="title" type="an..180" label="nga.title.label" mandatory="true" displayType="editable" />
+		<field name="status" codelist="CL114" />
+		<field name="title" mandatory="true" />
 		<!-- system fields -->
-		<field name="sourceSystemId" type="an..50" displayType="hidden" mandatory="false" uri="chc:sourceSystemId" />
-		<field name="objectId" type="an..50" displayType="system" />
-		<field name="externalCreatedOn" type="dateTime" displayType="system" />
-		<field name="widthOfSubject" type="n..24,20" label="widthOfSubject" displayType="system" />
-		<field name="heightOfSubject" type="n..24,20" label="heightOfSubject" displayType="system" />
+		<field name="sourceSystemId" displayType="hidden" mandatory="false" />
+		<field name="objectId" displayType="system" />
+		<field name="externalCreatedOn" displayType="system" />
+		<field name="widthOfSubject" displayType="system" />
+		<field name="heightOfSubject" displayType="system" />
 	</fields>
 
 	<labels>	
@@ -26,17 +26,20 @@
 			<span><img src="${thumbnailUri(64)}"/></span>
 			<span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>,&nbsp;
 					<span data-property="type">${CL([type])}</span>&nbsp;
 					(<span data-property="status">${CL([status])}</span>)
 				</span><br />
 				${if(${get([status])}<>FOR_IMP).then(
 					<span class="truncate-element">
-						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])}==true).then(instance-deleted).else(has-tooltip)}">
-							${if(${get([emf:isDeleted])}==true).then(<span>(Deleted)</span> )}
-							${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
-							<span data-property="name">${get([name])}</span>&nbsp;
-						</a>
+						<b>
+							<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])}==true).then(instance-deleted).else(has-tooltip)}">
+								${if(${get([emf:isDeleted])}==true).then(<span>(Deleted)</span> )}
+								${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
+								<span data-property="name">${get([name])}</span>&nbsp;
+							</a>
+						</b>	
 					</span>
 					).else(			
 						${if(${get([title])}<>null).then(<span data-property="title">${get([title])}</span>)}
@@ -48,11 +51,9 @@
 					)}
 					${if(${get([chc:depicts])}<>null).then(<br />Depicts:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
 					${if(${get([emf:isPrimaryImageOf])}<>null).then(<br />Primary&nbsp;image&nbsp;of:<span data-property="emf:isPrimaryImageOf">${objectProperty(${get([emf:isPrimaryImageOf])})}</span>)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>	
 			</span>)}]]></value>
 		</label>
-		
 		<label id="NGAIT211003_COMPACT_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
@@ -71,7 +72,6 @@
 				</span>
 			</span>)}]]></value>
 		</label>
-		
 		<label id="NGAIT211003_BREADCRUMB_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }

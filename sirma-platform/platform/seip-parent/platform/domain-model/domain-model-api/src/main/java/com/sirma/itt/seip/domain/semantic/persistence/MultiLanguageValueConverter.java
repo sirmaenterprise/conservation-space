@@ -1,12 +1,12 @@
 package com.sirma.itt.seip.domain.semantic.persistence;
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.Set;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.convert.TypeConverterProvider;
@@ -20,22 +20,23 @@ import com.sirma.itt.seip.security.UserPreferences;
 @ApplicationScoped
 public class MultiLanguageValueConverter implements TypeConverterProvider {
 
+	private static final String ENGLISH = Locale.ENGLISH.getLanguage();
 	@Inject
 	private UserPreferences userPreferences;
 
 	@Override
 	public void register(TypeConverter converter) {
-		converter.addConverter(MultiLanguageValue.class, String.class, source -> getLabel(source));
+		converter.addConverter(MultiLanguageValue.class, String.class, this::getLabel);
 	}
 
 	@SuppressWarnings("unchecked")
 	private String getLabel(MultiLanguageValue multiLanguageValue) {
 		String language = userPreferences.getLanguage();
-		Serializable values = multiLanguageValue.getValues(language);
-		if (values instanceof Set) {
-			return ((Set<Serializable>) values).stream().map(Serializable::toString).collect(Collectors.joining(","));
+		if (!multiLanguageValue.hasValueForLanguage(language) && multiLanguageValue.hasValueForLanguage(ENGLISH)) {
+			language = ENGLISH;
 		}
-		return Objects.toString(values, null);
+		String values = multiLanguageValue.getValues(language).collect(Collectors.joining(","));
+		return StringUtils.trimToNull(values);
 	}
 
 }

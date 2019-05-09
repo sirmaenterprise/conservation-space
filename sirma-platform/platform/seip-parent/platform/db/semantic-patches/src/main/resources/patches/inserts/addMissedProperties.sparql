@@ -1,0 +1,32 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+INSERT DATA {
+    graph <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {	
+    	### http://www.ontotext.com/proton/protontop#title
+		ptop:title rdf:type owl:DatatypeProperty, owl:AnnotationProperty.
+		ptop:title rdfs:label "Заглавие"@bg , "Title"@en .
+		
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#forObjectType
+		emf:forObjectType rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
+                 rdfs:label "За тип"@bg ,
+                            "For værktype"@da ,
+                            "Für Objekttyp"@de ,
+                            "Kohteen tyyppi"@fi ,
+                            "For object type"@en ;    
+                 skos:definition "Object type for which the template is applicable"@en ;
+                 dc:creator "Ginka Angelova"@en .           
+                
+                
+		###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#forObjectTypeLabel
+		emf:forObjectTypeLabel rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
+                 rdfs:label "Системен тип за шаблон"@bg ,
+                            "System type for template"@en ;    
+                 skos:definition "Materializes the label of \"For object type\" property"@en ;
+                 dc:creator "Ginka Angelova"@en .
+    }
+}

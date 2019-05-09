@@ -1,5 +1,5 @@
 import {Described} from 'administration/model-management/model/described';
-import {ModelValidationRules} from 'administration/model-management/validation/model-validation-rules';
+import {ModelValidationModel} from 'administration/model-management/model/validation/model-validation-model';
 
 /**
  * Provides a description of a meta data which is used as a reference point.
@@ -15,7 +15,7 @@ export class ModelMetaData extends Described {
   constructor(id) {
     super();
     this.id = id;
-    this.validationRules = new ModelValidationRules();
+    this.validationModel = new ModelValidationModel();
   }
 
   getId() {
@@ -27,18 +27,12 @@ export class ModelMetaData extends Described {
     return this;
   }
 
-  getValidationRules() {
-    return this.validationRules;
-  }
-
-  setValidationRules(rules) {
-    this.validationRules = rules;
-    return this;
+  getValidationModel() {
+    return this.validationModel;
   }
 
   seal() {
-    this.validationRules.seal();
-    // Using Object.freeze() to avoid reassigning existing fields which Object.seal() won't prevent.
+    this.validationModel.seal();
     Object.freeze(this);
   }
 }

@@ -196,12 +196,16 @@
 										<tr>
 										  <td valign="top" class="textContent">
 											<h3 style="color:#5F5F5F;line-height:125%;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;">
-												${codelists.getCodeValue(7, target.properties['type']).properties['en']} is reopened
+												<#assign rdfType = target.properties['rdf:type']>
+												<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													Document is reopened
+												<#else>	
+													${codelists.getCodeValue(7, target.properties['type']).properties['en']} is reopened
+												</#if>
 											</h3>
 											<br>
 											<div style="text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;">
 											<strong>
-												<#assign rdfType = target.properties['rdf:type']>
 												<#if rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#ConservationActivity'>
 													(Conservation Activity: ${codelists.getCodeValue(133, target.properties['subType']).properties['en']}) 
 													${target.properties['title']}
@@ -209,6 +213,9 @@
 													(Project) ${target.properties['title']}
 												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Issue'>
 													(Issue) ${codelists.getCodeValue(18, target.properties['issueType']).properties['en']}:  
+													${target.properties['title']}
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													(Document: ${codelists.getCodeValue(6, target.properties['type']).properties['en']}) 
 													${target.properties['title']}
 												<#else>
 													<a href="${notifications.buildFullURI(target)}">
@@ -266,7 +273,7 @@
                                   <td valign="top" bgcolor="#eeeeee">
 
                                      <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
-                                     <div>Powered by <a href="http://www.sirmaplatform.com/" target="_blank">Sirma Enterprise Platform</a></div>
+                                     <div>This is an automatic e-mail notification. Please do not reply!</div>
                                     </div>
 
                                   </td>

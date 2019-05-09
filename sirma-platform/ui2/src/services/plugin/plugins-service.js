@@ -1,4 +1,3 @@
-import {$injector} from 'angular';
 import {Injectable, Inject} from 'app/app';
 import {Logger} from 'services/logging/logger';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';

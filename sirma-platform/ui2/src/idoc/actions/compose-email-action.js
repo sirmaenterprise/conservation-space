@@ -29,7 +29,7 @@ export class ComposeEmailAction extends ActionHandler {
 
       let mailboxConfig = {
         context: idocContext,
-        mailboxViewType: 'compose',
+        mailboxViewType: 'compose'
       };
 
       if (!idocContext) {

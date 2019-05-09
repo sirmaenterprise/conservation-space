@@ -23,11 +23,12 @@ import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.io.ResourceLoadUtil;
 import com.sirma.itt.seip.mail.MailNotificationContext;
 import com.sirma.itt.seip.mail.MailNotificationService;
-import com.sirma.itt.seip.monitor.Statistics;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
 import com.sirma.itt.seip.resources.Resource;
 import com.sirma.itt.seip.resources.ResourceService;
 import com.sirma.itt.seip.search.SearchService;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
 
@@ -71,9 +72,6 @@ public class AnnotationMentionServiceImpl implements AnnotationMentionService {
 	private NamespaceRegistryService namespaceRegistryService;
 
 	@Inject
-	private Statistics statistics;
-
-	@Inject
 	private ResourceService resourceService;
 
 	@Override
@@ -105,11 +103,11 @@ public class AnnotationMentionServiceImpl implements AnnotationMentionService {
 
 	}
 
-	@SuppressWarnings("boxing")
 	@Override
+	@SuppressWarnings("boxing")
+	@Monitored(@MetricDefinition(name = "mention_semantic_search_duration_seconds", type = Type.TIMER, descr = "User mentions semantic search duration in seconds."))
 	public Collection<Serializable> loadMentionedUsers(String annotationId) {
 		LOGGER.debug("Executing search for mentioned users for annotation id: {}", annotationId);
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "semanticSearch").begin();
 
 		SearchArguments<Annotation> arguments = new SearchArguments<>();
 		arguments.setPermissionsType(QueryResultPermissionFilter.NONE);
@@ -131,8 +129,6 @@ public class AnnotationMentionServiceImpl implements AnnotationMentionService {
 			LOGGER.error("Error executing search for mentioned users for annotation id: {}", annotationId,
 					e.getMessage(), e);
 			return Collections.emptyList();
-		} finally {
-			LOGGER.debug("Annotation search took {} s", tracker.stopInSeconds());
 		}
 	}
 

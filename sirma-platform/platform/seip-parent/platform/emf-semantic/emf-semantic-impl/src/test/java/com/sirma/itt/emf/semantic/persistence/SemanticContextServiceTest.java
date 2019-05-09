@@ -51,6 +51,7 @@ import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.context.InstanceContextService;
 import com.sirma.itt.seip.instance.relation.LinkConstants;
+import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.testutil.fakes.EntityLookupCacheContextFake;
 import com.sirma.itt.seip.testutil.fakes.InstanceTypeFake;
@@ -77,7 +78,7 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 	@Mock
 	private SemanticDefinitionService semanticDefinitionService;
 	@Spy
-	private Statistics statistics = Statistics.NO_OP;
+	private Statistics statistics = NoOpStatistics.INSTANCE;
 	@Spy
 	private InstancePropertyNameResolver fieldConverter = InstancePropertyNameResolver.NO_OP_INSTANCE;
 	private RepositoryConnection repositoryConnection;
@@ -93,7 +94,6 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 		LinkConstants.init(securityContextManager, ContextualMap.create());
 	}
 
-	@SuppressWarnings({"resource", "unchecked"})
 	@BeforeMethod
 	@Override
 	public void beforeMethod() {
@@ -214,9 +214,9 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 		// reset properties
 		newInstance.getProperties().clear();
 		newInstance.add(InstanceContextService.PART_OF_URI, "emf:non-cache-parent2");
-		Optional<InstanceReference> context = contextService.getContext(newInstance);
-		assertTrue(context.isPresent());
-		assertEquals(context.get(), createReference("emf:non-cache-parent"));
+		Optional<InstanceReference> result = contextService.getContext(newInstance);
+		assertTrue(result.isPresent());
+		assertEquals(result.get(), createReference("emf:non-cache-parent"));
 		// verify db request
 		verify(repositoryConnection, times(1)).prepareTupleQuery(any(), any());
 		verify(logger, times(1)).warn(
@@ -242,7 +242,6 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 
 	@Test
 	public void testDiffArgumentTypesSameResult() {
-		EmfInstance instance = createInstance(INSTANCE2);
 		InstanceReference contextRef = createReference(INSTANCE1);
 		assertEquals(contextService.getContext(createInstance(INSTANCE2)).get(), contextRef);
 		assertEquals(contextService.getContext(createReference(INSTANCE2)).get(), contextRef);
@@ -350,9 +349,9 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 		clazz.setSuperClasses(Arrays.asList(createClassInstance("emf:superClassClass")));
 		InstanceReference clazzRef = InstanceReferenceMock.createGeneric(clazz);
 		clazzRef.setType(InstanceTypeFake.buildForCategory("classinstance"));
-		Optional<InstanceReference> context = contextService.getContext(clazzRef);
-		assertTrue(context.isPresent());
-		assertEquals(context.get(), createReference("emf:superClassClass"));
+		Optional<InstanceReference> result = contextService.getContext(clazzRef);
+		assertTrue(result.isPresent());
+		assertEquals(result.get(), createReference("emf:superClassClass"));
 		verify(repositoryConnection, times(0)).prepareTupleQuery(any(), any());
 		verify(semanticDefinitionService, times(0)).getMostConcreteClass(anyCollection());
 	}
@@ -365,9 +364,9 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 		InstanceReference clazzRef = InstanceReferenceMock.createGeneric(clazz);
 		clazzRef.setType(InstanceTypeFake.buildForCategory("classinstance"));
 		when(semanticDefinitionService.getMostConcreteClass(anyCollection())).thenReturn("emf:superClassClass");
-		Optional<InstanceReference> context = contextService.getContext(clazzRef);
-		assertTrue(context.isPresent());
-		assertEquals(context.get(), createReference("emf:superClassClass"));
+		Optional<InstanceReference> result = contextService.getContext(clazzRef);
+		assertTrue(result.isPresent());
+		assertEquals(result.get(), createReference("emf:superClassClass"));
 		verify(repositoryConnection, times(0)).prepareTupleQuery(any(), any());
 		verify(semanticDefinitionService, times(1)).getMostConcreteClass(anyCollection());
 	}
@@ -401,7 +400,7 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 		contextService.bindContext(instance3, createInstance(INSTANCE4));
 	}
 
-	private ClassInstance createClassInstance(String id) {
+	private static ClassInstance createClassInstance(String id) {
 		ClassInstance clazz = new ClassInstance();
 		clazz.setId(id);
 		return clazz;
@@ -419,5 +418,4 @@ public class SemanticContextServiceTest extends GeneralSemanticTest<InstanceCont
 	protected String getTestDataFile() {
 		return "SemanticContextServiceTest.ttl";
 	}
-
 }

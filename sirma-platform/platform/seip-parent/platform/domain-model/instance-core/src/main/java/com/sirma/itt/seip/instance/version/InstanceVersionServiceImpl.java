@@ -189,13 +189,7 @@ public class InstanceVersionServiceImpl implements InstanceVersionService {
 
 	@Override
 	public <I extends Instance> boolean populateVersion(I instance) {
-		if (instance == null) {
-			LOGGER.debug("Cannot set version property for null instance.");
-			return false;
-		}
-
-		String instanceVersion = instance.getString(DefaultProperties.VERSION);
-		if (instance.type() == null || !instance.type().isVersionable() || StringUtils.isNotBlank(instanceVersion)) {
+		if (!shouldPopulate(instance)) {
 			return false;
 		}
 
@@ -207,6 +201,22 @@ public class InstanceVersionServiceImpl implements InstanceVersionService {
 
 		instance.add(DefaultProperties.VERSION, getInitialInstanceVersion());
 		return true;
+	}
+
+	private static <I extends Instance> boolean shouldPopulate(I instance) {
+		if (instance == null) {
+			LOGGER.debug("Cannot set version property for null instance.");
+			return false;
+		}
+
+		Serializable id = instance.getId();
+		if (InstanceVersionService.isVersion(id)) {
+			LOGGER.debug("The passed instance is already version. Instance id: {}", id);
+			return false;
+		}
+
+		return instance.type() != null && instance.type().isVersionable()
+				&& StringUtils.isBlank(instance.getString(DefaultProperties.VERSION));
 	}
 
 	@Override
@@ -498,14 +508,17 @@ public class InstanceVersionServiceImpl implements InstanceVersionService {
 		// TODO: rethink lock exception handling. One of try/catch, forceLock or tryLock
 		lockService.lock(currentInstanceReference, "revert");
 
-		List<RevertStep> executedSteps = new ArrayList<>(revertSteps.count());
+		final List<RevertStep> executedSteps = new ArrayList<>(revertSteps.count());
+		transactionSupport.invokeOnFailedTransactionInTx(() -> {
+			Collections.reverse(executedSteps);
+			executedSteps.forEach(step -> step.rollback(context));
+		});
+
 		try {
 			callSteps(step -> step.invoke(context), executedSteps::add);
 			return context.getRevertResultInstance();
 		} catch (RuntimeException e) {
 			LOGGER.error("Problem occurred while reverting version - {}", context.getVersionId(), e);
-			Collections.reverse(executedSteps);
-			transactionSupport.invokeInNewTx(() -> executedSteps.forEach(step -> step.rollback(context)));
 			throw e;
 		} finally {
 			lockService.tryUnlock(currentInstanceReference);
@@ -552,7 +565,7 @@ public class InstanceVersionServiceImpl implements InstanceVersionService {
 	}
 
 	@Override
-	public <S extends Serializable> Map<S, Boolean> exits(Collection<S> ids) {
+	public <S extends Serializable> Map<S, Boolean> exist(Collection<S> ids) {
 		return versionDao.exits(ids);
 	}
 

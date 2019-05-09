@@ -8,6 +8,8 @@ package com.sirma.itt.seip.tenant.provision;
 public class IdpTenantInfo {
 
 	private String tenantId;
+	private String tenantDisplayName;
+	private String tenantDescription;
 	private String adminUsername;
 	private String adminPassword;
 	private String adminMail;
@@ -21,6 +23,22 @@ public class IdpTenantInfo {
 
 	public void setTenantId(String tenantId) {
 		this.tenantId = tenantId;
+	}
+
+	public String getTenantDisplayName() {
+		return tenantDisplayName;
+	}
+
+	public void setTenantDisplayName(String tenantDisplayName) {
+		this.tenantDisplayName = tenantDisplayName;
+	}
+
+	public String getTenantDescription() {
+		return tenantDescription;
+	}
+
+	public void setTenantDescription(String tenantDescription) {
+		this.tenantDescription = tenantDescription;
 	}
 
 	public String getAdminUsername() {

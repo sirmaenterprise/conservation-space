@@ -19,9 +19,7 @@ import template from './input-filter.html!text';
   },
   events: ['onButtonClicked', 'onKeyPressed']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgElement)
 export class InputFilter extends Configurable {
 

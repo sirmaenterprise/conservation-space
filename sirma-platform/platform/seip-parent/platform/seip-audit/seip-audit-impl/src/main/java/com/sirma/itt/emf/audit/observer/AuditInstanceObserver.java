@@ -58,8 +58,6 @@ public class AuditInstanceObserver {
 
 		// If the old or new context is section we want for audit log the case
 		// where this section is placed
-		source = getParentInstance(source);
-		target = getParentInstance(target);
 		String context = "";
 		if (source != null) {
 			context = source.getId() + ";";
@@ -71,17 +69,6 @@ public class AuditInstanceObserver {
 				.setRelationStatus(AuditActivity.STATUS_ADDED);
 
 		auditProcessor.process(payload, context);
-	}
-
-	/**
-	 * Retrieves the parent instance of the provided instance if it is a SectionInstance.
-	 *
-	 * @param instance
-	 *            - the provided instance
-	 * @return the parent instance if it is a SectionInstance or the current if it is not
-	 */
-	private static Instance getParentInstance(Instance instance) {
-		return instance;
 	}
 
 	/**

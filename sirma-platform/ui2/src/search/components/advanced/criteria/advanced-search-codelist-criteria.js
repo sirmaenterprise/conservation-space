@@ -28,9 +28,7 @@ import template from './advanced-search-codelist-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(CodelistRestService, PromiseAdapter)
 export class AdvancedSearchCodelistCriteria extends Configurable {
   constructor(codelistRestService, promiseAdapter) {

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -24,12 +23,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.testng.reporters.Files;
 
-import com.sirma.itt.seip.concurrent.TaskExecutor;
 import com.sirma.itt.seip.concurrent.locks.ContextualLock;
 import com.sirma.itt.seip.io.FileDescriptor;
 import com.sirma.itt.seip.security.context.ContextualExecutor;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
-import com.sirma.itt.seip.testutil.fakes.TaskExecutorFake;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 
 /**
@@ -129,12 +126,16 @@ public class LocalContentStoreTest {
 		assertEquals("updated", updatedChannel.asString());
 	}
 
-	@Test(expected = ContentNotFoundRuntimeException.class)
-	public void aupdateContent_shouldFailOnMissingContent() throws Exception {
+	@Test
+	public void updateContent_shouldCreateNewFileOnMissingContent() throws Exception {
 		Content newContent = Content.createEmpty().setName("test.txt").setContent("updated",
 				StandardCharsets.UTF_8.name());
 
-		contentStore.update(null, newContent, contentStore.createStoreInfo().setRemoteId("someRandomId"));
+		StoreItemInfo info = contentStore.createStoreInfo().setRemoteId("2018/10/29/someRandomId");
+		StoreItemInfo updatedInfo = contentStore.update(null, newContent, info);
+		assertNotNull(updatedInfo);
+		assertEquals(info.getRemoteId(), updatedInfo.getRemoteId());
+		assertEquals(7L, updatedInfo.getContentLength());
 	}
 
 	@Test

@@ -1,5 +1,7 @@
 package com.sirma.itt.emf.solr.services;
 
+import java.util.Map;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
@@ -12,18 +14,14 @@ import com.sirma.itt.seip.domain.search.SearchArguments;
 public interface SolrConnector {
 
 	/**
-	 * Executes a remote query over solr with GET method.
+	 * Retrieves the solr schema for the current tenant.
 	 *
-	 * @param query
-	 *            the query
-	 * @return the solr response with results and all the relevant data.
-	 * @throws SolrClientException
-	 *             the solr client exception
+	 * @return Map representing the solr schema.
 	 */
-	QueryResponse queryWithGet(SolrQuery query) throws SolrClientException;
+	Map<String, Object> retrieveSchema();
 
 	/**
-	 * Executes a remote query over solr with POST method.
+	 * Executes a remote query to solr.
 	 *
 	 * @param query
 	 *            the query
@@ -31,7 +29,7 @@ public interface SolrConnector {
 	 * @throws SolrClientException
 	 *             the solr client exception
 	 */
-	QueryResponse queryWithPost(SolrQuery query) throws SolrClientException;
+	QueryResponse query(SolrQuery query) throws SolrClientException;
 
 	/**
 	 * Suggest query executions over solr. Default field is used ( same as suggest component is configured)

@@ -1,5 +1,5 @@
 import {Component, View, Inject, NgCompile, NgElement, NgScope} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {PluginsService} from 'services/plugin/plugins-service';

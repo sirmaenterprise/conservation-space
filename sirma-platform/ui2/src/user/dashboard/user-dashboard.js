@@ -1,7 +1,7 @@
 import {Component,Inject} from 'app/app';
 import {Router} from 'adapters/router/router';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {STATE_PARAM_ID} from 'idoc/idoc-constants';
 
 @Component({

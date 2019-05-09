@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.plugin.Extension;
-import com.sirma.itt.seip.tenant.context.TenantInfo;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -37,7 +37,7 @@ public class TenantUpdateCamundaStep extends TenantCamundaStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
 		return false;
 	}
 

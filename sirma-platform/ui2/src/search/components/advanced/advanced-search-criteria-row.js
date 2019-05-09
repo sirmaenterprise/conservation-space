@@ -50,16 +50,14 @@ export const ADVANCED_CRITERIA_EXTENSION_POINT = 'advanced-search-criteria';
   },
   events: ['onValueChange', 'onFieldChange', 'onOperatorChange']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgElement, PromiseAdapter, PluginsService, TranslateService, NgCompile, NgTimeout, AdvancedSearchFilterExecutor)
 export class AdvancedSearchCriteriaRow extends SearchComponent {
 
   constructor($scope, $element, promiseAdapter, pluginsService, translateService, $compile, $timeout, advancedSearchFilterExecutor) {
     super({
       disabled: false,
-      renderRemoveButton: true,
+      renderRemoveButton: true
     });
 
     this.$scope = $scope;
@@ -137,7 +135,7 @@ export class AdvancedSearchCriteriaRow extends SearchComponent {
         if (this.config.searchMediator) {
           this.config.searchMediator.trigger(EVENT_CRITERIA_PROPERTY_CHANGED, {
             rule: this.criteria,
-            oldProperty: oldProperty,
+            oldProperty,
             newProperty: this.property.id
           });
         }
@@ -213,9 +211,9 @@ export class AdvancedSearchCriteriaRow extends SearchComponent {
     this.extensionScope = this.$scope.$new();
     var component = extension.component;
     var html = `<${component} config="advancedSearchCriteriaRow.config"`;
-    html += ` on-change="advancedSearchCriteriaRow.onChangedValue()"`;
-    html += ` property="advancedSearchCriteriaRow.property"`;
-    html += ` context="advancedSearchCriteriaRow.context"`;
+    html += ' on-change="advancedSearchCriteriaRow.onChangedValue()"';
+    html += ' property="advancedSearchCriteriaRow.property"';
+    html += ' context="advancedSearchCriteriaRow.context"';
     html += ` criteria="advancedSearchCriteriaRow.criteria"></${component}>`;
     var compiled = this.$compile(html)(this.extensionScope)[0];
 

@@ -163,18 +163,25 @@ export class Calculation extends FieldValidator {
           validationModel[validatedFieldName].value = template;
         } else {
           let hasValue = Calculation.hasValue(fieldModel);
-          if (!hasValue && data) {
+          if (!hasValue && data && data.properties && data.properties.length > 0) {
             let responseData = data.properties[0].propertyValue;
             // Parse value in model if suggest should be made from one object picked to another and object property is not part of current object
             if (InstanceObject.isObjectProperty(flatModel[validatedFieldName])) {
-              fieldModel = this.parseObjectsBindingResponseToObjectValue(responseData);
+              this.updateObjectProperty(validationModel[validatedFieldName], responseData);
+              return true;
             } else if (InstanceObject.isCodelistProperty(flatModel[validatedFieldName]) && codelistValues) {
               let sharedCodelistData = {};
-              fieldModel = null;
+              fieldModel = flatModel[validatedFieldName].multivalue ? [] : null;
               codelistValues.data.forEach((codelistItem) => {
                 sharedCodelistData[codelistItem.value] = codelistItem.label;
-                if (codelistItem.value === responseData) {
-                  fieldModel = responseData;
+                if (fieldModel instanceof Array) {
+                  if (responseData.indexOf(codelistItem.value) > -1) {
+                    fieldModel.push(codelistItem.value);
+                  }
+                } else {
+                  if (codelistItem.value === responseData) {
+                    fieldModel = responseData;
+                  }
                 }
               });
               validationModel[validatedFieldName].sharedCodelistData = sharedCodelistData;
@@ -203,6 +210,19 @@ export class Calculation extends FieldValidator {
     return null;
   }
 
+  updateObjectProperty(instanceObjectProperty, serverResponse) {
+    let response = this.parseObjectsBindingResponseToObjectValue(serverResponse);
+    let singleValue = !instanceObjectProperty.multivalue;
+    // updates value of the object property
+    ModelUtils.updateObjectPropertyValue(instanceObjectProperty, singleValue, response.results);
+    // updates headers of selected the objects
+    _.forEach(response.headers, (headerObject, instanceId) => {
+      _.forEach(headerObject, (header, headerType) => {
+        ModelUtils.updateObjectPropertyHeaders(instanceObjectProperty.value, instanceId, headerType, header);
+      });
+    });
+  }
+
   /**
    * Parses response with objects.<br>
    * Example of <code>objectsBindingResponse</code>:
@@ -220,11 +240,9 @@ export class Calculation extends FieldValidator {
    * Example of result:
    * <pre>
    *     {
-   *        add: ['emf:0001', ...],
    *        results: ['emf:0001', ...],
    *        headers: {
    *            'emf:0001': {
-   *                id: 'emf:0001',
    *                compact_header: '<span>.......</span>'
    *            }
    *            ...
@@ -234,14 +252,12 @@ export class Calculation extends FieldValidator {
    */
   parseObjectsBindingResponseToObjectValue(objectsBindingResponse) {
     let json = JSON.parse(objectsBindingResponse);
-    let objectValue = ModelUtils.getEmptyObjectPropertyValue();
+    let objectValue = {results: [], headers: {}};
     if (json) {
       json.forEach((object) => {
         let id = object.id;
         objectValue.results.push(id);
-        objectValue.add.push(id);
-        objectValue.headers[id] = _.defaultsDeep(object.headers, {id});
-        objectValue.total = objectValue.results.length;
+        objectValue.headers[id] = object.headers;
       });
     }
     return objectValue;
@@ -258,7 +274,8 @@ export class Calculation extends FieldValidator {
     return template;
   }
 
-  replaceFunctionsInTemplate(template, functions = [], controlParams, data) {
+  replaceFunctionsInTemplate(template, functions, controlParams, data) {
+    functions = functions || [];
     functions.forEach((functionValue) => {
       let paramValue = '{' + controlParams[functionValue.toLowerCase()] + '}';
       let position = paramValue.length - 1;

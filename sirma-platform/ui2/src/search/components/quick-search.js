@@ -49,7 +49,7 @@ export const OPEN_SEARCH_STATE = 'open-search';
     'config': 'config'
   }
 })
-@View({template: template})
+@View({template})
 @Inject(Configuration, Router, Eventbus, IdocContextFactory, InstanceRestService)
 export class QuickSearch extends Configurable {
 

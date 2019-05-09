@@ -11,14 +11,14 @@ import java.util.List;
 public interface TemplateImportService {
 
 	/**
-	 * Loads all template definitoins from the provided path and validates them. </br>
+	 * Loads all template definitions from the provided path and validates them. </br>
 	 * Files' extensions are validated. XSD schema validation is performed for well-structured xml and tags, as well as
 	 * business validation for mandatory fields, duplicate instance IDs, duplicate primary templates and more.
 	 * 
-	 * @param directoryPath is the directory path to load the templates from
+	 * @param validationRequest request containing the directory path to load the templates from and the available definitions for validation
 	 * @return a list of all detected errors in the templates
 	 */
-	List<String> validate(String directoryPath);
+	List<String> validate(TemplateValidationRequest validationRequest);
 
 	/**
 	 * Imports all templates from the given local file directory.

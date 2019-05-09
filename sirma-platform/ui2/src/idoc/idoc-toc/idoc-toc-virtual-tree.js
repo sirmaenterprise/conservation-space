@@ -88,9 +88,9 @@ export class ToCVirtualTree {
   deleteSection(sectionID) {
     let result = true;
     if (this.parents.get(sectionID) === sectionID) {
-      result = result && this.tree.delete(sectionID);
+      result = this.tree.delete(sectionID);
     } else {
-      result = result && this.deleteChild(this.tree.get(this.parents.get(sectionID)), sectionID);
+      result = this.deleteChild(this.tree.get(this.parents.get(sectionID)), sectionID);
       result = result && this.tree.delete(sectionID);
     }
     result = result && this.parents.delete(sectionID);

@@ -29,18 +29,23 @@ class Notification {
     return TestUtils.hasClass(this.element, 'toast-success');
   }
 
+  isWarning() {
+    return TestUtils.hasClass(this.element, 'toast-warning');
+  }
+
   getContent() {
     return this.element.$('.toast-message');
   }
 
   close() {
-    this.waitUntilOpened().click();
+    this.waitUntilOpened().clickNoficationCloseButton();
   }
 
   clickNoficationCloseButton() {
     this.element.$('.toast-close-button').click();
+    browser.wait(EC.invisibilityOf(this.element), DEFAULT_TIMEOUT);
+    return this;
   }
-
 }
 
 module.exports.Notification = Notification;

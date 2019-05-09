@@ -63,9 +63,7 @@ import template from './advanced-search-section.html!text';
     'loaders': 'loaders'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, TranslateService)
 export class AdvancedSearchSection extends SearchCriteriaComponent {
 

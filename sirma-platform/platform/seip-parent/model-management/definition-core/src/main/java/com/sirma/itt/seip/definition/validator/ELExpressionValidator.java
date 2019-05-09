@@ -1,30 +1,21 @@
 package com.sirma.itt.seip.definition.validator;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.sirma.itt.seip.definition.RegionDefinition;
-import com.sirma.itt.seip.definition.RegionDefinitionModel;
-import com.sirma.itt.seip.definition.ValidationLoggingUtil;
 import com.sirma.itt.seip.definition.compile.DefinitionCompilerHelper;
-import com.sirma.itt.seip.definition.label.LabelDefinition;
-import com.sirma.itt.seip.domain.Identity;
 import com.sirma.itt.seip.domain.definition.ControlParam;
-import com.sirma.itt.seip.domain.definition.DefinitionModel;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 import com.sirma.itt.seip.expressions.ElExpressionParser;
 
 /**
@@ -35,78 +26,27 @@ import com.sirma.itt.seip.expressions.ElExpressionParser;
  */
 public class ELExpressionValidator implements DefinitionValidator {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ELExpressionValidator.class);
-
 	@Override
-	public List<String> validate(RegionDefinitionModel model) {
-		List<String> errors = new ArrayList<>();
+	public List<ValidationMessage> validate(GenericDefinition definition) {
+		ELExpressionMessageBuilder messageBuilder = new ELExpressionMessageBuilder(definition);
 
-		for (RegionDefinition regionDefinition : model.getRegions()) {
-			errors.addAll(validate(regionDefinition));
-			if (regionDefinition.getControlDefinition() != null) {
-				errors.addAll(validate(regionDefinition.getControlDefinition()));
-			}
-		}
-
-		return errors;
-	}
-
-	@Override
-	public List<String> validate(DefinitionModel model) {
-		List<String> errors = new ArrayList<>();
-
-		for (PropertyDefinition propertyDefinition : model.getFields()) {
-			errors.addAll(validate(propertyDefinition));
-			if (propertyDefinition.getControlDefinition() != null) {
-				errors.addAll(validate(propertyDefinition.getControlDefinition()));
-			}
-		}
-
-		return errors;
-	}
-
-	@Override
-	public List<String> validate(Identity model) {
-		List<String> errors = new ArrayList<>();
-
-		if (model instanceof PropertyDefinition) {
-			PropertyDefinition definition = (PropertyDefinition) model;
-			String defaultValue = definition.getDefaultValue();
-			String rnc = definition.getRnc();
+		definition.fieldsStream().forEach(propertyDefinition -> {
+			String defaultValue = propertyDefinition.getDefaultValue();
 			if (!isExpressionValid(defaultValue)) {
-				String message = "Found invalid expression in default value of the field: " + definition.getIdentifier() + " -> "
-						+ defaultValue;
-				errors.add(message);
-				addAndLogErrorMessage(message);
+				messageBuilder.invalidValueExpression(propertyDefinition.getName(), defaultValue);
 			}
+
+			String rnc = propertyDefinition.getRnc();
 			if (!isExpressionValid(rnc)) {
-				String message = "Found invalid expression in RNC value of the field: " + definition.getIdentifier() + " -> "
-						+ rnc;
-				errors.add(message);
-				addAndLogErrorMessage(message);
+				messageBuilder.invalidRncExpression(propertyDefinition.getName(), rnc);
 			}
-			if (!isControlParamExpressionValid(definition)) {
-				String message = "Found invalid expression in <control-param> tag in a field with name: "
-						  + definition.getIdentifier();
-				errors.add(message);
-				addAndLogErrorMessage(message);
-			}
-		} else if (model instanceof LabelDefinition) {
-			LabelDefinition definition = (LabelDefinition) model;
-			Map<String, String> map = definition.getLabels();
-			for (Entry<String, String> entry : map.entrySet()) {
-				if (!isExpressionValid(entry.getValue())) {
-					String message =
-							"Found invalid expression in label: " + definition.getIdentifier() + " for language "
-									+ entry.getKey();
 
-					errors.add(message);
-					addAndLogErrorMessage(message);
-				}
+			if (!isControlParamExpressionValid(propertyDefinition)) {
+				messageBuilder.invalidControlExpression(propertyDefinition.getName());
 			}
-		}
+		});
 
-		return errors;
+		return messageBuilder.getMessages();
 	}
 
 	private static boolean isControlParamExpressionValid(PropertyDefinition property) {
@@ -127,17 +67,6 @@ public class ELExpressionValidator implements DefinitionValidator {
 		return !error.isPresent();
 	}
 
-	/**
-	 * Logs the message as warning and adds the is as error to the validation messages.
-	 *
-	 * @param message
-	 * 		the message
-	 */
-	private static void addAndLogErrorMessage(String message) {
-		LOGGER.warn(message);
-		ValidationLoggingUtil.addErrorMessage(message);
-	}
-
 	private static boolean isExpressionValid(String expression) {
 		if (StringUtils.isBlank(expression)) {
 			return true;
@@ -151,8 +80,7 @@ public class ELExpressionValidator implements DefinitionValidator {
 	/**
 	 * Validates if an expression with parentheses is balanced. Algorithm based on the reverse polish notation.
 	 *
-	 * @param expression
-	 * 		the expression as a string
+	 * @param expression the expression as a string
 	 * @return true if valid expression, false otherwise.
 	 */
 	private static boolean areBracketsValid(String expression) {
@@ -177,5 +105,29 @@ public class ELExpressionValidator implements DefinitionValidator {
 			}
 		}
 		return stack.isEmpty();
+	}
+
+	public class ELExpressionMessageBuilder extends DefinitionValidationMessageBuilder {
+
+		public static final String INVALID_VALUE_EXPRESSION = "definition.validation.expression.invalid.value";
+		public static final String INVALID_RNC_VALUE = "definition.validation.expression.invalid.rnc";
+		public static final String INVALID_CONTROL_EXPRESSION = "definition.validation.expression.invalid.control.value";
+
+		public ELExpressionMessageBuilder(GenericDefinition genericDefinition) {
+			super(genericDefinition);
+		}
+
+		private void invalidValueExpression(String fieldName, String fieldValue) {
+			error(getId(), INVALID_VALUE_EXPRESSION, getId(), fieldName, fieldValue);
+		}
+
+		private void invalidRncExpression(String fieldName, String rnc) {
+			error(getId(), INVALID_RNC_VALUE, getId(), fieldName, rnc);
+		}
+
+		private void invalidControlExpression(String fieldName) {
+			error(getId(), INVALID_CONTROL_EXPRESSION, getId(), fieldName);
+		}
+
 	}
 }

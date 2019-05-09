@@ -36,7 +36,8 @@ public class InstanceTooltipsServiceImpl implements InstanceTooltipsService {
 	public String getTooltip(String instanceId) {
 		Instance instance = domainInstanceService.loadInstance(instanceId);
 		// loads the thumbnail in the instance as DefaultProperties.THUMBNAIL_IMAGE
-		renditionService.loadThumbnail(instance);
+		instance.getOrCreateProperties()
+				.computeIfAbsent(DefaultProperties.THUMBNAIL_IMAGE, k -> renditionService.getThumbnail(instanceId));
 		String header = headersService.generateInstanceHeader(instance, DefaultProperties.HEADER_TOOLTIP);
 		if (header == null) {
 			LOGGER.warn(NOT_FOUND_TOOLTIP, instance.getClass().getSimpleName(), instance.getId());

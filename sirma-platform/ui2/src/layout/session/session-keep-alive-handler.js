@@ -2,7 +2,7 @@ import _ from 'lodash';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {Component, Inject} from 'app/app';
 import {Configuration} from 'common/application-config';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {LocalStorageService} from 'services/storage/local-storage-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {UserActivityEvent} from 'layout/session/user-activity-event';
@@ -26,14 +26,14 @@ export class SessionKeepAliveHandler {
   }
 
   ngOnInit() {
-    var ttl = this.configuration.get(Configuration.SESSION_TIMEOUT_PERIOD);
-    var redirectOnTimeout = this.configuration.get(Configuration.SESSION_TIMEOUT);
-    if (!redirectOnTimeout || ttl <= 0) {
+    let ttl = this.configuration.get(Configuration.SESSION_TIMEOUT_PERIOD);
+    if (ttl <= 0) {
       return;
     }
     this.addActivityMonitors(ttl);
     this.startSessionTimer(ttl);
 
+    // this is for multi tab scenarios
     this.windowAdapter.window.addEventListener('storage', (event) => this.handleTimeoutEvent(event.key, event.newValue));
   }
 
@@ -52,7 +52,7 @@ export class SessionKeepAliveHandler {
   }
 
   addActivityMonitors(ttl) {
-    var keepAliveHandler = _.debounce(() => this.registerUserActivity(ttl), 1000, { leading: true, maxWait: 1000 });
+    let keepAliveHandler = _.debounce(() => this.registerUserActivity(ttl), 1000, { leading: true, maxWait: 1000 });
 
     $(document.body)
       .click(keepAliveHandler)
@@ -72,7 +72,7 @@ export class SessionKeepAliveHandler {
   }
 
   startSessionTimer(ttl) {
-    var timeout = ttl * 60 * 1000;
+    let timeout = ttl * 60 * 1000;
     this.timerId = this.windowAdapter.window.setTimeout(() => {
       let now = new Date().getTime();
       let lastActivity = this.localStorageService.getNumber(LocalStorageService.LAST_USER_ACTIVITY) || 0;

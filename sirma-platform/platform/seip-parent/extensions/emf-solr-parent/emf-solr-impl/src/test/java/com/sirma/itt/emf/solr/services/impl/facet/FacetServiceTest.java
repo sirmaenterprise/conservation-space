@@ -449,7 +449,7 @@ public class FacetServiceTest {
 		Mockito.when(solrQueryResponse.getResponse()).thenReturn(response);
 		Mockito.when(solrQueryResponse.getFacetFields()).thenReturn(facets);
 		Mockito.when(solrQueryResponse.getResults()).thenReturn(solrDocumentList);
-		Mockito.when(solrConnector.queryWithPost(Matchers.any(SolrQuery.class))).thenReturn(solrQueryResponse);
+		Mockito.when(solrConnector.query(Matchers.any(SolrQuery.class))).thenReturn(solrQueryResponse);
 	}
 
 	/**

@@ -100,7 +100,7 @@ export class ObjectSelect extends Select {
       delay: 250,
       dataLoader: loader,
       dataConverter: converter,
-      mapper: mapper
+      mapper
     };
 
     this.config = _.defaults(this.config, defaultConfig);

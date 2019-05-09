@@ -1,5 +1,6 @@
 package com.sirma.itt.seip.instance.validation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -49,6 +50,8 @@ public class DynamicCodeListFilter {
 	 * The other field that has to be rendered
 	 */
 	private String reRenderFieldName;
+
+	private String sourceFilterFieldName;
 	/**
 	 * i. e. "extra1"
 	 */
@@ -92,6 +95,14 @@ public class DynamicCodeListFilter {
 		this.reRenderFieldName = reRenderFieldName;
 	}
 
+	public String getSourceFilterFieldName() {
+		return sourceFilterFieldName;
+	}
+
+	public void setSourceFilterFieldName(String sourceFilterFieldName) {
+		this.sourceFilterFieldName = sourceFilterFieldName;
+	}
+
 	public Boolean isInclusive() {
 		return isInclusive;
 	}
@@ -103,14 +114,16 @@ public class DynamicCodeListFilter {
 	public boolean isFilterValid() {
 		// The checks of validity became too many so implemented them in a  strategy-like way in order to be more
 		// easy to read.
-		List<Function<DynamicCodeListFilter, Boolean>> validators =
+		List<Function<DynamicCodeListFilter, Boolean>> validators = new ArrayList<> (
 				Arrays.asList(
 						validateReRender,
 						validateFilterSource,
-						validateValues,
 						validateInclusive
-				);
-
+				));
+		// Values should be validated only if field is not self filtered
+		if (reRenderFieldName != null && !reRenderFieldName.equals(sourceFilterFieldName)) {
+			validators.add(validateValues);
+		}
 		return !validators
 				.stream()
 				.filter(validator -> !validator.apply(this))

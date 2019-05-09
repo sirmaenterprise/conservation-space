@@ -250,13 +250,16 @@ export class InstanceRestService {
     return this.restClient.get(`${serviceUrl}/${id}/tooltip`, config);
   }
 
-  compareVersions(id, firstVersionId, secondVersionId) {
-    let data = {
-      userOperation: 'compareVersions',
-      firstSourceId: firstVersionId,
-      secondSourceId: secondVersionId
-    };
-    return this.restClient.post(`${serviceUrl}/${id}/actions/compare-versions`, data, this.config);
+  compareVersions(id, first, second) {
+    let config = _.defaultsDeep({
+      headers: {
+        'Accept': 'application/pdf'
+      },
+      responseType: 'arraybuffer'
+    }, this.config);
+
+    let url = `${serviceUrl}/${id}/actions/compare-versions?first=${first}&second=${second}`;
+    return this.restClient.get(url, config);
   }
 
   /**

@@ -43,7 +43,7 @@ import './results-toolbar.css!';
     'config': 'config'
   }
 })
-@View({template: template})
+@View({template})
 @Inject(InstanceRestService, ModelsService)
 export class ResultsToolbar extends Configurable {
 

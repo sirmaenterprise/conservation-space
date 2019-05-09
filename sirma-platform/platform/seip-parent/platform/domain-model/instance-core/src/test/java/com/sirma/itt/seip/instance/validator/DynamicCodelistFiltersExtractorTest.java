@@ -9,18 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import com.google.common.collect.ImmutableSet;
 import com.sirma.itt.seip.domain.definition.ControlDefinition;
 import com.sirma.itt.seip.domain.definition.ControlParam;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.validation.DynamicCodeListFilter;
-
-import com.google.common.collect.ImmutableSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /**
  * Tests for {@link DynamicCodelistFiltersExtractor}.
@@ -32,10 +34,12 @@ public class DynamicCodelistFiltersExtractorTest {
 
 	@Mock
 	private DefinitionModel definition;
+
 	@Mock
 	private Instance instance;
-	@Mock
-	private ControlDefinition controlDefinition;
+	
+	@InjectMocks
+	private DynamicCodelistFiltersExtractor dynamicCodelistFiltersExtractor;
 
 	@Before
 	public void init() {
@@ -45,21 +49,23 @@ public class DynamicCodelistFiltersExtractorTest {
 
 	@Test
 	public void testGetDynamicClFiltersExtraction() throws Exception {
-		Map<String, DynamicCodeListFilter> dynamicClFilters = DynamicCodelistFiltersExtractor.getDynamicClFilters(
-				definition, instance);
+		Map<String, DynamicCodeListFilter> dynamicClFilters = dynamicCodelistFiltersExtractor
+				.getDynamicClFilters(definition, instance);
 		assertEquals(dynamicClFilters.size(), 2);
-		assertTrue(dynamicClFilters.keySet().containsAll(ImmutableSet.of("some-other-field", "some-field")));
+		assertTrue(dynamicClFilters.keySet().containsAll(ImmutableSet.of("secondField", "firstField")));
+
 		// validate first filter.
-		DynamicCodeListFilter firstFilter = dynamicClFilters.get("some-field");
+		DynamicCodeListFilter firstFilter = dynamicClFilters.get("firstField");
 		assertTrue(firstFilter.isFilterValid());
 		assertEquals("first-filter-source", firstFilter.getFilterSource());
-		assertEquals("some-field", firstFilter.getReRenderFieldName());
+		assertEquals("firstField", firstFilter.getReRenderFieldName());
 		assertEquals(true, firstFilter.isInclusive());
+
 		// validate second filter.
-		DynamicCodeListFilter secondFilter = dynamicClFilters.get("some-other-field");
+		DynamicCodeListFilter secondFilter = dynamicClFilters.get("secondField");
 		assertTrue(secondFilter.isFilterValid());
 		assertEquals("second-filter-source", secondFilter.getFilterSource());
-		assertEquals("some-other-field", secondFilter.getReRenderFieldName());
+		assertEquals("secondField", secondFilter.getReRenderFieldName());
 		assertEquals(false, secondFilter.isInclusive());
 	}
 
@@ -69,23 +75,36 @@ public class DynamicCodelistFiltersExtractorTest {
 	 */
 	private void stubDefinitionModel() {
 		// Mock a first definition property, which is a CL field.
-		PropertyDefinition clProperty = mock(PropertyDefinition.class);
-		when(clProperty.getName()).thenReturn("clField");
-		when(instance.get("clField")).thenReturn("CL_VALUE");
-		when(clProperty.getCodelist()).thenReturn(200);
-		when(controlDefinition.getIdentifier()).thenReturn("RELATED_FIELDS");
-		when(clProperty.getControlDefinition()).thenReturn(controlDefinition);
-		mockControlDefinition();
+		PropertyDefinition firstField = mock(PropertyDefinition.class);
+		when(firstField.getName()).thenReturn("firstField");
+		when(instance.get("some-field")).thenReturn("CL_VALUE");
+		when(firstField.getCodelist()).thenReturn(200);
+		ControlDefinition firstFieldControlDefinition = Mockito.mock(ControlDefinition.class);
+		when(firstFieldControlDefinition.getIdentifier()).thenReturn("RELATED_FIELDS");
+		when(firstField.getControlDefinition()).thenReturn(firstFieldControlDefinition);
+		mockControlDefinition(firstFieldControlDefinition, "firstFilter", "some-field", "first-filter-source", "true");
 
-		// Mock a second property.
-		PropertyDefinition stringProperty = mock(PropertyDefinition.class);
-		when(stringProperty.getName()).thenReturn("stringField");
+		// Mock a second definition property, which is a CL field.
+		PropertyDefinition secondField = mock(PropertyDefinition.class);
+		when(secondField.getName()).thenReturn("secondField");
+		when(instance.get("some-other-field")).thenReturn("CL_VALUE");
+		when(secondField.getCodelist()).thenReturn(200);
+		ControlDefinition secondFieldControlDefinition = Mockito.mock(ControlDefinition.class);
+		when(secondFieldControlDefinition.getIdentifier()).thenReturn("RELATED_FIELDS");
+		when(secondField.getControlDefinition()).thenReturn(secondFieldControlDefinition);
+		mockControlDefinition(secondFieldControlDefinition, "secondfilter", "some-other-field", "second-filter-source",
+				"false");
+
+		// Mock a third property.
+		PropertyDefinition thirdField = mock(PropertyDefinition.class);
+		when(thirdField.getName()).thenReturn("stringField");
 		when(instance.get("stringField")).thenReturn("some-string-value");
 
 		// add properties
 		final List<PropertyDefinition> properties = new ArrayList<>();
-		properties.add(clProperty);
-		properties.add(stringProperty);
+		properties.add(firstField);
+		properties.add(secondField);
+		properties.add(thirdField);
 
 		when(definition.fieldsStream()).then(a -> properties.stream());
 	}
@@ -93,15 +112,15 @@ public class DynamicCodelistFiltersExtractorTest {
 	/**
 	 * Mocks the control definitions for cl fields.
 	 */
-	private void mockControlDefinition() {
+	private void mockControlDefinition(ControlDefinition controlDefinition, String type, String reRenderValue,
+			String filterSourceValue, String inclusiveValue) {
 		List<ControlParam> parameters = new ArrayList<>();
-		parameters.addAll(mockFilter("firstFilter", "some-field", "first-filter-source", "true"));
-		parameters.addAll(mockFilter("secondfilter", "some-other-field", "second-filter-source", "false"));
+		parameters.addAll(mockFilter(type, reRenderValue, filterSourceValue, inclusiveValue));
 		when(controlDefinition.getControlParams()).thenReturn(parameters);
 	}
 
-	private List<ControlParam> mockFilter(String type, String reRenderValue, String filterSourceValue, String
-			inclusiveValue) {
+	private List<ControlParam> mockFilter(String type, String reRenderValue, String filterSourceValue,
+			String inclusiveValue) {
 		ControlParam reRender = mock(ControlParam.class);
 		when(reRender.getType()).thenReturn(type);
 		when(reRender.getName()).thenReturn("RERENDER");
@@ -111,7 +130,6 @@ public class DynamicCodelistFiltersExtractorTest {
 		when(filterSource.getType()).thenReturn(type);
 		when(filterSource.getName()).thenReturn("FILTER_SOURCE");
 		when(filterSource.getValue()).thenReturn(filterSourceValue);
-		when(instance.get("clField")).thenReturn("clValue");
 
 		ControlParam inclusive = mock(ControlParam.class);
 		when(inclusive.getType()).thenReturn(type);

@@ -9,9 +9,7 @@ import template from './validation-message.html!text';
     'viewModel': 'viewModel'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
 export class ValidationMessage {
   constructor($element) {

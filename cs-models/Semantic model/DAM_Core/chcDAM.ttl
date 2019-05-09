@@ -1,0 +1,363 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#> .
+@prefix dam: <http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM> .
+
+<http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM> rdf:type owl:Ontology ;
+                                                                            owl:imports <http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums> ;
+                                                                            owl:versionInfo "0.1"@en ;
+                                                                            dc:creator "Anna Radeva"@en ;
+                                                                            rdfs:comment "DAM Extension of Cultural Heritage Conservation Ontology Model for Conservation Space project"@en ;
+                                                                            dc:subject "Extension of Cultural Heritage Conservation Ontology Model for DAM"@en ;
+                                                                            rdfs:label "Extension of Cultural Heritage Conservation Ontology Model for DAM"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#hasAssignedConservator
+dam:hasAssignedConservator rdf:type owl:ObjectProperty ;
+               owl:inverseOf dam:isAssignedConservator ;
+               rdfs:domain ptop:Entity ;
+			   rdfs:range ptop:Agent ;
+			   emf:isSearchable "true"^^xsd:boolean ;
+               emf:auditEvent "+addHasAssignedConservator|-removeHasAssignedConservator|changeHasAssignedConservator" ;
+               dc:creator "Malvina Makarieva" ;
+               rdfs:label "has assigned conservator"@en ;
+               skos:definition "Conservator who carried out treatment described in the report."@en .	
+			   
+			   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#isAssignedConservator
+dam:isAssignedConservator rdf:type owl:ObjectProperty ;
+               rdfs:domain ptop:Entity ;
+			   emf:isSearchable "true"^^xsd:boolean ;
+               emf:auditEvent "+addIsAssignedConservator|-removeIsAssignedConservator|changeIsAssignedConservator" ;
+               dc:creator "Malvina Makarieva" ;
+               rdfs:label "is assigned conservator of"@en ;
+               skos:definition "The object in which the user is with conservator role."@en .
+			   
+			   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#surveyName
+dam:surveyName rdf:type owl:ObjectProperty ;
+				rdfs:domain ptop:Entity ;
+				emf:isSearchable "true"^^xsd:boolean ;
+				emf:auditEvent "+addSurveyName|-removeSurveyName|changeSurveyName" ;
+				dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Survey name"@en ;
+                skos:definition "Name of the project processes on this item"@en .
+				
+				
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#relatedDocuments
+dam:relatedDocuments rdf:type owl:ObjectProperty ;
+				owl:inverseOf dam:surveyName ;
+				rdfs:domain ptop:Entity ;
+				emf:isSearchable "true"^^xsd:boolean ;
+				emf:auditEvent "+addRelatedDocuments|-removeRelatedDocuments|changeRelatedDocuments" ;
+				dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Related document(s)"@en ;
+                skos:definition "Document(s) related to this item"@en .
+               
+                
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#collection
+dam:collection rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Anna Radeva"@en ;
+               rdfs:label "Collection"@en ;
+               skos:definition "Specific collection, within a curatorial department, to which an object belongs."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#hasMediaElementCreator
+dam:hasMediaElementCreator rdf:type owl:DatatypeProperty ;
+                           dc:creator "Anna Radeva"@en ;
+                           rdfs:label "Variable media element creator"@en ;
+                           skos:definition "Party most directly responsible for the creation or commissioning of an item of video, audio, or digital file content."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#installationNotes
+dam:installationNotes rdf:type owl:DatatypeProperty ;
+                      rdfs:domain chc:CulturalObject ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Anna Radeva"@en ;
+                      rdfs:label "Installation notes"@en ;
+                      skos:definition "Information pertaining to the way a work should be installed or has been installed in the past, such as layout, handling procedures, equipment needed, spatial requirements, furnishing of the room, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#mediaFormat
+dam:mediaFormat rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva"@en ;
+                rdfs:label "Variable media format"@en ;
+                skos:definition "Format of video, audio, or digital file content."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#mediaStatus
+dam:mediaStatus rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Anna Radeva"@en ;
+                rdfs:label "Variable media status"@en ;
+                skos:definition "Generation or purpose of an item of video, audio, or digital file content (e.g., master, preservation master, exhibition copy, etc.)."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#mediaStorageDevice
+dam:mediaStorageDevice rdf:type owl:DatatypeProperty ;
+                       rdfs:domain chc:CulturalObject ;
+                       rdfs:range xsd:string ;
+                       dc:creator "Anna Radeva"@en ;
+                       rdfs:label "Variable media storage device"@en ;
+                       skos:definition "Type of storage device on which digital file content is stored (e.g., external hard drive, floppy disk, etc.)."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#series
+dam:series rdf:type owl:DatatypeProperty ;
+           rdfs:domain chc:CulturalObject ;
+           rdfs:range xsd:string ;
+           dc:creator "Anna Radeva"@en ;
+           rdfs:label "Series"@en ;
+           skos:definition "Body of related, sequentially produced work by an artist, designer, publisher, or other creator to which the object belongs."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#locale
+dam:locale rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Locale"@en ;
+           skos:definition "Specific location where the object was made."@en .
+		   
+		  
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#period
+dam:period rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Period"@en ;
+           skos:definition "Period in which the object was made."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#objectName
+dam:objectName rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Object name"@en ;
+           skos:definition "Object name."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#mediumFreeText
+dam:mediumFreeText rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Medium/ Technique free text"@en ;
+           skos:definition "Medium description often used for public."@en .
+		   
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#notes
+dam:notes rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Notes"@en ;
+           skos:definition "Notes of location of the item."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#reportDateExamined
+dam:reportDateExamined rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:dateTime ;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Date examined"@en ;
+           skos:definition "Date of examination outlined in report."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#estHours
+dam:estHours rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:integer;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Est. hours"@en ;
+           skos:definition "Time estimate for treatment proposed."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#conditionStatus
+dam:conditionStatus rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Condition state"@en ;
+           skos:definition "This is a drop-down field completed by the conservator performing the survey."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#tratmentNeeds
+dam:tratmentNeeds rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Treatment needs"@en ;
+           skos:definition "This is a drop-down field completed by the conservator performing the survey."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#approxHoursOfTreatment
+dam:approxHoursOfTreatment rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:integer;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Approximate hours of treatment"@en ;
+           skos:definition "This is a treatment time estimate determined by the surveying conservator."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#treatmentNeedsNotes
+dam:treatmentNeedsNotes rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Treatment needs notes"@en ;
+           skos:definition "Free text description of treatment needs by surveying conservator."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#otherNeeds
+dam:otherNeeds rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Other needs"@en ;
+           skos:definition "Associated non-treatment recommendations made by surveying conservator."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#otherNeedsNotes
+dam:otherNeedsNotes rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Other needs notes"@en ;
+           skos:definition "Text field to expand on \"Other needs\" field if needed."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#tratmentStartDate
+dam:tratmentStartDate rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:dateTime;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Treatment start date"@en ;
+           skos:definition "Date on which the treatment described in the report started."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#doneDate
+dam:doneDate rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:dateTime;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Done date"@en ;
+           skos:definition "Date on which the treatment described in the report was completed."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#tratedHours
+dam:tratedHours rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:dateTime;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Hours"@en ;
+           skos:definition "Duration in hours of the treatment described in the report."@en .
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#conservationId
+dam:conservationId rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Conservation ID"@en ;
+           skos:definition "Identifying number for the conservation activity."@en .
+		   
+		   
+		   
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#previousID
+dam:previousID rdf:type owl:DatatypeProperty ;
+           rdfs:domain ptop:Entity ;
+           rdfs:range xsd:string;
+           dc:creator "Malvina Makarieva"@en ;
+           rdfs:label "Previous ID"@en ;
+           skos:definition "Unique institutional ID used previously for this object, such as when the object was on loan before it was acquired."@en .
+		   
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#DesignObject
+dam:DesignObject rdf:type owl:Class ;
+                 rdfs:subClassOf chc:CulturalObject ;
+                 emf:classCategory "culturalobject" ;
+                 emf:definitionId "objectinstance" ;
+                 emf:isCreateable "true"^^xsd:boolean ;
+                 emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                 emf:isSearchable "true"^^xsd:boolean ;
+                 dc:creator "Anna Radeva"@en ;
+                 sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                 sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                 rdfs:label "Design Object"@en ;
+                 skos:definition "The Design objects are arts or crafts concerned with the design and manufacture of beautiful objects that are also functional. It includes interior design, but not usually architecture . Examples include things like candle sticks, furniture, porcelain dinnerware, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#EthnographicArchaeologicalObject
+dam:EthnographicArchaeologicalObject rdf:type owl:Class ;
+                                     rdfs:subClassOf chc:CulturalObject ;
+                                     emf:classCategory "culturalobject" ;
+                                     emf:definitionId "objectinstance" ;
+                                     emf:isCreateable "true"^^xsd:boolean ;
+                                     emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                                     emf:isSearchable "true"^^xsd:boolean ;
+                                     dc:creator "Anna Radeva"@en ;
+                                     sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                                     sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                                     rdfs:label "Ethnographic/ Archaeological Object"@en ;
+                                     skos:definition "Objects originating in any culture still living or known through relatively recent history when those objects are the concern of ethnographic or ethnological study. For objects from earlier periods found in contexts of archaeological research, prefer \"archaeological objects.\""@en .
+
+
+###  http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#Fashion
+dam:Fashion rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Anna Radeva"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Fashion"@en ;
+            skos:definition "The mode or fashion of personal attire and dress, including style of clothing and other accessories of personal adornment, belonging to a particular nation, class, period, or special occasion, including all items worn or carried by people for warmth, protection, embellishment, or symbolic purposes."@en .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+chc:isAuthorOf emf:isSearchable "true"^^xsd:boolean .
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject
+chc:CulturalObject 	rdf:type owl:Class ;
+					emf:isCreateable "true"^^xsd:boolean ;
+					emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+					sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+					sec:allowInheritParentPermissions "false"^^xsd:boolean .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

@@ -1,4 +1,4 @@
-import {Component, View, Inject} from 'app/app';
+import {Component, Inject, View} from 'app/app';
 import {FormWrapper, LAYOUT} from 'form-builder/form-wrapper';
 import {TranslateService} from 'services/i18n/translate-service';
 import {InstanceModel} from 'models/instance-model';
@@ -14,9 +14,7 @@ import './change-password-dialog.css!css';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(TranslateService, Eventbus)
 export class ChangePasswordDialog {
 
@@ -81,53 +79,46 @@ export class ChangePasswordDialog {
             'message': this.translateService.translateInstant('change.password.dialog.current.mandatory')
           }]
         },
-          {
-            'dataType': 'password',
-            'displayType': 'EDITABLE',
-            'identifier': 'newPassword',
-            'isMandatory': true,
-            'previewEmpty': true,
-            'label': this.translateService.translateInstant('change.password.dialog.new'),
-            'validators': [{
-              'id': 'mandatory',
-              'level': 'error',
-              'message': this.translateService.translateInstant('change.password.dialog.new.mandatory')
-            }, {
-              'id': 'regexPlain',
-              'message': this.translateService.translateInstant('change.password.dialog.new.length'),
-              'level': 'error',
-              'context': {
-                'pattern': '[\\S]{6,30}'
-              }
-            }, {
-              'id': 'notEqualFields',
-              'message': this.translateService.translateInstant('change.password.dialog.new.same'),
-              'level': 'error',
-              'context': {
-                'value': 'currentPassword'
-              }
-            }]
-          },
-          {
-            'dataType': 'password',
-            'displayType': 'EDITABLE',
-            'identifier': 'confirmNewPassword',
-            'isMandatory': true,
-            'previewEmpty': true,
-            'label': this.translateService.translateInstant('change.password.dialog.confirm'),
-            'validators': [{
-              'id': 'mandatory',
-              'level': 'error',
-              'message': this.translateService.translateInstant('change.password.dialog.confirm.mandatory')
-            }, {
-              'id': 'equalFields',
-              'message': this.translateService.translateInstant('change.password.dialog.confirm.dont.match'),
-              'level': 'error',
-              'context': {
-                'value': 'newPassword'
-              }
-            }]
+        {
+          'dataType': 'password',
+          'displayType': 'EDITABLE',
+          'identifier': 'newPassword',
+          'isMandatory': true,
+          'previewEmpty': true,
+          'label': this.translateService.translateInstant('change.password.dialog.new'),
+          'validators': [{
+            'id': 'mandatory',
+            'level': 'error',
+            'message': this.translateService.translateInstant('change.password.dialog.new.mandatory')
+          }, {
+            'id': 'notEqualFields',
+            'message': this.translateService.translateInstant('change.password.dialog.new.same'),
+            'level': 'error',
+            'context': {
+              'value': 'currentPassword'
+            }
           }]
+        },
+        {
+          'dataType': 'password',
+          'displayType': 'EDITABLE',
+          'identifier': 'confirmNewPassword',
+          'isMandatory': true,
+          'previewEmpty': true,
+          'label': this.translateService.translateInstant('change.password.dialog.confirm'),
+          'validators': [{
+            'id': 'mandatory',
+            'level': 'error',
+            'message': this.translateService.translateInstant('change.password.dialog.confirm.mandatory')
+          }, {
+            'id': 'equalFields',
+            'message': this.translateService.translateInstant('change.password.dialog.confirm.dont.match'),
+            'level': 'error',
+            'context': {
+              'value': 'newPassword'
+            }
+          }]
+        }]
       })
     };
   }

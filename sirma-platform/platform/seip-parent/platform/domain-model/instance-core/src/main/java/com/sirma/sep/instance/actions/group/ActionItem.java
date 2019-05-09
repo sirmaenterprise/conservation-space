@@ -1,5 +1,7 @@
 package com.sirma.sep.instance.actions.group;
 
+import javax.json.JsonObjectBuilder;
+
 import com.sirma.itt.seip.domain.security.Action;
 
 /**
@@ -22,7 +24,7 @@ public class ActionItem implements ActionMenuMember {
 	}
 
 	@Override
-	public Object toJsonHelper() {
+	public JsonObjectBuilder toJsonHelper() {
 		return Action.convertAction(action);
 	}
 

@@ -1,73 +1,39 @@
 <?xml version="1.0"?>
-<definition id="groupDefinition" parentId="groupDefinitionBase" type="group">
+<definition id="groupDefinition" parentId="baseGroup" type="group">
 	<fields>
 		<field name="default_header" type="ANY" label="GROUP_DEFAULT_HEADER_NGA" />
-        <field name="compact_header" type="an..4096" label="GROUP_COMPACT_HEADER_NGA" />
+        <field name="compact_header" type="ANY" label="GROUP_COMPACT_HEADER_NGA" />
 		<field name="tooltip_header" type="ANY" label="GROUP_TOOLTIP_HEADER_NGA" />
 		
 		<!-- system field -->
-		<field name="title" type="an..100" displayType="system" />
-		<field name="email" type="an..35" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="hasMember" type="uri" displayType="system" />
-		<field name="groupId" type="an..50"  displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="status" type="an..10" displayType="system" />
-	    <field name="createdOn" type="dateTime" displayType="system" />
-	    <field name="createdBy" type="uri" displayType="system" />
-	    <field name="modifiedOn" type="dateTime" displayType="system" />
-	    <field name="modifiedBy" type="uri" displayType="system" />
+		<field name="hasParent" displayType="system" />
+		<field name="parentOf" displayType="system" />
+		<field name="hasChild" displayType="system" />
+		<field name="hasThumbnail" displayType="system" />
 		<field name="hasWatcher" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
 	</fields>
 	<regions>
 		<region id="groupDetails" order="10" displayType="editable" label="nga.groupDetails.region.label" >
 			<fields>
-				<field name="title" type="an..100" displayType="editable" mandatory="true" label="ngaGroup.title.label" tooltip="nga.title.tooltip" uri="dcterms:title" unique="true" >
-					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('INACTIVE')</condition>
-				</field>
-				<field name="email" type="an..35" label="nga.email.label" tooltip="nga.email.tooltip" displayType="editable" previewEmpty="false" uri="emf:email" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$"/>
+				<field name="title" tooltip="nga.title.tooltip" />
+				<field name="email" tooltip="nga.email.tooltip" />
 			</fields>	
 		</region>
 		<region id="systemData" order="20" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="type" type="an..20" label="nga.type.label" tooltip="nga.type.tooltip" codelist="CL7" displayType="hidden" uri="emf:type" >
+				<field name="type" tooltip="nga.type.tooltip" displayType="hidden" >
 					<value>group</value>
 				</field>
-				<field name="groupId" type="an..50" displayType="editable" mandatory="true" label="groupDefinition.groupId" uri="ptop:title" rnc="^(:?[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+){2,}|[a-zA-Z0-9]{3,}(?:[\-\._][a-zA-Z0-9]+)*)$" unique="true">
-					<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('ACTIVE', 'INACTIVE')</condition>
-				</field>
-				<field name="status" type="an..35" label="status.label" tooltip="nga.status.tooltip" displayType="readonly" codelist="CL12" uri="emf:status"/>
-				<field name="emf:version" type="an..10" label="object.version" displayType="hidden" uri="emf:version"/>
-				<field name="createdBy" type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readOnly" uri="emf:createdBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="createdOn" type="dateTime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
-				<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="dateTime" displayType="readOnly" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" uri="emf:modifiedOn" />
+				<field name="groupId" />
+				<field name="status" tooltip="nga.status.tooltip" codelist="CL12" />
+				<field name="emf:version" displayType="hidden" />
+				<field name="createdBy" tooltip="nga.createdBy.tooltip" />
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" />
 				<field name="integrated" type="boolean" label="emf.integrated.label" displayType="hidden" uri="emf:integrated" />
-				<field name="lockedBy" type="uri" label="lockedBy" tooltip="nga.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="hasMember" type="uri" displayType="editable" label="ngaGroup.hasMember.label" tooltip="ngaGroup.hasMember.tooltip" multiValued="true" previewEmpty="false" uri="ptop:hasMember" >
-					<condition id="readOnly" renderAs="READONLY">[status] IN ('INACTIVE')</condition>
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" />
+				<field name="hasMember" label="ngaGroup.hasMember.label" tooltip="ngaGroup.hasMember.tooltip" />
 				<field name="isSupervisorOf" type="uri" displayType="readOnly" label="nga.isSupervisorOf.label" tooltip="nga.isSupervisorOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:isSupervisorOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range"/>
@@ -78,26 +44,8 @@
 						<control-param id="range" name="range"/>
 					</control>
 				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="partOf" displayType="readOnly" tooltip="nga.partOf.tooltip" />
+				<field name="emf:hasTemplate" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" />
 			</fields>
 		</region>
 	</regions>
@@ -168,6 +116,12 @@
 							<span data-property="email">${get([email])}</span>
 						</span>
 					)}
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>
@@ -176,13 +130,16 @@
 		  ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 		  <span><img src="${thumbnailUri(64)}"/></span>
 			${if(${get([emf:isActive])}==false).then(<span style=color:#a9a9a9;>).else(<span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
-					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
-					${if(${get([emf:isActive])}==false).then(
-						style="color:#a9a9a9;"
-					)}>
-						<span data-property="title">${get([title])}</span>
-					</a>
+					<b>
+						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+							${if(${get([emf:isActive])}==false).then(
+								style="color:#a9a9a9;"
+							)}>
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</b>
 					${if(${get([emf:isActive])}==false).then(&nbsp;(
 						<span data-property="emf:status">${CL([status])}</span>)
 					)}
@@ -190,7 +147,6 @@
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
 				</span> 
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 			</span>)}]]></value>
 		</label>
 		<label id="GROUP_COMPACT_HEADER_NGA">
@@ -198,7 +154,7 @@
 		   ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)} 
 				<span class="truncate-element">
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 					${if(${get([emf:isActive])}==false).then(

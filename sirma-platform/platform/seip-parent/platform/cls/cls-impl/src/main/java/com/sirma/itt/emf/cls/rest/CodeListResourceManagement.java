@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -15,6 +16,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -24,18 +26,15 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.emf.cls.persister.CodeListPersister;
 import com.sirma.itt.emf.cls.persister.SheetParser;
-import com.sirma.itt.emf.cls.persister.SheetPersister;
-import com.sirma.itt.emf.cls.service.CodeListManagementService;
 import com.sirma.itt.emf.cls.util.JxlUtils;
-import com.sirma.itt.emf.cls.validator.CodeValidator;
 import com.sirma.itt.emf.cls.validator.SheetValidator;
-import com.sirma.itt.emf.cls.validator.exception.CodeValidatorException;
-import com.sirma.itt.emf.cls.validator.exception.SheetValidatorException;
 import com.sirma.itt.seip.domain.codelist.event.ResetCodelistEvent;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.rest.annotations.security.AdminResource;
+import com.sirma.itt.seip.rest.exceptions.ResourceNotFoundException;
 import com.sirma.sep.cls.CodeListService;
 import com.sirma.sep.cls.model.CodeList;
 import com.sirma.sep.cls.parser.CodeListSheet;
@@ -63,10 +62,7 @@ public class CodeListResourceManagement {
 	private SheetValidator sheetValidator;
 
 	@Inject
-	private CodeValidator codeValidator;
-
-	@Inject
-	private SheetPersister processor;
+	private CodeListPersister persister;
 
 	@Inject
 	private SheetParser sheetParser;
@@ -78,10 +74,20 @@ public class CodeListResourceManagement {
 	private CodeListService codeListService;
 
 	@Inject
-	private CodeListManagementService managementService;
-
-	@Inject
 	private EventService eventService;
+
+	/**
+	 * Retrieves a single {@link CodeList} along with their {@link com.sirma.sep.cls.model.CodeValue}.
+	 *
+	 * @return a response with the code list
+	 */
+	@GET
+	@Path("/{codelist}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public CodeList getCodeList(@PathParam("codelist") String codelist) {
+		Optional<CodeList> codeList = codeListService.getCodeList(codelist, true);
+		return codeList.orElseThrow(() -> new ResourceNotFoundException("Requested code list does not exist"));
+	}
 
 	/**
 	 * Retrieves the available {@link CodeList} along with their {@link com.sirma.sep.cls.model.CodeValue}.
@@ -132,21 +138,18 @@ public class CodeListResourceManagement {
 	 * @param req
 	 *            the http request
 	 * @return response with status code and message in JSON
-	 * @throws CodeValidatorException
-	 * @throws SheetValidatorException
 	 */
 	@POST
 	@Path("upload/overwrite")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadCodelists(UploadRequest req) throws CodeValidatorException, SheetValidatorException {
+	public Response uploadCodelists(UploadRequest req) {
 		Sheet sheet;
 		try (InputStream fileStream = req.getRequestItems().get(0).getInputStream()) {
 			sheet = sheetValidator.getValidatedCodeListSheet(fileStream);
 			CodeListSheet codeLists = sheetParser.parseFromSheet(sheet);
-			codeValidator.validateCodeLists(codeLists.getCodeLists());
 
-			processor.persist(codeLists);
+			persister.override(codeLists);
 			eventService.fire(new ResetCodelistEvent());
 
 			return buildResponse(HttpStatus.SC_OK, "Code lists uploaded successfully");
@@ -162,21 +165,18 @@ public class CodeListResourceManagement {
 	 * @param req
 	 *            the http request
 	 * @return response with status code and message in JSON
-	 * @throws SheetValidatorException
-	 * @throws CodeValidatorException
 	 */
 	@POST
 	@Path("upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response addCodelists(UploadRequest req) throws SheetValidatorException, CodeValidatorException {
+	public Response addCodelists(UploadRequest req) {
 		Sheet sheet;
 		try (InputStream fileStream = req.getRequestItems().get(0).getInputStream()) {
 			sheet = sheetValidator.getValidatedCodeListSheet(fileStream);
-			CodeListSheet codeLists = sheetParser.parseFromSheet(sheet);
-			codeValidator.validateCodeLists(codeLists.getCodeLists());
+			CodeListSheet codeListSheet = sheetParser.parseFromSheet(sheet);
 
-			codeLists.getCodeLists().forEach(this.managementService::saveCodeList);
+			this.persister.persist(codeListSheet.getCodeLists());
 			eventService.fire(new ResetCodelistEvent());
 
 			return buildResponse(HttpStatus.SC_OK, "Code lists uploaded successfully");
@@ -192,17 +192,14 @@ public class CodeListResourceManagement {
 	 * @param codeList
 	 *            is the request JSON object of the updated code list
 	 * @return response with status code and message in JSON
-	 * @throws CodeValidatorException
 	 */
 	@POST
 	@Path("/{codeListID}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateCodelist(CodeList codeList) throws CodeValidatorException {
-		codeValidator.validateCodeList(codeList);
-		managementService.saveCodeList(codeList);
+	public Response updateCodelist(CodeList codeList) {
+		persister.persist(codeList);
 		eventService.fire(new ResetCodelistEvent());
-
 		return buildResponse(HttpStatus.SC_OK, "Code list updated successfully");
 	}
 

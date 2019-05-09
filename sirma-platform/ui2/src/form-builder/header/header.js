@@ -11,11 +11,9 @@ import template from './header.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
-class Header extends FormControl {
+export class Header extends FormControl {
   constructor($element) {
     super();
     this.$element = $element;
@@ -24,9 +22,8 @@ class Header extends FormControl {
 
     let loadedSubscription = this.eventEmitter.subscribe('headerContainerRendered', () => {
       loadedSubscription.unsubscribe();
-      this.formEventEmitter.publish('formControlLoaded',{identifier: this.identifier})
+      this.formEventEmitter.publish('formControlLoaded',{identifier: this.identifier});
     });
-
   }
 
   ngOnInit() {

@@ -1,26 +1,13 @@
 <?xml version="1.0"?>
-<definition id="template" parentId="templateBase" isAbstract="false" type="object">
+<definition id="template" parentId="baseTemplate" isAbstract="false" type="object">
     <fields>
 		<field name="default_header" type="ANY" label="YUL_TEMPLATE_DEFAULT_HEADER" />
 		<field name="tooltip_header" type="ANY" label="YUL_TEMPLATE_TOOLTIP_HEADER" />
-		<field name="compact_header" type="an..4096" label="YUL_TEMPLATE_COMPACT_HEADER" />
-		<field name="breadcrumb_header" type="an..4096" label="YUL_TEMPLATE_BREADCRUMB_HEADER" />
-
-        <field name="type" type="an..50" displayType="system" />
-		<field name="status" type="an..50" displayType="system" />
-		<field name="templatePurpose" type="an..30" displayType="system" />
-		<field name="isPrimaryTemplate" type="boolean" displayType="system" />
-		<field name="title" type="an..40" displayType="system" />
-		<field name="identifier" type="an..50" displayType="system" />
-		<field name="description" type="an..1024" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-    	<field name="createdBy" type="uri" displayType="system" />
-        <field name="modifiedOn" type="dateTime" displayType="system"/>
-        <field name="modifiedBy" type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
+		<field name="compact_header" type="ANY" label="YUL_TEMPLATE_COMPACT_HEADER" />
+		<field name="breadcrumb_header" type="ANY" label="YUL_TEMPLATE_BREADCRUMB_HEADER" />
+	
 		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
+		<field name="outcome" type="ANY" displayType="system" />
 		<field name="completedOn" type="datetime" displayType="system" />
 		<field name="integrated" type="boolean" displayType="system" />
 		<field name="uri" type="an..50" displayType="system" />
@@ -30,14 +17,7 @@
 		<field name="lastRevision" type="uri" displayType="system" />
 		<field name="nextRevision" type="uri" displayType="system" />
 		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="templateRuleDescription" type="an..1024" displayType="system" />
-		<field name="emf:hasTemplate" type="an..1024" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="forObjectTypeLabel" type="an..256" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" />
+		<field name="emf:hasTemplate" type="uri" displayType="system" />
     </fields>
 	
 	<regions>
@@ -45,16 +25,16 @@
 			<fields>
 				<field name="title" type="an..500" mandatory="true" displayType="editable" label="yul.title.label" tooltip="yul.title.tooltip" unique="true" uri="dcterms:title"/>
 				<field name="forObjectTypeLabel" type="an..256" mandatory="false" displayType="readonly" label="template.forObjectType" tooltip="yul.forObjectType.tooltip" uri="emf:forObjectTypeLabel" />
-				<field name="templatePurpose" type="an..20" mandatory="true" displayType="readonly" codelist="CL31" label="template.templatePurpose" tooltip="yul.templatePurpose.tooltip" uri="emf:templatePurpose"/>
+				<field name="templatePurpose" type="ANY" mandatory="true" displayType="readonly" codelist="CL31" label="template.templatePurpose" tooltip="yul.templatePurpose.tooltip" uri="emf:templatePurpose"/>
 				<field name="isPrimaryTemplate" type="boolean" displayType="readonly" label="template.isPrimaryTemplate" tooltip="yul.isPrimaryTemplate.tooltip" uri="emf:isPrimaryTemplate"/>
 				<field name="description" type="an..1024" displayType="editable" label="yul.description.label" tooltip="yul.description.tooltip" uri="dcterms:description"/>
 				<field name="templateRuleDescription" type="an..1024" displayType="readonly" label="template.ruleDescription" tooltip="yul.templateRuleDescription.tooltip" uri="emf:templateRuleDescription"/>
-				<field name="type" type="an..20" displayType="readOnly" codelist="CL7" label="type.label" uri="emf:type">
+				<field name="type" type="ANY" displayType="readOnly" codelist="CL7" label="type.label" uri="emf:type">
 					<value>TEMPLATE</value>
 				</field> 
 				<field name="identifier" type="an..50" displayType="readOnly" label="yul.identifier.label" tooltip="yul.identifier.tooltip" rnc="${eval(TMP${seq({+tmpSequence})})}" uri="dcterms:identifier"/>
 				<field name="emf:version" type="an..10" displayType="readOnly" label="object.version" tooltip="yul.version.tooltip" uri="emf:version"/> 
-				<field name="status" type="an..20" displayType="readOnly" codelist="CL17" label="status.label" tooltip="yul.status.tooltip" uri="emf:status" />
+				<field name="status" type="ANY" displayType="readOnly" codelist="CL17" label="status.label" tooltip="yul.status.tooltip" uri="emf:status" />
 				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
 				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" >
 					<control id="PICKER">
@@ -108,7 +88,7 @@
 		<group id="more" order="40" label="more.group.label" type="menu" />
 		<transition id="cloneTemplate" group="more" />
 		<transition id="lock" group="more" />
-		<transition id="unlock" group="more" />
+		<transition id="unlock" group="more" actionPath="/" />
 		<transition id="managePermissions" group="more" />
 		
 		<transition id="delete" order="100" />
@@ -215,12 +195,18 @@
                     </span>
 					<span class="tooltip-row">
                         <label>System modified by: </label>
-                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                        <span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
                     </span>
 					<span class="tooltip-row">
                         <label>System modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(MM/dd/yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>	
@@ -231,18 +217,20 @@
 			<span><img src="${thumbnailUri(64)}"/></span>
 			${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9;>).else(<span>)}
 				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>&nbsp;
 					(<span data-property="status">${CL([status])}</span>)
 				</span>
 				<br />
-				<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
-					${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
-				</a>
-				,&nbsp;Last&nbsp;modified&nbsp;by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>,&nbsp;${date([modifiedOn]).format(MM/dd/yyyy, HH:mm)}
+				<b>	
+					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+						${if(${get([status])}==INACTIVE).then(<span style=color:#a9a9a9; data-title="${get([title])}">${get([title])}</span>).else(<span data-title="${get([title])}">${get([title])}</span>)}
+					</a>
+				</b>	
+				,&nbsp;Last&nbsp;modified&nbsp;by:&nbsp;<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>,&nbsp;${date([modifiedOn])}
 				${if(${var.isVersion}).then(
 					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 				)}
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
             </span>)}]]></value>
 		</label>
 		 <label id="YUL_TEMPLATE_COMPACT_HEADER">
@@ -251,7 +239,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
             <span ><img src="${thumbnailUri(16)}"/></span>
             <span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span>
 					<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
 						<span data-title="${get([title])}">${get([title])}</span>
@@ -268,7 +256,7 @@
 				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 				<span ><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						<span data-title="${get([title])}">${get([title])}</span>

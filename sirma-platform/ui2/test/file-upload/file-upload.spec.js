@@ -1,6 +1,6 @@
 import {FileUpload} from 'file-upload/file-upload';
 import {EventEmitter} from 'common/event-emitter';
-import {stub} from 'test-utils';
+import {stub} from 'test/test-utils';
 
 let fileUpload;
 let setIntervalSpy;
@@ -11,7 +11,10 @@ describe('FileUpload', function() {
   beforeEach(function() {
     setIntervalSpy = sinon.spy();
     FileUpload.prototype.config = {};
-    fileUpload = new FileUpload(null, null, {getServiceUrl: () => {}}, null, {config: {}}, mockEventbus(), mockWindowAdapter());
+    fileUpload = new FileUpload(null, null, {
+      getServiceUrl: () => {
+      }
+    }, null, {config: {}}, mockEventbus(), mockWindowAdapter(), null, null);
     fileUpload.config.eventEmitter = eventEmitterStub;
   });
 
@@ -63,23 +66,23 @@ describe('FileUpload', function() {
 
     });
   });
+
+  function mockEventbus() {
+    return {
+      publish: sinon.spy()
+    };
+  }
+
+  function mockWindowAdapter() {
+    return {
+      window: {
+        setInterval: function(cb) {
+          setIntervalSpy();
+          cb();
+          return 1;
+        },
+        clearInterval: sinon.spy()
+      }
+    };
+  }
 });
-
-function mockEventbus() {
-  return {
-    publish: sinon.spy()
-  };
-}
-
-function mockWindowAdapter() {
-  return {
-    window: {
-      setInterval: function(cb) {
-        setIntervalSpy();
-        cb();
-        return 1;
-      },
-      clearInterval: sinon.spy()
-    }
-  };
-}

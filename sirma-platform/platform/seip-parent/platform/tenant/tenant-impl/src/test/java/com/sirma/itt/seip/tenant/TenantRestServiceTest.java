@@ -169,15 +169,15 @@ public class TenantRestServiceTest {
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 
-	/**
-	 * Test the tenant deletion with an exception.
-	 */
 	@Test
 	public void should_returnError_on_exceptionWhileDeleting() {
 		when(statusService.getStatus(anyString())).thenReturn(new Pair<>(Status.FAILED, "failed"));
 		doThrow(new TenantDeletionException(new TenantDeletionException())).when(tenantService).delete(anyString());
+
 		Response response = tenantRestService.delete("tenantId");
+
 		verify(tenantService).delete("tenantId");
+		verify(statusService).setStatus("tenantId", TenantInitializationStatusService.Status.FAILED, null);
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 
@@ -202,17 +202,22 @@ public class TenantRestServiceTest {
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 
-	/**
-	 * Test the tenant update with an exception.
-	 *
-	 * @throws IOException if an exception has been thrown.
-	 */
 	@Test
 	public void should_returnError_on_exceptionWhileUpdating() throws IOException {
 		when(statusService.getStatus(anyString())).thenReturn(new Pair<>(Status.FAILED, "failed"));
-		Response response = tenantRestService.update("tenantId",
-				mockInput("DMSInitialization_attachment_path", "model1,model2"));
+
+		Response response = tenantRestService
+				.update("tenantId", mockInput("DMSInitialization_attachment_path", "model1,model2"));
+
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+		verifyTenantUpdateStatus();
+	}
+
+	private void verifyTenantUpdateStatus() {
+		verify(statusService).setStatus("tenantId", TenantInitializationStatusService.Status.IN_PROGRESS,
+				"Tenant update is starting...");
+		verify(statusService)
+				.setStatus("tenantId", TenantInitializationStatusService.Status.FAILED, "Tenant creation failure!");
 	}
 
 	/**
@@ -240,16 +245,14 @@ public class TenantRestServiceTest {
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 
-	/**
-	 * Test the ontology upload with an exception.
-	 *
-	 * @throws IOException if an exception has been thrown.
-	 */
 	@Test
 	public void should_returnError_on_exceptionWhileUploadingOntology() throws IOException {
 		when(statusService.isInProgress(anyString())).thenReturn(true);
+
 		Response response = tenantRestService.uploadOntologyModel("tenantId", mockOntologyUploadRequest());
+
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+		verify(statusService).setStatus("tenantId", TenantInitializationStatusService.Status.FAILED, null);
 	}
 
 	/**

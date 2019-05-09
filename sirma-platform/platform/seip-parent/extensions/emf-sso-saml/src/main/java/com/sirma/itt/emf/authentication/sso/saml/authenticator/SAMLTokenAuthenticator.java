@@ -18,7 +18,7 @@ import com.sirma.itt.seip.security.authentication.Authenticator;
  * @author BBonev
  */
 @ApplicationScoped
-@Extension(target = Authenticator.NAME, order = 5)
+@Extension(target = Authenticator.NAME, order = 11)
 public class SAMLTokenAuthenticator extends BaseSamlAuthenticator {
 
 	@Override

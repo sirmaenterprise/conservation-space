@@ -38,6 +38,7 @@ class ObjectBrowser extends PageObject {
   }
 
   search(query) {
+    this.searchField.clear();
     this.searchField.sendKeys(query);
   }
 
@@ -59,7 +60,7 @@ class TreeNode {
   }
 
   openObject() {
-    this.element.$('.instance-link').click();
+    this.node.click();
   }
 
   expand() {
@@ -70,12 +71,20 @@ class TreeNode {
     this.element.$('.jstree-checkbox').click();
   }
 
+  getText() {
+    return this.node.getText();
+  }
+
+  getAnchor() {
+    return this.node;
+  }
+
   isChecked() {
     return this.element.$('.jstree-checked').isPresent();
   }
 
   isHighlighted() {
-    return this.element.$('.instance-link.highlighted').isPresent();
+    return this.element.$('.jstree-selected').isPresent();
   }
 
   isExpanded() {
@@ -86,6 +95,9 @@ class TreeNode {
     return isInViewPort(this.element);
   }
 
+  get node() {
+    return this.element.$('.action-link, .action-group-link, .instance-link');
+  }
 }
 
 module.exports.ObjectBrowserSandboxPage = ObjectBrowserSandboxPage;

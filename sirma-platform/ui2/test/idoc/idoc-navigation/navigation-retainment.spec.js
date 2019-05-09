@@ -35,30 +35,25 @@ describe('NavigationRetainment', ()=> {
     expect(navigationRetainment.isLocked()).to.be.false;
   });
 
-  it('should call unlock via ajax', () => {
-    let authenticationServiceMock = {
-      getToken: ()=> {return "123"}
+  it('should call unlock', () => {
+    let actionsService = {
+      unlock: sinon.stub()
     };
-    let navigationRetainment = new NavigationRetainment(windowAdapter, mockRouter(false), translateService,
-      IdocMocks.mockStateParamsAdapter("emf:123", MODE_EDIT), authenticationServiceMock);
-    let spySubscribe = sinon.spy($, 'ajax');
-    navigationRetainment.unlock();
-    let expected =  {
-      type: 'POST',
-      contentType: 'application/vnd.seip.v2+json',
-      accept: 'application/vnd.seip.v2+json',
-      url: '/remote/api/instances/emf:123/actions/unlock',
-      async: false,
-      headers: {Authorization: 'Bearer 123'}
-    };
-    expect(spySubscribe.getCall(0).args[0]).to.deep.equal(expected);
-  });
-});
 
-function mockRouter(interrupt) {
-  return {
-    shouldInterrupt: ()=> {
-      return interrupt;
-    }
+    let navigationRetainment = new NavigationRetainment(windowAdapter, mockRouter(false), translateService,
+      IdocMocks.mockStateParamsAdapter('emf:123', MODE_EDIT), actionsService);
+
+    navigationRetainment.unlock();
+
+    expect(actionsService.unlock.calledWith('emf:123')).to.be.true;
+  });
+
+  function mockRouter(interrupt) {
+    return {
+      shouldInterrupt: ()=> {
+        return interrupt;
+      }
+    };
   }
-}
+
+});

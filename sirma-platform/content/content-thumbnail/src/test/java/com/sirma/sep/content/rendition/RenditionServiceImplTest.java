@@ -1,39 +1,40 @@
 package com.sirma.sep.content.rendition;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
-import com.sirma.itt.seip.Executable;
 import com.sirma.itt.seip.concurrent.TaskExecutor;
-import com.sirma.itt.seip.domain.instance.DefaultProperties;
-import com.sirma.itt.seip.domain.instance.EmfInstance;
-import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.sep.content.rendition.RenditionService;
-import com.sirma.sep.content.rendition.RenditionServiceImpl;
-import com.sirma.sep.content.rendition.ThumbnailDao;
-import com.sirma.sep.content.rendition.ThumbnailService;
+import com.sirma.itt.seip.testutil.fakes.TaskExecutorFake;
 
 /**
- * Tests the {@link RenditionService} implementation.
+ * Tests the {@link RenditionServiceImpl}.
  *
- * @author Mihail Radkov
+ * @author Borislav Bonev
  */
 public class RenditionServiceImplTest {
+
+	private static final String ASSIGNED_THUMBNAIL = "assigned thumbnail";
+	private static final String SELF_THUMBNAIL = "self thumbnail";
 
 	@InjectMocks
 	private RenditionServiceImpl renditionService;
@@ -41,8 +42,8 @@ public class RenditionServiceImplTest {
 	@Mock
 	private ThumbnailDao thumbnailDao;
 
-	@Mock
-	private TaskExecutor taskExecutor;
+	@Spy
+	private TaskExecutor taskExecutor = new TaskExecutorFake();
 
 	@Mock
 	private ThumbnailService thumbnailService;
@@ -50,78 +51,55 @@ public class RenditionServiceImplTest {
 	@Before
 	public void initialize() {
 		MockitoAnnotations.initMocks(this);
-		when(taskExecutor.executeAsyncInTx(any(Executable.class))).then(a -> {
-					a.getArgumentAt(0, Executable.class).execute();
-					return null;
-				});
-	}
-
-	/**
-	 * Tests the primary thumbnail retrieval when the provided instance has no property associated to
-	 * {@link DefaultProperties#THUMBNAIL_IMAGE}.
-	 */
-	@Test
-	public void testGetPrimaryThumbnail() {
-		String thumbnailData = "thumbnail-data";
-		Instance instance = new EmfInstance();
-		instance.setId("emf:123");
-		mockThumbnailDao("emf:123", "primary", thumbnailData);
-
-		String thumbnail = renditionService.getPrimaryThumbnail(instance);
-		Assert.assertEquals(thumbnailData, thumbnail);
-		Assert.assertEquals(thumbnailData, instance.get(DefaultProperties.THUMBNAIL_IMAGE));
-		// Should have called the DAO
-		verify(thumbnailDao, Mockito.times(1)).loadThumbnail(any(), any());
-	}
-
-	/**
-	 * Tests the primary thumbnail retrieval when the provided instance has a property associated to
-	 * {@link DefaultProperties#THUMBNAIL_IMAGE}.
-	 */
-	@Test
-	public void testGetPrimaryThumbnailWithExistingProperty() {
-		String thumbnailData = "thumbnail-data";
-		Instance instance = new EmfInstance();
-		instance.add(DefaultProperties.THUMBNAIL_IMAGE, thumbnailData);
-
-		String thumbnail = renditionService.getPrimaryThumbnail(instance);
-		Assert.assertEquals(thumbnailData, thumbnail);
-		Assert.assertEquals(thumbnailData, instance.get(DefaultProperties.THUMBNAIL_IMAGE));
-		// Should NOT have called the DAO
-		verify(thumbnailDao, Mockito.times(0)).loadThumbnail(any(), any());
 	}
 
 	@Test
-	public void testGetNullThumbnail() {
-		// Setup
-		String thumbnailData = null;
-		Instance instance = new EmfInstance();
-		instance.setId("emf:456");
-		mockThumbnailDao("emf:456", "default", thumbnailData);
-		Collection<Serializable> ids = new ArrayList<>(1);
-		ids.add(instance.getId());
-		// Service call
-		String thumbnail = renditionService.getPrimaryThumbnail(instance);
-		// Asserts
-		// We check if the returned thumbnail is null and that the schedule check has been invoked with the proper ids.
-		Assert.assertNull(thumbnail);
-		verify(thumbnailService).scheduleCheck(ids);
+	public void getThumbnails_shouldLoadAssignedAndSelfThumbnails() {
+		mockThumbnailsDB();
+		List<String> requestIds = Arrays.asList("emf:instance-1", "emf:instance-2", "emf:instance-3", "emf:instance-4",
+				"emf:instance-5");
+
+		Map<String, String> thumbnails = renditionService.getThumbnails(requestIds);
+
+		assertEquals(ASSIGNED_THUMBNAIL, thumbnails.get("emf:instance-1"));
+		assertEquals(SELF_THUMBNAIL, thumbnails.get("emf:instance-2"));
+		assertEquals(ASSIGNED_THUMBNAIL, thumbnails.get("emf:instance-3"));
+		assertEquals(SELF_THUMBNAIL, thumbnails.get("emf:instance-4"));
+		assertEquals(ASSIGNED_THUMBNAIL, thumbnails.get("emf:instance-1"));
+
+		verifyZeroInteractions(thumbnailService);
 	}
 
 	@Test
-	public void getPrimaryThumbnail_nullInstance() {
-		assertNull(renditionService.getPrimaryThumbnail(null));
+	public void getThumbnails_shouldScheduleCheckForNotFoundThumbnails() {
+		mockNotThumbnails();
+		List<String> requestIds = Arrays.asList("emf:instance-1", "emf:instance-4");
+
+		Map<String, String> thumbnails = renditionService.getThumbnails(requestIds);
+
+		assertTrue(thumbnails.isEmpty());
+		verify(thumbnailService).scheduleCheck(requestIds);
 	}
 
-	@Test
-	public void getPrimaryThumbnail_reachedMaxRetries() {
-		EmfInstance instance = new EmfInstance();
-		instance.setId("instnace-id");
-		when(thumbnailDao.loadThumbnail("instnace-id", "primary")).thenReturn(ThumbnailService.MAX_RETRIES);
-		assertNull(renditionService.getPrimaryThumbnail(instance));
+	@SuppressWarnings("unchecked")
+	private void mockThumbnailsDB() {
+		when(thumbnailDao.loadThumbnails(anyCollection(), any())).then(a -> {
+			Collection<String> ids = a.getArgumentAt(0, Collection.class);
+			ThumbnailType thumbnailType = a.getArgumentAt(1, ThumbnailType.class);
+			// only odd ids have assigned thumbnail
+			if (thumbnailType == ThumbnailType.ASSIGNED) {
+				return ids.stream()
+						.filter(id -> Integer.valueOf(id.substring(id.lastIndexOf('-') + 1)) % 2 == 1)
+						.collect(Collectors.toMap(
+								Function.identity(), i -> ASSIGNED_THUMBNAIL));
+			}
+			// all have self thumbnails
+			return ids.stream().collect(Collectors.toMap(Function.identity(), i -> SELF_THUMBNAIL));
+		});
 	}
 
-	private void mockThumbnailDao(String instanceId, String purpose, String thumbnail) {
-		when(thumbnailDao.loadThumbnail(Matchers.eq(instanceId), Matchers.eq(purpose))).thenReturn(thumbnail);
+	@SuppressWarnings("unchecked")
+	private void mockNotThumbnails() {
+		when(thumbnailDao.loadThumbnails(anyCollection(), any())).thenReturn(Collections.emptyMap());
 	}
 }

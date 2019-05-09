@@ -14,7 +14,7 @@ const TYPES_CONFIG = 'widget.image.types';
   template: imageWidgetConfigTemplate
 })
 @Inject(ObjectSelectorHelper, Configuration)
-class ImageWidgetConfig {
+export class ImageWidgetConfig {
   constructor(objectSelectorHelper, configuration) {
     this.objectSelectorHelper = objectSelectorHelper;
     this.config.selectObjectMode = this.config.selectObjectMode || SELECT_OBJECT_MANUALLY;
@@ -28,7 +28,7 @@ class ImageWidgetConfig {
       selection: MULTIPLE_SELECTION,
       criteria: this.config.criteria,
       selectObjectMode: this.config.selectObjectMode,
-      triggerSearch: triggerSearch,
+      triggerSearch,
       // This callback is called when selectObjectMode is changed, when a search is performed or when selectedItems are changed
       onObjectSelectorChanged: (onSelectorChangedPayload) => {
         var selectObjectMode = onSelectorChangedPayload.selectObjectMode;

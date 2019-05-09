@@ -60,7 +60,7 @@ export class NavigatorAdapter {
   }
 
   static isFirefox(){
-    return navigator.userAgent.search("Firefox") > -1;
+    return navigator.userAgent.search('Firefox') > -1;
   }
 
   static isSafari() {

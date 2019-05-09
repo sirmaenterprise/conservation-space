@@ -1,0 +1,22 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+DELETE {
+   rdfs:label rdfs:label ?o1.
+   rdfs:label dcterms:title ?o2.
+}
+INSERT {
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        rdfs:label rdfs:label "Наименование"@bg, "Title"@en, "Titel"@de, "Otsikko"@fi, "Titel"@da .
+        rdfs:label dcterms:title "Наименование"@bg, "Title"@en, "Titel"@de, "Otsikko"@fi, "Titel"@da .
+        rdfs:label skos:definition "Official title of the item"@en .
+        rdfs:label dcterms:description "Official title of the item"@en .
+    }
+} WHERE {
+	 rdfs:label rdfs:label ?o1.
+     optional {
+        rdfs:label dcterms:title ?o2.
+     }
+}

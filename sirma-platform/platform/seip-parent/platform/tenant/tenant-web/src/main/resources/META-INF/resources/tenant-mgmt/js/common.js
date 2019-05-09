@@ -1,29 +1,85 @@
-$(document).ready(function () {
-    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-        // Set the jwt token of all request.
-        options.url += getSecurityInfo();
-    });
+function showhide(id) {
+    var e = document.getElementById(id);
+    e.style.display = (e.style.display == 'block') ? 'none' : 'block';
+}
 
-    /**
-     * Get an url parameter from the current page's url.
-     *
-     * @param param
-     *            the param to look for
-     */
-    function getUrlParameter(param) {
-        var url = decodeURIComponent(window.location.search.substring(1));
-        var variables = url.split('&');
-        var paramName;
-        var i;
+/**
+ * Get an url parameter from the current page's url.
+ *
+ * @param param
+ *            the param to look for
+ */
+function getUrlParameter(param) {
+    var url = decodeURIComponent(window.location.search.substring(1));
+    var variables = url.split('&');
+    var paramName;
+    var i;
 
-        for (i = 0; i < variables.length; i++) {
-            paramName = variables[i].split('=');
+    for (i = 0; i < variables.length; i++) {
+        paramName = variables[i].split('=');
 
-            if (paramName[0] === param) {
-                return paramName[1] === undefined ? true : paramName[1];
-            }
+        if (paramName[0] === param) {
+            return paramName[1] === undefined ? true : paramName[1];
         }
     }
+}
+
+function Init(controllerName) {
+
+    /**
+     * Authentication specific for Keycloak.
+     */
+    function KeycloakAuth() {
+
+        let keycloakAdapter = new Keycloak({
+            url: '/auth',
+            realm: 'master',
+            clientId: 'security-admin-console'
+        });
+
+        function init() {
+            return keycloakAdapter.init({onLoad: 'login-required'}).then(() => {
+                var intervalId = setInterval(() => {
+                    keycloakAdapter.updateToken(20);
+                }, 45000);
+                window.addEventListener('beforeunload', () => clearInterval(intervalId));
+
+                $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                    jqXHR.setRequestHeader('Authorization', 'Bearer ' + keycloakAdapter.token);
+                });
+
+                return true;
+            });
+        }
+
+        function logout() {
+            keycloakAdapter.logout();
+        }
+
+        return {
+            init: init,
+            logout: logout
+        };
+
+    }
+
+    let authentication = new KeycloakAuth();
+    authentication.init().then(() => {
+        // after successfully authenticated, init logic for the pages
+        switch (controllerName) {
+            case 'create':
+                new CreateController();
+                break;
+            case 'update':
+                new UpdateController();
+                break;
+            case 'manage':
+                new ManageController();
+                break;
+            default:
+                throw new Error('Received unsupported controller name: ' + controllerName);
+        }
+    }).catch(console.error);
 
     $("#menu-create-tenant").click(function () {
         openPage("./index.html");
@@ -38,11 +94,7 @@ $(document).ready(function () {
     });
 
     $("#logout").click(function () {
-        var redirectAfterLogout = window.location.pathname;
-
-        // append the security info token to know which user to logout and
-        // appends redirect location to the current page so that after logging again will open the same page
-        window.location.replace("../ServiceLogout" + getSecurityInfo() + "&RelayState=" + redirectAfterLogout);
+        authentication.logout();
     });
 
     /**
@@ -53,11 +105,7 @@ $(document).ready(function () {
      *            the page to open
      */
     function openPage(page) {
-        var link = page + getSecurityInfo();
-        window.open(link, "_self")
+        window.open(page, '_self');
     }
 
-    function getSecurityInfo() {
-        return "?jwt=" + getUrlParameter("jwt");
-    }
-});
+}

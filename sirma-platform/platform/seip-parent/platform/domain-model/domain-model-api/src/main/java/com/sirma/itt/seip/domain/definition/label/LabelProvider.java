@@ -1,12 +1,13 @@
 package com.sirma.itt.seip.domain.definition.label;
 
-import java.util.ResourceBundle;
 import java.util.function.Function;
+
+import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 
 /**
  * Session scoped provider for fetching labels from database and from web configured bundles.
  * <p>
- * There is an extension point to add more bundles via {@link LabelBundleProvider} interface.
+ * There is an extension point to add more bundles via {@link LabelResolverProvider} interface.
  *
  * @author BBonev
  */
@@ -51,7 +52,7 @@ public interface LabelProvider {
 	 * @param key
 	 *            The property key to search for.
 	 * @return Label value.
-	 * @see LabelBundleProvider
+	 * @see LabelResolverProvider
 	 */
 	String getValue(String key);
 
@@ -63,24 +64,55 @@ public interface LabelProvider {
 	 * @param key
 	 *            The property key to search for.
 	 * @return Label value.
-	 * @see LabelBundleProvider
+	 * @see LabelResolverProvider
 	 */
 	String getBundleValue(String key);
 
 	/**
-	 * Getter for resource bundle.
+	 * Resolve label for a property defined by the given property definition. The property label is resolved by the
+	 * following algorithm: <ol>
+	 * <li>Check if the given property label has value for the current language</li>
+	 * <li>Check if the given property uri id has value for the current language</li>
+	 * <li>Check if the given property label has value for the default language</li>
+	 * <li>Check if the given property uri id has value for the default language</li>
+	 * </ol>
 	 *
-	 * @param language
-	 *            language of the current user.
-	 * @return A resource bundle.
+	 * @param propertyDefinition the property definition to get it's label
+	 * @return the label for the property defined by the given definition
 	 */
-	Iterable<ResourceBundle> getBundles(String language);
+	String getPropertyLabel(PropertyDefinition propertyDefinition);
 
 	/**
-	 * Getter for resource bundle.
+	 * Resolve tooltip for a property defined by the given property definition. The property tooltip is resolved by the
+	 * following algorithm: <ol>
+	 * <li>Check if the given property label has value for the current language</li>
+	 * <li>Check if the given property uri id has value for the current language</li>
+	 * <li>Check if the given property label has value for the default language</li>
+	 * <li>Check if the given property uri id has value for the default language</li>
+	 * </ol>
 	 *
-	 * @return A resource bundle.
+	 * @param propertyDefinition the property definition to get it's tooltip
+	 * @return the tooltip for the property defined by the given definition
 	 */
-	Iterable<ResourceBundle> getBundles();
+	String getPropertyTooltip(PropertyDefinition propertyDefinition);
 
+	/**
+	 * Builds an identifier for the given URI that can be used for resolving a property label.
+	 *
+	 * @param uri the property uri
+	 * @return the label identified based on the given uri
+	 */
+	static String buildUriLabelId(String uri) {
+		return uri + ".label";
+	}
+
+	/**
+	 * Builds an identifier for the given URI that can be used for resolving a property tooltip.
+	 *
+	 * @param uri the property uri
+	 * @return the tooltip identified based on the given uri
+	 */
+	static String buildUriTooltipId(String uri) {
+		return uri + ".tooltip";
+	}
 }

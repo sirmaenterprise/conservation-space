@@ -63,7 +63,7 @@ public class ArchiveEntityPersistCallback extends BaseRelationalPersistCallback 
 			EntityLookupCacheContext cacheContext, ObjectMapper mapper) {
 		super(dbDao, propertiesService, cacheContext);
 
-		noCache = new EntityLookupCache<>(new EntityLookupDao(this));
+		noCache = new EntityLookupCache<>(new EntityLookupDao(this).enableSecondaryKeyManagement());
 
 		primaryIdLoadCallback = new BasePrimaryIdEntityLoadCallback(dbDao) {
 			@Override

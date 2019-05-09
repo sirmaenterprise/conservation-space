@@ -35,7 +35,7 @@ public class FreeTextSearchOperationTest {
 		freeTextSearchOperation = new FreeTextSearchOperation();
 		MockitoAnnotations.initMocks(this);
 
-		Mockito.when(freeTextSearchProcessor.process(Matchers.anyString())).thenReturn("enhanced-fts-query");
+		Mockito.when(freeTextSearchProcessor.buildFreeTextSearchQuery(Matchers.anyString())).thenReturn("enhanced-fts-query");
 
 		ConfigurationPropertyMock<String> ftsIndexName = new ConfigurationPropertyMock<>("test-index");
 		Mockito.when(semanticConfigurations.getFtsIndexName()).thenReturn(ftsIndexName);

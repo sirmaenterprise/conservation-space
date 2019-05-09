@@ -22,17 +22,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.reflect.AbstractInvocationHandler;
-import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.seip.CachingSupplier;
 import com.sirma.itt.seip.Resettable;
 import com.sirma.itt.seip.convert.TypeConverter;
@@ -44,6 +43,10 @@ import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.InstanceType;
+import com.sirma.itt.seip.instance.types.NoClassInstnaceTypeResolver;
+import com.sirma.itt.seip.instance.types.NoClassInstnaceTypeResolver.PluginConfiguration;
+import com.sirma.itt.seip.plugin.ExtensionPoint;
+import com.sirma.itt.seip.plugin.Plugins;
 
 /**
  * {@link InstanceTypes} implementation that loads the types from the {@link ClassInstance}s provided by the
@@ -54,7 +57,6 @@ import com.sirma.itt.seip.domain.instance.InstanceType;
 @ApplicationScoped
 public class SemanticInstanceTypes implements InstanceTypes {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	private static final Pattern IS_INSTANCE_TYPE = Pattern.compile("[\\w]+(?::|/|#)[a-zA-Z0-9]+$");
 	@Inject
 	private SemanticDefinitionService semanticDefinitionService;
 	@Inject
@@ -63,6 +65,9 @@ public class SemanticInstanceTypes implements InstanceTypes {
 	private TypeConverter typeConverter;
 	@Inject
 	private TypeMappingProvider typeMapping;
+	@Inject
+	@ExtensionPoint(value = PluginConfiguration.NAME)
+	private Plugins<NoClassInstnaceTypeResolver> noClassInstanceTypeResolvers;
 
 	@Override
 	public boolean is(InstanceReference reference, Serializable type) {
@@ -115,17 +120,17 @@ public class SemanticInstanceTypes implements InstanceTypes {
 
 	private Optional<InstanceType> resolveType(String source) {
 		ClassInstance classInstance = semanticDefinitionService.getClassInstance(source);
-		if (classInstance == null) {
-			if (IS_INSTANCE_TYPE.matcher(source).find()) {
-				// this will prevent potential stack overflow if the type cannot be resolved from the cache
-				LOGGER.warn("Could not resolve instance type for {}", source);
-				return Optional.empty();
-			}
-			LOGGER.trace("Resolving instance type via instance loading for id: {}", source);
-			// if the given id is not a class id check it if it's an instance id
-			return instanceTypeResolver.get().resolve(source);
+		if (classInstance != null) {
+			return Optional.of(classInstance.type());
 		}
-		return Optional.of(classInstance.type());
+
+		return noClassInstanceTypeResolvers
+					.select(resolver -> resolver.canResolve(source))
+					.map(resolver -> resolver.resolve(source))
+					.orElseGet(() -> { // should not get here, because of the last resolver
+						LOGGER.trace("Failed to resolve type for instance - {}", source);
+						return Optional.empty();
+					});
 	}
 
 	@Override
@@ -236,7 +241,7 @@ public class SemanticInstanceTypes implements InstanceTypes {
 					.orElse(null);
 	}
 
-	private void setType(Serializable target, InstanceType instanceType) {
+	private static void setType(Serializable target, InstanceType instanceType) {
 		if (target instanceof InstanceReference) {
 			((InstanceReference) target).setType(instanceType);
 		} else if (target instanceof Instance) {

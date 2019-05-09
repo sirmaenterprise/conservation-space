@@ -116,7 +116,7 @@ public class AssignContextStepTest {
 	private void executeTest(String oldParentId, String newParentId, boolean haveToPersist) {
 		InstanceSaveContext instanceSaveContext = setupTest(oldParentId, newParentId);
 		int countOfInvocation = haveToPersist ? 1 : 0;
-		assignContextStep.afterSave(instanceSaveContext);
+		assignContextStep.beforeSave(instanceSaveContext);
 		verify(instanceContextService, times(countOfInvocation)).bindContext(Matchers.any(Instance.class),
 																				Matchers.any(String.class));
 		verify(eventService, times(countOfInvocation)).fire(Matchers.any(ParentChangedEvent.class));

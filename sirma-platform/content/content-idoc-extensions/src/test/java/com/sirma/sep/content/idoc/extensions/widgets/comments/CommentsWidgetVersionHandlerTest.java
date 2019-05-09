@@ -19,9 +19,11 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties;
 import com.sirma.itt.seip.time.DateRange;
 import com.sirma.sep.content.idoc.WidgetResults;
 import com.sirma.sep.content.idoc.extensions.widgets.utils.WidgetMock;
+import com.sirma.sep.content.idoc.handler.ContentNodeHandler.HandlerContext;
 import com.sirma.sep.content.idoc.nodes.widgets.comments.CommentsWidget;
 import com.sirma.sep.content.idoc.nodes.widgets.comments.CommentsWidgetConfiguration;
 
@@ -56,7 +58,9 @@ public class CommentsWidgetVersionHandlerTest {
 		Element node = new Element(Tag.valueOf("div"), "");
 		node.attr("config", "e30=");
 		CommentsWidget widget = new CommentsWidget(node);
-		handler.processResults(widget, WidgetResults.fromSearch(buildSearchResults(new Object())), new Date());
+		HandlerContext context = new HandlerContext();
+		context.put(WidgetsHandlerContextProperties.VERSION_DATE_KEY, new Date());
+		handler.processResults(widget, WidgetResults.fromSearch(buildSearchResults(new Object())), context);
 		CommentsWidgetConfiguration configuration = widget.getConfiguration();
 		assertNotNull(configuration);
 		assertEquals(4, configuration.getSelectedObjects().size());
@@ -69,8 +73,10 @@ public class CommentsWidgetVersionHandlerTest {
 		Element node = new Element(Tag.valueOf("div"), "");
 		node.attr("config", "e30=");
 		CommentsWidget widget = new CommentsWidget(node);
+		HandlerContext context = new HandlerContext();
+		context.put(WidgetsHandlerContextProperties.VERSION_DATE_KEY, new Date());
 		handler.processResults(widget,
-				WidgetResults.fromSearch(buildSearchResults(new DateRange(null, new Date()))), new Date());
+				WidgetResults.fromSearch(buildSearchResults(new DateRange(null, new Date()))), context);
 		CommentsWidgetConfiguration configuration = widget.getConfiguration();
 		assertNotNull(configuration);
 		assertEquals(4, configuration.getSelectedObjects().size());
@@ -92,7 +98,9 @@ public class CommentsWidgetVersionHandlerTest {
 		widget.getConfiguration().getConfiguration().add("filterCriteria", criteria);
 		WidgetResults widgetResults = WidgetResults
 				.fromSearch(buildSearchResults(new DateRange(new Date(), new Date())));
-		handler.processResults(widget, widgetResults, new Date());
+		HandlerContext context = new HandlerContext();
+		context.put(WidgetsHandlerContextProperties.VERSION_DATE_KEY, new Date());
+		handler.processResults(widget, widgetResults, context);
 		CommentsWidgetConfiguration configuration = widget.getConfiguration();
 		assertNotNull(configuration);
 		assertEquals(4, configuration.getSelectedObjects().size());

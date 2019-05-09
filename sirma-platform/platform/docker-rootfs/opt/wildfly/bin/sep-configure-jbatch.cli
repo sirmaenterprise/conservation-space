@@ -1,0 +1,8 @@
+embed-server --server-config=standalone.xml
+
+batch
+
+/subsystem=batch/:write-attribute(name=job-repository-type,value=jdbc)
+/subsystem=batch/job-repository=jdbc/:write-attribute(name=jndi-name,value=java:jboss/datasources/system.tenant)
+
+run-batch

@@ -9,10 +9,13 @@ import java.util.Date;
 import javax.inject.Inject;
 
 import com.sirma.itt.seip.db.DatabaseIdManager;
+import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.plugin.Extension;
+import com.sirmaenterprise.sep.instance.validator.exceptions.InstanceValidationException;
 
 /**
  * Handles the transfer of the few system properties that should be with the same values as they are in the current
@@ -34,6 +37,8 @@ public class ProcessSystemPropertiesOnRevertStep implements RevertStep {
 	private DatabaseIdManager databaseIdManager;
 	@Inject
 	private InstancePropertyNameResolver fieldConverter;
+	@Inject
+	private DefinitionService definitionService;
 
 	@Override
 	public String getName() {
@@ -48,7 +53,9 @@ public class ProcessSystemPropertiesOnRevertStep implements RevertStep {
 		databaseIdManager.unregisterId(revertResultInstance.getId());
 		revertResultInstance.setId(current.getId());
 		revertResultInstance.add(VERSION, current.get(VERSION, fieldConverter), fieldConverter);
-		revertResultInstance.add(STATUS, current.get(STATUS));
+		// copy the status only of the reverted instance definition supports the new status
+		// otherwise it's left intact. This is special case when reverting instance with changed type
+		copyStatusIfApplicable(current, revertResultInstance);
 		// When reverting a version we have to copy the revision properties from the current version. if we don't we
 		// might overwrite an already existing revision.
 		revertResultInstance.add(LAST_PUBLISHED_REVISION, current.get(LAST_PUBLISHED_REVISION));
@@ -57,6 +64,30 @@ public class ProcessSystemPropertiesOnRevertStep implements RevertStep {
 
 		// prevents stale modification error, because it contains the one cloned from the version
 		revertResultInstance.add(MODIFIED_ON, new Date());
+	}
+
+	private void copyStatusIfApplicable(Instance current, Instance revertResultInstance) {
+		GenericDefinition revertDefinition = definitionService.getInstanceDefinition(revertResultInstance);
+		String currentStatus = current.getString(STATUS);
+		// by requirement we need to keep the status of the original instance during revert, but only if it's valid
+		// if not valid (in case of instance change type or definition update we will revert the state as well - the
+		// version state will be used
+		if (isValidState(revertDefinition, currentStatus)) {
+			revertResultInstance.add(STATUS, currentStatus);
+		} else {
+			String oldStatus = revertResultInstance.getString(STATUS);
+			// special case: when instance version was saved in a status that is no longer supported by the current
+			// instance definition. The current status is also not applicable so we cannot continue
+			if (!isValidState(revertDefinition, oldStatus)) {
+				throw new InstanceValidationException("Cannot revert instance. Current instance model does not permit the status " + oldStatus);
+			}
+		}
+	}
+
+	private boolean isValidState(GenericDefinition revertDefinition, String currentStatus) {
+		return revertDefinition.getStateTransitions()
+				.stream()
+				.anyMatch(transition -> transition.getFromState().equals(currentStatus));
 	}
 
 }

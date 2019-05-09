@@ -54,6 +54,7 @@ import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.UR
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.VALIDATION_MODEL_KEY;
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.VALIDATORS_KEY;
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.VIEW_MODEL_KEY;
+import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.FIELD_VALIDATION_NOT_MATCH_FILTER;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -354,7 +355,7 @@ public class DefinitionModelToJsonSerializerImpl implements DefinitionModelToJso
 		writeValidationObject(validators, REGEX_KEY, ERROR_VALUE, pattern.getSecond(), pattern.getFirst());
 	}
 
-	private static void addRelatedFieldValidator(PropertyDefinition definition, JsonArrayBuilder validators) {
+	private void addRelatedFieldValidator(PropertyDefinition definition, JsonArrayBuilder validators) {
 		ControlDefinition control = definition.getControlDefinition();
 		if (control == null || !RELATED_FIELDS.equals(control.getIdentifier())) {
 			return;
@@ -365,16 +366,18 @@ public class DefinitionModelToJsonSerializerImpl implements DefinitionModelToJso
 			if (element.getType() == null) {
 				element.setType(RELATED_FIELDS);
 			}
-			controlParamTypes.add(element.getType());
+			if(!DEFAULT_VALUE_PATTERN.equals(element.getType())) {
+				controlParamTypes.add(element.getType());
+			}
 		});
 
 		controlParamTypes.forEach(type -> {
 			JsonObjectBuilder validator = Json.createObjectBuilder().add(ID_KEY, RELATED_FIELDS_VALIDATOR_ID_VALUE)
 					.add(LEVEL_KEY, ERROR_VALUE);
 			writeParams(control, validator, type);
+			addIfNotNull(validator, MESSAGE_KEY, labelProvider.getValue(FIELD_VALIDATION_NOT_MATCH_FILTER));
 			validators.add(validator.build());
 		});
-
 	}
 
 	private static void writeValidationObject(JsonArrayBuilder validators, String id, String level, String message,

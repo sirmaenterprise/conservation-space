@@ -12,7 +12,7 @@ import {ActionsService} from 'services/rest/actions-service';
 import {InstanceObject, CURRENT_OBJECT_TEMP_ID} from 'models/instance-object';
 import {PromiseStub} from 'test/promise-stub';
 import {IdocDraftService} from 'services/idoc/idoc-draft-service';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {Configuration} from 'common/application-config';
 import {InstanceContextService, ERROR_EXISTING_WITHOUT_CONTEXT} from 'services/idoc/instance-context-service';
 import {SaveIdocAction} from 'idoc/actions/save-idoc-action';

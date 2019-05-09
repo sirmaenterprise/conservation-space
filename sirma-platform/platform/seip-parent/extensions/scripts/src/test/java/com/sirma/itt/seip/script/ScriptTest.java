@@ -5,17 +5,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.script.extensions.ScriptLogger;
 import com.sirma.itt.seip.script.extensions.TypeConverterScriptExtension;
 import com.sirma.itt.seip.testutil.EmfTest;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
+import com.sirma.itt.seip.util.ReflectionUtils;
 
 /**
  * Base class for test involving server side JavaScript.
@@ -23,9 +25,13 @@ import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
  * @author BBonev
  */
 public abstract class ScriptTest extends EmfTest {
-	/** The converter. */
+
+	@Mock
+	protected Statistics stats;
+
 	@Spy
 	protected TypeConverter converter;
+
 	private ScriptEvaluatorImpl scriptEvaluator;
 
 	/**
@@ -97,11 +103,13 @@ public abstract class ScriptTest extends EmfTest {
 		if (scriptEvaluator == null) {
 			scriptEvaluator = new ScriptEvaluatorImpl();
 			ScriptEngineManagerProvider provider = createEngineProvider();
+			ReflectionUtils.setFieldValue(scriptEvaluator, "stats", stats);
 			ReflectionUtils.setFieldValue(scriptEvaluator, "scriptEngineManager", provider.provide());
 			ReflectionUtils.setFieldValue(scriptEvaluator, "scriptEngineName",
 					new ConfigurationPropertyMock<>(ScriptEvaluator.DEFAULT_LANGUAGE));
 			scriptEvaluator.initialize();
 		}
+
 		return scriptEvaluator;
 	}
 

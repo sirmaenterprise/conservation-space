@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Tests the logic in {@link ContentThumbnailCompletedQueue} after a thumbnail has been generated and received in {@link
@@ -27,9 +28,6 @@ import java.io.IOException;
 public class ContentThumbnailCompletedQueueTest {
 
 	@Mock
-	private InstanceTypeResolver instanceTypeResolver;
-
-	@Mock
 	private ThumbnailService thumbnailService;
 
 	@InjectMocks
@@ -38,7 +36,6 @@ public class ContentThumbnailCompletedQueueTest {
 	@Before
 	public void initialize() throws IOException {
 		MockitoAnnotations.initMocks(this);
-		PreviewIntegrationTestUtils.stubInstanceTypeResolver(instanceTypeResolver, new EmfInstance("emf:123"));
 	}
 
 	@Test
@@ -46,13 +43,7 @@ public class ContentThumbnailCompletedQueueTest {
 		String expectedThumbnail = "data:image/png;base64,thumbnail";
 		contentThumbnailCompletedQueue.onContentThumbnailCompleted(stubMessage(false));
 		Mockito.verify(thumbnailService, Mockito.times(2))
-				.addThumbnail(Matchers.any(InstanceReference.class), Matchers.eq(expectedThumbnail));
-	}
-
-	@Test(expected = EmfRuntimeException.class)
-	public void shouldNotAddThumbnailForMissingInstance() throws JMSException {
-		PreviewIntegrationTestUtils.stubInstanceTypeResolver(instanceTypeResolver, null);
-		contentThumbnailCompletedQueue.onContentThumbnailCompleted(stubMessage(false));
+				.addSelfThumbnail(Matchers.any(Serializable.class), Matchers.eq(expectedThumbnail));
 	}
 
 	@Test(expected = EmfRuntimeException.class)

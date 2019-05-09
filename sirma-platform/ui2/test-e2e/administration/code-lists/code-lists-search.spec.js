@@ -91,10 +91,12 @@ describe('Controlled vocabularies search', () => {
     search.getStringCriteria().enterValue('');
 
     management.getCodeLists().then(codeLists => {
-      expect(codeLists.length).to.equal(3);
+      expect(codeLists.length).to.equal(5);
       assertCodeListHeader(codeLists[0], '1', 'Project state');
       assertCodeListHeader(codeLists[1], '2', 'Project type');
-      assertCodeListHeader(codeLists[2], '13', 'Language');
+      assertCodeListHeader(codeLists[2], '3', 'Level');
+      assertCodeListHeader(codeLists[3], '13', 'Language');
+      assertCodeListHeader(codeLists[4], '555', 'Country');
     });
   });
 
@@ -113,10 +115,12 @@ describe('Controlled vocabularies search', () => {
     search.getStringCriteria().enterValue('');
 
     management.getCodeLists().then(codeLists => {
-      expect(codeLists.length).to.equal(3);
+      expect(codeLists.length).to.equal(5);
       assertCodeListHeader(codeLists[0], '1', 'Project state');
       assertCodeListHeader(codeLists[1], '2', 'Project type');
-      assertCodeListHeader(codeLists[2], '13', 'Language');
+      assertCodeListHeader(codeLists[2], '3', 'Level');
+      assertCodeListHeader(codeLists[3], '13', 'Language');
+      assertCodeListHeader(codeLists[4], '555', 'Country');
     });
   });
 

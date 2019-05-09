@@ -1,62 +1,60 @@
 <?xml version="1.0"?>
-<definition id="userDefinitionBase" parentId="entity" isAbstract="true" type="user">
+<definition id="baseUser" parentId="entity" isAbstract="true" type="user">
 	<fields>
 		<field name="default_header" type="ANY" label="USER_DEFAULT_HEADER" displayType="system"/>
-		<field name="compact_header" type="an..4096" label="USER_COMPACT_HEADER" displayType="system"/>
-		<field name="breadcrumb_header" type="an..4096" label="USER_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="compact_header" type="ANY" label="USER_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="ANY" label="USER_BREADCRUMB_HEADER" displayType="system"/>
 		<field name="tooltip_header" type="ANY" label="USER_TOOLTIP_HEADER" displayType="system" />
 
-		<field name="emailAddress" type="an..255" label="userDefinition.emailAddress" displayType="readOnly" previewEmpty="true" uri="emf:mailboxAddress">
-            <control id="EMAIL" />
-        </field>
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type"><value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User</value></field>
-		<field name="type" type="an..20" codelist="CL7" displayType="system"> <value>FC236008</value></field>
-		<field name="status" type="an..35" codelist="CL12" />
-		<field name="emf:isActive" type="boolean" displayType="system" dmsType="http://wso2.org/claims/identity/accountDisabled" uri="emf:isActive"><value>true</value></field>
-		<field name="userId" type="an..200" label="userDefinition.userId" displayType="editable" mandatory="true" dmsType="urn:scim:schemas:core:1.0:userName" rnc="^(?:[a-zA-Z0-9]+(?:[\._][a-zA-Z0-9]{2,})+|[a-zA-Z0-9]{3,}(?:[\._][a-zA-Z0-9]+)*)(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,20})?$" uri="ptop:title" unique="true">
+		<field name="emailAddress" type="an..255" displayType="readOnly" previewEmpty="true" uri="emf:mailboxAddress"/>
+		<field name="rdf:type"><value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User</value></field>
+		<field name="type" codelist="CL7" displayType="system">
+			<value>baseUser</value>
+		</field>
+		<field name="status" codelist="CL12" />
+		<field name="emf:isActive" type="boolean" displayType="system" dmsType="isDisabled" uri="emf:isActive">
+			<value>true</value>
+		</field>
+		<field name="userId" type="an..200" label="userDefinition.userId" displayType="editable" mandatory="true" rnc="^(?:[a-zA-Z0-9]+(?:[\._][a-zA-Z0-9]{2,})+|[a-zA-Z0-9]{3,}(?:[\._][a-zA-Z0-9]+)*)(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,20})?$" uri="ptop:title" unique="true">
 			<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('ACTIVE', 'INACTIVE')</condition>
 		</field>
-		<field name="createdBy" dmsType="FORBIDDEN" >
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:User</control-param>
-			</control>
-		</field>
+		<field name="createdBy" dmsType="FORBIDDEN"/>
 		<field name="title" type="an..100" label="userDefinition.title" displayType="readonly" mandatory="false" uri="dcterms:title"/>
-		<field name="description" type="an..1024" displayType="system" />
-		<field name="firstName" type="an..35" label="userDefinition.firstName" displayType="editable" dmsType="urn:scim:schemas:core:1.0:name.givenName" uri="ptop:firstName" />
-		<field name="lastName" 	type="an..35" label="userDefinition.lastName" displayType="editable" dmsType="urn:scim:schemas:core:1.0:name.familyName" uri="ptop:lastName" />
-		<field name="email" type="an..50" label="userDefinition.email" displayType="editable" mandatory="true" dmsType="urn:scim:schemas:core:1.0:emails" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$" uri="emf:email" unique="true"/>
-		<field name="country" type="an..50" label="userDefinition.country" displayType="editable" dmsType="urn:scim:schemas:core:1.0:addresses.country" uri="emf:countryName" />
-		<field name="address" type="an..100" label="userDefinition.address" displayType="editable" dmsType="urn:scim:schemas:core:1.0:addresses.streetAddress" uri="emf:address" />
-		<field name="telephone" type="an..50" label="userDefinition.telephone" displayType="editable" uri="emf:phoneNumber" />
-		<field name="mobile" type="an..100" label="userDefinition.mobile" displayType="editable" dmsType="urn:scim:schemas:core:1.0:phoneNumbers.mobile" uri="emf:mobileNumber" />
-		<field name="im" type="an..100" label="userDefinition.im"  displayType="editable" uri="emf:instantMessengerId" />
+		<field name="description" displayType="system" />
+		<field name="firstName" type="an..35" displayType="editable" dmsType="firstName" uri="ptop:firstName" />
+		<field name="lastName" 	type="an..35" displayType="editable" dmsType="lastName" uri="ptop:lastName" />
+		<field name="email" type="an..50" displayType="editable" mandatory="true" dmsType="email" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$" uri="emf:email" unique="true"/>
+		<field name="country" type="an..50" displayType="editable" dmsType="country" uri="emf:countryName" />
+		<field name="address" type="an..100" displayType="editable" dmsType="streetAddress" uri="emf:address" />
+		<field name="telephone" type="an..50" displayType="editable" uri="emf:phoneNumber" />
+		<field name="mobile" type="an..100" displayType="editable" dmsType="mobile" uri="emf:mobileNumber" />
+		<field name="im" type="an..100" displayType="editable" uri="emf:instantMessengerId" />
 
-		<field name="organization" type="an..100" label="userDefinition.organization" displayType="editable" uri="emf:organizationName" />
-		<field name="jobtitle" type="an..50" label="userDefinition.jobtitle" displayType="editable" uri="emf:jobTitle" />
-		<field name="language" type="an..50" codelist="CL13" label="userDefinition.language" displayType="editable" uri="dcterms:language"/>
+		<field name="organization" type="an..100" displayType="editable" uri="emf:organizationName" />
+		<field name="jobtitle" type="an..50" displayType="editable" uri="emf:jobTitle" />
+		<field name="language" type="ANY" codelist="CL13" displayType="editable" uri="dcterms:language"/>
 
-		<field name="owner" type="uri" label="owner" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:owner">
+		<field name="owner" type="uri" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:owner">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Task</control-param>
 			</control>
 		</field>
-		<field name="isAssigneeOf" type="uri" label="isAssigneeOf" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isAssigneeOf">
+		<field name="isAssigneeOf" type="uri" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isAssigneeOf">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:Task</control-param>
 			</control>
 		</field>
-		<field name="isPoolAssigneeTo" type="uri" label="isPoolAssigneeTo" displayType="readOnly" previewEmpty="false" multiValued="true" uri="emf:isPoolAssigneeTo">
+		<field name="isPoolAssigneeTo" type="uri" displayType="readOnly" previewEmpty="false" multiValued="true" uri="emf:isPoolAssigneeTo">
 			<control id="PICKER">
 				<control-param id="range" name="range"/>
 			</control>
 		</field>
-        <field name="isReporterOf" type="uri" label="isReporterOf" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isReporterOf">
+        <field name="isReporterOf" type="uri" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isReporterOf">
 			<control id="PICKER">
 				<control-param id="range" name="range"/>
 			</control>
 		</field>
-		<field name="isMemberOf" type="uri" label="isMemberOf" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isMemberOf">
+		<field name="isMemberOf" type="uri" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isMemberOf">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:Group</control-param>
 			</control>
@@ -64,8 +62,8 @@
 	</fields>
 
 	<transitions>
-		<transition id="deactivate" eventId="deactivate" purpose="transition" label="deactivate.label" tooltip="deactivateUser.tooltip" />
-		<transition id="activate" eventId="activate" purpose="transition" label="activate.label" tooltip="activateUser.tooltip" />
+		<transition id="deactivate" purpose="transition" label="deactivate.label" tooltip="deactivateUser.tooltip" />
+		<transition id="activate" purpose="transition" label="activate.label" tooltip="activateUser.tooltip" />
 	</transitions>
 
 	<stateTransitions>
@@ -83,7 +81,7 @@
 		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>
 		<stateTransition from="ACTIVE" transition="addWatchers" to="ACTIVE" />
-		
+
 		<stateTransition from="INACTIVE" transition="activate" to="ACTIVE" />
 	</stateTransitions>
 	<labels>
@@ -116,6 +114,12 @@
                             <label>Job title: </label>
                             <span data-property="jobtitle">${get([jobtitle])}</span>
                         </span>
+                        ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+						)}
                     </span>
                 )}]]></value>
             <value lang="de"><![CDATA[${eval(
@@ -146,6 +150,12 @@
                             <label>Stellenbezeichnung: </label>
                             <span data-property="jobtitle">${get([jobtitle])}</span>
                         </span>
+                        ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+						)}
                     </span>
                 )}]]></value>
 			<value lang="bg"><![CDATA[${eval(
@@ -176,6 +186,12 @@
                             <label>Длъжност: </label>
                             <span data-property="jobtitle">${get([jobtitle])}</span>
                         </span>
+                        ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+						)}
                     </span>
                 )}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -207,7 +223,13 @@
 							<label>Jobtitel: </label>
 							<span data-property="jobtitle">${get([jobtitle])}</span>
 						</span>
-					)}	
+					)}
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
 				</span>
 			)}]]></value>
 		</label>
@@ -222,6 +244,7 @@
 				                  style="color:#a9a9a9;"
 				                )}>
 							<b>
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								<span data-property="title">${get([title])}</span>
 								${if(${get([emf:isActive])}==false).then(
 				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
@@ -229,7 +252,6 @@
 							</b>
 						</a>
 					</span>
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]></value>
 			<value lang="de"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
@@ -241,6 +263,7 @@
 				                  style="color:#a9a9a9;"
 				                )}>
 							<b>
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								<span data-property="title">${get([title])}</span>
 								${if(${get([emf:isActive])}==false).then(
 				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
@@ -248,7 +271,6 @@
 							</b>
 						</a>
 					</span>
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]></value>
 			<value lang="bg"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
@@ -260,6 +282,7 @@
 						                  style="color:#a9a9a9;"
 						                )}>
 							<b>
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								<span data-property="title">${get([title])}</span>
 								${if(${get([emf:isActive])}==false).then(
 				                  &nbsp;<span data-property="emf:status">(${CL([status])})</span>
@@ -267,7 +290,6 @@
 							</b>
 						</a>
 					</span>
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]></value>
 			<value lang="da"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
@@ -279,6 +301,7 @@
 									style="color:#a9a9a9;"
 				                )}>
 							<b>
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								<span data-property="title">${get([title])}</span>
 								${if(${get([emf:isActive])}==false).then(
 									&nbsp;<span data-property="emf:status">(${CL([status])})</span>
@@ -286,7 +309,6 @@
 							</b>
 						</a>
 					</span>
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>
 			)}]]></value>
 		</label>
@@ -294,7 +316,7 @@
 			<value lang="en"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 							${if(${get([emf:isActive])}==false).then(
@@ -310,7 +332,7 @@
 			<value lang="de"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 							${if(${get([emf:isActive])}==false).then(
@@ -326,7 +348,7 @@
 			<value lang="bg"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 							${if(${get([emf:isActive])}==false).then(
@@ -342,7 +364,7 @@
 			<value lang="da"><![CDATA[${eval(
 			    ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 						${if(${get([emf:isActive])}==false).then(
@@ -359,7 +381,7 @@
 		<label id="USER_BREADCRUMB_HEADER">
 			<value lang="bg"><![CDATA[${eval(
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span>
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 						${if(${get([emf:isActive])}==false).then(
@@ -373,7 +395,7 @@
 				</span>)}]]></value>
 			<value lang="en"><![CDATA[${eval(
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
                 <span>
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 						${if(${get([emf:isActive])}==false).then(
@@ -387,7 +409,7 @@
 				</span>)}]]></value>
 			<value lang="de"><![CDATA[${eval(
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
                 <span>
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 						${if(${get([emf:isActive])}==false).then(
@@ -401,7 +423,7 @@
 				</span>)}]]></value>
 			<value lang="da"><![CDATA[${eval(
                 <span><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
                 <span>
 					<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
 						${if(${get([emf:isActive])}==false).then(

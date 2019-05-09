@@ -7,6 +7,8 @@ import {TranslateService} from 'services/i18n/translate-service';
 import {FileUploadIntegration} from 'file-upload/file-upload-integration';
 import {stub} from 'test/test-utils';
 import {NotificationService, DEFAULT_POSITION} from 'services/notification/notification-service';
+import {AuthenticationService} from 'security/authentication-service';
+import {AUTHORIZATION} from 'services/rest/http-headers';
 
 describe('FileUploadItem', function () {
 
@@ -82,14 +84,6 @@ describe('FileUploadItem', function () {
     it('should fire UploadCompletedEvent event and emit onFileUploaded event', function () {
       fileUploadItem.onFileUploaded = sinon.spy();
 
-      fileUploadItem.uploadAllSubscription = {
-        unsubscribe: sinon.spy()
-      };
-
-      fileUploadItem.contextChangedSubscription = {
-        unsubscribe: sinon.spy()
-      };
-
       fileUploadItem.eventbus = {
         publish: sinon.spy()
       };
@@ -113,9 +107,6 @@ describe('FileUploadItem', function () {
         headers: {}
       });
 
-      expect(fileUploadItem.uploadAllSubscription.unsubscribe.calledOnce).to.be.true;
-      expect(fileUploadItem.contextChangedSubscription.unsubscribe.calledOnce).to.be.true;
-
       expect(fileUploadItem.eventbus.publish.calledTwice).to.be.true;
       expect(fileUploadItem.eventbus.publish.getCall(0).args[0] instanceof UploadCompletedEvent).to.be.true;
 
@@ -131,6 +122,7 @@ describe('FileUploadItem', function () {
   describe('checkValidAndUpload()', function () {
     it('should not upload the file if the entry is not valid', function () {
       fileUploadItem.valid = false;
+      fileUploadItem.templateLoaded = true;
       fileUploadItem.upload = sinon.spy();
       fileUploadItem.uploadEnabled = true;
 
@@ -141,6 +133,29 @@ describe('FileUploadItem', function () {
 
     it('should upload the file if the entry is valid', function () {
       fileUploadItem.valid = true;
+      fileUploadItem.templateLoaded = true;
+      fileUploadItem.uploadEnabled = true;
+      fileUploadItem.upload = sinon.spy();
+
+      fileUploadItem.checkValidAndUpload();
+
+      expect(fileUploadItem.upload.called).to.be.true;
+    });
+
+    it('should not upload the file if the template of entry is not loaded', function () {
+      fileUploadItem.valid = true;
+      fileUploadItem.templateLoaded = false;
+      fileUploadItem.upload = sinon.spy();
+      fileUploadItem.uploadEnabled = true;
+
+      fileUploadItem.checkValidAndUpload();
+
+      expect(fileUploadItem.upload.called).to.be.false;
+    });
+
+    it('should upload the file if the template of entry is loaded', function () {
+      fileUploadItem.valid = true;
+      fileUploadItem.templateLoaded = true;
       fileUploadItem.uploadEnabled = true;
       fileUploadItem.upload = sinon.spy();
 
@@ -152,16 +167,14 @@ describe('FileUploadItem', function () {
 
   describe('ngOnDestroy()', function () {
     it('should unsubscribe method be called for uploadAllSubscription and contextChangedSubscription subscriptions', function () {
-      fileUploadItem.uploadAllSubscription = {
-        unsubscribe: sinon.spy()
-      };
-      fileUploadItem.contextChangedSubscription = {
+      let uploadAllSubscription = {
         unsubscribe: sinon.spy()
       };
 
+      fileUploadItem.eventHandlers.push(uploadAllSubscription);
+
       fileUploadItem.ngOnDestroy();
-      expect(fileUploadItem.uploadAllSubscription.unsubscribe.calledOnce).to.be.true;
-      expect(fileUploadItem.contextChangedSubscription.unsubscribe.calledOnce).to.be.true;
+      expect(uploadAllSubscription.unsubscribe.calledOnce).to.be.true;
     });
   });
 
@@ -199,6 +212,7 @@ describe('FileUploadItem', function () {
       fileUploadItem.fileUploadIntegration = stubFileUploadIntegration(false, true, {id: 'instanceId'});
       fileUploadItem.translateService = stubTranslateService();
       fileUploadItem.notificationService = stub(NotificationService);
+      fileUploadItem.authenticationService = stubAuthenticationService();
       fileUploadItem.config = {
         formConfig: {
           models: ''
@@ -287,6 +301,23 @@ describe('FileUploadItem', function () {
       expect(fileUploadItem.uploadEnabled).to.be.false;
       expect(fileUploadItem.removeEnabled).to.be.true;
     });
+
+    it('should add authorization header to upload control', () => {
+      fileUploadItem.fileUploadIntegration = stubFileUploadIntegration(true, false, {responseJSON: {}});
+      fileUploadItem.upload();
+
+      expect(fileUploadItem.entry.uploadControl.headers).to.deep.equal({[AUTHORIZATION]: 'Bearer token'});
+    });
+
+    it('should append authorization header to upload control', () => {
+      fileUploadItem.entry.uploadControl.headers = {
+        'Accept-Language': 'bg-BG'
+      };
+      fileUploadItem.fileUploadIntegration = stubFileUploadIntegration(true, false, {responseJSON: {}});
+      fileUploadItem.upload();
+
+      expect(fileUploadItem.entry.uploadControl.headers).to.deep.equal({'Accept-Language': 'bg-BG', [AUTHORIZATION]: 'Bearer token'});
+    });
   });
 
   function stubEventbus() {
@@ -355,6 +386,12 @@ describe('FileUploadItem', function () {
         return PromiseStub.resolve({});
       }
     };
+  }
+
+  function stubAuthenticationService() {
+    let authenticationService = stub(AuthenticationService);
+    authenticationService.buildAuthHeader.returns(PromiseStub.resolve('Bearer token'));
+    return authenticationService;
   }
 
 });

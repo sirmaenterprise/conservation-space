@@ -1,7 +1,7 @@
 import {Injectable, Inject} from 'app/app';
 import {BootstrapService} from 'services/bootstrap-service';
 import {ThemeRestClient} from 'services/rest/ui-theme-rest-service';
-import {darken, invert} from 'polished';
+import {darken} from 'polished';
 
 import _ from 'lodash';
 import template from './template.html!text';

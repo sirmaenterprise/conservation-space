@@ -45,7 +45,7 @@ export class UploadDialogConfigurator {
           id: DialogService.CLOSE,
           label: 'dialog.button.cancel'
         }],
-        onButtonClick: function (buttonId, componentScope, dialogConfig) {
+        onButtonClick(buttonId, componentScope, dialogConfig) {
           dialogConfig.dismiss();
         }
       };

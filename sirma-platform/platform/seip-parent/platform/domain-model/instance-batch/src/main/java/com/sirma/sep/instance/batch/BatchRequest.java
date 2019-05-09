@@ -10,6 +10,7 @@ import java.util.Properties;
  */
 public class BatchRequest {
 	private String batchName;
+	private String jobAlias;
 	private Properties properties;
 	private int chunkSize;
 	private int partitionsCount = 1;
@@ -90,5 +91,24 @@ public class BatchRequest {
 	 */
 	public void setPartitionsCount(int partitionsCount) {
 		this.partitionsCount = partitionsCount;
+	}
+
+	/**
+	 * Returns any set job alias.
+	 *
+	 * @return the job alias
+	 */
+	public String getJobAlias() {
+		return jobAlias;
+	}
+
+	/**
+	 * Specifies an alternative job name. Mainly used for visualization purposes when the job name is too generic. <br>
+	 * If nothing is set it will default to the job name
+	 *
+	 * @param jobAlias the job alias to set
+	 */
+	public void setJobAlias(String jobAlias) {
+		this.jobAlias = jobAlias;
 	}
 }

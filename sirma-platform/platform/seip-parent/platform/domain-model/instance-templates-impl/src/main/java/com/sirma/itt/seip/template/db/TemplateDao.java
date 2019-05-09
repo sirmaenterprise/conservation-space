@@ -221,7 +221,7 @@ public class TemplateDao {
 		entity.setPurpose(template.getPurpose());
 		entity.setGroupId(template.getForType());
 		entity.setCorrespondingInstance(template.getCorrespondingInstance());
-		entity.setPrimary(Boolean.valueOf(template.getPrimary()));
+		entity.setPrimary(template.getPrimary());
 		entity.setContentDigest(template.getContentDigest());
 		entity.setRule(template.getRule());
 		entity.setPublishedInstanceVersion(template.getPublishedInstanceVersion());
@@ -258,8 +258,19 @@ public class TemplateDao {
 
 	private String getCurrentUser() {
 		if (securityContext.isActive()) {
-			return securityContext.getEffectiveAuthentication().getIdentityId();
+			return securityContext.getAuthenticated().getIdentityId();
 		}
 		return null;
+	}
+
+	/**
+	 * Checks if a template exists for the provided template or corresponding instance identifier.
+	 *
+	 * @param templateId - identifier of the template or its corresponding instance
+	 * @return <code>true</code> if a template exist or <code>false</code> if not
+	 */
+	public boolean hasTemplate(String templateId) {
+		return dbDao.fetchWithNamed(TemplateEntity.QUERY_HAS_TEMPLATE_KEY,
+				Collections.singletonList(new Pair<>("id", templateId))).size() > 0;
 	}
 }

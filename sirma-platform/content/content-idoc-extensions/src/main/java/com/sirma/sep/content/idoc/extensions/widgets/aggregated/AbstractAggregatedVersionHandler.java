@@ -1,5 +1,7 @@
 package com.sirma.sep.content.idoc.extensions.widgets.aggregated;
 
+import static com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties.VERSIONED_INSTANCES_CACHE_KEY;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -7,7 +9,8 @@ import java.util.Map;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.sirma.itt.seip.instance.version.VersionProperties;
+import com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties;
+import com.sirma.itt.seip.instance.version.VersionIdsCache;
 import com.sirma.sep.content.idoc.Widget;
 import com.sirma.sep.content.idoc.WidgetResults;
 import com.sirma.sep.content.idoc.extensions.widgets.AbstractWidgetVersionHandler;
@@ -32,7 +35,7 @@ public abstract class AbstractAggregatedVersionHandler<W extends Widget> extends
 	@Override
 	public HandlerResult handle(W widget, HandlerContext context) {
 		WidgetResults searchResults = widget.getConfiguration().getSearchResults();
-		Date versionDate = context.getIfSameType(VersionProperties.HANDLERS_CONTEXT_VERSION_DATE_KEY, Date.class);
+		Date versionDate = context.getIfSameType(WidgetsHandlerContextProperties.VERSION_DATE_KEY, Date.class);
 		if (!searchResults.areAny() || versionDate == null) {
 			// store empty object
 			widget.getConfiguration().addNotNullProperty(VERSION_DATA_CONFIG_KEY, new JsonObject());
@@ -42,7 +45,8 @@ public abstract class AbstractAggregatedVersionHandler<W extends Widget> extends
 		Map<String, Object> resultMap = searchResults.getResultsAsMap();
 		Collection<Serializable> ids = extractResults(searchResults.isFoundBySearch(), () -> WidgetHandlersUtil
 				.getCollectionFromMap(AbstractAggregatedSearchHandler.INSTANCE_IDS_RESULT_MAP_KEY, resultMap));
-		Map<Serializable, Serializable> versionIdsMap = versionDao.findVersionIdsByTargetIdAndDate(ids, versionDate);
+		VersionIdsCache versionedCache = context.getIfSameType(VERSIONED_INSTANCES_CACHE_KEY, VersionIdsCache.class);
+		Map<Serializable, Serializable> versionIdsMap = versionedCache.getVersioned(ids);
 		// replace the ids with the version ids
 		resultMap.replace(AbstractAggregatedSearchHandler.INSTANCE_IDS_RESULT_MAP_KEY, versionIdsMap.values());
 		JsonElement resultJson = GSON.toJsonTree(resultMap);

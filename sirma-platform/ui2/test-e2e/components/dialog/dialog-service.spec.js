@@ -126,13 +126,12 @@ describe('Dialog service', function () {
     modalDialog = new Dialog(modalDialogElement);
     modalDialog.waitUntilOpened();
 
-    // And I change the route
-
-    // the link will be overlayed by the dialog
+    // And I change the route (the link will be overlayed by the dialog)
     browser.executeScript('$("#view1-link").click(); $("#view1-link").trigger("click")');
 
     // Then I should not see the modal panel
-    expect(modalDialogElement.isPresent()).to.eventually.be.false;
+    browser.wait(EC.invisibilityOf(modalDialogElement), DEFAULT_TIMEOUT);
+    browser.wait(EC.not(EC.presenceOf(modalDialogElement)), DEFAULT_TIMEOUT);
   });
 
   it('should support modeless dialog', function () {

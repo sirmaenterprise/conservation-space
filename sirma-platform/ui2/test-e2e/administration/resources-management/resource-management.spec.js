@@ -51,19 +51,19 @@ describe('Resource management', () => {
   it('should render fields of type object property', () => {
     // Should have 2 related objects selected
     let memberOf = resourceManagement.getObjectProperty(0, 4);
-    expect(memberOf.getSelectedObjectsCount()).to.eventually.equal(2);
+    expect(memberOf.getSelectedObjectsCount(2)).to.eventually.equal(2);
 
     // Check the next page of the table
     let pagination = resourceManagement.getPagination();
     pagination.goToPage(2);
     // Should have 3 related objects selected and one hidden
     memberOf = resourceManagement.getObjectProperty(2, 4);
-    expect(memberOf.getSelectedObjectsCount()).to.eventually.equal(3);
+    expect(memberOf.getSelectedObjectsCount(3)).to.eventually.equal(3);
     expect(memberOf.getHiddenObjectsCount()).to.eventually.equal('1');
     memberOf.showAll();
-    expect(memberOf.getSelectedObjectsCount()).to.eventually.equal(4);
+    expect(memberOf.getSelectedObjectsCount(4)).to.eventually.equal(4);
     memberOf.showLess();
-    expect(memberOf.getSelectedObjectsCount()).to.eventually.equal(3);
+    expect(memberOf.getSelectedObjectsCount(3)).to.eventually.equal(3);
     expect(memberOf.getHiddenObjectsCount()).to.eventually.equal('1');
   });
 });

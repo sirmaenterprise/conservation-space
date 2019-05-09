@@ -11,7 +11,6 @@ export class Configuration {
   }
 }
 
-Configuration.SESSION_TIMEOUT = 'session.timeout';
 Configuration.SESSION_TIMEOUT_PERIOD = 'session.timeout.period';
 
 @Injectable()

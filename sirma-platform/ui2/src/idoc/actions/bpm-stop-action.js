@@ -1,6 +1,5 @@
 import {Injectable, Inject} from 'app/app';
 import {BpmTransitionAction} from 'idoc/actions/bpm-action';
-import {TransitionAction} from 'idoc/actions/transition-action';
 import {BpmService} from 'services/rest/bpm-service';
 import {Logger} from 'services/logging/logger';
 import {ActionsService} from 'services/rest/actions-service';
@@ -36,8 +35,8 @@ export class BpmStopAction extends BpmTransitionAction {
     let currentObjectId = context.currentObject.getId();
     let actionPayload = this.bpmService.buildBPMActionPayload(currentObjectId, actionDefinition, models, OPERATION);
     return this.bpmService.stopBpm(currentObjectId, actionPayload).then((response) => {
-        this.notifyOnUpdate(actionDefinition, response);
-        return response;
+      this.notifyOnUpdate(actionDefinition, response);
+      return response;
     });
   }
 

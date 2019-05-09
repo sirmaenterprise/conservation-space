@@ -3,6 +3,7 @@ package com.sirma.itt.seip;
 import static org.junit.Assert.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +19,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
+
+import com.sirma.itt.seip.convert.DefaultTypeConverter;
+import com.sirma.itt.seip.convert.TypeConverterImpl;
 
 /**
  * Test for {@link PropertiesChanges}
@@ -95,10 +99,10 @@ public class PropertiesChangesTest {
 		assertEquals(8, changes.changes().count());
 		List<PropertyChange<Serializable>> changesList = changes.changes().collect(Collectors.toList());
 		int index = 0;
-		assertEquals(PropertyChange.add("aCollection", "value1"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aCollection", "value2"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aCollection", "value3"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aCollection", "value4"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aCollection", "value1"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aCollection", "value2"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aCollection", "value3"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aCollection", "value4"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aCollection", "value2"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aCollection", "value1"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aCollection", "value3"), changesList.get(index++));
@@ -143,13 +147,13 @@ public class PropertiesChangesTest {
 		assertEquals(12, changes.changes().count());
 		List<PropertyChange<Serializable>> changesList = changes.changes().collect(Collectors.toList());
 		int index = 0;
-		assertEquals(PropertyChange.add("aList", "value1"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value2"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value3"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value4"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value1"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value2"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value3"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value4"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value2"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value1"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value5"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value5"), changesList.get(index++));
 		assertEquals(PropertyChange.update("aList", "value6", "value5"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value6"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value3"), changesList.get(index++));
@@ -179,13 +183,24 @@ public class PropertiesChangesTest {
 		assertEquals(7, changes.changes().count());
 		List<PropertyChange<Serializable>> changesList = changes.changes().collect(Collectors.toList());
 		int index = 0;
-		assertEquals(PropertyChange.add("aList", "value1"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value2"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value3"), changesList.get(index++));
-		assertEquals(PropertyChange.add("aList", "value4"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value1"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value2"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value3"), changesList.get(index++));
+		assertEquals(PropertyChange.append("aList", "value4"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value2"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value1"), changesList.get(index++));
 		assertEquals(PropertyChange.remove("aList", "value3"), changesList.get(index++));
 	}
 
+	@Test
+	public void trackedCollectionsShouldNotCauseTypeConverterProblems() {
+		TypeConverterImpl converter = new TypeConverterImpl();
+		new DefaultTypeConverter().register(converter);
+
+		PropertiesChanges<Serializable> changes = new PropertiesChanges<>();
+		List<String> trackedList = changes.trackChanges("key", new ArrayList<>(Arrays.asList("1", "2")));
+
+		String result = converter.convert(String.class, (Object) trackedList);
+		assertEquals("1,2", result);
+	}
 }

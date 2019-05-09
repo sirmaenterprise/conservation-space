@@ -8,6 +8,7 @@ import com.sirma.itt.seip.security.configuration.SecurityExclusion;
  *
  * @author BBonev
  */
+// TODO: this sould be secured - prometheus supports authentication
 @Extension(target = SecurityExclusion.TARGET_NAME, order = 123)
 public class PrometheusSecurityExclusion implements SecurityExclusion {
 

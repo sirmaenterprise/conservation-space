@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="csIssue" parentId="issue" isAbstract="false" type="object">
+<definition id="csIssue" parentId="baseIssue" isAbstract="false" type="object">
 	<configuration>
 		<fields>
-			<field name="existingInContext" type="an..50" codelist="CL26" uri="emf:existingInContext">
+			<field name="existingInContext" >
 				<value>WITHOUT_CONTEXT</value>
 			</field>
 		</fields>
@@ -10,114 +10,55 @@
 	<fields>
 		<!-- HEADERS AND TOOLTIP -->
 		<field name="default_header" type="ANY" label="CS_ISSUE_DEFAULT_HEADER" displayType="system" />
-		<field name="compact_header" type="an..4096" label="CS_ISSUET_COMPACT_HEADER" displayType="system" />
-		<field name="breadcrumb_header" type="an..4096" label="CS_ISSUE_BREADCRUMB_HEADER" displayType="system" />
+		<field name="compact_header" type="ANY" label="CS_ISSUET_COMPACT_HEADER" displayType="system" />
+		<field name="breadcrumb_header" type="ANY" label="CS_ISSUE_BREADCRUMB_HEADER" displayType="system" />
 		<field name="tooltip_header" type="ANY" label="CS_ISSUE_TOOLTIP_HEADER" displayType="system" />
-	
-		<field name="title" type="an..1000" displayType="system" />
-		<field name="description" type="an..1500" displayType="system" />
-		<field name="issueType" type="an..180" displayType="system" />
-		<field name="priority" type="an..20" displayType="system" />
-		<field name="assignee" type="uri" displayType="system" />
-		<field name="isReporterOf" type="uri" displayType="system" />
-		<field name="references" type="uri" displayType="system" />
-		<field name="dueDate" type="dateTime" displayType="system" />
-		<field name="status" type="an..50" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system" />
-		<field name="createdBy" type="uri" displayType="system" />
-		<field name="modifiedOn" type="datetime" displayType="system" />
-		<field name="modifiedBy" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="hasAttachment" type="uri" displayType="system" />
-		<field name="attachmentOf" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="identifier" type="an..50" displayType="system" />
-		<field name="hasReporter" displayType="system" />
-		<field name="type" type="an..50" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="resolution" type="an..180" displayType="system" />
-		<field name="isDuplicatedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
+
+		<field name="partOf" displayType="system" />
+		<field name="hasParent" displayType="system" />
 	</fields>
 	
 	<regions>
 		<region id="specificInformation" order="1" displayType="editable" label="cia.specificInformation.region.label">
 			<fields>
-				<field name="issueType" type="an..20" label="csIssue.issueType.label" tooltip="csIssue.issueType.tooltip" mandatory="true" codelist="CL18" displayType="editable" previewEmpty="false" uri="emf:issueType" />
-				<field name="title" type="an..1000" label="cia.title.label" tooltip="cia.title.tooltip" mandatory="true" displayType="editable" previewEmpty="false" uri="dcterms:title" />
-				<field name="description" type="an..1500" label="cia.description.label" tooltip="cia.description.tooltip" displayType="editable" mandatory="true" previewEmpty="true" uri="dcterms:description" />
-				<field name="priority" type="an..20" codelist="CL20" label="priority.label" tooltip="csIssue.priority.tooltip" mandatory="true" displayType="editable" rnc="${to.dmsConvert(CL20,value,extra1)}|${from.dmsConvert(CL20,extra1,value)}" uri="emf:priority">
+				<field name="issueType" tooltip="csIssue.issueType.tooltip" />
+				<field name="title" tooltip="cia.title.tooltip" />
+				<field name="description" type="an..1500" displayType="editable" tooltip="cia.description.tooltip" />
+				<field name="priority" tooltip="csIssue.priority.tooltip" >
 					<value>MAJOR</value>
 				</field>
-				<field name="hasReporter" type="uri" label="csIssue.hasReporter.label" tooltip="csIssue.hasReporter.tooltip" mandatory="true" displayType="editable" uri="emf:hasReporter">
+				<field name="hasReporter" label="csIssue.hasReporter.label" tooltip="csIssue.hasReporter.tooltip" />
+				<field name="assignee" label="cia.assignee.label" tooltip="csIssue.assignee.tooltip" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
-					<value>${currentUser.id}</value>
 				</field>
-				<field name="assignee" type="uri" label="cia.assignee.label" tooltip="csIssue.assignee.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasAssignee">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-					<value>${config(help.support.email)}</value>
-				</field>
-				<field name="dueDate" type="date" label="csIssue.dueDate.label" tooltip="csIssue.dueDate.tooltip" displayType="editable" uri="emf:plannedEndDate" />
-				<field name="status" type="an..50" codelist="CL19" label="cia.status.label" tooltip="cia.status.tooltip" displayType="readonly" previewEmpty="false" uri="emf:status">
-					<condition id="hiddenFieldStatus" renderAs="HIDDEN">[status] IN ('NEW')</condition>
-				</field>
-				<field name="resolution" type="an..50" label="csIssue.resolution.label" tooltip="csIssue.resolution.tooltip" codelist="CL21" displayType="editable" previewEmpty="false" uri="emf:completedReason" >
+				<field name="dueDate" label="csIssue.dueDate.label" tooltip="csIssue.dueDate.tooltip" />
+				<field name="status" tooltip="cia.status.tooltip" />
+				<field name="resolution" tooltip="csIssue.resolution.tooltip" >
 					<condition id="hiddenFieldStatus" renderAs="HIDDEN">[status] IN ('INIT','OPEN','CLARIFY','ON_HOLD')</condition>
 					<condition id="readonlyFields" renderAs="READONLY">[status] IN ('RESOLVED','COMPLETED')</condition>
 				 </field> 
-				<field name="isDuplicatedBy" type="uri" label="csIssue.isDuplicatedBy.label" tooltip="csIssue.isDuplicatedBy.tooltip" displayType="editable" previewEmpty="false" uri="emf:isDuplicatedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Issue</control-param>
-					</control>
+				<field name="isDuplicatedBy" tooltip="csIssue.isDuplicatedBy.tooltip" >
 					<condition id="mandatoryField" renderAs="MANDATORY">[resolution] IN ('RT21003')</condition>
 				</field>
 			</fields>
 		</region>
 		<region id="systemInformation" order="2" displayType="editable" label="cia.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" codelist="CL7" label="cia.type.label" tooltip="cia.type.tooltip" displayType="readonly" uri="emf:type">
+				<field name="type" tooltip="cia.type.tooltip" >
 					<value>Issue</value>
 				</field>
-				<field name="identifier" type="an..50" label="cia.identifier.label" tooltip="cia.identifier.tooltip" displayType="readOnly" rnc="${eval(CIA-${seq({+sepSequence})})}" uri="dcterms:identifier" />
-				<field name="emf:version" type="an..10" label="object.version" tooltip="cia.version.tooltip" displayType="readOnly" uri="emf:version" />
-				<field name="createdOn" type="dateTime" label="cia.createdOn.label" tooltip="cia.createdOn.tooltip" displayType="readOnly" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" label="cia.createdBy.label" tooltip="cia.createdBy.tooltip" displayType="readOnly" uri="emf:createdBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" label="cia.modifiedOn.label" tooltip="cia.modifiedOn.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedOn" />
-				<field name="modifiedBy" type="uri" label="cia.modifiedBy.label" tooltip="cia.modifiedBy.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" label="cia.lockedBy.label" tooltip="cia.lockedBy.tooltip" previewEmpty="false" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="references" type="uri" label="csIssue.references.label" tooltip="csIssue.references.tooltip" displayType="editable" previewEmpty="false" uri="emf:references">
-					<control id="PICKER" >
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="dependsOn" type="uri" label="csIssue.dependsOn.label" tooltip="csIssue.dependsOn.tooltip" displayType="editable" multiValued="true" previewEmpty="false" uri="emf:dependsOn">
+				<field name="identifier" tooltip="cia.identifier.tooltip" rnc="${eval(CIA-${seq({+sepSequence})})}" />
+				<field name="emf:version" tooltip="cia.version.tooltip" />
+				<field name="createdOn" tooltip="cia.createdOn.tooltip" />
+				<field name="createdBy" tooltip="cia.createdBy.tooltip" />
+				<field name="modifiedOn" label="cia.modifiedOn.label" tooltip="cia.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="cia.modifiedBy.label" tooltip="cia.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="cia.lockedBy.tooltip" />
+				<field name="references" tooltip="csIssue.references.tooltip" />
+				<field name="dependsOn" type="uri" tooltip="csIssue.dependsOn.tooltip" displayType="editable" multiValued="true" previewEmpty="false" uri="emf:dependsOn">
 					<control id="PICKER">
 						<control-param id="range" name="range" />
 					</control>
@@ -132,45 +73,17 @@
 						<control-param id="range" name="range" />
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" label="cia.hasWatcher.label" tooltip="cia.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="hasThumbnail" type="uri" label="cia.hasThumbnail.label" tooltip="cia.hasThumbnail.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" label="cia.hasTemplate.label" tooltip="cia.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate">
-					<control id="PICKER">
-						<control-param id="range" name="range" />
-					</control>
-				</field>
-				<field name="parentOf" type="uri" label="cia.parentOf.label" tooltip="cia.parentOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" label="cia.hasParent.label" tooltip="cia.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasWatcher" label="cia.hasWatcher.label" tooltip="cia.hasWatcher.tooltip" previewEmpty="false" />
+				<field name="hasThumbnail" label="cia.hasThumbnail.label" tooltip="cia.hasThumbnail.tooltip" />
+				<field name="emf:hasTemplate" label="cia.hasTemplate.label" tooltip="cia.hasTemplate.tooltip" />
+				<field name="parentOf" tooltip="cia.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasChild" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 	</regions>
 	
 	<transitions>
-		<transition id="create" eventId="create" purpose="create">
+		<transition id="create" label="create" purpose="create">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value><![CDATA[
@@ -477,7 +390,7 @@
 		</transition>
 		
 		<group id="add" order="50" label="add.group.label" type="menu" />
-		<transition id="addAttachment" label="cia.addAttachment.action.label" tooltip="cia.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add">
+		<transition id="addAttachment" label="cia.addAttachment.action.label" tooltip="cia.addAttachment.action.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>{
@@ -492,7 +405,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addReferences" label="cia.addReferences.action.label" tooltip="cia.addReferences.action.tooltip" eventId="addReferences" purpose="addRelation" group="add">
+		<transition id="addReferences" label="cia.addReferences.action.label" tooltip="cia.addReferences.action.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -508,7 +421,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add">
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>{
@@ -728,7 +641,7 @@
 					${if(${get([dueDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>Due date: </label>
-							<span data-property="dueDate">${date([dueDate]).format(dd.MM.YYYY)}</span>
+							<span data-property="dueDate">${date([dueDate])}</span>
 						</span>
 					)}	
 					<span class="tooltip-row">
@@ -755,8 +668,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.YYYY, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>
@@ -766,20 +685,22 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(64)}"/></span>
                 <span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>:&nbsp;
 					<span data-property="issueType">${CL([issueType])}</span>,&nbsp;
 					<span data-property="priority">${CL([priority])}</span>&nbsp;
 					${if(${get([status])}==CLARIFY).then((<span data-property="status" style=color:#ff0000;>${CL([status])}</span>)).else((<span data-property="status">${CL([status])}</span>))}
 				</br>
-					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-						<span data-property="identifier">${get([identifier])}</span>,&nbsp;
-						<span data-property="title">${get([title])}</span>
-					</a>&nbsp;
+					<b>
+						<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="identifier">${get([identifier])}</span>,&nbsp;
+							<span data-property="title">${get([title])}</span>
+						</a>&nbsp;
+					</b>	
 					${if(${var.isVersion}).then(
-							&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
 					)}
-                	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
                 </span>)}]]>
 			</value>
 		</label>
@@ -788,8 +709,8 @@
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
 				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 							<span data-property="issueType">${CL([issueType])}</span>:&nbsp;
@@ -808,8 +729,8 @@
                 ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
                 ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
  				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span></>&nbsp;)}
 						<span data-property="identifier">${get([identifier])}</span>,&nbsp;

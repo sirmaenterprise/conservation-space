@@ -12,6 +12,14 @@ import java.util.List;
 public interface BatchDataService {
 
 	/**
+	 * Checks the job progress. Returns the number of processed items for the given job.
+	 *
+	 * @param jobId the job identifier to look for
+	 * @return the number of processed items
+	 */
+	int getJobProgress(String jobId);
+
+	/**
 	 * Assigns data item to a job with the given name and job id. Data added via this method will be returned for
 	 * by the method {@link #getBatchData(long, int, int)}
 	 * @param jobName the name of the batch job that should process the data

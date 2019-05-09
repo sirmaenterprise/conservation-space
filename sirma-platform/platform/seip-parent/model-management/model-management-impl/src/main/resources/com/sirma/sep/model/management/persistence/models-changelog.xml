@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    
+    <changeSet id="models-2.23" author="bbonev">
+        <preConditions>
+            <not>
+                <tableExists tableName="sep_model_changes" />
+            </not>
+        </preConditions>
+        <comment>Creates model changes table if not exists</comment>
+        <createTable tableName="sep_model_changes">
+            <column name="id" type="bigserial" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="smc_id_pkey" />
+            </column>
+            <column name="request_id" type="varchar(16)">
+                <constraints nullable="false" />
+            </column>
+            <column name="path" type="varchar(2048)">
+                <constraints nullable="false" />
+            </column>
+            <column name="initial_version" type="int8">
+                <constraints nullable="false"/>
+            </column>
+            <column name="applied_version" type="int8" />
+            <column name="created_by" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="change_data" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_on" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="applied_on" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="deployed_on" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="models-2.23-2" author="bbonev">
+        <comment>Add fail_to_apply column to sep_model_changes</comment>
+        <addColumn tableName="sep_model_changes">
+            <column name="failed_on" type="TIMESTAMP WITH TIME ZONE" />
+            <column name="status" type="varchar(32)" />
+            <column name="status_message" type="VARCHAR(2048)" />
+        </addColumn>
+        <update tableName="sep_model_changes">
+            <column name="status" type="varchar(32)" value="DEPLOYED" />
+            <where>deployed_on is not null</where>
+        </update>
+        <update tableName="sep_model_changes">
+            <column name="status" type="varchar(32)" value="APPLIED" />
+            <where>applied_on is not null AND deployed_on is null</where>
+        </update>
+        <update tableName="sep_model_changes">
+            <column name="status" type="varchar(32)" value="NEW" />
+            <where>status is null</where>
+        </update>
+        <addNotNullConstraint tableName="sep_model_changes" columnName="status" />
+    </changeSet>
+</databaseChangeLog>

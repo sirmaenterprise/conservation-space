@@ -1,100 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="DataImportSource" parentId="genericDataImportSource" type="object">
+<definition id="DataImportSource" parentId="baseEAI_Import" type="object">
 	<fields>
 		<!-- HEADERS AND TOOLTIP -->
-		<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER_YUL" />
-		<field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER_YUL"/>
-		<field name="breadcrumb_header" type="an..4096" label="DOCUMENT_BREADCRUMB_HEADER_YUL" />
-		<field name="tooltip_header" type="ANY" label="DOCUMENT_TOOLTIP_HEADER_YUL" />
+		<field name="default_header" type="ANY" label="DATA_IMP_SOURCE_DEFAULT_HEADER_YUL" />
+		<field name="compact_header" type="ANY" label="DATA_IMP_SOURCE_COMPACT_HEADER_YUL"/>
+		<field name="tooltip_header" type="ANY" label="DATA_IMP_SOURCE_TOOLTIP_HEADER_YUL" />
 		
 		<!-- system fields -->
-		<field name="title" type="an..1000" displayType="system" />
-		<field name="description" type="an..180" displayType="system" />
-		<field name="type" type="an..180" displayType="system" />
-		<field name="identifier" type="an..180" displayType="system" />
-		<field name="name" type="an..180" displayType="system" />
-		<field name="mimetype" type="an..20" displayType="system" />
-		<field name="size" type="n..10" displayType="system" />
-		<field name="status" type="an..35" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system" />
-		<field name="createdBy" type="uri" displayType="system" />
-		<field name="modifiedOn" type="datetime" displayType="system" />
-		<field name="modifiedBy" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system"  />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="hasThumbnail" displayType="system" />
+		<field name="hasWatcher" displayType="system" />
 	</fields>
 	<regions>	
 		<region id="generalDocumentDetails" displayType="editable" order="10" label="yul.generalData.region.label">
 			<fields>
-				<field name="title" type="an..1000" mandatory="true" displayType="editable" label="title.label" uri="dcterms:title" />
-				<field name="description" type="an..1800" displayType="editable" label="description.label" previewEmpty="false" uri="dcterms:description" />
+				<field name="title" type="an..1000" tooltip="yul.title.tooltip" />
+				<field name="description" type="an..1800" label="description.label" tooltip="yul.description.tooltip" />
 			</fields>
 		</region>
 		<region id="systemData" displayType="editable" order="20" label="yul.systemData.region.label">
 			<fields>
-				<field name="type" type="an..20" codelist="CL7" displayType="readonly" label="yul.type.label" uri="emf:type">
+				<field name="type" tooltip="yul.type.tooltip" >
 					<value>EAI_Import</value>
 				</field>
-				<field name="name" type="an..180" label="name.label" displayType="readonly" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" uri="emf:fileName" />
-				<field name="size" type="n..10" label="size.label" displayType="readonly" uri="emf:size">
-					<control id="BYTE_FORMAT" />
-				</field>
-				<field name="mimetype" type="an..20" codelist="CL30" displayType="readonly" label="mimetype.label" uri="emf:mimetype" />
-				<field name="identifier" type="an..180" displayType="readonly" label="uniqueIdentifier.label" rnc="${eval(DIS${seq({+disSequence})})}" uri="dcterms:identifier">
-					<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
-				</field>
-				<field name="status" type="an..20" displayType="readonly" codelist="CL122" label="status.label" uri="emf:status" />
-				<field name="emf:version" type="an..10" displayType="readonly" label="object.version" uri="emf:version" />
+				<field name="name" tooltip="yul.name.tooltip" />
+				<field name="size" tooltip="yul.size.tooltip" />
+				<field name="mimetype" />
+				<field name="identifier" tooltip="yul.identifier.tooltip" rnc="${eval(DIS${seq({+disSequence})})}" uri="dcterms:identifier" />
+				<field name="status" codelist="CL122" tooltip="yul.status.tooltip" />
+				<field name="emf:version" tooltip="yul.version.tooltip" />
 				<!-- object properties (relationships) -->
-				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" uri="emf:modifiedOn"/>
-				<field name="lockedBy" type="uri" displayType="readonly" label="yul.lockedBy.label" tooltip="yul.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" label="yul.hasParent.label" tooltip="yul.hasParent.tooltip" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" label="yul.partOf.label" tooltip="yul.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" label="yul.parentOf.label" tooltip="yul.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" label="yul.hasChild.label" tooltip="yul.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="createdBy" tooltip="yul.createdBy.tooltip" />
+				<field name="createdOn" tooltip="yul.createdOn.tooltip" />
+				<field name="modifiedBy" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" />
+				<field name="modifiedOn" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" />
+				<field name="lockedBy" tooltip="yul.lockedBy.tooltip" />
+				<field name="parentOf" tooltip="yul.parentOf.tooltip" />
+				<field name="hasParent" tooltip="yul.hasParent.tooltip" previewEmpty="true" />
+				<field name="partOf" displayType="readonly" tooltip="yul.partOf.tooltip" previewEmpty="true" />
+				<field name="hasChild" tooltip="yul.hasChild.tooltip"/>
+				<field name="emf:hasTemplate" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" />
 			</fields>
 		</region>	
 	</regions>
@@ -124,6 +70,8 @@
 		<transition id="managePermissions" group="more" />
 		
 		<transition id="delete" />
+		
+		<transition id="partialImportFile" label="partialImportFile.label" displayType="system" purpose="importFile" tooltip="importFile.tooltip" />
 	</transitions>
 	<stateTransitions>
 		<stateTransition from="INIT" transition="create" to="FOR_IMP" />
@@ -186,4 +134,81 @@
 	<allowedChildren>
 		<child type="object" id="DataImportReport"/>
 	</allowedChildren>
+	
+	<labels>
+		<label id="DATA_IMP_SOURCE_TOOLTIP_HEADER_YUL">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Type: </label>
+						<span data-property="type">${CL([type])}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>Version: </label>
+						<span data-property="emf:version">${get([emf:version])}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified by: </label>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
+					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
+			</span>)})}]]></value>
+		</label>
+		<label id="DATA_IMP_SOURCE_DEFAULT_HEADER_YUL">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.contentSize=${if(${get([size], 0)} <> 0).then(${get([size])}).else(${get([fileSize])})}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>
+					&nbsp;(<span data-property="status">${CL([status])}</span>)
+					<br />
+					<b>
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</b>	
+					${if(${get([mimetype])}<>null).then(&nbsp;Mimetype:&nbsp<span data-property="mimetype">${CL([mimetype])}</span>)}
+					${if(${get([size])}<>null).then(,&nbsp;Size:&nbsp;<span data-property="size">${getReadableFormat(${var.contentSize})}</span>)}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			)}]]></value>
+		</label>			
+		<label id="DATA_IMP_SOURCE_COMPACT_HEADER_YUL">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span class="truncate-element">
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span>
+				</a>&nbsp;
+				${if(${get([size])}==null).then(&nbsp;(<span data-property="status">${CL([status])}</span>))}
+				${if(${var.isVersion}).then(
+					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+				)}
+			</span>
+		)}]]></value>
+		</label>		
+	</labels>
 </definition>

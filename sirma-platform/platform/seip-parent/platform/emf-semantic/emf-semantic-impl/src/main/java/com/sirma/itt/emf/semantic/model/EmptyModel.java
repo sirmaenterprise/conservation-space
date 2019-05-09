@@ -103,6 +103,7 @@ public class EmptyModel implements Model {
 
 	@Override
 	public void clear() {
+		// empty model has nothing to clear
 	}
 
 	@Override
@@ -117,7 +118,7 @@ public class EmptyModel implements Model {
 
 	@Override
 	public Optional<Namespace> getNamespace(String paramString) {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
@@ -127,12 +128,12 @@ public class EmptyModel implements Model {
 
 	@Override
 	public void setNamespace(Namespace paramNamespace) {
-
+		// empty model has no value
 	}
 
 	@Override
 	public Optional<Namespace> removeNamespace(String paramString) {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
@@ -182,42 +183,42 @@ public class EmptyModel implements Model {
 
 	@Override
 	public Optional<Value> objectValue() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Literal> objectLiteral() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Resource> objectResource() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<IRI> objectURI() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<String> objectString() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<BNode> subjectBNode() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<Resource> subjectResource() {
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
 	public Optional<IRI> subjectIRI() {
-		return null;
+		return Optional.empty();
 	}
 
 }

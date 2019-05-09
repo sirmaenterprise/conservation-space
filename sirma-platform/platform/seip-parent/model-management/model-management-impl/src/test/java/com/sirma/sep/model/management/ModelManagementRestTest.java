@@ -3,7 +3,10 @@ package com.sirma.sep.model.management;
 import com.sirma.sep.model.management.hierarchy.ModelHierarchyClass;
 import com.sirma.sep.model.management.meta.ModelMetaInfo;
 import com.sirma.sep.model.management.meta.ModelsMetaInfo;
+import com.sirma.sep.model.management.request.ModelDeploymentRequest;
+import com.sirma.sep.model.management.request.ModelUpdateRequest;
 import com.sirma.sep.model.management.response.ModelResponse;
+import com.sirma.sep.model.management.response.ModelUpdateResponse;
 import com.sirma.sep.model.management.rest.ModelManagementRestService;
 
 import org.junit.Before;
@@ -16,9 +19,14 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import javax.ws.rs.core.Response;
 
 /**
  * Tests the model hierarchy retrieval and model select response propagation in {@link ModelManagementRestService}.
@@ -40,6 +48,8 @@ public class ModelManagementRestTest {
 		when(modelManagementService.getMetaInfo()).thenReturn(getMetaInfo());
 		when(modelManagementService.getProperties()).thenReturn(getProperties());
 		when(modelManagementService.getModel(eq("def1"))).thenReturn(getTestResponse());
+		when(modelManagementService.updateModel(any(ModelUpdateRequest.class))).thenReturn(new ModelUpdateResponse());
+		when(modelManagementService.validateDeploymentCandidates()).thenReturn(new DeploymentValidationReport());
 	}
 
 	@Test
@@ -51,7 +61,7 @@ public class ModelManagementRestTest {
 	@Test
 	public void shouldReturnModelMetaInformation() {
 		ModelsMetaInfo metaInfo = managementRestService.getMetaInfo();
-		assertEquals("searchable", metaInfo.getSemantics().get(0).getId());
+		assertEquals("searchable", metaInfo.getSemantics().iterator().next().getId());
 	}
 
 	@Test
@@ -71,11 +81,39 @@ public class ModelManagementRestTest {
 		assertNull(managementRestService.getModel("missing_model"));
 	}
 
-	private static List<ModelHierarchyClass> getTestHierarchy() {
-		ModelHierarchyClass class1 = new ModelHierarchyClass();
-		class1.setId("class1").setParentId(null);
+	@Test
+	public void shouldPropagateModelsUpdateRequest() {
+		ModelUpdateRequest updateRequest = new ModelUpdateRequest();
+		assertNotNull(managementRestService.updateModel(updateRequest));
+		verify(modelManagementService).updateModel(eq(updateRequest));
+	}
 
-		return Collections.singletonList(class1);
+	@Test
+	public void shouldProvideDeploymentValidation() {
+		assertNotNull(managementRestService.runDeploymentValidation());
+		verify(modelManagementService).validateDeploymentCandidates();
+	}
+
+	@Test
+	public void shouldProduceSuccessfulResponseForValidDeployment() {
+		when(modelManagementService.deployChanges(any(ModelDeploymentRequest.class))).thenReturn(new DeploymentValidationReport());
+		Response deploymentResponse = managementRestService.deploy(new ModelDeploymentRequest());
+		assertEquals(Response.Status.ACCEPTED.getStatusCode(), deploymentResponse.getStatus());
+	}
+
+	@Test
+	public void shouldProduceBadResponseForInvalidDeployment() {
+		DeploymentValidationReport invalidDeploymentReport = new DeploymentValidationReport();
+		invalidDeploymentReport.failedDeploymentValidationFor("invalid_node", Collections.singletonList("Error!"));
+		when(modelManagementService.deployChanges(any(ModelDeploymentRequest.class))).thenReturn(invalidDeploymentReport);
+		Response deploymentResponse = managementRestService.deploy(new ModelDeploymentRequest());
+		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), deploymentResponse.getStatus());
+	}
+
+	private static List<ModelHierarchyClass> getTestHierarchy() {
+		ModelClass modelClass = new ModelClass().setId("class1");
+		ModelHierarchyClass hierarchyClass = new ModelHierarchyClass(modelClass);
+		return Collections.singletonList(hierarchyClass);
 	}
 
 	private static ModelsMetaInfo getMetaInfo() {

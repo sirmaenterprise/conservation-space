@@ -2,7 +2,6 @@ package com.sirma.sep.definition;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,9 +15,10 @@ public interface DefinitionImportService {
 	 * Validates definition files within a directory tree.
 	 *
 	 * @param path directory tree where definition files are stored.
-	 * @return list of validation errors.
+	 * @return validation result containing any validation errors and the compiled definitions that were validated. The result could contain
+	 * 			empty definitions list if the validation process couldn't compile them at all.
 	 */
-	Collection<String> validate(Path path);
+	DefinitionValidationResult validate(Path path);
 
 	/**
 	 * Compiles and persists definitions within a directory tree.

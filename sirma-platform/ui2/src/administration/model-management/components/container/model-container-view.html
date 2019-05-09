@@ -1,0 +1,22 @@
+<div class="model-container panel panel-default">
+  <div class="panel-heading container-header" ng-click="modelContainerView.onContainerToggle()">
+    <span class="container-label">
+      <i class="fa"
+         ng-class="{'fa-caret-down': modelContainerView.expanded, 'fa-caret-right': !modelContainerView.expanded}"></i>
+      <span class="container-name" ng-class="{'model-dirty': modelContainerView.isDirty()}">
+        {{ modelContainerView.model.getDescription().getValue() }}
+      </span>
+       <i class="container-parent" ng-if="modelContainerView.isParentVisible()">
+      ({{ modelContainerView.model.getParent().getDescription().getValue() }})
+    </i>
+    </span>
+
+    <div class="container-buttons">
+      <model-select class="attributes" on-select="modelContainerView.selectModel(event)"></model-select>
+    </div>
+  </div>
+
+  <div class="container-body panel-body" ng-if="modelContainerView.expanded">
+    <ng-transclude></ng-transclude>
+  </div>
+</div>

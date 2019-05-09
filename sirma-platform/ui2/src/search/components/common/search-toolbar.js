@@ -120,9 +120,9 @@ export class SearchToolbar extends Configurable {
     let orderBy = this.getOrderBy(orderByData, mediatorArguments.orderBy);
 
     this.orderToolbar = {
-      orderBy: orderBy,
-      orderByData: orderByData,
-      orderDirection: orderDirection
+      orderBy,
+      orderByData,
+      orderDirection
     };
     this.relevancyOption = orderByData[0];
   }
@@ -268,9 +268,9 @@ export class SearchToolbar extends Configurable {
 
   assignSearchMediatorArguments(params) {
     let args = params || {
-        orderBy: this.orderToolbar.orderBy,
-        orderDirection: this.orderToolbar.orderDirection
-      };
+      orderBy: this.orderToolbar.orderBy,
+      orderDirection: this.orderToolbar.orderDirection
+    };
     this.config.searchMediator.arguments.orderBy = args.orderBy;
     this.config.searchMediator.arguments.orderDirection = args.orderDirection;
   }

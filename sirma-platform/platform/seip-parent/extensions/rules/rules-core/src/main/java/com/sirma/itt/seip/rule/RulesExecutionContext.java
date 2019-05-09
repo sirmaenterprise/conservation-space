@@ -14,7 +14,6 @@ import com.sirma.itt.emf.rule.InstanceRule;
 import com.sirma.itt.emf.rule.RuleContext;
 import com.sirma.itt.emf.rule.RuleState;
 import com.sirma.itt.emf.rule.invoker.RuleExecutionStatusAccessor;
-import com.sirma.itt.seip.monitor.StatCounter;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.security.util.SecureCallable;
@@ -33,7 +32,6 @@ public class RulesExecutionContext extends SecureCallable<Void>implements RuleEx
 
 	private final Deque<InstanceRule> rulesToRun;
 	private final RuleContext context;
-	private final StatCounter activeCounter;
 	private final TimeTracker ruleTimeTracker;
 	private final Deque<InstanceRule> failedRules = new ConcurrentLinkedDeque<>();
 	private final Deque<InstanceRule> ranRules = new ConcurrentLinkedDeque<>();
@@ -64,7 +62,7 @@ public class RulesExecutionContext extends SecureCallable<Void>implements RuleEx
 	 */
 	@SuppressWarnings("unchecked")
 	protected RulesExecutionContext(List<InstanceRule> rulesToRun, RuleContext context, Statistics statistics,
-			StatCounter activeCounter, Collection<RuleExecutionStatusAccessor> unregisterFrom,
+			Collection<RuleExecutionStatusAccessor> unregisterFrom,
 			TransactionSupport transactionSupport, SecurityContextManager securityContextManager) {
 		super(securityContextManager);
 		this.transactionSupport = transactionSupport;
@@ -74,11 +72,8 @@ public class RulesExecutionContext extends SecureCallable<Void>implements RuleEx
 			this.rulesToRun = new LinkedList<>(rulesToRun);
 		}
 		this.context = context;
-		this.activeCounter = activeCounter;
 		this.unregisterFrom = unregisterFrom;
-
-		ruleTimeTracker = statistics.createTimeStatistics(null, "RuleExecutionTime");
-		statistics.logTrend(null, "TriggeredRules", rulesToRun.size());
+		this.ruleTimeTracker = new TimeTracker();
 	}
 
 	@Override
@@ -108,7 +103,7 @@ public class RulesExecutionContext extends SecureCallable<Void>implements RuleEx
 	private boolean invokeRule(InstanceRule instanceRule) {
 		try {
 			return transactionSupport
-					.invokeInTx(new RuleCallable(instanceRule, context, ruleTimeTracker, activeCounter));
+					.invokeInTx(new RuleCallable(instanceRule, context, ruleTimeTracker));
 		} catch (Exception e) {
 			LOGGER.warn("Rule [{}] invocation failed due to: ", instanceRule.getRuleInstanceName(), e.getMessage(), e);
 			return false;

@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.instance.validator;
 
+import static java.util.stream.Collectors.collectingAndThen;
+
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,13 +30,8 @@ public class ChainingValidatorService implements Validator {
 	public void validate(ValidationContext validationContext) {
 		validators.forEach(validator -> validator.validate(validationContext));
 		if (CollectionUtils.isNotEmpty(validationContext.getMessages())) {
-			String errorMessage = validationContext
-					.getMessages()
-						.stream()
-						.map(Message::getMessage)
-						.collect(Collectors.joining(", "));
-			throw new InstanceValidationException(errorMessage);
+			throw validationContext.getMessages().stream().map(Message::getMessage)
+						.collect(collectingAndThen(Collectors.joining(", "), InstanceValidationException::new));
 		}
 	}
-
 }

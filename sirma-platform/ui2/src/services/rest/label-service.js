@@ -1,7 +1,7 @@
 import {Inject, Injectable} from 'app/app';
 import {RestClient} from 'services/rest-client';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
-import {Labels} from 'services/rest/labels';
+import labels from 'services/rest/labels';
 
 const serviceUrl = '/label';
 
@@ -12,11 +12,11 @@ export class LabelRestService {
   constructor(restClient, promiseAdapter) {
     this.restClient = restClient;
     this.promiseAdapter = promiseAdapter;
-    this.prepareTranslationLabels(Labels.DATA);
+    this.prepareTranslationLabels();
   }
 
-  prepareTranslationLabels(languages) {
-    Object.keys(languages).forEach(language => this.clearEmptyTranslationLabels(languages[language]));
+  prepareTranslationLabels() {
+    Object.keys(labels).forEach(language => this.clearEmptyTranslationLabels(labels[language]));
   }
 
   clearEmptyTranslationLabels(language) {
@@ -25,12 +25,11 @@ export class LabelRestService {
 
   getLabels(language) {
     return this.promiseAdapter.promise((resolve) => {
-      resolve(Labels.DATA[language]);
+      resolve(labels[language]);
     });
   }
 
   getDefinitionLabels(data) {
     return this.restClient.post(serviceUrl + '/multi', data);
   }
-
 }

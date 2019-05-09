@@ -1,5 +1,13 @@
 package com.sirma.sep.cls;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.sirma.sep.cls.db.CodeEntityDao;
 import com.sirma.sep.cls.db.entity.CodeDescriptionEntity;
 import com.sirma.sep.cls.db.entity.CodeEntity;
@@ -10,18 +18,12 @@ import com.sirma.sep.cls.model.CodeDescription;
 import com.sirma.sep.cls.model.CodeList;
 import com.sirma.sep.cls.model.CodeValue;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * Implementation of {@link CodeListService} for retrieving {@link CodeListEntity} & {@link CodeValueEntity} and converting them into their
- * corresponding API classes {@link CodeList} & {@link CodeValue}.
+ * Implementation of {@link CodeListService} for retrieving {@link CodeListEntity} & {@link CodeValueEntity} and
+ * converting them into their corresponding API classes {@link CodeList} & {@link CodeValue}.
  * <p>
- * It uses {@link CodeEntityDao} as its data access but does not provide means for modifying existing entities or creating new ones. For
- * that see {@link com.sirma.itt.emf.cls.service.CodeListManagementService}.
+ * It uses {@link CodeEntityDao} as its data access but does not provide means for modifying existing entities or
+ * creating new ones. For that see {@link com.sirma.itt.emf.cls.service.CodeListManagementService}.
  *
  * @author Mihail Radkov
  */
@@ -36,18 +38,27 @@ public class CodeListServiceImpl implements CodeListService {
 	}
 
 	@Override
+	public Optional<CodeList> getCodeList(String codeList) {
+		return getCodeList(codeList, false);
+	}
+
+	@Override
+	public Optional<CodeList> getCodeList(String codeList, boolean loadValues) {
+		CodeListEntity entity = dao.getOrCreateCodeList(codeList, loadValues);
+		if (entity.exists()) {
+			return Optional.of(transform(entity));
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public List<CodeList> getCodeLists() {
 		return getCodeLists(false);
 	}
 
 	@Override
 	public List<CodeList> getCodeLists(boolean loadValues) {
-		return dao.getCodeLists(loadValues).stream().map(listEntity -> {
-			CodeList convertedList = toList(listEntity);
-			List<CodeValue> convertedValues = toValues(listEntity.getValues());
-			convertedList.setValues(convertedValues);
-			return convertedList;
-		}).collect(Collectors.toList());
+		return dao.getCodeLists(loadValues).stream().map(CodeListServiceImpl::transform).collect(Collectors.toList());
 	}
 
 	@Override
@@ -59,7 +70,23 @@ public class CodeListServiceImpl implements CodeListService {
 		return Collections.emptyList();
 	}
 
+	@Override
+	public Optional<CodeValue> getCodeValue(String codeList, String codeValue) {
+		CodeValueEntity valueEntity = dao.getOrCreateCodeValue(codeList, codeValue);
+		if (valueEntity.exists()) {
+			return Optional.of(toValue(valueEntity));
+		}
+		return Optional.empty();
+	}
+
 	// DB -> API
+
+	private static CodeList transform(CodeListEntity listEntity) {
+		CodeList convertedList = toList(listEntity);
+		List<CodeValue> convertedValues = toValues(listEntity.getValues());
+		convertedList.setValues(convertedValues);
+		return convertedList;
+	}
 
 	private static CodeList toList(CodeListEntity listEntity) {
 		CodeList codeList = new CodeList();
@@ -89,11 +116,17 @@ public class CodeListServiceImpl implements CodeListService {
 	}
 
 	private static void transferListDescriptions(Code code, CodeListEntity listEntity) {
-		code.setDescriptions(listEntity.getDescriptions().stream().map(CodeListServiceImpl::toDescription).collect(Collectors.toList()));
+		code.setDescriptions(listEntity.getDescriptions()
+				.stream()
+				.map(CodeListServiceImpl::toDescription)
+				.collect(Collectors.toList()));
 	}
 
 	private static void transferValueDescriptions(Code code, CodeValueEntity valueEntity) {
-		code.setDescriptions(valueEntity.getDescriptions().stream().map(CodeListServiceImpl::toDescription).collect(Collectors.toList()));
+		code.setDescriptions(valueEntity.getDescriptions()
+				.stream()
+				.map(CodeListServiceImpl::toDescription)
+				.collect(Collectors.toList()));
 	}
 
 	private static CodeDescription toDescription(CodeDescriptionEntity descriptionEntity) {

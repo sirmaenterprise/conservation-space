@@ -4,7 +4,6 @@ import {Versions} from 'idoc/system-tabs/versions/versions';
 import {PromiseStub} from 'test/promise-stub';
 import {Configuration} from 'common/application-config';
 import {TranslateService} from 'services/i18n/translate-service';
-import {AuthenticationService} from 'services/security/authentication-service';
 import {NotificationService} from 'services/notification/notification-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 
@@ -17,7 +16,6 @@ describe('Versions', () => {
   let instanceRestService;
   let configuration;
   let translateService;
-  let authenticationService;
   let notificationService;
 
   beforeEach(()=> {
@@ -25,10 +23,9 @@ describe('Versions', () => {
     instanceRestService = decorateInstanceRestService(stub(InstanceRestService));
     configuration = decorateConfiguration(stub(Configuration));
     translateService = stub(TranslateService);
-    authenticationService = stub(AuthenticationService);
     let $scope = decorateScope();
     notificationService = stub(NotificationService);
-    versions = new Versions(instanceRestService, configuration, new MomentAdapter(), translateService, authenticationService, $scope, notificationService);
+    versions = new Versions(instanceRestService, configuration, new MomentAdapter(), translateService, $scope, notificationService);
   });
 
   describe('ngOnInit', ()=> {
@@ -207,16 +204,13 @@ describe('Versions', () => {
     versions.handleSelection({id: 'asdf', selected: false});
     versions.handleSelection({id: 'afsd', selected: false});
     instanceRestService.compareVersions.returns(PromiseStub.reject());
-    let spyDecorateDownloadUri = sinon.spy(versions, 'decorateDownloadURI');
 
     versions.compareVersions().then(()=> {
       expect(versions.notificationService.remove.called).to.be.true;
       expect(versions.notificationService.warning.called).to.be.true;
-      expect(spyDecorateDownloadUri.called).to.be.false;
 
-      spyDecorateDownloadUri.restore();
       done();
-    });
+    }).catch(done);
   });
 
   it('should call compare versions rest', ()=> {
@@ -224,8 +218,11 @@ describe('Versions', () => {
     let versionTwoId = 'emf:second';
     let expectedParameters = ['emf:111222', versionOneId, versionTwoId];
     decorateVersionsInstance(versions, true, 'documentinstance');
-    versions.selectedVersions = [{id: versionOneId}, {id: versionTwoId}];
+    versions.selectedVersions = [
+      {id: versionOneId, properties: {'emf:version': '1'}}, {id: versionTwoId, properties: {'emf:version': '2'}}
+    ];
 
+    instanceRestService.compareVersions.returns(PromiseStub.resolve({}));
     versions.compareVersions();
 
     expect(instanceRestService.compareVersions.called).to.be.true;

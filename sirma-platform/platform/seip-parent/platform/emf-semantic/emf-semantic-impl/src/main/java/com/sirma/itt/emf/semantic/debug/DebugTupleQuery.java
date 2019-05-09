@@ -1,13 +1,10 @@
 package com.sirma.itt.emf.semantic.debug;
 
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.Dataset;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.TupleQueryResultHandler;
-import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 import com.sirma.itt.emf.semantic.info.SemanticOperationLogger;
 
@@ -16,10 +13,7 @@ import com.sirma.itt.emf.semantic.info.SemanticOperationLogger;
  * 
  * @author kirq4e
  */
-public class DebugTupleQuery implements TupleQuery {
-
-	private TupleQuery query;
-	private String queryString;
+public class DebugTupleQuery extends AbstractDebugQuery<TupleQuery> implements TupleQuery {
 
 	/**
 	 * Initializes the instance and delegate
@@ -30,90 +24,30 @@ public class DebugTupleQuery implements TupleQuery {
 	 *            The String representation of the query, because it cannot be retrieved from the query instance
 	 */
 	public DebugTupleQuery(TupleQuery query, String queryString) {
-		this.query = query;
-		this.queryString = queryString;
+		super(query, queryString);
 	}
 
 	@Override
-	public void setMaxQueryTime(int maxQueryTime) {
-		getQuery().setMaxQueryTime(maxQueryTime);
-	}
-
-	@Override
-	public int getMaxQueryTime() {
-		return getQuery().getMaxQueryTime();
-	}
-
-	@Override
-	public void setBinding(String name, Value value) {
-		getQuery().setBinding(name, value);
-	}
-
-	@Override
-	public void removeBinding(String name) {
-		getQuery().removeBinding(name);
-	}
-
-	@Override
-	public void clearBindings() {
-		getQuery().clearBindings();
-	}
-
-	@Override
-	public BindingSet getBindings() {
-		return getQuery().getBindings();
-	}
-
-	@Override
-	public void setDataset(Dataset dataset) {
-		getQuery().setDataset(dataset);
-	}
-
-	@Override
-	public Dataset getDataset() {
-		return getQuery().getDataset();
-	}
-
-	@Override
-	public void setIncludeInferred(boolean includeInferred) {
-		getQuery().setIncludeInferred(includeInferred);
-	}
-
-	@Override
-	public boolean getIncludeInferred() {
-		return getQuery().getIncludeInferred();
-	}
-
-	@Override
-	public void setMaxExecutionTime(int maxExecTime) {
-		getQuery().setMaxExecutionTime(maxExecTime);
-	}
-
-	@Override
-	public int getMaxExecutionTime() {
-		return getQuery().getMaxExecutionTime();
-	}
-
-	@Override
-	public TupleQueryResult evaluate() throws QueryEvaluationException {
-		SemanticOperationLogger.addLogOperation(SemanticOperationLogger.TUPLE_QUERY_OPERATION, queryString,
+	public TupleQueryResult evaluate() {
+		SemanticOperationLogger.addLogOperation(SemanticOperationLogger.TUPLE_QUERY_OPERATION, getQueryString(),
 				getBindings());
-		return getQuery().evaluate();
+		try {
+			return getDelegate().evaluate();
+		} catch (RepositoryException | QueryEvaluationException re) {
+			DebugRepositoryConnection.onRepositoryException(re);
+			throw re;
+		}
 	}
 
 	@Override
-	public void evaluate(TupleQueryResultHandler handler)
-			throws QueryEvaluationException, TupleQueryResultHandlerException {
-		SemanticOperationLogger.addLogOperation(SemanticOperationLogger.TUPLE_QUERY_OPERATION, queryString,
+	public void evaluate(TupleQueryResultHandler handler) {
+		SemanticOperationLogger.addLogOperation(SemanticOperationLogger.TUPLE_QUERY_OPERATION, getQueryString(),
 				getBindings());
-		getQuery().evaluate(handler);
+		try {
+			getDelegate().evaluate(handler);
+		} catch (RepositoryException | QueryEvaluationException re) {
+			DebugRepositoryConnection.onRepositoryException(re);
+			throw re;
+		}
 	}
-
-	/**
-	 * @return the query
-	 */
-	public TupleQuery getQuery() {
-		return query;
-	}
-
 }

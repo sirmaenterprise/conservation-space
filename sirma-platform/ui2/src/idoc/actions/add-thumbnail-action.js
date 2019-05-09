@@ -11,7 +11,6 @@ import {InstanceRestService, EDIT_OPERATION_NAME} from 'services/rest/instance-s
 import {IDOC_PAGE_ACTIONS_PLACEHOLDER} from 'idoc/idoc-constants';
 import {ThumbnailUpdatedEvent} from 'idoc/actions/events/thumbnail-updated-event';
 import {Eventbus} from 'services/eventbus/eventbus';
-import {InstanceObject} from 'models/instance-object';
 
 import _ from 'lodash';
 import {InstanceObjectWrapper} from 'models/instance-object-wrapper';

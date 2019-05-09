@@ -6,7 +6,12 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +22,6 @@ import java.util.Optional;
 
 import javax.json.JsonObject;
 
-import com.sirma.itt.seip.search.converters.JsonToDateRangeConverter;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
@@ -32,6 +36,7 @@ import com.sirma.itt.seip.domain.search.SearchRequest;
 import com.sirma.itt.seip.domain.search.tree.SearchCriteriaBuilder;
 import com.sirma.itt.seip.search.SearchService;
 import com.sirma.itt.seip.search.converters.JsonToConditionConverter;
+import com.sirma.itt.seip.search.converters.JsonToDateRangeConverter;
 import com.sirma.sep.content.idoc.extensions.widgets.utils.WidgetMock;
 import com.sirma.sep.content.idoc.handler.ContentNodeHandler;
 import com.sirma.sep.content.idoc.handler.ContentNodeHandler.HandlerContext;
@@ -99,6 +104,7 @@ public class AggregatedTableSearchHandlerTest {
 		testHandle(AGGREGATED_TABLE_CONFIG_WITHOUT_GROUPBY);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void testHandle(String resource) throws IOException {
 		Element node = new Element(Tag.valueOf("div"), "");
 		when(jsonToConditionConverter.parseCondition(any(JsonObject.class))).thenReturn(

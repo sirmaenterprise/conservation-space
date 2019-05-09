@@ -20,10 +20,12 @@ describe('Controlled vocabularies management - browsing', () => {
   it('should list the available control vocabularies in the system', () => {
     openPage();
     management.getCodeLists().then(codeLists => {
-      expect(codeLists.length).to.equal(3);
+      expect(codeLists.length).to.equal(5);
       assertCodeListHeader(codeLists[0], '1', 'Project state');
       assertCodeListHeader(codeLists[1], '2', 'Project type');
-      assertCodeListHeader(codeLists[2], '13', 'Language');
+      assertCodeListHeader(codeLists[2], '3', 'Level');
+      assertCodeListHeader(codeLists[3], '13', 'Language');
+      assertCodeListHeader(codeLists[4], '555', 'Country');
     });
   });
 
@@ -50,12 +52,15 @@ describe('Controlled vocabularies management - browsing', () => {
       let projectTypeDetails = codeLists[1].open().getDetails();
       assertCodeDetails(projectTypeDetails, '2', 'Project type', '', 'One extra', 'Two extras', 'Three extras');
 
-      let languageDetails = codeLists[2].open().getDetails();
+      let levelDetails = codeLists[2].open().getDetails();
+      assertCodeDetails(levelDetails, '3', 'Level', '', '', '', '');
+
+      let languageDetails = codeLists[3].open().getDetails();
       assertCodeDetails(languageDetails, '13', 'Language', '', '', '', '');
     });
   });
 
-  it('should display control vocabulary descriptions in different languages', () => {
+  it('should display control vocabulary descriptions in different languages ordered alphabetically', () => {
     openPage();
     management.getCodeLists().then(codeLists => {
       let projectStateDetails = codeLists[0].open().getDetails();
@@ -117,7 +122,7 @@ describe('Controlled vocabularies management - browsing', () => {
           assertCodeDescriptions(descriptions[0], 'BG', 'Одобрен', '');
           assertCodeDescriptions(descriptions[1], 'DE', 'Genehmigt', 'Die Genehmigt projektstatus');
           assertCodeDescriptions(descriptions[2], 'EN', 'Approved', 'The approved project states');
-          assertCodeDescriptions(descriptions[3], 'FI', '', '');
+          assertCodeDescriptions(descriptions[3], 'FI', '', 'Null to test the validation');
         });
       });
     });
@@ -128,7 +133,8 @@ describe('Controlled vocabularies management - browsing', () => {
     management.getCodeLists().then(codeLists => {
       assertCodeListHeader(codeLists[0], '1', 'Projektstatus');
       assertCodeListHeader(codeLists[1], '2', 'Projekttyp');
-      assertCodeListHeader(codeLists[2], '13', 'Sprache');
+      assertCodeListHeader(codeLists[2], '3', 'Level');
+      assertCodeListHeader(codeLists[3], '13', 'Sprache');
 
       let projectState = codeLists[0].open();
       assertCodeDetails(projectState.getDetails(), '1', 'Projektstatus', 'Die verfügbaren Projektstatus', '', '', '');
@@ -145,7 +151,8 @@ describe('Controlled vocabularies management - browsing', () => {
     management.getCodeLists().then(codeLists => {
       assertCodeListHeader(codeLists[0], '1', 'Project state');
       assertCodeListHeader(codeLists[1], '2', 'Project type');
-      assertCodeListHeader(codeLists[2], '13', 'Language');
+      assertCodeListHeader(codeLists[2], '3', 'Level');
+      assertCodeListHeader(codeLists[3], '13', 'Language');
     });
   });
 

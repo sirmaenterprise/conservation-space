@@ -13,6 +13,7 @@ import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests {@link MultiLanguageValue}.
@@ -37,19 +38,20 @@ public class MultiLanguageValueTest {
 
 	@Test
 	public void test_getValues_directHit() {
-		assertEquals("Das ist ein Titel!", cut.getValues("DEUTSCH"));
+		assertEquals("Das ist ein Titel!", cut.getValues("DEUTSCH").findFirst().orElse(null));
 	}
 
 	@Test
-	public void test_getValues_firstValidValueAfterMiss() {
-		assertEquals("Das ist ein Titel!", cut.getValues("Something"));
+	public void test_hasValue_shouldCheckIfLanguageExists() {
+		assertFalse(cut.hasValueForLanguage("something"));
+		assertTrue(cut.hasValueForLanguage("GERMAN"));
 	}
 
-	@Test(expected = EmfRuntimeException.class)
+	@Test
 	public void test_getValues_nullMap() {
 		Map<String, Serializable> languageToValueMapping = null;
 		Whitebox.setInternalState(cut, "languageToValueMapping", languageToValueMapping);
-		cut.getValues("English");
+		assertEquals(0, cut.getValues("English").count());
 	}
 
 	@Test
@@ -68,13 +70,27 @@ public class MultiLanguageValueTest {
 	public void addValue() {
 		cut.addValue("English", "Hello");
 		assertEquals(3, cut.getAllValues().count());
-		assertEquals("Hello", cut.getValues("English"));
+		assertEquals("Hello", cut.getValues("English").findFirst().orElse(null));
 	}
 
 	@Test
 	public void addValue_sameLanguage() {
 		cut.addValue("DEUTSCH", "HALLO");
-		assertEquals(2, cut.getAllValues().count());
-		assertTrue(cut.getValues("DEUTSCH") instanceof Set);
+		assertEquals(3, cut.getAllValues().count());
+		assertEquals(2L, cut.getValues("DEUTSCH").count());
+	}
+
+	@Test
+	public void addValue_shouldIgnoreNullOrEmptyValues() {
+		MultiLanguageValue multiLanguageValue = new MultiLanguageValue();
+
+		multiLanguageValue.addValue("en", null);
+		assertEquals(0, multiLanguageValue.getAllValues().count());
+
+		multiLanguageValue.addValue("en", "");
+		assertEquals(0, multiLanguageValue.getAllValues().count());
+
+		multiLanguageValue.addValue("en", "\n  \t");
+		assertEquals(0, multiLanguageValue.getAllValues().count());
 	}
 }

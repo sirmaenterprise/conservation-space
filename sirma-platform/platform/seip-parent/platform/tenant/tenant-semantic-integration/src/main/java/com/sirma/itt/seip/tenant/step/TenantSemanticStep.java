@@ -16,6 +16,7 @@ import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.semantic.SemanticRepositoryProvisioning;
 import com.sirma.itt.seip.tenant.semantic.TenantSemanticContext;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -62,8 +63,10 @@ public class TenantSemanticStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
 		try {
+			TenantInfo tenantInfo = context.getTenantInfo();
+
 			securityContextManager.initializeTenantContext(tenantInfo.getTenantId());
 			TenantSemanticContext semanticContext = new TenantSemanticContext();
 			semanticContext.setRepoName(semanticConfiguration.getRepositoryName().get());

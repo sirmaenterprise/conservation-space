@@ -2,16 +2,22 @@ package com.sirma.itt.emf.semantic.persistence;
 
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.SEMANTIC_TYPE;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.ejb.EJBException;
 
@@ -39,6 +45,8 @@ import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
+import com.sirma.itt.seip.event.EmfEvent;
+import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.instance.InstanceTypes;
 import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.monitor.NoOpStatistics;
@@ -72,12 +80,15 @@ public class SemanticDaoTest extends GeneralSemanticTest<DbDao> {
 
 	final String expectedOwningInstanceId = "emf:my-case";
 	private RepositoryConnection repositoryConnection;
+	private EventService eventService;
 
 	/**
 	 * Initialize class under test.
 	 */
 	@BeforeClass
 	public void initializeClassUnderTest() {
+		eventService = mock(EventService.class);
+		context.put("eventService", eventService);
 		namespaceRegistryService = new NamespaceRegistryMock(context);
 		ReflectionUtils.setFieldValue(cut, "namespaceRegistryService", namespaceRegistryService);
 		ReflectionUtils.setFieldValue(cut, "definitionService", new DefinitionServiceMock());
@@ -129,6 +140,7 @@ public class SemanticDaoTest extends GeneralSemanticTest<DbDao> {
 		repositoryConnection = connectionFactory.produceManagedConnection();
 
 		ReflectionUtils.setFieldValue(cut, "repositoryConnection", repositoryConnection);
+		reset(eventService);
 	}
 
 	/**
@@ -284,6 +296,42 @@ public class SemanticDaoTest extends GeneralSemanticTest<DbDao> {
 
 		BooleanQuery booleanQuery = repositoryConnection.prepareBooleanQuery(QueryLanguage.SPARQL, query.toString());
 		Assert.assertTrue(booleanQuery.evaluate());
+	}
+
+	@Test
+	public void saveInstance_shouldFireRemoveRelationsBeforeAddRelations() throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+
+		Instance instance = createInstance("some value that should be updated", Boolean.FALSE);
+
+		// save the instance that will be updated later
+		Instance updated = cut.saveOrUpdate(instance, null);
+
+		Instance newInstance = createInstance(expectedStringPropertyValue, expectedBooleanPropertyValue);
+		newInstance.remove(expectedSubInstancePropertyName);
+		newInstance.add("uriField", "emf:new-link-to");
+
+		newInstance.setId(updated.getId());
+
+		checkEventOrder();
+
+		cut.saveOrUpdate(newInstance, updated);
+
+		commitTransaction();
+
+		verify(eventService, times(11)).fire(any());
+	}
+
+	private void checkEventOrder() {
+		AtomicBoolean check = new AtomicBoolean(true);
+		doAnswer(a -> {
+			EmfEvent event = a.getArgumentAt(0, EmfEvent.class);
+			if (event instanceof AddRelationEvent) {
+				check.set(false);
+			} else if (event instanceof RemoveRelationEvent) {
+				assertTrue(check.get(), "Add event fired first. It should be after remove event:");
+			}
+			return null;
+		}).when(eventService).fire(any());
 	}
 
 	@Test

@@ -23,6 +23,6 @@ public interface SheetValidator {
 	 * @throws SheetValidatorException
 	 *             if the validating encounters a problem
 	 */
-	Sheet getValidatedCodeListSheet(InputStream inputStream) throws SheetValidatorException;
+	Sheet getValidatedCodeListSheet(InputStream inputStream);
 
 }

@@ -32,8 +32,8 @@ export class EventEmitter {
    */
   subscribe(event, handler) {
     if (event === undefined) {
-      throw new Error("Can't subscribe to undefined topic");
-    } else if (!(typeof handler === 'function')) {
+      throw new Error('Can\'t subscribe to undefined topic');
+    } else if (typeof handler !== 'function') {
       throw new Error('The subscription handler must be a function');
     }
     this.subscriptions[event] = this.subscriptions[event] || [];

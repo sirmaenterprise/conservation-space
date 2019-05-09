@@ -1,6 +1,5 @@
 import {Editor} from 'idoc/editor/idoc-editor';
 import {IdocMocks} from 'test/idoc/idoc-mocks';
-import {Eventbus} from 'services/eventbus/eventbus';
 import {EditorResizedEvent} from 'idoc/editor/editor-resized-event';
 import {ResizeDetectorAdapterMock} from 'test/adapters/resize-detector-adapter-mock';
 
@@ -11,15 +10,16 @@ describe('IdocEditor', () => {
     };
     let eventbus = {
       subscribe: () => {
-        return unsubscribeSpy
+        return unsubscribeSpy;
       }
     };
     let idocEditor = instantiateEditor(eventbus);
     idocEditor.idocEditorFactory.destroy = () => {
     };
     idocEditor.editorIdocEditorResizeListener = sinon.spy();
+    idocEditor.ngAfterViewInit();
     idocEditor.ngOnDestroy();
-    expect(unsubscribeSpy.unsubscribe.callCount).to.equal(8);
+    expect(unsubscribeSpy.unsubscribe.callCount).to.equal(7);
     expect(idocEditor.editorIdocEditorResizeListener.callCount).to.equal(1);
   });
 
@@ -64,12 +64,12 @@ function instantiateEditor(eventbus) {
   };
   $element.parent = () => {
     return {
-      0: document.createElement("DIV"),
+      0: document.createElement('DIV'),
       width: () => {
       },
       height: () => {
       }
-    }
+    };
   };
   return new Editor(IdocMocks.mockScope(), {}, $element, {}, eventbus || IdocMocks.mockEventBus(), {}, {}, {}, ResizeDetectorAdapterMock.mockAdapter());
 }

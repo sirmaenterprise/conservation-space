@@ -56,7 +56,7 @@ export class PrintService {
   addPrintFrame(url) {
     $('body').append(PrintService.getIframe({
       id: '',// set instance id
-      url: url,
+      url,
       // frame dimensions have to be set in order to have proper element sizes when document is printed
       frameWidth: $(window).width(),
       frameHeight: $(window).height()

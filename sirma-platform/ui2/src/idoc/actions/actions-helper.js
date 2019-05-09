@@ -8,7 +8,7 @@ export class ActionsHelper {
   static getActionsLoaderConfig(currentObject, placeholder) {
     return {
       'context-id': null,
-      placeholder: placeholder,
+      placeholder,
       path: currentObject.getContextPathIds()
     };
   }
@@ -34,8 +34,8 @@ export class ActionsHelper {
   static getFilterCriteria(leaveDisabled, root, pathParam, placeholder) {
     return {
       disabled: leaveDisabled,
-      root: root,
-      pathParam: pathParam,
+      root,
+      pathParam,
       handlers: ActionsHelper.collectImplementedHandlers(placeholder)
     };
   }
@@ -166,4 +166,3 @@ export class ActionsHelper {
   }
 
 }
-

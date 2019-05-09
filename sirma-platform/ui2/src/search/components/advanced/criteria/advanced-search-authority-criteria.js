@@ -24,9 +24,7 @@ import template from './advanced-search-authority-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 export class AdvancedSearchAuthorityCriteria extends Configurable {
   constructor() {
     super({

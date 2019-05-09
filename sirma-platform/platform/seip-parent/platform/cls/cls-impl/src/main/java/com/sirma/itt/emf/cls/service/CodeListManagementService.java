@@ -80,7 +80,7 @@ public class CodeListManagementService {
 	 * @param codeValue
 	 *            - the code value to create or update
 	 */
-	private void saveCodeValue(CodeValue codeValue) {
+	public void saveCodeValue(CodeValue codeValue) {
 		CodeValueEntity valueEntity = dao.getOrCreateCodeValue(codeValue.getCodeListValue(), codeValue.getValue());
 		if (valueEntity.exists()) {
 			updateExistingCodeValue(valueEntity, codeValue);

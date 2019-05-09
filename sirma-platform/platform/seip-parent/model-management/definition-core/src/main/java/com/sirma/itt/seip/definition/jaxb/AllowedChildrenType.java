@@ -64,4 +64,7 @@ public class AllowedChildrenType {
 		return child;
 	}
 
+	public void setChild(List<ChildType> child) {
+		this.child = child;
+	}
 }

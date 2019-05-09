@@ -1,0 +1,381 @@
+<?xml version="1.0"?>
+<definition id="coreOrganization" parentId="baseObject" isAbstract="true" type="object">
+	<configuration>
+		<fields>
+			<field name="existingInContext" >
+				<value>WITHOUT_CONTEXT</value>
+			</field>
+		</fields>
+	</configuration>
+	<fields>
+		<field name="default_header" type="ANY" label="ORGANIZATION_DEFAULT_HEADER" />
+		<field name="compact_header" type="ANY" label="ORGANIZATION_COMPACT_HEADER" />
+		<field name="breadcrumb_header" type="ANY" label="ORGANIZATION_BREADCRUMB_HEADER" />
+		<field name="tooltip_header" type="ANY" label="ORGANIZATION_TOOLTIP_HEADER" />
+
+		<field name="rdf:type" >
+			<value>http://www.ontotext.com/proton/protontop#Organization</value>
+		</field>		
+
+		<!-- system fieds -->
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="uri" displayType="system" />
+		<field name="hasRevision" displayType="system" />
+		<field name="isRevisionOf" displayType="system" />
+		<field name="lastPublishedRevision" displayType="system" />
+		<field name="lastRevision" displayType="system" />
+		<field name="nextRevision" displayType="system" />
+		<field name="previousRevision" displayType="system" />
+	</fields>
+	<regions>
+		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
+			<fields>
+				<field name="title" type="an..1024" tooltip="core.title.tooltip" />
+				<field name="subType" type="ANY" displayType="editable" mandatory="true" codelist="CL213" uri="chcart:subClassification" >
+					<value>CORE213001</value>
+				</field>
+				<field name="description" displayType="editable" tooltip="core.description.tooltip" />
+				<field name="chc:contactPerson" type="an..180" displayType="editable" tooltip="core.contactPerson.tooltip" uri="chc:contactPerson" />
+				<field name="phoneNumber" type="an..50" displayType="editable" label="core.phoneNumber.label" tooltip="core.phoneNumber.tooltip" uri="emf:phoneNumber" />
+				<field name="address" type="an..1024" displayType="editable" label="userDefinition.address" tooltip="core.address.tooltip" uri="emf:address" />
+				<field name="email" type="an..50" displayType="editable" label="userDefinition.email" tooltip="core.email.tooltip" dmsType="urn:scim:schemas:core:1.0:emails" rnc="^[a-zA-Z0-9]+(?:[\-\._][a-zA-Z0-9]+)*(?:@[a-zA-Z0-9]{2,}(?:[\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z0-9]{2,6})$" uri="emf:email" />
+				<field name="addressWebSite" type="an..100" displayType="editable" label="core.addressWebSite.label" tooltip="core.addressWebSite.tooltip" uri="emf:addressWebSite" />
+				<field name="owner" type="uri" displayType="readOnly" label="core.owner.label" tooltip="core.owner.tooltip" multiValued="true" uri="emf:owner" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+		<region id="systemData" order="20" displayType="editable" label="core.systemData.region.label">
+			<fields>
+				<field name="type" tooltip="core.type.tooltip" >
+					<value>coreOrganization</value>
+				</field>
+				<field name="identifier" tooltip="core.identifier.tooltip" rnc="${eval(ORG${seq({+orgSequence})})}" />
+				<field name="status" codelist="CL212" tooltip="core.status.tooltip" />
+				<field name="emf:version" tooltip="core.version.tooltip" />
+				<field name="integrated" type="boolean" displayType="hidden" label="emf.integrated.label" uri="emf:integrated"/>
+				<field name="createdOn" tooltip="core.createdOn.tooltip" />
+				<field name="createdBy" tooltip="core.createdBy.tooltip" />
+				<field name="modifiedOn" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="core.lockedBy.tooltip" />
+				<field name="attachmentOf" type="uri" displayType="editable" label="core.attachmentOf.label" tooltip="core.attachmentOf.tooltip" multiValued="true" uri="emf:isAttachedTo" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Document,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video</control-param>
+					</control>
+				</field>
+				<field name="hasAttachment" type="uri" displayType="editable" label="core.hasAttachment.label" tooltip="core.hasAttachment.tooltip" multiValued="true" uri="emf:hasAttachment" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Document,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video</control-param>
+					</control>
+				</field>
+				<field name="hasWatcher" label="core.hasWatcher.label" tooltip="core.hasWatcher.tooltip" />
+				<field name="hasThumbnail" label="core.hasThumbnail.label" tooltip="core.hasThumbnail.tooltip" />
+				<field name="parentOf" tooltip="core.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasParent" tooltip="core.hasParent.tooltip" />
+				<field name="emf:hasTemplate" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" />
+				<field name="partOf" displayType="readOnly" tooltip="core.partOf.tooltip" />
+				<field name="hasChild" tooltip="core.hasChild.tooltip" previewEmpty="false" />
+			</fields>
+		</region>
+	</regions> 
+	<transitions>	
+		<transition id="editDetails" order="10" />
+		<group id="add" order="45" label="add.group.label" type="menu" />
+		<transition id="addCulturalObject" label="core.addCulturalObject.action.label" tooltip="core.addCulturalObject.action.tooltip"  purpose="addRelation" actionPath="/" group="add">
+			<fields>
+				<field name="addCOConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["chc:CulturalObject"],
+								"selection" : "multiple",
+								"relation" : ["emf:owner"],
+								"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addAttachment" label="core.addAttachment.action.label" tooltip="core.addAttachment.action.tooltip" purpose="addRelation" group="add" >
+			<fields>
+				<field name="addAttachmentConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["emf:Project","chc:ConservationActivity","emf:Document","emf:Task","chc:CulturalObject","emf:Audio","emf:Video","emf:Image"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasAttachment"]
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addThumbnail" group="add" />	
+		<transition id="addWatchers" label="addWatchers.label"  purpose="addRelation" group="add" >
+			<fields>
+				<field name="addWatcherConfig" type="json">
+					<value>						
+							{
+								"predefinedTypes" : ["emf:User"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasWatcher"],
+								"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="create" order="50" label="create.group.label" type="menu" />
+		<transition id="createDocument" label="core.createDocument.action.label" tooltip="core.createDocument.action.tooltip" purpose="createInstance" group="create" >
+      		<fields>
+				<field name="createDocumentConfig" type="json">
+					<value>
+   						{ 
+							"predefinedTypes" : ["emf:Document"],  
+							"contextSelectorDisabled": true
+    					}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="createTask" label="core.createTask.action.label" tooltip="core.createSubTask.action.tooltip" purpose="createInstance" group="create" >
+      		<fields>
+				<field name="createTaskConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["emf:Task"],
+							"contextSelectorDisabled": true
+						}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>		
+		
+		<group id="exportAs" order="55" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+
+		<group id="print" order="60" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />
+		
+		<group id="template" order="61" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="core.updateTemplate.action.tooltip" label="updateTemplate.label"  purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" tooltip="core.changeTemplate.action.tooltip" label="changeTemplate.label"  purpose="changeTemplate" group="template" />
+		
+		<group id="more" order="65" label="more.group.label" type="menu" />
+		<transition id="clone" confirmation="clone.confirm" group="more" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" actionPath="/" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="deactivateOrganization" order="70" label="core.deactivateOrganization.action.label" tooltip="core.deactivateOrganization.action.tooltip" purpose="transition" confirmation="deactivateOrgPer.confirm" />
+		<transition id="activateOrganization" order="75" label="core.activateOrganization.action.label" tooltip="core.activateOrganization.action.tooltip" purpose="transition" confirmation="activateOrgPers.confirm" />
+		<transition id="deleteOraganization" order="100" label="core.deleteOraganization.action.label" tooltip="core.delete.tooltip"  purpose="delete" confirmation="confirmation.action" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+                    <value>
+						<![CDATA[
+							var title = root.get('title');
+							var subject = '(Deleted) Organization - ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}	
+							recipients.push(root.getAsString('createdBy'));
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_delete_object_core", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                    </control>
+                </field>
+			</fields>
+		</transition>
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="ACTIVE"/>
+		<stateTransition from="INIT" transition="clone" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE"/>
+		
+		<stateTransition from="ACTIVE" transition="addCulturalObject" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="addAttachment" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE"/>	
+		<stateTransition from="ACTIVE" transition="addWatchers" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="createDocument" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="createTask" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="clone" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="unlock" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE"/>		
+		<stateTransition from="ACTIVE" transition="managePermissions" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE"/>
+		<stateTransition from="ACTIVE" transition="deactivateOrganization" to="INACTIVE"/>
+
+		<!-- INACTIVE-->
+		<stateTransition from="INACTIVE" transition="exportTabPDF" to="INACTIVE"/>
+		<stateTransition from="INACTIVE" transition="exportTabWord" to="INACTIVE" />
+		<stateTransition from="INACTIVE" transition="printTab" to="INACTIVE"/>
+		<stateTransition from="INACTIVE" transition="unlock" to="INACTIVE"/>
+		<stateTransition from="INACTIVE" transition="managePermissions" to="INACTIVE"/>
+		<stateTransition from="INACTIVE" transition="activateOrganization" to="ACTIVE"/>
+		<stateTransition from="INACTIVE" transition="deleteOraganization" to="INACTIVE"/>
+	</stateTransitions>
+
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="coreAudio"/>
+		<child type="object" id="coreVideo"/>
+		<child type="object" id="coreImage"/>
+		<child type="task" id="all"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="ORGANIZATION_TOOLTIP_HEADER">
+    		<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}" >
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Sub-type: </label>
+						<span data-property="subType">${CL([subType])}</span>
+					</span>
+					${if(${get([chc:contactPerson])}<>null).then(
+						<span class="tooltip-row">
+							<label>Contact person: </label>
+							<span data-property="chc:contactPerson">${get([chc:contactPerson])}</span>
+						</span>
+					)}
+					${if(${get([phoneNumber])}<>null).then(
+						<span class="tooltip-row">
+							<label>Phone: </label>
+							<span data-property="phoneNumber">${get([phoneNumber])}</span>
+						</span>
+					)}
+					${if(${get([address])}<>null).then(
+						<span class="tooltip-row">
+							<label>Address: </label>
+							<span data-property="address">${get([address])}</span>
+						</span>
+					)}
+					${if(${get([email])}<>null).then(
+						<span class="tooltip-row">
+							<label>Email: </label>
+							<span data-property="email">${get([email])}</span>
+						</span>
+					)}
+					${if(${get([addressWebSite])}<>null).then(
+						<span class="tooltip-row">
+							<label>Website: </label>
+							<span data-property="addressWebSite">${get([addressWebSite])}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>System modified by: </label>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified on: </label>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
+					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}	
+				</span>
+			)})}]]></value>
+    	</label>
+		<label id="ORGANIZATION_DEFAULT_HEADER">
+			<value lang="en">
+				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="subType">${CL([subType])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					<br />
+					<span class="truncate-element">
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" >
+								<span data-property="title">${get([title])}</span>
+							</a>&nbsp;
+						</b>	
+					</span>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			)}]]></value>
+		</label>
+		<label id="ORGANIZATION_COMPACT_HEADER">
+			<value lang="en">
+				<![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span class="truncate-element">
+					<span data-property="subType">${CL([subType])}</span>:&nbsp;
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span> 
+					</a>&nbsp;
+					${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			</span>
+		)}]]></value>
+		</label>	
+		<label id="ORGANIZATION_BREADCRUMB_HEADER">
+			<value lang="en">
+				<![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" >
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="subType">${CL([subType])}</span>:&nbsp;
+					<span data-property="title">${get([title])}</span> 
+				</a>
+			</span>		
+            )}]]></value>
+		</label>		
+	</labels>		
+</definition>

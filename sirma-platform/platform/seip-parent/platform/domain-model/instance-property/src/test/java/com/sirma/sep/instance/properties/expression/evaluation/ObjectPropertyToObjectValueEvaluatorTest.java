@@ -25,8 +25,7 @@ import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.HeadersService;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
-import com.sirma.sep.instance.properties.expression.evaluation.ObjectPropertyToObjectValueEvaluator;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 
 /**
  * Tests for {@link ObjectPropertyToObjectValueEvaluator}.
@@ -51,7 +50,7 @@ public class ObjectPropertyToObjectValueEvaluatorTest {
 	private DataTypeDefinition destinationTypeDefinition;
 
 	@Mock
-	private InstanceTypeResolver resolver;
+	private DomainInstanceService instanceService;
 
 	@Mock
 	private Instance instance;
@@ -78,13 +77,13 @@ public class ObjectPropertyToObjectValueEvaluatorTest {
 		Instance objectProperty = mock(Instance.class);
 		when(objectProperty.getId()).thenReturn("emf:123456");
 		List<Instance> instances = Collections.singletonList(objectProperty);
-		when(resolver.resolveInstances(any(Collection.class))).thenReturn(instances);
+		when(instanceService.loadInstances(any(Collection.class))).thenReturn(instances);
 		when(instance.get("fieldName")).thenReturn("emf:123");
 
 		Serializable fieldName = cut.evaluate(instance, "fieldName");
 		// verify called services.
 		verify(headersService).generateInstanceHeader(any(), any());
-		verify(resolver).resolveInstances(any());
+		verify(instanceService).loadInstances(any());
 		// verify the result
 		assertEquals(
 				"[{\"id\":\"emf:123456\",\"headers\":{\"compact_header\":\"<a href=\\\"www.something.com\\\">some-text</a> \"}}]",
@@ -98,14 +97,14 @@ public class ObjectPropertyToObjectValueEvaluatorTest {
 		when(objectPropertyOne.getId()).thenReturn("emf:123456");
 		when(objectPropertyTwo.getId()).thenReturn("emf:654321");
 		List<Instance> instances = Arrays.asList(objectPropertyOne, objectPropertyTwo);
-		when(resolver.resolveInstances(any(Collection.class))).thenReturn(instances);
+		when(instanceService.loadInstances(any(Collection.class))).thenReturn(instances);
 
 		Collection ids = Arrays.asList("", "");
 		when(instance.get("fieldName")).thenReturn((Serializable) ids);
 		Serializable fieldName = cut.evaluate(instance, "fieldName");
 		// verify called services.
 		verify(headersService, times(2)).generateInstanceHeader(any(), any());
-		verify(resolver).resolveInstances(any());
+		verify(instanceService).loadInstances(any());
 		// verify the result
 		assertEquals(
 				"[{\"id\":\"emf:123456\",\"headers\":{\"compact_header\":\"<a href=\\\"www.something.com\\\">some-text</a> \"}},{\"id\":\"emf:654321\",\"headers\":{\"compact_header\":\"<a href=\\\"www.something.com\\\">some-text</a> \"}}]",

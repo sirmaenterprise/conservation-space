@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sirma.itt.seip.collections.ContextualMap;
+import com.sirma.itt.seip.collections.ContextualConcurrentMap;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.SystemConfiguration;
 import com.sirma.itt.seip.configuration.annotation.Configuration;
@@ -71,7 +71,7 @@ public class DateConverterImpl implements DateConverter {
 	private SystemConfiguration systemConfigs;
 
 	@Inject
-	private ContextualMap<DateFormatType, Map<String, DateFormat>> dateFormats;
+	private ContextualConcurrentMap<DateFormatType, Map<String, DateFormat>> dateFormats;
 	
 	@Inject
 	private TypeConverter converter;
@@ -81,6 +81,9 @@ public class DateConverterImpl implements DateConverter {
 		// if pattern changes clear mappings for the tenant
 		converterDateFormatPattern.addConfigurationChangeListener(c -> dateFormats.clear());
 		converterDatetimeFormatPattern.addConfigurationChangeListener(c -> dateFormats.clear());
+		fullSystemDateTimeFormat.addConfigurationChangeListener(c -> dateFormats.clear());
+		shortSystemDateTimeFormat.addConfigurationChangeListener(c -> dateFormats.clear());
+		defaultSystemDateTimeFormat.addConfigurationChangeListener(c -> dateFormats.clear());
 	}
 
 	/**

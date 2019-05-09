@@ -19,7 +19,7 @@ import com.sirma.itt.seip.adapters.remote.RESTClient;
  */
 @ApplicationScoped
 public class InitAlfresco4Controller implements AlfrescoCommunicationConstants {
-	private static final long serialVersionUID = -16044292938437373L;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Inject
@@ -117,5 +117,4 @@ public class InitAlfresco4Controller implements AlfrescoCommunicationConstants {
 		String callWebScript = restClient.request("/pm/init", createdMethod);
 		LOGGER.info("Finish structure init {}", callWebScript);
 	}
-
 }

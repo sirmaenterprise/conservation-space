@@ -55,8 +55,8 @@ public class InitialPublishStepTest {
 			return info;
 		});
 
-		PublishInstanceRequest request = new PublishInstanceRequest(new EmfInstance(), new Operation(), null, null);
-		PublishContext context = new PublishContext(request, new EmfInstance());
+		PublishInstanceRequest request = new PublishInstanceRequest(createInstance(), new Operation(), null, null);
+		PublishContext context = new PublishContext(request, createInstance());
 
 		step.execute(context);
 		assertNotNull(context.getView());
@@ -72,10 +72,10 @@ public class InitialPublishStepTest {
 
 		when(templateService.getTemplate(any(TemplateSearchCriteria.class))).thenReturn(template);
 
-		Instance instance = new EmfInstance();
+		Instance instance = createInstance();
 		instance.setIdentifier("genericDocument");
 		PublishInstanceRequest request = new PublishInstanceRequest(instance, new Operation(), null, null);
-		PublishContext context = new PublishContext(request, new EmfInstance());
+		PublishContext context = new PublishContext(request, createInstance());
 
 		step.execute(context);
 		assertNotNull(context.getView());
@@ -92,10 +92,10 @@ public class InitialPublishStepTest {
 			return info;
 		});
 
-		Instance instance = new EmfInstance();
+		Instance instance = createInstance();
 		instance.setIdentifier("genericDocument");
 		PublishInstanceRequest request = new PublishInstanceRequest(instance, new Operation(), null, null);
-		PublishContext context = new PublishContext(request, new EmfInstance());
+		PublishContext context = new PublishContext(request, createInstance());
 
 		step.execute(context);
 	}
@@ -108,15 +108,21 @@ public class InitialPublishStepTest {
 		when(templateService.getContent(any()))
 		.then(a -> a.getArgumentAt(0, Template.class));
 
-		Instance instance = new EmfInstance();
+		Instance instance = createInstance();
 		instance.setIdentifier("genericDocument");
 		PublishInstanceRequest request = new PublishInstanceRequest(instance, new Operation(), null, null);
-		PublishContext context = new PublishContext(request, new EmfInstance());
+		PublishContext context = new PublishContext(request, createInstance());
 
 		step.execute(context);
 	}
 
 	private InputStream getTemplateStream() {
 		return InitialPublishStepTest.class.getResourceAsStream("/publish-idoc.html");
+	}
+
+	private static EmfInstance createInstance() {
+		EmfInstance instance = new EmfInstance();
+		instance.getOrCreateProperties();
+		return instance;
 	}
 }

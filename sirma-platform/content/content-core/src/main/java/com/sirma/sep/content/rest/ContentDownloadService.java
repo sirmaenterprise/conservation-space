@@ -30,8 +30,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.rest.Range;
+import com.sirma.itt.seip.util.TransliterationUtil;
+import com.sirma.itt.seip.util.file.FileUtil;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.InstanceContentService;
 
@@ -132,7 +135,8 @@ public class ContentDownloadService {
 
 		File file = null;
 		try {
-			file = tempFileProvider.createTempFile(contentInfo.getName(), "");
+			Pair<String, String> namePair = FileUtil.splitNameAndExtension(contentInfo.getName());
+			file = tempFileProvider.createTempFile(namePair.getFirst(), namePair.getSecond());
 			FileUtils.copyInputStreamToFile(contentInfo.getInputStream(), file);
 			setPreviewContentType(contentInfo, response);
 			addContentLength(file.length(), response, range);
@@ -259,7 +263,10 @@ public class ContentDownloadService {
 		}
 
 		String name = StringUtils.isNotBlank(fileName) ? fileName : persistedName;
-		StringBuilder disposition = new StringBuilder(256).append("attachment; filename=\"").append(name).append("\"");
+		// Cyrillic characters in names cause problems under Chrome browser: CMF-29383/CMF-29959
+		String transliteratedName = TransliterationUtil.transliterate(name);
+		StringBuilder disposition = new StringBuilder(256)
+				.append("attachment; filename=\"").append(transliteratedName).append("\"");
 		try {
 			disposition.append("; filename*=utf-8''").append(URIUtil.encodePath(name));
 		} catch (URIException e) {
@@ -362,5 +369,4 @@ public class ContentDownloadService {
 			LOGGER.warn("Client disconnected during content download: {}", e.getMessage());
 		}
 	}
-
 }

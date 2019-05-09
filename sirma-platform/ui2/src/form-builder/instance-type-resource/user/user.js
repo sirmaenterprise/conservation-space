@@ -1,6 +1,6 @@
 import {View, Component, Inject, NgElement} from 'app/app';
 import {InstanceTypeResource} from 'form-builder/instance-type-resource/instance-type-resource';
-import {InstanceSelector} from 'components/instance-selector/instance-selector';
+import 'components/instance-selector/instance-selector';
 import template from './user.html!text';
 
 @Component({
@@ -10,9 +10,7 @@ import template from './user.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
 export class User extends InstanceTypeResource {
   constructor($element) {

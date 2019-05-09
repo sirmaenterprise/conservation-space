@@ -60,4 +60,19 @@ public class PasswordChangeFailExceptionHandlerTest {
 		verify(labelProvider).getValue(anyString());
 	}
 
+	@Test
+	public void should_ReplacePolicyValueInLabel() {
+		when(labelProvider.getValue(anyString()))
+				.thenReturn("Invalid password: must contain at least {0} numerical digits.");
+
+		Response response = handler
+				.toResponse(new PasswordChangeFailException(PasswordFailType.MIN_DIGITS, "2", "not enough digits"));
+
+		assertNotNull(response);
+		assertEquals(
+				"{\"messages\":{\"passwordValidationMessage\":\"Invalid password: must contain at least 2 numerical digits.\"},\"exception\":\"not enough digits\"}",
+				response.getEntity());
+		assertEquals(response.getStatus(), Status.BAD_REQUEST.getStatusCode());
+	}
+
 }

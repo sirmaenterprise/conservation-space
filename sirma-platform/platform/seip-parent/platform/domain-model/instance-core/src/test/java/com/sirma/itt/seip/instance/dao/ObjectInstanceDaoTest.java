@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,16 +22,21 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import com.sirma.itt.seip.Entity;
+import com.sirma.itt.seip.Trackable;
 import com.sirma.itt.seip.cache.lookup.EntityLookupCache;
 import com.sirma.itt.seip.configuration.Options;
 import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.db.DatabaseIdManager;
 import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
 import com.sirma.itt.seip.domain.definition.DisplayType;
+import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
+import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.expressions.ExpressionsManager;
 import com.sirma.itt.seip.instance.InstanceTypes;
@@ -77,6 +84,10 @@ public class ObjectInstanceDaoTest {
 	private DbDao dbDao;
 	@Mock
 	private DefinitionService definitionService;
+	@Mock
+	private InstancePropertyNameResolver propertyNameResolver;
+	@Mock
+	private SemanticDefinitionService semanticDefinitionService;
 	@Mock
 	private TypeConverter typeConverter;
 	@Mock
@@ -130,7 +141,12 @@ public class ObjectInstanceDaoTest {
 		when(persistCollback.getCache()).thenReturn(cache);
 		when(persistCollback.getEntityConverter()).thenReturn(entityConverter);
 
-		when(entityConverter.convertToEntity(any())).then(a -> a.getArgumentAt(0, Instance.class));
+		when(entityConverter.convertToEntity(any())).then(a -> {
+			Instance instance = a.getArgumentAt(0, Instance.class);
+			// this simulates passing through the entity converter where the tracking is disabled
+			Trackable.disableTracking(instance);
+			return instance;
+		});
 
 		DefinitionMock definition = new DefinitionMock();
 		definition.getFields().add(createProperty("prop1", false));
@@ -139,6 +155,19 @@ public class ObjectInstanceDaoTest {
 		definition.getFields().add(createProperty("objProp3", true));
 		definition.getFields().add(createProperty("objProp4", true));
 		definition.getFields().add(createProperty("objProp5", true));
+
+		when(propertyNameResolver.resolverFor(any())).thenReturn((String uri) -> definition.getField(uri)
+						.map(PropertyDefinition::getName)
+						.orElse(null));
+
+		Map<String, PropertyInstance> objectProperties = new HashMap<>();
+		objectProperties.put("emf:objProp1", new PropertyInstance());
+		objectProperties.put("emf:objProp2", new PropertyInstance());
+		objectProperties.put("emf:objProp3", new PropertyInstance());
+		objectProperties.put("emf:objProp4", new PropertyInstance());
+		objectProperties.put("emf:objProp5", new PropertyInstance());
+		objectProperties.put("emf:objProp6", new PropertyInstance());
+		when(semanticDefinitionService.getRelationsMap()).thenReturn(objectProperties);
 
 		when(definitionService.getInstanceDefinition(any())).thenReturn(definition);
 
@@ -199,20 +228,43 @@ public class ObjectInstanceDaoTest {
 		instance.setId("emf:instance");
 		contextService.bindContext(instance, "emf:parent");
 		instance.add("objProp1", "emf:ref-instance1");
+		instance.append("objProp1", "emf:ref-instance7");
 		instance.add("emf:objProp5", "emf:ref-instance6");
 		instance.add("objProp2", (Serializable) Collections.singletonList("emf:ref-instance2"));
 		instance.enableChangesTracking();
 		instance.add("objProp3",
 				(Serializable) Arrays.asList("emf:ref-instance1", "emf:ref-instance2", "emf:ref-instance3"));
 		instance.add("objProp2", (Serializable) Arrays.asList("emf:ref-instance2", "emf:ref-instance4"));
+		instance.remove("objProp1", "emf:ref-instance1");
 		instance.remove("objProp1");
 		instance.add("emf:objProp4", "emf:ref-instance5");
+		// this is not defined in a definition but only in semantic model
+		instance.add("emf:objProp6", "emf:ref-instance6");
 		Options.CURRENT_OPERATION.set(new Operation("operation"));
 
 		instanceDao.persistChanges(instance);
 
-		// 5 times, because emf:objProp5 is added before changes tracking
-		verify(cache, times(5)).removeByKey(anyString());
+		// 7 times, because emf:objProp5 is added before changes tracking
+		verify(cache, times(7)).removeByKey(anyString());
+		verify(instanceLoader.getPersistCallback()).persistAndUpdateCache(any());
+	}
+
+	@Test
+	public void testPersistChanges_shouldCatchPhantomRemoval() throws Exception {
+		ObjectInstance instance = new ObjectInstance();
+		instance.setId("emf:instance");
+		contextService.bindContext(instance, "emf:parent");
+		instance.add("objProp1", "emf:ref-instance1");
+		instance.append("objProp1", "emf:ref-instance7");
+		instance.enableChangesTracking();
+		instance.remove("objProp1", "emf:ref-instance1");
+		instance.remove("objProp1");
+		Options.CURRENT_OPERATION.set(new Operation("operation"));
+
+		instanceDao.persistChanges(instance);
+
+		// 2 times for both instances
+		verify(cache, times(2)).removeByKey(anyString());
 		verify(instanceLoader.getPersistCallback()).persistAndUpdateCache(any());
 	}
 }

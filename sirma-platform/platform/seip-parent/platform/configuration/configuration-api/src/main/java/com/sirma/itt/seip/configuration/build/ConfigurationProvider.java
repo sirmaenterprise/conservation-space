@@ -2,7 +2,6 @@ package com.sirma.itt.seip.configuration.build;
 
 import java.util.Set;
 
-import com.sirma.itt.seip.configuration.ConfigurationException;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 
 /**
@@ -20,10 +19,8 @@ public interface ConfigurationProvider {
 	 * @param name
 	 *            the name
 	 * @return the configuration property or <code>null</code> if not registered.
-	 * @throws ConfigurationException
-	 *             if there is problem while building configuration.
 	 */
-	<T> ConfigurationProperty<T> getProperty(String name) throws ConfigurationException;
+	<T> ConfigurationProperty<T> getProperty(String name);
 
 	/**
 	 * Gets the registered configurations.

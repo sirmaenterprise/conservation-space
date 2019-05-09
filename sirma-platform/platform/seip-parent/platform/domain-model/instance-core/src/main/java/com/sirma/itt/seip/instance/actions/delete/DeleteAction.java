@@ -55,4 +55,9 @@ public class DeleteAction implements Action<DeleteRequest> {
 		eventService.fire(new AuditableEvent(instance, request.getUserOperation()));
 		return deleted;
 	}
+
+	@Override
+	public boolean shouldLockInstanceBeforeAction(DeleteRequest request) {
+		return false;
+	}
 }

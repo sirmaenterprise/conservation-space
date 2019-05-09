@@ -96,9 +96,7 @@ export const INSTANCE_SELECTOR_PROPERTIES = ['id', HEADER_COMPACT, HEADER_DEFAUL
   },
   events: ['onFreeTextChange', 'onContextChange', 'onSearch', 'onSavedSearchSelected', 'onSearchModeSelected']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgElement, NgDocument, PickerService, TranslateService, ContextualObjectsFactory)
 export class SearchBar extends Configurable {
 

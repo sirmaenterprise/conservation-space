@@ -30,14 +30,13 @@ public class RenditionAlfresco4Service implements CMFRenditionAdapterService {
 	private static final Part[] EMPTY_PARTS = new Part[0];
 	private static final Logger LOGGER = LoggerFactory.getLogger(RenditionAlfresco4Service.class);
 	private static final boolean DEBUG_ENABLED = LOGGER.isDebugEnabled();
-	private static final long serialVersionUID = 8841619126746978716L;
 
 	@Inject
 	private RESTClient restClient;
 
 	@Override
 	public String getPrimaryThumbnailURI(String dmsId) {
-		throw new RuntimeException("Not implemented yet");
+		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override

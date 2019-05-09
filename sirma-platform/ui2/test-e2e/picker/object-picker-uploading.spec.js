@@ -2,7 +2,7 @@ var ObjectPickerSandbox = require('./object-picker').ObjectPickerSandbox;
 var UPLOAD_EXTENSION = require('./object-picker').UPLOAD_EXTENSION;
 var FileUploadPanel = require('../file-upload/file-upload').FileUploadPanel;
 
-const FILE_NAME = 'test-file.png';
+const FILE_NAME = 'small-file.txt';
 
 describe('Uploading in Object picker', () => {
 

@@ -1,7 +1,8 @@
-"use strict";
-var isCheckboxSelected = require('../../test-utils.js').isCheckboxSelected;
-var ColorPicker = require('../../components/color-picker/color-picker');
-var TestUtils = require('../../test-utils');
+'use strict';
+
+let isCheckboxSelected = require('../../test-utils.js').isCheckboxSelected;
+let ColorPicker = require('../../components/color-picker/color-picker');
+let TestUtils = require('../../test-utils');
 
 class Widget {
 
@@ -12,6 +13,10 @@ class Widget {
 
   getHeader() {
     return this.header;
+  }
+
+  getBody() {
+    return this.widgetElement.$('.widget-body');
   }
 
   hover() {
@@ -48,9 +53,21 @@ class Widget {
 
   waitToAppear() {
     browser.wait(() => TestUtils.hasClass(this.widgetElement, 'initialized'), DEFAULT_TIMEOUT, 'Did you use the proper selector: ([widget="${widget-name}"]? Has the widget been properly initialized?');
+    browser.wait(EC.visibilityOf(this.widgetElement), DEFAULT_TIMEOUT);
   }
 
+  isExpanded() {
+    browser.wait(EC.visibilityOf(this.getBody()), DEFAULT_TIMEOUT, 'Widget body should be visible!');
+  }
+
+  isCollapsed() {
+    browser.wait(EC.invisibilityOf(this.getBody()), DEFAULT_TIMEOUT, 'Widget body should be hidden!');
+  }
 }
+
+const WIDGET_ACTION_EXPAND = 'expand';
+const WIDGET_ACTION_REMOVE = 'remove';
+const WIDGET_ACTION_CONFIG = 'config';
 
 class WidgetHeader {
 
@@ -59,7 +76,7 @@ class WidgetHeader {
   }
 
   setTitle(title) {
-    var titleInput = this.headerElement.$('.widget-title-input');
+    let titleInput = this.getTitle();
     titleInput.clear();
     titleInput.sendKeys(title);
   }
@@ -77,7 +94,7 @@ class WidgetHeader {
   }
 
   openConfig() {
-    this.headerElement.$('.config-button').click();
+    this.getAction(WIDGET_ACTION_CONFIG).click();
     // wait for the config to appear
     new WidgetConfigDialog();
   }
@@ -86,50 +103,69 @@ class WidgetHeader {
     return this.headerElement.getCssValue('background-color');
   }
 
+  getAction(actionName) {
+    let button = this.headerElement.$(`.${actionName}-button`);
+    browser.wait(EC.visibilityOf(button), DEFAULT_TIMEOUT, `Widget ${actionName} button should be visible!`);
+    return button;
+  }
+
+  expand() {
+    let expandButton = this.getAction(WIDGET_ACTION_EXPAND).$('.fa-plus');
+    browser.wait(EC.visibilityOf(expandButton), DEFAULT_TIMEOUT, 'Widget expand button should be visible!');
+    expandButton.click();
+  }
+
+  collapse() {
+    let collapseButton = this.getAction(WIDGET_ACTION_EXPAND).$('.fa-minus');
+    browser.wait(EC.visibilityOf(collapseButton), DEFAULT_TIMEOUT, 'Widget collapse button should be visible!');
+    collapseButton.click();
+  }
+
+  remove() {
+    browser.executeScript('$(arguments[0]).click();', this.getAction(WIDGET_ACTION_REMOVE).getWebElement());
+  }
+
   isActionAvailable(actionName) {
     return this.headerElement.$('.' + actionName).isPresent();
   }
 
   isActionVisible(actionName, visible, msg) {
     let operation = visible ? 'visibilityOf' : 'invisibilityOf';
-    browser.wait(EC[operation](this.headerElement.$('.' + actionName)), DEFAULT_TIMEOUT, msg);
+    browser.wait(EC[operation](this.headerElement.$(`.${actionName}-button`)), DEFAULT_TIMEOUT, msg);
   }
 
   isCollapseExpandVisible(msg) {
-    return this.isActionVisible('expand-button', true, msg);
+    return this.isActionVisible(WIDGET_ACTION_EXPAND, true, msg);
   }
 
   isCollapseExpandHidden(msg) {
-    return this.isActionVisible('expand-button', false, msg);
+    return this.isActionVisible(WIDGET_ACTION_EXPAND, false, msg);
   }
 
   isConfigVisible(msg) {
-    return this.isActionVisible('config-button', true, msg);
+    return this.isActionVisible(WIDGET_ACTION_CONFIG, true, msg);
   }
 
   isConfigHidden(msg) {
-    return this.isActionVisible('config-button', false, msg);
+    return this.isActionVisible(WIDGET_ACTION_CONFIG, false, msg);
   }
 
   isDeleteVisible(msg) {
-    return this.isActionVisible('remove-button', true, msg);
+    return this.isActionVisible(WIDGET_ACTION_REMOVE, true, msg);
   }
 
   isDeleteHidden(msg) {
-    return this.isActionVisible('remove-button', false, msg);
+    return this.isActionVisible(WIDGET_ACTION_REMOVE, false, msg);
   }
 
   isDisplayed() {
     return this.headerElement.isDisplayed();
   }
 
-  remove() {
-    browser.executeScript('$(arguments[0]).click();', this.headerElement.$('.remove-button').getWebElement());
-  }
-
 }
 
 class WidgetConfigDialog {
+
   constructor(widgetName) {
     this.dialogElement = $('.seip-modal');
     this.waitUntilOpened();
@@ -144,21 +180,28 @@ class WidgetConfigDialog {
   }
 
   save() {
-    var okButton = this.dialogElement.$('.seip-btn-ok');
-    browser.wait(EC.elementToBeClickable(okButton), DEFAULT_TIMEOUT);
+    let okButton = this.dialogElement.$('.seip-btn-ok');
+    browser.wait(EC.presenceOf(okButton), DEFAULT_TIMEOUT, 'Save widget config button should be present!');
+    browser.wait(EC.elementToBeClickable(okButton), DEFAULT_TIMEOUT, 'Save widget config button should be clickable!');
     okButton.click();
     this.waitUntilClosed();
     this.waitForWidget();
   }
 
   cancel(withoutInsert) {
-    var cancelButton = this.dialogElement.$('.seip-btn-cancel');
-    browser.wait(EC.elementToBeClickable(cancelButton), DEFAULT_TIMEOUT);
+    let cancelButton = this.dialogElement.$('.seip-btn-cancel');
+    browser.wait(EC.presenceOf(cancelButton), DEFAULT_TIMEOUT, 'Cancel widget config button should be present!');
+    browser.wait(EC.elementToBeClickable(cancelButton), DEFAULT_TIMEOUT, 'Cancel widget config button should be clickable!');
     cancelButton.click();
     this.waitUntilClosed();
     if (!withoutInsert) {
       this.waitForWidget();
     }
+  }
+
+  isTitlePresent(titleText) {
+    let titleElement = this.dialogElement.$('.modal-title');
+    browser.wait(EC.textToBePresentInElement(titleElement, titleText), DEFAULT_TIMEOUT, 'Title text should be present in dialog!');
   }
 
   isShowWidgetHeaderSelected() {
@@ -179,7 +222,7 @@ class WidgetConfigDialog {
 
   toggleOption(option, shouldEnable) {
     this.isOptionSelected(option).then((isSelected) => {
-      let shouldDeselect= isSelected && !shouldEnable;
+      let shouldDeselect = isSelected && !shouldEnable;
       let shouldSelect = !isSelected && shouldEnable;
       if (shouldDeselect || shouldSelect) {
         option.click();
@@ -231,11 +274,11 @@ class WidgetConfigDialog {
   }
 
   waitUntilOpened() {
-    browser.wait(EC.visibilityOf(this.dialogElement), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.dialogElement), DEFAULT_TIMEOUT, 'Widget config dialog should be opened!');
   }
 
   waitUntilClosed() {
-    browser.wait(EC.not(EC.presenceOf(this.dialogElement)), DEFAULT_TIMEOUT);
+    browser.wait(EC.stalenessOf(this.dialogElement), DEFAULT_TIMEOUT, 'Widget config dialog should be closed!');
   }
 }
 

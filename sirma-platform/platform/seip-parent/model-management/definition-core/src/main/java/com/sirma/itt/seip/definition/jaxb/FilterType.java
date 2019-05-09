@@ -115,11 +115,7 @@ public class FilterType {
 	 * @return possible object is {@link CheckTypes }
 	 */
 	public CheckTypes getMode() {
-		if (mode == null) {
-			return CheckTypes.IN;
-		} else {
-			return mode;
-		}
+		return mode;
 	}
 
 	/**

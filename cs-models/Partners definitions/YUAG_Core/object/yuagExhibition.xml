@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<definition id="yuagExhibition" parentId="coreExhibition" type="object">
+	<fields>
+		<field name="default_header" type="ANY" label="EXHIBITION_DEFAULT_HEADER_YUAG" displayType="system" />
+		<field name="tooltip_header" type="ANY" label="EXHIBITION_TOOLTIP_HEADER_YUAG" displayType="system"/>
+
+		<field name="rdf:type" >
+            <value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Exhibition</value>
+        </field>
+	</fields>
+	<regions>
+		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
+			<fields>
+				<field name="title" order="1" />
+				<field name="description" order="5" />
+				<field name="chc:exhibitionVenue" type="an..3000" order="10" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="yuag:venueAddress" type="an..3000" displayType="editable" order="20" uri="yuag:venueAddress" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="yuag:venueBeginDate" type="an..3000" displayType="editable" order="25" uri="yuag:venueBeginDate" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="yuag:venueEndDate" type="an..3000" displayType="editable" order="30" uri="yuag:venueEndDate" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chc:exhibitionOrganizer" order="35" />
+				<field name="chc:hasCulturalObjectExhibited" order="40" />
+				<field name="chc:exhibitionID" order="45" />
+				<field name="plannedStartDate" order="50" />
+				<field name="plannedEndDate" order="55" />
+			</fields>
+		</region>
+		<region id="systemData" order="20" displayType="editable" label="core.systemData.region.label">
+			<fields>
+				<field name="type" > <value>yuagExhibition</value> </field>
+			</fields>
+		</region>
+	</regions> 
+	
+	<labels>
+		<label id="EXHIBITION_TOOLTIP_HEADER_YUAG">
+    		<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Status: </label>
+						<span data-property="status">${CL([status])}</span>
+					</span>
+					${if(${get([chc:exhibitionOrganizer])}<>null).then(
+						<span class="tooltip-row">
+							<label>Organizer: </label>
+							<span data-property="chc:exhibitionOrganizer">${get([chc:exhibitionOrganizer])}</span>
+						</span>
+					)}
+					${if(${get([chc:exhibitionID])}<>null).then(
+						<span class="tooltip-row">
+							<label>Exhibition ID: </label>
+							<span data-property="chc:exhibitionID">${get([chc:exhibitionID])}</span>
+						</span>
+					)}
+					${if(${get([plannedStartDate])}<>null).then(
+						<span class="tooltip-row">
+							<label>Start date: </label>
+							<span data-property="plannedStartDate">${date([plannedStartDate])}</span>
+						</span>
+					)}
+					${if(${get([plannedEndDate])}<>null).then(
+						<span class="tooltip-row">
+							<label>End date: </label>
+							<span data-property="plannedEndDate">${date([plannedEndDate])}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>System modified by: </label>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified on: </label>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
+					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}	
+				</span>
+			)})}]]></value>
+    	</label>
+		<label id="EXHIBITION_DEFAULT_HEADER_YUAG">
+			<value lang="en">
+				<![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>&nbsp;
+					(<span data-property="status">${CL([status])}</span>)
+					<br>
+					<span class="truncate-element">
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								<span data-property="title">${get([title])}</span>
+							</a>
+						</b>	
+					</span>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			)}]]></value>
+		</label>	
+	</labels>		
+</definition>

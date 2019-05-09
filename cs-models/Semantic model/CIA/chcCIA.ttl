@@ -1,0 +1,666 @@
+@prefix : <http://www.semanticweb.org/owl/owlapi/turtle#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix chc: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#> .
+@prefix cia: <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#> .
+@prefix emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sec: <http://www.sirma.com/ontologies/2014/11/security#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ptop: <http://www.ontotext.com/proton/protontop#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA> .
+
+<http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA> rdf:type owl:Ontology ;
+                                                                            owl:imports <http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation> ;
+                                                                            dc:subject "Extension of Cultural Heritage Conservation Ontology Model for CIA"@en ;
+                                                                            owl:versionInfo "0.1"@en ;
+                                                                            dc:creator "Lidiya Dimitrova"@en ;
+                                                                            dc:rights "What rights?"@en ;
+                                                                            rdfs:label "Extension of Cultural Heritage Conservation Ontology Model for CIA"@en ;
+                                                                            rdfs:comment "CIA Extension of Cultural Heritage Conservation Ontology Model for Conservation Space project"@en .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#feedbackRecipient
+cia:feedbackRecipient rdf:type owl:ObjectProperty ;
+                      rdfs:subPropertyOf owl:topObjectProperty ;
+                      emf:auditEvent "+addfeedbackRecipient|-removeFeedbackRecipient|changefeedbackRecipient" ;
+                      emf:isSearchable "true"^^xsd:boolean ;
+                      dc:creator "Malvina Makarieva" ;
+                      sec:autoAssignPermissionRole "CONSUMER" ;
+                      rdfs:label "Feedback recipient"@en ;
+                      skos:definition "Student to whom the feedback is directed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#feedbackRecipientName
+cia:feedbackRecipientName rdf:type owl:ObjectProperty ;
+                          rdfs:subPropertyOf owl:topObjectProperty ;
+                          emf:auditEvent "+addFeedbackRecipientName|-removeFeedbackRecipientName|changeFeedbackRecipientName" ;
+                          emf:isSearchable "true"^^xsd:boolean ;
+                          dc:creator "Malvina Makarieva" ;
+                          rdfs:label "Feedback recipient name"@en ;
+                          skos:definition "Name of the student to whom the feedback is directed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#hasAssignedConservator
+cia:hasAssignedConservator rdf:type owl:ObjectProperty ;
+                           rdfs:subPropertyOf owl:topObjectProperty ;
+                           owl:inverseOf cia:isAssignedConservator ;
+                           rdfs:range ptop:Agent ;
+                           emf:auditEvent "+addHasAssignedConservator|-removeHasAssignedConservator|changeHasAssignedConservator" ;
+                           emf:isSearchable "true"^^xsd:boolean ;
+                           dc:creator "Lidiya Dimitrova" ;
+                           sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                           sec:autoAssignPermissionRole "COLLABORATOR" ;
+                           rdfs:label "has assigned conservator"@en ;
+                           skos:definition "Indicates the conservator assigned to the record."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#hasReviewer
+cia:hasReviewer rdf:type owl:ObjectProperty ;
+                owl:inverseOf cia:isReviewerOf ;
+                rdfs:range ptop:Agent ;
+                emf:auditEvent "+addHasReviewer|-removeHasReviewer|changeHasReviewer" ;
+                emf:isSearchable "true"^^xsd:boolean ;
+                dc:creator "Lidiya Dimitrova" ;
+                sec:autoAssignParentPermissionRole "CONSUMER" ;
+                sec:autoAssignPermissionRole "COLLABORATOR" ;
+                rdfs:label "has reviewer"@en ;
+                skos:definition "Indicates the person who has to review the document. "@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#hasTutor
+cia:hasTutor rdf:type owl:ObjectProperty ;
+             owl:inverseOf cia:isTutorOf ;
+             rdfs:range ptop:Agent ;
+             emf:auditEvent "+addHasTutor|-removeHasTutor|changeHasTutor" ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Lidiya Dimitrova" ;
+             sec:autoAssignParentPermissionRole "CONSUMER" ;
+             sec:autoAssignPermissionRole "COLLABORATOR" ;
+             rdfs:label "has assigned tutor"@en ;
+             skos:definition "Indicates the person who is tutor of the student and is resposnsible for reviewed."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#isAssignedConservator
+cia:isAssignedConservator rdf:type owl:ObjectProperty ;
+                          rdfs:domain ptop:Agent ;
+                          emf:auditEvent "+addIsAssignedConservator|-removeIsAssignedConservator|changeIsAssignedConservator" ;
+                          emf:isSearchable "true"^^xsd:boolean ;
+                          dc:creator "Lidiya Dimitrova" ;
+                          rdfs:label "is assigned conservator of"@en ;
+                          skos:definition "The record that the user is assigned conservator."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#isReviewerOf
+cia:isReviewerOf rdf:type owl:ObjectProperty ;
+                 rdfs:domain ptop:Agent ;
+                 emf:auditEvent "+addIsReviewerOf|-removeIsReviewerOf|changeIsReviewerOf" ;
+                 emf:isSearchable "true"^^xsd:boolean ;
+                 dc:creator "Lidiya Dimitrova" ;
+                 rdfs:label "is reviewer of"@en ;
+                 skos:definition "The document that the user is reviewer of."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#isTakenBy
+cia:isTakenBy rdf:type owl:ObjectProperty ;
+              owl:inverseOf cia:tookSample ;
+              rdfs:range ptop:Agent ;
+              emf:auditEvent "+addIsTakenBy|-removeIsTakenBy|changeIsTakenBy" ;
+              emf:isSearchable "true"^^xsd:boolean ;
+              dc:creator "Lidiya Dimitrova" ;
+              rdfs:label "is taken by"@en ;
+              skos:definition "Indicates the person who took the sample."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#isTutorOf
+cia:isTutorOf rdf:type owl:ObjectProperty ;
+              rdfs:domain ptop:Agent ;
+              emf:auditEvent "+addIsTutorOf|-removeIsTutorOf|changeIsTutorOf" ;
+              emf:isSearchable "true"^^xsd:boolean ;
+              dc:creator "Lidiya Dimitrova" ;
+              rdfs:label "is tutor of"@en ;
+              skos:definition "The record that the user is assigned as a tutor."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#paintingTtreated
+cia:paintingTtreated rdf:type owl:ObjectProperty ;
+                     emf:auditEvent "+addPaintingTtreated|-removePaintingTtreated|changePaintingTtreated" ;
+                     emf:isSearchable "true"^^xsd:boolean ;
+                     dc:creator "Malvina Makarieva" ;
+                     rdfs:label "Painting(s) treated"@en ;
+                     skos:definition "Painting treated by student."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#tookSample
+cia:tookSample rdf:type owl:ObjectProperty ;
+               rdfs:domain ptop:Agent ;
+               emf:auditEvent "+addTookSample|-removeTookSample|changeTookSample" ;
+               dc:creator "Lidiya Dimitrova" ;
+               rdfs:label "took sample(s)"@en ;
+               skos:definition "The samples taken by the person."@en .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#accessionNumber
+cia:accessionNumber rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Courtauld gallery accession number"@en ;
+                    skos:definition "Unique institutional ID. Can be coded to be human readable and to express, for example, year/lot/number if acquisition or shelf location."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#activityCode
+cia:activityCode rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Activity code"@en ;
+                 skos:definition "Project specific identifier."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#activityYear
+cia:activityYear rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Malvina Makarieva"@en ;
+                 rdfs:label "Year"@en ;
+                 skos:definition "The year the student submitted the project."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#analysisDate
+cia:analysisDate rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:dateTime ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Date of analysis"@en ;
+                 skos:definition "Date of any analysis made on the sample."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#analysisMethod
+cia:analysisMethod rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Method of analysis"@en ;
+                   skos:definition "The method of analysis used."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#analysisMethodLocation
+cia:analysisMethodLocation rdf:type owl:DatatypeProperty ;
+                           rdfs:range xsd:string ;
+                           dc:creator "Lidiya Dimitrova"@en ;
+                           rdfs:label "Location of analytical method"@en ;
+                           skos:definition "The location of analytical method used."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#attribution
+cia:attribution rdf:type owl:DatatypeProperty ;
+                rdfs:domain chc:CulturalObject ;
+                rdfs:range xsd:string ;
+                dc:creator "Lidiya Dimitrova"@en ;
+                rdfs:label "Attribution"@en ;
+                skos:definition "An entity primarily responsible for creating an object"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#auxiliarySupport
+cia:auxiliarySupport rdf:type owl:DatatypeProperty ;
+                     rdfs:domain chc:CulturalObject ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Auxiliary support"@en ;
+                     skos:definition "Description of the axiliary support. A second, newer than the original, support for the cultural object. Usually a second canvas adhered to the reverse of the original canvas of a painting used when the original canvas is too old and fragile."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#bequest
+cia:bequest rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:string ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            rdfs:label "Bequest"@en ;
+            skos:definition "The public credit line for the object. "@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#century
+cia:century rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva"@en ;
+            rdfs:label "Century"@en ;
+            skos:definition "The century of origin of the cultural object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#ciaNumber
+cia:ciaNumber rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "CIA Courtauld number"@en ;
+              skos:definition "The CIA number includes all cultural objects treated in the department."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#colour
+cia:colour rdf:type owl:DatatypeProperty ;
+           rdfs:range xsd:string ;
+           dc:creator "Lidiya Dimitrova"@en ;
+           rdfs:label "Colour"@en ;
+           skos:definition "A quality of the sample such as red, blue, green, yellow, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#creationDate
+cia:creationDate rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Date"@en ;
+                 skos:definition "Start/end dates and qualifiers such as \"circa\", \"before\", etc. Can have historical records of former attributions of creation dates."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#currentLocation
+cia:currentLocation rdf:type owl:DatatypeProperty ;
+                    rdfs:domain chc:CulturalObject ;
+                    rdfs:range xsd:string ;
+                    dc:creator "Lidiya Dimitrova"@en ;
+                    rdfs:label "Current location"@en ;
+                    skos:definition "The location that the cultural object is physically resides currently."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#dateOfFeedback
+cia:dateOfFeedback rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:dateTime ;
+                   dc:creator "Malvina Makarieva"@en ;
+                   rdfs:label "Date of feedback"@en ;
+                   skos:definition "Date on which the feedback was created."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#dateTaken
+cia:dateTaken rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:dateTime ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Date taken"@en ;
+              skos:definition "Date on which the sample was taken."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#dimensions
+cia:dimensions rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Dimensions"@en ;
+               skos:definition """The physical attributes of the object without matte and/or frame. Both US and metric. Can be complex with multi-component or 3-dimensional objects.
+Includes weight and other measures of the physical attributes of objects and their components."""@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#environmentalSurveyLocation
+cia:environmentalSurveyLocation rdf:type owl:DatatypeProperty ;
+                                rdfs:range xsd:string ;
+                                dc:creator "Lidiya Dimitrova"@en ;
+                                rdfs:label "Location"@en ;
+                                skos:definition "Location of the Environmental Survey"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#frameDescription
+cia:frameDescription rdf:type owl:DatatypeProperty ;
+                     rdfs:domain chc:CulturalObject ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Frame"@en ;
+                     skos:definition "Description of the frame. A detachable molding, usually of wood, that surrounds a cultural object that helps to display and protect."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#groundPreparationLayers
+cia:groundPreparationLayers rdf:type owl:DatatypeProperty ;
+                            rdfs:domain chc:CulturalObject ;
+                            rdfs:range xsd:string ;
+                            dc:creator "Lidiya Dimitrova"@en ;
+                            rdfs:label "Ground preparation layers"@en ;
+                            skos:definition "Text description of the ground. Layer of opaque paint applied to a support to provide a uniform, smooth surface to paint on"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#homeLocation
+cia:homeLocation rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Home location"@en ;
+                 skos:definition "Location could be a gallery or storage location where the cultural object normally is."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#imageOrientation
+cia:imageOrientation rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Orientation"@en ;
+                     skos:definition "The orientation of the art object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#inscriptions
+cia:inscriptions rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Inscription(s)"@en ;
+                 skos:definition "Description of any writing or printing on the object's obverse or reverse. Artist signature, dealer marks, inventory codes, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#lightType
+cia:lightType rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Lidiya Dimitrova"@en ;
+              rdfs:label "Type of light"@en ;
+              skos:definition "The type of light used for the photograph to be taken."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#materialCost
+cia:materialCost rdf:type owl:DatatypeProperty ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Material cost"@en ;
+                 skos:definition "The cost of materials used in the current activity."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#media
+cia:media rdf:type owl:DatatypeProperty ;
+          rdfs:domain chc:CulturalObject ;
+          rdfs:range xsd:string ;
+          dc:creator "Lidiya Dimitrova"@en ;
+          rdfs:label "Media"@en ;
+          skos:definition "Medium description often used for public."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#ownerNames
+cia:ownerNames rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Owner"@en ;
+               skos:definition "Owner of the Cultural Object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#paintLayers
+cia:paintLayers rdf:type owl:DatatypeProperty ;
+                rdfs:domain cia:Painting ;
+                rdfs:range xsd:string ;
+                dc:creator "Malvina Makarieva"@en ;
+                rdfs:label "Paint layers"@en ;
+                skos:definition "Description of the paint layers."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#provenance
+cia:provenance rdf:type owl:DatatypeProperty ;
+               rdfs:domain chc:CulturalObject ;
+               rdfs:range xsd:string ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Provenance"@en ;
+               skos:definition "Historical ownership of the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#purpose
+cia:purpose rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Malvina Makarieva" ;
+            rdfs:label "Purpose"@en ;
+            skos:definition "Defines the purpose of the feedback such as Practical assessments, Checklist for interview, ect."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#recordStatus
+cia:recordStatus rdf:type owl:DatatypeProperty ;
+                 rdfs:domain chc:CulturalObject ;
+                 rdfs:range xsd:string ;
+                 dc:creator "Lidiya Dimitrova"@en ;
+                 rdfs:label "Record status"@en ;
+                 skos:definition "The status of the cultural object record. Indicates if the cultural object is in the department, or could come in the department, if the cultural object is allocated or not, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#recordStatusNotes
+cia:recordStatusNotes rdf:type owl:DatatypeProperty ;
+                      rdfs:domain chc:CulturalObject ;
+                      rdfs:range xsd:string ;
+                      dc:creator "Lidiya Dimitrova"@en ;
+                      rdfs:label "Record status notes"@en ;
+                      skos:definition "Notes on the cultural object record such as if treatment is needed, if treatment is performed etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#reportDate
+cia:reportDate rdf:type owl:DatatypeProperty ;
+               rdfs:range xsd:dateTime ;
+               dc:creator "Lidiya Dimitrova"@en ;
+               rdfs:label "Date of report"@en ;
+               skos:definition "Date of the report."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#sampleLocation
+cia:sampleLocation rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Sample location"@en ;
+                   skos:definition "Location of the spot where the sample was taken: coordinates \"up\" and \"left\" or \"from right hand of the sitter\"."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#sampleTechniques
+cia:sampleTechniques rdf:type owl:DatatypeProperty ;
+                     rdfs:range xsd:string ;
+                     dc:creator "Lidiya Dimitrova"@en ;
+                     rdfs:label "Techniques used on sample"@en ;
+                     skos:definition "Techniques used on sample."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#samplingReason
+cia:samplingReason rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Reason for sampling"@en ;
+                   skos:definition "Reason for sampling/motivation for sampling."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#stainType
+cia:stainType rdf:type owl:DatatypeProperty ;
+              rdfs:range xsd:string ;
+              dc:creator "Malvina Makarieva"@en ;
+              rdfs:label "Type of stain"@en ;
+              skos:definition "Description of the type of stain."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#subType
+cia:subType rdf:type owl:DatatypeProperty ;
+            rdfs:range xsd:string ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            rdfs:label "Sub-type"@en ;
+            skos:definition "Sub-classification of the object."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#support
+cia:support rdf:type owl:DatatypeProperty ;
+            rdfs:domain chc:CulturalObject ;
+            rdfs:range xsd:string ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            rdfs:label "Support"@en ;
+            skos:definition "Description of the paper support. A support on which the cultural object is made."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#treatmentStage
+cia:treatmentStage rdf:type owl:DatatypeProperty ;
+                   rdfs:range xsd:string ;
+                   dc:creator "Lidiya Dimitrova"@en ;
+                   rdfs:label "Stage of treatment"@en ;
+                   skos:definition "The stage of the treatment, when the sample is taken."@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject
+chc:CulturalObject emf:isSearchable "true"^^xsd:boolean .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#DecorativeArt
+cia:DecorativeArt rdf:type owl:Class ;
+                  rdfs:subClassOf chc:CulturalObject ;
+                  emf:classCategory "culturalobject" ;
+                  emf:definitionId "objectinstance" ;
+                  emf:isCreateable "true"^^xsd:boolean ;
+                  emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+                  emf:isSearchable "true"^^xsd:boolean ;
+                  dc:creator "Lidiya Dimitrova"@en ;
+                  sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+                  sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+                  rdfs:label "Decorative Art"@en ;
+                  skos:definition "The decorative arts are arts or crafts concerned with the design and manufacture of beautiful objects that are also functional. It includes interior design, but not usually architecture . Examples include things like candle sticks, furniture, porcelain dinnerware, etc."@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Drawing
+cia:Drawing rdf:type owl:Class ;
+            rdfs:subClassOf chc:CulturalObject ;
+            emf:classCategory "culturalobject" ;
+            emf:definitionId "objectinstance" ;
+            emf:isCreateable "true"^^xsd:boolean ;
+            emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+            emf:isSearchable "true"^^xsd:boolean ;
+            dc:creator "Lidiya Dimitrova"@en ;
+            sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+            sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+            rdfs:label "Drawing"@en ;
+            skos:definition "Drawing is a form of visual art that makes use of any number of drawing instruments to mark a two-dimensional medium. Instruments used include graphite pencils, pen and ink, inked brushes, wax color pencils, crayons, charcoal, chalk, pastels, various kinds of erasers, markers, styluses, and various metals (such as silverpoint) (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Feedback
+cia:Feedback rdf:type owl:Class ;
+             rdfs:subClassOf ptop:InformationResource ;
+             emf:classCategory "objectinstance" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Malvina Makarieva"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Feedback"@en ;
+             skos:definition "Feedback is information given to the student and/or the teacher about the student’s performance relative to learning process and goals"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Painting
+cia:Painting rdf:type owl:Class ;
+             rdfs:subClassOf chc:CulturalObject ;
+             emf:classCategory "culturalobject" ;
+             emf:definitionId "objectinstance" ;
+             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+             emf:isSearchable "true"^^xsd:boolean ;
+             dc:creator "Kiril Penev"@en ;
+             sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+             sec:allowInheritParentPermissions "false"^^xsd:boolean ;
+             rdfs:label "Painting"@en ;
+             skos:definition "Painting is the practice of applying paint, pigment, color or other medium to a surface (support base). The medium is commonly applied to the base with a brush but other implements, such as knives, sponges, and airbrushes, can be used. In art, the term painting describes both the act and the result of the action. However, painting is also used outside of art as a common trade among craftsmen and builders. Paintings may have for their support such surfaces as walls, paper, canvas, wood, glass, lacquer, clay, leaf, copper or concrete, and may incorporate multiple other materials including sand, clay, paper, gold leaf as well as objects. (Wikipedia)"@en .
+
+
+###  http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation/CIA#Survey
+cia:Survey rdf:type owl:Class ;
+           rdfs:subClassOf emf:Activity ;
+           emf:classCategory "caseinstance" ;
+           emf:definitionId "objectinstance" ;
+           emf:isCreateable "true"^^xsd:boolean ;
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           emf:isSearchable "true"^^xsd:boolean ;
+           dc:creator "Lidiya Dimitrova"@en ;
+           sec:allowInheritLibraryPermissions "false"^^xsd:boolean ;
+           sec:allowInheritParentPermissions "true"^^xsd:boolean ;
+           rdfs:label "Survey"@en ;
+           skos:definition "An activity of examine and record a cultural object(s) in order to describe its(their) condition."@en .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+emf:hasAssignee sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+emf:hasPrimaryImage emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:hasWatcher sec:autoAssignPermissionRole "CONSUMER" .
+
+
+emf:isPrimaryImageOf emf:isSearchable "true"^^xsd:boolean .
+
+
+emf:processes emf:isSearchable "true"^^xsd:boolean .
+
+
+ptop:hasParticipant sec:autoAssignPermissionRole "COLLABORATOR" ;
+                    sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                    emf:isSearchable "true"^^xsd:boolean ;
+                    emf:auditEvent "+addHasParticipant|-removeHasParticipant|changeHasParticipant" .
+
+
+ptop:involvedIn emf:auditEvent "+addInvolvedIn|-removeInvolvedIn|changeInvolvedIn" ;
+                emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:Sample emf:isCreateable "true"^^xsd:boolean ;
+           emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
+           emf:isSearchable "true"^^xsd:boolean ;
+           sec:allowInheritLibraryPermissions "true"^^xsd:boolean ;
+           sec:allowInheritParentPermissions "false"^^xsd:boolean .
+
+
+chc:approvedBy sec:autoAssignPermissionRole "COLLABORATOR" ;
+               sec:autoAssignParentPermissionRole "CONSUMER" ;
+               emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:assignedPermissions sec:autoAssignPermissionRole "CONSUMER" ;
+                        emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:attachmentOf emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:depicts emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:documents emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasApproved emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasAttachment emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasAuthor emf:isSearchable "true"^^xsd:boolean ;
+              sec:autoAssignParentPermissionRole "CONSUMER" ;
+              sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+chc:hasDepiction emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasSample emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:hasSupervisor emf:isSearchable "true"^^xsd:boolean ;
+                  sec:autoAssignParentPermissionRole "COLLABORATOR" ;
+                  sec:autoAssignPermissionRole "COLLABORATOR" .
+
+
+chc:isAuthorOf emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isDocumentedIn emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isSupervisorOf emf:isSearchable "true"^^xsd:boolean .
+
+
+chc:isTakenFrom emf:isSearchable "true"^^xsd:boolean .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

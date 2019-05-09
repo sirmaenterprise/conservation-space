@@ -3,6 +3,9 @@ import {CodelistRestService} from 'services/rest/codelist-service';
 import {DialogService} from 'components/dialog/dialog-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {FileUploadIntegration} from 'file-upload/file-upload-integration';
+import {AuthenticationService} from 'security/authentication-service';
+import {AUTHORIZATION} from 'services/rest/http-headers';
+import {PromiseStub} from 'test/promise-stub';
 
 import {stub} from 'test/test-utils';
 
@@ -11,7 +14,7 @@ describe('CodeListsUpload', () => {
   let codeListsUpload;
   beforeEach(() => {
     codeListsUpload = new CodeListsUpload(stubScope(), stubElement(), stub(DialogService), stubTranslateService(),
-      stubCodelistRestService(), stubRestClient(), stubFileUploadIntegration());
+      stubCodelistRestService(), stubRestClient(), stubFileUploadIntegration(), stubAuthenticationService());
     codeListsUpload.ngOnInit();
   });
 
@@ -110,6 +113,7 @@ describe('CodeListsUpload', () => {
 
   describe('startUpload()', () => {
     it('should change previous message and flag uploading to true', () => {
+      codeListsUpload.uploadControl = {};
       codeListsUpload.fileUploadIntegration = stubFileUploadIntegration(false, false);
       codeListsUpload.uploading = false;
       codeListsUpload.uploadMessage = 'Success!';
@@ -125,6 +129,7 @@ describe('CodeListsUpload', () => {
     });
 
     it('should clean error in case of success', () => {
+      codeListsUpload.uploadControl = {};
       codeListsUpload.fileUploadIntegration = stubFileUploadIntegration(false, true);
       codeListsUpload.error = true;
       codeListsUpload.startUpload(true);
@@ -132,6 +137,7 @@ describe('CodeListsUpload', () => {
     });
 
     it('should use the error message in case of error', () => {
+      codeListsUpload.uploadControl = {};
       codeListsUpload.fileUploadIntegration = stubFileUploadIntegration(true, true, {
         responseJSON: {message: 'Error'}
       });
@@ -142,6 +148,7 @@ describe('CodeListsUpload', () => {
     });
 
     it('should not be flagged as uploading in case of both success and error', () => {
+      codeListsUpload.uploadControl = {};
       codeListsUpload.fileUploadIntegration = stubFileUploadIntegration(false, true);
       codeListsUpload.uploading = true;
       codeListsUpload.startUpload(true);
@@ -154,14 +161,38 @@ describe('CodeListsUpload', () => {
     });
 
     it('should trigger a digest cycle', () => {
+      codeListsUpload.uploadControl = {};
       codeListsUpload.startUpload(true);
       expect(codeListsUpload.$scope.$digest.calledOnce).to.be.true;
     });
 
     it('should notify on upload', () => {
+      codeListsUpload.uploadControl = {};
       codeListsUpload.onUpload = sinon.spy();
       codeListsUpload.startUpload(true);
       expect(codeListsUpload.onUpload.calledOnce).to.be.true;
+    });
+
+    it('should clear the uploading state', () => {
+      codeListsUpload.uploadControl = {};
+      codeListsUpload.startUpload();
+      expect(codeListsUpload.uploadControl.files).to.deep.eq([]);
+    });
+
+    it('should add authorization header to upload control', () => {
+      codeListsUpload.uploadControl = {};
+      codeListsUpload.startUpload();
+      expect(codeListsUpload.uploadControl.headers).to.deep.eq({[AUTHORIZATION]: 'Bearer token'});
+    });
+
+    it('should append authorization header to upload control', () => {
+      codeListsUpload.uploadControl = {
+        headers: {
+          'Accept-Language': 'bg-BG'
+        }
+      };
+      codeListsUpload.startUpload();
+      expect(codeListsUpload.uploadControl.headers).to.deep.eq({'Accept-Language': 'bg-BG', [AUTHORIZATION]: 'Bearer token'});
     });
   });
 
@@ -253,6 +284,12 @@ describe('CodeListsUpload', () => {
       };
     });
     return integration;
+  }
+
+  function stubAuthenticationService() {
+    let authenticationService = stub(AuthenticationService);
+    authenticationService.buildAuthHeader.returns(PromiseStub.resolve('Bearer token'));
+    return authenticationService;
   }
 
 });

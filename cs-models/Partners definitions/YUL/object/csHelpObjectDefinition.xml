@@ -1,27 +1,14 @@
 <?xml version="1.0"?>
-<definition id="csHelp" parentId="help" type="object">
+<definition id="csHelp" parentId="baseHelp" type="object">
 	<fields>
 		<field name="default_header" type="ANY" label="HELP_DEFAULT_HEADER" />
-        <field name="compact_header" type="an..4096" label="HELP_COMPACT_HEADER" />
+        <field name="compact_header" type="ANY" label="HELP_COMPACT_HEADER" />
 		<field name="tooltip_header" type="ANY" label="HELP_TOOLTIP_HEADER" />
-		<field name="breadcrumb_header" type="an..4096" label="HELP_BREADCRUMB_HEADER" />
+		<field name="breadcrumb_header" type="ANY" label="HELP_BREADCRUMB_HEADER" />
         
-		<field name="helpTarget" type="an..1024" displayType="system" />
-		<field name="identifier" type="an..50" displayType="system" />
-		<field name="type" type="an..50" displayType="system" />
-        <field name="title" type="an..180" displayType="system"/>
 		<field name="description" type="an..5000" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-    	<field name="createdBy" type="uri" displayType="system" />
-        <field name="modifiedOn" type="dateTime" displayType="system"/>
-        <field name="modifiedBy" type="uri" displayType="system" />
-		<field name="status" type="an..50" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
+		<field name="outcome" type="ANY" displayType="system" />
 		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		
 		<field name="integrated" type="boolean" displayType="system" />
 		<field name="uri" type="an..50" displayType="system" />
 		<field name="hasRevision" type="uri" displayType="system" />
@@ -30,23 +17,14 @@
 		<field name="lastRevision" type="uri" displayType="system" />
 		<field name="nextRevision" type="uri" displayType="system" />
 		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="name" type="an..180" displayType="system" />
-		<field name="size" type="n..10" displayType="system" />
-		<field name="mimetype" type="an..20" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
 	</fields>
 	<regions>	
 		<region id="helpInformation" order="60" displayType="editable" label="yul.helpInformation.region.label">
 			<fields>
-				<field name="type" type="an..20" displayType="readOnly" codelist="CL7" label="yul.type.label" tooltip="yul.type.tooltip" uri="emf:type">
+				<field name="type" type="ANY" displayType="readOnly" codelist="CL7" label="yul.type.label" tooltip="yul.type.tooltip" uri="emf:type">
 					<value>csHelp</value>
 				</field>
-				<field name="helpTarget" type="an..20" displayType="editable" codelist="CL16" label="yul.helpTarget.label" tooltip="yul.helpTarget.tooltip" multiValued="true" uri="emf:helpTarget" />
+				<field name="helpTarget" type="ANY" displayType="editable" codelist="CL16" label="yul.helpTarget.label" tooltip="yul.helpTarget.tooltip" multiValued="true" uri="emf:helpTarget" />
 				<field name="title" type="an..1000" mandatory="true" displayType="editable" label="yul.title.label" tooltip="yul.title.tooltip" uri="dcterms:title" />
 			</fields>
 		</region>
@@ -57,8 +35,8 @@
 				<field name="size" type="n..10" displayType="readOnly" label="size.label" tooltip="yul.size.tooltip" previewEmpty="false" uri="emf:size"> 
 					<control id="BYTE_FORMAT" />
 				</field>
-				<field name="mimetype" type="an..20" displayType="readOnly" codelist="CL30" label="mimetype.label" tooltip="yul.mimetype.tooltip" previewEmpty="false" uri="emf:mimetype" />
-				<field name="status" type="an..20" displayType="readOnly" codelist="CL119" label="yul.status.label" tooltip="yul.status.tooltip" uri="emf:status" />
+				<field name="mimetype" type="ANY" displayType="readOnly" codelist="CL30" label="mimetype.label" tooltip="yul.mimetype.tooltip" previewEmpty="false" uri="emf:mimetype" />
+				<field name="status" type="ANY" displayType="readOnly" codelist="CL119" label="yul.status.label" tooltip="yul.status.tooltip" uri="emf:status" />
 				<field name="emf:version" type="an..10" displayType="readOnly" label="object.version" tooltip="yul.version.tooltip" uri="emf:version"/> 
 				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" uri="emf:createdOn" />
 				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" uri="emf:createdBy" >
@@ -132,10 +110,10 @@
 	<transitions>
 		<transition id="editDetails" order="10" actionPath="/actions" />
 		<transition id="uploadNewVersion" order="15" />
-		<transition id="download" label="download.label" order="20" eventId="download" purpose="download" tooltip="download.tooltip" />
+		<transition id="download" label="download.label" order="20" purpose="download" tooltip="download.tooltip" />
 		
 		<group id="add" order="25" label="add.group.label" type="menu" />
-		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -150,7 +128,7 @@
 			</fields>
 		</transition>
 		<transition id="addThumbnail" group="add" />
-		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>						
@@ -184,7 +162,7 @@
 		<group id="more" order="40" label="more.group.label" type="menu" />
 		<transition id="move" group="more" />
 		<transition id="lock" group="more" />
-		<transition id="unlock" group="more" />
+		<transition id="unlock" group="more" actionPath="/" />
 		<transition id="managePermissions" group="more" />
 		
 		<transition id="delete" order="100" />
@@ -248,12 +226,18 @@
 					)}
 					<span class="tooltip-row">
 						<label>System modified by: </label>
-						<span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(MM/dd/yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>)})}]]>
 			</value>
 		</label>		
@@ -263,17 +247,19 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 				<span ><img src="${thumbnailUri(64)}"/></span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>
 					${if(${get([helpTarget])}<>null).then(:&nbsp;<span data-property="helpTarget">${CL([helpTarget])}</span>)}
 					<br >
-					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-						<span data-property="title">${get([title])}</span>
-					</a>
+					<b>
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</b>	
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]>
 			</value>
 		</label>
@@ -283,6 +269,7 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 				<span ><img src="${thumbnailUri(16)}"/></span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>:&nbsp;
 					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
@@ -291,7 +278,6 @@
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]>
 			</value>
 		</label>
@@ -301,8 +287,8 @@
                 ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
                 ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
                 <span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>)}

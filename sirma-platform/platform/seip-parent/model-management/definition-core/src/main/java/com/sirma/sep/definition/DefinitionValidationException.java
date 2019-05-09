@@ -3,7 +3,7 @@ package com.sirma.sep.definition;
 import java.util.Collection;
 
 /**
- * Thrown when defnition validation fails. Contains list of validation errors.
+ * Thrown when definition validation fails. Contains list of validation errors.
  *
  * @author Adrian Mitev
  */

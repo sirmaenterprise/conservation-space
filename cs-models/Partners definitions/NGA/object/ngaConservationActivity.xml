@@ -3,68 +3,53 @@
     <fields>	
 		<!-- headers and tooltip -->
 		<field name="default_header" type="ANY" label="CONSERVATION_ACTIVITY_DEFAULT_HEADER_NGA" />
-        <field name="compact_header" type="an..4096"  label="CONSERVATION_ACTIVITY_COMPACT_HEADER_NGA" />
-        <field name="breadcrumb_header" type="an..4096" label="CONSERVATION_ACTIVITY_BREADCRUMB_HEADER_NGA" />
+        <field name="compact_header" type="ANY" label="CONSERVATION_ACTIVITY_COMPACT_HEADER_NGA" />
+        <field name="breadcrumb_header" type="ANY" label="CONSERVATION_ACTIVITY_BREADCRUMB_HEADER_NGA" />
 		<field name="tooltip_header" type="ANY" label="CONSERVATION_ACTIVITY_TOOLTIP_HEADER_NGA" />
 		
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+		<field name="rdf:type" >
             <value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#ConservationActivity</value>
         </field>
     </fields>
 	<regions>	
-		<region id="systemInformation" order="30" label="nga.systemInformation.region.label">
+		<region id="systemInformation" >
 			<fields>
-				<field name="identifier" type="an..50" label="nga.identifier.label" tooltip="nga.identifier.tooltip" displayType="readonly" order="300" rnc="${eval(CA${seq({+caSequence})})}" />
+				<field name="identifier" tooltip="nga.identifier.tooltip" order="300" rnc="${eval(CA${seq({+caSequence})})}" />
 			</fields>
 		</region>
-		<region id="generalActivityInformation" label="ngaConservationActivityDetails.region.label" order="10">
+		<region id="generalActivityInformation" label="ngaConservationActivityDetails.region.label" >
 			<fields>
-				<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL239" order="115" label="nga.subType.label" tooltip="nga.subType.tooltip" uri="nga:subClassification" />
-				<!-- <field name="activityPurpose" type="an..1024" codelist="CL242" displayType="editable" label="nga.purpose.label" tooltip="nga.activityPurpose.tooltip" order="116" uri="chc:activityPurpose" /> -->
-				<field name="department" type="an..1024" label="nga.department.label" tooltip="nga.department.tooltip" order="117" codelist="CL245" mandatory="true"
-				displayType="editable" multiValued="true" filters="ngaConservationDepartment2" uri="emf:departmentName" >
-					<control id="DEFAULT_VALUE_PATTERN">
+				<field name="type" >
+					<value>NGACA</value>
+				</field>
+				<field name="subType" type="ANY" mandatory="true" displayType="editable" codelist="CL239" order="115" label="nga.subType.label" tooltip="nga.subType.tooltip" uri="nga:subClassification" />
+				<field name="department" type="ANY" label="nga.department.label" tooltip="nga.department.tooltip" order="117" codelist="CL245" mandatory="true"
+				displayType="editable" multiValued="true" uri="emf:departmentName" >
+					<control id="RELATED_FIELDS">
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">department</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGACDP24501,NGACDP24502,NGACDP24503,NGACDP24504,NGACDP24505,NGACDP24506,NGACDP24507,NGACDP24508,NGACDP24509</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
 						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
 					</control>
-				<!--	<control id="RELATED_FIELDS">
-						<control-param id="fieldsToRerender" name="RERENDER">type</control-param>
-						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
-					</control>-->
 				</field>
-				<!-- <field name="numberOfObjects" type="an..10" displayType="editable" label="ngaActivity.numberOfObjects.label" tooltip="ngaActivity.numberOfObjects.tooltip" order="121" previewEmpty="false" uri="nga:numberOfObjects" /> -->
 				<field name="emf:processes" type="uri" label="nga.culturalObjectProcesses.label" tooltip="nga.processes.tooltip" displayType="editable" multiValued="true" order="124" previewEmpty="false" uri="emf:processes">
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "not_in", "type": "codeList", "value": ["ARCHIVED","OBSOLETE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "not_in", "type": "codeList", "value": ["ARCHIVED","OBSOLETE"]}</control-param>
 					</control>
 				</field>
 				<field name="assignee" type="uri" label="nga.hasAssignee.label" tooltip="nga.assignee.tooltip" mandatory="true" displayType="editable" order="126" uri="emf:hasAssignee">
 					<condition id="hiddenFieldId" renderAs="READONLY">[identifier] NOTIN ('NO_ID')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 					<value>${currentUser.id}</value>
 				</field>
-				<!-- <field name="chc:hasSupervisor" type="uri" label="nga.hasSupervisor.label" tooltip="nga.hasSupervisor.tooltip" displayType="editable" multiValued="true" order="128" uri="chc:hasSupervisor">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User,emf:Group</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>-->
 				<field name="ptop:hasParticipant" type="uri" label="nga.hasParticipant.label" tooltip="nga.hasParticipant.tooltip" displayType="editable" multiValued="true" order="130" uri="ptop:hasParticipant" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User,emf:Group</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 				</field>
 			</fields>
@@ -72,7 +57,7 @@
 	</regions>
 	
 	<transitions>
-		<transition id="create" eventId="create" purpose="create">
+		<transition id="create" label="create" purpose="create">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -130,10 +115,6 @@
 		<child type="task" id="all"/>
 	</allowedChildren>
 	
-	<filterDefinitions>
-		<filter id="ngaConservationDepartment2" mode="INCLUDE">NGACDP24501,NGACDP24502,NGACDP24503,NGACDP24504,NGACDP24505,NGACDP24506,NGACDP24507,NGACDP24508,NGACDP24509</filter>
-	</filterDefinitions>
-	
 	<labels>
 		<label id="CONSERVATION_ACTIVITY_TOOLTIP_HEADER_NGA">
 			<value lang="en"><![CDATA[${eval(#{eval(
@@ -173,13 +154,13 @@
 					${if(${get([plannedStartDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>Start date: </label>
-							<span data-property="plannedStartDate">${date([plannedStartDate]).format(YYYY-MM-dd)}</span>
+							<span data-property="plannedStartDate">${date([plannedStartDate])}</span>
 						</span>
 					)}
 					${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>End date: </label>
-							<span data-property="plannedEndDate">${date([plannedEndDate]).format(YYYY-MM-dd)}</span>
+							<span data-property="plannedEndDate">${date([plannedEndDate])}</span>
 						</span>
 					)}
 					${if(${get([estimatedEffortHours])}<>null).then(
@@ -190,12 +171,18 @@
 					)}
 					<span class="tooltip-row">
                         <label>System modified by: </label>
-                        <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
+                       <span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
                     </span>
 					<span class="tooltip-row">
                         <label>System modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(YYYY-MM-dd, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>
@@ -205,6 +192,7 @@
 					${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 					<span><img src="${thumbnailUri(64)}"/></span>
 					<span>
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						<span class="truncate-element">
 							<span data-property="subType">${CL([subType])}</span>
 							${if(${get([activityPurpose])}<>null).then(:&nbsp;<span data-property="activityPurpose">${CL([activityPurpose])}</span>)}
@@ -212,27 +200,27 @@
 						</span>
 						<br />
 						<span>
-							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-								${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-								<span data-property="title">${get([title])}</span>
-							</a>&nbsp;
+							<b>
+								<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+									${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+									<span data-property="title">${get([title])}</span>
+								</a>&nbsp;
+							</b>
 							<span data-property="department">${CL([department])}</span>
 							${if(${var.isVersion}).then(
 								&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 							)}
-						</span> 
-						${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+						</span>
 					</span>	
 			)}]]></value>
 		</label>
-		
         <label id="CONSERVATION_ACTIVITY_COMPACT_HEADER_NGA">	
 		   <value lang="en"><![CDATA[${eval(
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>			
 			  <span class="truncate-element">
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span data-property="subType">${CL([subType])}</span>&nbsp;
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
@@ -244,14 +232,13 @@
 				)}
 			</span>
 		)}]]></value>
-		</label>
-		
+		</label>	
 		<label id="CONSERVATION_ACTIVITY_BREADCRUMB_HEADER_NGA">
             <value lang="en"><![CDATA[${eval(
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						<span data-property="title">${get([title])}</span>

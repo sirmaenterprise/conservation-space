@@ -29,14 +29,14 @@ export class ModelUtils {
     viewModel.fields.push(field);
   }
 
-  static createField(id, displayType, dataType, label, mandatory, rendered, validators = [], control, codelist, isDataProperty = true) {
+  static createField(id, displayType, dataType, label, mandatory, rendered, validators, control, codelist, isDataProperty = true) {
     let model = {
       identifier: id,
       previewEmpty: true,
       disabled: false,
       displayType,
       tooltip: 'tooltip',
-      validators: [...validators],
+      validators: validators ? [...validators] : [],
       dataType,
       label,
       isMandatory: mandatory,
@@ -198,7 +198,7 @@ export class ModelUtils {
           propertyValue.add.length = 0;
           propertyValue.remove.length = 0;
         }
-      } else if(propertyValue.results.length > 0 && selection.length == 0){
+      } else if (propertyValue.results.length > 0 && selection.length == 0) {
         // check if old value is not empty this -> assume we have to remove it.
         propertyValue.remove.splice(0, 1, propertyValue.results[0]);
         propertyValue.results.splice(0, 1);
@@ -292,8 +292,8 @@ export class ModelUtils {
    * @return {*}
    */
   static getObjectPropertyValue(instanceModel) {
-    if(instanceModel) {
-      if(instanceModel.value) {
+    if (instanceModel) {
+      if (instanceModel.value) {
         return instanceModel.value.results;
       }
       return instanceModel.results;
@@ -434,6 +434,11 @@ export class ModelUtils {
         controlType = CONTROL_TYPE.CHECKBOX;
       } else if (dataType === 'password') {
         controlType = CONTROL_TYPE.PASSWORD;
+      } else if (dataType.toUpperCase() === 'ANY' && propertyModel.codelist) {
+        controlType = CONTROL_TYPE.CODELIST;
+      } else if (!_.isEmpty(dataType) && !propertyModel.isDataProperty) {
+        propertyModel.disabled = true;
+        controlType = ModelUtils.getTextFieldType(propertyModel, textareaMinCharsLength);
       }
     }
     return controlType;
@@ -473,16 +478,14 @@ export class ModelUtils {
 
   static getTextFieldType(currentModelItem, textareaMinCharsLength) {
     let controlType = CONTROL_TYPE.TEXT;
-    if (currentModelItem.codelist) {
-      controlType = CONTROL_TYPE.CODELIST;
-    } else if (currentModelItem.maxLength > textareaMinCharsLength) {
+    if (currentModelItem.maxLength > textareaMinCharsLength) {
       controlType = CONTROL_TYPE.TEXTAREA;
     }
     return controlType;
   }
 
-  static getControl(control = [], controlId) {
-    return _.find(control, (element) => {
+  static getControl(control, controlId) {
+    return _.find(control || [], (element) => {
       return element.identifier.toUpperCase() === controlId.toUpperCase();
     });
   }

@@ -4,9 +4,7 @@ import template from './recent-objects-menu.html!text';
 @Component({
   selector: 'seip-recent-objects-menu'
 })
-@View({
-  template: template
-})
+@View({template})
 export class RecentObjectsMenu {
 
 }

@@ -2,8 +2,9 @@ package com.sirma.sep.model;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
+
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 
 /**
  * Validates and imports all models in the system, given a collection of input streams representing the files.</br>
@@ -30,9 +31,18 @@ public interface ModelImportService {
 	 *        {@link InputStream} representing the file content. Supported files are: zip archive with models inside,
 	 *        .XMLs and .BPMNs. If a zip is passed, it gets unzipped, its contents are auto-recognized and passed for
 	 *        import. Currently, only one zip is supported.
-	 * @return a list of detected errors, or an empty list if all models are valid
+	 * @return a report containing a list of detected errors, or an empty report if all models are valid
 	 */
-	List<String> importModel(Map<String, InputStream> files);
+	ValidationReport importModel(Map<String, InputStream> files);
+
+	/**
+	 * Validates the provided models together with the existing ones in the system.
+	 *
+	 * @param files is map of files to validate where the key is the original file name and the value is an
+	 * {@link InputStream} representing the file content.
+	 * @return a report containing a list of detected errors, or an empty report if all models are valid
+	 */
+	ValidationReport validateModel(Map<String, InputStream> files);
 
 	/**
 	 * Exports the requested models as files. If only one file is requested (or available) it is directly returned as an

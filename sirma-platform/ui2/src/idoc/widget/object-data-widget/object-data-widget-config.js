@@ -1,9 +1,7 @@
 import {View, Inject, NgScope} from 'app/app';
 import {WidgetConfig} from 'idoc/widget/widget';
 import {Configurable} from 'components/configurable';
-import {Select} from 'components/select/select';
 import {
-  ObjectSelector,
   SELECT_OBJECT_CURRENT,
   SELECT_OBJECT_MANUALLY,
   SELECT_OBJECT_AUTOMATICALLY
@@ -11,9 +9,9 @@ import {
 import {ObjectSelectorHelper} from 'idoc/widget/object-selector/object-selector-helper';
 import {LABEL_POSITION_LEFT, LABEL_POSITION_HIDE, LABEL_TEXT_LEFT} from 'form-builder/form-wrapper';
 import {NO_LINK} from 'idoc/widget/object-data-widget/object-data-widget';
-import {SINGLE_SELECTION, MULTIPLE_SELECTION} from 'search/search-selection-modes';
+import {SINGLE_SELECTION} from 'search/search-selection-modes';
 import {PropertiesSelectorHelper} from 'idoc/widget/properties-selector/properties-selector-helper';
-import {PropertiesSelector} from 'idoc/widget/properties-selector/properties-selector';
+import 'idoc/widget/properties-selector/properties-selector';
 import {SearchCriteriaUtils} from 'search/utils/search-criteria-utils';
 import _ from 'lodash';
 import objectDataWidgetConfigTemplate from 'idoc/widget/object-data-widget/object-data-widget-config.html!text';
@@ -56,7 +54,7 @@ export class ObjectDataWidgetConfig extends Configurable {
     this.objectSelectorConfig = {
       criteria: searchCriteria,
       selectObjectMode: this.config.selectObjectMode,
-      triggerSearch: triggerSearch,
+      triggerSearch,
       searchMode: this.config.searchMode,
       // This callback is called when selectObjectMode is changed, when a search is performed or when selectedItems are changed
       onObjectSelectorChanged: (onSelectorChangedPayload) => {

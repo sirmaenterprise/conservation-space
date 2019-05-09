@@ -72,8 +72,8 @@ public class ImageNode extends AbstractNode {
 	 */
 	public Optional<Dimension> getImageDimensions() {
 		if (hasImageDimensions()) {
-			int width = Integer.parseInt(getElement().attr(ATTR_WIDTH));
-			int height = Integer.parseInt(getElement().attr(ATTR_HEIGHT));
+			String width = getElement().attr(ATTR_WIDTH);
+			String height = getElement().attr(ATTR_HEIGHT);
 			return Optional.of(new Dimension(width, height));
 		}
 		return Optional.empty();
@@ -87,9 +87,30 @@ public class ImageNode extends AbstractNode {
 	 * @param height
 	 *            the new image height
 	 */
-	public void setImageDimensions(int width, int height) {
-		addProperty(ATTR_WIDTH, Integer.toString(width));
-		addProperty(ATTR_HEIGHT, Integer.toString(height));
+	public void setImageDimensions(double width, double height) {
+		addProperty(ATTR_WIDTH, dimensionToString(width));
+		addProperty(ATTR_HEIGHT, dimensionToString(height));
+	}
+
+	/**
+	 * Sets new image dimensions to the current image node
+	 *
+	 * @param imageDimensions the dimensions to set for image size and optional zoom level
+	 */
+	public void setImageDimensions(Dimension imageDimensions) {
+		addProperty(ATTR_WIDTH, imageDimensions.getRawWidth());
+		addProperty(ATTR_HEIGHT, imageDimensions.getRawHeight());
+	}
+
+	private static String dimensionToString(double dimension) {
+		if (isInteger(dimension)) {
+			return Integer.toString((int) dimension);
+		}
+		return Double.toString(dimension);
+	}
+
+	private static boolean isInteger(double width) {
+		return width == Math.ceil(width);
 	}
 
 	/**

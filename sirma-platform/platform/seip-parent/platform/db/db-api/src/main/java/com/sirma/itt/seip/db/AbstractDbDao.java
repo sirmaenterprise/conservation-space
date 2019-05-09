@@ -67,4 +67,9 @@ public abstract class AbstractDbDao implements DbDao, Serializable {
 			int limit) {
 		throw new DatabaseException("Not implemented abstract method!");
 	}
+
+	@Override
+	public <R, E extends Pair<String, Object>> List<R> fetchWithNative(String query, List<E> params) {
+		throw new DatabaseException("Not implemented abstract method!");
+	}
 }

@@ -1,31 +1,43 @@
 <div class="model-general">
-  <div class="model-semantic-attributes" ng-if="modelGeneral.class">
+  <div class="container-fluid model-semantic-attributes" ng-if="modelGeneral.class">
     <h4 class="model-header">
       <span ng-class="::modelGeneral.class.getIcon()" class="model-icon"></span>
       <span class="model-header-name">{{ modelGeneral.getClassName() }}</span>
       <span class="model-header-id">({{ modelGeneral.getClassIdentifier() }})</span>
     </h4>
 
-    <div class="container-fluid form-horizontal">
-      <model-attribute-view id="{{attribute.getId()}}"
-                            ng-repeat="attribute in modelGeneral.class.getAttributes()"
-                            attribute="attribute"></model-attribute-view>
+    <div class="model-form form-horizontal">
+      <model-attribute-view id="{{attribute.getId()}}" attribute="attribute"
+                            ng-if="attribute.getRestrictions().isVisible()"
+                            ng-repeat="attribute in modelGeneral.class.getAttributes() track by attribute.getId()"
+                            on-attribute-change="modelGeneral.notifyForModelAttributeChange(attribute, modelGeneral.class)"></model-attribute-view>
     </div>
   </div>
 
   <hr class="horizontal-divider" ng-if="modelGeneral.definition"/>
 
-  <div class="model-definition-attributes" ng-if="modelGeneral.definition">
+  <div class="container-fluid model-definition-attributes" ng-if="modelGeneral.definition">
     <h4 class="model-header">
       <span ng-class="::modelGeneral.definition.getIcon()" class="model-icon"></span>
       <span class="model-header-name">{{ modelGeneral.getDefinitionName() }}</span>
       <span class="model-header-id">({{ modelGeneral.getDefinitionIdentifier() }})</span>
     </h4>
 
-    <div class="container-fluid form-horizontal">
-      <model-attribute-view id="{{attribute.getId()}}" class="flex-group"
-                            ng-repeat="attribute in modelGeneral.definition.getAttributes()"
-                            attribute="attribute"></model-attribute-view>
+    <div class="model-form form-horizontal">
+      <model-attribute-view id="{{attribute.getId()}}" class="flex-group" attribute="attribute"
+                            ng-if="attribute.getRestrictions().isVisible()"
+                            ng-repeat="attribute in modelGeneral.definition.getAttributes() track by attribute.getId()"
+                            on-attribute-change="modelGeneral.notifyForModelAttributeChange(attribute, modelGeneral.definition)"></model-attribute-view>
     </div>
   </div>
+
+  <model-controls>
+    <model-save loading="modelGeneral.isSectionSaving()"
+                enabled="modelGeneral.isSaveAllowed()"
+                on-save="modelGeneral.saveAllChanges()"></model-save>
+
+    <model-cancel loading="modelGeneral.isSectionSaving()"
+                  enabled="modelGeneral.isSectionDirty()"
+                  on-cancel="modelGeneral.revertAllChanges()"></model-cancel>
+  </model-controls>
 </div>

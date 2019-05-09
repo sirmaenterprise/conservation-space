@@ -1,0 +1,45 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+    ?property skos:definition ?definition.
+    ?property rdfs:comment ?definition.
+    ?property dcterms:description ?description.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+	### http://purl.org/dc/terms/description
+	dcterms:description rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Описание"@bg ,
+                            "Description"@en ,
+							"Beschreibung"@de ,
+                            "Kuvaus"@fi	,
+							"Beskrivelse"@da ;
+				 skos:definition "Description of the item"@en .
+				 
+	### http://purl.org/dc/terms/title
+	dcterms:title rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Наименование"@bg ,
+							"Title"@en ,
+							"Titel"@de ,
+							"Otsikko"@fi ,
+							"Titel"@da ;
+				 skos:definition "Official title of the item"@en .
+    }
+} where {
+        ## both
+        ?property rdfs:label ?label.
+        ?property skos:definition|rdfs:comment ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (dcterms:description, dcterms:title))
+}

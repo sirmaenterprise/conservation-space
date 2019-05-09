@@ -137,7 +137,7 @@ public class VersionInstanceTypeResolver implements InstanceTypeResolver {
 			return Collections.emptyMap();
 		}
 
-		return instanceVersionService.exits(filtered);
+		return instanceVersionService.exist(filtered);
 	}
 
 	// such method could be defined in the interface and called before calling the actual resolver

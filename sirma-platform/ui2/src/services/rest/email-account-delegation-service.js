@@ -35,9 +35,7 @@ export class EmailAccountDelegationService {
       message += `target=${target}, granteeId=${granteeId}`;
       return this.promiseAdapter.reject(message);
     }
-    this.config.params = {
-      'target': target
-    };
+    this.config.params = {target};
     return this.restClient.patch(`${serviceUrl}/${granteeId}/email-account-delegate-permission`, {}, this.config);
   }
 
@@ -55,9 +53,7 @@ export class EmailAccountDelegationService {
       message += `target=${target}, granteeId=${granteeId}`;
       return this.promiseAdapter.reject(message);
     }
-    this.config.params = {
-      'target': target
-    };
+    this.config.params = {target};
     return this.restClient.patch(`${serviceUrl}/${granteeId}/email-account-remove-permission`, {}, this.config);
   }
 

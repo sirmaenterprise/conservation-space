@@ -1,99 +1,63 @@
 <?xml version="1.0"?>
-<definition id="userDefinition" parentId="userDefinitionBase" type="user">
+<definition id="userDefinition" parentId="baseUser" type="user">
 	<fields>		
 		<field name="default_header" type="ANY" label="USER_DEFAULT_HEADER_NGA" />
-		<field name="compact_header" type="an..4096" label="USER_COMPACT_HEADER_NGA" />
+		<field name="compact_header" type="ANY" label="USER_COMPACT_HEADER_NGA" />
 		<field name="tooltip_header" type="ANY" label="USER_TOOLTIP_HEADER_NGA" />
 		
-		<field name="userId" type="an..200" order="2" label="userDefinition.userId" tooltip="ngaUser.userId.tooltip" unique="true"  />
-		<field name="title" type="an..100" order="4" label="userDefinition.title" tooltip="nga.title.tooltip" />
-		<field name="firstName" type="an..35" order="8" mandatory="true" label="userDefinition.firstName" tooltip="ngaUser.firstName.tooltip" />
-		<field name="lastName" type="an..35" order="10" mandatory="true" label="userDefinition.lastName" tooltip="ngaUser.lastName.tooltip" /> 
-		<field name="email" type="an..50" order="12" label="nga.email.label" tooltip="nga.email.tooltip" />
-		<field name="country" type="an..50" order="14" label="userDefinition.country" tooltip="ngaUser.country.tooltip" />
-		<field name="address" type="an..100" order="16" label="userDefinition.address" tooltip="ngaUser.address.tooltip" />
-		<field name="telephone" type="an..50" order="18" label="userDefinition.telephone" tooltip="ngaUser.telephone.tooltip" />
-		<field name="mobile" type="an..100" order="20" label="userDefinition.mobile" tooltip="ngaUser.mobile.tooltip" />
-		<field name="im" type="an..100" order="22" label="userDefinition.im" tooltip="ngaUser.im.tooltip" />
+		<field name="userId" order="2" tooltip="ngaUser.userId.tooltip" />
+		<field name="title" order="4" tooltip="nga.title.tooltip" />
+		<field name="firstName" order="8" mandatory="true" tooltip="ngaUser.firstName.tooltip" />
+		<field name="lastName" order="10" mandatory="true" tooltip="ngaUser.lastName.tooltip" /> 
+		<field name="email" order="12" tooltip="nga.email.tooltip" unique="false" />
+		<field name="country" order="14" tooltip="ngaUser.country.tooltip" />
+		<field name="address" order="16" tooltip="ngaUser.address.tooltip" />
+		<field name="telephone" order="18" tooltip="ngaUser.telephone.tooltip" />
+		<field name="mobile" order="20" tooltip="ngaUser.mobile.tooltip" />
+		<field name="im" order="22" label="nga.im.label" tooltip="ngaUser.im.tooltip" />
 
-		<field name="organization" type="an..100" order="24" label="userDefinition.organization" tooltip="ngaUser.organization.tooltip" />
-		<field name="department" type="an..1024" label="nga.department.label" tooltip="nga.department.tooltip" codelist="CL245" displayType="editable" order="26" filters="ngaConservationDepartment2" uri="emf:departmentName" >
+		<field name="organization" order="24" tooltip="ngaUser.organization.tooltip" />
+		<field name="department" type="ANY" label="nga.department.label" tooltip="nga.department.tooltip" codelist="CL245" displayType="editable" order="26" uri="emf:departmentName" >
 			<control id="RELATED_FIELDS">
-				<control-param id="fieldsToRerender" name="RERENDER">jobtitle</control-param>
-				<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-				<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+				<control-param type="related_field" id="fieldsToRerender" name="RERENDER">department</control-param>
+				<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGACDP24501,NGACDP24502,NGACDP24503,NGACDP24504,NGACDP24505,NGACDP24506,NGACDP24507,NGACDP24508,NGACDP24509</control-param>
+				<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
 			</control>
 		</field>
-		<field name="jobtitle" type="an..50" codelist="CL350" order="28" label="userDefinition.jobtitle" tooltip="ngaUser.jobtitle.tooltip" />
-		<field name="language" type="an..50" codelist="CL13" order="30" label="userDefinition.language" tooltip="ngaUser.language.tooltip" >
+		<field name="jobtitle" type="ANY" codelist="CL350" order="28" tooltip="ngaUser.jobtitle.tooltip" >
+			<control id="RELATED_FIELDS">
+				<control-param type="related_field" id="fieldsToRerender" name="RERENDER">department</control-param>
+				<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+				<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+			</control>
+		</field>
+		<field name="language" order="30" tooltip="ngaUser.language.tooltip" >
 			<value>en</value>
 		</field>
-		<field name="ownedBy" type="uri" label="ownedBy" displayType="system" >
-			<control id="PICKER">
-				<control-param id="range" name="range">emf:Project,emf:Case,emf:Document,emf:Task</control-param>
-			</control>
-		</field>
 		
-		<!-- system field -->
-		<field name="emf:version" type="an..10" displayType="system" /> 	
-		<field name="isAssigneeOf" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="isMemberOf" type="uri" displayType="system" />
-		<field name="emailAddress" type="an..255" displayType="system" />
-		<field name="isReporterOf" type="uri" displayType="system" />
-		<field name="status" type="an..35" displayType="system" />
-		<field name="owner" type="uri" displayType="system" />
-		<field name="createdBy" type="uri" 	displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system" />
-		<field name="modifiedBy" type="uri" displayType="system" /> 
-		<field name="modifiedOn" type="dateTime" displayType="system" /> 
-		<field name="isPoolAssigneeTo" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
 		<field name="hasWatcher" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
+		<field name="owner" type="uri" displayType="system" />
+		<field name="isPoolAssigneeTo" type="uri" displayType="system" />
+		<field name="emailAddress" type="an..255" displayType="system" />
 	</fields>	
 	<regions> 
 		<region id="systemInformation" order="75" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="type" type="an..20" label="nga.type.label" tooltip="nga.type.tooltip" codelist="CL7" displayType="hidden" uri="emf:type" > 
+				<field name="type" tooltip="nga.type.tooltip" displayType="hidden" > 
 					<value>user</value>
 				</field>
-				<field name="status" type="an..10" displayType="readOnly" label="nga.status.label" tooltip="nga.status.tooltip" uri="emf:status" codelist="CL12" />
-				<field name="emf:version" type="an..10" label="object.version" displayType="hidden" dmsType="FORBIDDEN" uri="emf:version"/>
+				<field name="status" tooltip="nga.status.tooltip" />
+				<field name="emf:version" displayType="hidden" />
 				<field name="integrated" type="boolean" label="emf.integrated.label" displayType="hidden" uri="emf:integrated" />
-				<field name="createdBy" type="uri" displayType="readOnly" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" uri="emf:createdBy" dmsType="FORBIDDEN">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" uri="emf:modifiedBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="dateTime" displayType="readOnly" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" uri="emf:modifiedOn" />
-				<field name="lockedBy" type="uri" label="lockedBy" tooltip="nga.lockedBy.tooltip" displayType="readonly" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="createdBy" tooltip="nga.createdBy.tooltip" />
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" />
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" />
 		
 				<!-- relationships -->
-				<field name="isMemberOf" type="uri" label="ngaUser.isMemberOf.label" tooltip="ngaUser.isMemberOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isMemberOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Group</control-param>
-					</control>
-				</field>
-				<field name="isAssigneeOf" type="uri" label="ngaUser.isAssigneeOf.label" tooltip="ngaUser.isAssigneeOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isAssigneeOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Task</control-param>
-					</control>
-				</field>
+				<field name="isMemberOf" label="ngaUser.isMemberOf.label" tooltip="ngaUser.isMemberOf.tooltip" />
+				<field name="isAssigneeOf" label="ngaUser.isAssigneeOf.label" tooltip="ngaUser.isAssigneeOf.tooltip" />
 				<field name="chc:isSupervisorOf" type="uri" label="nga.isSupervisorOf.label" tooltip="nga.isSupervisorOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="chc:isSupervisorOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,emf:Task</control-param>
@@ -115,46 +79,18 @@
 					</control>
 				</field>
 				
-				<field name="isReporterOf" type="uri" label="ngaUser.isReporterOf.label" tooltip="ngaUser.isReporterOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isReporterOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
+				<field name="isReporterOf" label="ngaUser.isReporterOf.label" tooltip="ngaUser.isReporterOf.tooltip"/>
 				<field name="emf:isWatcherOf" type="uri" label="ngaUser.isWatcherOf.label" tooltip="ngaUser.isWatcherOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:isWatcherOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:User</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range" />
-					</control>
-				</field>
-				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range" />
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasThumbnail" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" />
+				<field name="parentOf" tooltip="nga.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasParent" displayType="system" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" />
+				<field name="emf:hasTemplate" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" />
+				<field name="partOf" displayType="system" tooltip="nga.partOf.tooltip" />
+				<field name="hasChild" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 	</regions>
@@ -274,7 +210,13 @@
 							<label>Job position: </label>
 							<span data-property="jobtitle">${CL([jobtitle])}</span>
 						</span>
-					)}	
+					)}
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>
@@ -285,21 +227,23 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 				<span ><img src="${thumbnailUri(64)}"/></span>
 				${if(${get([emf:isActive])}==false).then(<span style=color:#a9a9a9;>).else(<span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					${if(${CL([jobtitle])}<>null).then(<span data-property="jobtitle">${CL([jobtitle])}</span>)}
 					${if(${and(${var.jobtitle} and ${var.department})}).then(<span>,&nbsp;</span>)}
 					${if(${CL([department])}<>null).then(<span data-property="department">${CL([department])}</span>)}
 					${if(${or(${var.jobtitle} or ${var.department})}).then(</br>)}
 					<span class="truncate-element">
-						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
-							${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
-							<span data-property="title">${get([title])}</span>
-						</a>
+						<b>
+							<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"
+								${if(${get([emf:isActive])}==false).then(style="color:#a9a9a9;")}>
+								<span data-property="title">${get([title])}</span>
+							</a>
+						</b>	
 						${if(${get([emf:isActive])}==false).then(
 							&nbsp;<span data-property="emf:status">(${CL([status])})</span>
 						)}
 					</span>
 					${if(${get([email])}<>null).then(,&nbsp;<span data-property="email">${get([email])}</span>)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]>
 			</value>
 		</label>
@@ -307,7 +251,7 @@
 			<value lang="en"><![CDATA[${eval(
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 					<span class="truncate-element">
 						<a class="instance-link has-tooltip" href="${userLink(currentInstance)}"

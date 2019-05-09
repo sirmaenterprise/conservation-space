@@ -30,8 +30,6 @@ public class SecurityConfigurationImplTest {
 	private UserStore userStore;
 	@Mock
 	private SecurityContext securityContext;
-	@Mock
-	private Authenticator authenticator;
 
 	@InjectMocks
 	private SecurityConfigurationImpl configuration;
@@ -41,7 +39,6 @@ public class SecurityConfigurationImplTest {
 		MockitoAnnotations.initMocks(this);
 		when(userStore.wrap(any())).then((a) -> a.getArgumentAt(0, User.class));
 		when(securityContext.getCurrentTenantId()).thenReturn(TENANT_ID);
-		when(authenticator.authenticate(any(User.class))).thenReturn("ticket");
 		when(context.get(SecurityConfigurationImpl.ADMIN_PWD)).thenReturn("pass");
 	}
 
@@ -55,9 +52,8 @@ public class SecurityConfigurationImplTest {
 	}
 
 	private void verifyAdminUser() {
-		User user = SecurityConfigurationImpl.buildAdminUser(context, userStore, securityContext, authenticator);
+		User user = SecurityConfigurationImpl.buildAdminUser(context, userStore, securityContext);
 		assertNotNull(user);
-		assertEquals("ticket", user.getTicket());
 		assertEquals("admin@test", user.getIdentityId());
 		assertEquals(TENANT_ID, user.getTenantId());
 	}
@@ -66,7 +62,7 @@ public class SecurityConfigurationImplTest {
 	public void should_CorrectlyBuildSystemUser() {
 		when(context.get(SecurityConfigurationImpl.SYSTEM_USER_NAME)).thenReturn("system");
 
-		User systemUser = SecurityConfigurationImpl.buildSystemUser(context, userStore, securityContext, authenticator);
+		User systemUser = SecurityConfigurationImpl.buildSystemUser(context, userStore, securityContext);
 		assertNotNull(systemUser);
 		assertEquals(TENANT_ID, systemUser.getTenantId());
 		assertEquals(SecurityContext.SYSTEM_USER_NAME + "@" + TENANT_ID, systemUser.getIdentityId());

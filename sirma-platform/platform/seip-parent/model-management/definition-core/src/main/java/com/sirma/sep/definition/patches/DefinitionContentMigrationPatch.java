@@ -14,6 +14,7 @@ import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.definition.DefintionAdapterService;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.io.FileDescriptor;
+import com.sirma.itt.seip.security.configuration.SecurityConfiguration;
 import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.itt.seip.util.CDI;
@@ -41,6 +42,8 @@ public class DefinitionContentMigrationPatch implements CustomTaskChange {
 
 	private TransactionSupport transactionSupport;
 
+	private SecurityConfiguration securityConfiguration;
+
 	@Override
 	public void setUp() throws SetupException {
 		definitionAdapterService = CDI.instantiateBean(DefintionAdapterService.class, CDI.getCachedBeanManager(),
@@ -48,10 +51,17 @@ public class DefinitionContentMigrationPatch implements CustomTaskChange {
 		dbDao = CDI.instantiateBean(DbDao.class, CDI.getCachedBeanManager(), CDI.getDefaultLiteral());
 		transactionSupport = CDI.instantiateBean(TransactionSupport.class, CDI.getCachedBeanManager(),
 				CDI.getDefaultLiteral());
+		securityConfiguration = CDI.instantiateBean(SecurityConfiguration.class, CDI.getCachedBeanManager(),
+				CDI.getDefaultLiteral());
 	}
 
 	@Override
 	public void execute(Database database) throws CustomChangeException {
+		if (SecurityConfiguration.KEYCLOAK_IDP.equals(securityConfiguration.getIdpProviderName().get())) {
+			LOGGER.info("Skipping migration of definition content with keycloak tenant");
+			return;
+		}
+
 		TimeTracker tracker = TimeTracker.createAndStart();
 
 		LOGGER.info("Begin migration of definition content.");

@@ -1,8 +1,12 @@
-SELECT DISTINCT ?instance (emf:Relation as ?instanceType) ?title ?creator
-(if(lang(?title)= "", "en", lang(?title)) as ?titleLanguage) ?definition 
-((if (bound(?domainClass1), ?domainClass1, ptop:Entity)) as ?domainClass) 
-((if (bound(?rangeClass1), ?rangeClass1, ptop:Entity)) as ?rangeClass) ?inverseRelation ?isSystemProperty 
-?autoAssignPermissionRole ?allowPermissionOverride ?autoAssignParentPermissionRole ?isSearchable ?auditEvent
+SELECT DISTINCT ?instance (emf:Relation as ?instanceType) ?title ?creator ?definition ?subPropertyOf
+?inverseRelation ?isSystemProperty ?autoAssignPermissionRole ?allowPermissionOverride ?autoAssignParentPermissionRole
+?isSearchable ?auditEvent
+(if(?type = emf:DefinitionObjectProperty, emf:DefinitionObjectProperty, "") as ?propertyType)
+(if(lang(?title)= "", "en", lang(?title)) as ?titleLanguage)
+(if (lang(?definition)= "", "en", lang(?definition)) as ?definitionLanguage)
+(if (lang(?creator)= "", "en", lang(?creator)) as ?creatorLanguage)
+((if (bound(?domainClass1), ?domainClass1, ptop:Entity)) as ?domainClass)
+((if (bound(?rangeClass1), ?rangeClass1, ptop:Entity)) as ?rangeClass)
 WHERE {
 	{
 		?instance a owl:ObjectProperty .
@@ -10,8 +14,11 @@ WHERE {
 		?instance a emf:DefinitionObjectProperty .
 	}
 	?instance
-		rdfs:comment|skos:definition ?definition ;
-		rdfs:label ?title .
+		dcterms:title ?title ;
+  		rdf:type ?type.
+  	optional {
+  	    ?instance dcterms:description ?definition .
+  	}
 	optional {
 		?instance emf:isSearchable ?isSearchable .
 	} optional {
@@ -21,7 +28,12 @@ WHERE {
 	} optional {
 		?instance rdfs:range ?rangeClass1 . 
 	} optional {
-		?instance owl:inverseOf ?inverseRelation . 
+        {
+            ?instance owl:inverseOf ?inverseRelation .
+        } union {
+            ?instance a owl:SymmetricProperty.
+            bind(?instance as ?inverseRelation)
+        }
 	} optional {
 		?instance sec:autoAssignPermissionRole ?autoAssignPermissionRole . 
 	} optional {
@@ -31,6 +43,9 @@ WHERE {
 	} optional {
 		?instance emf:auditEvent ?auditEvent . 
 	} optional {
-        ?instance dc:creator ?creator
+        ?instance dc:creator ?creator .
+	} optional {
+        ?instance rdfs:subPropertyOf ?subPropertyOf ;
+        filter (?instance != ?subPropertyOf && ?subPropertyOf != emf:hasRelation) .
     }
 }

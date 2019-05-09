@@ -47,6 +47,7 @@ export class ObjectDataWidget extends Refreshable {
     this.config.showAllProperties = false;
     this.config.hintClass = 'form-tooltip';
     this.config.enableHint = true;
+    this.config.modeling = this.context.isModeling();
 
     this.formConfig = this.formConfig || {};
     this.formConfig.eventEmitter = this.control;

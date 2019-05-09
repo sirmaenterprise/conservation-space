@@ -18,9 +18,7 @@ import './advanced-search-string-criteria.css!css';
   },
   events: ['onChange']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement, TooltipAdapter, TranslateService)
 export class AdvancedSearchStringCriteria extends Configurable {
   constructor($element, tooltipAdapter, translateService) {

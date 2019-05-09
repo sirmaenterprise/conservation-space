@@ -1,4 +1,4 @@
-import {View, Component, Inject, NgElement} from 'app/app';
+import {View, Component, Inject} from 'app/app';
 import {ConceptService} from 'services/rest/concept-service';
 import 'components/select/tree-select/tree-select';
 import template from './concept-picker.html!text';
@@ -17,9 +17,7 @@ import template from './concept-picker.html!text';
   },
   events: ['onChange']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(ConceptService)
 export class ConceptPicker {
 

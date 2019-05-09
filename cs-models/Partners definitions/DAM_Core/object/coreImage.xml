@@ -1,0 +1,265 @@
+<?xml version="1.0"?> <!-- Denver Image -->
+<definition id="coreImage" parentId="coreMedia" type="object">
+	<fields>
+		<field name="default_header" type="ANY" label="IMAGE_DEFAULT_HEADER_CORE" />
+		<field name="compact_header" type="ANY" label="IMAGE_COMPACT_HEADER_CORE" />
+		<field name="breadcrumb_header" type="ANY" label="MEDIA_BREADCRUMB_HEADER_CORE" />
+		<field name="tooltip_header" type="ANY" label="IMAGE_TOOLTIP_HEADER_CORE" />
+
+		<!-- all properties from the generic definition will be organized in regions --> 
+		<field name="rdf:type" >
+			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image</value>
+		</field>
+	</fields>	
+	<regions>	
+		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
+			<fields>
+				<field name="subType" type="ANY" displayType="editable" mandatory="false" codelist="CL211" order="1" uri="chcart:subClassification" >
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('false')</condition>
+				</field>
+				<field name="title" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="description" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chc:imageDate" type="date" displayType="editable" uri="chc:imageDate" />
+				<field name="chc:imageRestrictions" type="an..180" displayType="editable" uri="chc:imageRestrictions" />
+				<field name="chc:spectralRange" type="ANY" displayType="editable" codelist="CL127" uri="chc:spectralRange" />
+				<field name="chc:imageColor" type="ANY" displayType="editable" codelist="CL128" uri="chc:imageColor" />
+				<field name="chc:depicts" type="uri" displayType="editable" label="core.depicts.label" tooltip="core.depicts.tooltip" multiValued="true" uri="chc:depicts" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject,chc:Sample</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chc:depictionType" type="ANY" displayType="editable" codelist="CL129" uri="chc:depictionType" />
+				<field name="isPrimaryImageOf" type="uri" displayType="editable" label="core.isPrimaryImageOf.label" tooltip="core.isPrimaryImageOf.tooltip" multiValued="true" uri="emf:isPrimaryImageOf" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chc:viewType" type="ANY" displayType="editable" codelist="CL130" tooltip="core.viewType.tooltip" uri="chc:viewType" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>	
+				<field name="chc:viewDescription" type="ANY" displayType="editable" codelist="CL131" tooltip="core.viewDescription.tooltip" uri="chc:viewDescription" />
+				<field name="widthOfSubject" type="n..10,5" displayType="editable" label="core.widthOfSubject.label" tooltip="core.widthOfSubject.tooltip" uri="emf:widthOfSubject" />
+				<field name="heightOfSubject" type="n..10,5" displayType="editable" label="core.heightOfSubject.label" tooltip="core.heightOfSubject.tooltip" uri="emf:heightOfSubject" />
+				<field name="dimensionUnit" type="ANY" displayType="editable" codelist="CL14" label="core.dimensionUnit.label" tooltip="core.dimensionUnit.tooltip" uri="emf:dimensionUnit" />
+				<field name="chc:treatmentStage" type="ANY" displayType="editable" codelist="CL132" uri="chc:treatmentStage" />
+				<field name="isThumbnailOf" type="uri" displayType="readOnly" label="core.isThumbnailOf.label" tooltip="core.isThumbnailOf.tooltip" multiValued="true" uri="emf:isThumbnailOf">
+					<control id="PICKER">
+						<control-param id="range" name="range"></control-param>
+					</control>				
+				</field>
+			</fields>
+		</region>
+		<region id="systemData" displayType="editable" order="20" label="core.systemData.region.label">
+			<fields>
+				<field name="type" ><value>FC236009</value></field>
+				<field name="sourceSystemId" type="ANY" displayType="readOnly" label="dam.sourceSystemId.label" tooltip="dam.sourceSystemId.tooltip" codelist="CL250" uri="chc:sourceSystemId" >
+					<value>DAMSR25001</value>
+				</field>
+				<field name="objectId" type="an..50" mandatory="false" displayType="hidden" previewEmpty="false" uri="emf:externalID" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+					<condition id="optionalField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="externalCreatedOn" type="dateTime" displayType="hidden" previewEmpty="false" uri="chc:externalCreatedOn" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="references" type="an..1200" displayType="system"  />
+				<field name="integratedSystemId" type="an..1024" displayType="system" uri="chc:integratedSystemId"/>
+				<field name="fingerprint" type="an..120" displayType="system" uri="chc:fingerprint" />
+				<field name="identifier" type="an..50" rnc="${eval(IMG${seq({+imgSequence})})}" />
+				<field name="integrated" type="boolean" label="cs.integrated.label" uri="emf:integrated">
+					<value>false</value>
+				</field>	
+			</fields>
+		</region>
+	</regions>
+	
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="DRAFT"/>
+		<stateTransition from="INIT" transition="clone" to="DRAFT"/>
+		<stateTransition from="INIT" transition="prepareImport" to="FOR_IMP"/>
+		<stateTransition from="FOR_IMP" transition="import" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="updateInt" to="DRAFT" >
+			<condition renderAs="PROPERTY" id="integrated">true</condition>
+		</stateTransition>
+
+		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="addAttachment" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="download" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="printTab" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="changeTemplate" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="updateTemplate" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="clone" to="DRAFT" >
+			<condition renderAs="PROPERTY" id="integrated">false</condition>
+		</stateTransition>	
+		<stateTransition from="DRAFT" transition="move" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="managePermissions" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="revertVersion" to="DRAFT" />
+		<stateTransition from="DRAFT" transition="delete" to="DRAFT"/>
+		<stateTransition from="DRAFT" transition="createInContext" to="DRAFT" />
+	</stateTransitions>
+	
+	<labels>
+		<label id="IMAGE_TOOLTIP_HEADER_CORE">
+			<value lang="en">
+				<![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							 <span data-title="${get([title])}">${get([title])}
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Type: </label>
+						<span data-property="type">${CL([type])}</span>
+					</span>
+					${if(${get([chc:imageDate])} <> null).then(
+						<span class="tooltip-row">
+							<label>Image date: </label>
+							<span data-property="chc:imageDate">${date([chc:imageDate])}</span>
+						</span>
+					)}
+					${if(${get([chc:imageRestrictions])} <> null).then(
+						<span class="tooltip-row">
+							<label>Image copyright/Restrictions: </label>
+							<span data-property="chc:imageRestrictions">${get([chc:imageRestrictions])}</span>
+						</span>
+					)}
+					${if(${get([chc:spectralRange])} <> null).then(
+						<span class="tooltip-row">
+							<label>Spectral range: </label>
+							<span data-property="chc:spectralRange">${CL([chc:spectralRange])}</span>
+						</span>
+					)}
+					${if(${get([chc:imageColor])} <> null).then(
+						<span class="tooltip-row">
+							<label>Image color: </label>
+							<span data-property="chc:imageColor">${CL([chc:imageColor])}</span>
+						</span>
+					)}
+					${if(${get([chc:depicts])} <> null).then(
+						<span class="tooltip-row">
+							<label>Depicts: </label>
+							<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>
+						</span>
+					)}
+					${if(${get([chc:depictionType])} <> null).then(
+						<span class="tooltip-row">
+							<label>Depiction type: </label>
+							<span data-property="chc:depictionType">${CL([chc:depictionType])}</span>
+						</span>
+					)}
+					${if(${get([chc:viewType])} <> null).then(
+						<span class="tooltip-row">
+							<label>View type: </label>
+							<span data-property="chc:viewType">${CL([chc:viewType])}</span>
+						</span>
+					)}
+					${if(${get([chc:viewDescription])} <> null).then(
+						<span class="tooltip-row">
+							<label>View description: </label>
+							<span data-property="chc:viewDescription">${CL([chc:viewDescription])}</span>
+						</span>
+					)}
+					${if(${get([widthOfSubject])} <> null).then(
+						<span class="tooltip-row">
+							<label>Width of the item: </label>
+							<span data-property="widthOfSubject">${get([widthOfSubject])}</span>
+						</span>
+					)}
+					${if(${get([heightOfSubject])} <> null).then(
+						<span class="tooltip-row">
+							<label>Height of the item: </label>
+							<span data-property="heightOfSubject">${get([heightOfSubject])}</span>
+						</span>
+					)}
+					${if(${get([dimensionUnit])} <> null).then(
+						<span class="tooltip-row">
+							<label>Dimension unit: </label>
+							<span data-property="dimensionUnit">${CL([dimensionUnit])}</span>
+						</span>
+					)}
+					${if(${get([chc:treatmentStage])} <> null).then(
+						<span class="tooltip-row">
+							<label>Stage of treatment/ examination: </label>
+							<span data-property="chc:treatmentStage">${CL([chc:treatmentStage])}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>System modified by: </label>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified on: </label>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
+					</span>
+			</span>)})}]]></value>
+		</label>	
+		<label id="IMAGE_DEFAULT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				${var.contentSize=${if(${get([size], 0)} <> 0).then(${get([size])}).else(${get([fileSize])})}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>
+					${if(${get([chc:spectralRange])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:spectralRange">${CL([chc:spectralRange])}</span>)}
+					${if(${get([chc:viewDescription])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:viewDescription">${CL([chc:viewDescription])}</span>)}
+					${if(${get([chc:treatmentStage])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:treatmentStage">${CL([chc:treatmentStage])}</span>)}
+					<br />
+					<span class="truncate-element">
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								${if(${get([title])}<>${get([name])}).then(<span data-property="title">${get([title])}</span>&nbsp;/&nbsp;)}
+								<span data-property="name">${get([name])}</span>
+							</a>
+						</b>	
+						${if(${get([mimetype])}<>null).then(&nbsp;Mimetype: <span data-property="mimetype">${CL([mimetype])}</span>)}
+						${if(${get([size])}<>null).then(,&nbsp;Size: <span data-property="size">${getReadableFormat(${var.contentSize})}</span>)}
+						${if(${var.isVersion}).then(
+							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}
+					</span>
+					${if(${get([chc:depicts])}<>null).then(<br />Depicts:&nbsp;<span data-property="chc:depicts">${objectProperty(${get([chc:depicts])})}</span>)}
+				</span>
+			)}]]></value>
+		</label>
+		<label id="IMAGE_COMPACT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span class="truncate-element">
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="name">${get([name])}</span>
+				</a>&nbsp;
+				${if(${get([chc:spectralRange])}<>null).then(<span data-property="chc:spectralRange">${CL([chc:spectralRange])}</span>)}
+				${if(${get([chc:viewDescription])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:viewDescription">${CL([chc:viewDescription])}</span>)}
+				${if(${get([chc:treatmentStage])}<>null).then(&nbsp;-&nbsp;<span data-property="chc:treatmentStage">${CL([chc:treatmentStage])}</span>)}
+				${if(${var.isVersion}).then(
+					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+				)}
+			</span>
+		)}]]></value>
+		</label>
+	</labels>
+</definition>

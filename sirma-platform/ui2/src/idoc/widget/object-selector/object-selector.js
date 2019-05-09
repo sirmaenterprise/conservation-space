@@ -1,6 +1,5 @@
 import {Component, View, Inject, NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
-import {ToTrustedHtml} from 'filters/to-trusted-html';
 import _ from 'lodash';
 import 'search/components/search';
 import 'components/extensions-panel/extensions-panel';
@@ -105,7 +104,7 @@ export class ObjectSelector extends Configurable {
   getSearchConfiguration(config, criteria, searchCallbacks) {
     return {
       useRootContext: config.useRootContext,
-      criteria: criteria,
+      criteria,
       searchMode: config.searchMode,
       renderCriteria: config.renderCriteria,
       paginationConfig: config.paginationConfig,
@@ -153,31 +152,31 @@ export class ObjectSelector extends Configurable {
       this.manuallySelectSelectedItemsWatcher();
     }
     switch (this.config.selectObjectMode) {
-      case SELECT_OBJECT_MANUALLY:
-        this.manuallySelectSelectedItemsWatcher = this.$scope.$watch(() => {
-          this.config.selectedItems = this.pickerSearchConfig.results.config.selectedItems;
-          return this.pickerSearchConfig.results.config.selectedItems;
-        }, () => {
-          this.onObjectSelectorChanged();
-        }, true);
-        SearchCriteriaUtils.replaceCriteria(this.pickerSearchConfig.criteria, this.searchCriteria);
-        this.pickerSearchConfig.searchMode = this.config.searchMode;
-        this.config.includeCurrent = false;
-        break;
-      case SELECT_OBJECT_AUTOMATICALLY:
-        this.config.selectedItems.splice(0);
-        SearchCriteriaUtils.replaceCriteria(this.searchConfig.criteria, this.searchCriteria);
-        this.searchConfig.searchMode = this.config.searchMode;
-        this.config.includeCurrent = this.includeCurrent;
-        break;
-      case SELECT_OBJECT_CURRENT:
-        delete this.searchCriteria;
-        this.config.selectedItems.splice(0);
-        this.config.includeCurrent = false;
-        this.initCurrentObject();
-        break;
-      default:
-        break;
+    case SELECT_OBJECT_MANUALLY:
+      this.manuallySelectSelectedItemsWatcher = this.$scope.$watch(() => {
+        this.config.selectedItems = this.pickerSearchConfig.results.config.selectedItems;
+        return this.pickerSearchConfig.results.config.selectedItems;
+      }, () => {
+        this.onObjectSelectorChanged();
+      }, true);
+      SearchCriteriaUtils.replaceCriteria(this.pickerSearchConfig.criteria, this.searchCriteria);
+      this.pickerSearchConfig.searchMode = this.config.searchMode;
+      this.config.includeCurrent = false;
+      break;
+    case SELECT_OBJECT_AUTOMATICALLY:
+      this.config.selectedItems.splice(0);
+      SearchCriteriaUtils.replaceCriteria(this.searchConfig.criteria, this.searchCriteria);
+      this.searchConfig.searchMode = this.config.searchMode;
+      this.config.includeCurrent = this.includeCurrent;
+      break;
+    case SELECT_OBJECT_CURRENT:
+      delete this.searchCriteria;
+      this.config.selectedItems.splice(0);
+      this.config.includeCurrent = false;
+      this.initCurrentObject();
+      break;
+    default:
+      break;
     }
   }
 

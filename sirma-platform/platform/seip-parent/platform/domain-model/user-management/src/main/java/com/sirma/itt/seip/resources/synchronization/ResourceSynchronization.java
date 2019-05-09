@@ -1,7 +1,12 @@
 package com.sirma.itt.seip.resources.synchronization;
 
+import java.lang.invoke.MethodHandles;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
 import com.sirma.itt.seip.event.EventService;
@@ -28,21 +33,25 @@ import com.sirma.itt.seip.tasks.TransactionMode;
 @ApplicationScoped
 public class ResourceSynchronization {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	@Inject
 	private SynchronizationRunner synchronizationRunner;
 	@Inject
 	private EventService eventService;
 
-	@OnTenantAdd
+	@OnTenantAdd(order = 100)
 	@RunAsAllTenantAdmins
 	@Startup(phase = StartupPhase.AFTER_APP_START, order = 1000)
 	protected static void insertSystemUser(SecurityConfiguration configurations, ResourceService resourceService) {
 		Resource systemUser = (Resource) configurations.getSystemUser().get();
 		if (!resourceService.resourceExists(systemUser.getName())) {
+			LOGGER.info("Inserting system user: {}", systemUser.getName());
 			resourceService.saveResource(systemUser);
 		}
 		Resource adminUser = (Resource) configurations.getAdminUser().get();
 		if (!resourceService.resourceExists(adminUser.getName())) {
+			LOGGER.info("Inserting admin user: {}", adminUser.getName());
 			resourceService.saveResource(adminUser);
 		}
 	}
@@ -50,7 +59,7 @@ public class ResourceSynchronization {
 	/**
 	 * Synchronize users, groups and group members
 	 */
-	@OnTenantAdd
+	@OnTenantAdd(order = 110)
 	@RunAsAllTenantAdmins
 	@Startup(async = true, phase = StartupPhase.AFTER_APP_START, transactionMode = TransactionMode.NOT_SUPPORTED)
 	public void synchronizeAll() {

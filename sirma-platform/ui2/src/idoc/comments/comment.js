@@ -17,7 +17,6 @@ import 'font-awesome/css/font-awesome.css!';
 import './comment.css!';
 import template from './comment.html!text';
 
-
 const USER_ICON_NAME = 'user';
 const USER_ICON_SIZE = 64;
 const COMMENT_DESCRIPTION_CLASS = '.comment-description';
@@ -30,11 +29,9 @@ const COMMENT_REPLY_TOOLBAR_CLASS = '.comment-reply-toolbar';
     'comment': 'comment'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(MomentAdapter, Configuration, ReplyCommentAction, IconsService, Eventbus, NgTimeout, CommentsRestService)
-class Comment {
+export class Comment {
   constructor(momentAdapter, configuration, replyCommentAction, iconsService, eventbus, $timeout, commentsService) {
     this.momentAdapter = momentAdapter;
     this.configuration = configuration;

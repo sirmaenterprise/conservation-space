@@ -1,8 +1,13 @@
 'use strict';
 
+let remote = require('selenium-webdriver/remote');
 let ModelImportSandboxPage = require('./model-import').ModelImportSandboxPage;
 
 describe('Model import', () => {
+
+  before(() => {
+    browser.setFileDetector(new remote.FileDetector());
+  })
 
   let page = new ModelImportSandboxPage();
 
@@ -387,6 +392,18 @@ describe('Model import', () => {
     panel.getImportedTemplates().then(templates => {
       expect(templates.length).to.equals(2);
     });
+  });
+
+  it('should download ontologies', () => {
+    page.open();
+
+    let button = page.getModelImportPanel().getDownloadOntologiesButton();
+    expect(button.isDownloadAllowed()).to.eventually.be.true;
+
+    button.download();
+
+    // Then the file should be provided for download
+    expect(page.getDownloadedFileName()).to.eventually.equals('ontologies.zip');
   });
 
 });

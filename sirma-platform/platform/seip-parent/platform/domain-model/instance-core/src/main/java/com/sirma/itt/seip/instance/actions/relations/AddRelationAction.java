@@ -24,15 +24,21 @@ public class AddRelationAction extends AbstractRelationAction<AddRelationRequest
 	}
 
 	@Override
+	public void validate(AddRelationRequest request) {
+		super.validate(request);
+		verifyRelationsAreDefined(request.getTargetReference().toInstance(), request.getRelations().keySet());
+	}
+
+	@Override
 	public Instance performAction(AddRelationRequest request) {
-		Instance instance = getInstance(request.getTargetId());
+		// check instance permissions
+		Instance instance = request.getTargetReference().toInstance();
 		DefinitionModel definitionModel = definitionService.getInstanceDefinition(instance);
 
 		for (Entry<String, Set<String>> entry : request.getRelations().entrySet()) {
 			String property = entry.getKey();
 
-			Optional<PropertyDefinition> relationDefinition = definitionModel
-					.findField(PropertyDefinition.hasName(property).or(PropertyDefinition.hasUri(property)));
+			Optional<PropertyDefinition> relationDefinition = definitionModel.getField(property);
 
 			String propName = relationDefinition.map(PropertyDefinition::getName).orElse(property);
 			// if the field is not found in the model then we should not place restrictions to the relation data

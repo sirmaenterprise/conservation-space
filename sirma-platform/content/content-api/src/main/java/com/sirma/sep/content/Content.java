@@ -341,6 +341,22 @@ public interface Content extends Serializable {
 	Content setContentId(String id);
 
 	/**
+	 * Checks if the previous content store is enforced.
+	 *
+	 * @return true if store is enforced.
+	 */
+	boolean isContentStoreEnforcedOnVersionUpdate();
+
+	/**
+	 * By default, during update of content the original content store is enforced. This means that the new content will
+	 * be stored to the store where the previous content is stored. This option will disable this behaviour and the
+	 * newly stored content will have it's destination recalculated.
+	 *
+	 * @return the current instance for method chaining
+	 */
+	Content disableContentStoreEnforcingOnVersionUpdate();
+
+	/**
 	 * Creates an empty {@link Content} implementation. The default implementation supports setting all fields.
 	 *
 	 * @return writable content instance
@@ -408,6 +424,7 @@ public interface Content extends Serializable {
 		private boolean allowReuse = false;
 		private boolean isMimetypeDetectedFromContent;
 		private String contentId;
+		private boolean contentStoreEnforcedOnVersionUpdate = true;
 
 		@Override
 		public FileDescriptor getContent() {
@@ -549,6 +566,17 @@ public interface Content extends Serializable {
 		@Override
 		public Content setContentId(String id) {
 			contentId = id;
+			return this;
+		}
+
+		@Override
+		public boolean isContentStoreEnforcedOnVersionUpdate() {
+			return contentStoreEnforcedOnVersionUpdate;
+		}
+
+		@Override
+		public Content disableContentStoreEnforcingOnVersionUpdate() {
+			contentStoreEnforcedOnVersionUpdate = false;
 			return this;
 		}
 	}

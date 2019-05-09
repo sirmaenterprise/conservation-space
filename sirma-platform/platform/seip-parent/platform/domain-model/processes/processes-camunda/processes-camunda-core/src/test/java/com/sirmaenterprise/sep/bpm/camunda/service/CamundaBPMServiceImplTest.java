@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +40,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirmaenterprise.sep.bpm.camunda.exception.CamundaIntegrationRuntimeException;
@@ -96,25 +94,6 @@ public class CamundaBPMServiceImplTest {
 		verify(taskQuery).list();
 	}
 
-	@Test
-	@SuppressWarnings("unchecked")
-	public void loadTaskWithRetry() {
-		Task task = mock(Task.class);
-		TaskQuery taskQuery = mockTaskQuery(task, Collections.singletonList(task), TASK_ID);
-
-		// the number of the retries is controlled in thenReturn, in this case 2
-		when(taskQuery.list()).thenReturn(Collections.emptyList(), Collections.singletonList(task));
-		
-		Instance instance = new EmfInstance();
-		instance.add(ACTIVITY_ID, TASK_ID);
-		Optional<Task> loadTask = camundaBPMServiceImpl.loadTask(instance);
-		assertTrue(loadTask.isPresent());
-
-		// verify the number of retries
-		verify(taskService, times(2)).createTaskQuery();
-		verify(taskQuery, times(2)).list();
-	}
-
 	@Test(expected = CamundaIntegrationRuntimeException.class)
 	public void loadTaskInvalidId() {
 		Instance instance = mock(Instance.class);
@@ -163,7 +142,6 @@ public class CamundaBPMServiceImplTest {
 		mockProcessQuery(process, Collections.singletonList(process), PROCESS_ID);
 		activityDetails = camundaBPMServiceImpl.getActivityDetails(instance);
 		assertTrue(activityDetails.isPresent());
-
 	}
 
 	@Test
@@ -188,7 +166,6 @@ public class CamundaBPMServiceImplTest {
 		assertEquals(TASK_ID, activityDetails.getCamundaActivityId());
 		assertEquals(instance, activityDetails.getActivity());
 		assertTrue(activityDetails.isActive());
-
 	}
 
 	@Test

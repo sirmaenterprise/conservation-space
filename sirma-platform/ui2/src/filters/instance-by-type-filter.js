@@ -1,4 +1,4 @@
-import {Inject,Filter} from 'app/app';
+import {Filter} from 'app/app';
 import _ from 'lodash';
 
 /*

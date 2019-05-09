@@ -1,0 +1,66 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+    ?property skos:definition ?definition.
+    ?property rdfs:comment ?definition.
+    ?property dcterms:description ?description.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        emf:actualStartDate skos:definition "Start date of the activity"@en .
+        emf:actualStartDate dcterms:description "Start date of the activity"@en .
+        
+		emf:actualEndDate rdfs:label "Действителна крайна дата"@bg, "Faktisk slutdato"@da, "Tatsächliches enddatum"@de, "Actual end date"@en, "Todellinen lopetuspäivä"@fi .
+        emf:actualEndDate dcterms:title "Действителна крайна дата"@bg, "Faktisk slutdato"@da, "Tatsächliches enddatum"@de, "Actual end date"@en, "Todellinen lopetuspäivä"@fi .
+        emf:actualEndDate skos:definition "End date of the activity"@en.
+        emf:actualEndDate dcterms:description "End date of the activity"@en.
+        
+        emf:actualEffort rdfs:label "Действителни работни часове"@bg, "Faktisk timeforbrug"@da, "Tatsächliche aufwand stunden"@de, "Actual effort hours"@en, "Todelliset ponnistelutunnit"@fi .
+        emf:actualEffort dcterms:title "Действителни работни часове"@bg, "Faktisk timeforbrug"@da, "Tatsächliche aufwand stunden"@de, "Actual effort hours"@en, "Todelliset ponnistelutunnit"@fi .
+        
+        emf:accumulatedEstimatedEffort rdfs:label "Натрупани прогнозни работни часове"@bg, "Akkumuleret estimeret timeforbrug"@da, "Kumulierte geschätzte arbeitsstunden"@de, "Accumulated estimated effort hours"@en, "Kertyneet arvioidut ponnistelutunnit"@fi .
+        emf:accumulatedEstimatedEffort dcterms:title "Натрупани прогнозни работни часове"@bg, "Akkumuleret estimeret timeforbrug"@da, "Kumulierte geschätzte arbeitsstunden"@de, "Accumulated estimated effort hours"@en, "Kertyneet arvioidut ponnistelutunnit"@fi .
+        
+        emf:accumulatedActualEffort rdfs:label "Натрупани действителни работни часове"@bg, "Akkumuleret faktisk timeforbrug"@da, "Kumulierte tatsächliche arbeitsstunden"@de, "Accumulated actual effort hours"@en, "Kertyneet todelliset ponnistelutunnit"@fi .
+        emf:accumulatedActualEffort dcterms:title "Натрупани действителни работни часове"@bg, "Akkumuleret faktisk timeforbrug"@da, "Kumulierte tatsächliche arbeitsstunden"@de, "Accumulated actual effort hours"@en, "Kertyneet todelliset ponnistelutunnit"@fi .
+        
+        emf:hasAssignee rdfs:label "Е възложен на"@bg, "Har ansvarlig"@da, "Hat bevollmächtigter"@de, "Has assignee"@en, "Onko vastaanottaja"@fi .
+        emf:hasAssignee dcterms:title "Е възложен на"@bg, "Har ansvarlig"@da, "Hat bevollmächtigter"@de, "Has assignee"@en, "Onko vastaanottaja"@fi .
+        
+        emf:stopReason rdfs:label "Причина за спиране на работния процес"@bg, "Begrundelse for afbrydelse af workflow"@da, "Grund, den Workflow zu stoppen"@de, "Reason to stop the workflow"@en, "Syy lopettaa työnkulku"@fi .
+        emf:stopReason dcterms:title "Причина за спиране на работния процес"@bg, "Begrundelse for afbrydelse af workflow"@da, "Grund, den Workflow zu stoppen"@de, "Reason to stop the workflow"@en, "Syy lopettaa työnkulku"@fi .		
+} 
+} where {
+    {
+        ## titles only
+        ?property rdfs:label ?label.
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:actualEffort, emf:accumulatedEstimatedEffort, emf:accumulatedActualEffort, emf:hasAssignee, emf:stopReason))
+    } UNION {
+        ## descriptions only
+        ?property rdfs:comment|skos:definition ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        filter(?property in (emf:actualStartDate))
+    } UNION {
+        ## both
+        ?property rdfs:label ?label.
+        ?property skos:definition|rdfs:comment ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:actualEndDate))
+    }
+}

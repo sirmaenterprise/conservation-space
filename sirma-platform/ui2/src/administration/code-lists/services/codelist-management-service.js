@@ -1,11 +1,15 @@
 import {Inject, Injectable} from 'app/app';
+import {Eventbus} from 'services/eventbus/eventbus';
 import {CodelistRestService} from 'services/rest/codelist-service';
 import {Configuration} from 'common/application-config';
 import {TranslateService} from 'services/i18n/translate-service';
+
+import {CODELISTS} from 'administration/code-lists/codelist-constants';
+import {CodeListSavedEvent} from 'administration/code-lists/services/events/code-list-saved-event';
+
 import _ from 'lodash';
 
 const DEFAULT_LANGUAGE = 'EN';
-const LANGUAGE_CODE_LIST = '13';
 
 /**
  * Administration service for managing controlled vocabularies in the system.
@@ -15,13 +19,14 @@ const LANGUAGE_CODE_LIST = '13';
  * @author Mihail Radkov
  */
 @Injectable()
-@Inject(CodelistRestService, Configuration, TranslateService)
+@Inject(CodelistRestService, Configuration, TranslateService, Eventbus)
 export class CodelistManagementService {
 
-  constructor(codelistRestService, configuration, translateService) {
+  constructor(codelistRestService, configuration, translateService, eventbus) {
     this.codelistRestService = codelistRestService;
     this.configuration = configuration;
     this.translateService = translateService;
+    this.eventbus = eventbus;
 
     this.languagesCache = [];
   }
@@ -41,6 +46,8 @@ export class CodelistManagementService {
 
     let updatedValues = this.getUpdatedValues(oldCodeList, newCodeList);
     transformed.values = updatedValues.map(value => this.transformCodeBack(value));
+
+    this.eventbus.publish(new CodeListSavedEvent(transformed));
 
     return this.codelistRestService.saveCodeList(transformed);
   }
@@ -150,7 +157,7 @@ export class CodelistManagementService {
   }
 
   isLanguageCodeList(codeList) {
-    return codeList.id === LANGUAGE_CODE_LIST;
+    return codeList.id === CODELISTS.CL_LANGUAGES;
   }
 
   assignDescription(codeLists) {

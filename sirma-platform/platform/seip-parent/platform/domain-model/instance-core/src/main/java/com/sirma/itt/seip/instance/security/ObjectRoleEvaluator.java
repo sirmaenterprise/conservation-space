@@ -26,6 +26,7 @@ import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.resources.Resource;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.InstanceContentService;
+import com.sirma.sep.instance.template.InstanceTemplateService;
 
 /**
  * The ObjectRoleEvaluator provides role evaluation and actions filtering .
@@ -65,6 +66,7 @@ public class ObjectRoleEvaluator extends DomainObjectsBaseRoleEvaluator<ObjectIn
 	private static final Action CREATE_IN_CONTEXT = new EmfAction(ActionTypeConstants.CREATE_IN_CONTEXT);
 
 	private static final Action EDIT_OFFLINE = new EmfAction(ActionTypeConstants.EDIT_OFFLINE);
+	private static final Action UPDATE_SINGLE_INSTANCE_TEMPLATE = new EmfAction(ActionTypeConstants.UPDATE_SINGLE_INSTANCE_TEMPLATE);
 
 	private static final Set<Action> ALLOWED_ACTIONS_WHEN_LOCKED = new HashSet<>(
 			Arrays.asList(EXPORT, MANAGE_PERMISSIONS, PRINT, UNLOCK, DOWNLOAD, EDIT_DETAILS, CLONE, VIEW_DETAILS,
@@ -84,6 +86,9 @@ public class ObjectRoleEvaluator extends DomainObjectsBaseRoleEvaluator<ObjectIn
 
 	@Inject
 	private InstanceContextService contextService;
+
+	@Inject
+	private InstanceTemplateService instanceTemplateService;
 
 	@Override
 	public List<Class> getSupportedObjects() {
@@ -105,6 +110,10 @@ public class ObjectRoleEvaluator extends DomainObjectsBaseRoleEvaluator<ObjectIn
 
 		if (!contextService.getContext(target).isPresent()) {
 			actions.remove(DETACH);
+		}
+
+		if (actions.contains(UPDATE_SINGLE_INSTANCE_TEMPLATE) && !instanceTemplateService.hasTemplate(target)) {
+			actions.remove(UPDATE_SINGLE_INSTANCE_TEMPLATE);
 		}
 
 		String contentInfoMimeType = instanceContentService

@@ -8,12 +8,12 @@ export class ReusableComponent extends Configurable {
     super(defaultConfig);
 
     if (typeof this.createActualConfig !== 'function') {
-      throw new TypeError("Must override createActualConfig function");
+      throw new TypeError('Must override createActualConfig function');
     }
 
     this.createActualConfig();
     if (this.actualConfig === undefined) {
-      throw new TypeError("createActualConfig must create actualConfig configuration object for the underlying library");
+      throw new TypeError('createActualConfig must create actualConfig configuration object for the underlying library');
     }
   }
 }

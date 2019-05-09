@@ -53,6 +53,22 @@ public interface SemanticDefinitionService {
 	List<ClassInstance> getClassesForOntology(String ontologyId);
 
 	/**
+	 * Returns all primitive data types from the semantics
+	 *
+	 * @return All primitive data types from the semantics
+	 */
+	List<ClassInstance> getDataTypes();
+
+	/**
+	 * Searches the cache for a specific data type with the specified identifier.
+	 *
+	 * @param identifier
+	 *            Data type identifier - short or long uri.
+	 * @return {@link ClassInstance} or {@code null} if no data type with that identifier is found in the cache.
+	 */
+	ClassInstance getDataType(String identifier);
+
+	/**
 	 * Returns all literal properties from the semantics
 	 *
 	 * @return All literal properties from the semantics
@@ -60,7 +76,7 @@ public interface SemanticDefinitionService {
 	List<PropertyInstance> getProperties();
 
 	/**
-	 * Returns all literal properties from the semantics as a map. The key is the property <strong>full</strong> uri.
+	 * Returns all literal properties from the semantics as a map. The key is the property <strong>short</strong> uri.
 	 *
 	 * @return Literal properties map.
 	 */
@@ -225,4 +241,10 @@ public interface SemanticDefinitionService {
 	 * @return A {@link Set} containing all subclasses.
 	 */
 	Set<ClassInstance> collectSubclasses(String id);
+
+	/**
+	 * Notify the interested parties that the model has been updated in the external data store and they should reload
+	 * their model.
+	 */
+	default void modelUpdated() {}
 }

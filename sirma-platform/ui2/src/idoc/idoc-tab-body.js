@@ -1,6 +1,6 @@
 import {View, Component, Inject, NgScope, NgElement, NgCompile} from 'app/app';
 import {IdocNavigation} from 'idoc/idoc-navigation/navigation';
-import {Splitter} from 'components/splitter/splitter';
+import 'components/splitter/splitter';
 import {Editor} from 'idoc/editor/idoc-editor';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {IdocTabOpenedEvent} from 'idoc/idoc-tabs/idoc-tab-opened-event';
@@ -19,9 +19,7 @@ import './idoc-tab-body.css!css';
     tabsConfig: 'tabsConfig'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgElement, NgCompile, Eventbus, WindowAdapter)
 export class IdocTabBody {
 

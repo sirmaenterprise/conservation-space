@@ -16,12 +16,13 @@ import org.mockito.Mockito;
  *
  * @author A. Kunchev
  */
+@SuppressWarnings("static-method")
 public class ActionTest {
 
 	@Test
 	public void convertAction_withoutConfiguration() {
 		Action action = prepareActionMock("actionId", null);
-		JsonObject actionAsJson = Action.convertAction(action);
+		JsonObject actionAsJson = Action.convertAction(action).build();
 		assertNotNull(actionAsJson);
 		assertNull(actionAsJson.getJsonObject(Action.CONFIGURATION));
 		assertNotNull(actionAsJson.getString(Action.USER_OPERATION));
@@ -33,7 +34,7 @@ public class ActionTest {
 	public void convertAction_withConfiguration() {
 		JsonObject configuration = Json.createObjectBuilder().add("config1", "config").build();
 		Action action = prepareActionMock("actionId", configuration);
-		JsonObject actionAsJson = Action.convertAction(action);
+		JsonObject actionAsJson = Action.convertAction(action).build();
 		assertNotNull(actionAsJson);
 		assertNotNull(actionAsJson.getJsonObject(Action.CONFIGURATION));
 		assertNotNull(actionAsJson.getString(Action.USER_OPERATION));

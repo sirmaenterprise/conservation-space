@@ -100,4 +100,13 @@ public class HttpClientUtilTest {
 		assertEquals("stream", descriptor.asString());
 	}
 
+	@Test
+	public void callRemoteServiceLazy_OK() throws IOException {
+		URI uri = HttpClientTestUtils.buildURI(server, "/get/successful");
+		HttpGet get = new HttpGet(uri);
+		FileDescriptor descriptor = HttpClientUtil.callRemoteServiceLazily(get);
+		assertNotNull(descriptor);
+		assertEquals("stream", descriptor.asString());
+	}
+
 }

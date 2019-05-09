@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="testObject" parentId="baseObject" isAbstract="true" type="object">
+    <regions>
+        <region id="systemData" displayType="editable" order="10" label="systemInformation.region.label">
+            <fields>
+                <field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+                    <value>http://www.ontotext.com/proton/protontop#Object</value>
+                </field>
+                <field name="type" type="ANY" order="1" codelist="CL7" label="type.label" displayType="readonly" uri="emf:type">
+                    <value>testObject</value>
+                </field>
+                <field name="title" type="an..180" order="2" label="title.label" displayType="editable" mandatory="true"
+                       previewEmpty="false" uri="dcterms:title">
+                    <control id="DEFAULT_VALUE_PATTERN">
+                        <control-param type="default_value_pattern" id="template" name="template">
+                            $[emf:type]:CO_{${seq({+objSequence})}|identifierLabel}_$[emf:createdOn]/$[emf:createdBy.lastName],
+                            release/$[chd:releaseVersion]
+                        </control-param>
+                    </control>
+                </field>
+                <field name="status" type="ANY" order="3" codelist="CL8" label="status.label" displayType="readonly" previewEmpty="false"
+                       uri="emf:status"/>
+                <field name="identifier" type="an..50" order="4" label="uniqueIdentifier.label" displayType="readOnly"
+                       rnc="${eval(CO${seq({+coSequence})})}" uri="dcterms:identifier"/>
+                <field name="emf:version" type="an..10" order="5" label="object.version" displayType="readonly" uri="emf:version"/>
+                <field name="description" type="an..1024" order="6" label="description.label" displayType="editable" previewEmpty="false"
+                       uri="dcterms:description"/>
+                <field name="outcome" type="ANY" order="7" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false"
+                       uri="emf:outcome"/>
+                <field name="integrated" type="boolean" order="8" label="integrated.label" displayType="readonly" uri="emf:integrated">
+                    <value>false</value>
+                </field>
+                <field name="uri" type="an..50" order="9" label="uri.label" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri"/>
+                <field name="completedOn" type="datetime" order="10" label="completedOn.label" displayType="readonly" previewEmpty="false"
+                       uri="emf:completedOn"/>
+                <field name="department" type="ANY" order="11" codelist="CL503" label="department.label" displayType="editable"
+                       previewEmpty="false" uri="emf:departmentName"/>
+            </fields>
+        </region>
+
+        <region id="specificInformation" order="20" label="specificInformation.region.label" displayType="editable">
+            <fields>
+                <field name="releaseVersion" type="an..10" order="21" label="releaseVersion.label" displayType="readonly"
+                       uri="chd:releaseVersion">
+                    <value>2.25</value>
+                </field>
+                <field name="emailAddress" type="an..255" order="22" label="email.integration.emailAddress" displayType="readOnly"
+                       previewEmpty="true" rnc="${eval(${get([identifier])})}" uri="emf:mailboxAddress">
+                    <control id="EMAIL"/>
+                </field>
+                <field name="objectId" type="an..180" order="23" label="csObject.objectId.label" displayType="editable" previewEmpty="true"
+                       uri="emf:externalID"/>
+                <field name="localId" type="an..180" order="24" label="csObject.localId.label" displayType="editable" previewEmpty="true"
+                       uri="chd:accessionNumber" unique="true"/>
+                <field name="createdDate" type="an..30" order="27" label="csObject.createdDate.label" displayType="editable"
+                       previewEmpty="true" uri="dcterms:created"/>
+                <field name="titlePrimary" type="an..180" order="28" label="csObject.titlePrimary.label" displayType="editable"
+                       previewEmpty="true" uri="skos:prefLabel"/>
+                <field name="titleAlternative" type="an..180" order="29" label="csObject.titleAlternative.label" displayType="editable"
+                       multiValued="true" previewEmpty="true" uri="skos:altLabel"/>
+                <field name="basePhysicalDimensions" type="an..180" order="30" label="csObject.basePhysicalDimensions.label"
+                       displayType="editable" previewEmpty="false" uri="chd:basePhysicalDimensions"/>
+            </fields>
+        </region>
+
+        <region id="relationships" order="30" label="relationships.region.label" displayType="editable">
+            <fields>
+                <!-- SPECIFIC OBJECT FIELDS -->
+                <field name="references" type="uri" order="40" label="references" tooltip="object.properties.adv.search.tooltip"
+                       displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:references">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">
+                            emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group,chd:CulturalObject,chd:Survey,chd:Sample
+                        </control-param>
+                    </control>
+                </field>
+                <field name="dependsOn" type="uri" order="45" label="dependsOn" tooltip="object.properties.adv.search.tooltip"
+                       displayType="editable" multiValued="true" previewEmpty="false" uri="emf:dependsOn">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="isAttachedTo" type="uri" order="50" label="isAttachedTo" tooltip="object.properties.adv.search.tooltip"
+                       displayType="readOnly" multiValued="true" uri="emf:isAttachedTo">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">
+                            emf:Project,emf:Case,emf:Document,emf:Task,emf:Image,emf:Video,emf:Audio,emf:User,chd:CulturalObject,chd:Survey,chd:Sample
+                        </control-param>
+                    </control>
+                </field>
+                <field name="hasAttachment" type="uri" order="55" label="hasAttachment" tooltip="object.properties.adv.search.tooltip"
+                       displayType="editable" multiValued="true" uri="emf:hasAttachment">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Document</control-param>
+                    </control>
+                </field>
+                <field name="hasAssignedConservator" type="uri" displayType="editable" order="60" label="hasAssignedConservator.label"
+                       multiValued="true" previewEmpty="false" uri="chd:hasAssignedConservator">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="processedBy" type="uri" order="65" label="processedBy" displayType="readonly" multiValued="true"
+                       previewEmpty="false" uri="emf:processedBy">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:BusinessProcess,emf:Task</control-param>
+                    </control>
+                </field>
+                <field name="hasDepiction" type="uri" order="70" label="hasDepiction" displayType="editable" multiValued="true"
+                       previewEmpty="false" uri="chd:hasDepiction">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Image</control-param>
+                    </control>
+                </field>
+                <field name="duplicates" type="uri" order="75" label="duplicates" displayType="editable" multiValued="true"
+                       previewEmpty="false" uri="chd:duplicates">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">chd:CulturalObject</control-param>
+                    </control>
+                </field>
+                <field name="hasSample" type="uri" order="80" label="hasSample" previewEmpty="false" displayType="editable"
+                       multiValued="true" uri="chd:hasSample">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">chd:Sample</control-param>
+                    </control>
+                </field>
+                <field name="isDocumentedIn" type="uri" order="85" label="isDocumentedIn" displayType="readOnly" multiValued="true"
+                       previewEmpty="false" uri="chd:isDocumentedIn">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Document</control-param>
+                    </control>
+                </field>
+                <field name="hasPrimaryImage" type="uri" order="90" label="hasPrimaryImage" tooltip="object.properties.adv.search.tooltip"
+                       displayType="editable" multiValued="true" uri="emf:hasPrimaryImage">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Image</control-param>
+                    </control>
+                </field>
+                <field name="hasWatcher" type="uri" order="95" label="hasWatcher" tooltip="object.properties.adv.search.tooltip"
+                       displayType="readOnly" multiValued="true" previewEmpty="false" uri="emf:hasWatcher">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+            </fields>
+        </region>
+
+        <region id="systemRelations" order="40" label="systemRelations.region.label" displayType="editable">
+            <!-- READONLY system fields-->
+            <fields>
+                <field name="hasThumbnail" type="uri" label="hasThumbnail" displayType="readOnly" previewEmpty="false"
+                       uri="emf:hasThumbnail">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Image</control-param>
+                    </control>
+                </field>
+                <field name="emf:hasTemplate" type="uri" label="hasTemplate" displayType="readOnly" previewEmpty="true"
+                       uri="emf:hasTemplate">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:Template</control-param>
+                    </control>
+                </field>
+                <field name="parentOf" type="uri" label="parentOf" displayType="readOnly" multiValued="true" uri="emf:parentOf">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="hasParent" type="uri" label="hasParent" displayType="readOnly" previewEmpty="false" uri="emf:hasParent">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">
+                            emf:Project,emf:Case,emf:Document,emf:Audio,emf:Video,emf:Image,emf:Task,emf:User,emf:Group,chd:CulturalObject,chd:Survey,chd:Sample
+                        </control-param>
+                    </control>
+                </field>
+                <field name="partOf" type="uri" label="partOf.label" displayType="readOnly" multiValued="true" uri="ptop:partOf">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="hasChild" type="uri" label="hasChild.label" displayType="readOnly" multiValued="true" uri="emf:hasChild">
+                    <control id="PICKER">
+                        <control-param id="range" name="range"/>
+                    </control>
+                </field>
+                <field name="lockedBy" type="uri" order="31" label="lockedBy" displayType="readonly" previewEmpty="false">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="createdBy" type="uri" label="createdBy.label" displayType="readonly" uri="emf:createdBy">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="createdOn" type="dateTime" label="createdOn.label" displayType="readonly" uri="emf:createdOn"/>
+                <field name="modifiedBy" type="uri" label="modifiedBy.label" displayType="readOnly" previewEmpty="false"
+                       uri="emf:modifiedBy">
+                    <control id="PICKER">
+                        <control-param id="range" name="range">emf:User</control-param>
+                    </control>
+                </field>
+                <field name="modifiedOn" type="datetime" label="modifiedOn.label" displayType="readOnly" previewEmpty="false"
+                       uri="emf:modifiedOn"/>
+                <field name="hasRevision" type="uri" order="36" label="hasRevision.label" displayType="readonly" multiValued="true"
+                       previewEmpty="false" uri="emf:hasRevision">
+                    <control id="PICKER"/>
+                </field>
+                <field name="isRevisionOf" type="uri" order="37" label="isRevisionOf.label" displayType="readonly" previewEmpty="false"
+                       uri="emf:isRevisionOf">
+                    <control id="PICKER"/>
+                </field>
+                <field name="lastPublishedRevision" type="uri" order="38" label="lastPublishedRevision.label" displayType="readonly"
+                       previewEmpty="false" uri="emf:lastPublishedRevision">
+                    <control id="PICKER"/>
+                </field>
+                <field name="lastRevision" type="uri" order="39" label="lastRevision.label" displayType="readonly" previewEmpty="false"
+                       uri="emf:lastRevision">
+                    <control id="PICKER"/>
+                </field>
+                <field name="nextRevision" type="uri" order="40" label="nextRevision.label" displayType="readonly" previewEmpty="false"
+                       uri="emf:nextRevision">
+                    <control id="PICKER"/>
+                </field>
+                <field name="previousRevision" type="uri" order="41" label="previousRevision.label" displayType="readonly"
+                       previewEmpty="false" uri="emf:previousRevision">
+                    <control id="PICKER"/>
+                </field>
+            </fields>
+        </region>
+    </regions>
+
+    <transitions>
+        <transition id="editDetails" label="editDetails.label" purpose="editDetails" actionPath="/">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value><![CDATA[var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Edited) ' + type + ': ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var modifiedOn = root.get('modifiedOn');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_edit_instance", recipients, context);]]></value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="create" purpose="create">
+            <fields>
+                <field name="sendCreateMail" type="an..200">
+                    <value><![CDATA[var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Created) ' + type + ': ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_upload_or_create_instance", recipients, context);]]></value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden"/>
+        <transition id="move" label="move.label" purpose="move">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value><![CDATA[var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Moved) ' + type + ': ' + title;
+
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_move_instance", recipients, context);]]></value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+        <transition id="publish" label="publish.label" purpose="publish" tooltip="publish.tooltip"/>
+        <transition id="publishAsPdf" label="publishAsPdf.label" purpose="publishAsPdf" tooltip="publishAsPdf.tooltip"/>
+        <transition id="uploadRevision" label="uploadRevision.label" purpose="uploadRevision" tooltip="uploadRevision.tooltip"/>
+        <transition id="addReferences" label="addReferences.label" purpose="addRelation" tooltip="addReferences.tooltip">
+            <fields>
+                <field name="attachToConfig" type="json">
+                    <value>
+                        {
+                        "predefinedTypes" : ["emf:Document","emf:Task","chd:CulturalObject"],
+                        "selection" : "multiple",
+                        "relation" : ["emf:references"]
+                        }
+                    </value>
+                    <control id="configuration"/>
+                </field>
+            </fields>
+        </transition>
+        <transition id="composeEmail" label="composeEmail.label" purpose="composeEmail"/>
+        <transition id="confirmRead" label="confirmRead.label" purpose="transition" immediate="true" tooltip="confirmRead.tooltip"/>
+        <transition id="revoke" label="revoke.action.label" purpose="transition" immediate="true"/>
+        <transition id="addWatchers" label="addWatchers.label" purpose="addRelation">
+            <fields>
+                <field name="addAttachmentConfig" type="json">
+                    <value>
+                        {
+                        "predefinedTypes" : ["emf:User"],
+                        "selection" : "multiple",
+                        "relation" : ["emf:hasWatcher"]
+                        }
+                    </value>
+                    <control id="configuration"/>
+                </field>
+            </fields>
+        </transition>
+        <transition id="delete" label="delete.label" purpose="delete" confirmation="project_delete.confirm">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value><![CDATA[var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Deleted) ' + type +': ' + title;
+							//extract warchers and crearedBy users
+							var watchers = root.get('emf:hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_delete_instance", recipients, context);]]></value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+    </transitions>
+
+    <stateTransitions>
+        <stateTransition from="INIT" transition="create" to="DRAFT"/>
+        <stateTransition from="INIT" transition="clone" to="DRAFT"/>
+
+        <stateTransition from="DRAFT" transition="editDetails" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="delete" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="confirmRead" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="saveAsTemplate" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="approve" to="APPROVED"/>
+        <stateTransition from="DRAFT" transition="reject" to="REJECTED"/>
+        <stateTransition from="DRAFT" transition="move" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="lock" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="unlock" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="managePermissions" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="publish" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="DRAFT" transition="publish" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="publishAsPdf" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="DRAFT" transition="publishAsPdf" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="uploadRevision" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="DRAFT" transition="uploadRevision" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="print" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="printTab" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="exportTabPDF" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="exportPDF" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="exportWord" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="exportTabWord" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="clone" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="revoke" to="OBSOLETE">
+            <condition id="requiredFields" renderAs="REQUIRED">[duplicates]</condition>
+        </stateTransition>
+        <stateTransition from="DRAFT" transition="addWatchers" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="addReferences" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="createInContext" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="revertVersion" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="composeEmail" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="changeTemplate" to="DRAFT"/>
+        <stateTransition from="DRAFT" transition="updateTemplate" to="DRAFT"/>
+
+        <stateTransition from="PENDING_APPROVAL" transition="download" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="clone" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="saveAsTemplate" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="lock" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="unlock" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="managePermissions" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="addThumbnail" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="print" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="printTab" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="exportTabPDF" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="exportPDF" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="exportWord" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="exportTabWord" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="createInContext" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="addWatchers" to="PENDING_APPROVAL"/>
+        <stateTransition from="PENDING_APPROVAL" transition="publish" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="PENDING_APPROVAL" transition="publish" to="DRAFT"/>
+        <stateTransition from="PENDING_APPROVAL" transition="publishAsPdf" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="PENDING_APPROVAL" transition="publishAsPdf" to="DRAFT"/>
+        <stateTransition from="PENDING_APPROVAL" transition="uploadRevision" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="PENDING_APPROVAL" transition="uploadRevision" to="DRAFT"/>
+        <stateTransition from="PENDING_APPROVAL" transition="composeEmail" to="PENDING_APPROVAL"/>
+
+        <stateTransition from="APPROVED" transition="delete" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="confirmRead" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="publish" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="APPROVED" transition="publish" to="DRAFT"/>
+        <stateTransition from="APPROVED" transition="publishAsPdf" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="APPROVED" transition="publishAsPdf" to="DRAFT"/>
+        <stateTransition from="APPROVED" transition="uploadRevision" to="APPROVED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="APPROVED" transition="uploadRevision" to="DRAFT"/>
+        <stateTransition from="APPROVED" transition="print" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="printTab" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="clone" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="composeEmail" to="APPROVED"/>
+
+        <stateTransition from="REJECTED" transition="download" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="saveAsTemplate" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="managePermissions" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="confirmRead" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="publish" to="REJECTED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="REJECTED" transition="publish" to="DRAFT"/>
+        <stateTransition from="REJECTED" transition="publishAsPdf" to="REJECTED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="REJECTED" transition="publishAsPdf" to="DRAFT"/>
+        <stateTransition from="REJECTED" transition="uploadRevision" to="REJECTED">
+            <condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+        </stateTransition>
+        <stateTransition from="REJECTED" transition="uploadRevision" to="DRAFT"/>
+        <stateTransition from="REJECTED" transition="print" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="printTab" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="exportTabPDF" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="exportPDF" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="exportWord" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="exportTabWord" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="clone" to="REJECTED"/>
+        <stateTransition from="REJECTED" transition="composeEmail" to="REJECTED"/>
+
+        <stateTransition from="OBSOLETE" transition="download" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="saveAsTemplate" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="print" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="exportPDF" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="exportWord" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="exportTabWord" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="clone" to="OBSOLETE"/>
+        <stateTransition from="OBSOLETE" transition="composeEmail" to="OBSOLETE"/>
+        <stateTransition from="*" transition="obsolete" to="OBSOLETE"/>
+    </stateTransitions>
+</definition>

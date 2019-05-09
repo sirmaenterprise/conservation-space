@@ -56,7 +56,7 @@ export class IdocComments {
     let filters = _.cloneDeep(EMPTY_FILTERS);
 
     this.filtersConfig = {
-      filters: filters,
+      filters,
       comments: () => {
         // since loadComments returns both comments and their replies due to bug
         // TODO: update this when bug is fixed : CMF-24076

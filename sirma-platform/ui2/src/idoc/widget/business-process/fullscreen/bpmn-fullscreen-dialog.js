@@ -1,13 +1,11 @@
-import {Inject, Component, View, NgScope, NgElement, NgInterval} from 'app/app';
+import {Inject, Component, View, NgScope, NgElement} from 'app/app';
 import BpmnJS from 'bpmn-js';
 import {ResizeDetectorAdapter} from 'adapters/resize-detector-adapter';
 import _ from 'lodash';
 import template from './bpmn-fullscreen-dialog.html!text';
 import './bpmn-fullscreen-dialog.css!';
 
-@View({
-  template: template
-})
+@View({template})
 @Component({
   selector: 'seip-process-fullscreen-container',
   properties: {
@@ -60,7 +58,7 @@ export class BpmnFullscreenDialog {
           canvas.addMarker(element.activityId, 'highlight');
         });
       }
-      
+
       this.resizeListener = this.resizeDetectorAdapter.addResizeListener(this.$element[0], this.debouncedDiagramZoom);
     });
   }

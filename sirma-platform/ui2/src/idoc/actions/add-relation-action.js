@@ -112,7 +112,8 @@ export class AddRelationAction extends ActionHandler {
    *
    *  result will be [2, 6]
    */
-  getSelectedItems(relations = [], instanceObject) {
+  getSelectedItems(relations, instanceObject) {
+    relations = relations || [];
     let loaders = [];
 
     relations.forEach((relation) => {
@@ -171,9 +172,9 @@ export class AddRelationAction extends ActionHandler {
     };
   }
 
-  static setupSearchExtension(pickerConfig, predefinedTypes = [], selection, instanceObjectId, restrictions) {
+  static setupSearchExtension(pickerConfig, predefinedTypes, selection, instanceObjectId, restrictions) {
     pickerConfig.extensions[SEARCH_EXTENSION] = {
-      predefinedTypes,
+      predefinedTypes: predefinedTypes || [],
       restrictions,
       results: {
         config: {
@@ -190,7 +191,8 @@ export class AddRelationAction extends ActionHandler {
    * If relations contains only one relation it's label will be used as label of  basket extension otherwise configuration
    * will not modified and when dialog is opened default "Basket" will be used.
    */
-  static setupBasketExtension(pickerConfig, relations = [], instanceObject) {
+  static setupBasketExtension(pickerConfig, relations, instanceObject) {
+    relations = relations || [];
     if (relations.length === 1) {
       let propertyUri = relations[0];
       pickerConfig.tabs[BASKET_EXTENSION] = {
@@ -207,7 +209,8 @@ export class AddRelationAction extends ActionHandler {
    *
    * @returns Return type of selection 'single' or 'multiple'.
    */
-  static getSelectionType(relations = [], instanceObject, actionConfiguration) {
+  static getSelectionType(relations, instanceObject, actionConfiguration) {
+    relations = relations || [];
     if (relations.length === 1) {
       let propertyUri = relations[0];
       return instanceObject.getViewModelFieldByUri(propertyUri).multivalue ? MULTIPLE_SELECTION : SINGLE_SELECTION;

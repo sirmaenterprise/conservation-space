@@ -7,7 +7,7 @@ import com.sirma.itt.seip.rest.client.HTTPClient;
 import com.sirma.sep.content.preview.ContentPreviewConfigurations;
 import com.sirma.sep.content.preview.remote.mimetype.MimeTypeSupport;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 
@@ -18,7 +18,6 @@ import javax.json.JsonObject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -73,9 +72,9 @@ public class ContentPreviewRemoteService {
 		}
 	}
 
-	private static BiFunction<Integer, HttpResponse, MimeTypeSupport> readResponse() {
-		return (code, response) -> {
-			if (code != 200) {
+	private static ResponseHandler<MimeTypeSupport> readResponse() {
+		return response -> {
+			if (response.getStatusLine().getStatusCode() != 200) {
 				return UNSUPPORTED;
 			}
 			try {

@@ -29,6 +29,22 @@ public interface StatementBuilder {
 	Statement build(Object subject, Object predicate, Serializable value);
 
 	/**
+	 * Builds a {@link Statement} based on the given argument. The value is internally converted to {@link Literal} with the given language.
+	 *
+	 * @param subject
+	 *            the subject of the statement
+	 * @param predicate
+	 *            the predicate of the statement
+	 * @param value
+	 *            the value of the statement
+	 * @param language the language of the value
+	 * @return the build statement or <code>null</code> if any of the arguments are null
+	 */
+	default Statement build(Object subject, Object predicate, String value, String language) {
+		return build(subject, predicate, value);
+	}
+
+	/**
 	 * Builds statement that is intended for adding to the database.
 	 *
 	 * @param subject

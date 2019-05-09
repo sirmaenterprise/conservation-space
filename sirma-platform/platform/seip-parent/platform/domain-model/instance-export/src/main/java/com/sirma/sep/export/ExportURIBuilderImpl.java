@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.seip.configuration.SystemConfiguration;
 import com.sirma.itt.seip.rest.client.URIBuilderWrapper;
 import com.sirma.itt.seip.rest.secirity.SecurityTokensManager;
+import com.sirma.itt.seip.security.context.SecurityContext;
 
 /**
  * Contains logic for generating {@link URI} for specific instance. The generated {@link URI} represents link which
@@ -26,6 +27,9 @@ public class ExportURIBuilderImpl implements ExportURIBuilder {
 
 	@Inject
 	private SystemConfiguration systemConfiguration;
+
+	@Inject
+	private SecurityContext securityContext;
 
 	@Inject
 	private SecurityTokensManager securityTokensManager;
@@ -50,8 +54,7 @@ public class ExportURIBuilderImpl implements ExportURIBuilder {
 
 	@Override
 	public String getCurrentJwtToken() {
-		return securityTokensManager.getCurrentJwtToken().orElseThrow(
-				() -> new SecurityException("Current user should have set a security token!"));
+		return securityTokensManager.generate(securityContext.getAuthenticated());
 	}
 
 }

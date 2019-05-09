@@ -52,23 +52,26 @@ public class TenantMgmtAccessServletFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-
 		if (!securityContext.isActive() || !securityContext.isSystemTenant()) {
 			chain.doFilter(request, response);
 			return;
 		}
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		String requestURI = httpRequest.getRequestURI();
-		if (!exclusions.isForExclusion(requestURI.substring(contextPath.length()))) {
-			String serviceLogoutURI = contextPath + "/ServiceLogout";
-			if (!(requestURI.startsWith(mgmtApiPath) || requestURI.startsWith(restServicePath)
-					|| requestURI.equals(serviceLogoutURI)) || requestURI.startsWith(mgmtServicePath)) {
-				((HttpServletResponse) response).sendRedirect(contextPath + "/tenant-mgmt/index.html");
-				return;
-			}
+		if (isNotExcluded(requestURI) && isNotManagementPath(requestURI)) {
+			((HttpServletResponse) response).sendRedirect(contextPath + "/tenant-mgmt/index.html");
+			return;
 		}
 		chain.doFilter(request, response);
+	}
 
+	private boolean isNotManagementPath(String requestURI) {
+		return !(requestURI.startsWith(mgmtApiPath) || requestURI.startsWith(restServicePath)) || requestURI
+				.startsWith(mgmtServicePath);
+	}
+
+	private boolean isNotExcluded(String requestURI) {
+		return !exclusions.isForExclusion(requestURI.substring(contextPath.length()));
 	}
 
 	@Override
@@ -86,7 +89,7 @@ public class TenantMgmtAccessServletFilter implements Filter {
 
 		@Override
 		public boolean isForExclusion(String path) {
-			return path.startsWith("/tenant-mgmt/") && !path.endsWith("html");
+			return path.startsWith("/tenant-mgmt/");
 		}
 	}
 }

@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
+import org.eclipse.persistence.oxm.annotations.XmlCDATA;
+
 /**
  * <p>
  * Java class for labelValue complex type.
@@ -36,6 +38,7 @@ public class LabelValue {
 
 	/** The value. */
 	@XmlValue
+	@XmlCDATA
 	protected String value;
 
 	/** The lang. */

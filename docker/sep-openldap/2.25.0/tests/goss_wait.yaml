@@ -1,0 +1,7 @@
+command:
+  "healthcheck.sh":
+    exit-status: 0
+  ldapsearch -Y EXTERNAL -Q -H ldapi:// -LLL -b "$SEP_MDB_SUFFIX" -s sub "(ObjectClass=organization)":
+    exit-status: 0
+  ldapsearch -Y EXTERNAL -Q -H ldapi:// -LLL -b "cn=config" -s sub "(ObjectClass=olcPPolicyConfig)":
+    exit-status: 0

@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definition id="NGAWFLTYPE02" parentId="ngaWorkflow" type="workflow">
 	<regions>
-		<region id="generalWorkflowInformation" order="10" displayType="editable" label="ngaWorkflow.generalWorkflowInformation.region.label">
+		<region id="generalWorkflowInformation" >
 			<fields>
-				<field name="type" type="an..180" order="110" codelist="CL10" mandatory="false" displayType="readonly" >
+				<field name="type" codelist="CL10" >
 					<value>NGAWFLTYPE02</value>
 				</field>
 			</fields>
 		</region>
-		<region id="ngaActivityDefinitionRelationships" order="40" displayType="editable" label="nga.relationships.region.label">
+		<region id="ngaActivityDefinitionRelationships" >
 			<fields>
 				<field name="processes" type="uri" order="40" displayType="editable" label="nga.processes.label" tooltip="nga.processes.tooltip" multiValued="true" previewEmpty="false" uri="emf:processes" >
 					<condition id="readonlyField" renderAs="READONLY">[status] NOTIN ('INIT','NOT_YET_STARTED')</condition>
 					<condition id="mandatoryField" renderAs="MANDATORY">[status] IN ('NOT_YET_STARTED')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}</control-param>
 					</control>
 				</field>
 			</fields>

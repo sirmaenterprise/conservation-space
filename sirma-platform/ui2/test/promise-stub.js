@@ -45,13 +45,19 @@ export class PromiseStub {
     });
     return thenable;
   }
+
+  static defer() {
+    return {
+      promise: buildThenable()
+    }
+  }
 }
 
 export function buildThenable() {
   return {
     then: function (onFulfill, onReject) {
       if (this.resolved && !this.rejected) {
-        var returned = onFulfill(this.resolveValue);
+        let returned = onFulfill(this.resolveValue);
 
         // promise returned, return that for next handler in chain
         if (returned && returned.then) {
@@ -91,6 +97,7 @@ export function buildThenable() {
       if (this.resolved || this.rejected) {
         callback();
       }
+      return this;
     }
   };
 }

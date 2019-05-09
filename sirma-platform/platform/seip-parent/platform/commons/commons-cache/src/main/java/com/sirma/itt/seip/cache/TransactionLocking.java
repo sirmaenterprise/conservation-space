@@ -12,4 +12,18 @@ public enum TransactionLocking {
 	/** The optimistic. */
 	OPTIMISTIC, /** The pessimistic. */
 	PESSIMISTIC;
+
+	public static TransactionLocking parse(String lockType) {
+		if (lockType == null) {
+			return null;
+		}
+		switch (lockType.toUpperCase()) {
+			case "OPTIMISTIC":
+				return OPTIMISTIC;
+			case "PESSIMISTIC":
+				return PESSIMISTIC;
+			default:
+				return null;
+		}
+	}
 }

@@ -6,5 +6,5 @@ import {View,Component} from 'app/app';
 @View({
   template: '<div><div ui-view></div>'
 })
-class UIView {
+export class UIView {
 }

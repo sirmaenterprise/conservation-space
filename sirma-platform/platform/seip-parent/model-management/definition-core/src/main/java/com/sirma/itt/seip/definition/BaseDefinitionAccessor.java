@@ -360,9 +360,7 @@ public abstract class BaseDefinitionAccessor {
 	protected <E> E injectLabelProvider(E model) {
 		if (model instanceof Displayable) {
 			Displayable displayable = (Displayable) model;
-			if (displayable.getLabelId() != null || displayable.getTooltipId() != null) {
-				displayable.setLabelProvider(labelProvider);
-			}
+			displayable.setLabelProvider(labelProvider);
 		}
 		if (model instanceof DefinitionModel) {
 			injectLabelProvider(((DefinitionModel) model).getFields());

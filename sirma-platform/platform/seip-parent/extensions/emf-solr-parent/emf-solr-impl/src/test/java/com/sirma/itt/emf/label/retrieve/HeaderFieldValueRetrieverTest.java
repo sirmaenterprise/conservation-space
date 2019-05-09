@@ -93,7 +93,7 @@ public class HeaderFieldValueRetrieverTest {
 	 */
 	@Test
 	public void testGetLabelsSolrException() throws SolrClientException {
-		Mockito.when(solrConnector.queryWithPost(Matchers.any(SolrQuery.class))).thenThrow(
+		Mockito.when(solrConnector.query(Matchers.any(SolrQuery.class))).thenThrow(
 				new SolrClientException(new Exception()));
 		mockInstanceService();
 		Map<String, String> headers = headerFieldValueRetriever.getLabels(new String[] { "shortUri" }, null);
@@ -170,7 +170,7 @@ public class HeaderFieldValueRetrieverTest {
 	private void mockSolrConnector(Map<String, Object> solrDocumentFields) throws SolrClientException {
 		if (solrDocumentFields != null) {
 			QueryResponse queryResponse = mockSolrResponse(solrDocumentFields);
-			when(solrConnector.queryWithPost(Matchers.any(SolrQuery.class))).thenReturn(queryResponse);
+			when(solrConnector.query(Matchers.any(SolrQuery.class))).thenReturn(queryResponse);
 		}
 	}
 

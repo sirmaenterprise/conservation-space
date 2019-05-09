@@ -1,5 +1,6 @@
 package com.sirma.itt.seip.instance.validator.validators;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +19,7 @@ import com.sirma.itt.seip.instance.validation.PropertyFieldValidator;
 import com.sirma.itt.seip.instance.validation.PropertyValidationError;
 import com.sirma.itt.seip.instance.validator.errors.FieldValidationErrorBuilder;
 import com.sirma.itt.seip.plugin.Extension;
+import com.sirmaenterprise.sep.instance.validator.exceptions.InstanceValidationException;
 
 /**
  * Class that contains logic that validates code list {@link com.sirma.itt.seip.domain.instance.Instance} fields. Here
@@ -72,12 +74,24 @@ public class CodelistFieldValidator extends PropertyFieldValidator {
 		// Handles code list filters that are set through conditions.
 		DynamicCodeListFilter filter = context.getDynamicClFilters().get(context.getPropertyDefinition().getName());
 		if (filter != null) {
+			validateMandatoryParams(filter, context.getPropertyDefinition());
+			// Filter a field depending on supplied custom filter
+			if (filter.getReRenderFieldName().equals(filter.getSourceFilterFieldName())) {
+				String[] values = filter.getFilterSource().replaceAll("\\s+", "").split(",");
+				return codelistService.filterCodeValues(codeList, filter.isInclusive(), Arrays.asList(values));
+			}
 			Collection<String> values = filter.getValues();
 			String[] valuesArray = values.toArray(new String[values.size()]);
-			// Can have only one such filter in the definition.
+			// Filter a field depending on another field value (restrictions are described in codelist "extra" columns)
 			return codelistService.filterCodeValues(codeList, filter.isInclusive(), filter.getFilterSource(),
 					valuesArray);
 		}
 		return codelistService.getFilteredCodeValues(codeList);
+	}
+	
+	private void validateMandatoryParams(DynamicCodeListFilter filter, PropertyDefinition property) {
+		if (!filter.isFilterValid()) {
+			throw new InstanceValidationException(builder.buildMandatoryControlParamError(property).toString());
+		}
 	}
 }

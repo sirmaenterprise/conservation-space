@@ -58,7 +58,7 @@ describe('Object Browser', function () {
 
   it('should autoexpand and scroll to the current entity if it isn\'t the root', function () {
     // resize the browser in order to check if the element is properly visible in the view port
-    browser.driver.manage().window().setSize(1000, 100);
+    browser.driver.manage().window().setSize(1000, 130);
 
     // Given I have opened the tree browser page for the expected child entity
     page.open('emf:695e442d-b96e-47aa-815c-4e7694a69a7d');
@@ -67,13 +67,11 @@ describe('Object Browser', function () {
     // Then I should see the child entity opened
     objectBrowser.getNode('Aston');
 
-    let node = objectBrowser.getNode('First 1.1');
-
     // And I should  be able to see the current node in the view port
-    expect(node.isDisplayed()).to.eventually.be.true;
+    expect(objectBrowser.getNode('First 1.1').isDisplayed()).to.eventually.be.true;
 
     // And I should see the current node highlighted
-    expect(node.isHighlighted()).to.eventually.be.true;
+    expect(objectBrowser.getNode('First 1.1').isHighlighted()).to.eventually.be.true;
   });
 
 });

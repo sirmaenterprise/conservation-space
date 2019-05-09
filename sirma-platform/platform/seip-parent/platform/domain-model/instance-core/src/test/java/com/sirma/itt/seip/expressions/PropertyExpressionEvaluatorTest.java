@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -81,7 +83,7 @@ public class PropertyExpressionEvaluatorTest extends BaseEvaluatorTest {
 	/**
 	 * Test escaping.
 	 */
-	public void testEscaping() {
+	public void shouldEscapeNonHeaderProperties() {
 		ExpressionsManager expressionsManager = createManager();
 		EmfInstance target = new EmfInstance();
 		target.setProperties(new HashMap<String, Serializable>());
@@ -97,6 +99,76 @@ public class PropertyExpressionEvaluatorTest extends BaseEvaluatorTest {
 		Assert.assertNotEquals(escaped, value);
 		Assert.assertEquals(escaped, StringEscapeUtils.escapeHtml(value));
 
+	}
+
+	public void shouldReturnPreferredLanguageWhenPresent() {
+		ExpressionsManager expressionsManager = createManager();
+		EmfInstance target = new EmfInstance();
+		HashMap<String, Serializable> multiLang = new HashMap<>();
+		multiLang.put("en", "EN value");
+		multiLang.put("bg", "БГ стойност");
+		target.add("multiLangValueProperty", multiLang);
+		ExpressionContext context = expressionsManager.createDefaultContext(target, null, null);
+
+		String langSpecificValue = expressionsManager.evaluateRule("${get([multiLangValueProperty])}",
+				String.class, context);
+		// in the base test the user preference is set to BG
+		Assert.assertEquals(langSpecificValue, "БГ стойност");
+	}
+
+	public void shouldReturnEnValueIfPreferredIsMissing() {
+		ExpressionsManager expressionsManager = createManager();
+		EmfInstance target = new EmfInstance();
+		HashMap<String, Serializable> multiLang = new HashMap<>();
+		multiLang.put("en", "EN value");
+		target.add("multiLangValueProperty", multiLang);
+		ExpressionContext context = expressionsManager.createDefaultContext(target, null, null);
+
+		String langSpecificValue = expressionsManager.evaluateRule("${get([multiLangValueProperty])}",
+				String.class, context);
+		// in the base test the user preference is set to BG
+		Assert.assertEquals(langSpecificValue, "EN value");
+	}
+
+	public void shouldConcatAllValues_ifPreferredLangIsNotFoundAndEnLangIsNotFound() {
+		ExpressionsManager expressionsManager = createManager();
+		EmfInstance target = new EmfInstance();
+		LinkedHashMap<String, Serializable> multiLang = new LinkedHashMap<>();
+		multiLang.put("fi", "Fin value");
+		multiLang.put("de", "DE value");
+		target.add("multiLangValueProperty", multiLang);
+		ExpressionContext context = expressionsManager.createDefaultContext(target, null, null);
+
+		Serializable langSpecificValue = expressionsManager.evaluateRule("${get([multiLangValueProperty])}",
+				Serializable.class, context);
+		// in the base test the user preference is set to BG
+		Assert.assertEquals(langSpecificValue, "Fin value, DE value");
+	}
+
+	public void shouldReturnNullIfMapIsEmpty() {
+		ExpressionsManager expressionsManager = createManager();
+		EmfInstance target = new EmfInstance();
+		LinkedHashMap<String, Serializable> multiLang = new LinkedHashMap<>();
+		target.add("multiLangValueProperty", multiLang);
+		ExpressionContext context = expressionsManager.createDefaultContext(target, null, null);
+
+		Serializable langSpecificValue = expressionsManager.evaluateRule("${get([multiLangValueProperty])}",
+				Serializable.class, context);
+		// in the base test the user preference is set to BG
+		Assert.assertNull(langSpecificValue);
+	}
+
+	public void shouldReturnNullIfCollectionIsEmpty() {
+		ExpressionsManager expressionsManager = createManager();
+		EmfInstance target = new EmfInstance();
+		LinkedList<Serializable> multiValue = new LinkedList<>();
+		target.add("multiValueProperty", multiValue);
+		ExpressionContext context = expressionsManager.createDefaultContext(target, null, null);
+
+		Serializable langSpecificValue = expressionsManager.evaluateRule("${get([multiValueProperty])}",
+				Serializable.class, context);
+		// in the base test the user preference is set to BG
+		Assert.assertNull(langSpecificValue);
 	}
 
 	/**

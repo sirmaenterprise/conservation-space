@@ -47,12 +47,10 @@ class DefaultSecurityContextManager implements SecurityContextManager {
 
 	@Override
 	public void beginContextExecution(User user) {
-		if (!SecurityContextHolder.isSet()) {
-			throw new ContextNotActiveException(
-					"Security context not initialized. Call any of SecurityContextManager.initializeExecution() method "
-							+ "first before calling SecurityContextManager.beginContextExecution(User)!");
-		}
-		SecurityContext currentContext = SecurityContextHolder.getContext();
+		checkActiveSecurityContext();
+		checkIfSameTenant(user);
+
+		SecurityContext currentContext = Objects.requireNonNull(SecurityContextHolder.getContext());
 
 		SecurityContext newContext = new DefaultSecurityContext(currentContext::getAuthenticated, () -> user,
 				currentContext::getCurrentTenantId, currentContext::isActive, currentContext::isAuthenticated,
@@ -63,16 +61,63 @@ class DefaultSecurityContextManager implements SecurityContextManager {
 	}
 
 	@Override
+	public void beginContextExecutionAs(User user) {
+		checkActiveSecurityContext();
+		if (!isSameAsCurrentAuthentication(user)) {
+			checkIsSystemOrAdminUser(user);
+		}
+		checkIfSameTenant(user);
+
+		SecurityContext currentContext = Objects.requireNonNull(SecurityContextHolder.getContext());
+		SecurityContext newContext = new DefaultSecurityContext(() -> user, () -> user,
+				currentContext::getCurrentTenantId, currentContext::isActive, currentContext::isAuthenticated,
+				currentContext.getRequestId());
+		SecurityContextHolder.pushContext(newContext);
+
+		setLoggingContext(newContext);
+	}
+
+	private boolean isSameAsCurrentAuthentication(User user) {
+		SecurityContext currentContext = Objects.requireNonNull(SecurityContextHolder.getContext());
+		return currentContext.getAuthenticated().equals(user) && currentContext.getEffectiveAuthentication().equals(user);
+	}
+
+	private void checkIfSameTenant(User user) {
+		SecurityContext currentContext = Objects.requireNonNull(SecurityContextHolder.getContext());
+
+		String requestTenant = user.getTenantId();
+		if (currentContext.isActive() && !currentContext.isSystemTenant()) {
+			String currentTenant = currentContext.getCurrentTenantId();
+			if (!currentTenant.equals(requestTenant)) {
+				throw new SecurityException(
+						"Cannot change tenant context from " + currentTenant + " to " + requestTenant);
+			}
+		}
+	}
+
+	private void checkIsSystemOrAdminUser(User user) {
+		if (!isCurrentUserSystem() && !isAuthenticatedAsAdmin()) {
+			throw new SecurityException(
+					"Cannot change the authenticated user to " + user.getDisplayName() + "(" + user.getIdentityId()
+							+ "). Only allowed for System or Admin");
+		}
+	}
+
+	private static void checkActiveSecurityContext() {
+		if (!SecurityContextHolder.isSet()) {
+			throw new ContextNotActiveException(
+					"Security context not initialized. Call any of SecurityContextManager.initializeExecution() methods first");
+		}
+	}
+
+	@Override
 	public void beginContextExecution(String requestId) {
 		if (StringUtils.isBlank(requestId)) {
 			throw new SecurityException("Cannot set empty security identifier");
 		}
-		if (!SecurityContextHolder.isSet()) {
-			throw new ContextNotActiveException(
-					"Security context not initialized. Call any of SecurityContextManager.initializeExecution() method "
-							+ "first before calling SecurityContextManager.beginContextExecution(String)!");
-		}
-		SecurityContext currentContext = SecurityContextHolder.getContext();
+		checkActiveSecurityContext();
+
+		SecurityContext currentContext = Objects.requireNonNull(SecurityContextHolder.getContext());
 
 		SecurityContext newContext = new DefaultSecurityContext(currentContext::getAuthenticated, currentContext::getEffectiveAuthentication,
 				currentContext::getCurrentTenantId, currentContext::isActive, currentContext::isAuthenticated,

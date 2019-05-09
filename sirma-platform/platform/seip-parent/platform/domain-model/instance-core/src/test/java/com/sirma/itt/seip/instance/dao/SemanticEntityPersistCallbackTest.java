@@ -45,15 +45,11 @@ public class SemanticEntityPersistCallbackTest {
 	@Mock
 	private EntityLookupCache<Serializable, Object, Serializable> cache;
 
-	@Mock
-	private EntityLookupCache<Serializable, Object, Serializable> temporaryCache;
-
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 
-		when(cacheContext.getCache("SEMANTIC_INSTANCE_ENTITY_CACHE")).thenReturn(cache);
-		when(cacheContext.getCache("INSTANCE_TEMPORARY_CACHE")).thenReturn(temporaryCache);
+		when(cacheContext.getCache(SemanticEntityPersistCallback.SEMANTIC_INSTANCE_ENTITY_CACHE)).thenReturn(cache);
 
 		callback = new SemanticEntityPersistCallback(dbDao, cacheContext, instanceConverter, instanceTypes);
 	}
@@ -75,7 +71,6 @@ public class SemanticEntityPersistCallbackTest {
 
 		verify(dbDao).saveOrUpdate(instance, oldReference);
 		verify(cache).setValue(NEW_REFERENCE_INSTANCE_ID, instance);
-		verify(temporaryCache).setValue(NEW_REFERENCE_INSTANCE_ID, instance);
 		assertEquals(OLD_REFERENCE_INSTANCE_ID, result.getId());
 	}
 }

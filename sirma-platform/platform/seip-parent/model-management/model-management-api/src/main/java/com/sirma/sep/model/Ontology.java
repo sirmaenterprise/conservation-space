@@ -92,4 +92,13 @@ public class Ontology {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder(128)
+				.append("Ontology{")
+				.append("id='").append(id).append('\'')
+				.append(", title='").append(title).append('\'')
+				.append('}')
+				.toString();
+	}
 }

@@ -17,8 +17,10 @@ import com.sirma.itt.seip.Pair;
  * @author Derek Hulley
  * @since 3.2
  */
-public abstract class EntityLookupCallbackDAOAdaptor<K extends Serializable, V extends Object, S extends Serializable>
+public abstract class EntityLookupCallbackDAOAdaptor<K extends Serializable, V, S extends Serializable>
 		implements EntityLookupCallbackDAO<K, V, S> {
+
+	protected boolean secondaryKeyEnabled = false;
 
 	/**
 	 * This implementation never finds a value and is backed by.
@@ -80,5 +82,21 @@ public abstract class EntityLookupCallbackDAOAdaptor<K extends Serializable, V e
 	@Override
 	public int deleteByValue(V value) {
 		throw new UnsupportedOperationException("Entity deletion by value is not supported");
+	}
+
+	/**
+	 * Enables secondary key management
+	 *
+	 * @return the current instance for chaining
+	 */
+	@Override
+	public EntityLookupCallbackDAO<K, V, S> enableSecondaryKeyManagement() {
+		secondaryKeyEnabled = true;
+		return this;
+	}
+
+	@Override
+	public boolean isSecondaryKeyEnabled() {
+		return secondaryKeyEnabled;
 	}
 }

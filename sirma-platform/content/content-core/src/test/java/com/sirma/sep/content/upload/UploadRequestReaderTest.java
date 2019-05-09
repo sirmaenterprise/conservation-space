@@ -22,13 +22,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceProxyMock;
 import com.sirma.sep.content.ContentConfigurations;
-import com.sirma.sep.content.upload.RepositoryFileItemFactory;
-import com.sirma.sep.content.upload.UploadRequest;
-import com.sirma.sep.content.upload.UploadRequestReader;
 
 /**
  * Test for {@link UploadRequestReader}
@@ -48,7 +46,7 @@ public class UploadRequestReaderTest {
 	@Mock
 	private HttpServletRequest request;
 	@Spy
-	private Statistics statistics = Statistics.NO_OP;
+	private Statistics statistics = NoOpStatistics.INSTANCE;
 
 	@Before
 	@SuppressWarnings("boxing")

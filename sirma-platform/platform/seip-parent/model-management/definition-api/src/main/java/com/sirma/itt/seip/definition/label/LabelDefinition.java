@@ -1,6 +1,7 @@
 package com.sirma.itt.seip.definition.label;
 
 import java.util.Map;
+import java.util.Set;
 
 import com.sirma.itt.seip.Entity;
 import com.sirma.itt.seip.domain.Identity;
@@ -19,4 +20,11 @@ public interface LabelDefinition extends Entity<Long>, Identity {
 	 * @return the labels mapping.
 	 */
 	Map<String, String> getLabels();
+
+	/**
+	 * Set of identifiers where the current label definition could be found in.
+	 *
+	 * @return the set of definition identifiers where the current label is defined in.
+	 */
+	Set<String> getDefinedIn();
 }

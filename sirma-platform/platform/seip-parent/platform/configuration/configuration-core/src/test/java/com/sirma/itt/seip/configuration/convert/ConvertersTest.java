@@ -244,6 +244,14 @@ public class ConvertersTest {
 		assertEquals(Converters.convertToDouble(context), null);
 	}
 
+	@Test
+	public void test_convertToStringArray() {
+		when(context.getRawValue()).thenReturn("1,2,3", "1 ; 2 ; 3", null);
+		assertEquals(Converters.convertToStringArray(context), new String[] {"1", "2", "3"});
+		assertEquals(Converters.convertToStringArray(context), new String[] {"1", "2", "3"});
+		assertEquals(Converters.convertToStringArray(context), null);
+	}
+
 	@Test(expectedExceptions = ConverterException.class)
 	public void test_convertToDouble_fail() {
 		when(context.getRawValue()).thenReturn("1est");

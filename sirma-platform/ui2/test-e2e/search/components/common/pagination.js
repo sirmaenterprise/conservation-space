@@ -1,13 +1,12 @@
 'use strict';
 
 let PageObject = require('../../../page-object').PageObject;
+let hasClass = require('../../../test-utils').hasClass;
 
 const PAGE = '.page';
 const FIRST_PAGE = '.first-page';
 const LAST_PAGE = '.last-page';
-
-const DISABLED_CLASS = 'disabled';
-
+const DISABLED = 'disabled';
 /**
  * Page object for the pagination component.
  *
@@ -32,15 +31,15 @@ class Pagination extends PageObject {
   }
 
   /**
-   * Waits unit at least one of the pagination buttons is active meaning the component is enabled and ready to use.
+   * Waits unit at least one of the pagination buttons is active & not disabled meaning the component is ready to use.
    */
   waitForActiveButton() {
-    var activeButton = this.element.$('.page.active');
+    let activeButton = this.element.$('.page.active:not(.disabled)');
     browser.wait(EC.visibilityOf(activeButton), DEFAULT_TIMEOUT);
   }
 
   getPages() {
-    return this.element.all(by.css(PAGE));
+    return this.element.$$(PAGE);
   }
 
   getFirstPageButton() {
@@ -56,31 +55,30 @@ class Pagination extends PageObject {
   }
 
   getPageButtonLink(page) {
-    return this.getPageButton(page).element(by.css('a'));
+    return this.getPageButton(page).$('a');
   }
 
   goToFirstPage() {
-    return this.element.$(FIRST_PAGE + ' a').click();
+    this.getFirstPageButton().$('a').click();
+    this.waitForActiveButton();
   }
 
   goToPage(page) {
-    return this.getPageButtonLink(page).click();
+    this.getPageButtonLink(page).click();
+    this.waitForActiveButton();
   }
 
   goToLastPage() {
-    return this.element.$(LAST_PAGE + ' a').click();
+    this.getLastPageButton().$('a').click();
+    this.waitForActiveButton();
   }
 
-  getDisabledClass() {
-    return DISABLED_CLASS;
+  isFirstPageButtonDisabled() {
+    return hasClass(this.getFirstPageButton(), DISABLED);
   }
 
-  getFirstPageButtonSelector() {
-    return FIRST_PAGE;
-  }
-
-  getLastPageButtonSelector() {
-    return LAST_PAGE;
+  istLastPageButtonDisabled() {
+    return hasClass(this.getLastPageButton(), DISABLED);
   }
 
 }

@@ -1,13 +1,12 @@
 package com.sirma.itt.emf.semantic.model.init;
 
-import static com.sirma.itt.seip.domain.instance.DefaultProperties.DESCRIPTION;
-import static com.sirma.itt.seip.domain.instance.DefaultProperties.TITLE;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
@@ -20,20 +19,17 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.sirma.itt.emf.GeneralSemanticTest;
 import com.sirma.itt.emf.semantic.queries.SPARQLQueryHelper;
 import com.sirma.itt.emf.semantic.search.TupleQueryResultIterator;
 import com.sirma.itt.seip.collections.CollectionUtils;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
-import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
 import com.sirma.itt.semantic.search.SemanticQueries;
 
@@ -44,18 +40,21 @@ import com.sirma.itt.semantic.search.SemanticQueries;
  */
 public class ClassDescriptionGeneratorTest extends GeneralSemanticTest<ClassDescriptionGenerator> {
 
-	@Mock
-	private Statistics statistics;
-
 	/**
 	 * Initializes the tested class
 	 */
 	@BeforeClass
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		service = new ClassDescriptionGenerator();
-		when(statistics.createTimeStatistics(any(), anyString())).thenReturn(new TimeTracker());
-		ReflectionUtils.setFieldValue(service, "statistics", statistics);
+	}
+
+	@BeforeMethod
+	public void initData() throws IOException {
+		beginTransaction();
+		RepositoryConnection managedConnection = connectionFactory.produceManagedConnection();
+		String query = IOUtils.toString(loadDataFile("ClassDescriptionGeneratorTestData.sparql"));
+		managedConnection.prepareUpdate(query).execute();
+		commitTransaction();
 	}
 
 	/**
@@ -68,16 +67,16 @@ public class ClassDescriptionGeneratorTest extends GeneralSemanticTest<ClassDesc
 	 */
 	@Test
 	public void testClassDescriptionGeneration() throws RepositoryException, QueryEvaluationException {
+		beginTransaction();
 		RepositoryConnection connection = spy(connectionFactory.produceManagedConnection());
-		ReflectionUtils.setFieldValue(service, "connection", connection);
+		service = new ClassDescriptionGenerator(connection);
 		ArgumentCaptor<LinkedHashModel> modelCapture = ArgumentCaptor.forClass(LinkedHashModel.class);
 
-		service.initClassDescription();
+		service.initClassAndPropertiesDescription();
 		commitTransaction();
 
 		Mockito.verify(connection).add(modelCapture.capture(), Matchers.eq(EMF.CLASS_DESCRIPTION_CONTEXT));
 		LinkedHashModel model = modelCapture.getValue();
-		Mockito.verify(connection, Mockito.times(1)).clear(Matchers.eq(EMF.CLASS_DESCRIPTION_CONTEXT));
 
 		connection = connectionFactory.produceReadOnlyConnection();
 		TupleQuery tupleQuery = SPARQLQueryHelper.prepareTupleQuery(connection,
@@ -97,12 +96,30 @@ public class ClassDescriptionGeneratorTest extends GeneralSemanticTest<ClassDesc
 						valueFactory.createLiteral("objectinstance"), (Resource) null));
 				Assert.assertTrue(
 						model.contains(classUri, EMF.IS_DELETED, valueFactory.createLiteral(false), (Resource) null));
-				Assert.assertTrue(model.contains(classUri, DCTERMS.TITLE, bindingSet.getBinding(TITLE).getValue(),
-						(Resource) null));
-				Assert.assertTrue(model.contains(classUri, DCTERMS.DESCRIPTION,
-						bindingSet.getBinding(DESCRIPTION).getValue(), (Resource) null));
 			}
 		}
+
+		verify(model, "someObjectProperty", DCTERMS.TITLE, "german title", valueFactory);
+		verify(model, "someDataProperty", DCTERMS.TITLE, "german title", valueFactory);
+		verify(model, "someAnnotationProperty", DCTERMS.TITLE, "german title", valueFactory);
+		verify(model, "SomeClass", DCTERMS.TITLE, "german title", valueFactory);
+		verify(model, "someAnnotationProperty2", DCTERMS.TITLE, "german title", valueFactory);
+		verify(model, "someAnnotationProperty2", DCTERMS.TITLE, "fin title", "fi", valueFactory);
+		verify(model, "someAnnotationProperty2", DCTERMS.TITLE, "eng title", "en", valueFactory);
+
+		verify(model, "someObjectProperty", DCTERMS.DESCRIPTION, "german description", valueFactory);
+		verify(model, "someDataProperty", DCTERMS.DESCRIPTION, "german description", valueFactory);
+		verify(model, "someAnnotationProperty", DCTERMS.DESCRIPTION, "german description", valueFactory);
+		verify(model, "SomeClass", DCTERMS.DESCRIPTION, "german description", valueFactory);
+	}
+
+	private void verify(Model model, String subjectName, IRI predicate, String value, ValueFactory valueFactory) {
+		verify(model, subjectName, predicate, value, "de", valueFactory);
+	}
+
+	private void verify(Model model, String subjectName, IRI predicate, String value, String lang, ValueFactory valueFactory) {
+		Assert.assertTrue(model.contains(valueFactory.createIRI(EMF.NAMESPACE, subjectName), predicate,
+				valueFactory.createLiteral(value, lang)));
 	}
 
 	@Override

@@ -2,8 +2,7 @@ import {View, Component, Inject, NgElement, NgScope} from 'app/app';
 import {NavigatorAdapter} from 'adapters/navigator-adapter';
 import {JsonUtil} from 'common/json-util';
 
-import _ from 'lodash';
-import selectTemplate from './codelist-select.html!text';
+import template from './codelist-select.html!text';
 
 @Component({
   selector: 'codelist-select',
@@ -13,9 +12,7 @@ import selectTemplate from './codelist-select.html!text';
     'form': 'form'
   }
 })
-@View({
-  template: selectTemplate
-})
+@View({template})
 @Inject(NgElement, NgScope)
 export class CodelistSelect {
   constructor($element, $scope) {
@@ -56,7 +53,7 @@ export class CodelistSelect {
     if (NavigatorAdapter.isEdge()) {
       let idocEditor = $('.idoc-content-container.idoc-editor');
       this.$element.on('select2:open', () => {
-        $('.select2-search__field').focus();
+        this.$element.focus();
         idocEditor.attr({contenteditable: false});
       });
 

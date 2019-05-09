@@ -193,7 +193,7 @@ public class HtmlToExcelHelper {
 				if (!isEmpty(fontValue) && !"null".equalsIgnoreCase(fontValue)) {
 					HSSFPalette palette = workBook.getCustomPalette();
 					HSSFColor myColor = palette.findSimilarColor(Integer.valueOf(fontValue.substring(1, 3), 16),
-							Integer.valueOf(fontValue.substring(2, 5), 16),
+							Integer.valueOf(fontValue.substring(3, 5), 16),
 							Integer.valueOf(fontValue.substring(5, 7), 16));
 					font.setColor(myColor.getIndex());
 				}

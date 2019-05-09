@@ -37,11 +37,21 @@ class JobRunner {
 	}
 
 	/**
+	 * Restarts a batch job with the given execution and runtime properties
+	 *
+	 * @param jobExecutionId the job execution id
+	 * @param properties the runtime properties to pass to the job while executing
+	 * @return the job execution id
+	 */
+	long restartJob(long jobExecutionId, Properties properties) {
+		return getJobOperator().restart(jobExecutionId, properties);
+	}
+
+	/**
 	 * Returns execution ids for job instances with the specified
 	 * name that have running executions.
 	 *
-	 * @param jobName
-	 *            specifies the job name.
+	 * @param jobName specifies the job name.
 	 * @return a list of execution ids.
 	 */
 	List<Long> getRunningExecutions(String jobName) {
@@ -57,8 +67,7 @@ class JobRunner {
 	/**
 	 * Return job execution for specified execution id
 	 *
-	 * @param executionId
-	 *            specifies the job execution.
+	 * @param executionId specifies the job execution.
 	 * @return job execution
 	 */
 	Optional<JobExecution> getJobExecution(Long executionId) {
@@ -74,8 +83,7 @@ class JobRunner {
 	/**
 	 * Fetches all executions for job with name <code>jobName</code> and stops them.
 	 *
-	 * @param jobName
-	 *         - job name which executions have to be stopped.
+	 * @param jobName - job name which executions have to be stopped.
 	 */
 	void stopJobExecutions(String jobName) {
 		JobOperator jobOperator = getJobOperator();

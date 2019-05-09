@@ -12,9 +12,7 @@ import template from './advanced-search-numeric-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope)
 export class AdvancedSearchNumericCriteria extends Configurable {
   constructor($scope) {

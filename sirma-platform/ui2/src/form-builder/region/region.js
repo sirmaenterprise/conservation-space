@@ -1,5 +1,5 @@
 import {View, Component, Inject, NgElement} from 'app/app';
-import {Collapsible} from 'components/collapsible/collapsible';
+import 'components/collapsible/collapsible';
 import uuid from 'common/uuid';
 import {FormControl} from 'form-builder/form-control';
 import template from './region.html!text';
@@ -13,9 +13,7 @@ import template from './region.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
 export class Region extends FormControl {
   constructor($element) {

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,12 +22,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.sirma.itt.seip.exception.RollbackedException;
 import com.sirma.itt.seip.runtime.boot.DeploymentException;
+import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceProxyMock;
 import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirmaenterprise.sep.jms.annotations.DestinationType;
 import com.sirmaenterprise.sep.jms.provision.DestinationDefinition;
 import com.sirmaenterprise.sep.jms.provision.InitialJmsProvisioner;
 import com.sirmaenterprise.sep.jms.provision.JmsProvisioner;
+import com.sirmaenterprise.sep.jms.provision.JmsSubsystemConfigurations;
 import com.sirmaenterprise.sep.jms.provision.JmsSubsystemModel;
 
 /**
@@ -45,6 +48,9 @@ public class InitialJmsProvisionerTest {
 	@Mock
 	private JmsDefinitionProvider jmsProvider;
 
+	@Mock
+	private JmsSubsystemConfigurations jmsSubsystemConfigurations;
+
 	@InjectMocks
 	private InitialJmsProvisioner provisioner;
 
@@ -55,6 +61,7 @@ public class InitialJmsProvisionerTest {
 	public void init() {
 		jmsProvisionerInstance = new InstanceProxyMock<>(jmsProvisioner);
 		ReflectionUtils.setFieldValue(provisioner, "jmsProvisionerInstance", jmsProvisionerInstance);
+		when(jmsSubsystemConfigurations.getPersistenceLocation()).thenReturn(new ConfigurationPropertyMock<>(new File(".")));
 	}
 
 	/**

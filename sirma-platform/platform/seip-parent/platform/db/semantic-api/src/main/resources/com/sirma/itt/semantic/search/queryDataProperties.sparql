@@ -1,28 +1,35 @@
-SELECT DISTINCT ?instance (owl:DatatypeProperty as ?instanceType) ?definition ?auditEvent ?title ?creator ?isSearchable ?isSystemProperty
+SELECT DISTINCT ?instance (owl:DatatypeProperty as ?instanceType) ?definition ?auditEvent 
+?title ?creator ?subPropertyOf ?isSearchable ?isSystemProperty
 (if (lang(?title)= "", "en", lang(?title)) as ?titleLanguage)
+(if (lang(?definition)= "", "en", lang(?definition)) as ?definitionLanguage)
+(if (lang(?creator)= "", "en", lang(?creator)) as ?creatorLanguage)
+(if(?type = emf:DefinitionDataProperty, emf:DefinitionDataProperty, "") as ?propertyType)
 ((if (bound(?domainClass1), ?domainClass1, ptop:Entity)) as ?domainClass)
 ((if (bound(?rangeClass1), ?rangeClass1, xsd:string)) as ?rangeClass)
 WHERE {
     {
-        ?property a owl:DatatypeProperty .
+        ?instance a owl:DatatypeProperty .
     } UNION {
-        ?property a emf:DefinitionDataProperty .
+        ?instance a emf:DefinitionDataProperty .
     }
-    ?property 
-        rdfs:comment|skos:definition ?definition ;
-        rdfs:label ?title .
-    bind (str(?property) as ?instance) .
+    ?instance dcterms:title ?title ;
+        rdf:type ?type.
     optional {
-        ?property rdfs:domain ?domainClass1 .
+        ?instance dcterms:description ?definition .
     } optional {
-        ?property rdfs:range ?rangeClass1 .
+        ?instance rdfs:domain ?domainClass1 .
     } optional {
-        ?property emf:auditEvent ?auditEvent .
+        ?instance rdfs:range ?rangeClass1 .
     } optional {
-        ?property dc:creator ?creator
+        ?instance emf:auditEvent ?auditEvent .
     } optional {
-        ?property emf:isSearchable ?isSearchable .
+        ?instance dc:creator ?creator .
+    } optional {
+        ?instance emf:isSearchable ?isSearchable .
     } optional {
         ?instance emf:isSystemProperty ?isSystemProperty .
+    } optional {
+        ?instance rdfs:subPropertyOf ?subPropertyOf ;
+        filter (?instance != ?subPropertyOf) .
     }
 }

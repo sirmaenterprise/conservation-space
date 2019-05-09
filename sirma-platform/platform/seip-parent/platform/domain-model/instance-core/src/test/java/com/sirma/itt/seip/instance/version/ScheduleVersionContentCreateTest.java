@@ -55,6 +55,9 @@ public class ScheduleVersionContentCreateTest {
 	@Mock
 	private InstanceContentService instanceContentService;
 
+	@Mock
+	private VersionDao versionDao;
+
 	@Before
 	public void setup() {
 		schedule = new ScheduleVersionContentCreate();
@@ -185,7 +188,6 @@ public class ScheduleVersionContentCreateTest {
 		when(instanceContentService.saveContent(any(Serializable.class), any(Content.class))).thenReturn(versionInfo);
 		SchedulerContext context = buildTestContext(Boolean.TRUE);
 		schedule.execute(context);
-		verify(instanceContentService, times(1)).saveContent(any(Instance.class), any(Content.class));
 	}
 
 	private static SchedulerContext buildTestContext(Boolean processWidgets) {
@@ -193,7 +195,7 @@ public class ScheduleVersionContentCreateTest {
 		context.put("contentId", "content-id");
 		context.put("versionInstanceId", "version-instance-id");
 		context.put("originalInstanceId", "original-instance-id");
-		context.put("versionCreationDate", new Date());
+		context.put("versionCreatedOn", new Date());
 		context.put("processWidgets", processWidgets);
 		context.put("isVersionModeUpdate", false);
 		return context;
@@ -208,7 +210,7 @@ public class ScheduleVersionContentCreateTest {
 	@Test(expected = EmfConfigurationException.class)
 	public void validateInput_nullVersionDate() throws Exception {
 		SchedulerContext context = buildTestContext(Boolean.TRUE);
-		context.replace("versionCreationDate", null);
+		context.replace("versionCreatedOn", null);
 		schedule.beforeExecute(context);
 	}
 
@@ -216,6 +218,6 @@ public class ScheduleVersionContentCreateTest {
 	public void validateInput() {
 		List<Pair<String, Class<?>>> validateInput = schedule.validateInput();
 		assertFalse(validateInput.isEmpty());
-		assertEquals(6, validateInput.size());
+		assertEquals(4, validateInput.size());
 	}
 }

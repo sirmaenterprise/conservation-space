@@ -4,7 +4,7 @@ import {InstanceObject} from 'models/instance-object';
 import {IdocMocks} from '../../idoc-mocks';
 import {TranslateService} from 'services/i18n/translate-service';
 import {stub} from 'test/test-utils';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {NotificationService} from 'services/notification/notification-service';
 import {ExportService} from 'services/rest/export-service';
 import {SearchResolverService} from 'services/resolver/search-resolver-service';
@@ -21,7 +21,7 @@ describe('ExportXlsxAction', () => {
 
   beforeEach(() => {
     translateService = stub(TranslateService);
-    authenticationService = stub(AuthenticationService);
+    authenticationService = mockAuthenticaitonService();
     notificationService = stub(NotificationService);
     exportService = getExportService();
     searchResolverService = getSearchResolverService();
@@ -135,6 +135,12 @@ describe('ExportXlsxAction', () => {
 
     expect(data.config.criteria).to.eql(expectedCriteria);
   });
+
+  function mockAuthenticaitonService() {
+    let service = stub(AuthenticationService);
+    service.getToken.returns(PromiseStub.resolve('token'));
+    return service;
+  }
 });
 
 function getSearchResolverService() {

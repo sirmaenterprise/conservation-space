@@ -17,6 +17,7 @@ import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.semantic.SolrConnectorProvisioning;
 import com.sirma.itt.seip.tenant.semantic.TenantSemanticContext;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 import com.sirma.itt.seip.tenant.wizard.exception.TenantCreationException;
@@ -78,7 +79,7 @@ public class TenantSolrConnectorStepTest {
 		TenantInfo info = new TenantInfo("tenant.com");
 		context.setTenantInfo(info);
 		TenantStepData data = TenantStepData.createEmpty(step.getIdentifier());
-		assertTrue(step.delete(data, info, true));
+		assertTrue(step.delete(data, new TenantDeletionContext(info, true)));
 
 		verify(connectorProvisioning).rollbackSolrConnector(any(TenantInfo.class));
 	}

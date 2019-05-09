@@ -1,67 +1,70 @@
-/**
- *
- */
 package com.sirma.sep.content.rendition;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
-import java.util.Collections;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
+import com.sirma.itt.seip.domain.instance.DefaultProperties;
+import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.sep.content.rendition.RenditionService;
-import com.sirma.sep.content.rendition.RenditionServiceInstanceLoadDecorator;
 
 /**
- * Test for RenditionServiceLoadDecorator.
+ * Test for RenditionServiceInstanceLoadDecorator.
  *
  * @author A. Kunchev
  */
-@Test
 public class RenditionServiceInstanceLoadDecoratorTest {
 
+	public static final String A_THUMBNAIL = "a thumbnail";
 	@InjectMocks
 	private RenditionServiceInstanceLoadDecorator serviceDecorator = new RenditionServiceInstanceLoadDecorator();
 
 	@Mock
 	private RenditionService renditionService;
 
-	/**
-	 * Initialise test mocks.
-	 */
-	@BeforeClass
+	@Before
+	@SuppressWarnings("unchecked")
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		when(renditionService.getThumbnail(anyString())).thenReturn(A_THUMBNAIL);
+		when(renditionService.getThumbnails(anyCollection())).then(a -> {
+			Collection<Serializable> ids = a.getArgumentAt(0, Collection.class);
+			return ids.stream().collect(Collectors.toMap(Function.identity(), id -> A_THUMBNAIL));
+		});
 	}
 
-	/**
-	 * <pre>
-	 * Method: decorateInstance
-	 *
-	 * Result: RenditionService.loadThumbnail called at least once
-	 * </pre>
-	 */
-	public void decorateInstance_callRenditionService_loadThumbnail() {
-		serviceDecorator.decorateInstance(any(Instance.class));
-		verify(renditionService, atLeastOnce()).loadThumbnail(any(Instance.class));
+	@Test
+	public void shouldLoadInstanceThumbnail() {
+		EmfInstance instance = new EmfInstance("emf:instance");
+		serviceDecorator.decorateInstance(instance);
+		verifyInstanceHasThumbnail(instance);
 	}
 
-	/**
-	 * <pre>
-	 * Method: decorateResult
-	 *
-	 * Result: RenditionService.loadThumbnails called at least once
-	 * </pre>
-	 */
-	public void decorateResult_callRenditionService_loadThumbnails() {
-		serviceDecorator.decorateResult(Collections.emptyList());
-		verify(renditionService, atLeastOnce()).loadThumbnails(Collections.emptyList());
+	private void verifyInstanceHasThumbnail(Instance instance) {
+		assertEquals(A_THUMBNAIL, instance.get(DefaultProperties.THUMBNAIL_IMAGE));
+	}
+
+	@Test
+	public void shouldLoadThumbnailOfMultipleInstances() {
+		Collection<Instance> instances = IntStream.range(1, 5)
+				.boxed()
+				.map(id -> "emf:instance-" + id)
+				.map(EmfInstance::new)
+				.collect(Collectors.toList());
+		serviceDecorator.decorateResult(instances);
+		instances.forEach(this::verifyInstanceHasThumbnail);
 	}
 }

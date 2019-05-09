@@ -1,5 +1,5 @@
 import {Component, View, Inject, NgScope, NgCompile, NgElement} from 'app/app';
-import {Collapsible} from 'components/collapsible/collapsible';
+import 'components/collapsible/collapsible';
 import {DEFINITION_RANGE_FIELD} from 'services/rest/properties-service';
 import {PropertiesSelectorHelper, COMMON_PROPERTIES} from 'idoc/widget/properties-selector/properties-selector-helper';
 import {CONTROL_TYPE} from 'models/model-utils';

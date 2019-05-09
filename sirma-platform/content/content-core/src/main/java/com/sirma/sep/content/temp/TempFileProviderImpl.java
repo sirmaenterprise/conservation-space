@@ -183,6 +183,21 @@ public class TempFileProviderImpl implements TempFileProvider {
 	@Override
 	public File createTempDir(String dirName) {
 		File file = new File(getTempDir(), dirName);
+		return makeDirs(file);
+	}
+
+	@Override
+	public File createUniqueTempDir(String prefix) {
+		return createTempDir(prefix + UUID.randomUUID());
+	}
+
+	@Override
+	public File createSubDir(File parent, String dirName) {
+		File file = new File(parent, dirName);
+		return makeDirs(file);
+	}
+
+	private File makeDirs(File file) {
 		if (file.mkdirs()) {
 			return file;
 		}

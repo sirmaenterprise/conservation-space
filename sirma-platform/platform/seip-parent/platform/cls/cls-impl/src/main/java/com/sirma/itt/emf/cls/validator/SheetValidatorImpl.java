@@ -24,7 +24,7 @@ import jxl.read.biff.BiffException;
 public class SheetValidatorImpl implements SheetValidator {
 
 	@Override
-	public Sheet getValidatedCodeListSheet(InputStream inputStream) throws SheetValidatorException {
+	public Sheet getValidatedCodeListSheet(InputStream inputStream) {
 		if (inputStream == null) {
 			throw new SheetValidatorException("No attached file");
 		}
@@ -53,7 +53,7 @@ public class SheetValidatorImpl implements SheetValidator {
 	 * @param sheet
 	 *            the provided sheet
 	 */
-	private static void validateSheet(Sheet sheet) throws SheetValidatorException {
+	private static void validateSheet(Sheet sheet) {
 		if (isEmpty(sheet)) {
 			throw new SheetValidatorException("The codelist sheet is empty.");
 		} else if (!validateAllColumnsPresent(sheet.getRow(0))) {

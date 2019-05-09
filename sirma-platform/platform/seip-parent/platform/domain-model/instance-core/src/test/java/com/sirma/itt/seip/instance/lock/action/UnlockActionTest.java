@@ -1,20 +1,16 @@
 package com.sirma.itt.seip.instance.lock.action;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-
-import java.util.Optional;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.domain.instance.InstanceReference;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.lock.LockService;
 
 /**
@@ -30,9 +26,6 @@ public class UnlockActionTest {
 	@Mock
 	private LockService lockService;
 
-	@Mock
-	private InstanceTypeResolver instanceTypeResolver;
-
 	@Before
 	public void setup() {
 		action = new UnlockAction();
@@ -44,20 +37,13 @@ public class UnlockActionTest {
 		assertEquals("unlock", action.getName());
 	}
 
-	public void perform_nullReference() {
-		Mockito.when(instanceTypeResolver.resolveReference(any())).thenReturn(Optional.empty());
-		Mockito.verifyZeroInteractions(lockService.unlock(Matchers.any(InstanceReference.class)));
-	}
-
 	@Test
 	public void perform_lockServiceCalled() {
 		UnlockRequest request = new UnlockRequest();
 		request.setTargetId("instanceId");
-		InstanceReference reference = Mockito.mock(InstanceReference.class);
-		Mockito.when(instanceTypeResolver.resolveReference("instanceId")).thenReturn(Optional.of(reference));
+		InstanceReference reference = mock(InstanceReference.class);
+		request.setTargetReference(reference);
 		action.perform(request);
-		Mockito.verify(lockService).unlock(reference);
+		verify(lockService).unlock(reference);
 	}
-
-
 }

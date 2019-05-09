@@ -2,122 +2,86 @@
 <definition id="ciaCulturalObject" parentId="baseObject" isAbstract="true" type="object">
 	<configuration>
 		<fields>
-			<field name="existingInContext" type="an..50" codelist="CL26" uri="emf:existingInContext">
+			<field name="existingInContext" >
 				<value>WITHOUT_CONTEXT</value>
 			</field>
 		</fields>
 	</configuration>
     <fields>
 		<field name="default_header" type="ANY" label="CO_DEFAULT_HEADER_CIA" />
-        <field name="compact_header" type="an..4096" label="CO_COMPACT_HEADER_CIA" />
-		<field name="breadcrumb_header" type="an..4096" label="CO_BREADCRUMB_HEADER_CIA" />
+        <field name="compact_header" type="ANY" label="CO_COMPACT_HEADER_CIA" />
+		<field name="breadcrumb_header" type="ANY" label="CO_BREADCRUMB_HEADER_CIA" />
 		<field name="tooltip_header" type="ANY" label="CO_TOOLTIP_HEADER_CIA" />
 		
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+		<field name="rdf:type" >
             <value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject</value>
         </field>
-		<field name="identifier" order="10" displayType="system" />
-		<field name="type" type="an..50" displayType="system" />
-		<field name="title" type="an..180" displayType="system"/>
-		<field name="status" type="an..50" displayType="system" />		
-		<field name="description" type="an..5000" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-    	<field name="createdBy" type="uri" displayType="system" />
-        <field name="modifiedOn" type="dateTime" displayType="system"/>
-        <field name="modifiedBy" type="uri" displayType="system" />		
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="emf:revisionNumber" type="an..10" displayType="system" />
-		<field name="emf:revisionType" type="URI" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri"  displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		
-		<field name="integrated" type="boolean" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="hasRevision" type="uri" displayType="system" />
-		<field name="isRevisionOf" type="uri" displayType="system" />
-		<field name="lastPublishedRevision" type="uri" displayType="system" />
-		<field name="lastRevision" type="uri" displayType="system" />
-		<field name="nextRevision" type="uri" displayType="system" />
-		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true" />
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="uri" displayType="system" />
+		<field name="lastRevision" displayType="system" />
+		<field name="hasParent" displayType="system" />
     </fields>
 	
 	<regions>	
 		<region id="generalCulturalObjectDetails" order="10" displayType="editable" label="cia.generalCulturalObjectDetails.region.label">
 			<fields>
-				<field name="title" type="an..1000" mandatory="true" displayType="editable" order="115" label="cia.title.label" tooltip="cia.title.tooltip" uri="dcterms:title" />
-				<field name="ciaNumber" type="an..50" order="120" displayType="editable" mandatory="true" label="cia.ciaNumber.label" tooltip="cia.ciaNumber.tooltip" uri="cia:ciaNumber" />
+				<field name="title" type="an..1000" order="115" tooltip="cia.title.tooltip" />
+				<field name="ciaNumber" type="an..50" order="120" displayType="editable" mandatory="true" tooltip="cia.ciaNumber.tooltip" uri="cia:ciaNumber" />
 				<field name="accessionNumber" type="an..50" displayType="editable" order="125" label="cia.accessionNumber.label" tooltip="cia.accessionNumber.tooltip" uri="cia:accessionNumber" />
-				<field name="description" type="an..1024" displayType="editable" order="130" label="cia.description.label" tooltip="cia.description.tooltip" uri="dcterms:description" />
-				<field name="attribution" type="an..1024" displayType="editable" order="135" label="cia.attribution.label" tooltip="cia.attribution.tooltip" uri="cia:attribution" />
-				<field name="creationDate" type="an..180" displayType="editable" order="140" label="cia.creationDate.label" tooltip="cia.creationDate.tooltip" uri="cia:creationDate" />
-				<field name="century" type="an..50" displayType="editable" codelist="CL266" order="141" label="cia.century.label" tooltip="cia.century.tooltip" uri="cia:century" />
-				<field name="dimensions" type="an..1024" displayType="editable" order="145" label="cia.dimensions.label" tooltip="cia.dimensions.tooltip" uri="cia:dimensions" />
-				<field name="media" type="an..1024" displayType="editable" order="150" label="cia.media.label" tooltip="cia.media.tooltip" uri="cia:media" />
-				<field name="inscriptions" type="an..1024" displayType="editable" order="155" label="cia.inscriptions.label" tooltip="cia.inscriptions.tooltip" uri="cia:inscriptions" />
-				<field name="provenance" type="an..1024" displayType="editable" order="160" label="cia.provenance.label" tooltip="cia.provenance.tooltip" uri="cia:provenance" />
-				<field name="homeLocation" type="an..1024" displayType="editable" order="165" label="cia.homeLocation.label" tooltip="cia.homeLocation.tooltip" uri="cia:homeLocation" />
-				<field name="ownerNames" type="an..1024" displayType="editable" order="170" label="cia.ownerNames.label" tooltip="cia.ownerNames.tooltip" uri="cia:ownerNames" />
-				<field name="bequest" type="an..1024" displayType="editable" order="175" label="cia.bequest.label" tooltip="cia.bequest.tooltip" uri="cia:bequest" />
-				<field name="currentLocation" type="an..1024" displayType="editable" order="180" label="cia.currentLocation.label" tooltip="cia.currentLocation.tooltip" uri="cia:currentLocation" />
+				<field name="description" type="an..1024" displayType="editable" order="130" tooltip="cia.description.tooltip" />
+				<field name="attribution" type="an..1024" displayType="editable" order="135" tooltip="cia.attribution.tooltip" uri="cia:attribution" />
+				<field name="creationDate" type="an..180" displayType="editable" order="140" tooltip="cia.creationDate.tooltip" uri="cia:creationDate" />
+				<field name="century" type="ANY" displayType="editable" codelist="CL266" order="141" tooltip="cia.century.tooltip" uri="cia:century" />
+				<field name="dimensions" type="an..1024" displayType="editable" order="145" tooltip="cia.dimensions.tooltip" uri="cia:dimensions" />
+				<field name="media" type="an..1024" displayType="editable" order="150" tooltip="cia.media.tooltip" uri="cia:media" />
+				<field name="inscriptions" type="an..1024" displayType="editable" order="155" tooltip="cia.inscriptions.tooltip" uri="cia:inscriptions" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="provenance" type="an..1024" displayType="editable" order="160" tooltip="cia.provenance.tooltip" uri="cia:provenance" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="homeLocation" type="an..1024" displayType="editable" order="165" tooltip="cia.homeLocation.tooltip" uri="cia:homeLocation" />
+				<field name="ownerNames" type="an..1024" displayType="editable" order="170" tooltip="cia.ownerNames.tooltip" uri="cia:ownerNames" />
+				<field name="bequest" type="an..1024" displayType="editable" order="175" tooltip="cia.bequest.tooltip" uri="cia:bequest" />
+				<field name="currentLocation" type="an..1024" displayType="editable" order="180" tooltip="cia.currentLocation.tooltip" uri="cia:currentLocation" />
 			</fields>
 		</region>
 		<region id="generalStatusDetails" order="15" displayType="editable" label="cia.generalStatusDetails.region.label">
 			<fields>
-				<field name="recordStatus" type="an..50" codelist="CL250" displayType="editable" order="190" label="cia.recordStatus.label" tooltip="cia.recordStatus.tooltip" uri="cia:recordStatus" />
-				<field name="recordStatusNotes" type="an..1024" displayType="editable" order="191" label="cia.recordStatusNotes.label" tooltip="cia.recordStatusNotes.tooltip" uri="cia:recordStatusNotes" />
+				<field name="recordStatus" type="ANY" codelist="CL250" displayType="editable" order="190" tooltip="cia.recordStatus.tooltip" uri="cia:recordStatus" />
+				<field name="recordStatusNotes" type="an..1024" displayType="editable" order="191" tooltip="cia.recordStatusNotes.tooltip" uri="cia:recordStatusNotes" />
 				<field name="hasAssignedConservator" type="uri" displayType="editable" order="192" label="cia.hasAssignedConservator.label" tooltip="cia.hasAssignedConservator.tooltip" multiValued="true" uri="cia:hasAssignedConservator" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User,emf:Group</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 				</field>
 			</fields>
 		</region>
 		<region id="systemData" order="20" displayType="editable" label="cia.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" codelist="CL7" displayType="readonly" order="210" label="cia.type.label" tooltip="cia.type.tooltip" uri="emf:type" ><value>Cultural Object</value></field>  
-				<field name="identifier" type="an..50" displayType="readOnly" order="215"  label="cia.identifier.label" tooltip="cia.identifier.tooltip" rnc="${eval(CO${seq({+coSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50" codelist="CL300" displayType="readOnly" order="220" label="cia.status.label" tooltip="cia.status.tooltip" previewEmpty="false" uri="emf:status" />
-				<field name="emf:version" type="an..10" displayType="readOnly" order="225" label="cia.version.label" tooltip="cia.version.tooltip" uri="emf:version"/> 
-				<field name="integrated" type="boolean" label="integrated.label" displayType="hidden" order="226" uri="emf:integrated"/>
+				<field name="type" order="210" tooltip="cia.type.tooltip" ><value>FC236006</value></field>  
+				<field name="identifier" order="215" tooltip="cia.identifier.tooltip" rnc="${eval(CO${seq({+coSequence})})}" />
+				<field name="status" codelist="CL300" order="220" tooltip="cia.status.tooltip" />
+				<field name="emf:version" order="225" tooltip="cia.version.tooltip" /> 
+				<field name="integrated" type="boolean" displayType="hidden" order="226" uri="emf:integrated"/>
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly"  order="230" label="cia.createdOn.label" tooltip="cia.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" order="235" label="cia.createdBy.label" tooltip="cia.createdBy.tooltip" uri="emf:createdBy" >
+				<field name="createdOn" order="230" tooltip="cia.createdOn.tooltip" />
+				<field name="createdBy" order="235" tooltip="cia.createdBy.tooltip" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
 					</control>
 				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" order="240"  label="cia.modifiedOn.label" tooltip="cia.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" order="245" label="cia.modifiedBy.label" tooltip="cia.modifiedBy.tooltip"  previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" order="250" label="cia.lockedBy.label"  tooltip="cia.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="modifiedOn" label="cia.modifiedOn.label" tooltip="cia.modifiedOn.tooltip" order="240" />
+				<field name="modifiedBy" order="245" label="cia.modifiedBy.label" tooltip="cia.modifiedBy.tooltip" />
+				<field name="lockedBy" order="250" tooltip="cia.lockedBy.tooltip" />
 				<field name="hasDepiction" type="uri" displayType="editable" order="257" label="cia.hasDepiction.label" tooltip="cia.hasDepiction.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasDepiction" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" displayType="readonly" order="265" label="cia.hasThumbnail.label" tooltip="cia.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
+				<field name="hasThumbnail" order="265" label="cia.hasThumbnail.label" tooltip="cia.hasThumbnail.tooltip" />
 				<field name="hasAttachment" type="uri" displayType="editable" order="270" label="cia.hasAttachment.label" tooltip="cia.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,cia:Survey,emf:BusinessProcess</control-param>
@@ -138,69 +102,26 @@
 						<control-param id="range" name="range">emf:Document</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" order="291" label="cia.hasWatcher.label" tooltip="cia.hasWatcher.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readonly" order="295" label="cia.parentOf.label" tooltip="cia.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readonly" order="300" label="cia.hasParent.label" tooltip="cia.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" order="305" label="cia.hasTemplate.label" tooltip="cia.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" order="400" label="cia.partOf.label" tooltip="cia.partOf.tooltip" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" order="410" label="cia.hasChild.label" tooltip="cia.hasChild.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
+				<field name="hasWatcher" order="291" label="cia.hasWatcher.label" tooltip="cia.hasWatcher.tooltip" />
+				<field name="emf:hasTemplate" order="305" label="cia.hasTemplate.label" tooltip="cia.hasTemplate.tooltip" />
+				<field name="parentOf" order="400" tooltip="cia.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasChild" order="410" tooltip="cia.hasChild.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 		<region id="ciaCORevisions" order="30" displayType="readonly" label="cia.archivedRevisions.region.label">
 			<fields>
-				<field name="hasRevision" type="uri" displayType="readonly" order="300" label="cia.hasRevision.label" tooltip="cia.hasRevision.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="isRevisionOf" type="uri" displayType="readonly" order="305" label="cia.isRevisionOf.label" tooltip="cia.isRevisionOf.tooltip" previewEmpty="false" uri="emf:isRevisionOf" >
-					<control id="PICKER"/>
-				</field>
-				<field name="lastPublishedRevision" type="uri" displayType="readonly" order="310" label="lastPublishedRevision.label" tooltip="cia.lastPublishedRevision.tooltip" previewEmpty="false" uri="emf:lastPublishedRevision" >
-					<control id="PICKER"/>
-				</field>
-				<!-- this field is added to template, if you want to use just remove a comment
-				<field name="lastRevision" type="uri" displayType="readonly" order="315" label="lastRevision.label" tooltip="cia.lastRevision.tooltip" previewEmpty="false" uri="emf:lastRevision" >
-					<control id="PICKER"/>
-				</field> -->
-				<field name="nextRevision" type="uri" displayType="readonly" order="320" label="nextRevision.label" tooltip="cia.nextRevision.tooltip" previewEmpty="false" uri="emf:nextRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="previousRevision" type="uri" displayType="readonly" order="325" label="previousRevision.label" tooltip="cia.previousRevision.tooltip" previewEmpty="false" uri="emf:previousRevision" >
-					<control id="PICKER"/>
-				</field>
+				<field name="hasRevision" label="cia.hasRevision.label" tooltip="cia.hasRevision.tooltip" />
+				<field name="isRevisionOf" label="cia.isRevisionOf.label" tooltip="cia.isRevisionOf.tooltip" />
+				<field name="lastPublishedRevision" tooltip="cia.lastPublishedRevision.tooltip" />
+				<field name="nextRevision" tooltip="cia.nextRevision.tooltip" />
+				<field name="previousRevision" tooltip="cia.previousRevision.tooltip" />
 			</fields>
 		</region>	
 	</regions>
 	
 	<transitions>
 		<transition id="editDetails" order="10" />
-		<transition id="createDocument" order="15" label="cia.createDocument.action.label" tooltip="cia.createDocument.action.tooltip" eventId="createDoc" purpose="createInstance" actionPath="/" >
+		<transition id="createDocument" order="15" label="cia.createDocument.action.label" tooltip="cia.createDocument.action.tooltip" purpose="createInstance" actionPath="/" >
       		<fields>
 				<field name="createDocConfig" type="json">
 					<value>
@@ -215,7 +136,7 @@
 		</transition>
 		
 		<group id="add" order="20" label="add.group.label" type="menu" />
-		<transition id="uploadImage" label="cia.uploadImage.action.label" tooltip="cia.uploadImage.action.tooltip" eventId="uploadImage" purpose="createInstance" actionPath="/" group="add" >
+		<transition id="uploadImage" label="cia.uploadImage.action.label" tooltip="cia.uploadImage.action.tooltip" purpose="createInstance" actionPath="/" group="add" >
       		<fields>
 				<field name="uploadImageConfig" type="json">
 					<value>
@@ -228,7 +149,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="addAttachment" label="cia.addAttachment.action.label" tooltip="cia.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="cia.addAttachment.action.label" tooltip="cia.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>
@@ -242,7 +163,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addDepiction" label="cia.addDepiction.action.label" tooltip="cia.addDepiction.action.tooltip" eventId="addDepiction" purpose="addRelation" group="add" >
+		<transition id="addDepiction" label="cia.addDepiction.action.label" tooltip="cia.addDepiction.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addDepictionConfig" type="json">
 					<value>
@@ -258,7 +179,7 @@
 		</transition>
 		
 		<transition id="addThumbnail" group="add" />
-		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addWatcherConfig" type="json">
 					<value>						
@@ -274,7 +195,7 @@
 			</fields>
 		</transition>
 		
-		<transition id="achive" order="25" label="cia.achive.action.label" tooltip="cia.achive.action.tooltip" eventId="publishAsPdf" purpose="publishAsPdf" confirmation="achive.confirm" >
+		<transition id="achive" order="25" label="cia.achive.action.label" tooltip="cia.achive.action.tooltip" purpose="publishAsPdf" confirmation="achive.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -307,7 +228,7 @@
                 </field>
 			</fields>
 		</transition>
-		<transition id="initiateMultipleAssigneeWorkflow" order="30" label="cia.initiateMultipleAssigneeWorkflow.action.label" tooltip="cia.initiateMultipleAssigneeWorkflow.action.tooltip" eventId="createWorkflow" purpose="createInstance">
+		<transition id="initiateMultipleAssigneeWorkflow" order="30" label="cia.initiateMultipleAssigneeWorkflow.action.label" tooltip="cia.initiateMultipleAssigneeWorkflow.action.tooltip" purpose="createInstance">
       		<fields>
 				<field name="createDocConfig" type="json">
 					<value>
@@ -321,7 +242,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="download" order="35" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" actionPath="/" />
+		<transition id="download" order="35" label="download.label" purpose="download" tooltip="download.tooltip" actionPath="/" />
 		
 		<group id="exportAs" order="40" label="exportAs.group.label" type="menu" />
 		<transition id="exportTabPDF" group="exportAs" />
@@ -339,6 +260,36 @@
 		<transition id="changeTemplate" tooltip="cia.changeTemplate.action.tooltip" group="template" />
 		
 		<group id="more" order="50" label="more.group.label" type="menu" />
+		<transition id="changeType" group="more" >
+			<fields>
+				<field name="onChangeType" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							var title = root.get('title');
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var subject = '(Changed type) ' + type + ': ' + title;
+							
+							//extract watchers
+							var recipients = [];
+							var watchers = root.get('hasWatcher');
+							if(watchers != null){
+								for(var i = 0; i < watchers.length; i++){
+								recipients.push(watchers[i].toString());
+								}
+							}
+							//extract createdBy
+							recipients.push(root.get('createdBy').toString());
+							
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_change_object_type_cia", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
 		<transition id="clone" group="more" />
 		<transition id="lock" group="more" />
 		<transition id="unlock" group="more" actionPath="/" />
@@ -387,6 +338,8 @@
 	 <stateTransitions>				
 		<stateTransition from="INIT" transition="create" to="CURRENT" />
 		<stateTransition from="INIT" transition="clone" to="CURRENT" />
+		
+		<stateTransition from="INIT" transition="changeType" to="CURRENT" />
 
         <stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="addDepiction" to="CURRENT" />
@@ -399,6 +352,7 @@
 		<stateTransition from="CURRENT" transition="exportTabPDF" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="exportWord" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="exportTabWord" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeType" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="clone" to="CURRENT"/>
 		<stateTransition from="CURRENT" transition="lock" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="unlock" to="CURRENT" />
@@ -505,8 +459,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 			</span>)})}]]></value>
 		</label>	
    		<label id="CO_DEFAULT_HEADER_CIA">
@@ -517,25 +477,27 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span class="truncate-element">
 						<span data-property="type">${CL([type])}</span>&nbsp;
 						(<span data-property="status">${CL([status])}</span>) 
 					</span>
 					<br />
-					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span>(</span>Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
-						)}
-						${if(${get([ciaNumber])}<>null).then(<span data-property="ciaNumber">${get([ciaNumber])}</span>&nbsp;)}
-						<span data-property="title">${get([title])}</span>
-					</a>
+					<b>	
+						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+								<span>(</span>Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+							)}
+							${if(${get([ciaNumber])}<>null).then(<span data-property="ciaNumber">${get([ciaNumber])}</span>&nbsp;)}
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</b>	
 					${if(${get([attribution])}<>null).then(&nbsp;<span data-property="attribution">${get([attribution])}</span>)}
 					${if(${get([creationDate])}<>null).then(,&nbsp;<span data-property="creationDate">${get([creationDate])}</span>)}
 					${if(${var.isVersion}).then(
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
 					${if(${get([isRevisionOf])}<>null).then(<br />Revision of:<span data-property="isRevisionOf">${objectProperty(${get([isRevisionOf])})}</span>)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>)}]]>
 			</value>
 		</label>
@@ -547,7 +509,7 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span class="truncate-element">
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
@@ -571,7 +533,7 @@
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					${if(${or(${var.isLatest} or ${var.isRevision})}).then(

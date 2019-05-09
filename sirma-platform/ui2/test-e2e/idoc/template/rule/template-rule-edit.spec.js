@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 let TemplateRuleEditSandboxPage = require('./template-rule-edit').TemplateRuleEditSandboxPage;
 
 describe('TemplateRuleEditDialog', function() {

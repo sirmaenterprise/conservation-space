@@ -2,32 +2,32 @@
 <definition id="annotation" type="annotation">
 	<fields>
 		<field name="default_header" type="ANY" label="ANNOTATION_DEFAULT_HEADER" displayType="system"/>
-        <field name="compact_header" type="an..4096" label="ANNOTATION_COMPACT_HEADER" displayType="system"/>
-        <field name="breadcrumb_header" type="an..4096" label="ANNOTATION_BREADCRUMB_HEADER" displayType="system"/>
+        <field name="compact_header" type="ANY" label="ANNOTATION_COMPACT_HEADER" displayType="system"/>
+        <field name="breadcrumb_header" type="ANY" label="ANNOTATION_BREADCRUMB_HEADER" displayType="system"/>
         <field name="tooltip_header" type="ANY" label="ANNOTATION_TOOLTIP_HEADER" displayType="system" />
 
 		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
 			<value>http://www.w3.org/ns/oa#Annotation</value>
 		</field>
-		<field name="emf:status" label="status.label" type="an..10" codelist="CL11" uri="emf:status"/>
+		<field name="emf:status" type="ANY" codelist="CL11" uri="emf:status"/>
 		<field name="emf:reply" type="URI" displayType="system" multiValued="true" uri="emf:reply"/>
 		<field name="emf:content" type="an..4096" displayType="system" uri="emf:content" />
 		<field name="oa:hasTarget" type="URI" displayType="system" uri="oa:hasTarget" />
 		<field name="oa:hasBody" type="URI" displayType="system" uri="oa:hasBody" />
 		<field name="oa:motivatedBy" type="URI" displayType="system" uri="FORBIDDEN" />
-		<field name="emf:createdBy" label="createdBy.label" type="uri" displayType="readonly" uri="emf:createdBy" >
+		<field name="emf:createdBy" type="uri" displayType="readonly" uri="emf:createdBy" >
 		    <control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>
 
-		<field name="emf:createdOn" label="createdOn.label" type="datetime" displayType="readonly" uri="emf:createdOn" />
-		<field name="emf:modifiedBy" type="uri" label="modifiedBy.label" displayType="readonly" uri="emf:modifiedBy" >
+		<field name="emf:createdOn" type="datetime" displayType="readonly" uri="emf:createdOn" />
+		<field name="emf:modifiedBy" type="uri" displayType="readonly" uri="emf:modifiedBy" >
 	    	<control id="PICKER">
 	    		<control-param id="range" name="range">emf:User</control-param>
 	    	</control>
 	    </field>
-		<field name="emf:modifiedOn" type="datetime" label="modifiedOn.label" displayType="readonly" uri="emf:modifiedOn" />
+		<field name="emf:modifiedOn" type="datetime" displayType="readonly" uri="emf:modifiedOn" />
 
 		<field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted">
 			<value>false</value>
@@ -37,12 +37,12 @@
 
 	<transitions>
 		<!-- Adds the the comment transitions the post comment action -->
-		<transition id="createComment" label="annotation.createComment" eventId="createComment" purpose="createComment" tooltip="createComment.tooltip" />
-		<transition id="editComment" label="annotation.editComment" eventId="editComment" purpose="editComment" tooltip="editComment.tooltip" />
-		<transition id="replyComment" label="annotation.replyComment" eventId="replyComment" purpose="replyComment" tooltip="replyComment.tooltip" />
-		<transition id="suspendComment" label="annotation.suspendComment" eventId="suspendComment" purpose="suspendComment" tooltip="suspendComment.tooltip" />
-		<transition id="deleteComment" label="annotation.deleteComment" eventId="deleteComment" purpose="deleteComment" confirmation="confirmation.action" tooltip="deleteComment.tooltip" />
-		<transition id="restartComment" label="annotation.restartComment" eventId="restartComment" purpose="restartComment" tooltip="restartComment.tooltip" />
+		<transition id="createComment" label="annotation.createComment" purpose="createComment" tooltip="createComment.tooltip" />
+		<transition id="editComment" label="annotation.editComment" purpose="editComment" tooltip="editComment.tooltip" />
+		<transition id="replyComment" label="annotation.replyComment" purpose="replyComment" tooltip="replyComment.tooltip" />
+		<transition id="suspendComment" label="annotation.suspendComment" purpose="suspendComment" tooltip="suspendComment.tooltip" />
+		<transition id="deleteComment" label="annotation.deleteComment" purpose="deleteComment" confirmation="confirmation.action" tooltip="deleteComment.tooltip" />
+		<transition id="restartComment" label="annotation.restartComment" purpose="restartComment" tooltip="restartComment.tooltip" />
 	</transitions>
 
 	<stateTransitions>
@@ -77,7 +77,7 @@
 			</span>
 			<span>
 				<label>, Modified on: </label>
-				<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				<span data-property="modifiedOn">${date([modifiedOn])}</span>
 				<span data-property="status">${get([status])}</span>
 			</span>)}]]></value>
 			<value lang="de"><![CDATA[${eval(
@@ -97,7 +97,7 @@
 			</span>
 			<span>
 				<label>, Geändert am: </label>
-				<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				<span data-property="modifiedOn">${date([modifiedOn])}</span>
 				<span data-property="status">${get([status])}</span>
 			</span>)}]]></value>
 			<value lang="bg"><![CDATA[${eval(
@@ -117,7 +117,7 @@
 			</span>
 			<span>
 				<label>, Променил на: </label>
-				<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+				<span data-property="modifiedOn">${date([modifiedOn])}</span>
 				<span data-property="status">${get([status])}</span>
 			</span>)}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -137,7 +137,7 @@
 				</span>
 				<span>
 					<label>, Opdateret: </label>
-					<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>&nbsp;
+					<span data-property="modifiedOn">${date([modifiedOn])}</span>&nbsp;
 					<span data-property="status">${get([status])}</span>
 				</span>
 			)}]]></value>
@@ -228,11 +228,11 @@
 				<span class="tooltip-data">
 					<span class="tooltip-row">
 						<label>Created on: </label>
-						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([createdOn])}</span>
 					</span>
 					<span class="tooltip-row">
 						<label>Modified on: </label>
-						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([modifiedOn])}</span>
 					</span>
 				</span>
 			)})}]]></value>
@@ -248,11 +248,11 @@
 				<span class="tooltip-data">
 					<span class="tooltip-row">
 						<label>Erstellt am: </label>
-						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([createdOn])}</span>
 					</span>
 					<span class="tooltip-row">
 						<label>Geändert am: </label>
-						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([modifiedOn])}</span>
 					</span>
 				</span>
 			)})}]]></value>
@@ -268,11 +268,11 @@
 				<span class="tooltip-data">
 					<span class="tooltip-row">
 						<label>Създаден на: </label>
-						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([createdOn])}</span>
 					</span>
 					<span class="tooltip-row">
 						<label>Променил на: </label>
-						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([modifiedOn])}</span>
 					</span>
 				</span>
 			)})}]]></value>
@@ -288,11 +288,11 @@
 				<span class="tooltip-data">
 					<span class="tooltip-row">
 						<label>Oprettet: </label>
-						<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([createdOn])}</span>
 					</span>
 					<span class="tooltip-row">
 						<label>Opdateret: </label>
-						<span data-property="createdOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="createdOn">${date([modifiedOn])}</span>
 					</span>
 				</span>
 			)})}]]></value>

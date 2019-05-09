@@ -1,40 +1,69 @@
 package com.sirma.itt.seip.instance.actions.compare;
 
+import static com.sirma.itt.seip.instance.actions.compare.VersionCompareRequest.COMPARE_VERSIONS;
+import static com.sirma.itt.seip.rest.utils.request.params.RequestParams.KEY_ID;
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+
+import java.io.File;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 
 import com.sirma.itt.seip.instance.actions.Actions;
-import com.sirma.itt.seip.rest.utils.Versions;
+import com.sirma.itt.seip.rest.annotations.Cache;
 
 /**
- * Provides service for comparing preview contents of two versions of one and the same instance.
+ * Provides services for comparing versions of an instance.
  *
  * @author A. Kunchev
+ * @author yasko
  */
 @Path("/instances")
-@Consumes(Versions.V2_JSON)
-@Produces(Versions.V2_JSON)
+@Produces("application/pdf")
 @ApplicationScoped
 public class VersionCompareRestService {
 
 	@Inject
 	private Actions actions;
 
-	/**
-	 * Executes operation that compares the primary content of two versions.
-	 *
-	 * @param request
-	 *            contains the information required for operation execution
-	 * @return link with which the result file from the compare could be download
-	 */
-	@POST
-	@Path("/{id}/actions/compare-versions")
-	public String compareVersions(VersionCompareRequest request) {
-		return (String) actions.callAction(request);
-	}
+	@Context
+	private HttpHeaders headers;
 
+	/**
+	 * Compares two versions of an instance.
+	 *
+	 * @param id
+	 *            Instance identifier.
+	 * @param auth
+	 *            Authorization header value.
+	 * @param first
+	 *            First version identifier.
+	 * @param second
+	 *            Second version identifier.
+	 * @return File containing the diff between the provided instance versions.
+	 */
+	@GET
+	@Cache(VersionCompareCacheHandler.class)
+	@Path("/{id}/actions/compare-versions")
+	public File compareVersions(@NotNull @PathParam(KEY_ID) String id, @HeaderParam(AUTHORIZATION) String auth,
+			@NotNull @QueryParam("first") String first, @NotNull @QueryParam("second") String second) {
+
+		VersionCompareRequest compareRequest = new VersionCompareRequest();
+		compareRequest.setTargetId(id);
+		compareRequest.setUserOperation(COMPARE_VERSIONS);
+		compareRequest.setFirstSourceId(first);
+		compareRequest.setSecondSourceId(second);
+		compareRequest.setAuthentication(auth.split(" ")[1]);
+
+		return (File) actions.callAction(compareRequest);
+	}
 }

@@ -68,6 +68,21 @@ public class ImageNodeTest {
 	}
 
 	@Test
+	public void should_updateCorrectDimentions_WithProperPrecision() throws Exception {
+		Attributes attributes = new Attributes();
+
+		Element element = new Element(Tag.valueOf("img"), "", attributes);
+		ImageNode node = new ImageNode(element);
+		assertFalse(node.getImageDimensions().isPresent());
+		node.setImageDimensions(11, 10.432);
+		assertTrue(node.getImageDimensions().isPresent());
+		String width = node.getElement().attr(ImageNode.ATTR_WIDTH);
+		String height = node.getElement().attr(ImageNode.ATTR_HEIGHT);
+		assertEquals("10.432", height);
+		assertEquals("11", width);
+	}
+
+	@Test
 	public void should_returnTrue_whenSrcContainsBase64Data() throws Exception {
 		Attributes attributes = new Attributes();
 

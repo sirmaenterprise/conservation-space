@@ -1,30 +1,29 @@
 package com.sirma.itt.seip.instance.version.compare;
 
 import static com.sirma.itt.seip.testutil.rest.HttpClientTestUtils.buildURI;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -32,28 +31,29 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.testng.Assert;
 
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.SystemConfiguration;
+import com.sirma.itt.seip.io.TempFileProvider;
+import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.testutil.rest.HttpClientTestUtils;
-import com.sirma.sep.content.ContentImport;
-import com.sirma.sep.content.ContentInfo;
-import com.sirma.sep.content.ContentNotImportedException;
-import com.sirma.sep.content.InstanceContentService;
 
 /**
  * Test for {@link VersionCompareConfigurationsImpl}.
  *
  * @author A. Kunchev
  */
+@RunWith(MockitoJUnitRunner.class)
 public class VersionCompareServiceImplTest {
 
 	@InjectMocks
-	private VersionCompareService service;
+	private VersionCompareServiceImpl service;
 
 	@Mock
 	private SystemConfiguration systemConfiguration;
@@ -65,9 +65,12 @@ public class VersionCompareServiceImplTest {
 	private ConfigurationProperty<URI> versionCompareConfigurationProperty;
 
 	@Mock
-	private InstanceContentService instanceContentService;
+	private TempFileProvider fileProvider;
 
-	private Map<String, String> headers;
+	@Mock
+	private SecurityContext securityContext;
+
+	private String auth = "xxx.yyy.zzz";
 
 	private static HttpServer server;
 
@@ -102,13 +105,10 @@ public class VersionCompareServiceImplTest {
 		doAnswer(a -> {
 			HttpResponse response = a.getArgumentAt(1, HttpResponse.class);
 			response.setStatusCode(Status.OK.getStatusCode());
-			JsonObject responseBody = Json
-					.createObjectBuilder()
-					.add("fileName", "test-file-name.pdf")
-					.add("fileSize", 1024)
-					.add("mimeType", "application/pdf")
-					.build();
-			response.setEntity(new StringEntity(responseBody.toString(), StandardCharsets.UTF_8));
+
+			InputStreamEntity entity = new InputStreamEntity(
+					new ByteArrayInputStream("test file content\n".getBytes(StandardCharsets.UTF_8)));
+			response.setEntity(entity);
 			return response;
 		}).when(okWithoutFileName).handle(any(), any(), any());
 		return okWithoutFileName;
@@ -123,17 +123,19 @@ public class VersionCompareServiceImplTest {
 
 	@Before
 	public void setup() throws URISyntaxException {
-		service = new VersionCompareServiceImpl();
-		MockitoAnnotations.initMocks(this);
+		when(fileProvider.createTempFile(any(), any())).thenAnswer((invocation) -> {
+			File tempFile = Files.createTempFile(null, null).toFile();
+			tempFile.deleteOnExit();
+			return tempFile;
+		});
+
+		when(securityContext.getRequestId()).then((invocation) -> UUID.randomUUID().toString());
 
 		when(systemConfiguration.getRESTRemoteAccessUrl())
 		.thenReturn(new ConfigurationPropertyMock<>(new URI("http://system-test-address:8000/emf/api")));
 
 		when(versionCompareConfigurations.getServiceBaseUrl()).thenReturn(versionCompareConfigurationProperty);
 		when(versionCompareConfigurations.getExpirationTime()).thenReturn(24);
-
-		headers = new HashMap<>(1);
-		headers.put("cookie", "test-cookie-header");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -141,7 +143,7 @@ public class VersionCompareServiceImplTest {
 		ConfigurationProperty<URI> configurationProperty = mock(ConfigurationProperty.class);
 		when(configurationProperty.isNotSet()).thenReturn(true);
 		when(systemConfiguration.getRESTRemoteAccessUrl()).thenReturn(configurationProperty);
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.0", "instance-id-v1.1", headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.0", "instance-id-v1.1", auth);
 		service.compareVersionsContent(context);
 	}
 
@@ -150,37 +152,37 @@ public class VersionCompareServiceImplTest {
 		ConfigurationProperty<URI> configurationProperty = mock(ConfigurationProperty.class);
 		when(configurationProperty.isNotSet()).thenReturn(true);
 		when(versionCompareConfigurations.getServiceBaseUrl()).thenReturn(configurationProperty);
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.0", "instance-id-v1.1", headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.0", "instance-id-v1.1", auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_firstIdEmpty() {
-		VersionCompareContext context = VersionCompareContext.create("", "instance-id-v1.1", headers);
+		VersionCompareContext context = VersionCompareContext.create("", "instance-id-v1.1", auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_secondIdEmpty() {
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "", headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "", auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_firstIdNull() {
-		VersionCompareContext context = VersionCompareContext.create(null, "instance-id-v1.1", headers);
+		VersionCompareContext context = VersionCompareContext.create(null, "instance-id-v1.1", auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_secondIdNull() {
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", null, headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", null, auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_identifiersMatch() {
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "instance-id-v1.1", headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "instance-id-v1.1", auth);
 		service.compareVersionsContent(context);
 	}
 
@@ -192,27 +194,26 @@ public class VersionCompareServiceImplTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_emptyAuthenticationHeaders() {
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "instance-id-v1.2",
-				new HashMap<>());
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "instance-id-v1.2", "");
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_firstIdNotVersion() {
-		VersionCompareContext context = VersionCompareContext.create("instance-id", "instance-id-v1.1", headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id", "instance-id-v1.1", auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_secondIdNotVersion() {
-		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "instance-id", headers);
+		VersionCompareContext context = VersionCompareContext.create("instance-id-v1.1", "instance-id", auth);
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_firstIdDoesNotMatchOriginal() {
 		VersionCompareContext context = VersionCompareContext
-				.create("bad-id-v1.0", "instance-id-v1.1", headers)
+				.create("bad-id-v1.0", "instance-id-v1.1", auth)
 				.setOriginalInstanceId("instance-id");
 		service.compareVersionsContent(context);
 	}
@@ -220,102 +221,40 @@ public class VersionCompareServiceImplTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void compareVersionsContent_secondIdDoesNotMatchOriginal() {
 		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "bad-id-v1.3", headers)
+				.create("instance-id-v1.1", "bad-id-v1.3", auth)
 				.setOriginalInstanceId("instance-id");
 		service.compareVersionsContent(context);
 	}
 
-	@Test
-	public void compareVersionsContent_contentAlreadyExist() {
-		ContentInfo contentInfo = mock(ContentInfo.class);
-		when(contentInfo.exists()).thenReturn(true);
-		when(contentInfo.getContentId()).thenReturn("compared-versions-content-id");
-		when(instanceContentService.getContent("instance-id-v1.1-instance-id-v1.3", "comparedVersions"))
-		.thenReturn(contentInfo);
-
-		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "instance-id-v1.3", headers)
-				.setOriginalInstanceId("instance-id");
-		String link = service.compareVersionsContent(context);
-		assertEquals("/content/compared-versions-content-id?download=true", link);
-	}
-
 	@Test(expected = VersionCompareException.class)
 	public void compareVersionsContent_externalServiceCalled_connectionRefused() {
-		ContentInfo contentInfo = mock(ContentInfo.class);
-		when(contentInfo.exists()).thenReturn(false);
-		when(instanceContentService.getContent("instance-id-v1.1-instance-id-v1.3", "comparedVersions"))
-		.thenReturn(contentInfo);
-
 		when(versionCompareConfigurationProperty.get()).thenReturn(buildURI(server, "/post/connection-refused"));
 		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "instance-id-v1.3", headers)
+				.create("instance-id-v1.1", "instance-id-v1.3", auth)
 				.setOriginalInstanceId("instance-id");
 		service.compareVersionsContent(context);
 	}
 
 	@Test(expected = VersionCompareException.class)
 	public void compareVersionsContent_externalServiceCalled_badRequestResponse() {
-		ContentInfo contentInfo = mock(ContentInfo.class);
-		when(contentInfo.exists()).thenReturn(false);
-		when(instanceContentService.getContent("instance-id-v1.1-instance-id-v1.3", "comparedVersions"))
-		.thenReturn(contentInfo);
-
 		when(versionCompareConfigurationProperty.get()).thenReturn(buildURI(server, "/post/bad-request"));
 		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "instance-id-v1.3", headers)
+				.create("instance-id-v1.1", "instance-id-v1.3", auth)
 				.setOriginalInstanceId("instance-id");
 		service.compareVersionsContent(context);
-	}
-
-	@Test(expected = VersionCompareException.class)
-	public void compareVersionsContent_externalServiceCalled_okWithoutFileName() {
-		ContentInfo contentInfo = mock(ContentInfo.class);
-		when(contentInfo.exists()).thenReturn(false);
-		when(instanceContentService.getContent("instance-id-v1.1-instance-id-v1.3", "comparedVersions"))
-		.thenReturn(contentInfo);
-
-		when(versionCompareConfigurationProperty.get()).thenReturn(buildURI(server, "/post/ok/without-file-name"));
-		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "instance-id-v1.3", headers)
-				.setOriginalInstanceId("instance-id");
-		service.compareVersionsContent(context);
-	}
-
-	@Test(expected = ContentNotImportedException.class)
-	public void compareVersionsContent_externalServiceCalled_okFailedToImportContent() {
-		ContentInfo contentInfo = mock(ContentInfo.class);
-		when(contentInfo.exists()).thenReturn(false);
-		when(instanceContentService.getContent("instance-id-v1.1-instance-id-v1.3", "comparedVersions"))
-		.thenReturn(contentInfo);
-		when(versionCompareConfigurationProperty.get()).thenReturn(buildURI(server, "/post/ok/successful"));
-		when(instanceContentService.importContent(any(ContentImport.class))).thenReturn(null);
-
-		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "instance-id-v1.3", headers)
-				.setOriginalInstanceId("instance-id");
-		String link = service.compareVersionsContent(context);
-		assertEquals("", link);
-		verify(instanceContentService, never()).deleteContent(any(Serializable.class), eq("comparedVersions"), eq(24),
-				eq(TimeUnit.HOURS));
 	}
 
 	@Test
-	public void compareVersionsContent_externalServiceCalled_okSuccessful() {
-		ContentInfo contentInfo = mock(ContentInfo.class);
-		when(contentInfo.exists()).thenReturn(false);
-		when(instanceContentService.getContent("instance-id-v1.1-instance-id-v1.3", "comparedVersions"))
-		.thenReturn(contentInfo);
+	public void compareVersionsContent_externalServiceCalled_okSuccessful() throws IOException {
 		when(versionCompareConfigurationProperty.get()).thenReturn(buildURI(server, "/post/ok/successful"));
-		when(instanceContentService.importContent(any(ContentImport.class))).thenReturn("content-id");
 
 		VersionCompareContext context = VersionCompareContext
-				.create("instance-id-v1.1", "instance-id-v1.3", headers)
+				.create("instance-id-v1.1", "instance-id-v1.3", auth)
 				.setOriginalInstanceId("instance-id");
-		String link = service.compareVersionsContent(context);
-		assertEquals("/content/content-id?download=true", link);
-		verify(instanceContentService).deleteContent(eq("content-id"), eq("comparedVersions"), eq(24),
-				eq(TimeUnit.HOURS));
+		File result = service.compareVersionsContent(context);
+
+		Assert.assertNotNull(result);
+		Assert.assertEquals(FileUtils.readFileToString(result), "test file content\n");
 	}
 
 }

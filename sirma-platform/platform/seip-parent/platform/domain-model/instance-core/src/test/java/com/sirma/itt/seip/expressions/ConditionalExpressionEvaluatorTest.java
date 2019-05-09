@@ -5,8 +5,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.mockito.Mock;
@@ -183,7 +182,7 @@ public class ConditionalExpressionEvaluatorTest extends BaseEvaluatorTest {
 		ConditionalExpressionEvaluator evaluator = new ConditionalExpressionEvaluator();
 
 		Assert.assertEquals(evaluator.evaluate("${if(==).then(then).else()}"), "then");
-		Assert.assertEquals(evaluator.evaluate("${if(null==).then().else(else)}"), "else");
+		Assert.assertEquals(evaluator.evaluate("${if(null==).then(then).else(else)}"), "then");
 		Assert.assertEquals(evaluator.evaluate("${if(true).then().else(else)}"), "");
 		Assert.assertEquals(evaluator.evaluate("${if(==).then().else()}"), "");
 	}
@@ -192,7 +191,18 @@ public class ConditionalExpressionEvaluatorTest extends BaseEvaluatorTest {
 		ExpressionsManager manager = createManager();
 		String expression = "${eval(${var.test=${if(false).then(true)}}${if(${var.test}).then(in_then).else(in_else)})}";
 		Instance target = new EmfInstance();
-		target.setProperties(new HashMap<String, Serializable>());
+		target.getOrCreateProperties();
+		ExpressionContext context = manager.createDefaultContext(target, null, null);
+		String result = manager.evaluateRule(expression, String.class, context);
+		Assert.assertNotNull(result);
+		Assert.assertEquals(result, "in_else");
+	}
+
+	public void testEmptyCollectionPropertyCondition() {
+		ExpressionsManager manager = createManager();
+		String expression = "${eval(${if(${get([multiValueProp])}<>null).then(in_then).else(in_else)})}";
+		Instance target = new EmfInstance();
+		target.add("multiValueProp", new LinkedList<>());
 		ExpressionContext context = manager.createDefaultContext(target, null, null);
 		String result = manager.evaluateRule(expression, String.class, context);
 		Assert.assertNotNull(result);

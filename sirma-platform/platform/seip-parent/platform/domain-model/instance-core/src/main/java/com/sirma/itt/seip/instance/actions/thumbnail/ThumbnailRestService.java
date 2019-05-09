@@ -1,5 +1,9 @@
 package com.sirma.itt.seip.instance.actions.thumbnail;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -9,6 +13,8 @@ import javax.ws.rs.Produces;
 
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.actions.Actions;
+import com.sirma.itt.seip.instance.actions.relations.AddRelationRequest;
+import com.sirma.itt.seip.instance.relation.LinkConstants;
 import com.sirma.itt.seip.rest.utils.Versions;
 
 /**
@@ -36,7 +42,18 @@ public class ThumbnailRestService {
 	@POST
 	@Path("/{id}/actions/thumbnail")
 	public Instance addThumbnail(AddThumbnailRequest request) {
-		return (Instance) actions.callAction(request);
+		AddRelationRequest addRelationRequest = new AddRelationRequest();
+		Serializable thumbnailSource = Objects.requireNonNull(request.getThumbnailObjectId(),
+				"Missing thumbnail object id in the request!");
+		addRelationRequest.setRelations(Collections.singletonMap(LinkConstants.HAS_THUMBNAIL,
+				Collections.singleton(thumbnailSource.toString())));
+		addRelationRequest.setRemoveExisting(true);
+		addRelationRequest.setTargetId(request.getTargetId());
+		addRelationRequest.setTargetReference(request.getTargetReference());
+		addRelationRequest.setPlaceholder(request.getPlaceholder());
+		addRelationRequest.setContextPath(request.getContextPath());
+		addRelationRequest.setUserOperation(request.getUserOperation());
+		return (Instance) actions.callAction(addRelationRequest);
 	}
 
 }

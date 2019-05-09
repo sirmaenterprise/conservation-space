@@ -1,13 +1,23 @@
 package com.sirma.sep.export.renders;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
@@ -25,7 +35,6 @@ import org.w3c.dom.Node;
 
 import com.sirma.itt.seip.adapters.iiif.ImageServerConfigurations;
 import com.sirma.itt.seip.adapters.remote.DMSClientException;
-import com.sirma.itt.seip.adapters.remote.RESTClient;
 import com.sirma.itt.seip.annotations.AnnotationSearchRequest;
 import com.sirma.itt.seip.annotations.AnnotationService;
 import com.sirma.itt.seip.annotations.model.Annotation;
@@ -35,6 +44,7 @@ import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.dao.InstanceLoadDecorator;
 import com.sirma.itt.seip.instance.version.InstanceVersionService;
+import com.sirma.itt.seip.rest.client.HTTPClient;
 import com.sirma.itt.seip.search.converters.JsonToConditionConverter;
 import com.sirma.itt.seip.search.converters.JsonToDateRangeConverter;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
@@ -45,13 +55,10 @@ import com.sirma.sep.content.InstanceContentService;
 import com.sirma.sep.content.idoc.nodes.WidgetNode;
 import com.sirma.sep.export.renders.utils.JsoupUtil;
 import com.sirma.sep.export.services.HtmlTableAnnotationService;
+
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * Tests for ImageWidget.
@@ -94,7 +101,7 @@ public class ImageWidgetRendererTest {
 	private ImageServerConfigurations imageServerConfigurations;
 
 	@Mock
-	private javax.enterprise.inject.Instance<RESTClient> restClient;
+	private HTTPClient httpClient;
 
 	@Mock
 	private AnnotationService annotationService;
@@ -438,7 +445,7 @@ public class ImageWidgetRendererTest {
 	}
 
 	@Test
-	public void renderImageWithHideAnnotationConfigurationsTest() throws URISyntaxException, IOException, DMSClientException {
+	public void renderImageWithHideAnnotationConfigurationsTest() throws URISyntaxException, IOException {
 		Annotation annotation = Mockito.mock(Annotation.class);
 		Mockito.when(annotation.getContent()).thenReturn(ANNOTATION_CONTENT);
 		List<Annotation> imageAnnotations = Arrays.asList(annotation);
@@ -491,13 +498,8 @@ public class ImageWidgetRendererTest {
 				Integer.valueOf(200));
 		Mockito.when(instanceContentService.getContent(Matchers.anyString(), Matchers.anyString())).thenReturn(
 				contentInfo);
-		RESTClient mockRestClient = Mockito.mock(RESTClient.class);
-		Mockito.when(restClient.get()).thenReturn(mockRestClient);
-		HttpMethod response = Mockito.mock(HttpMethod.class);
-		Mockito.when(mockRestClient.rawRequest(any(HttpMethod.class), any(URI.class))).thenReturn(
-				response);
-		Mockito.when(response.getResponseBodyAsStream()).thenReturn(
-				getClass().getClassLoader().getResourceAsStream(TEST_JPG));
+
+		mockHttpClientResponse();
 
 		Element table = imageWidget.render(INSTANCE_TEST_ID, widget);
 
@@ -534,8 +536,6 @@ public class ImageWidgetRendererTest {
 				Integer.valueOf(200));
 		Mockito.when(instanceContentService.getContent(Matchers.anyString(), Matchers.anyString())).thenReturn(
 				contentInfo);
-		RESTClient mockRestClient = Mockito.mock(RESTClient.class);
-		Mockito.when(restClient.get()).thenReturn(mockRestClient);
 
 		Element table = imageWidget.render(INSTANCE_TEST_ID, widget);
 
@@ -549,14 +549,11 @@ public class ImageWidgetRendererTest {
 	 * @param pathToTestFile
 	 *            path to test resource
 	 * @return the widget node
-	 * @throws DMSClientException
-	 *             the DMS client exception
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
 	@SuppressWarnings({ "boxing", "unchecked" })
-	private WidgetNode testImageWidget(String pathToTestFile)
-			throws DMSClientException, IOException, URISyntaxException {
+	private WidgetNode testImageWidget(String pathToTestFile) throws IOException, URISyntaxException {
 		WidgetNode widget = new WidgetNodeBuilder().setConfiguration(pathToTestFile).build();
 		Instance instance = Mockito.mock(Instance.class);
 		Mockito.when(instance.getId()).thenReturn(INSTANCE_TEST_ID);
@@ -566,21 +563,28 @@ public class ImageWidgetRendererTest {
 		Mockito.when(contentInfo.getMetadata()).thenReturn(contentMetadata);
 		Mockito.when(contentInfo.getName()).thenReturn(TEST_FILENAME);
 		Mockito.when(contentInfo.exists()).thenReturn(Boolean.TRUE);
-		Mockito.when(contentMetadata.getInt(ImageWidgetRenderer.CONFIGURATION_PROPERTY_WIDTH)).thenReturn(
-				Integer.valueOf(200));
-		Mockito.when(contentMetadata.getInt(ImageWidgetRenderer.CONFIGURATION_PROPERTY_HEIGHT)).thenReturn(
-				Integer.valueOf(200));
+		Mockito.when(contentMetadata.getInt(ImageWidgetRenderer.CONFIGURATION_PROPERTY_WIDTH)).thenReturn(200);
+		Mockito.when(contentMetadata.getInt(ImageWidgetRenderer.CONFIGURATION_PROPERTY_HEIGHT)).thenReturn(200);
 		Mockito.when(instanceContentService.getContent(Matchers.anyString(), Matchers.anyString())).thenReturn(
 				contentInfo);
 
-		RESTClient mockRestClient = Mockito.mock(RESTClient.class);
-		Mockito.when(restClient.get()).thenReturn(mockRestClient);
-		HttpMethod response = Mockito.mock(HttpMethod.class);
-		Mockito.when(mockRestClient.rawRequest(any(HttpMethod.class), any(URI.class))).thenReturn(
-				response);
-		Mockito.when(response.getResponseBodyAsStream()).thenReturn(
-				getClass().getClassLoader().getResourceAsStream(TEST_JPG));
+		mockHttpClientResponse();
+
 		return widget;
+	}
+
+	private void mockHttpClientResponse() {
+		doAnswer(invocation -> {
+			ResponseHandler responseReader = invocation.getArgumentAt(1, ResponseHandler.class);
+			HttpResponse httpResponse = mock(HttpResponse.class);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(200);
+			when(httpResponse.getStatusLine()).thenReturn(statusLine);
+			HttpEntity httpEntity = mock(HttpEntity.class);
+			when(httpEntity.getContent()).thenReturn(getClass().getClassLoader().getResourceAsStream(TEST_JPG));
+			when(httpResponse.getEntity()).thenReturn(httpEntity);
+			return responseReader.handleResponse(httpResponse);
+		}).when(httpClient).execute(anyString(), any(ResponseHandler.class));
 	}
 
 }

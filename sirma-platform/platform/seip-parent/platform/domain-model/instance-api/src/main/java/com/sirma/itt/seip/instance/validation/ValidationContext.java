@@ -46,6 +46,15 @@ public class ValidationContext {
 		messages.add(new Message(messageType, message));
 	}
 
+	/**
+	 * Add error type message to the list of {@link Message} objects.
+	 * 
+	 * @param message text of the message
+	 */
+	public void addErrorMessage(String message) {
+		messages.add(new Message(MessageType.ERROR, message));
+	}
+
 	public Instance getInstance() {
 		return instance;
 	}

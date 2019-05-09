@@ -22,16 +22,24 @@ export class IdocSanitizer {
   }
 
   /**
-   * Image lazyload sets the initial base64 in data-origin attribute and puts another to the src attribute.
    * Before saved the images should regain their real src.
+   *
+   * Image lazyload sets the initial base64 in data-origin attribute and puts another to the src attribute.
+   * For images copied from another tenant or server, data-original contains link for the image on that environment and
+   * the src attribute contains the base64 encoded image (this is done in paste-base64 processor). In that case we don't
+   * need to restore the src because that will effectively set the url fro the image to external system and our backend
+   * wont process the image appropriately.
    *
    * @param domTree the jquery object wrapping the content
    *
    */
   static removeImageLazyloadData(domTree) {
     domTree.find('img').each(function () {
-      // Copy the real src value from data-original
-      $(this).attr('src', $(this).attr('data-original'));
+      let dataOriginal = $(this).attr('data-original');
+      // lastIndexOf starting from backward to check if the string actually begins with "data:" a.k.a. is base64 encoded
+      if (dataOriginal && dataOriginal.lastIndexOf('data:', 0) === 0) {
+        $(this).attr('src', dataOriginal);
+      }
     });
   }
 

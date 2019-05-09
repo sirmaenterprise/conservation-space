@@ -48,7 +48,7 @@ public class PropertiesTest {
 	public void test_append_shouldAddValueIfNonIsSet() {
 		Properties properties = new PropertiesDummy();
 		assertTrue(properties.append("key", "value"));
-		assertEquals("value", properties.get("key"));
+		assertEquals(Collections.singletonList("value"), properties.get("key"));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class PropertiesTest {
 		Properties properties = new PropertiesDummy();
 		properties.add("key", "value");
 		assertFalse(properties.append("key", "value"));
-		assertEquals("value", properties.get("key"));
+		assertEquals(Collections.singletonList("value"), properties.get("key"));
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class PropertiesTest {
 		Properties properties = new PropertiesDummy();
 		properties.add("key", "value");
 		assertFalse(properties.appendAll("key", Arrays.asList("value", "value")));
-		assertEquals("value", properties.get("key"));
+		assertEquals(Collections.singletonList("value"), properties.get("key"));
 	}
 
 	@Test

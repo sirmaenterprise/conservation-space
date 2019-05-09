@@ -44,6 +44,28 @@ describe('CodelistRestService', () => {
     });
   });
 
+  it('should perform get request with custom filter supplied as argument', () => {
+    let opts = {
+      'codelistNumber': 100,
+      'filterSource': 'ENG, HRD',
+      'inclusive': false
+    };
+
+    codelistService.getCodelist(opts);
+    expect(restClient.get.calledOnce);
+    expect(restClient.get.args[0][0]).to.equal('/codelist/100');
+    expect(restClient.get.args[0][1]).to.eql({
+      params: {
+        'customFilters[]': undefined,
+        'filterBy': undefined,
+        'inclusive': false,
+        'filterSource': 'ENG, HRD',
+        'q': undefined,
+        'values': ['ENG', 'HRD']
+      }
+    });
+  });
+
   it('should return from cache if such exist for requested codelist and there are no additional options', () => {
     let opts = {
       'codelistNumber': 210

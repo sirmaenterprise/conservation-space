@@ -15,13 +15,13 @@ public final class PermissionModelType {
 
 	public static final PermissionModelType SPECIAL = new PermissionModelType(false, false, true);
 
-	private final boolean inherited;
+	private final boolean inheritedPermission;
 
-	private final boolean library;
+	private final boolean libraryPermission;
 
-	private final boolean special;
+	private final boolean specialPermission;
 
-	private final boolean calculated;
+	private final boolean calculatedPermission;
 
 	/**
 	 * Initializer.
@@ -36,10 +36,10 @@ public final class PermissionModelType {
 	 *            if true, the permission model is calculated using the algorithm for active permissions.
 	 */
 	public PermissionModelType(boolean inherited, boolean library, boolean special, boolean calculated) {
-		this.inherited = inherited;
-		this.library = library;
-		this.special = special;
-		this.calculated = calculated;
+		this.inheritedPermission = inherited;
+		this.libraryPermission = library;
+		this.specialPermission = special;
+		this.calculatedPermission = calculated;
 	}
 
 	/**
@@ -62,24 +62,24 @@ public final class PermissionModelType {
 	 * @return true if defined, false otherwise.
 	 */
 	public boolean isDefined() {
-		return inherited || library || special || calculated;
+		return inheritedPermission || libraryPermission || specialPermission || calculatedPermission;
 	}
 
 	public boolean isInherited() {
-		return inherited;
+		return inheritedPermission;
 	}
 
 	public boolean isLibrary() {
-		return library;
+		return libraryPermission;
 	}
 
 	public boolean isSpecial() {
-		return special;
+		return specialPermission;
 	}
 
 	@Override
 	public String toString() {
-		return "PermissionModel [inherited=" + inherited + ", library=" + library + ", special=" + special + "]";
+		return "PermissionModel [inherited=" + inheritedPermission + ", library=" + libraryPermission + ", special=" + specialPermission + "]";
 	}
 
 }

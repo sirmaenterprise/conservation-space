@@ -21,9 +21,7 @@ import template from './advanced-search-criteria-controls.html!text';
     'criteriaLevel': 'criteria-level'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 export class AdvancedSearchCriteriaControls extends SearchComponent {
 
   constructor() {

@@ -11,3 +11,6 @@ export class ModelPropertyMetaData extends ModelAttributeMetaData {
     super(id);
   }
 }
+
+ModelPropertyMetaData.DATA_PROPERTY = 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionDataProperty';
+ModelPropertyMetaData.OBJECT_PROPERTY = 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionObjectProperty';

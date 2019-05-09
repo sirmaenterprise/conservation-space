@@ -322,7 +322,7 @@ export class ObjectSelectorHelper {
     }
 
     let searchArguments = {
-      groupBy: groupBy,
+      groupBy,
       maxSize: 0,
       pageSize: 0
     };

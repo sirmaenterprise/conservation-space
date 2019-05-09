@@ -69,4 +69,7 @@ public class Labels {
 		return label;
 	}
 
+	public void setLabel(List<Label> label) {
+		this.label = label;
+	}
 }

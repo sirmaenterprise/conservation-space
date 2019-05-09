@@ -1,101 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="DataImportReport" parentId="genericDataImportReport" type="object">
+<definition id="DataImportReport" parentId="baseEAI_Report" type="object">
 	<fields>
-		<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER_NGA" />
-		<field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER_NGA"/>
-		<field name="breadcrumb_header" type="an..4096" label="DOCUMENT_REPORT_BREADCRUMB_HEADER_NGA" />
-		<field name="tooltip_header" type="ANY" label="DOCUMENT_TOOLTIP_HEADER_NGA" />
+		<field name="default_header" type="ANY" label="DIR_DEFAULT_HEADER_NGA" />
+		<field name="compact_header" type="ANY" label="DIR_COMPACT_HEADER_NGA"/>
+		<field name="tooltip_header" type="ANY" label="DIR_TOOLTIP_HEADER_NGA" />
 		
 		<!-- system fields -->
-		<field name="title" type="an..1000" displayType="system" />
-		<field name="description" type="an..180" displayType="system" />
-		<field name="type" type="an..180" displayType="system" />
-		<field name="identifier" type="an..180" displayType="system" />
-		<field name="name" type="an..180" displayType="system" />
-		<field name="mimetype" type="an..20" displayType="system" />
-		<field name="size" type="n..10" displayType="system" />
-		<field name="status" type="an..35" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system" />
-		<field name="createdBy" type="uri" displayType="system" />
-		<field name="modifiedOn" type="datetime" displayType="system" />
-		<field name="modifiedBy" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system"  />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="hasChild" displayType="system" />
+		<field name="hasThumbnail" displayType="system" />
+		<field name="hasWatcher" type="uri" displayType="system" />
+		<field name="parentOf" displayType="system" />
 	</fields>
 	
 	<regions>	
 		<region id="generalDocumentDetails" displayType="editable" order="10" label="nga.spcificDocInformation.region.label">
 			<fields>
-				<field name="title" type="an..1000" mandatory="true" label="title.label" displayType="editable" uri="dcterms:title">
+				<field name="title" tooltip="nga.title.tooltip" >
 					<value>${CL([type])}</value>
 				</field>
-				<field name="description" type="an..180" label="description.label" displayType="editable" previewEmpty="false" uri="dcterms:description" />
+				<field name="description" tooltip="nga.description.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 		<region id="systemData" displayType="editable" order="20" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="type" type="an..180" codelist="CL7" label="nga.subType.label"  displayType="readonly" previewEmpty="false" uri="emf:type">
+				<field name="type" tooltip="nga.title.tooltip" >
 					<value>EAI_Report</value>
 				</field>
-				<field name="name" type="an..180" label="name.label" displayType="readonly" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName" /> <!-- documentName -->
-				<field name="size" type="n..10" label="size.label" displayType="readonly" previewEmpty="false" uri="emf:size"> <!-- When you use this field the control BYTE_FORMAT is required -->
-					<control id="BYTE_FORMAT" />
-				</field>
-				<field name="mimetype" type="an..20" codelist="CL30" label="mimetype.label" displayType="readonly" previewEmpty="false" uri="emf:mimetype" />
-				<field name="identifier" type="an..180" label="uniqueIdentifier.label" displayType="readonly" rnc="${seq({+eaiSequence})}" uri="dcterms:identifier">
-					<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
-				</field>
-				<field name="status" type="an..35" codelist="CL122" label="status.label" displayType="readonly" previewEmpty="false" uri="emf:status" />
-				<field name="emf:version" type="an..10" label="object.version" displayType="readonly" uri="emf:version" />
+				<field name="name" tooltip="nga.name.tooltip" /> 
+				<field name="size" tooltip="nga.size.tooltip" />
+				<field name="mimetype" />
+				<field name="identifier" tooltip="nga.identifier.tooltip" />
+				<field name="status" tooltip="nga.status.tooltip" codelist="CL122" />
+				<field name="emf:version" tooltip="nga.version.tooltip" />
 				<!-- object properties (relationships) -->
-				<field name="createdBy" type="uri" displayType="readOnly" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
-				<field name="lockedBy" type="uri" displayType="readonly" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" label="parentOf" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" uri="emf:parentOf">
-					<control id="PICKER">
-						<control-param id="range" name="range" />
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
+				<field name="createdBy" tooltip="nga.createdBy.tooltip" />
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" />
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" />
+				<field name="partOf" displayType="readOnly" tooltip="nga.partOf.tooltip" />
+				<field name="hasParent" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" />
+				<field name="emf:hasTemplate" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" />
 			</fields>
 		</region>	
 	</regions>
 	<transitions>
-		<transition id="download" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" />
-		<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
+		<transition id="download" label="download.label" purpose="download" tooltip="download.tooltip" />
+		<transition id="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
 		
 		<group id="exportAs" label="exportAs.group.label" type="menu" />
 		<transition id="exportTabPDF" group="exportAs" />
@@ -104,23 +57,89 @@
 		<transition id="printTab" />
 		
 		<group id="more" label="more.group.label" type="menu" />
-    	<transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" group="more" />
+    	<transition id="managePermissions" label="managePermissions.label" purpose="managePermissions" tooltip="managePermissions.tooltip" group="more" />
 	</transitions>
+	
 	<labels>
-		<label id="DOCUMENT_REPORT_BREADCRUMB_HEADER_NGA">
-            <value lang="en"><![CDATA[${eval(
-				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
-				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
-				<span><img src="${thumbnailUri(16)}"/></span>
+		<label id="DIR_TOOLTIP_HEADER_NGA">
+			<value lang="en">
+				<![CDATA[${eval(
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-mimetype="${get([mimetype])}" data-status="${get([status])}" data-id="${id}" data-uid="${id.uid}">
+                            <span data-title="title">${get([title])}</span>
+                        </a>
+                    </span>
+					<span class="tooltip-row">
+                        <label>Classification: </label>
+                        <span data-property="type">${CL([type])}</span>
+                    </span>
+					<span class="tooltip-row">
+						<label>Version: </label>
+						<span data-property="emf:version">${get([emf:version])}</span>
+					</span>
+                    <span class="tooltip-row">
+                        <label>System modified by: </label>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
+                    </span>
+                    <span class="tooltip-row">
+                        <label>System modified On: </label>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
+                    </span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
+                </span>
+            )}]]></value>
+		</label>	
+		<label id="DIR_DEFAULT_HEADER_NGA">
+			<value lang="en">
+				<![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.contentSize=${if(${get([size], 0)} <> 0).then(${get([size])}).else(${get([fileSize])})}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
-					<a target = "_blank" class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)} ${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}" ${var.href}>
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-						<span data-property="title">${get([title])}</span>
-					</a>
-				</span>)}]]>
-			</value>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>
+					${if(${get([size])}==null).then(&nbsp;(<span data-property="status">${CL([status])}</span>))}
+					<br />
+					<b>
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							<span data-property="title">${get([title])}</span>&nbsp;
+						</a>
+					</b>
+						${if(${get([mimetype])}<>null).then(Mimetype: <span data-property="mimetype">${CL([mimetype])}</span>)}
+						${if(${get([size])}<>null).then(, Size: <span data-property="size">${getReadableFormat(${var.contentSize})}</span>&nbsp;)}
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+						)}
+                </span>)}]]></value>
 		</label>
+		<label id="DIR_COMPACT_HEADER_NGA">
+			<value lang="en">
+				<![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" style="vertical-align:baseline;">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="title">${get([title])}</span>
+				</a>&nbsp;
+				${if(${get([size])}==null).then(&nbsp;(<span data-property="status">${CL([status])}</span>)).else(${if(${get([legacy])}==NGA343001).then(&nbsp;(<span data-property="status">${CL([status])}</span>))})}
+				${if(${var.isVersion}).then(
+					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+				)}	
+            </span>)}]]></value>
+		</label>	
 	</labels>
 </definition>

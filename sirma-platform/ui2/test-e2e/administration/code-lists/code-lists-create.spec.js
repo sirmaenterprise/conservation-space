@@ -21,7 +21,7 @@ describe('Controlled vocabularies management - create:', () => {
     management.addCodeList();
 
     management.getCodeLists().then(codeLists => {
-      expect(codeLists.length).to.equal(4);
+      expect(codeLists.length).to.equal(6);
 
       // Should be inserted on top
       let newCode = codeLists[0];
@@ -39,9 +39,9 @@ describe('Controlled vocabularies management - create:', () => {
 
     // After save, code lists are reloaded and for new code lists the PO will be stale -> should be fetched again
     management.getCodeLists().then(codeLists => {
-      expect(codeLists.length).to.equal(4);
+      expect(codeLists.length).to.equal(6);
       // Should be last after sorting
-      let newCode = codeLists[3];
+      let newCode = codeLists[4];
       newCode.open();
       let newCodeDetails = newCode.getDetails();
 
@@ -59,7 +59,7 @@ describe('Controlled vocabularies management - create:', () => {
 
       let descriptionsDialog = newCodeDetails.openDescriptions();
       descriptionsDialog.getDescriptions().then(descriptions => {
-        assertCodeDescriptions(descriptions[1], 'EN', 'New code', 'New code to test language');
+        assertCodeDescriptions(descriptions[2], 'EN', 'New code', 'New code to test language');
       });
     });
   });
@@ -80,7 +80,7 @@ describe('Controlled vocabularies management - create:', () => {
       confirmDialog.ok();
 
       management.getCodeLists().then(codeLists => {
-        expect(codeLists.length).to.equal(3);
+        expect(codeLists.length).to.equal(5);
         // Checks if it is removed from top
         assertCodeListHeader(codeLists[0], '1', 'Project state');
       });
@@ -124,7 +124,7 @@ describe('Controlled vocabularies management - create:', () => {
     });
 
     management.getCodeLists().then(codeLists => {
-      let newCode = codeLists[3];
+      let newCode = codeLists[4];
       newCode.open();
       newCode.getValues().then(values => {
         expect(values.length).to.equal(1);

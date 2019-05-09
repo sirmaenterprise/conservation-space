@@ -156,8 +156,9 @@ public class DefinitionServiceImpl extends BaseDefinitionService implements Defi
 
 	@Override
 	public Stream<DefinitionModel> getAllDefinitions(String category) {
-		return getAllDefinitions().filter(model -> category != null && model.getType() != null
-				&& (category.contains(model.getType()) || model.getType().contains(category)));
+		return getAllDefinitions().filter(
+				model -> StringUtils.containsIgnoreCase(category, model.getType()) || StringUtils.containsIgnoreCase(
+						model.getType(), category));
 	}
 
 	@Override

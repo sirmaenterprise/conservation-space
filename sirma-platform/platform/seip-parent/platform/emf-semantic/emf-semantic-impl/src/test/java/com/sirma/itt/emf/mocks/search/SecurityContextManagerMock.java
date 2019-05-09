@@ -47,6 +47,11 @@ public class SecurityContextManagerMock implements SecurityContextManager {
 	}
 
 	@Override
+	public void beginContextExecutionAs(User user) {
+		// nothing to do
+	}
+
+	@Override
 	public void beginContextExecution(String requestId) {
 		// nothing to do
 	}

@@ -65,6 +65,11 @@ describe('CommentsWidget', () => {
   CommentsWidget.prototype.control = {
     getId: () => {
       return 'widgetId';
+    },
+    getBaseWidget: () => {
+      return {
+        ngOnDestroy: sinon.stub()
+      };
     }
   };
 

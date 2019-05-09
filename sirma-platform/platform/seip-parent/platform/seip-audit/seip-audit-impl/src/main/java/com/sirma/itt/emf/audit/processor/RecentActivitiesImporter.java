@@ -1,7 +1,5 @@
 package com.sirma.itt.emf.audit.processor;
 
-import static java.util.stream.Collectors.maxBy;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Comparator;
@@ -21,7 +19,6 @@ import com.sirma.itt.seip.configuration.annotation.Configuration;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
 import com.sirma.itt.seip.exception.RollbackedException;
 import com.sirma.itt.seip.tasks.Schedule;
-import com.sirma.itt.seip.tasks.TransactionMode;
 
 /**
  * Import Trigger service. Defines a cron method that regularly imports data to recent activities core. Using the last
@@ -51,7 +48,14 @@ public class RecentActivitiesImporter {
 	@Schedule(identifier = "recentActivitiesImport", system = false)
 	@ConfigurationPropertyDefinition(name = "audit.solr.recentActivitiesImport.cron", defaultValue = "0/5 * * ? * *", system = true, sensitive = true, label = "Recent activities solr import trigger")
 	void triggerImport() throws RollbackedException {
-		Date knownActivityDate = activitiesSolrImporter.getLastKnownActivityDate();
+		Date knownActivityDate;
+		try {
+			knownActivityDate = activitiesSolrImporter.getLastKnownActivityDate();
+		} catch (RecentActivitiesSolrImporter.SolrCoreNotFoundException e) {
+			LOGGER.warn("Cant determine last known activity date due to: {}", e.getMessage());
+			LOGGER.trace(e.getMessage(), e);
+			return;
+		}
 		Collection<AuditActivity> activities;
 		try {
 			while (!(activities = auditDao.getActivitiesAfter(knownActivityDate, requestBatchSize.get())).isEmpty()) {
@@ -61,8 +65,10 @@ public class RecentActivitiesImporter {
 				// get the last processed date
 				// this could also be changed with query to solr but for now is not needed
 				knownActivityDate = getLastKnownActivityDate(activities);
-
 			}
+		} catch (RecentActivitiesSolrImporter.SolrCoreNotFoundException e) {
+			LOGGER.warn("Cant import recent activity entries due to: {}", e.getMessage());
+			LOGGER.trace(e.getMessage(), e);
 		} catch (RollbackedException e) {
 			LOGGER.warn("Fail to perform solr import due to: {}", e.getMessage(), e);
 		}

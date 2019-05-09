@@ -17,6 +17,7 @@ describe('Conditions in ODW', () => {
     // Given I have created an object
     // And I have inserted an ODW with modifiedBy property visible
     let odwElement = idocPage.getTabEditor(1).insertWidget(ObjectDataWidget.WIDGET_NAME);
+    browser.wait(EC.visibilityOf($('.object-data-widget .display-options-tab-handler')), DEFAULT_TIMEOUT)
     let widgetConfig = new ObjectDataWidgetConfig();
 
     let objectSelector = widgetConfig.selectObjectSelectTab();

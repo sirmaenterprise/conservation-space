@@ -23,17 +23,15 @@ import template from './advanced-search-object-type-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 export class AdvancedSearchObjectTypeCriteria extends Configurable {
-  
+
   constructor() {
     super({
       disabled: false
     });
   }
-  
+
   ngOnInit() {
     this.selectConfig = {
       isDisabled: () => this.config.disabled,

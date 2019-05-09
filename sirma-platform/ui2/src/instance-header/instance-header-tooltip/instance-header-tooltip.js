@@ -1,5 +1,5 @@
 import {Component, Inject, NgElement} from 'app/app';
-import {TooltipAdapter} from "adapters/tooltip-adapter";
+import {TooltipAdapter} from 'adapters/tooltip-adapter';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {ContextualEscapeAdapter} from 'adapters/angular/contextual-escape-adapter';
 import {InstanceRestService} from 'services/rest/instance-service';
@@ -68,9 +68,9 @@ export class InstanceHeaderTooltip {
 
   getTooltipSettings(title) {
     return {
-      title: title,
+      title,
       html: true,
-      template: template,
+      template,
       placement: 'auto top',
       container: 'body',
       // TODO: research for tooltip positioning based on viewport

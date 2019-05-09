@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.actions.InstanceOperations;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.testutil.CustomMatcher;
@@ -34,11 +34,11 @@ public class InstanceMoveActionTest {
 	private static final String PARENT_INSTANCE_ID = "emf:parentInstanceId";
 	private static final String USER_OPERATION_NAME = "user-move-operation-name";
 
-	@Mock
-	private Instance target;
+	private Instance target = new EmfInstance();
 
 	@Mock
 	private InstanceReference targetReference;
+
 	@Mock
 	private Instance parent;
 
@@ -46,7 +46,7 @@ public class InstanceMoveActionTest {
 	private InstanceReference parentReference;
 
 	@Mock
-	private InstanceTypeResolver instanceTypeResolver;
+	private DomainInstanceService domainInstanceService;
 
 	@Mock
 	private InstanceOperations operationInvoker;
@@ -56,10 +56,7 @@ public class InstanceMoveActionTest {
 
 	@Before
 	public void init() {
-		when(targetReference.toInstance()).thenReturn(target);
-		when(instanceTypeResolver.resolveReference(INSTANCE_ID)).thenReturn(Optional.of(targetReference));
-		when(parentReference.toInstance()).thenReturn(parent);
-		when(instanceTypeResolver.resolveReference(PARENT_INSTANCE_ID)).thenReturn(Optional.of(parentReference));
+		when(domainInstanceService.loadInstance(PARENT_INSTANCE_ID)).thenReturn(parent);
 	}
 
 	@Test
@@ -87,14 +84,13 @@ public class InstanceMoveActionTest {
 		verify(operationInvoker).invokeMove(argThat(matchesInstance(null)),
 											argThat(matchesOperation(new Operation(USER_OPERATION_NAME, true))),
 											argThat(matchesInstance(target)));
-
 	}
 
-	private CustomMatcher<Instance> matchesInstance(Instance expectedInstance) {
+	private static CustomMatcher<Instance> matchesInstance(Instance expectedInstance) {
 		return CustomMatcher.of((Instance instance) -> assertEquals(expectedInstance, instance));
 	}
 
-	private CustomMatcher<Operation> matchesOperation(Operation expectedOperation) {
+	private static CustomMatcher<Operation> matchesOperation(Operation expectedOperation) {
 		return CustomMatcher.of((Operation operation) -> assertEquals(expectedOperation, operation));
 	}
 
@@ -103,6 +99,8 @@ public class InstanceMoveActionTest {
 		request.setTargetId(INSTANCE_ID);
 		request.setDestinationId(newParentId);
 		request.setUserOperation(USER_OPERATION_NAME);
+		when(targetReference.toInstance()).thenReturn(target);
+		request.setTargetReference(targetReference);
 		return request;
 	}
 }

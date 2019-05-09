@@ -1,0 +1,16 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+delete {
+    ?instance ptop:partOf ?wrongParent.
+} insert {
+    GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?instance ptop:partOf ?correctParent .
+    }
+}
+where {
+    GRAPH<http://ittruse.ittbg.com/data/enterpriseManagementFramework> {
+        ?instance emf:hasParent ?correctParent .
+        ?instance ptop:partOf ?wrongParent .
+        filter(?correctParent != ?wrongParent)
+    }
+}

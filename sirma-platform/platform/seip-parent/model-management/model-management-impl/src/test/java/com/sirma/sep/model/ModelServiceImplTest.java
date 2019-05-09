@@ -1,15 +1,36 @@
 package com.sirma.sep.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sirma.itt.seip.io.TempFileProvider;
+import com.sirma.itt.seip.testutil.fakes.TempFileProviderFake;
+import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
+import com.sirma.itt.seip.util.file.ArchiveUtil;
+import com.sirma.itt.semantic.NamespaceRegistryService;
+import com.sirma.itt.semantic.model.vocabulary.EMF;
+import com.sirma.sep.model.management.NamespaceRegistryFake;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -18,8 +39,11 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFHandler;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,14 +56,17 @@ import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.testutil.mocks.InstanceContextServiceMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
-import com.sirma.itt.seip.time.TimeTracker;
+import com.sirma.sep.model.management.deploy.configuration.ModelManagementDeploymentConfigurations;
 
 /**
  * Tests the functionality of {@link ModelServiceImpl}.
- * 
+ *
  * @author Vilizar Tsonev
  */
 public class ModelServiceImplTest {
+
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	@InjectMocks
 	private ModelServiceImpl modelService;
@@ -52,15 +79,25 @@ public class ModelServiceImplTest {
 
 	@Mock
 	private Statistics statistics;
-	
+
+	@Spy
+	private TempFileProvider tempFileProvider;
+
+	@Spy
+	private NamespaceRegistryService namespaceRegistryService;
+
 	@Spy
 	private InstanceContextServiceMock contextService;
-	
+
+	@Mock
+	private ModelManagementDeploymentConfigurations modelManagementDeploymentConfigurations;
+
 	@Before
 	public void init() throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+		tempFileProvider = new TempFileProviderFake(tempFolder.getRoot());
+		namespaceRegistryService = new NamespaceRegistryFake();
 		MockitoAnnotations.initMocks(this);
-		when(statistics.createTimeStatistics(Mockito.any(), Mockito.anyString()))
-				.thenReturn(TimeTracker.createAndStart());
+		when(modelManagementDeploymentConfigurations.getPrettyPrintEnabled()).thenReturn(new ConfigurationPropertyMock<>(Boolean.TRUE));
 	}
 
 	/**
@@ -108,13 +145,13 @@ public class ModelServiceImplTest {
 				.setId("http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#MarkType")
 					.setLabel("Mark Type")
 					.setOntology("http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain")
-					.setSuperClasses(Arrays.asList("http://www.w3.org/2004/02/skos/core#Concept"));
+					.setSuperClasses(Collections.singletonList("http://www.w3.org/2004/02/skos/core#Concept"));
 		ClassInfo culturalActivity = new ClassInfo()
 				.setId("http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#CulturalActivity")
 					.setLabel("Cultural Activity")
 					.setOntology("http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain")
-					.setSuperClasses(
-							Arrays.asList("http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Activity"));
+					.setSuperClasses(Collections.singletonList(
+									"http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Activity"));
 		ClassInfo concept = new ClassInfo()
 				.setId("http://www.w3.org/2004/02/skos/core#Concept")
 					.setLabel("Concept")
@@ -130,6 +167,45 @@ public class ModelServiceImplTest {
 				.getClassesForOntology("http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain");
 
 		assertEquals(expectedClasses, actualClasses);
+	}
+
+	@Test
+	public void testExportOntologies() throws IOException {
+		mockRepositoryConnectionExport();
+
+		File zip = modelService.exportOntologies(Arrays.asList(
+				new Ontology("http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain", "Cultural Heritage Domain"),
+				new Ontology("http://ittruse.ittbg.com/ontology/enterpriseManagementFramework", "Enterprise Management Framework Ontology")));
+		File unzipDirectory = tempFolder.newFolder();
+		try {
+			ArchiveUtil.unZip(zip, unzipDirectory);
+			File[] ontologyTtls = unzipDirectory.listFiles();
+			List<String> filenames = Arrays.asList(unzipDirectory.list());
+			assertTrue(filenames.contains("ontologies_culturalHeritageDomain.ttl"));
+			assertTrue(filenames.contains("ontology_enterpriseManagementFramework.ttl"));
+			assertEquals(2, filenames.size());
+			String emfOntologyContent = FileUtils.readFileToString(ontologyTtls[0]);
+			String chdOntologyContent = FileUtils.readFileToString(ontologyTtls[1]);
+			String expectedEmfContent = getResourceFileContent("emf.ttl");
+			String expectedChdContent = getResourceFileContent("chd.ttl");
+			assertEquals(expectedEmfContent, emfOntologyContent);
+			assertEquals(expectedChdContent, chdOntologyContent);
+		} finally {
+			tempFileProvider.deleteFile(zip);
+			tempFileProvider.deleteFile(unzipDirectory);
+		}
+	}
+
+	private void mockRepositoryConnectionExport() {
+		ValueFactory factory = SimpleValueFactory.getInstance();
+		doAnswer(a -> {
+			RDFHandler handler = a.getArgumentAt(0, RDFHandler.class);
+			handler.startRDF();
+			handler.handleStatement(factory.createStatement(EMF.DOCUMENT, RDF.TYPE, OWL.CLASS));
+			handler.handleStatement(factory.createStatement(EMF.DOCUMENT, RDFS.LABEL, factory.createLiteral("Document")));
+			handler.endRDF();
+			return null;
+		}).when(repositoryConnection).export(any(), any());
 	}
 
 	private void mockReturnedClassesForOntology() {
@@ -177,7 +253,7 @@ public class ModelServiceImplTest {
 			throws RepositoryException, MalformedQueryException, QueryEvaluationException {
 		// Mock the RepositoryConnection
 		TupleQuery query = Mockito.mock(TupleQuery.class);
-		when(repositoryConnection.prepareTupleQuery(Mockito.any(QueryLanguage.class), Mockito.anyString()))
+		when(repositoryConnection.prepareTupleQuery(any(QueryLanguage.class), anyString()))
 				.thenReturn(query);
 
 		// Mock the TupleQueryResult that will be returned after query evaluation
@@ -217,6 +293,12 @@ public class ModelServiceImplTest {
 		}
 
 		when(query.evaluate()).thenReturn(result);
+	}
+
+	private String getResourceFileContent(String fileName) throws IOException {
+		try(InputStream stream = getClass().getResourceAsStream(fileName)) {
+			return IOUtils.toString(stream);
+		}
 	}
 
 }

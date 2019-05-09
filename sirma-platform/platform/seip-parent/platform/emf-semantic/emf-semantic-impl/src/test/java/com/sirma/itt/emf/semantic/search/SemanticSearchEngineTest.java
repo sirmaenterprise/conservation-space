@@ -70,8 +70,6 @@ import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
-import com.sirma.itt.seip.testutil.mocks.InstanceProxyMock;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.configuration.SemanticConfiguration;
 
@@ -129,7 +127,6 @@ public class SemanticSearchEngineTest {
 		TypeConverterUtil.setTypeConverter(typeConverter);
 		when(typeConverter.convert(Class.class, ObjectInstance.class.getName())).thenReturn(ObjectInstance.class);
 		TypeConverterUtil.setTypeConverter(typeConverter);
-		when(statistics.createTimeStatistics(any(), anyString())).then(a -> new TimeTracker());
 		when(semanticConfiguration.getFtsIndexName()).thenReturn(new ConfigurationPropertyMock<>("FTS"));
 		when(configurations.getForbiddenRoleUri())
 				.thenReturn(new ConfigurationPropertyMock<>("conc:SecurityRoleTypes-Forbidden"));

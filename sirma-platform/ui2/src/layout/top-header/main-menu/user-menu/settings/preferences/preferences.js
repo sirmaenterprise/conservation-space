@@ -6,5 +6,5 @@ import {View,Component} from 'app/app';
 @View({
   template: '<li><a href="#"> Settings</a></li>'
 })
-class SettingsPreferences {
+export class SettingsPreferences {
 }

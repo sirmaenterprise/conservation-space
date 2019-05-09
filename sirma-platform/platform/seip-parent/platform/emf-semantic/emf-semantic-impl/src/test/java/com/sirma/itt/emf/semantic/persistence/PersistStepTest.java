@@ -1,6 +1,7 @@
 package com.sirma.itt.emf.semantic.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -8,11 +9,13 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -37,6 +40,7 @@ import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
+import com.sirma.itt.seip.domain.semantic.persistence.MultiLanguageValue;
 import com.sirma.itt.seip.testutil.mocks.DataTypeDefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.semantic.NamespaceRegistryService;
@@ -50,6 +54,7 @@ import com.sirma.itt.semantic.model.vocabulary.EMF;
 public class PersistStepTest {
 
 	private NamespaceRegistryService namespaceRegistryService;
+	@Spy
 	private ValueFactory valueFactory = SimpleValueFactory.getInstance();
 	@Spy
 	private StatementBuilderProvider statementBuilder;
@@ -72,7 +77,7 @@ public class PersistStepTest {
 		MockitoAnnotations.initMocks(this);
 
 		when(namespaceRegistryService.buildUri(anyString()))
-				.then(a -> valueFactory.createURI(a.getArgumentAt(0, String.class)));
+				.then(a -> valueFactory.createIRI(a.getArgumentAt(0, String.class)));
 		new DefaultTypeConverter().register(typeConverter);
 		new ValueConverter().register(typeConverter);
 
@@ -143,12 +148,12 @@ public class PersistStepTest {
 	@Test
 	public void noStatements_OnEqualMultiValues_WithDifferentTypes() throws Exception {
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(RDF.TYPE, (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION),
-							EMF.CLASS_DESCRIPTION.toString());
+				.create(RDF.TYPE, (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION),
+						EMF.CLASS_DESCRIPTION.toString());
 		assertEquals(0, step.getStatements().count());
 
 		EmfInstance instance1 = new EmfInstance();
-		instance1.add("rdf:type", (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION));
+		instance1.add("rdf:type", (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION));
 		EmfInstance instance2 = new EmfInstance();
 		instance2.add("rdf:type", EMF.CLASS_DESCRIPTION.toString());
 
@@ -207,11 +212,11 @@ public class PersistStepTest {
 	@Test
 	public void inverseRelationStatements_OnDifferentMultiValues() throws Exception {
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(RDF.TYPE, (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION), EMF.SAVED_SEARCH.toString());
+				.create(RDF.TYPE, (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION), EMF.SAVED_SEARCH.toString());
 		assertEquals(4, step.getStatements().count());
 
 		EmfInstance instance1 = new EmfInstance();
-		instance1.add("rdf:type", (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION));
+		instance1.add("rdf:type", (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION));
 		EmfInstance instance2 = new EmfInstance();
 		instance2.add("rdf:type", EMF.SAVED_SEARCH.toString());
 
@@ -230,11 +235,11 @@ public class PersistStepTest {
 		when(inverseRelationProvider.inverseOf(anyString())).then(a -> null);
 
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(RDF.TYPE, (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION), EMF.SAVED_SEARCH.toString());
+				.create(RDF.TYPE, (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION), EMF.SAVED_SEARCH.toString());
 		assertEquals(2, step.getStatements().count());
 
 		EmfInstance instance1 = new EmfInstance();
-		instance1.add("rdf:type", (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION));
+		instance1.add("rdf:type", (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION));
 		EmfInstance instance2 = new EmfInstance();
 		instance2.add("rdf:type", EMF.SAVED_SEARCH.toString());
 
@@ -269,12 +274,12 @@ public class PersistStepTest {
 
 	@Test
 	public void generateAddRemoveStatements_OnDifferentMultiLiterals() throws Exception {
-		PersistStep step = builder.build(EMF.CASE, null, null).create(EMF.STATUS, (Serializable) Arrays.asList("OPEN"),
+		PersistStep step = builder.build(EMF.CASE, null, null).create(EMF.STATUS, (Serializable) Collections.singletonList("OPEN"),
 				"CLOSED");
 		assertEquals(2, step.getStatements().count());
 
 		EmfInstance instance1 = new EmfInstance();
-		instance1.add("emf:status", (Serializable) Arrays.asList("OPEN"));
+		instance1.add("emf:status", (Serializable) Collections.singletonList("OPEN"));
 		EmfInstance instance2 = new EmfInstance();
 		instance2.add("emf:status", "CLOSED");
 
@@ -312,12 +317,12 @@ public class PersistStepTest {
 	@Test
 	public void generateAddStatement_onAddOnly_multiLiteral() throws Exception {
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(EMF.STATUS, (Serializable) Arrays.asList("OPEN"), null);
+				.create(EMF.STATUS, (Serializable) Collections.singletonList("OPEN"), null);
 		assertEquals(1, step.getStatements().count());
 		assertTrue(step.getStatements().allMatch(LocalStatement::isToAdd));
 
 		EmfInstance instance1 = new EmfInstance();
-		instance1.add("emf:status", (Serializable) Arrays.asList("OPEN"));
+		instance1.add("emf:status", (Serializable) Collections.singletonList("OPEN"));
 		EmfInstance instance2 = new EmfInstance();
 
 		PersistStepFactory stepFactory = builder.build(EMF.CASE, instance1, instance2);
@@ -356,13 +361,13 @@ public class PersistStepTest {
 	@Test
 	public void generateRemoveStatement_onRemoveOnly_multiLiteral() throws Exception {
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(EMF.STATUS, null, (Serializable) Arrays.asList("OPEN"));
+				.create(EMF.STATUS, null, (Serializable) Collections.singletonList("OPEN"));
 		assertEquals(1, step.getStatements().count());
 		assertTrue(step.getStatements().noneMatch(LocalStatement::isToAdd));
 
 		EmfInstance instance1 = new EmfInstance();
 		EmfInstance instance2 = new EmfInstance();
-		instance2.add("emf:status", (Serializable) Arrays.asList("OPEN"));
+		instance2.add("emf:status", (Serializable) Collections.singletonList("OPEN"));
 
 		PersistStepFactory stepFactory = builder.build(EMF.CASE, instance1, instance2);
 
@@ -400,12 +405,12 @@ public class PersistStepTest {
 	@Test
 	public void generateAddStatement_onAddOnly_multiObjectProperty() throws Exception {
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(RDF.TYPE, (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION), null);
+				.create(RDF.TYPE, (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION), null);
 		assertEquals(2, step.getStatements().count());
 		assertTrue(step.getStatements().allMatch(LocalStatement::isToAdd));
 
 		EmfInstance instance1 = new EmfInstance();
-		instance1.add("rdf:type", (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION));
+		instance1.add("rdf:type", (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION));
 		EmfInstance instance2 = new EmfInstance();
 
 		PersistStepFactory stepFactory = builder.build(EMF.CASE, instance1, instance2);
@@ -444,13 +449,13 @@ public class PersistStepTest {
 	@Test
 	public void generateRemoveStatement_onRemoveOnly_multiObjectProperty() throws Exception {
 		PersistStep step = builder.build(EMF.CASE, null, null)
-					.create(RDF.TYPE, null, (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION));
+				.create(RDF.TYPE, null, (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION));
 		assertEquals(2, step.getStatements().count());
 		assertTrue(step.getStatements().noneMatch(LocalStatement::isToAdd));
 
 		EmfInstance instance1 = new EmfInstance();
 		EmfInstance instance2 = new EmfInstance();
-		instance2.add("rdf:type", (Serializable) Arrays.asList(EMF.CLASS_DESCRIPTION));
+		instance2.add("rdf:type", (Serializable) Collections.singletonList(EMF.CLASS_DESCRIPTION));
 
 		PersistStepFactory stepFactory = builder.build(EMF.CASE, instance1, instance2);
 
@@ -500,6 +505,138 @@ public class PersistStepTest {
 		PersistStep step = builder.build(EMF.CASE, null, null).create(RDF.TYPE, EMF.CLASS_DESCRIPTION.toString(),
 				EMF.CLASS_DESCRIPTION);
 		assertEquals(0, step.getStatements().count());
+	}
+
+	@Test
+	public void shouldBuildStatementsForMultiLanguageValues() throws Exception {
+		MultiLanguageValue beforeLabels = new MultiLanguageValue();
+		beforeLabels.addValue("en", "Case");
+		beforeLabels.addValue("de", "Fall");
+
+		EmfInstance before = new EmfInstance();
+		before.add("dcterms:title", beforeLabels);
+
+		MultiLanguageValue afterLabels = new MultiLanguageValue();
+		afterLabels.addValue("en", "Case");
+		afterLabels.addValue("de", "Fall (DE)");
+		afterLabels.addValue("bg", "Преписка");
+
+		EmfInstance after = new EmfInstance();
+		after.add("dcterms:title", afterLabels);
+
+		PersistStepFactory stepFactory = builder.build(EMF.CASE, after, before);
+		PersistStep step = stepFactory.create("dcterms:title");
+
+		List<LocalStatement> statements = step.getStatements().collect(Collectors.toList());
+		assertEquals(3, statements.size());
+
+		verifyStatement(statements.get(0), true, EMF.CASE, "dcterms:title", getLiteral("de", "Fall (DE)"));
+		verifyStatement(statements.get(1), true, EMF.CASE, "dcterms:title", getLiteral("bg", "Преписка"));
+		verifyStatement(statements.get(2), false, EMF.CASE, "dcterms:title", getLiteral("de", "Fall"));
+	}
+
+	@Test
+	public void shouldBuildStatementsForMultiLanguageValues_WithMultipleLabelsForLanguage() throws Exception {
+		MultiLanguageValue beforeLabels = new MultiLanguageValue();
+		beforeLabels.addValue("en", "Case");
+
+		EmfInstance before = new EmfInstance();
+		before.add("dcterms:title", beforeLabels);
+
+		MultiLanguageValue afterLabels = new MultiLanguageValue();
+		afterLabels.addValue("en", "Case");
+		afterLabels.addValue("en", "Case library");
+		afterLabels.addValue("en", "Case class");
+
+		EmfInstance after = new EmfInstance();
+		after.add("dcterms:title", afterLabels);
+
+		PersistStepFactory stepFactory = builder.build(EMF.CASE, after, before);
+		PersistStep step = stepFactory.create("dcterms:title");
+
+		List<LocalStatement> statements = step.getStatements().collect(Collectors.toList());
+		assertEquals(2, statements.size());
+
+		verifyStatement(statements.get(0), true, EMF.CASE, "dcterms:title", getLiteral("en", "Case library"));
+		verifyStatement(statements.get(1), true, EMF.CASE, "dcterms:title", getLiteral("en", "Case class"));
+	}
+
+	@Test
+	public void shouldBuildStatementsForMultiLanguageValues_IfOneIsNot() throws Exception {
+		EmfInstance before = new EmfInstance();
+		before.add("dcterms:title", "Case");
+
+		MultiLanguageValue afterLabels = new MultiLanguageValue();
+		afterLabels.addValue("en", "Case");
+		afterLabels.addValue("de", "Fall (DE)");
+		afterLabels.addValue("bg", "Преписка");
+
+		EmfInstance after = new EmfInstance();
+		after.add("dcterms:title", afterLabels);
+
+		PersistStepFactory stepFactory = builder.build(EMF.CASE, after, before);
+		PersistStep step = stepFactory.create("dcterms:title");
+
+		List<LocalStatement> statements = step.getStatements().collect(Collectors.toList());
+		assertEquals(4, statements.size());
+
+		verifyStatement(statements.get(0), true, EMF.CASE, "dcterms:title", getLiteral("de", "Fall (DE)"));
+		verifyStatement(statements.get(1), true, EMF.CASE, "dcterms:title", getLiteral("en", "Case"));
+		verifyStatement(statements.get(2), true, EMF.CASE, "dcterms:title", getLiteral("bg", "Преписка"));
+		verifyStatement(statements.get(3), false, EMF.CASE, "dcterms:title", getLiteral(null, "Case"));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldBuildStatementsForMultiLanguageValues_ShouldDisallowForbiddenTypes() throws Exception {
+		EmfInstance before = new EmfInstance();
+		before.add("dcterms:title", 4);
+
+		MultiLanguageValue afterLabels = new MultiLanguageValue();
+		afterLabels.addValue("en", "Case");
+
+		EmfInstance after = new EmfInstance();
+		after.add("dcterms:title", afterLabels);
+
+		PersistStepFactory stepFactory = builder.build(EMF.CASE, after, before);
+		PersistStep step = stepFactory.create("dcterms:title");
+
+		step.getStatements();
+	}
+
+	@Test
+	public void shouldBuildStatementsForMultiLanguageValues_ShouldAllowRemovingValues() throws Exception {
+		MultiLanguageValue beforeLabels = new MultiLanguageValue();
+		beforeLabels.addValue("en", "Case");
+
+		EmfInstance before = new EmfInstance();
+		before.add("dcterms:title", beforeLabels);
+
+		EmfInstance after = new EmfInstance();
+		after.add("dcterms:title", null);
+
+		PersistStepFactory stepFactory = builder.build(EMF.CASE, after, before);
+		PersistStep step = stepFactory.create("dcterms:title");
+
+		List<LocalStatement> statements = step.getStatements().collect(Collectors.toList());
+		assertEquals(1, statements.size());
+		verifyStatement(statements.get(0), false, EMF.CASE, "dcterms:title", getLiteral("en", "Case"));
+	}
+
+	private static void verifyStatement(LocalStatement localStatement, boolean toAdd, IRI subject, String predicate, Literal object) {
+		assertNotNull(localStatement);
+		assertEquals(toAdd, localStatement.isToAdd());
+		Statement statement = localStatement.getStatement();
+		assertNotNull(statement);
+		assertEquals(subject, statement.getSubject());
+		assertEquals(predicate, statement.getPredicate().toString());
+		assertEquals(object, statement.getObject());
+	}
+
+	private static Literal getLiteral(String lang, String value) {
+		if (lang == null) {
+			return SimpleValueFactory.getInstance().createLiteral(value);
+		}
+		return SimpleValueFactory.getInstance().createLiteral(value, lang);
 	}
 
 	private static PropertyDefinition mockDefinitionAsObjectProperty(String name) {

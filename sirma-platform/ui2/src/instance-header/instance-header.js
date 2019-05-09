@@ -218,7 +218,7 @@ export class InstanceHeader {
    * @returns {*} formatted string
    */
   formatDatetime(isoDate, includeTime, dateFormat) {
-    if (!isoDate || isoDate === '') {
+    if (!isoDate) {
       return '';
     }
     let date = new Date(isoDate);

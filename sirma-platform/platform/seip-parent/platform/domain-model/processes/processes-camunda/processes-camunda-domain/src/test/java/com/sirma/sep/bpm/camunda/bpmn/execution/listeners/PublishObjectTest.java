@@ -7,9 +7,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.sirma.itt.seip.convert.DefaultTypeConverter;
+import com.sirma.itt.seip.convert.TypeConverter;
+import com.sirma.itt.seip.convert.TypeConverterImpl;
+import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.el.Expression;
@@ -20,12 +25,14 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 /**
  * Tests for {@link PublishObject}.
@@ -38,6 +45,8 @@ public class PublishObjectTest {
 	private InstanceTypeResolver instanceTypeResolver;
 	@Mock
 	private InstanceService instanceService;
+	@Spy
+	private TypeConverter typeConverter = new TypeConverterImpl();
 
 	@InjectMocks
 	private PublishObject object;
@@ -45,6 +54,7 @@ public class PublishObjectTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+		new DefaultTypeConverter().register(typeConverter);
 	}
 
 	@Test
@@ -106,10 +116,11 @@ public class PublishObjectTest {
 		FixedValue fixedValue = mock(FixedValue.class);
 		when(fixedValue.getExpressionText()).thenReturn("p1,p2");
 		object.setRelations(fixedValue);
-		Instance instance = mock(Instance.class);
-		String[] test = new String[] {"one", "two"};
-		when(instance.getAsString(eq("p1"))).thenReturn(Arrays.asList(test).toString());
-		when(instance.getAsString(eq("p2"))).thenReturn(" emf:2");
+		ObjectInstance instance = new ObjectInstance();
+		instance.append("p1","one");
+		instance.append("p1","two");
+		instance.add("p2", new SomeRandomObject(" emf:2"));
+		instance.enableChangesTracking();
 		InstanceReference reference = mock(InstanceReference.class);
 		when(reference.toInstance()).thenReturn(instance);
 		Optional<InstanceReference> option = Optional.of(reference);
@@ -118,9 +129,22 @@ public class PublishObjectTest {
 		resultList.add(mock(Instance.class));
 		resultList.add(mock(Instance.class));
 		resultList.add(mock(Instance.class));
-		when(instanceTypeResolver.resolveInstances(any())).thenReturn(resultList);
+		when(instanceTypeResolver.resolveInstances(any())).then(a -> {
+			Collection<Serializable> ids = a.getArgumentAt(0, Collection.class);
+			return ids.stream().map(EmfInstance::new).collect(Collectors.toList());
+		});
 		object.execute(execution, object);
 		verify(instanceService, times(3)).publish(any(), any());
 	}
 
+	private static class SomeRandomObject implements Serializable {
+		private final String id;
+
+		private SomeRandomObject(String id) {this.id = id;}
+
+		@Override
+		public String toString() {
+			return id;
+		}
+	}
 }

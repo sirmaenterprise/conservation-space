@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.6.0">
+  <bpmn:collaboration id="Collaboration_1qn59h4">
+    <bpmn:participant id="Participant_047nylj" name="Review and Approve Workflow" processRef="WFLTYPE01" />
+  </bpmn:collaboration>
+  <bpmn:process id="WFLTYPE01" name="Review and Approve Workflow" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.StopProcessListener" event="end">
+        <camunda:field name="relation">        <camunda:string>emf:processes
+</camunda:field>
+        <camunda:field name="source">        <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+        <camunda:field name="status">        <camunda:expression>DRAFT</camunda:expression>
+</camunda:field>
+      </camunda:executionListener>
+      <camunda:executionListener class="com.sirma.sep.bpm.camunda.bpmn.execution.listeners.StopProcessListener" event="end">
+        <camunda:field name="relation">        <camunda:string>emf:hasAttachment</camunda:string>
+</camunda:field>
+        <camunda:field name="source">        <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+        <camunda:field name="status">        <camunda:expression>DRAFT</camunda:expression>
+</camunda:field>
+      </camunda:executionListener>
+    </bpmn:extensionElements>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1bmpipo">
+      <bpmn:incoming>SequenceFlow_gateway</bpmn:incoming>
+      <bpmn:outgoing>implementRecommendations</bpmn:outgoing>
+      <bpmn:outgoing>approve</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_1fmcb9o">
+      <bpmn:incoming>approve</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="TASKST101" name="Implement recommendations update&#10;" camunda:assignee="${assignee}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="plannedStartDate" type="date" />
+          <camunda:formField id="plannedEndDate" type="date" />
+          <camunda:formField id="assignee" type="string" />
+          <camunda:formField id="createdBy" type="string" />
+          <camunda:formField id="references" type="string" />
+          <camunda:formField id="taskNotes" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="plannedStartDate">${plannedStartDate}</camunda:inputParameter>
+          <camunda:inputParameter name="plannedEndDate">${plannedEndDate}</camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher">${createdBy}</camunda:inputParameter>
+          <camunda:inputParameter name="references">${processes}</camunda:inputParameter>
+          <camunda:outputParameter name="plannedEndDate">${plannedEndDate}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>implementRecommendations</bpmn:incoming>
+      <bpmn:outgoing>complete</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_start" sourceRef="StarProcess" targetRef="TASKST100">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string><![CDATA[emf:processes
+]]></camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>PENDING_APPROVAL</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+        <camunda:executionListener expression="execution.setVariable(&#39;references&#39;,execution.getVariable(&#39;processes&#39;))" event="take" />
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string>emf:hasAttachment</camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>PENDING_APPROVAL</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_gateway" sourceRef="TASKST100" targetRef="ExclusiveGateway_1bmpipo" />
+    <bpmn:sequenceFlow id="implementRecommendations" name="Implement Recommendations&#10;" sourceRef="ExclusiveGateway_1bmpipo" targetRef="TASKST101">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="execution.setVariable(&#39;references&#39;,execution.getVariable(&#39;processes&#39;))" event="take" />
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='implementRecommendations'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="approve" name="Approve" sourceRef="ExclusiveGateway_1bmpipo" targetRef="EndEvent_1fmcb9o">
+      <bpmn:extensionElements>
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string><![CDATA[emf:processes
+]]></camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>APPROVED</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+        <camunda:executionListener class="com.sirmaenterprise.sep.bpm.camunda.bpmn.execution.listeners.ChangeObjectState" event="take">
+          <camunda:field name="relation">          <camunda:string>emf:hasAttachment</camunda:string>
+</camunda:field>
+          <camunda:field name="source">          <camunda:expression>${execution}</camunda:expression>
+</camunda:field>
+          <camunda:field name="status">          <camunda:expression>OBSOLETE</camunda:expression>
+</camunda:field>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${outcome=='approve'}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="complete" name="Complete" sourceRef="TASKST101" targetRef="TASKST100" />
+    <bpmn:startEvent id="StarProcess">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="priority" type="long" />
+          <camunda:formField id="plannedEndDate" type="date" />
+          <camunda:formField id="plannedStartDate" type="date" />
+          <camunda:formField id="createdBy" type="string" />
+          <camunda:formField id="processes" type="string" />
+          <camunda:formField id="hasAttachment" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>SequenceFlow_start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="TASKST100" name="Review and Approve Report&#10;" camunda:assignee="${assignee}" camunda:dueDate="${plannedEndDate}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="plannedStartDate" type="date" />
+          <camunda:formField id="plannedEndDate" type="date" />
+          <camunda:formField id="taskNotes" type="string" />
+          <camunda:formField id="references" type="string" />
+          <camunda:formField id="assignee" type="string" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="plannedStartDate">${plannedStartDate}</camunda:inputParameter>
+          <camunda:inputParameter name="plannedEndDate">${plannedEndDate}</camunda:inputParameter>
+          <camunda:inputParameter name="hasWatcher">${createdBy}</camunda:inputParameter>
+          <camunda:inputParameter name="references">${processes}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_start</bpmn:incoming>
+      <bpmn:incoming>complete</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1qn59h4">
+      <bpmndi:BPMNShape id="Participant_047nylj_di" bpmnElement="Participant_047nylj">
+        <dc:Bounds x="28" y="19.5" width="600" height="257" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StarProcess">
+        <dc:Bounds x="92" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="110" y="98" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1bmpipo_di" bpmnElement="ExclusiveGateway_1bmpipo" isMarkerVisible="true">
+        <dc:Bounds x="411" y="55" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="436" y="105" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1fmcb9o_di" bpmnElement="EndEvent_1fmcb9o">
+        <dc:Bounds x="572" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="590" y="98" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0z6dekk_di" bpmnElement="TASKST100">
+        <dc:Bounds x="218" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_1mjpr12_di" bpmnElement="TASKST101">
+        <dc:Bounds x="386" y="177" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ga9xcm_di" bpmnElement="SequenceFlow_start">
+        <di:waypoint xsi:type="dc:Point" x="128" y="80" />
+        <di:waypoint xsi:type="dc:Point" x="218" y="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="173" y="65" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1pxy70r_di" bpmnElement="SequenceFlow_gateway">
+        <di:waypoint xsi:type="dc:Point" x="318" y="80" />
+        <di:waypoint xsi:type="dc:Point" x="411" y="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="365" y="65" width="0" height="0" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1k5uva2_di" bpmnElement="implementRecommendations">
+        <di:waypoint xsi:type="dc:Point" x="436" y="105" />
+        <di:waypoint xsi:type="dc:Point" x="436" y="141" />
+        <di:waypoint xsi:type="dc:Point" x="436" y="141" />
+        <di:waypoint xsi:type="dc:Point" x="436" y="177" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="449" y="119" width="85" height="36" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0mvgxb8_di" bpmnElement="approve">
+        <di:waypoint xsi:type="dc:Point" x="461" y="80" />
+        <di:waypoint xsi:type="dc:Point" x="572" y="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="61" width="41" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_16j10oi_di" bpmnElement="complete">
+        <di:waypoint xsi:type="dc:Point" x="386" y="217" />
+        <di:waypoint xsi:type="dc:Point" x="268" y="217" />
+        <di:waypoint xsi:type="dc:Point" x="268" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="304" y="194" width="46" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

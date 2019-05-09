@@ -17,7 +17,7 @@ import com.sirma.itt.seip.plugin.Extension;
  *
  * @author BBonev
  */
-@Extension(target = InstanceLoadDecorator.TARGET_NAME, order = 50)
+@Extension(target = InstanceLoadDecorator.INSTANCE_DECORATOR, order = 50)
 public class InstanceTypeLoadDecorator implements InstanceLoadDecorator {
 
 	@Inject
@@ -35,9 +35,8 @@ public class InstanceTypeLoadDecorator implements InstanceLoadDecorator {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <I extends Instance> void decorateResult(Collection<I> collection) {
-		instanceTypes.resolveTypes((Collection<Instance>) collection);
+		instanceTypes.resolveTypes(collection);
 	}
 
 	@Override

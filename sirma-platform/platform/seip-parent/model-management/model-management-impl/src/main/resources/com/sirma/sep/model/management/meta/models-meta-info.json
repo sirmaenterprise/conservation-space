@@ -4,27 +4,30 @@
       "id": "title",
       "uri": "http://purl.org/dc/terms/title",
       "type": "label",
-      "defaultValue": "",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": true
       }
     },
     {
       "id": "description",
       "uri": "http://purl.org/dc/terms/description",
       "type": "multiLangString",
-      "defaultValue": "",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": false
+        "mandatory": true,
+        "updateable": true
       }
     },
     {
       "id": "creator",
       "uri": "http://purl.org/dc/elements/1.1/creator",
-      "type": "string",
-      "defaultValue": "",
+      "type": "multiLangString",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": true
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
@@ -33,7 +36,32 @@
       "type": "string",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "condition": "OR",
+            "expressions": [
+              {
+                "field": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isCreateable",
+                "operation": "in",
+                "values": [
+                  true
+                ]
+              },
+              {
+                "field": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isUploadable",
+                "operation": "in",
+                "values": [
+                  true
+                ]
+              }
+            ],
+            "outcome": {
+              "mandatory": true
+            }
+          }
+        ]
       }
     },
     {
@@ -42,7 +70,8 @@
       "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
@@ -51,7 +80,8 @@
       "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
@@ -60,7 +90,8 @@
       "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": false
       }
     },
     {
@@ -69,34 +100,84 @@
       "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
       "id": "searchable",
       "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isSearchable",
       "type": "boolean",
-      "defaultValue": true,
+      "defaultValue": false,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
       "id": "createable",
       "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isCreateable",
       "type": "boolean",
-      "defaultValue": true,
+      "defaultValue": false,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "affected": [
+          "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#classCategory"
+        ]
       }
     },
     {
       "id": "uploadable",
       "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isUploadable",
       "type": "boolean",
+      "defaultValue": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true,
+        "affected": [
+          "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#classCategory"
+        ]
+      }
+    },
+    {
+      "id": "versionable",
+      "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isVersionable",
+      "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "superClass",
+      "uri": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "type": "uri",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "definitionId",
+      "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#definitionId",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "acceptDataTypePattern",
+      "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#acceptDataTypePattern",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
       }
     }
   ],
@@ -106,7 +187,8 @@
       "type": "identifier",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false
       }
     },
     {
@@ -114,7 +196,8 @@
       "type": "uri",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false
       }
     },
     {
@@ -122,62 +205,146 @@
       "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
       "id": "label",
       "type": "label",
-      "defaultValue": "",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": true
       }
     }
   ],
   "properties": [
     {
-      "id": "label",
-      "uri": "http://www.w3.org/2000/01/rdf-schema#label",
-      "type": "label",
+      "id": "propertyType",
+      "uri": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "dataType": "uri",
+      "type": "propertyType",
       "defaultValue": "",
+      "options": [
+        {
+          "value": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionDataProperty",
+          "label": "administration.models.management.property.type.data"
+        },
+        {
+          "value": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionObjectProperty",
+          "label": "administration.models.management.property.type.object"
+        }
+      ],
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false,
+        "affected": [
+          "http://www.w3.org/2002/07/owl#inverseOf",
+          "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#auditEvent",
+          "http://www.sirma.com/ontologies/2014/11/security#allowPermissionOverride",
+          "http://www.sirma.com/ontologies/2014/11/security#autoAssignPermissionRole",
+          "http://www.sirma.com/ontologies/2014/11/security#autoAssignParentPermissionRole"
+        ],
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "operation": "in",
+                "values": [
+                  ""
+                ]
+              }
+            ],
+            "outcome": {
+              "updateable": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "title",
+      "uri": "http://purl.org/dc/terms/title",
+      "type": "label",
+      "defaultValue": {},
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
       }
     },
     {
       "id": "definition",
-      "uri": "http://www.w3.org/2004/02/skos/core#definition",
+      "uri": "http://purl.org/dc/terms/description",
       "type": "multiLangString",
-      "defaultValue": "",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": false
+        "mandatory": true,
+        "updateable": true
       }
     },
     {
       "id": "creator",
       "uri": "http://purl.org/dc/elements/1.1/creator",
-      "type": "string",
+      "type": "multiLangString",
+      "defaultValue": {},
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "instance",
+      "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#uri",
+      "type": "uri",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false
       }
     },
     {
       "id": "domainClass",
       "uri": "http://www.w3.org/2000/01/rdf-schema#domain",
-      "type": "uri",
+      "dataType": "uri",
+      "type": "domain",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": false
       }
     },
     {
       "id": "rangeClass",
       "uri": "http://www.w3.org/2000/01/rdf-schema#range",
-      "type": "semanticType",
+      "dataType": "uri",
+      "type": "range",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": false,
+        "affected": [
+          "http://www.sirma.com/ontologies/2014/11/security#allowPermissionOverride",
+          "http://www.sirma.com/ontologies/2014/11/security#autoAssignPermissionRole",
+          "http://www.sirma.com/ontologies/2014/11/security#autoAssignParentPermissionRole"
+        ],
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "http://www.w3.org/2000/01/rdf-schema#range",
+                "operation": "in",
+                "values": [
+                  ""
+                ]
+              }
+            ],
+            "outcome": {
+              "updateable": true
+            }
+          }
+        ]
       }
     },
     {
@@ -186,16 +353,34 @@
       "type": "uri",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": false,
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "operation": "not_in",
+                "values": [
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionObjectProperty"
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          }
+        ]
       }
     },
     {
       "id": "isSystemProperty",
       "uri": "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isSystemProperty",
       "type": "boolean",
-      "defaultValue": "false",
+      "defaultValue": false,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
@@ -204,7 +389,8 @@
       "type": "boolean",
       "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
@@ -213,34 +399,199 @@
       "type": "string",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "operation": "not_in",
+                "values": [
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionObjectProperty"
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          }
+        ]
       }
     },
     {
       "id": "autoAssignPermissionRole",
       "uri": "http://www.sirma.com/ontologies/2014/11/security#autoAssignPermissionRole",
-      "type": "string",
+      "type": "option",
       "defaultValue": "",
+      "options": [
+        {
+          "value": "MANAGER",
+          "label": "administration.models.management.property.permission.role.manager"
+        },
+        {
+          "value": "COLLABORATOR",
+          "label": "administration.models.management.property.permission.role.collaborator"
+        },
+        {
+          "value": "CONTRIBUTOR",
+          "label": "administration.models.management.property.permission.role.contributor"
+        },
+        {
+          "value": "CONSUMER",
+          "label": "administration.models.management.property.permission.role.consumer"
+        }
+      ],
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "condition": "OR",
+            "expressions": [
+              {
+                "field": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "operation": "in",
+                "values": [
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionDataProperty"
+                ]
+              },
+              {
+                "field": "http://www.w3.org/2000/01/rdf-schema#range",
+                "operation": "not_in",
+                "values": [
+                  "http://www.ontotext.com/proton/protontop#Agent",
+                  "http://www.ontotext.com/proton/protontop#Group",
+                  "http://www.ontotext.com/proton/protontop#Person",
+                  "http://www.ontotext.com/proton/protontop#Organization",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Vendor",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Company",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Customer",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Department"
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          }
+        ]
       }
     },
     {
       "id": "autoAssignParentPermissionRole",
       "uri": "http://www.sirma.com/ontologies/2014/11/security#autoAssignParentPermissionRole",
-      "type": "string",
+      "type": "option",
       "defaultValue": "",
+      "options": [
+        {
+          "value": "MANAGER",
+          "label": "administration.models.management.property.permission.role.manager"
+        },
+        {
+          "value": "COLLABORATOR",
+          "label": "administration.models.management.property.permission.role.collaborator"
+        },
+        {
+          "value": "CONTRIBUTOR",
+          "label": "administration.models.management.property.permission.role.contributor"
+        },
+        {
+          "value": "CONSUMER",
+          "label": "administration.models.management.property.permission.role.consumer"
+        }
+      ],
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "condition": "OR",
+            "expressions": [
+              {
+                "field": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "operation": "in",
+                "values": [
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionDataProperty"
+                ]
+              },
+              {
+                "field": "http://www.w3.org/2000/01/rdf-schema#range",
+                "operation": "not_in",
+                "values": [
+                  "http://www.ontotext.com/proton/protontop#Agent",
+                  "http://www.ontotext.com/proton/protontop#Group",
+                  "http://www.ontotext.com/proton/protontop#Person",
+                  "http://www.ontotext.com/proton/protontop#Organization",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Vendor",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Company",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Customer",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Department"
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          }
+        ]
       }
     },
     {
       "id": "allowPermissionOverride",
       "uri": "http://www.sirma.com/ontologies/2014/11/security#allowPermissionOverride",
       "type": "boolean",
+      "defaultValue": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "condition": "OR",
+            "expressions": [
+              {
+                "field": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "operation": "in",
+                "values": [
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#DefinitionDataProperty"
+                ]
+              },
+              {
+                "field": "http://www.w3.org/2000/01/rdf-schema#range",
+                "operation": "not_in",
+                "values": [
+                  "http://www.ontotext.com/proton/protontop#Agent",
+                  "http://www.ontotext.com/proton/protontop#Group",
+                  "http://www.ontotext.com/proton/protontop#Person",
+                  "http://www.ontotext.com/proton/protontop#Organization",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#User",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Group",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Vendor",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Company",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Customer",
+                  "http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Department"
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "subPropertyOf",
+      "uri": "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+      "type": "uri",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": false
       }
     }
   ],
@@ -250,7 +601,88 @@
       "type": "identifier",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false
+      }
+    },
+    {
+      "id": "typeOption",
+      "type": "typeOption",
+      "defaultValue": "",
+      "options": [
+        {
+          "value": "ALPHA_NUMERIC_TYPE",
+          "label": "administration.models.management.data.type.value.alpha.numeric"
+        },
+        {
+          "value": "ALPHA_NUMERIC_FIXED_TYPE",
+          "label": "administration.models.management.data.type.value.alpha.numeric.fixed"
+        },
+        {
+          "value": "ALPHA_NUMERIC_WITH_CONSTRAINTS_TYPE",
+          "label": "administration.models.management.data.type.value.alpha.numeric.with.constraints"
+        },
+        {
+          "value": "NUMERIC_TYPE",
+          "label": "administration.models.management.data.type.value.numeric"
+        },
+        {
+          "value": "NUMERIC_FIXED_TYPE",
+          "label": "administration.models.management.data.type.value.numeric.fixed"
+        },
+        {
+          "value": "FLOATING_POINT_TYPE",
+          "label": "administration.models.management.data.type.value.floating.point"
+        },
+        {
+          "value": "FLOATING_POINT_FIXED_TYPE",
+          "label": "administration.models.management.data.type.value.floating.point.fixed"
+        },
+        {
+          "value": "DATE_TYPE",
+          "label": "administration.models.management.data.type.value.date"
+        },
+        {
+          "value": "DATETIME_TYPE",
+          "label": "administration.models.management.data.type.value.datetime"
+        },
+        {
+          "value": "BOOLEAN",
+          "label": "administration.models.management.data.type.value.boolean"
+        },
+        {
+          "value": "CODELIST",
+          "label": "administration.models.management.data.type.value.codelist"
+        },
+        {
+          "value": "URI",
+          "label": "administration.models.management.data.type.value.uri"
+        }
+      ],
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true,
+        "affected": [
+          "type",
+          "codeList",
+          "multiValued"
+        ],
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "URI"
+                ]
+              }
+            ],
+            "outcome": {
+              "updateable": false
+            }
+          }
+        ]
       }
     },
     {
@@ -258,7 +690,352 @@
       "type": "type",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": true,
+        "rules": [
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_WITH_CONSTRAINTS_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^an..\\d*$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.alpha.numeric.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^an\\d*$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.alpha.numeric.fixed.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "NUMERIC_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n..\\d*$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.numeric.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "NUMERIC_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n\\d*$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.numeric.fixed.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_WITH_CONSTRAINTS_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^an..\\w+$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.mandatory.alpha.numeric.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^an\\w+$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.mandatory.alpha.numeric.fixed.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "NUMERIC_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n..\\w+$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.mandatory.numeric.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "NUMERIC_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n\\w+$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.mandatory.numeric.fixed.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_WITH_CONSTRAINTS_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^an..(\\w{0,5}|100000)$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.value.out.of.range"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^an(\\w{0,5}|100000)$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.value.out.of.range"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "NUMERIC_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n..(\\w{0,5}|100000)$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.value.out.of.range"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "NUMERIC_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n(\\w{0,5}|100000)$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.value.out.of.range"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "FLOATING_POINT_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n..\\d{1,2}[\\,\\.]\\d{1,2}$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.floating.point.value"
+          },
+          {
+            "condition": "AND",
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "FLOATING_POINT_FIXED_TYPE"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "not_match",
+                "values": [
+                  "^n\\d{1,2}[\\,\\.]\\d{1,2}$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.floating.point.fixed.value"
+          },
+          {
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "ALPHA_NUMERIC_TYPE",
+                  "CODELIST",
+                  "URI",
+                  "DATE_TYPE",
+                  "DATETIME_TYPE",
+                  "BOOLEAN",
+                  ""
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "codeList",
+      "type": "codeList",
+      "defaultValue": null,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true,
+        "affected": [
+          "multiValued"
+        ],
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "not_in",
+                "values": [
+                  "CODELIST"
+                ]
+              }
+            ],
+            "outcome": {
+              "visible": false
+            }
+          },
+          {
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "in",
+                "values": [
+                  "CODELIST"
+                ]
+              }
+            ],
+            "outcome": {
+              "mandatory": true
+            }
+          }
+        ]
       }
     },
     {
@@ -266,63 +1043,148 @@
       "type": "uri",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false
       }
     },
     {
       "id": "value",
-      "type": "string",
+      "type": "value",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "rnc",
+      "type": "source",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "labelId",
+      "type": "string",
+      "defaultValue": "",
+      "visible": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
       }
     },
     {
       "id": "label",
       "type": "label",
-      "defaultValue": "",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "tooltipId",
+      "type": "string",
+      "defaultValue": "",
+      "visible": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
       }
     },
     {
       "id": "tooltip",
       "type": "multiLangString",
-      "defaultValue": "",
+      "defaultValue": {},
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
       "id": "order",
       "type": "integer",
-      "defaultValue": 0,
+      "defaultValue": null,
       "validationModel": {
-        "mandatory": false
-      }
-    },
-    {
-      "id": "codeList",
-      "type": "codeList",
-      "defaultValue": "",
-      "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "order",
+                "operation": "not_match",
+                "values": [
+                  "^([1-9][0-9]{0,3}|10000|null|)$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.wrong.order"
+          }
+        ]
       }
     },
     {
       "id": "displayType",
-      "type": "displayType",
-      "defaultValue": "HIDDEN",
+      "type": "option",
+      "defaultValue": {
+          "missing": "HIDDEN",
+          "create": "EDITABLE"
+      },
+      "options": [
+        {
+          "value": "EDITABLE",
+          "label": "administration.models.management.display.type.value.editable"
+        },
+        {
+          "value": "HIDDEN",
+          "label": "administration.models.management.display.type.value.hidden"
+        },
+        {
+          "value": "READ_ONLY",
+          "label": "administration.models.management.display.type.value.readonly"
+        },
+        {
+          "value": "SYSTEM",
+          "label": "administration.models.management.display.type.value.system"
+        }
+      ],
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "affected": [
+          "mandatory"
+        ],
+        "rules": [
+          {
+            "values": [
+              "READ_ONLY",
+              "HIDDEN",
+              "SYSTEM"
+            ],
+            "expressions": [
+              {
+                "field": "mandatory",
+                "operation": "in",
+                "values": [
+                  true
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.display.type.value"
+          }
+        ]
       }
     },
     {
       "id": "previewEmpty",
       "type": "boolean",
-      "defaultValue": false,
+      "defaultValue": true,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
@@ -330,7 +1192,32 @@
       "type": "boolean",
       "defaultValue": false,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "values": [
+              true
+            ],
+            "expressions": [
+              {
+                "field": "typeOption",
+                "operation": "not_in",
+                "values": [
+                  "URI"
+                ]
+              },
+              {
+                "field": "codeList",
+                "operation": "not_match",
+                "values": [
+                  "^((?!(null)).)*$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.invalid.multivalued.type"
+          }
+        ]
       }
     },
     {
@@ -338,17 +1225,202 @@
       "type": "boolean",
       "defaultValue": false,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true,
+        "affected": [
+          "displayType"
+        ],
+        "rules": [
+          {
+            "values": [
+              true
+            ],
+            "condition": "OR",
+            "expressions": [
+              {
+                "field": "displayType",
+                "operation": "in",
+                "values": [
+                  "READ_ONLY",
+                  "HIDDEN",
+                  "SYSTEM"
+                ]
+              },
+              {
+                "field": "type",
+                "operation": "in",
+                "values": [
+                  "boolean"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.can.not.be.mandatory"
+          }
+        ]
+      }
+    },
+    {
+      "id": "regionId",
+      "type": "string",
+      "defaultValue": "",
+      "visible": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
       }
     }
   ],
   "regions": [
     {
       "id": "identifier",
+      "visible": false,
       "type": "identifier",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": false
+      }
+    },
+    {
+      "id": "labelId",
+      "type": "string",
+      "defaultValue": "",
+      "visible": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "label",
+      "type": "label",
+      "defaultValue": {},
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "order",
+      "type": "integer",
+      "defaultValue": null,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true,
+        "rules": [
+          {
+            "expressions": [
+              {
+                "field": "order",
+                "operation": "not_match",
+                "values": [
+                  "^([1-9][0-9]{0,3}|10000|null)$"
+                ]
+              }
+            ],
+            "errorLabel": "administration.models.management.validation.field.wrong.order"
+          }
+        ]
+      }
+    },
+    {
+      "id": "displayType",
+      "type": "option",
+      "defaultValue": {
+          "missing": "HIDDEN",
+          "create": "EDITABLE"
+      },
+      "options": [
+        {
+          "value": "EDITABLE",
+          "label": "administration.models.management.display.type.value.editable"
+        },
+        {
+          "value": "HIDDEN",
+          "label": "administration.models.management.display.type.value.hidden"
+        },
+        {
+          "value": "READ_ONLY",
+          "label": "administration.models.management.display.type.value.readonly"
+        },
+        {
+          "value": "SYSTEM",
+          "label": "administration.models.management.display.type.value.system"
+        }
+      ],
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    }
+  ],
+  "headers": [
+    {
+      "id": "labelId",
+      "type": "string",
+      "defaultValue": "",
+      "visible": false,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "label",
+      "type": "label",
+      "defaultValue": {},
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "headerType",
+      "type": "option",
+      "defaultValue": "",
+      "options": [
+        {
+          "value": "default_header",
+          "label": "administration.models.management.headers.default"
+        },
+        {
+          "value": "compact_header",
+          "label": "administration.models.management.headers.compact"
+        },
+        {
+          "value": "breadcrumb_header",
+          "label": "administration.models.management.headers.breadcrumb"
+        },
+        {
+          "value": "tooltip_header",
+          "label": "administration.models.management.headers.tooltip"
+        }
+      ],
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    }
+  ],
+  "actionGroups": [
+    {
+      "id": "id",
+      "type": "identifier",
+      "defaultValue": "",
+      "visible": false,
+      "validationModel": {
+        "mandatory": true,
+        "updateable": false
+      }
+    },
+    {
+      "id": "labelId",
+      "type": "string",
+      "visible": false,
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
       }
     },
     {
@@ -356,23 +1428,546 @@
       "type": "label",
       "defaultValue": "",
       "validationModel": {
-        "mandatory": true
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "parent",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
       "id": "order",
       "type": "integer",
-      "defaultValue": 0,
+      "defaultValue": null,
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "type",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    }
+  ],
+  "actions": [
+    {
+      "id": "id",
+      "type": "identifier",
+      "visible": false,
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": true,
+        "updateable": false
+      }
+    },
+    {
+      "id": "labelId",
+      "type": "string",
+      "visible": false,
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "label",
+      "type": "label",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "tooltipId",
+      "type": "string",
+      "visible": false,
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "tooltip",
+      "type": "multiLangString",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "purpose",
+      "type": "option",
+      "defaultValue": "",
+      "options": [
+        {
+          "value": "move",
+          "label": "administration.models.management.action.purpose.move"
+        },
+        {
+          "value": "revertVersion",
+          "label": "administration.models.management.action.purpose.revertVersion"
+        },
+        {
+          "value": "exportPDF",
+          "label": "administration.models.management.action.purpose.exportPDF"
+        },
+        {
+          "value": "exportWord",
+          "label": "administration.models.management.action.purpose.exportWord"
+        },
+        {
+          "value": "clone",
+          "label": "administration.models.management.action.purpose.clone"
+        },
+        {
+          "value": "lock",
+          "label": "administration.models.management.action.purpose.lock"
+        },
+        {
+          "value": "unlock",
+          "label": "administration.models.management.action.purpose.unlock"
+        },
+        {
+          "value": "publish",
+          "label": "administration.models.management.action.purpose.publish"
+        },
+        {
+          "value": "publishAsPdf",
+          "label": "administration.models.management.action.purpose.publishAsPdf"
+        },
+        {
+          "value": "download",
+          "label": "administration.models.management.action.purpose.download"
+        },
+        {
+          "value": "addRelation",
+          "label": "administration.models.management.action.purpose.addRelation"
+        },
+        {
+          "value": "addThumbnail",
+          "label": "administration.models.management.action.purpose.addThumbnail"
+        },
+        {
+          "value": "addIcons",
+          "label": "administration.models.management.action.purpose.addIcons"
+        },
+        {
+          "value": "delete",
+          "label": "administration.models.management.action.purpose.delete"
+        },
+        {
+          "value": "transition",
+          "label": "administration.models.management.action.purpose.transition"
+        },
+        {
+          "value": "bpmTransition",
+          "label": "administration.models.management.action.purpose.bpmTransition"
+        },
+        {
+          "value": "bpmClaim",
+          "label": "administration.models.management.action.purpose.bpmClaim"
+        },
+        {
+          "value": "bpmStart",
+          "label": "administration.models.management.action.purpose.bpmStart"
+        },
+        {
+          "value": "bpmRelease",
+          "label": "administration.models.management.action.purpose.bpmRelease"
+        },
+        {
+          "value": "bpmStop",
+          "label": "administration.models.management.action.purpose.bpmStop"
+        },
+        {
+          "value": "deactivateTemplate",
+          "label": "administration.models.management.action.purpose.deactivateTemplate"
+        },
+        {
+          "value": "setTemplateAsPrimary",
+          "label": "administration.models.management.action.purpose.setTemplateAsPrimary"
+        },
+        {
+          "value": "activateTemplate",
+          "label": "administration.models.management.action.purpose.activateTemplate"
+        },
+        {
+          "value": "editTemplateRule",
+          "label": "administration.models.management.action.purpose.editTemplateRule"
+        },
+        {
+          "value": "uploadRevision",
+          "label": "administration.models.management.action.purpose.uploadRevision"
+        },
+        {
+          "value": "transition",
+          "label": "administration.models.management.action.purpose.transition"
+        },
+        {
+          "value": "composeEmail",
+          "label": "administration.models.management.action.purpose.composeEmail"
+        },
+        {
+          "value": "createInstance",
+          "label": "administration.models.management.action.purpose.createInstance"
+        },
+        {
+          "value": "editOffline",
+          "label": "administration.models.management.action.purpose.editOffline"
+        },
+        {
+          "value": "uploadNewVersion",
+          "label": "administration.models.management.action.purpose.uploadNewVersion"
+        },
+        {
+          "value": "auditable",
+          "label": "administration.models.management.action.purpose.auditable"
+        },
+        {
+          "value": "editDetails",
+          "label": "administration.models.management.action.purpose.editDetails"
+        },
+        {
+          "value": "print",
+          "label": "administration.models.management.action.purpose.print"
+        },
+        {
+          "value": "printTab",
+          "label": "administration.models.management.action.purpose.printTab"
+        },
+        {
+          "value": "exportTabPDF",
+          "label": "administration.models.management.action.purpose.exportTabPDF"
+        },
+        {
+          "value": "exportTabWord",
+          "label": "administration.models.management.action.purpose.exportTabWord"
+        },
+        {
+          "value": "managePermissions",
+          "label": "administration.models.management.action.purpose.managePermissions"
+        },
+        {
+          "value": "stop",
+          "label": "administration.models.management.action.purpose.stop"
+        },
+        {
+          "value": "createInContext",
+          "label": "administration.models.management.action.purpose.createInContext"
+        },
+        {
+          "value": "changeTemplate",
+          "label": "administration.models.management.action.purpose.changeTemplate"
+        },
+        {
+          "value": "updateTemplate",
+          "label": "administration.models.management.action.purpose.updateTemplate"
+        },
+        {
+          "value": "reloadTemplate",
+          "label": "administration.models.management.action.purpose.reloadTemplate"
+        },
+        {
+          "value": "updateExistingObjects",
+          "label": "administration.models.management.action.purpose.updateExistingObjects"
+        },
+        {
+          "value": "cloneTemplate",
+          "label": "administration.models.management.action.purpose.cloneTemplate"
+        },
+        {
+          "value": "viewDetails",
+          "label": "administration.models.management.action.purpose.viewDetails"
+        },
+        {
+          "value": "createTemplate",
+          "label": "administration.models.management.action.purpose.createTemplate"
+        },
+        {
+          "value": "saveAsTemplate",
+          "label": "administration.models.management.action.purpose.saveAsTemplate"
+        },
+        {
+          "value": "changeType",
+          "label": "administration.models.management.action.purpose.changeType"
+        }
+      ],
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "order",
+      "type": "integer",
+      "defaultValue": null,
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "confirmationId",
+      "type": "string",
+      "visible": false,
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": false
+      }
+    },
+    {
+      "id": "confirmation",
+      "type": "multiLangString",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "actionPath",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "group",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
       }
     },
     {
       "id": "displayType",
-      "type": "displayType",
-      "defaultValue": "EDITABLE",
+      "type": "option",
+      "visible": true,
+      "defaultValue": {
+          "missing": "HIDDEN",
+          "create": "EDITABLE"
+      },
+      "options": [
+        {
+          "value": "EDITABLE",
+          "label": "administration.models.management.display.type.value.editable"
+        },
+        {
+          "value": "HIDDEN",
+          "label": "administration.models.management.display.type.value.hidden"
+        },
+        {
+          "value": "READ_ONLY",
+          "label": "administration.models.management.display.type.value.readonly"
+        },
+        {
+          "value": "SYSTEM",
+          "label": "administration.models.management.display.type.value.system"
+        }
+      ],
       "validationModel": {
-        "mandatory": false
+        "mandatory": false,
+        "updateable": true
+      }
+    }
+  ],
+  "actionExecutions": [
+    {
+      "id": "id",
+      "type": "identifier",
+      "visible": false,
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": true,
+        "updateable": false
+      }
+    },
+    {
+      "id": "value",
+      "type": "source",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "phase",
+      "type": "option",
+      "defaultValue": "after",
+      "options": [
+        {
+          "value": "before",
+          "label": "administration.models.management.actionExecutions.before"
+        },
+        {
+          "value": "after",
+          "label": "administration.models.management.actionExecutions.after"
+        }
+      ],
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "async",
+      "type": "boolean",
+      "defaultValue": "false",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
+      }
+    },
+    {
+      "id": "type",
+      "type": "option",
+      "visible": true,
+      "defaultValue": "",
+      "options": [
+        {
+          "value": "executeScript",
+          "label": "administration.models.management.actionExecutions.executeScript"
+        },
+        {
+          "value": "createRelation",
+          "label": "administration.models.management.actionExecutions.createRelation"
+        }
+      ],
+      "validationModel": {
+        "mandatory": true,
+        "updateable": false
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "id",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      },
+      "controlOptions": [
+        {
+          "id": "PICKER",
+          "params": [
+            {
+              "id": "range",
+              "type": "picker",
+              "name": "range"
+            },
+            {
+              "id": "restrictions",
+              "type": "picker",
+              "name": "restrictions"
+            }
+          ]
+        },
+        {
+          "id": "CONCEPT_PICKER",
+          "params": [
+            {
+              "id": "scheme",
+              "type": "concept_picker",
+              "name": "scheme"
+            },
+            {
+              "id": "broader",
+              "type": "concept_picker",
+              "name": "broader"
+            }
+          ]
+        },
+        {
+          "id": "DEFAULT_VALUE_PATTERN",
+          "params": [
+            {
+              "id": "template",
+              "type": "default_value_pattern",
+              "name": "template"
+            }
+          ]
+        },
+        {
+          "id": "RELATED_FIELDS",
+          "params": [
+            {
+              "id": "fieldsToRerender",
+              "type": "related_field",
+              "name": "RERENDER"
+            },
+            {
+              "id": "filterSource",
+              "type": "related_field",
+              "name": "FILTER_SOURCE"
+            },
+            {
+              "id": "filterInclusive",
+              "type": "related_field",
+              "name": "INCLUSIVE",
+              "defaultValue": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "controlParams": [
+    {
+      "id": "id",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "type",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "name",
+      "type": "string",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": true,
+        "updateable": true
+      }
+    },
+    {
+      "id": "value",
+      "type": "source",
+      "defaultValue": "",
+      "validationModel": {
+        "mandatory": false,
+        "updateable": true
       }
     }
   ]

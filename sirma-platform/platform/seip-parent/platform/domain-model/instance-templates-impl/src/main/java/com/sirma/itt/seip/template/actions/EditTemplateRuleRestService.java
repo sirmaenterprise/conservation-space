@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.template.actions;
 
+import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -27,13 +29,13 @@ public class EditTemplateRuleRestService {
 	/**
 	 * Edits a rule of a template instance. If the rule's value is null or empty, the rule property is removed from the
 	 * instance.
-	 * 
-	 * @param request
-	 *            is the {@link EditTemplateRuleActionRequest} carrying the data
+	 *
+	 * @param request is the {@link EditTemplateRuleActionRequest} carrying the data
+	 * @return the updated template instance
 	 */
 	@POST
 	@Path("{id}/actions/edit-template-rule")
-	public void editRule(EditTemplateRuleActionRequest request) {
-		actions.callAction(request);
+	public String editRule(EditTemplateRuleActionRequest request) {
+		return Objects.toString(actions.callAction(request));
 	}
 }

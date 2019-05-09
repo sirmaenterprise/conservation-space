@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.emf.semantic.exception.SemanticPersistenceException;
 import com.sirma.itt.emf.semantic.exception.TransactionNotActiveException;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.tx.util.TxUtils;
 
 /**
@@ -36,16 +34,13 @@ class TransactionCoordinator {
 
 	private final TransactionManager transactionManager;
 	private final TransactionSynchronizationRegistry transactionSynchronizationRegistry;
-	private final Statistics statistics;
 	private final Supplier<RepositoryConnection> connectionBuilder;
 	private final Map<Transaction, RepositoryConnection> managedConnections = new WeakHashMap<>(512);
 
 	TransactionCoordinator(TransactionManager transactionManager,
-			TransactionSynchronizationRegistry transactionSynchronizationRegistry,
-			Statistics statistics, Supplier<RepositoryConnection> connectionBuilder) {
+			TransactionSynchronizationRegistry transactionSynchronizationRegistry, Supplier<RepositoryConnection> connectionBuilder) {
 		this.transactionManager = transactionManager;
 		this.transactionSynchronizationRegistry = transactionSynchronizationRegistry;
-		this.statistics = statistics;
 		this.connectionBuilder = connectionBuilder;
 	}
 
@@ -62,7 +57,6 @@ class TransactionCoordinator {
 				LOGGER.warn("Tried to commit not active transaction for connection {}",
 						System.identityHashCode(connection));
 			} else {
-				TimeTracker tracker = statistics.createTimeStatistics(getClass(), "semanticTransactionCommit").begin();
 				try {
 					// this is temporary fix for the SocketTimeoutException until there is proof that someone changes
 					// the timeout to value different than zero
@@ -77,9 +71,6 @@ class TransactionCoordinator {
 						return;
 					}
 					throw e;
-				} finally {
-					LOGGER.trace("Commit active connection {} took {} ms", System.identityHashCode(connection),
-							tracker.stop());
 				}
 			}
 		} else {
@@ -96,7 +87,6 @@ class TransactionCoordinator {
 		RepositoryConnection connection = managedConnections.get(transaction);
 		try {
 			if (connection != null) {
-				statistics.getCounter(getClass(), "semanticRollbackTxCount").increment();
 				connection.rollback();
 			}
 		} catch (RepositoryException e) {

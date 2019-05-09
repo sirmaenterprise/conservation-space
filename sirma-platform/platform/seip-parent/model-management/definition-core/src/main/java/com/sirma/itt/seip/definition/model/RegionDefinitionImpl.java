@@ -88,18 +88,17 @@ public class RegionDefinitionImpl extends BaseDefinition<RegionDefinitionImpl>im
 
 		identifier = MergeHelper.replaceIfNull(identifier, source.getIdentifier());
 
-		RegionDefinitionImpl src = source;
-		labelId = MergeHelper.replaceIfNull(labelId, src.getLabelId());
-		tooltipId = MergeHelper.replaceIfNull(tooltipId, src.getTooltipId());
-		displayType = MergeHelper.replaceIfNull(displayType, src.getDisplayType());
-		order = MergeHelper.replaceIfNull(order, src.getOrder());
+		labelId = MergeHelper.replaceIfNull(labelId, source.getLabelId());
+		tooltipId = MergeHelper.replaceIfNull(tooltipId, source.getTooltipId());
+		displayType = MergeHelper.replaceIfNull(displayType, source.getDisplayType());
+		order = MergeHelper.replaceIfNull(order, source.getOrder());
 
 		conditions = MergeHelper.mergeLists(MergeHelper.convertToMergable(conditions),
-				MergeHelper.convertToMergable(src.getConditions()), EmfMergeableFactory.CONDITION_DEFINITION);
+				MergeHelper.convertToMergable(source.getConditions()), EmfMergeableFactory.CONDITION_DEFINITION);
 
-		if (src.getControlDefinition() != null) {
+		if (source.getControlDefinition() != null) {
 			controlDefinition = MergeHelper.replaceIfNull(controlDefinition, new ControlDefinitionImpl());
-			((ControlDefinitionImpl) controlDefinition).mergeFrom((ControlDefinitionImpl) src.getControlDefinition());
+			((ControlDefinitionImpl) controlDefinition).mergeFrom((ControlDefinitionImpl) source.getControlDefinition());
 		}
 		return this;
 	}
@@ -192,15 +191,15 @@ public class RegionDefinitionImpl extends BaseDefinition<RegionDefinitionImpl>im
 
 	@Override
 	public String getLabel() {
-		String labelid = getLabelId();
+		String labelIdentifier = getLabelId();
 		if (labelProvider != null) {
-			if (labelid == null) {
+			if (labelIdentifier == null) {
 				LOGGER.warn("Requesting a label from a region '" + getIdentifier() + "' that does not have a label");
-				return labelid;
+				return null;
 			}
-			return labelProvider.getLabel(labelid);
+			return labelProvider.getLabel(labelIdentifier);
 		}
-		return labelid;
+		return labelIdentifier;
 	}
 
 	@Override
@@ -210,7 +209,7 @@ public class RegionDefinitionImpl extends BaseDefinition<RegionDefinitionImpl>im
 			if (tooltip == null) {
 				LOGGER.warn(
 						"Requesting a tooltip from a region '" + getIdentifier() + "' that does not have a tooltip");
-				return tooltip;
+				return null;
 			}
 			return labelProvider.getLabel(tooltip);
 		}

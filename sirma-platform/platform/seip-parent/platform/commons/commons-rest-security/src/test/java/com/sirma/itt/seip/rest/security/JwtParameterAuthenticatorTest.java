@@ -1,9 +1,9 @@
 package com.sirma.itt.seip.rest.security;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +17,6 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -30,15 +29,15 @@ import org.testng.annotations.Test;
 import com.sirma.itt.seip.rest.secirity.JwtAuthenticator;
 import com.sirma.itt.seip.rest.secirity.JwtParameterAuthenticator;
 import com.sirma.itt.seip.rest.secirity.SecurityTokensManager;
-import com.sirma.itt.seip.rest.session.SessionManager;
 import com.sirma.itt.seip.rest.utils.JwtConfiguration;
 import com.sirma.itt.seip.security.User;
 import com.sirma.itt.seip.security.UserStore;
 import com.sirma.itt.seip.security.authentication.AuthenticationContext;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.security.exception.AuthenticationException;
-import com.sirma.itt.seip.security.exception.SecurityException;
 import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
+import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
+import com.sirma.itt.seip.util.ReflectionUtils;
 
 /**
  * Test for {@link JwtAuthenticator}.
@@ -47,9 +46,11 @@ import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
  */
 @Test
 public class JwtParameterAuthenticatorTest {
+
+	private static final String ISSUER = "test issuer";
+
 	@InjectMocks
 	private JwtParameterAuthenticator authenticator = new JwtParameterAuthenticator();
-	private static final String ISSUER = "test issuer";
 
 	private Key secret;
 
@@ -59,7 +60,7 @@ public class JwtParameterAuthenticatorTest {
 	@Spy
 	private SecurityContextManager securityContextManager = new SecurityContextManagerFake();
 
-	@Mock
+	@Spy
 	private SecurityTokensManager securityTokensManager;
 
 	@Mock
@@ -71,15 +72,6 @@ public class JwtParameterAuthenticatorTest {
 	@Mock
 	private User nonexistent;
 
-	@Mock
-	private SessionManager sessionManager;
-
-	/**
-	 * Init
-	 *
-	 * @throws NoSuchAlgorithmException
-	 *             if signing alg is nowhere to be found.
-	 */
 	@BeforeTest
 	protected void init() throws NoSuchAlgorithmException {
 		secret = KeyGenerator.getInstance("HmacSHA256").generateKey();
@@ -90,46 +82,21 @@ public class JwtParameterAuthenticatorTest {
 		Mockito.when(jwtConfig.getJwtParameterName()).thenReturn(JwtParameterAuthenticator.PARAMETER_NAME);
 		Mockito.when(goodGuy.getIdentityId()).thenReturn("user@goodguy.org");
 		Mockito.when(nonexistent.getIdentityId()).thenReturn("user@nonexistent.org");
+
+		ReflectionUtils.setFieldValue(securityTokensManager, "jwtConfig", jwtConfig);
+
+		when(jwtConfig.getRevocationTimeConfig()).thenReturn(new ConfigurationPropertyMock<>());
 	}
 
-	/**
-	 * Test successful authentication.
-	 *
-	 * @throws JoseException
-	 *             thrown on failed signing JWT
-	 */
-	public void testSuccessfulAuthentication() throws JoseException {
+	@Test
+	public void testSuccessfulAuthentication() {
 		when(userStore.loadByIdentityId(anyString(), anyString())).thenReturn(goodGuy);
-		when(securityTokensManager.getSamlToken(Matchers.any(JwtClaims.class))).thenReturn("samlToken");
 
 		String jwt = generateJwt(ISSUER, goodGuy.getIdentityId(), true, true);
 		User authenticate = authenticator
 				.authenticate(createAuthContext(jwt));
 
 		assertEquals(authenticate, goodGuy);
-		verify(sessionManager).updateLoggedUser(jwt, goodGuy.getIdentityId());
-	}
-
-	/**
-	 * Test authentication with a non-existent user.
-	 */
-	@Test(expectedExceptions = AuthenticationException.class)
-	public void testUserNotFound() {
-
-		authenticator.authenticate(createAuthContext(generateJwt(ISSUER, nonexistent.getIdentityId(), true, true)));
-	}
-
-	/**
-	 * Tests authentication with user that has no SAML token.
-	 *
-	 * @throws JoseException
-	 *             thrown on failed signing JWT
-	 */
-	@Test(expectedExceptions = SecurityException.class)
-	public void testUserNoSamlToken() throws JoseException {
-		when(userStore.loadByIdentityId(anyString(), anyString())).thenReturn(goodGuy);
-		Mockito.when(securityTokensManager.getSamlToken(Matchers.any(JwtClaims.class))).thenReturn(null);
-		authenticator.authenticate(createAuthContext(generateJwt(ISSUER, goodGuy.getIdentityId(), true, true)));
 	}
 
 	/**
@@ -145,13 +112,15 @@ public class JwtParameterAuthenticatorTest {
 
 	/**
 	 * Test invalid JWT in auth header.
-	 *
-	 * @param header
-	 *            Invalid authorization header.
 	 */
-	@Test(expectedExceptions = AuthenticationException.class)
+	@Test
 	public void testInvalidJwtInHeader() {
-		authenticator.authenticate(createAuthContext("Bearer am9obmRvZUBkb2VpbmMub3JnOjEyMzQ1"));
+		assertNull(authenticator.authenticate(createAuthContext("Bearer am9obmRvZUBkb2VpbmMub3JnOjEyMzQ1")));
+	}
+
+	@Test(expectedExceptions = AuthenticationException.class)
+	public void should_FailWithEmptyUser() {
+		authenticator.authenticate(createAuthContext(generateJwt(ISSUER, "", true, true)));
 	}
 
 	/**
@@ -160,9 +129,9 @@ public class JwtParameterAuthenticatorTest {
 	 * @param header
 	 *            Authorization header with invalid claims.
 	 */
-	@Test(expectedExceptions = AuthenticationException.class, dataProvider = "invalid-claims-data-provider")
+	@Test(dataProvider = "invalid-claims-data-provider")
 	public void testInvalidClaims(String header) {
-		authenticator.authenticate(createAuthContext(header));
+		assertNull(authenticator.authenticate(createAuthContext(header)));
 	}
 
 	@DataProvider(name = "invalid-claims-data-provider")
@@ -170,7 +139,7 @@ public class JwtParameterAuthenticatorTest {
 		return new Object[][] { { generateJwt(null, goodGuy.getIdentityId(), true, true) },
 				{ generateJwt("", goodGuy.getIdentityId(), true, true) },
 				{ generateJwt("evil", goodGuy.getIdentityId(), true, true) }, { generateJwt(ISSUER, null, true, true) },
-				{ generateJwt(ISSUER, "", true, true) }, { generateJwt(ISSUER, goodGuy.getIdentityId(), false, true) },
+				{ generateJwt(ISSUER, goodGuy.getIdentityId(), false, true) },
 				{ generateJwt(ISSUER, goodGuy.getIdentityId(), true, false) } };
 	}
 

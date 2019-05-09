@@ -8,7 +8,6 @@ import {CancelSaveIdocAction} from 'idoc/actions/cancel-save-idoc-action';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {TranslateService} from 'services/i18n/translate-service';
 import {ActionsService} from 'services/rest/actions-service';
-import {PermissionsChangedEvent} from 'idoc/system-tabs/permissions/permissions-changed-event';
 import {ActionExecutedEvent, ActionInterruptedEvent} from 'services/actions/events';
 import 'idoc/actions-menu/actions-menu';
 

@@ -1,7 +1,7 @@
 import {View, Component} from 'app/app';
 import {Configurable} from 'components/configurable';
-import {ContextSelector} from 'components/contextselector/context-selector';
-import {FileUpload} from 'file-upload/file-upload';
+import 'components/contextselector/context-selector';
+import 'file-upload/file-upload';
 import _ from 'lodash';
 import {ModelsService} from 'services/rest/models-service';
 import {EventEmitter} from 'common/event-emitter';

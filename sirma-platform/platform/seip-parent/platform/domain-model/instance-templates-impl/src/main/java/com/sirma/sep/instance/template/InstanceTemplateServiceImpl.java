@@ -91,6 +91,10 @@ public class InstanceTemplateServiceImpl implements InstanceTemplateService {
 		batchRequest.getProperties().put(InstanceTemplateUpdateJobProperties.TEMPLATE_INSTANCE_ID, templateInstanceId);
 		batchRequest.getProperties().put(InstanceTemplateUpdateJobProperties.TEMPLATE_VERSION, templateVersion);
 
+		// log execution of the action for the template instance
+		eventService.fire(new AuditableEvent(domainInstanceService.loadInstance(templateInstanceId),
+				ActionTypeConstants.UPDATE_EXISTING_OBJECTS));
+
 		batchService.execute(batchRequest);
 	}
 
@@ -197,6 +201,20 @@ public class InstanceTemplateServiceImpl implements InstanceTemplateService {
 	public String getInstanceTemplateVersion(String instanceId) {
 		return getTemplatePublishedVersion(
 				domainInstanceService.loadInstance(instanceId).getAsString(LinkConstants.HAS_TEMPLATE, nameResolver));
+	}
+
+	@Override
+	public boolean hasTemplate(Serializable instance) {
+		if (instance instanceof Instance) {
+			Instance localInstance = (Instance) instance;
+			if (localInstance.type().is("template")) {
+				// Templates don't have templates
+				return false;
+			}
+			String templateInstanceId = localInstance.getAsString(LinkConstants.HAS_TEMPLATE, nameResolver);
+			return templateInstanceId != null && templateService.hasTemplate(templateInstanceId);
+		}
+		return false;
 	}
 
 	private String getTemplatePublishedVersion(String templateInstanceId) {

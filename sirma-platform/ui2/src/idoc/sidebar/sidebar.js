@@ -21,7 +21,7 @@ const SIDEBAR_COLLAPSED_CLASS = 'collapsed';
   template: sidebarTemplate
 })
 @Inject(Eventbus, NgElement, SessionStorageService)
-class Sidebar {
+export class Sidebar {
 
   constructor(eventbus, $element, sessionStorageService) {
     this.eventbus = eventbus;
@@ -66,7 +66,7 @@ class Sidebar {
 
   ngOnDestroy() {
     if (this.$element && this.$element.data('ui-resizable')) {
-      this.$element.resizable("destroy");
+      this.$element.resizable('destroy');
     }
   }
 }

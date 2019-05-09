@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import com.esotericsoftware.kryo.serializers.TaggedFieldSerializer.Tag;
 import com.sirma.itt.seip.Copyable;
@@ -45,8 +44,6 @@ import com.sirma.itt.seip.util.EqualsHelper;
  */
 public class FieldDefinitionImpl extends MergeableBase<FieldDefinitionImpl>implements PropertyDefinition, Serializable,
 		Copyable<FieldDefinitionImpl>, BidirectionalMapping, WritablePropertyDefinition, Sealable, Comparable<PropertyDefinition> {
-
-	private static final Logger LOGGER = Logger.getLogger(FieldDefinitionImpl.class);
 
 	private static final long serialVersionUID = -7974317054578346092L;
 
@@ -130,6 +127,10 @@ public class FieldDefinitionImpl extends MergeableBase<FieldDefinitionImpl>imple
 
 	private boolean sealed;
 
+	/**
+	 * @deprecated not needed anymore
+	 */
+	@Deprecated
 	private transient String source;
 
 	@Override
@@ -159,28 +160,16 @@ public class FieldDefinitionImpl extends MergeableBase<FieldDefinitionImpl>imple
 
 	@Override
 	public String getTooltip() {
-		String tooltip = getTooltipId();
 		if (labelProvider != null) {
-			if (tooltip == null) {
-				// most of the fields do not have a tooltip so no need to print it that often
-				LOGGER.trace(
-						"Requesting a tooltip from a field '" + getIdentifier() + "' that does not have a tooltip");
-				return tooltip;
-			}
-
-			return labelProvider.getLabel(tooltip);
+			return labelProvider.getPropertyTooltip(this);
 		}
-		return tooltip;
+		return tooltipId;
 	}
 
 	@Override
 	public String getLabel() {
 		if (labelProvider != null) {
-			if (labelId == null) {
-				LOGGER.warn("Requesting a label for a field '" + getIdentifier() + "' that does not have a label");
-				return labelId;
-			}
-			return labelProvider.getLabel(labelId);
+			return labelProvider.getPropertyLabel(this);
 		}
 		return labelId;
 	}
@@ -441,11 +430,7 @@ public class FieldDefinitionImpl extends MergeableBase<FieldDefinitionImpl>imple
 		return definition;
 	}
 
-	/**
-	 * Getter method for previewEmpty.
-	 *
-	 * @return the previewEmpty
-	 */
+	@Override
 	public Boolean getPreviewEmpty() {
 		return previewEmpty;
 	}
@@ -720,29 +705,17 @@ public class FieldDefinitionImpl extends MergeableBase<FieldDefinitionImpl>imple
 		return null;
 	}
 
-	/**
-	 * Getter method for mandatory.
-	 *
-	 * @return the mandatory
-	 */
+	@Override
 	public Boolean getMandatory() {
 		return mandatory;
 	}
 
-	/**
-	 * Getter method for override.
-	 *
-	 * @return the override
-	 */
+	@Override
 	public Boolean getOverride() {
 		return override;
 	}
 
-	/**
-	 * Getter method for multiValued.
-	 *
-	 * @return the multiValued
-	 */
+	@Override
 	public Boolean getMultiValued() {
 		return multiValued;
 	}

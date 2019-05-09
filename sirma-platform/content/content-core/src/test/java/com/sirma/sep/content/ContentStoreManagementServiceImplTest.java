@@ -230,7 +230,7 @@ public class ContentStoreManagementServiceImplTest {
 		);
 	}
 
-	@Test(expected = RollbackedRuntimeException.class)
+	@Test(expected = ContentCorruptedException.class)
 	public void moveContent_shouldFailIfContentNotFullyCopied() {
 		when(contentEntityDao.getEntity(eq("1"), anyString())).thenReturn(createEntity(1, STORE_NAME));
 		when(contentStore.getReadChannel(any())).thenReturn(

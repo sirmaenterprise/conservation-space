@@ -15,14 +15,14 @@ import models from 'sandbox/form-builder/related-fields/models.json!';
   }
 })
 @View({
-  template: template
+  template
 })
 export class FormWidget extends FormWidgetStub {
 
   constructor() {
     super();
 
-    var _models = _.cloneDeep(models);
+    let _models = _.cloneDeep(models);
     _models.validationModel = new InstanceModel(_models.validationModel);
     _models.viewModel = new DefinitionModel(_models.viewModel);
     this.formConfig.models = _models;

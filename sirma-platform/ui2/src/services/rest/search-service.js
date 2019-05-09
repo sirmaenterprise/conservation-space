@@ -61,7 +61,7 @@ export class SearchService {
 
     return {
       promise: searchResult,
-      timeout: timeout
+      timeout
     };
   }
 

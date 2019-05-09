@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -20,9 +21,13 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import com.sirma.itt.seip.db.DatabaseIdManager;
+import com.sirma.itt.seip.definition.DefinitionService;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
+import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
+import com.sirma.itt.seip.testutil.mocks.StateTransitionMock;
+import com.sirmaenterprise.sep.instance.validator.exceptions.InstanceValidationException;
 
 /**
  * Test for {@link ProcessSystemPropertiesOnRevertStep}.
@@ -36,6 +41,8 @@ public class ProcessSystemPropertiesOnRevertStepTest {
 
 	@Mock
 	private DatabaseIdManager databaseIdManager;
+	@Mock
+	private DefinitionService definitionService;
 	@Spy
 	private InstancePropertyNameResolver fieldConverter = InstancePropertyNameResolver.NO_OP_INSTANCE;
 
@@ -51,7 +58,8 @@ public class ProcessSystemPropertiesOnRevertStepTest {
 	}
 
 	@Test
-	public void invoke_systemPropertiesTransfered() {
+	public void invoke_systemPropertiesTransferred() {
+		mockValidStatus("DRAFT");
 		Instance current = new EmfInstance();
 		current.setId("instance-id");
 		current.add(VERSION, "1.8");
@@ -80,4 +88,70 @@ public class ProcessSystemPropertiesOnRevertStepTest {
 		verify(databaseIdManager).unregisterId(any());
 	}
 
+	@Test(expected = InstanceValidationException.class)
+	public void invoke_systemPropertiesTransferred_shouldFailIfStatusNotSupported() {
+		mockValidStatus();
+
+		Instance current = new EmfInstance();
+		current.setId("instance-id");
+		current.add(VERSION, "1.8");
+		current.add(STATUS, "DRAFT");
+		EmfInstance revertInstance = new EmfInstance();
+		revertInstance.add(STATUS, "SomeInvalidStatus");
+		RevertContext context = RevertContext
+				.create("instance-id-v1.5")
+				.setCurrentInstance(current)
+				.setRevertResultInstance(revertInstance);
+		step.invoke(context);
+	}
+
+	@Test
+	public void invoke_systemPropertiesTransferred_shouldKeepRevertStatusIfCurrentNotValid() {
+		mockValidStatus("APPROVED");
+		Instance current = new EmfInstance();
+		current.setId("instance-id");
+		current.add(VERSION, "1.8");
+		current.add(STATUS, "DRAFT");
+		EmfInstance revertInstance = new EmfInstance();
+		revertInstance.add(STATUS, "APPROVED");
+		RevertContext context = RevertContext
+				.create("instance-id-v1.5")
+				.setCurrentInstance(current)
+				.setRevertResultInstance(revertInstance);
+		step.invoke(context);
+
+		assertEquals("instance-id", context.getRevertResultInstance().getId());
+		assertEquals("1.8", context.getRevertResultInstance().getString(VERSION));
+		assertEquals("APPROVED", context.getRevertResultInstance().getString(STATUS));
+	}
+
+	@Test
+	public void invoke_systemPropertiesTransferred_shouldKeepTheState() {
+		mockValidStatus("APPROVED", "DRAFT");
+		Instance current = new EmfInstance();
+		current.setId("instance-id");
+		current.add(VERSION, "1.8");
+		current.add(STATUS, "DRAFT");
+		EmfInstance revertInstance = new EmfInstance();
+		revertInstance.add(STATUS, "APPROVED");
+		RevertContext context = RevertContext
+				.create("instance-id-v1.5")
+				.setCurrentInstance(current)
+				.setRevertResultInstance(revertInstance);
+		step.invoke(context);
+
+		assertEquals("instance-id", context.getRevertResultInstance().getId());
+		assertEquals("1.8", context.getRevertResultInstance().getString(VERSION));
+		assertEquals("DRAFT", context.getRevertResultInstance().getString(STATUS));
+	}
+
+	private void mockValidStatus(String... states) {
+		DefinitionMock definition = new DefinitionMock();
+		for (String fromState : states) {
+			StateTransitionMock transition = new StateTransitionMock();
+			transition.setFromState(fromState);
+			definition.getStateTransitions().add(transition);
+		}
+		when(definitionService.getInstanceDefinition(any())).thenReturn(definition);
+	}
 }

@@ -11,9 +11,7 @@ import template from './advanced-search-boolean-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(TranslateService)
 export class AdvancedSearchBooleanCriteria extends Configurable {
 

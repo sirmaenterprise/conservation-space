@@ -48,10 +48,20 @@
   }
 
   @include safari9AndAbove() {
-    overflow-x: hidden;
+    ::-webkit-scrollbar {
+      height: 0;
+    }
   }
 
   .panel-body {
+
+    @include safari9AndAbove() {
+      overflow-x: scroll;
+
+      ::-webkit-scrollbar {
+        height: 10px;
+      }
+    }
 
     > div {
       width: 100%;
@@ -305,6 +315,10 @@
 
           .lock-label {
             padding-right: 0.3em;
+          }
+
+          span:not(.header-icon):not(.lock-label) span:not(.badge) {
+            vertical-align: bottom;
           }
         }
 

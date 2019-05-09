@@ -1,8 +1,5 @@
 package com.sirma.sep.instance.actions.group;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 
@@ -20,21 +17,16 @@ public class GroupItem implements ActionMenuMember {
 	/**
 	 * Constructs a {@link TransitionGroupDefinition} wrapper.
 	 *
-	 * @param group
-	 *            current group
+	 * @param group current group
 	 */
 	public GroupItem(TransitionGroupDefinition group) {
 		this.group = group;
 	}
 
 	@Override
-	public Object toJsonHelper() {
+	public JsonObjectBuilder toJsonHelper() {
 		JsonObjectBuilder createObjectBuilder = Json.createObjectBuilder();
-		Map<String, String> itemProperties = TransitionGroupDefinition.getProperties(group);
-
-		for (Entry<String, String> entry : itemProperties.entrySet()) {
-			createObjectBuilder.add(entry.getKey(), entry.getValue());
-		}
+		TransitionGroupDefinition.getProperties(group).forEach(createObjectBuilder::add);
 		return createObjectBuilder;
 	}
 
@@ -52,5 +44,4 @@ public class GroupItem implements ActionMenuMember {
 	public String getParent() {
 		return group.getParent();
 	}
-
 }

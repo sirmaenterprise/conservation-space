@@ -15,7 +15,7 @@ export class DeleteCommentAction extends ActionHandler {
   execute(action, context) {
     let comment = context.comment.data;
     let config = {
-      comment: comment,
+      comment,
       commentId: comment.getId()
     };
     return context.config.dataProvider.deleteComment(config).then(() => {

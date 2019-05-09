@@ -87,11 +87,12 @@ public class ContentPreviewCompletedQueueTest {
 	@Test
 	public void shouldUpdateContentWithGeneratedPreview() throws JMSException, IOException {
 		mockInstanceContentPreview(CONTENT_ID, mockContentInfo(true));
+		mockInstanceContentPreview(INSTANCE_ID, mockContentInfo(true));
 		mockInstanceContentPreview(INSTANCE_VERSION_ID, mockContentInfo(true));
 		when(instanceContentService.updateContent(eq(CONTENT_ID), any(Instance.class), any())).then(a -> mockContentInfo(true));
 		mockInstanceContent(ORIGINAL_CONTENT_ID, mockContentInfo(true));
-		when(contentEntityDao.getEntityByRemoteId("remote-content-id", "remote-store")).thenReturn(createEntities(
-				INSTANCE_ID));
+		when(contentEntityDao.getEntityByRemoteId("remote-store", "remote-content-id" )).thenReturn(createEntities(
+				INSTANCE_ID, INSTANCE_VERSION_ID));
 
 		contentPreviewCompletedQueue.onContentPreviewCompleted(stubMessage());
 
@@ -109,7 +110,7 @@ public class ContentPreviewCompletedQueueTest {
 		return Stream.of(instanceIds).map(id -> {
 			ContentEntity entity = new ContentEntity();
 			entity.setInstanceId(id);
-			entity.setId(UUID.randomUUID().toString());
+			entity.setId(id);
 			return entity;
 		}).collect(Collectors.toList());
 	}

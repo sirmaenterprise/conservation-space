@@ -111,6 +111,10 @@ describe('PropertiesRestService', () => {
         text: 'translated message',
         type: 'object'
       }, {
+        id: 'types',
+        text: 'translated message',
+        type: ''
+      },{
         id: 'emf:test1',
         text: 'test1',
         type: 'object'

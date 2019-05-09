@@ -68,6 +68,10 @@ public class ConfigsType {
 		return config;
 	}
 
+	public void setConfig(List<ConfigType> config) {
+		this.config = config;
+	}
+
 	/**
 	 * Gets the value of the filter property.
 	 * <p>
@@ -92,4 +96,7 @@ public class ConfigsType {
 		return filter;
 	}
 
+	public void setFilter(List<FilterType> filter) {
+		this.filter = filter;
+	}
 }

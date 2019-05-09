@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.xml.stream.XMLInputFactory;
@@ -21,19 +21,27 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.collections.CollectionUtils;
+import com.sirma.itt.seip.concurrent.locks.ContextualLock;
+import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.template.TemplateImportService;
+import com.sirma.itt.seip.template.TemplateValidationRequest;
 import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.itt.seip.util.file.ArchiveUtil;
 import com.sirma.itt.seip.util.file.FileUtil;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 import com.sirma.sep.definition.DefinitionImportService;
+import com.sirma.sep.definition.DefinitionValidationResult;
+import com.sirma.sep.threads.ThreadInterrupter;
 import com.sirmaenterprise.sep.bpm.camunda.service.BPMDefinitionImportService;
 import com.sirmaenterprise.sep.roles.PermissionsImportService;
 
@@ -65,6 +73,9 @@ public class ModelImportServiceImpl implements ModelImportService {
 	private DefinitionImportService definitionImportService;
 
 	@Inject
+	private DefinitionService definitionService;
+
+	@Inject
 	private TemplateImportService templateImportService;
 
 	@Inject
@@ -79,31 +90,51 @@ public class ModelImportServiceImpl implements ModelImportService {
 	@Inject
 	private EventService eventService;
 
+	@Inject
+	private ContextualLock importLock;
+
+	@Inject
+	private ThreadInterrupter threadInterrupter;
+
 	@Override
-	public List<String> importModel(Map<String, InputStream> files) {
-		ModelDirectoriesHolder dirHolder = new ModelDirectoriesHolder();
-		dirHolder.setDefinitionsDir(tempFileProvider.createTempDir(DEFINITION));
-		dirHolder.setTemplatesDir(tempFileProvider.createTempDir(TEMPLATE));
-		dirHolder.setBpmnDir(tempFileProvider.createTempDir(BPMN));
-		dirHolder.setPermissionsDir(tempFileProvider.createTempDir(PERMISSION));
+	public ValidationReport importModel(Map<String, InputStream> files) {
+		ModelDirectoriesHolder dirHolder = getDirectoriesHolder();
 
 		try {
-			prepareArhivedDefinitions(files, dirHolder);
+			if (!tryLocking()) {
+				return new ModelImportValidationBuilder().importTimeout();
+			}
+			prepareArchivedDefinitions(files, dirHolder);
 			prepareNonArchiveFiles(files, dirHolder);
 
-			List<String> errors = validate(dirHolder);
-			if (!errors.isEmpty()) {
-				return errors;
+			ValidationReport validationReport = validate(dirHolder);
+			if (!validationReport.isValid()) {
+				return validationReport;
 			}
 
 			doImport(dirHolder);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			return new ModelImportValidationBuilder().importException(e);
+		} finally {
+			dirHolder.cleanupAllDirectories();
+			unlock();
+		}
+
+		return ValidationReport.valid();
+	}
+
+	@Override
+	public ValidationReport validateModel(Map<String, InputStream> files) {
+		ModelDirectoriesHolder dirHolder = getDirectoriesHolder();
+		try {
+			prepareArchivedDefinitions(files, dirHolder);
+			prepareNonArchiveFiles(files, dirHolder);
+			return validate(dirHolder);
 		} catch (IllegalArgumentException e) {
-			return Collections.singletonList(e.getMessage());
+			return new ValidationReport().addError(e.getMessage());
 		} finally {
 			dirHolder.cleanupAllDirectories();
 		}
-
-		return Collections.emptyList();
 	}
 
 	@Override
@@ -131,16 +162,46 @@ public class ModelImportServiceImpl implements ModelImportService {
 		}
 
 		// multiple files from both types => group them in directories and zip them
-		if (hasDefinitions && hasTemplates) {
+		if (hasDefinitions) {
 			return groupInDirectoriesAndZip(definitionFiles, templateFiles);
 		}
 
 		throw new EmfApplicationException("No templates or definitions for export were found in the system");
 	}
 
+	private ModelDirectoriesHolder getDirectoriesHolder() {
+		ModelDirectoriesHolder dirHolder = new ModelDirectoriesHolder();
+		File rootDir = tempFileProvider.createUniqueTempDir("modelImportRootDir");
+		dirHolder.setRootDir(rootDir);
+
+		dirHolder.setDefinitionsDir(tempFileProvider.createSubDir(rootDir, DEFINITION));
+		dirHolder.setTemplatesDir(tempFileProvider.createSubDir(rootDir, TEMPLATE));
+		dirHolder.setBpmnDir(tempFileProvider.createSubDir(rootDir, BPMN));
+		dirHolder.setPermissionsDir(tempFileProvider.createSubDir(rootDir, PERMISSION));
+		return dirHolder;
+	}
+
+	private boolean tryLocking() {
+		try {
+			return importLock.tryLock(5, TimeUnit.MINUTES);
+		} catch (InterruptedException e) { // NOSONAR
+			// the exception is handled by interrupting the current thread
+			threadInterrupter.interruptCurrentThread();
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private void unlock() {
+		importLock.unlock();
+	}
+
+	private File createUniqueTempDir(String prefix) {
+		return tempFileProvider.createUniqueTempDir(prefix);
+	}
+
 	private File groupInDirectoriesAndZip(List<File> definitions, List<File> templates) {
 		try {
-			File modelFilesDir = tempFileProvider.createTempDir("modelFilesDir");
+			File modelFilesDir = createUniqueTempDir("modelFilesDir");
 			File templatesDir = new File(modelFilesDir, TEMPLATE);
 			File definitionsDir = new File(modelFilesDir, DEFINITION);
 
@@ -153,7 +214,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 			LOGGER.debug("Added {} definitions and {} templates to their relevant folders for export",
 					definitions.size(), templates.size());
 			// the empty zip file is created in a separate dir, because otherwise it will archive itself
-			File archiveDir = tempFileProvider.createTempDir("modelArchiveDir");
+			File archiveDir = createUniqueTempDir("modelArchiveDir");
 			File zipFile = new File(archiveDir, "models.zip");
 			ArchiveUtil.zipFile(modelFilesDir, zipFile);
 			return zipFile;
@@ -164,7 +225,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 
 	private File filesToZip(List<File> modelFiles, String modelsType) {
 		try {
-			File modelFilesDir = tempFileProvider.createTempDir("modelFilesDir");
+			File modelFilesDir = createUniqueTempDir("modelFilesDir");
 			for (File file : modelFiles) {
 				FileUtils.copyFileToDirectory(file, modelFilesDir);
 			}
@@ -172,7 +233,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 			// the "s" at the end of the file name is because plural is required
 			String zipFileName = modelsType + "s.zip";
 			// the empty zip file is created in a separate dir, because otherwise it will archive itself
-			File archiveDir = tempFileProvider.createTempDir("modelArchiveDir");
+			File archiveDir = createUniqueTempDir("modelArchiveDir");
 			File zipFile = new File(archiveDir, zipFileName);
 			ArchiveUtil.zipFile(modelFilesDir, zipFile);
 			return zipFile;
@@ -209,7 +270,9 @@ public class ModelImportServiceImpl implements ModelImportService {
 		}
 	}
 
-	private List<String> validate(ModelDirectoriesHolder dirHolder) {
+	private ValidationReport validate(ModelDirectoriesHolder dirHolder) {
+		ValidationReport validationReport = new ValidationReport();
+
 		// these flags will be needed later (in other methods) again, so set them to the dirHolder to avoid checking
 		// directories recursively every time
 		dirHolder.setHasDefinitions(containsAnyFiles(dirHolder.getDefinitionsDir()));
@@ -219,23 +282,34 @@ public class ModelImportServiceImpl implements ModelImportService {
 
 		if (!dirHolder.hasDefinitions() && !dirHolder.hasTemplates() && !dirHolder.hasPermissions()
 				&& !dirHolder.hasBPMNs()) {
-			return Collections
-					.singletonList(
-							"No model files have been provided for import, or the provided archive is effectively empty.");
+			return new ValidationReport().addError(
+					"No model files have been provided for import, or the provided archive is effectively empty.");
 		}
 
-		List<String> errors = new ArrayList<>();
+		List<GenericDefinition> definitions;
+
 		if (dirHolder.hasDefinitions()) {
-			errors.addAll(definitionImportService.validate(dirHolder.getDefinitionsDir().toPath()));
-		}
-		if (dirHolder.hasTemplates()) {
-			errors.addAll(templateImportService.validate(dirHolder.getTemplatesDir().getAbsolutePath()));
-		}
-		if (dirHolder.hasPermissions()) {
-			errors.addAll(permissionsImportService.validate(dirHolder.getPermissionsDir().getAbsolutePath()));
+			DefinitionValidationResult validationResult = definitionImportService.validate(dirHolder.getDefinitionsDir().toPath());
+			validationReport.merge(validationResult.getValidationReport());
+			definitions = validationResult.getDefinitions();
+		} else {
+			// Templates must be validated against the definitions, if none are provided for import -> use the available
+			definitions = definitionService.getAllDefinitions(GenericDefinition.class);
 		}
 
-		return errors;
+		if (dirHolder.hasTemplates()) {
+			TemplateValidationRequest validationRequest = new TemplateValidationRequest(dirHolder.getTemplatesDir().getAbsolutePath(),
+					definitions);
+			List<String> templatesValidationErrors = templateImportService.validate(validationRequest);
+			validationReport.addErrors(templatesValidationErrors);
+		}
+
+		if (dirHolder.hasPermissions()) {
+			List<String> permissionsValidationErrors = permissionsImportService.validate(dirHolder.getPermissionsDir().getAbsolutePath());
+			validationReport.addErrors(permissionsValidationErrors);
+		}
+
+		return validationReport;
 	}
 
 	private void doImport(ModelDirectoriesHolder dirHolder) {
@@ -261,11 +335,9 @@ public class ModelImportServiceImpl implements ModelImportService {
 	}
 
 	private static void prepareNonArchiveFiles(Map<String, InputStream> files, ModelDirectoriesHolder dirHolder) {
-		files
-			.entrySet()
-			.stream()
-			.filter(entry -> !isZipFile(entry.getKey()))
-			.forEach(entry -> materializeImportFile(entry.getKey(), entry.getValue(), dirHolder));
+		files.entrySet().stream()
+				.filter(entry -> !isZipFile(entry.getKey()))
+				.forEach(entry -> materializeImportFile(entry.getKey(), entry.getValue(), dirHolder));
 	}
 
 	/**
@@ -283,7 +355,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 		if (fileName.toLowerCase().endsWith(".bpmn")) {
 			createInDirectory(fileName, content, dirHolder.getBpmnDir());
 		} else if (fileName.toLowerCase().endsWith(".xml")) {
-			String rootTag = getRootTag(content);
+			String rootTag = getRootTag(content, fileName);
 			if (DEFINITION.equals(rootTag)) {
 				createInDirectory(fileName, content, dirHolder.getDefinitionsDir());
 			} else if (TEMPLATE_ROOT_TAG.equals(rootTag)) {
@@ -310,7 +382,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 		}
 	}
 
-	private void prepareArhivedDefinitions(Map<String, InputStream> files, ModelDirectoriesHolder dirHolder) {
+	private void prepareArchivedDefinitions(Map<String, InputStream> files, ModelDirectoriesHolder dirHolder) {
 		File unzipDirectory = null;
 		try (InputStream archiveStream = files
 				.entrySet()
@@ -325,7 +397,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 			}
 
 			LOGGER.debug("Archive file detected during models import. Proceeding with unzip...");
-			unzipDirectory = tempFileProvider.createTempDir("modelsUnzipDir");
+			unzipDirectory = createUniqueTempDir("modelsUnzipDir");
 			ArchiveUtil.unZip(archiveStream, unzipDirectory);
 
 			copyToRelevantImportDirectories(unzipDirectory, dirHolder);
@@ -347,7 +419,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 				FileUtils.copyFileToDirectory(file, dirHolder.getBpmnDir());
 			} else if (fileName.toLowerCase().endsWith(".xml")) {
 				String content = FileUtils.readFileToString(file);
-				String rootTag = getRootTag(content);
+				String rootTag = getRootTag(content, fileName);
 				if (DEFINITION.equals(rootTag)) {
 					FileUtils.copyFileToDirectory(file, dirHolder.getDefinitionsDir());
 				} else if (TEMPLATE_ROOT_TAG.equals(rootTag)) {
@@ -368,7 +440,10 @@ public class ModelImportServiceImpl implements ModelImportService {
 		return !FileUtil.loadFromPath(directoryPath.getAbsolutePath()).isEmpty();
 	}
 
-	private static String getRootTag(String content) {
+	private static String getRootTag(String content, String fileName) {
+		if (StringUtils.isBlank(content)) {
+			throw new IllegalArgumentException("Failed to parse " + fileName + " because it is empty.");
+		}
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		try {
 			XMLStreamReader xmlReader = factory.createXMLStreamReader(
@@ -379,7 +454,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 				}
 			}
 		} catch (XMLStreamException e) {
-			throw new IllegalArgumentException("Failed to parse xml file due to: " + e.getMessage());
+			throw new IllegalArgumentException("Failed to parse " + fileName + " due to: " + e.getMessage());
 		}
 		return null;
 	}
@@ -394,6 +469,7 @@ public class ModelImportServiceImpl implements ModelImportService {
 	 */
 	private class ModelDirectoriesHolder {
 
+		private File rootDir;
 		private File definitionsDir;
 		private File templatesDir;
 		private File bpmnDir;
@@ -407,10 +483,11 @@ public class ModelImportServiceImpl implements ModelImportService {
 		private boolean hasPermissions;
 
 		public void cleanupAllDirectories() {
-			FileUtils.deleteQuietly(definitionsDir);
-			FileUtils.deleteQuietly(templatesDir);
-			FileUtils.deleteQuietly(bpmnDir);
-			FileUtils.deleteQuietly(permissionsDir);
+			FileUtils.deleteQuietly(rootDir);
+		}
+
+		public void setRootDir(File rootDir) {
+			this.rootDir = rootDir;
 		}
 
 		public File getDefinitionsDir() {

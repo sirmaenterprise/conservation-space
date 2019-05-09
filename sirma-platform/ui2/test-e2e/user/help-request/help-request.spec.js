@@ -31,7 +31,7 @@ describe('HelpRequest', ()=> {
     browser.getAllWindowHandles().then(function (handles) {
       browser.switchTo().window(handles[1]).then(function () {
         browser.driver.getCurrentUrl().then(function (url) {
-          expect(decodeURIComponent(url).endsWith('#/idoc/1?mode=edit')).to.be.true;
+          expect(decodeURIComponent(url).includes('#/idoc/1?mode=edit')).to.be.true;
           done();
         });
       });

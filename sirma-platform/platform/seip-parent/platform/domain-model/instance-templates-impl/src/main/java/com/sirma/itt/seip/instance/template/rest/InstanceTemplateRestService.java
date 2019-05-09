@@ -8,6 +8,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.instance.actions.Action;
 import com.sirma.itt.seip.rest.utils.Versions;
 import com.sirma.sep.instance.template.InstanceTemplateService;
 
@@ -15,6 +16,10 @@ import com.sirma.sep.instance.template.InstanceTemplateService;
  * Provides rest endpoints for manipulation of the templates of the instances.
  *
  * @author Adrian Mitev
+ */
+/**
+ * TODO should be implemented as {@link Action}, because there is additional functionality executed there, like instance
+ * locking during action execution, etc.
  */
 @Transactional
 @Produces(Versions.V2_JSON)

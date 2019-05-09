@@ -191,23 +191,30 @@ public class IdocSanitizer {
 
 	/**
 	 * Checks if layouts are tainted with invalid content between the <b>layoutmanager</b> and <b>layout-container</b>.
-	 * Used for sanitizing before save and before export to word. Check CMF-28469.
+	 * Tags outside of the layout-container are removed. If any tag appears to be a widget, then it's moved outside of
+	 * the layout.
+	 * Used for sanitizing before save and before export to word. Check CMF-28469/CMF-29933.
 	 * @param document
 	 * 				content to sanitize
-	 * @return content between <b>layoutmanager</b> and <b>layout-container</b> is moved above <b>layoutmanager</b>
+	 * @return content with sanitized layouts
 	 */
 	public static Document sanitizeLayouts(Document document) {
 		document.select(".layoutmanager").forEach(layout -> {
 			// if layoutmanager does not have a single child, the layout is tainted
 			if (layout.children().size() > 1) {
-				StringBuilder invalidChildren = new StringBuilder();
+				StringBuilder toBeMoved = new StringBuilder();
 				layout.children().forEach(layoutChild -> {
 					if (!layoutChild.hasClass("layout-container")) {
-						invalidChildren.append(layoutChild.outerHtml());
+						if (layoutChild.hasClass("widget")) {
+							toBeMoved.append(layoutChild.outerHtml());
+						}
 						layoutChild.remove();
 					}
 				});
-				layout.before(invalidChildren.toString());
+				// If toBeMoved is empty then no layout-container elements are found and the node have to be skipped.
+				if (StringUtils.isNotEmpty(toBeMoved)) {
+					layout.before(toBeMoved.toString());
+				}
 			}
 		});
 		return document;
@@ -277,8 +284,8 @@ public class IdocSanitizer {
 	private static void removeOpacityFromImageStyles(Document document) {
 		document.select("img[style~=opacity]").forEach(element -> {
 			String[] styles = element.attr(STYLE).split(SEPARATOR);
-			String style = Arrays.stream(styles).filter(currentStyle -> !currentStyle.contains("opacity")).collect(
-					Collectors.joining(SEPARATOR));
+			String style = Arrays.stream(styles).filter(currentStyle -> !currentStyle.contains("opacity"))
+					.collect(Collectors.joining(SEPARATOR));
 
 			element.attr(STYLE, style + SEPARATOR);
 		});

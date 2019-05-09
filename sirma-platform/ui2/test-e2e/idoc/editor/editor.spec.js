@@ -18,7 +18,7 @@ describe('Idoc editor', function () {
     contentArea = idocPage.getTabEditor(TAB_NUMBER);
   });
 
-  it('should preserve text formatting after save-edit operation', () => {
+  it.skip('should preserve text formatting after save-edit operation', () => {
     // And I typed two lines of text and two empty lines between them
     contentArea.clear().click();
     // execute three line breaks in order to leave 2 empty rows after the first one
@@ -77,7 +77,7 @@ describe('Idoc editor', function () {
     ]);
   });
 
-  it('should put an empty line after widget insertion', function () {
+  it.skip('should put an empty line after widget insertion', function () {
     // When I insert a widget and type something in the paragraph below it
     contentArea.insertWidget(HelloWidget.WIDGET_NAME);
     new HelloWidgetConfigDialog().save();

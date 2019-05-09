@@ -7,16 +7,14 @@ import {DialogService} from 'components/dialog/dialog-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {WidgetReadyEvent} from 'idoc/widget/widget-ready-event';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {LocalStorageService} from 'services/storage/local-storage-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {PluginsService} from 'services/plugin/plugins-service';
 import {ActionExecutor} from 'services/actions/action-executor';
-import {ActionExecutedEvent} from 'services/actions/events';
 import {EventEmitter} from 'common/event-emitter';
 import {SELECT_OBJECT_AUTOMATICALLY} from 'idoc/widget/object-selector/object-selector';
 import {DynamicElementsRegistry} from 'idoc/dynamic-elements-registry';
-import {MODE_PREVIEW, MODE_EDIT, MODE_PRINT} from 'idoc/idoc-constants';
 import 'idoc/widget/common-configurations/widget-common-display-configurations';
 import {ColorPicker} from 'components/color-picker/color-picker';
 
@@ -26,7 +24,6 @@ import './widget.css!css';
 
 const WIDGET_CONFIG_LABEL = 'widget.config.label';
 const MODE_EDIT_LOCKED = 'edit-locked';
-const WIDGET_ACTIONS_FADE_TIME = 200;
 
 export const NEW_ATTRIBUTE = 'data-new';
 
@@ -122,12 +119,16 @@ class BaseWidget {
       }
     });
 
-    $scope.$on(WidgetRemovedEvent.EVENT_NAME, () => {
+    this.widgetRemoveHandler = $scope.$on(WidgetRemovedEvent.EVENT_NAME, () => {
       let actualWidgetScope = element.children().scope();
       if (actualWidgetScope) {
         // delete widget and deregister it from all objects it is linked in the shared objects registry
         this.context.getSharedObjectsRegistry().onWidgetDelete(this.control.getId());
-        actualWidgetScope.$destroy();
+        // https://github.com/angular-ui/bootstrap/issues/1128
+        // https://github.com/angular/angular.js/issues/5658
+        actualWidgetScope.$evalAsync(() => {
+          actualWidgetScope.$destroy();
+        });
       }
     });
 
@@ -181,17 +182,22 @@ class BaseWidget {
 
     // if widget has id, this means that it must be registered to the element registry.
     if (this.control.getId()) {
-      dynamicElementsRegistry.handleWidget(this.element.attr('widget'), this.control.getId())
+      dynamicElementsRegistry.handleWidget(this.element.attr('widget'), this.control.getId());
     }
 
     this.isWidgetReady = false;
     let widgetReadySubscription = eventbus.subscribe(WidgetReadyEvent, (event) => {
       if (event[0].widgetId === this.control.getId()) {
-        this.isWidgetReady = true;
         this.element.addClass('initialized');
         widgetReadySubscription.unsubscribe();
+        this.isWidgetReady = true;
       }
     });
+
+    // locking the undo manager while widget is loading.
+    // no updating required, because snapshot is saved immediately after unlock,
+    // keeping proper track of snapshot history
+    this.$scope.editor.editor.fire('lockSnapshot', {dontUpdate: true});
   }
 
   /**
@@ -376,7 +382,7 @@ class BaseWidget {
             id: DialogService.OK,
             label: 'idoc.widget.config.button.save',
             cls: 'btn-primary',
-            onButtonClick: function (buttonId, componentScope, dialogConfig) {
+            onButtonClick(buttonId, componentScope, dialogConfig) {
               dialogConfig.dismiss();
               control.onConfigConfirmed(clonedConfig);
               control.saveConfig(clonedConfig);
@@ -386,11 +392,15 @@ class BaseWidget {
             id: DialogService.CANCEL,
             label: 'idoc.widget.config.button.cancel'
           }],
-          onButtonClick: function (buttonId, componentScope, dialogConfig) {
+          onButtonClick(buttonId, componentScope, dialogConfig) {
             dialogConfig.dismiss();
           },
           onClose: () => {
             if (shouldReject) {
+              setTimeout(() => {
+                // if config dialog is closed without creating new widget, unlock the undo manager
+                this.$scope.editor.editor.fire('unlockSnapshot');
+              }, 0);
               reject();
             } else {
               resolve();
@@ -410,8 +420,6 @@ class BaseWidget {
     // there is no editor in some sandbox pages
     if (editor) {
       let widgetsRepository = editor.editor.widgets;
-      // fire a saveSnapshot event so that widget removal is registered for undo operation.
-      editor.editor.fire('saveSnapshot');
       widgetsRepository.del(widgetsRepository.getByElement(new CKEDITOR.dom.element(this.element.get(0))));
     }
     this.ngOnDestroy();
@@ -513,11 +521,13 @@ class BaseWidget {
   positionCaretAtNextEditableArea() {
     if (this.control.getEditor()) {
       let editor = this.control.getEditor().editor;
+      editor.fire('lockSnapshot', {dontUpdate: true});
       let range = editor.createRange();
       let editorEl = new CKEDITOR.dom.element(this.element.parent().get(0));
       range.moveToClosestEditablePosition(editorEl, true);
       editor.getSelection().selectRanges([range]);
       editor.focus();
+      editor.fire('unlockSnapshot');
     }
   }
 
@@ -541,8 +551,14 @@ class BaseWidget {
     _.forEach(this.subscriptions, function (subscription) {
       subscription.unsubscribe();
     });
-
     this.element.off('render');
+    $(this.control.element).off('mousedown');
+
+    // Save snapshot when widget is removed. This is needed for undo/redo operations
+    if (this.$scope.editor) {
+      this.$scope.editor.editor.fire('saveSnapshot', {force: true});
+    }
+    this.widgetRemoveHandler();
   }
 }
 

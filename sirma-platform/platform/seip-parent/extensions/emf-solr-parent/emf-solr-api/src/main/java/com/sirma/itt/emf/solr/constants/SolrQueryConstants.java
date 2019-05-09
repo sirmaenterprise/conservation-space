@@ -29,4 +29,7 @@ public interface SolrQueryConstants {
 
 	/** Query parameter for the user query (search terms.) */
 	String USER_QUERY = "uq";
+
+	/** Default value for tiebreaker. See {@link org.apache.solr.common.params.DisMaxParams#TIE}*/
+	String DEFAULT_TIE_BREAKER = "0.1";
 }

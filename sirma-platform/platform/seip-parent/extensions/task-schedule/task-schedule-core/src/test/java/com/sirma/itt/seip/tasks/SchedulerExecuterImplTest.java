@@ -3,10 +3,14 @@ package com.sirma.itt.seip.tasks;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import java.lang.annotation.Annotation;
 import java.util.concurrent.Future;
@@ -24,6 +28,10 @@ import com.sirma.itt.seip.concurrent.event.BaseCallableEvent;
 import com.sirma.itt.seip.event.EmfEvent;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
+import com.sirma.itt.seip.resources.EmfUser;
+import com.sirma.itt.seip.security.UserStore;
+import com.sirma.itt.seip.security.context.SecurityContextManager;
+import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
 import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
 import com.sirma.itt.seip.testutil.mocks.InstanceProxyMock;
 import com.sirma.itt.seip.tx.TransactionSupport;
@@ -47,6 +55,10 @@ public class SchedulerExecuterImplTest {
 	private InstanceProxyMock<SchedulerService> schedulerServiceInstance = new InstanceProxyMock<>();
 	@Mock
 	private SchedulerAction action;
+	@Spy
+	private SecurityContextManager securityContextManager = new SecurityContextManagerFake();
+	@Mock
+	private UserStore userStore;
 
 	@Before
 	public void beforeMethod() {
@@ -59,6 +71,12 @@ public class SchedulerExecuterImplTest {
 			}
 			return null;
 		}).when(eventService).fire(any(), any());
+
+		when(userStore.loadBySystemId(anyString())).then(a -> {
+			EmfUser user = new EmfUser();
+			user.setId(a.getArgumentAt(0, String.class));
+			return user;
+		});
 	}
 
 	@Test(expected = EmfRuntimeException.class)
@@ -135,6 +153,37 @@ public class SchedulerExecuterImplTest {
 		verify(action).execute(any());
 		verify(eventService, Mockito.times(1)).fire(Matchers.any(SchedulerExecuterEvent.class),
 				Matchers.any(Annotation.class));
+	}
+
+	@Test
+	public void should_executeSync_CustomUser() throws Exception {
+		SchedulerConfiguration configuration = new DefaultSchedulerConfiguration();
+		configuration.setSynchronous(true).setRunAs(RunAs.USER).setRunAs("emf:someUser");
+
+		SchedulerEntry schedulerEntry = createEntry(configuration);
+		Future<SchedulerEntryStatus> future = executer.execute(schedulerEntry);
+		assertNotNull(future);
+		assertEquals(SchedulerEntryStatus.COMPLETED, future.get());
+		verify(action).execute(any());
+		verify(eventService, Mockito.times(1)).fire(Matchers.any(SchedulerExecuterEvent.class),
+				Matchers.any(Annotation.class));
+		verify(securityContextManager).executeAsUser(any());
+	}
+
+	@Test
+	public void should_executeSync_EvenIfTheCustomUserIsNotFound() throws Exception {
+		reset(userStore);
+		SchedulerConfiguration configuration = new DefaultSchedulerConfiguration();
+		configuration.setSynchronous(true).setRunAs(RunAs.USER).setRunAs("emf:someUser");
+
+		SchedulerEntry schedulerEntry = createEntry(configuration);
+		Future<SchedulerEntryStatus> future = executer.execute(schedulerEntry);
+		assertNotNull(future);
+		assertEquals(SchedulerEntryStatus.COMPLETED, future.get());
+		verify(action).execute(any());
+		verify(eventService, Mockito.times(1)).fire(Matchers.any(SchedulerExecuterEvent.class),
+				Matchers.any(Annotation.class));
+		verifyZeroInteractions(securityContextManager);
 	}
 
 	@Test

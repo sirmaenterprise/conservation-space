@@ -1,13 +1,14 @@
-import {Configuration, ConfigurationsUpdateEvent, ConfigurationsLoadedEvent} from 'common/application-config';
-import {Eventbus} from 'services/eventbus/eventbus';
+import {Configuration} from 'common/application-config';
+import {ConfigurationsUpdateEvent, ConfigurationsLoadedEvent} from 'common/configuration-events';
 import {IdocMocks} from 'test/idoc/idoc-mocks';
 
 describe('Configuration service', function () {
 
-  var configurationService;
+  let configurationService;
+
   beforeEach((done) => {
-    var configurationRest = new ConfigurationRestServiceResolve();
-    var eventbus = IdocMocks.mockEventBus();
+    let configurationRest = new ConfigurationRestServiceResolve();
+    let eventbus = IdocMocks.mockEventBus();
     sinon.spy(eventbus, 'subscribe');
     sinon.spy(eventbus, 'publish');
     configurationService = new Configuration(configurationRest, eventbus);
@@ -32,7 +33,7 @@ describe('Configuration service', function () {
   });
 
   it('should remap configurations on update event', () => {
-    var updateHandler = configurationService.eventbus.subscribe.getCall(0).args[1];
+    let updateHandler = configurationService.eventbus.subscribe.getCall(0).args[1];
     updateHandler([[{
       key: 'state',
       value: 'disabled'
@@ -62,24 +63,31 @@ describe('Configuration service', function () {
     it('should return boolean if value is true', () => {
       expect(configurationService.get('booleanTrue')).to.be.true;
     });
+
     it('should return boolean if value is false', () => {
       expect(configurationService.get('booleanFalse')).to.be.false;
     });
+
     it('should return boolean if value is string true', () => {
       expect(configurationService.get('booleanTrueString')).to.be.true;
     });
+
     it('should return boolean if value is string false', () => {
       expect(configurationService.get('booleanFalseString')).to.be.false;
     });
+
     it('should return number', () => {
       expect(configurationService.get('number')).to.equal(123);
     });
+
     it('should return number if value is number given as string', () => {
       expect(configurationService.get('numberAsString')).to.equal(123);
     });
+
     it('should return string', () => {
       expect(configurationService.get('string')).to.equal('string');
     });
+
     it('should return undefined if key is not found', () => {
       expect(configurationService.get('undefinedkey')).to.be.undefined;
     });
@@ -154,14 +162,4 @@ class ConfigurationRestServiceResolve {
       });
     });
   }
-}
-
-class ConfigurationRestServiceReject {
-
-  loadConfigurations() {
-    return new Promise((resolve, reject) => {
-      reject('Error in loading configurations!');
-    });
-  }
-
 }

@@ -70,7 +70,9 @@ import com.sirma.itt.seip.exception.RollbackedRuntimeException;
 import com.sirma.itt.seip.instance.InstanceTypes;
 import com.sirma.itt.seip.instance.state.StateTransitionManager;
 import com.sirma.itt.seip.io.ResourceLoadUtil;
-import com.sirma.itt.seip.monitor.Statistics;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.permissions.action.AuthorityService;
 import com.sirma.itt.seip.permissions.action.EmfAction;
 import com.sirma.itt.seip.resources.ResourceService;
@@ -78,7 +80,6 @@ import com.sirma.itt.seip.search.NamedQueries;
 import com.sirma.itt.seip.search.SearchService;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.time.DateRange;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
 import com.sirma.itt.semantic.model.vocabulary.OA;
@@ -329,8 +330,6 @@ class SemanticAnnotationService implements AnnotationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticAnnotationService.class);
 
 	private static final Map<String, String> PROJECTION_MAPPING = new HashMap<>();
-	// used in statistics
-	private static final String SEMANTIC_SEARCH = "semanticSearch";
 
 	static {
 		PROJECTION_MAPPING.put(STATUS, EMF.PREFIX + ":" + STATUS);
@@ -360,8 +359,6 @@ class SemanticAnnotationService implements AnnotationService {
 	@Inject
 	private DatabaseIdManager idManager;
 
-	@Inject
-	private Statistics statistics;
 	@Inject
 	private SearchService searchService;
 	@Inject
@@ -645,12 +642,12 @@ class SemanticAnnotationService implements AnnotationService {
 	}
 
 	@Override
+	@Monitored(@MetricDefinition(name = "annotation_semantic_search_duration_seconds", type = Type.TIMER, descr = "Semantic search for annotations duration in seconds."))
 	public Collection<Annotation> searchAnnotation(String targetId, String tabId, Integer limit) {
 		if (StringUtils.isBlank(targetId) || imageServerConfig.getNoContentImageName().get().equals(targetId)) {
 			return Collections.emptyList();
 		}
 		LOGGER.debug("Executing search for annotations for object id: {} and tab id: {}", targetId, tabId);
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), SEMANTIC_SEARCH).begin();
 
 		SearchArguments<Annotation> arguments = new SearchArguments<>();
 		arguments.setPermissionsType(QueryResultPermissionFilter.NONE);
@@ -680,8 +677,6 @@ class SemanticAnnotationService implements AnnotationService {
 		} catch (Exception e) {
 			LOGGER.error("Error executing search for annotations for object id and tab id: {}", targetId, tabId, e.getMessage(), e);
 			return Collections.emptyList();
-		} finally {
-			LOGGER.debug("Annotation search took {} s", tracker.stopInSeconds());
 		}
 	}
 
@@ -828,9 +823,9 @@ class SemanticAnnotationService implements AnnotationService {
 	}
 
 	@SuppressWarnings("boxing")
+	@Monitored(@MetricDefinition(name = "annotation_semantic_search_duration_seconds", type = Type.TIMER, descr = "Semantic search for annotations duration in seconds."))
 	private Collection<Annotation> searchAnnotations(String selectId, String bindingName, String query, Integer limit) {
 		LOGGER.debug("Executing search for annotations for object id: {}", selectId);
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), SEMANTIC_SEARCH).begin();
 
 		SearchArguments<Annotation> arguments = new SearchArguments<>();
 		arguments.setPermissionsType(QueryResultPermissionFilter.NONE);
@@ -852,8 +847,6 @@ class SemanticAnnotationService implements AnnotationService {
 		} catch (Exception e) {
 			LOGGER.error("Error executing search for annotations for image: {}", selectId, e.getMessage(), e);
 			return Collections.emptyList();
-		} finally {
-			LOGGER.debug("Annotation search took {} s", tracker.stopInSeconds());
 		}
 	}
 
@@ -949,12 +942,12 @@ class SemanticAnnotationService implements AnnotationService {
 
 	@Override
 	@SuppressWarnings("boxing")
+	@Monitored(@MetricDefinition(name = "annotation_semantic_search_duration_seconds", type = Type.TIMER, descr = "Semantic search for annotations duration in seconds."))
 	public int countAnnotations(String targetId, String tabId) {
 		if (StringUtils.isBlank(targetId) || StringUtils.isBlank(tabId)) {
 			return -1;
 		}
 		LOGGER.debug("Executing annotation count for target id: {}", targetId);
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), SEMANTIC_SEARCH).begin();
 		Serializable id = idManager.getValidId(tabId);
 		SearchArguments<Annotation> arguments = new SearchArguments<>();
 		arguments.setPermissionsType(QueryResultPermissionFilter.NONE);
@@ -975,19 +968,17 @@ class SemanticAnnotationService implements AnnotationService {
 		} catch (Exception e) {
 			LOGGER.error("Error executing annotation counting target id: {}", targetId, e.getMessage(), e);
 			return -1;
-		} finally {
-			LOGGER.debug("Annotation count took {} s", tracker.stopInSeconds());
 		}
 	}
 
 	@Override
 	@SuppressWarnings("boxing")
+	@Monitored(@MetricDefinition(name = "annotation_semantic_search_duration_seconds", type = Type.TIMER, descr = "Semantic search for annotations duration in seconds."))
 	public Map<String, Integer> countAnnotationReplies(String targetId) {
 		if (StringUtils.isBlank(targetId)) {
 			return Collections.emptyMap();
 		}
 		LOGGER.debug("Executing annotation reply count for target id: {}", targetId);
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), SEMANTIC_SEARCH).begin();
 
 		SearchArguments<Annotation> arguments = new SearchArguments<>();
 		arguments.setPermissionsType(QueryResultPermissionFilter.NONE);
@@ -1011,8 +1002,6 @@ class SemanticAnnotationService implements AnnotationService {
 		} catch (Exception e) {
 			LOGGER.error("Error executing annotation reply counting target id: {}", targetId, e.getMessage(), e);
 			return Collections.emptyMap();
-		} finally {
-			LOGGER.debug("Annotation reply count took {} s", tracker.stopInSeconds());
 		}
 	}
 

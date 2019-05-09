@@ -174,15 +174,21 @@ export class InstanceObject {
   /**
    * Returns the semantic class of the object assuming that the last class in the semantic
    * hierarchy is the one that is needed.
+   *
    * @returns The semantic class string or undefined if semanticHierarchy is missing or empty.
    */
   getSemanticClass() {
     let semanticClass;
-    let hierarchy = this.getPropertyValue('semanticHierarchy');
-    if (hierarchy && hierarchy.length) {
+    let hierarchy = this.getSemanticHierarchy();
+    if (hierarchy.length) {
       semanticClass = hierarchy[hierarchy.length - 1];
     }
     return semanticClass;
+  }
+
+  getSemanticHierarchy() {
+    let semanticHierarchy = this.getPropertyValue('semanticHierarchy') || [];
+    return _.clone(semanticHierarchy);
   }
 
   getPropertyValue(propertyName) {
@@ -248,13 +254,6 @@ export class InstanceObject {
         }
       });
     }
-  }
-
-  // We need to know whether an persisted object is creatable or uploadable in order to dispalay the correct templates. Persisted
-  // uploadable objects will always have set value in emf:contentId and creatable won't. At the moment we don't have better
-  // mechanism to differentiate between uploadable and creatable persisted objects.
-  getPurpose() {
-    return this.getPropertyValue('emf:contentId') ? 'uploadable' : 'creatable';
   }
 
   /**
@@ -354,8 +353,8 @@ export class InstanceObject {
 
   checkMandatory(model) {
     return !model.fields ? model.isMandatory : model.fields.some((field) => {
-        return this.checkMandatory(field);
-      });
+      return this.checkMandatory(field);
+    });
   }
 
   static isNil(value) {

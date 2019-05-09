@@ -1,0 +1,25 @@
+<div class="model-field-controls-view">
+  <div class="section-controls">
+    <a ng-repeat="link in modelFieldControls.getLinks(modelFieldControls.links) track by link.type"
+       ng-if="modelFieldControls.links"
+       ng-click="modelFieldControls.createControl(link.type)"
+       class="add-control" ng-class="::link.type" href="javascript:void(0)"
+       title="{{ ::link.tooltip }}">{{ ::link.title }}</a>
+  </div>
+
+  <model-field-control-view
+    ng-repeat="control in modelFieldControls.model.getControls() track by (modelFieldControls.model.getId() + control.getId())"
+    ng-if="modelFieldControls.extensions"
+    id="{{ control.getId() }}"
+    control="control"
+    context="modelFieldControls.model"
+    on-attribute-change="modelFieldControls.onControlChanged(attribute)">
+    <button type="button" class="close remove-control"
+            ng-if="modelFieldControls.canBeRemoved(control)"
+            ng-click="modelFieldControls.removeControl(control)"
+            title="{{ 'administration.models.management.field.controls.remove.control' | translate }}">
+      <span aria-hidden="true">×</span>
+    </button>
+  </model-field-control-view>
+
+</div>

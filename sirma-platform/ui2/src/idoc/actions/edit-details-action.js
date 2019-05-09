@@ -8,7 +8,12 @@ import {InstanceRestService} from 'services/rest/instance-service';
 import {Router} from 'adapters/router/router';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {IdocDraftService} from 'services/idoc/idoc-draft-service';
-import {STATE_PARAM_MODE, STATE_PARAM_ID, MODE_EDIT, MODE_PREVIEW, IDOC_STATE} from 'idoc/idoc-constants';
+import {
+  STATE_PARAM_MODE,
+  STATE_PARAM_ID,
+  MODE_EDIT,
+  IDOC_STATE
+} from 'idoc/idoc-constants';
 
 @Injectable()
 @Inject(Router, StateParamsAdapter, InstanceRestService, Eventbus, Logger, ActionsService, PromiseAdapter, IdocDraftService)

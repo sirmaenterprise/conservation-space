@@ -1,5 +1,5 @@
 import {View, Component, Inject} from 'app/app';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import 'components/dropdownmenu/dropdownmenu';
 import template from './admin-menu.html!text';
@@ -7,9 +7,7 @@ import template from './admin-menu.html!text';
 @Component({
   selector: 'seip-admin'
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(UserService, TranslateService)
 export class AdminMenu {
 
@@ -19,7 +17,7 @@ export class AdminMenu {
 
     this.config = {
       extensionPoint: 'admin-menu-items',
-      triggerLabel: '<i class="fa fa-2x fa-fw fa fa-cogs"></i>',
+      triggerLabel: '<i class="fa fa-lg fa-fw fa-gear"></i>',
       wrapperClass: 'admin-menu',
       buttonAsTrigger: false,
       context: {},

@@ -1,7 +1,7 @@
 package com.sirma.itt.emf.tenant.label;
 
 import com.sirma.itt.seip.definition.label.ClasspathLabelBundleProvider;
-import com.sirma.itt.seip.domain.definition.label.LabelBundleProvider;
+import com.sirma.itt.seip.domain.definition.label.LabelResolverProvider;
 import com.sirma.itt.seip.plugin.Extension;
 
 /**
@@ -9,7 +9,7 @@ import com.sirma.itt.seip.plugin.Extension;
  *
  * @author nvelkov
  */
-@Extension(target = LabelBundleProvider.TARGET_NAME, order = 72)
+@Extension(target = LabelResolverProvider.TARGET_NAME, order = 72)
 public class TenantWebLabelBundleProvider extends ClasspathLabelBundleProvider {
 
 	@Override

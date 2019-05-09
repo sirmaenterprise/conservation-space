@@ -20,12 +20,10 @@ import template from './tree-select.html!text';
     'form': 'form'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement, NgScope, NgTimeout)
 export class TreeSelect extends Select {
-  
+
   constructor($element, $scope, $timeout) {
     super($element, $scope, $timeout);
   }
@@ -35,7 +33,7 @@ export class TreeSelect extends Select {
       dataArr: config.data,
       incFld: 'children'
     };
-    
+
     config.matcher = (query, option) => {
       if (query.term) {
         if (this.hasDescendantWithTitle(option.id, query.term)) {
@@ -48,7 +46,7 @@ export class TreeSelect extends Select {
       // no filtering is applied
       return option;
     };
-    
+
     config.data = null;
 
     this.$element.select2ToTree(config);
@@ -60,7 +58,7 @@ export class TreeSelect extends Select {
   hasDescendantWithTitle(id, textPart) {
     if (!this.nodeIndex) {
       let nodeIndex = [];
-      
+
       let options = this.actualConfig.treeData.dataArr;
 
       options.forEach(function traverse(item) {
@@ -69,15 +67,15 @@ export class TreeSelect extends Select {
           item.children.forEach(traverse);
         }
       });
-      
+
       this.nodeIndex = nodeIndex;
     }
-    
+
     let node = this.nodeIndex[id];
-    
+
     return this.visitNode(node, textPart.toLowerCase());
   }
-  
+
   visitNode(node, textPart) {
     if (node.text && node.text.toLowerCase().includes(textPart)) {
       return true;
@@ -92,8 +90,8 @@ export class TreeSelect extends Select {
         }
       });
     }
-    
+
     return found;
   }
-  
+
 }

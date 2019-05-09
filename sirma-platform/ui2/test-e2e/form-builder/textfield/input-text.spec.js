@@ -4,15 +4,11 @@ let InputField = require('../form-control.js').InputField;
 let FormWrapper = require('../form-wrapper').FormWrapper;
 let SandboxPage = require('../../page-object').SandboxPage;
 
-const EDITABLE_INPUT = '#inputTextEdit';
 const EDITABLE_INPUT_WRAPPER = '#inputTextEdit-wrapper';
-const EDITABLE_INPUT_PREVIEW_FIELD = EDITABLE_INPUT + '.preview-field';
-const DISABLED_INPUT = '#inputTextDisabled';
-const DISABLED_INPUT_PREVIEW_FIELD = DISABLED_INPUT + '.preview-field';
+const PREVIEW_INPUT_WRAPPER = '#inputTextPreview-wrapper';
+const DISABLED_INPUT_WRAPPER = '#inputTextDisabled-wrapper';
+const HIDDEN_INPUT_WRAPPER = '#inputTextHidden-wrapper';
 const HIDDEN_INPUT = '#inputTextHidden';
-const HIDDEN_INPUT_PREVIEW_FIELD = HIDDEN_INPUT + '.preview-field';
-const PREVIEW_INPUT = '#inputTextPreview';
-const PREVIEW_INPUT_PREVIEW_FIELD = PREVIEW_INPUT + '.preview-field';
 const SYSTEM_INPUT = '#inputTextSystem';
 const SYSTEM_INPUT_PREVIEW_FIELD = SYSTEM_INPUT + '.preview-field';
 
@@ -20,30 +16,29 @@ let page = new SandboxPage();
 
 describe('InputText', () => {
 
-  let inputField;
   let formWrapper;
 
   beforeEach(() => {
     formWrapper = new FormWrapper($('.container'));
-    inputField = new InputField();
     page.open('/sandbox/form-builder/input-text');
     browser.wait(EC.visibilityOf($('form')), DEFAULT_TIMEOUT);
   });
 
   describe('tooltips', () => {
     it('should be displayed correctly in edit mode and hidden in preview mode', () => {
-      expect($(`${EDITABLE_INPUT}-wrapper i`).isDisplayed(), 'editable input-text').to.eventually.be.true;
-      expect($(`${PREVIEW_INPUT}-wrapper i`).isDisplayed(), 'preview input-text').to.eventually.be.true;
-      expect($(`${DISABLED_INPUT}-wrapper i`).isDisplayed(), 'disabled input-text').to.eventually.be.true;
-      expect($(`${HIDDEN_INPUT}-wrapper i`).isPresent(), 'hidden input-text').to.eventually.be.false;
-      expect($(`${SYSTEM_INPUT}-wrapper i`).isPresent(), 'system input-text').to.eventually.be.false;
+      let editableField = new InputField($(EDITABLE_INPUT_WRAPPER));
+      let previewField = new InputField($(PREVIEW_INPUT_WRAPPER));
+      let disabledField = new InputField($(DISABLED_INPUT_WRAPPER));
+
+      editableField.isTooltipIconVisible();
+      previewField.isTooltipIconVisible();
+      disabledField.isTooltipIconVisible();
 
       formWrapper.togglePreviewMode();
-      expect($(`${EDITABLE_INPUT}-wrapper i`).isDisplayed(), 'editable input-text in preview').to.eventually.be.false;
-      expect($(`${PREVIEW_INPUT}-wrapper i`).isDisplayed(), 'preview input-text in preview').to.eventually.be.false;
-      expect($(`${DISABLED_INPUT}-wrapper i`).isDisplayed(), 'disabled input-text in preview').to.eventually.be.false;
-      expect($(`${HIDDEN_INPUT}-wrapper i`).isDisplayed(), 'hidden input-text in preview').to.eventually.be.false;
-      expect($(`${SYSTEM_INPUT}-wrapper i`).isPresent(), 'system input-text in preview').to.eventually.be.false;
+
+      editableField.isTooltipIconHidden();
+      previewField.isTooltipIconHidden();
+      disabledField.isTooltipIconHidden();
     });
   });
 
@@ -51,53 +46,59 @@ describe('InputText', () => {
 
     describe('when displayType=EDITABLE', () => {
       it('should allow to be edited', () => {
-        expect(inputField.getValue(EDITABLE_INPUT)).to.eventually.equal('inputTextEdit');
-        inputField.clearValue(EDITABLE_INPUT);
-        inputField.setValue(EDITABLE_INPUT, 'test');
-        expect(inputField.getValue(EDITABLE_INPUT)).to.eventually.equal('test');
+        let editableField = new InputField($(EDITABLE_INPUT_WRAPPER));
+        expect(editableField.getValue()).to.eventually.equal('inputTextEdit');
+        editableField.clearValue();
+        editableField.setValue(null, 'test');
+        expect(editableField.getValue()).to.eventually.equal('test');
       });
 
       it('should trim the value if only spaces are present in the input when its blurred', () => {
-        inputField.clearValue(EDITABLE_INPUT);
-        inputField.setValue(EDITABLE_INPUT,'                     ');
-        inputField.blurField(EDITABLE_INPUT);
-        expect(inputField.getValue(EDITABLE_INPUT)).to.eventually.equal('');
+        let editableField = new InputField($(EDITABLE_INPUT_WRAPPER));
+        editableField.clearValue();
+        editableField.setValue(null, '                     ');
+        editableField.blurField();
+        expect(editableField.getValue()).to.eventually.equal('');
       });
     });
 
     describe('when displayType=READ_ONLY', () => {
       it('should be visible in preview mode and to have value', () => {
-        expect(element(by.css('span.preview-field')).isPresent()).to.eventually.be.true;
-        expect(inputField.getText(PREVIEW_INPUT_PREVIEW_FIELD)).to.eventually.equal('inputTextPreview');
+        let previewField = new InputField($(PREVIEW_INPUT_WRAPPER));
+        expect(previewField.getPreviewElement().isDisplayed()).to.eventually.be.true;
+        expect(previewField.getPreviewValue()).to.eventually.equal('inputTextPreview');
       });
     });
 
     describe('when displayType=DISABLED', () => {
       it('should be disabled and to have value', () => {
-        expect(inputField.getValue(DISABLED_INPUT)).to.eventually.equal('inputTextDisabled');
-        expect(inputField.isDisabled(DISABLED_INPUT)).to.eventually.equal('true');
+        let disabledField = new InputField($(DISABLED_INPUT_WRAPPER));
+        expect(disabledField.getValue()).to.eventually.equal('inputTextDisabled');
+        expect(disabledField.isDisabled()).to.eventually.be.true;
       });
     });
 
     describe('when displayType=HIDDEN', () => {
       it('should not be present', () => {
-        expect(inputField.isPresent(HIDDEN_INPUT)).to.eventually.be.false;
+        expect($(HIDDEN_INPUT).isPresent()).to.eventually.be.false;
       });
     });
 
     describe('when displayType=SYSTEM', () => {
       it('should not be present', () => {
-        expect(inputField.isPresent(SYSTEM_INPUT)).to.eventually.be.false;
+        expect($(SYSTEM_INPUT).isPresent()).to.eventually.be.false;
       });
     });
 
     it('should be mandatory', () => {
-      expect(new InputField($(EDITABLE_INPUT_WRAPPER)).isMandatory()).to.eventually.be.true;
+      let editableField = new InputField($(EDITABLE_INPUT_WRAPPER));
+      expect(editableField.isMandatory()).to.eventually.be.true;
     });
 
     it('should be invalid if is mandatory and has no value', () => {
-      inputField.clearValue(EDITABLE_INPUT);
-      inputField.getMessages(EDITABLE_INPUT_WRAPPER).then((messages) => {
+      let editableField = new InputField($(EDITABLE_INPUT_WRAPPER));
+      editableField.clearValue();
+      editableField.getMessages().then((messages) => {
         expect(messages.length).to.equal(1);
       });
     });
@@ -106,45 +107,49 @@ describe('InputText', () => {
   describe('in form preview mode', () => {
     describe('when displayType=EDITABLE', () => {
       it('should be visible in preview and to have value', () => {
-        expect(inputField.isVisible(EDITABLE_INPUT_PREVIEW_FIELD)).to.eventually.be.false;
+        let editableField = new InputField($(EDITABLE_INPUT_WRAPPER));
+        expect(editableField.isEditable()).to.eventually.be.true;
         formWrapper.togglePreviewMode();
-        expect(inputField.isVisible(EDITABLE_INPUT_PREVIEW_FIELD)).to.eventually.be.true;
-        expect(inputField.getText(EDITABLE_INPUT_PREVIEW_FIELD)).to.eventually.equal('inputTextEdit');
+        expect(editableField.isPreview()).to.eventually.be.true;
+        expect(editableField.getPreviewValue()).to.eventually.equal('inputTextEdit');
       });
     });
 
     describe('when displayType=READ_ONLY', () => {
       it('should be visible in preview and to have value', () => {
-        expect(inputField.isVisible(PREVIEW_INPUT_PREVIEW_FIELD)).to.eventually.be.true;
+        let previewField = new InputField($(PREVIEW_INPUT_WRAPPER));
+        expect(previewField.isPreview()).to.eventually.be.true;
         formWrapper.togglePreviewMode();
-        expect(inputField.isVisible(PREVIEW_INPUT_PREVIEW_FIELD)).to.eventually.be.true;
-        expect(inputField.getText(PREVIEW_INPUT_PREVIEW_FIELD)).to.eventually.equal('inputTextPreview');
+        expect(previewField.isPreview()).to.eventually.be.true;
+        expect(previewField.getPreviewValue()).to.eventually.equal('inputTextPreview');
       });
     });
 
     describe('when displayType=DISABLED', () => {
       it('should be visible in preview and to have value', () => {
-        expect(inputField.isVisible(DISABLED_INPUT_PREVIEW_FIELD)).to.eventually.be.false;
+        let disabledField = new InputField($(DISABLED_INPUT_WRAPPER));
+        expect(disabledField.getInputElement().isDisplayed()).to.eventually.be.true;
         formWrapper.togglePreviewMode();
-        expect(inputField.isVisible(DISABLED_INPUT_PREVIEW_FIELD)).to.eventually.be.true;
-        expect(inputField.getText(DISABLED_INPUT_PREVIEW_FIELD)).to.eventually.equal('inputTextDisabled');
+        expect(disabledField.isPreview()).to.eventually.be.true;
+        expect(disabledField.getPreviewValue()).to.eventually.equal('inputTextDisabled');
       });
     });
 
     describe('when displayType=HIDDEN', () => {
       it('should be visible in preview and to have value', () => {
-        expect(inputField.isPresent(HIDDEN_INPUT_PREVIEW_FIELD)).to.eventually.be.false;
+        expect($(HIDDEN_INPUT).isPresent()).to.eventually.be.false;
         formWrapper.togglePreviewMode();
-        expect(inputField.isVisible(HIDDEN_INPUT_PREVIEW_FIELD)).to.eventually.be.true;
-        expect(inputField.getText(HIDDEN_INPUT_PREVIEW_FIELD)).to.eventually.equal('inputTextHidden');
+        let hiddenField = new InputField($(HIDDEN_INPUT_WRAPPER));
+        expect(hiddenField.isPreview()).to.eventually.be.true;
+        expect(hiddenField.getPreviewValue()).to.eventually.equal('inputTextHidden');
       });
     });
 
     describe('when displayType=SYSTEM', () => {
       it('should not be present', () => {
-        expect(inputField.isPresent(SYSTEM_INPUT_PREVIEW_FIELD)).to.eventually.be.false;
+        expect($(SYSTEM_INPUT_PREVIEW_FIELD).isPresent()).to.eventually.be.false;
         formWrapper.togglePreviewMode();
-        expect(inputField.isPresent(SYSTEM_INPUT_PREVIEW_FIELD)).to.eventually.be.false;
+        expect($(SYSTEM_INPUT_PREVIEW_FIELD).isPresent()).to.eventually.be.false;
       });
     });
   });

@@ -2,6 +2,7 @@ package com.sirmaenterprise.sep.jms.security;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,13 +78,7 @@ public class SecurityMessageListenerTest {
 
 	@Test
 	public void beforeMessage_shouldOverrideEffectiveAuthentication_IfDifferentUsers() throws Exception {
-		when(user.getSystemId()).thenReturn("emf:user-testTenant.com");
-
-		when(message.getStringProperty(CommunicationConstants.TENANT_ID_KEY)).thenReturn("testTenant.com");
-		when(message.getStringProperty(CommunicationConstants.AUTHENTICATED_USER_KEY)).thenReturn("emf:user-testTenant"
-				+ ".com");
-		when(message.getStringProperty(CommunicationConstants.EFFECTIVE_USER_KEY)).thenReturn("emf:effectiveUser");
-		when(message.getStringProperty(CommunicationConstants.REQUEST_ID_KEY)).thenReturn("request-id");
+		mockMessage("emf:effectiveUser");
 
 		listener.beforeMessage(message);
 
@@ -93,13 +88,7 @@ public class SecurityMessageListenerTest {
 
 	@Test
 	public void beforeMessage_shouldNotOverrideEffectiveAuthentication_IfSame() throws Exception {
-		when(user.getSystemId()).thenReturn("emf:user-testTenant.com");
-
-		when(message.getStringProperty(CommunicationConstants.TENANT_ID_KEY)).thenReturn("testTenant.com");
-		when(message.getStringProperty(CommunicationConstants.AUTHENTICATED_USER_KEY)).thenReturn(
-				"emf:user-testTenant.com");
-		when(message.getStringProperty(CommunicationConstants.EFFECTIVE_USER_KEY)).thenReturn("emf:user-testTenant.com");
-		when(message.getStringProperty(CommunicationConstants.REQUEST_ID_KEY)).thenReturn("request-id");
+		mockMessage("emf:user-testTenant.com");
 
 		listener.beforeMessage(message);
 
@@ -126,6 +115,16 @@ public class SecurityMessageListenerTest {
 	}
 
 	@Test
+	public void onSuccess_shouldEndSecurityContextTwice() throws JMSException {
+		mockMessage("emf:effectiveUser");
+
+		listener.beforeMessage(message);
+		listener.onSuccess();
+
+		verify(securityContextManager, times(2)).endContextExecution();
+	}
+
+	@Test
 	public void onError_shouldEndSecurityContext() {
 		listener.beforeMessage(message);
 		listener.onError(new Exception());
@@ -133,4 +132,25 @@ public class SecurityMessageListenerTest {
 		verify(securityContextManager).initializeTenantContext(SecurityContext.SYSTEM_TENANT, null);
 		verify(securityContextManager).endContextExecution();
 	}
+
+	@Test
+	public void onError_shouldEndSecurityContextTwice() throws JMSException {
+		mockMessage("emf:effectiveUser");
+
+		listener.beforeMessage(message);
+		listener.onError(new Exception());
+
+		verify(securityContextManager, times(2)).endContextExecution();
+	}
+
+	private void mockMessage(String effectiveUser) throws JMSException {
+		when(user.getSystemId()).thenReturn("emf:user-testTenant.com");
+
+		when(message.getStringProperty(CommunicationConstants.TENANT_ID_KEY)).thenReturn("testTenant.com");
+		when(message.getStringProperty(CommunicationConstants.AUTHENTICATED_USER_KEY))
+				.thenReturn("emf:user-testTenant" + ".com");
+		when(message.getStringProperty(CommunicationConstants.EFFECTIVE_USER_KEY)).thenReturn(effectiveUser);
+		when(message.getStringProperty(CommunicationConstants.REQUEST_ID_KEY)).thenReturn("request-id");
+	}
+
 }

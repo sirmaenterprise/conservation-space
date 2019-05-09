@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.domain.Node;
 import com.sirma.itt.seip.domain.PathElement;
 
@@ -110,8 +111,7 @@ public class PropertyInstance implements Instance, Serializable {
 	/**
 	 * Setter method for domainClass.
 	 *
-	 * @param domainClass
-	 *            the domainClass to set
+	 * @param domainClass the domainClass to set
 	 */
 	public void setDomainClass(String domainClass) {
 		this.domainClass = domainClass;
@@ -129,8 +129,7 @@ public class PropertyInstance implements Instance, Serializable {
 	/**
 	 * Setter method for rangeClass.
 	 *
-	 * @param rangeClass
-	 *            the rangeClass to set
+	 * @param rangeClass the rangeClass to set
 	 */
 	public void setRangeClass(String rangeClass) {
 		this.rangeClass = rangeClass;
@@ -169,8 +168,7 @@ public class PropertyInstance implements Instance, Serializable {
 	/**
 	 * Gets the label of the class for the given language
 	 *
-	 * @param language
-	 *            The language that we want
+	 * @param language The language that we want
 	 * @return The label in the given language or default label
 	 */
 	public String getLabel(String language) {
@@ -188,13 +186,11 @@ public class PropertyInstance implements Instance, Serializable {
 	/**
 	 * Sets the label of the class for the given language
 	 *
-	 * @param language
-	 *            language of the label
-	 * @param label
-	 *            property label
+	 * @param language language of the label
+	 * @param label property label
 	 */
 	public void setLabel(String language, String label) {
-		labels.put(language, label);
+		CollectionUtils.addNonNullValue(labels, language, label);
 	}
 
 	/**
@@ -224,7 +220,7 @@ public class PropertyInstance implements Instance, Serializable {
 	 *
 	 * @return the inverse relation if it is defined or null
 	 */
-	public String getInverseRelation(){
+	public String getInverseRelation() {
 		return getAsString(INVERSE_RELATION);
 	}
 

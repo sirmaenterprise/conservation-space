@@ -1,10 +1,8 @@
 import {View, Component, Inject, NgElement, NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
-import {SearchResults} from 'search/components/common/search-results';
 import {NO_SELECTION, SINGLE_SELECTION, MULTIPLE_SELECTION} from 'search/search-selection-modes';
 import 'idoc/actions-menu/actions-menu';
 import {ExternalObjectService} from 'services/rest/external-object-service';
-import {SearchMediator, EVENT_SEARCH, IMPORT_EVENT} from 'search/search-mediator';
 import 'instance-header/static-instance-header/static-instance-header';
 import {NotificationService} from 'services/notification/notification-service';
 import {TranslateService} from 'services/i18n/translate-service';
@@ -14,7 +12,7 @@ import {Eventbus} from 'services/eventbus/eventbus';
 import {StatusCodes} from 'services/rest/status-codes';
 
 import './results-with-actions.css!css';
-import resultTemplate from 'external-search/components/results-with-actions.html!text';
+import template from 'external-search/components/results-with-actions.html!text';
 
 @Component({
   selector: 'seip-result-template',
@@ -24,10 +22,7 @@ import resultTemplate from 'external-search/components/results-with-actions.html
     'selectedItems': 'selected-items'
   }
 })
-@View({
-  template: resultTemplate
-})
-
+@View({template})
 @Inject(NgScope, NgElement, ExternalObjectService, InstanceRestService, TranslateService, Eventbus, NotificationService)
 export class ResultsWithActions extends Configurable {
 

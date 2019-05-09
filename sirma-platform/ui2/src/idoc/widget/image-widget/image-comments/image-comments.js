@@ -70,7 +70,7 @@ export class ImageComments {
       if (this.innerScope) {
         return;
       }
-      let imageCommentsComponent = $(`<image-comments-section context="::imageComments.context" control="::imageComments.control" config="imageComments.commentComponentConfig"></image-comments-section>`);
+      let imageCommentsComponent = $('<image-comments-section context="::imageComments.context" control="::imageComments.control" config="imageComments.commentComponentConfig"></image-comments-section>');
       this.element.append(imageCommentsComponent);
       this.innerScope = this.$scope.$new();
       this.$compile(imageCommentsComponent)(this.innerScope);
@@ -101,7 +101,7 @@ export class ImageComments {
       let comment = new CommentInstance(event[1]);
       comment.addData(EDIT_FROM_MIRADOR_KEY, true);
       var config = {
-        comment: comment,
+        comment,
         dialogConfig: {
           dismissOnSave: false
         }
@@ -115,8 +115,8 @@ export class ImageComments {
       this.context.getCurrentObject().then((currentObject)=> {
         this.commentDialog = new CommentContentDialog(this.dialogService, this.eventbus, this.dataProvider, this.resourceRestService, this.iconsService);
         let config = {
-          currentObject: currentObject,
-          options: options,
+          currentObject,
+          options,
           widgetId: this.widgetId
         };
         this.commentDialog.createDialog(config);
@@ -129,8 +129,8 @@ export class ImageComments {
       this.context.getCurrentObject().then((currentObject)=> {
         this.commentDialog = new CommentContentDialog(this.dialogService, this.eventbus, this.dataProvider, this.resourceRestService, this.iconsService);
         let config = {
-          currentObject: currentObject,
-          options: options,
+          currentObject,
+          options,
           widgetId: this.widgetId,
           comment: options.comment
         };

@@ -1,6 +1,6 @@
 import printStackTrace from 'stacktrace-js';
 import {Inject,Injectable} from 'app/app';
-import {Logger} from 'services/logging/logger';
+import 'services/logging/logger';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {NavigatorAdapter} from 'adapters/navigator-adapter';
 
@@ -29,7 +29,7 @@ export class ExtendedExceptionHandler {
         url: this.windowAdapter.location.href,
         type: 'error',
         message: errorMessage,
-        stackTrace: stackTrace,
+        stackTrace,
         cause: (cause || ''),
         userId: this.getUser(),
         browser: NavigatorAdapter.getNavigator(),
@@ -51,9 +51,9 @@ export class ExtendedExceptionHandler {
   getResolution() {
     var screenSize = '';
     if (screen.width) {
-        var width = (screen.width) ? screen.width : '';
-        var height = (screen.height) ? screen.height : '';
-        screenSize += '' + width + " x " + height;
+      let width = (screen.width) ? screen.width : '';
+      let height = (screen.height) ? screen.height : '';
+      screenSize += '' + width + ' x ' + height;
     }
     return screenSize;
   }

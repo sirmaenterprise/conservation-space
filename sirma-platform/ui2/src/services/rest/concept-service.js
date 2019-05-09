@@ -31,7 +31,7 @@ export class ConceptService {
 
     if (!this.cache[cacheKey]) {
       this.cache[cacheKey] = this.requestsCacheService.cache(`${SERVICE_BASE_URL}`, params, this.requestsMap, () => {
-        return this.restClient.get(`${SERVICE_BASE_URL}`,  {params: params});
+        return this.restClient.get(`${SERVICE_BASE_URL}`,  {params});
       }).then(response => {
         return response.data;
       });

@@ -14,6 +14,11 @@ export class RelatedObject {
     return [];
   }
 
+  getFirstValue() {
+    let value = this.getValue();
+    return value.length ? value[0] : null;
+  }
+
   getTotal() {
     return this.model.total || 0;
   }

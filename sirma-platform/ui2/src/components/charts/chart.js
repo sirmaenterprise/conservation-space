@@ -51,7 +51,7 @@ export class Chart {
       container: document.body,
       html: 'true',
       trigger: 'hover',
-      title: title,
+      title,
       placement: TOOLTIP_PLACEMENT_MOUSE
     }, show);
   }

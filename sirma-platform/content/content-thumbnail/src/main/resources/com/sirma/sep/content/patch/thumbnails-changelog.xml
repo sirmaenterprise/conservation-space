@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet id="emf-1.6.0-1-moved" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="emf_thumbnailmappingentity" />
+			</not>
+		</preConditions>
+		<comment>Added thumbnail tables</comment>
+		<createTable tableName="emf_thumbnailmappingentity">
+			<column autoIncrement="true" name="id" type="bigserial">
+				<constraints nullable="false" primaryKey="true" primaryKeyName="emf_thumbnailmappingentity_pkey"/>
+			</column>
+			<column name="instanceid" type="varchar(100)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="instancetype" type="int8">
+				<constraints nullable="false" />
+			</column>
+			<column name="thumbnailid" type="varchar(100)" />
+			<column name="purpose" type="varchar(50)" />
+		</createTable>
+		<addForeignKeyConstraint baseColumnNames="instancetype" baseTableName="emf_thumbnailmappingentity" baseTableSchemaName="public" constraintName="fk_tme_instancetype" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="emf_datatypedefinition" referencedTableSchemaName="public" referencesUniqueColumn="false"/>
+		<createIndex tableName="emf_thumbnailmappingentity" indexName="idx_tme_inst_thmb">
+			<column name="instanceid" />
+			<column name="thumbnailid" />
+		</createIndex>
+		<createIndex tableName="emf_thumbnailmappingentity" indexName="idx_tme_instid_prps">
+			<column name="instanceid" />
+			<column name="purpose" />
+		</createIndex>
+		<createIndex tableName="emf_thumbnailmappingentity" indexName="idx_tme_inst_p_thmb">
+			<column name="instanceid" />
+			<column name="purpose" />
+			<column name="thumbnailid" />
+		</createIndex>
+		<createTable tableName="emf_thumbnailentity">
+			<column name="id" type="varchar(50)">
+				 <constraints nullable="false" primaryKey="true" primaryKeyName="emf_thumbnailentity_pkey"/>
+			</column>
+			<column name="thumbnail" type="text"/>
+			<column name="endpoint" type="text" />
+			<column name="providername" type="varchar(100)" />
+			<column name="retries" type="int" />
+		</createTable>
+	</changeSet>
+	<changeSet id="emf-1.8.0-10-moved" author="bbonev">
+		<comment>Increase id column of the table emf_thumbnailentity</comment>
+		<modifyDataType tableName="emf_thumbnailentity" columnName="id" newDataType="varchar(100)"/>
+	</changeSet>
+	<changeSet id="seip-content-1.22.0-4-moved" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="emf_thumbnailentity"/>
+			<not>
+				<columnExists tableName="emf_thumbnailentity" columnName="lastfailtime"/>
+			</not>
+		</preConditions>
+		<addColumn tableName="emf_thumbnailentity">
+			<column name="lastfailtime" type="timestamp" />
+		</addColumn>
+		<modifyDataType tableName="emf_thumbnailentity" columnName="endpoint" newDataType="varchar(2048)"/>
+	</changeSet>
+	<changeSet id="emf-2.25.0-1" author="bbonev">
+		<preConditions>
+			<tableExists tableName="emf_thumbnailmappingentity" />
+		</preConditions>
+		<comment>Drop non null constrain from thumbnail mapping entity for instance type as the field is no
+			longer used</comment>
+		<dropNotNullConstraint tableName="emf_thumbnailmappingentity" columnName="instancetype" />
+	</changeSet>
+	<changeSet id="sep-2.27.0-1" author="bbonev">
+		<preConditions>
+			<tableExists tableName="emf_thumbnailmappingentity"/>
+			<not>
+				<columnExists tableName="emf_thumbnailmappingentity" columnName="priority" />
+			</not>
+		</preConditions>
+		<comment>Adds priority column to thumbnail mapping table used for sorting the thumbnails for a single
+			instance</comment>
+		<addColumn tableName="emf_thumbnailmappingentity">
+			<column name="priority" type="int2" />
+		</addColumn>
+		<sql>update emf_thumbnailmappingentity set priority=1, purpose='self' where instanceid=thumbnailid</sql>
+		<sql><![CDATA[update emf_thumbnailmappingentity set priority=2, purpose='assigned' where instanceid <> thumbnailid]]></sql>
+		<addNotNullConstraint tableName="emf_thumbnailmappingentity" columnName="priority" />
+	</changeSet>
+	<changeSet id="sep-2.27.0-2" author="bbonev">
+		<preConditions>
+			<tableExists tableName="emf_thumbnailmappingentity" />
+			<not>
+				<columnExists tableName="emf_thumbnailmappingentity" columnName="timestamp" />
+			</not>
+		</preConditions>
+		<comment>Adds a timestamp column when thumbnail mapping is created</comment>
+		<addColumn tableName="emf_thumbnailmappingentity">
+			<column name="timestamp" type="TIMESTAMP WITH TIME ZONE" />
+		</addColumn>
+		<sql>update emf_thumbnailmappingentity set timestamp=now() where timestamp is null</sql>
+		<addNotNullConstraint tableName="emf_thumbnailmappingentity" columnName="timestamp" />
+	</changeSet>
+</databaseChangeLog>

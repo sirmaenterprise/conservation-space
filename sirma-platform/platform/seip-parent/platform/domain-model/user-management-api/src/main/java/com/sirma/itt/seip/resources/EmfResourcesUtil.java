@@ -3,6 +3,7 @@ package com.sirma.itt.seip.resources;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.IS_ACTIVE;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.IS_DELETED;
 import static com.sirma.itt.seip.resources.ResourceProperties.GROUP_PREFIX;
+import static com.sirma.itt.seip.resources.ResourceProperties.USER_ID;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -131,8 +132,12 @@ public class EmfResourcesUtil {
 	 * @return set of field ids which are externally synchronized
 	 */
 	private static Set<String> getDmsEnabledFields(DefinitionModel model) {
-		return model.fieldsStream().filter(PropertyDefinition.isObjectProperty().negate())
-				.filter(PropertyDefinition.hasDmsType()).map(PropertyDefinition::getName).collect(Collectors.toSet());
+		return model.fieldsStream()
+				.filter(PropertyDefinition.isObjectProperty().negate())
+				.filter(PropertyDefinition.hasDmsType())
+				.map(PropertyDefinition::getName)
+				.filter(name -> !name.equalsIgnoreCase(USER_ID))
+				.collect(Collectors.toSet());
 	}
 
 	/**

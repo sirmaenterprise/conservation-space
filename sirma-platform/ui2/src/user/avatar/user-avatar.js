@@ -1,5 +1,5 @@
 import {Component, View, Inject, NgElement, NgTimeout} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import template from './user-avatar.html!text';
 import './user-avatar.css!';
 
@@ -23,14 +23,16 @@ export class UserAvatar {
   constructor($element, authenticationService, $timeout) {
     this.$element = $element;
     this.$timeout = $timeout;
+    this.authenticationService = authenticationService;
     this.imageElement = $element.find('img');
     this.fontElement = $element.find('i');
-    this.token = authenticationService.getToken();
     this.size = this.size || DEFAULT_USER_ICON_SIZE;
   }
 
   ngOnInit() {
-    this.avatarUrl = `${THUMBNAIL_URL}${this.user.id}?jwt=${this.token}`;
+    this.authenticationService.getToken().then(token => {
+      this.avatarUrl = `${THUMBNAIL_URL}${this.user.id}?${AuthenticationService.TOKEN_REQUEST_PARAM}=${token}`;
+    });
 
     this.imageElement.one('load', () => {
       this.initializeAvatarElements(this.fontElement, this.imageElement);

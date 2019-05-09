@@ -9,11 +9,9 @@ import template from './input-password.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
-class InputPassword extends FormControl {
+export class InputPassword extends FormControl {
   constructor($element) {
     super();
     this.$element = $element;

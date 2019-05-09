@@ -3,9 +3,10 @@ package com.sirma.itt.seip.definition.label;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -34,9 +35,9 @@ import com.sirma.itt.seip.model.SerializableValue;
 @ApplicationScoped
 public class LabelServiceImpl implements LabelService {
 
-	@CacheConfiguration(eviction = @Eviction(maxEntries = 2000) , doc = @Documentation(""
+	@CacheConfiguration(eviction = @Eviction(maxEntries = 2000), doc = @Documentation(""
 			+ "Cache used to store the definition label entries. There is an entry for every unique defined label in all definitions. "
-			+ "<br>Minimal value expression: labels * 1.2") )
+			+ "<br>Minimal value expression: labels * 1.2"))
 	private static final String LABEL_CACHE = "LABEL_CACHE";
 
 	@Inject
@@ -48,7 +49,7 @@ public class LabelServiceImpl implements LabelService {
 	@PostConstruct
 	void init() {
 		if (!cacheContext.containsCache(LABEL_CACHE)) {
-			cacheContext.createCache(LABEL_CACHE, new LabelLookup());
+			cacheContext.createCache(LABEL_CACHE, new LabelLookup(dbDao));
 		}
 	}
 
@@ -62,18 +63,72 @@ public class LabelServiceImpl implements LabelService {
 	}
 
 	@Override
+	public List<LabelDefinition> getLabelsDefinedIn(String identifier) {
+		List<LabelImpl> labels = queryLabelsByDefinedIn(identifier);
+		labels.forEach(LabelServiceImpl::deserializeLabels);
+		return new ArrayList<>(labels);
+	}
+
+	@Override
 	public boolean saveLabel(LabelDefinition labelDefinition) {
 		if (labelDefinition == null) {
 			return false;
 		}
-		Pair<String, LabelDefinition> pair = getLabelCache().getByKey(labelDefinition.getIdentifier());
-		if (pair != null) {
-			LabelImpl second = (LabelImpl) pair.getSecond();
-			second.setLabels(Collections.unmodifiableMap(labelDefinition.getLabels()));
-			second.getValue().setSerializable((Serializable) labelDefinition.getLabels());
-			dbDao.saveOrUpdate(second);
+		LabelDefinition definition = getLabel(labelDefinition.getIdentifier());
+		if (definition instanceof LabelImpl) {
+			LabelImpl second = (LabelImpl) definition;
+			mergeAndSaveLabels(second, labelDefinition);
 			return true;
 		}
+		return persistNewLabel(labelDefinition);
+	}
+
+	private void copyDefinedIn(LabelDefinition from, LabelImpl to) {
+		Set<String> definedIn = from.getDefinedIn();
+		if (definedIn != null) {
+			definedIn.forEach(to::addDefinedIn);
+		}
+	}
+
+	@Override
+	@Transactional(TxType.REQUIRED)
+	public boolean saveLabels(List<LabelDefinition> definitions) {
+		if (CollectionUtils.isEmpty(definitions)) {
+			return false;
+		}
+		Map<String, LabelDefinition> labelIds = definitions.stream()
+				.collect(CollectionUtils.toIdentityMap(LabelDefinition::getIdentifier));
+		List<LabelImpl> list = queryLabelsByIds(labelIds);
+
+		// update the labels that are in the DB
+		for (LabelImpl labelImpl : list) {
+			LabelDefinition definition = labelIds.remove(labelImpl.getIdentifier());
+			if (definition == null) {
+				// should not happen or something is very wrong!
+				continue;
+			}
+			mergeAndSaveLabels(labelImpl, definition);
+		}
+
+		// persist new labels
+		for (LabelDefinition labelDefinition : labelIds.values()) {
+			persistNewLabel(labelDefinition);
+		}
+		return true;
+	}
+
+	private List<LabelImpl> queryLabelsByIds(Map<String, LabelDefinition> labelIds) {
+		return dbDao.fetchWithNamed(LabelImpl.QUERY_LABELS_BY_ID_KEY,
+				Collections.singletonList(new Pair<>("labelId", labelIds.keySet())));
+	}
+
+	private List<LabelImpl> queryLabelsByDefinedIn(String identifier) {
+		String wildCardIdentifier = "%" + identifier + "%";
+		return dbDao.fetchWithNamed(LabelImpl.QUERY_LABELS_BY_DEFINED_IN_KEY,
+				Collections.singletonList(new Pair<>("definedIn", new LinkedHashSet<>(Collections.singletonList(wildCardIdentifier)))));
+	}
+
+	private boolean persistNewLabel(LabelDefinition labelDefinition) {
 		Map<String, String> labels = labelDefinition.getLabels();
 		if (labels instanceof Serializable) {
 			LabelImpl impl = (LabelImpl) labelDefinition;
@@ -81,6 +136,7 @@ public class LabelServiceImpl implements LabelService {
 				impl.setValue(new SerializableValue());
 			}
 			impl.getValue().setSerializable((Serializable) labels);
+			copyDefinedIn(labelDefinition, impl);
 
 			impl = dbDao.saveOrUpdate(impl);
 			getLabelCache().setValue(impl.getIdentifier(), impl);
@@ -89,52 +145,21 @@ public class LabelServiceImpl implements LabelService {
 		return false;
 	}
 
-	@Override
-	@Transactional(TxType.REQUIRED)
-	public boolean saveLabels(List<LabelDefinition> definitions) {
-		if (definitions == null || definitions.isEmpty()) {
-			return true;
-		}
-		Map<String, LabelDefinition> labelIds = new LinkedHashMap<>((int) (definitions.size() * 1.1), 0.95f);
-		for (LabelDefinition labelDefinition : definitions) {
-			labelIds.put(labelDefinition.getIdentifier(), labelDefinition);
-		}
-		List<Pair<String, Object>> args = new ArrayList<>(1);
-		args.add(new Pair<>("labelId", labelIds.keySet()));
-		List<LabelImpl> list = dbDao.fetchWithNamed(LabelImpl.QUERY_LABELS_BY_ID_KEY, args);
-		if (list == null) {
-			list = CollectionUtils.emptyList();
-		}
+	private void mergeAndSaveLabels(LabelImpl labelImpl, LabelDefinition definition) {
+		labelImpl.setLabels(Collections.unmodifiableMap(definition.getLabels()));
+		labelImpl.getValue().setSerializable((Serializable) definition.getLabels());
+		copyDefinedIn(definition, labelImpl);
 
-		EntityLookupCache<String, LabelDefinition, Serializable> labelCache = getLabelCache();
-		// update the labels that are int the DB
-		for (LabelImpl labelImpl : list) {
-			LabelDefinition definition = labelIds.remove(labelImpl.getIdentifier());
-			if (definition == null) {
-				// should not happen or something is very wrong!
-				continue;
-			}
-			labelImpl.setLabels(Collections.unmodifiableMap(definition.getLabels()));
-			labelImpl.getValue().setSerializable((Serializable) definition.getLabels());
-			dbDao.saveOrUpdate(labelImpl);
-			labelCache.setValue(labelImpl.getIdentifier(), labelImpl);
-		}
+		dbDao.saveOrUpdate(labelImpl);
+		getLabelCache().setValue(labelImpl.getIdentifier(), labelImpl);
+	}
 
-		// persist new labels
-		for (LabelDefinition labelDefinition : labelIds.values()) {
-			Map<String, String> labels = labelDefinition.getLabels();
-			if (labels instanceof Serializable) {
-				LabelImpl impl = (LabelImpl) labelDefinition;
-				if (impl.getValue() == null) {
-					impl.setValue(new SerializableValue());
-				}
-				impl.getValue().setSerializable((Serializable) labels);
-
-				impl = dbDao.saveOrUpdate(impl);
-				getLabelCache().setValue(impl.getIdentifier(), impl);
-			}
+	private static void deserializeLabels(LabelImpl impl) {
+		SerializableValue serializableValue = impl.getValue();
+		if (serializableValue != null && serializableValue.getSerializable() instanceof Map) {
+			Map<String, String> labels = (Map<String, String>) serializableValue.getSerializable();
+			impl.setLabels(Collections.unmodifiableMap(labels));
 		}
-		return true;
 	}
 
 	private EntityLookupCache<String, LabelDefinition, Serializable> getLabelCache() {
@@ -151,7 +176,13 @@ public class LabelServiceImpl implements LabelService {
 	 *
 	 * @author BBonev
 	 */
-	protected class LabelLookup extends EntityLookupCallbackDAOAdaptor<String, LabelDefinition, Serializable> {
+	private static class LabelLookup extends EntityLookupCallbackDAOAdaptor<String, LabelDefinition, Serializable> {
+
+		private final DbDao dbDao;
+
+		LabelLookup(DbDao dbDao) {
+			this.dbDao = dbDao;
+		}
 
 		@Override
 		@SuppressWarnings("unchecked")
@@ -165,19 +196,13 @@ public class LabelServiceImpl implements LabelService {
 				throw new DatabaseException("More then one record found for label: " + key);
 			}
 			LabelImpl impl = list.get(0);
-			SerializableValue serializableValue = impl.getValue();
-			Serializable serializable;
-			if (serializableValue != null && (serializable = serializableValue.getSerializable()) != null
-					&& serializable instanceof Map) {
-				Map<String, String> labels = (Map<String, String>) serializable;
-				impl.setLabels(Collections.unmodifiableMap(labels));
-			}
+			deserializeLabels(impl);
 			return new Pair<>(key, impl);
 		}
 
 		@Override
 		public Pair<String, LabelDefinition> createValue(LabelDefinition value) {
-			throw new UnsupportedOperationException("Labels are persisted externaly");
+			throw new UnsupportedOperationException("Labels are persisted externally");
 		}
 
 	}

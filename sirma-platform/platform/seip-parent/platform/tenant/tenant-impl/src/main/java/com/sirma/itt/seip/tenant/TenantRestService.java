@@ -124,6 +124,9 @@ public class TenantRestService {
 		} catch (Exception e) {
 			LOGGER.trace("Tenant deletion failed with error", e);
 			String message = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+			if (!statusService.hasFailed(tenantId)) {
+				statusService.setStatus(tenantId, TenantInitializationStatusService.Status.FAILED, message);
+			}
 			return Response.serverError().type(MediaType.TEXT_PLAIN).entity(message).build();
 		}
 		return Response.ok().build();
@@ -149,6 +152,10 @@ public class TenantRestService {
 			Builder builder = provideBuilder(form);
 			tenantService.update(builder.build(), tenantId);
 		} catch (Exception e) {
+			LOGGER.trace("Tenant update failed with error", e);
+			if (!statusService.hasFailed(tenantId)) {
+				statusService.setStatus(tenantId, TenantInitializationStatusService.Status.FAILED, e.getMessage());
+			}
 			return Response.serverError().type(MediaType.TEXT_PLAIN).entity(e).build();
 		}
 		return Response.ok().build();
@@ -157,7 +164,7 @@ public class TenantRestService {
 	/**
 	 * Uploads an ontology model for a given tenant. The ontology model might be represented as an archive or a list of
 	 * individual files to be uploaded.
-	 * 
+	 *
 	 * @param tenantId the tenant id for which to upload the ontology model
 	 * @param req the upload request containing a list of {@link FileItem}s
 	 * @return the response from the execution step
@@ -184,6 +191,10 @@ public class TenantRestService {
 			// update on the specified tenant with a model
 			tenantService.update(builder.build(), tenantId);
 		} catch (Exception e) {
+			LOGGER.trace("Tenant model update failed with error", e);
+			if (!statusService.hasFailed(tenantId)) {
+				statusService.setStatus(tenantId, TenantInitializationStatusService.Status.FAILED, e.getMessage());
+			}
 			return Response.serverError().type(MediaType.TEXT_PLAIN).entity(e.getMessage()).build();
 		}
 		return Response.ok().build();
@@ -299,7 +310,7 @@ public class TenantRestService {
 
 	/**
 	 * Creates a default and empty tenant model
-	 * 
+	 *
 	 * @return the default tenant model as a {@link JSONObject}
 	 */
 	private static JSONObject getDefaultTenantModel() {
@@ -309,7 +320,7 @@ public class TenantRestService {
 	/**
 	 * Creates a JSON tenant model representation. The model content is parsed from the input part When no data is
 	 * provided a default model is instead created.
-	 * 
+	 *
 	 * @return the created tenant model as a {@link JSONObject}
 	 */
 	private static JSONObject getTenantModel(List<InputPart> data) {

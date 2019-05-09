@@ -72,6 +72,10 @@ public class Label {
 		return value;
 	}
 
+	public void setValue(List<LabelValue> value) {
+		this.value = value;
+	}
+
 	/**
 	 * Gets the value of the id property.
 	 *

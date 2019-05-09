@@ -9,11 +9,9 @@ import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.security.ActionTypeConstants;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
 import com.sirma.itt.seip.instance.actions.Action;
-import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.template.rules.TemplateRuleTranslator;
 
@@ -29,7 +27,7 @@ public class EditTemplateRuleAction implements Action<EditTemplateRuleActionRequ
 	private DomainInstanceService domainInstanceService;
 
 	@Inject
-	TemplateRuleTranslator ruleTranslator;
+	private TemplateRuleTranslator ruleTranslator;
 
 	@Override
 	public String getName() {
@@ -38,20 +36,17 @@ public class EditTemplateRuleAction implements Action<EditTemplateRuleActionRequ
 
 	@Override
 	public Object perform(EditTemplateRuleActionRequest request) {
-		String instanceId = request.getTargetId().toString();
-		String rule = request.getRule();
-
-		Instance templateInstance = domainInstanceService.loadInstance(instanceId);
-		templateInstance.add(TEMPLATE_RULE, StringUtils.trimToNull(rule));
+		String rule = StringUtils.trimToNull(request.getRule());
+		Instance templateInstance = request.getTargetReference().toInstance();
+		templateInstance.add(TEMPLATE_RULE, rule);
 
 		String templateRuleDescription = null;
-		if (StringUtils.isNotBlank(rule)) {
+		if (rule != null) {
 			templateRuleDescription = ruleTranslator.translate(rule, templateInstance.getString(FOR_OBJECT_TYPE));
 		}
 		templateInstance.add(TEMPLATE_RULE_DESCRIPTION, templateRuleDescription);
 
-		InstanceSaveContext saveContext = InstanceSaveContext.create(templateInstance,
-				new Operation(ActionTypeConstants.EDIT_DETAILS));
+		InstanceSaveContext saveContext = InstanceSaveContext.create(templateInstance, request.toOperation());
 		return domainInstanceService.save(saveContext).getId();
 	}
 }

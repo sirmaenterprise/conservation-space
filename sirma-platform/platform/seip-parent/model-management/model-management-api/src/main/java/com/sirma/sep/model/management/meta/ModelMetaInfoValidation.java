@@ -1,5 +1,6 @@
 package com.sirma.sep.model.management.meta;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,6 +12,12 @@ public class ModelMetaInfoValidation {
 
 	private boolean mandatory;
 
+	private boolean updateable;
+
+	private List<String> affected;
+
+	private List<ModelMetaInfoRule> rules;
+
 	public boolean isMandatory() {
 		return mandatory;
 	}
@@ -19,20 +26,45 @@ public class ModelMetaInfoValidation {
 		this.mandatory = mandatory;
 	}
 
+	public boolean isUpdateable() {
+		return updateable;
+	}
+
+	public void setUpdateable(boolean updateable) {
+		this.updateable = updateable;
+	}
+
+	public List<String> getAffected() {
+		return affected;
+	}
+
+	public void setAffected(List<String> affected) {
+		this.affected = affected;
+	}
+
+	public List<ModelMetaInfoRule> getRules() {
+		return rules;
+	}
+
+	public void setRules(List<ModelMetaInfoRule> rules) {
+		this.rules = rules;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		if (!(o instanceof ModelMetaInfoValidation)) {
 			return false;
 		}
 		ModelMetaInfoValidation that = (ModelMetaInfoValidation) o;
-		return mandatory == that.mandatory;
+		return mandatory == that.mandatory && updateable == that.updateable && Objects.equals(rules, that.rules)
+				&& Objects.equals(affected, that.affected);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(mandatory);
+		return Objects.hash(mandatory, updateable, rules, affected);
 	}
 }

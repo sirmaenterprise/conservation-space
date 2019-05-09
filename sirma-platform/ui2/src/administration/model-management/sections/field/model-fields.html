@@ -1,58 +1,129 @@
 <div class="model-fields">
-  <div ng-if="!modelFields.isModelDefinition()" class="selected-message alert alert-info">
-    {{ ::'administration.models.management.fields.model.message' | translate}}
-  </div>
 
-  <div ng-if="modelFields.isModelDefinition()" class="container-fluid form-horizontal">
-    <div class="control-section">
-      <input ng-model="modelFields.filterRules.filterTerm" ng-change="modelFields.triggerFilter()"
-             ng-model-options="::{ debounce: { 'default': 200, 'blur': 0 } }" class="filter-field form-control"/>
+  <div class="model-field-list-and-details">
+    <div class="model-fields-list container-fluid form-horizontal col-md-6">
+      <div class="filter-section">
+        <input ng-model="modelFields.filterRules.filterTerm" ng-change="modelFields.triggerFilter()"
+               ng-model-options="::{ debounce: { 'default': 200, 'blur': 0 } }" class="filter-field form-control"
+               placeholder="{{ ::'administration.models.management.fields.filter.placeholder' | translate}}"/>
+      </div>
 
-      <div class="fields-controls" ng-show="false">
-        <button class="create-field-button btn btn-default" ng-click="modelFields.createField()">
-          {{ ::'administration.models.management.fields.add.field' | translate}}
-        </button>
+      <div class="display-section">
+        <label class="checkbox filter-hidden" ng-if="modelFields.isModelDefinition()">
+          {{ ::'administration.models.management.fields.filter.hidden' | translate}}
+          <input class="form-control" type="checkbox"
+                 ng-change="modelFields.triggerFilter()"
+                 ng-model="modelFields.filterRules.showHidden"/><i></i>
+        </label>
 
-        <button class="create-region-button btn btn-default" ng-click="modelFields.createRegion()">
+        <label class="checkbox filter-system" ng-if="modelFields.isModelDefinition()">
+          {{ ::'administration.models.management.fields.filter.system' | translate}}
+          <input class="form-control" type="checkbox"
+                 ng-change="modelFields.triggerFilter()"
+                 ng-model="modelFields.filterRules.showSystem"/><i></i>
+        </label>
+
+        <label class="checkbox filter-inherited">
+          {{ ::'administration.models.management.fields.filter.inherited' | translate}}
+          <input class="form-control" type="checkbox"
+                 ng-change="modelFields.triggerFilter()"
+                 ng-model="modelFields.filterRules.showInherited"/><i></i>
+        </label>
+      </div>
+
+      <div class="control-section">
+        <a class="create-region" ng-if="modelFields.isCreateRegionVisible()" ng-click="modelFields.createRegion()">
           {{ ::'administration.models.management.fields.add.region' | translate}}
-        </button>
+        </a>
+        <a class="create-field" ng-if="modelFields.isCreateFieldVisible()" ng-click="modelFields.createField()"
+           title="{{ ::'administration.models.management.fields.add.field.tooltip' | translate}}">
+          {{ ::'administration.models.management.fields.add.field' | translate}}
+        </a>
+        <a class="create-property" ng-if="modelFields.isCreatePropertyVisible()" ng-click="modelFields.createProperty()"
+           title="{{ ::'administration.models.management.fields.add.property.tooltip' | translate}}">
+          {{ ::'administration.models.management.fields.add.property' | translate}}
+        </a>
+      </div>
+
+      <div ng-switch="modelFields.isFieldsListVisible()">
+        <div class="filter-message alert alert-info" ng-switch-when="false">
+          {{ ::'administration.models.management.fields.filter.message' | translate}}
+        </div>
+
+        <div class="model-region-section panel panel-default" ng-switch-default>
+          <div class="panel-body">
+            <div ng-if="modelFields.isModelVisible(item)"
+                 ng-repeat="item in modelFields.getModels() track by item.getId()" id="{{item.getId()}}">
+
+              <seip-model-field-view ng-if="modelFields.isModelField(item) && !item.getRegionId()" model="item" context="modelFields.model"
+                                     class="model-item" on-model-selected="modelFields.validateAndSelectModel(model)"
+                                     ng-class="{'highlighted-model': modelFields.isHighlighted(item), 'dirty-model': modelFields.isTouched(item)}">
+              </seip-model-field-view>
+
+              <seip-model-property-view ng-if="modelFields.isModelProperty(item)" model="item" context="modelFields.model"
+                                        class="model-item" on-model-selected="modelFields.validateAndSelectModel(model)"
+                                        ng-class="{'highlighted-model': modelFields.isHighlighted(item), 'dirty-model': modelFields.isTouched(item)}">
+              </seip-model-property-view>
+
+              <seip-model-container-view ng-if="modelFields.isModelRegion(item)" model="item" context="modelFields.model"
+                                         on-model-selected="modelFields.validateAndSelectModel(model)"
+                                         ng-class="{'highlighted-region': modelFields.isHighlighted(item), 'dirty-region': modelFields.isTouched(item)}">
+                <seip-model-field-view ng-repeat="field in modelFields.getFields(item) track by field.getId()"
+                                       ng-if="modelFields.isModelVisible(field)" model="field" class="model-item"
+                                       on-model-selected="modelFields.validateAndSelectModel(model)" context="modelFields.model"
+                                       ng-class="{'highlighted-model': modelFields.isHighlighted(field), 'dirty-model': modelFields.isTouched(field)}">
+                </seip-model-field-view>
+              </seip-model-container-view>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="display-section">
-      <label class="checkbox filter-hidden">
-        {{ ::'administration.models.management.fields.filter.hidden' | translate}}
-        <input class="form-control" type="checkbox"
-               ng-change="modelFields.triggerFilter()"
-               ng-model="modelFields.filterRules.showHidden"/><i></i>
-      </label>
+    <div class="col-md-6">
+      <div class="select-field-message alert alert-info" ng-if="!modelFields.selectedModel">
+        {{ 'administration.models.management.field.select' | translate }}
+      </div>
+      <model-details ng-if="modelFields.selectedModel"
+                     on-model-navigate="modelFields.onModelNavigated(model)"
+                     on-model-restore-inherited="modelFields.onModelRestoreInherited(model, toRestore)"
+                     on-attribute-change="modelFields.notifyForModelAttributeChange(attribute, modelFields.model)"
+                     context="modelFields.model" model="modelFields.selectedModel"></model-details>
 
-      <label class="checkbox filter-system">
-        {{ ::'administration.models.management.fields.filter.system' | translate}}
-        <input class="form-control" type="checkbox"
-               ng-change="modelFields.triggerFilter()"
-               ng-model="modelFields.filterRules.showSystem"/><i></i>
-      </label>
+      <div class="panel panel-default model-field-controls-panel" collapsible-panel
+           ng-if="modelFields.isModelField(modelFields.selectedModel)">
+        <div class="panel-heading model-field-controls-panel-heading">
+          <i class="panel-caret fa fa-caret-down"></i>
+          <span class="model-header">
+            <strong class="model-title">"{{ modelFields.selectedModel.getDescription().getValue() }}"</strong>
+            <span>{{ ::'administration.models.management.field.controls' | translate }}</span>
+          </span>
+          <button class="btn btn-default btn-xs restore-controls"
+                  ng-if="modelFields.isRestoreInheritedForControlsEnabled(modelFields.selectedModel)"
+                  ng-click="modelFields.onModelControlRestoreInherited($event, modelFields.selectedModel)"
+                  title="{{ ::'administration.models.management.field.controls.restore.title' | translate }}">
+            <i class="fa fa-undo"></i>
+            <span>{{ ::'administration.models.management.field.controls.restore' | translate }}</span>
+          </button>
+        </div>
 
-      <label class="checkbox filter-inherited">
-        {{ ::'administration.models.management.fields.filter.inherited' | translate}}
-        <input class="form-control" type="checkbox"
-               ng-change="modelFields.triggerFilter()"
-               ng-model="modelFields.filterRules.showInherited"/><i></i>
-      </label>
-    </div>
-
-    <div class="filter-message alert alert-info" ng-show="!modelFields.showSection">
-      {{ ::'administration.models.management.fields.filter.message' | translate}}
-    </div>
-
-    <div class="model-region-section panel panel-default" ng-show="modelFields.showSection">
-      <div class="panel-body">
-        <div ng-repeat="item in modelFields.model.getModels()" id="{{item.getId()}}">
-          <seip-model-field-view ng-if="modelFields.isModelField(item)" model="item"></seip-model-field-view>
-          <seip-model-region-view ng-if="!modelFields.isModelField(item)" model="item"></seip-model-region-view>
+        <div class="panel-body model-form container-fluid">
+          <model-field-controls model="modelFields.selectedModel"
+                                on-model-control-create="modelFields.createControl(type)"
+                                on-model-control-remove="modelFields.removeControl(control)"
+                                on-attribute-change="modelFields.notifyForModelAttributeChange(attribute, modelFields.model)"></model-field-controls>
         </div>
       </div>
     </div>
   </div>
+
+  <model-controls>
+    <model-save loading="modelFields.isSectionSaving()"
+                enabled="modelFields.isSaveAllowed()"
+                on-save="modelFields.saveAllChanges()"></model-save>
+
+    <model-cancel loading="modelFields.isSectionSaving()"
+                  enabled="modelFields.isSectionDirty()"
+                  on-cancel="modelFields.revertAllChanges()"></model-cancel>
+  </model-controls>
 </div>

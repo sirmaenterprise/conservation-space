@@ -176,7 +176,7 @@ public class AnnotationWriter {
 		} else if (value instanceof Resource) {
 			result = convertResource((Resource) value);
 		} else if (value instanceof Action) {
-			result = (Serializable) JSON.jsonToMap(Action.convertAction((Action) value));
+			result = (Serializable) JSON.jsonToMap(Action.convertAction((Action) value).build());
 		} else {
 			result = typeConverter.convert(String.class, value);
 		}

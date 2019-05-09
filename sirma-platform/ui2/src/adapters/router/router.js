@@ -10,8 +10,8 @@ import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 export default function (angularModule, routes) {
   angularModule.requires.push('ui.router');
 
-  var loadModule = function ($q, src) {
-    var def = $q.defer();
+  let loadModule = function ($q, src) {
+    let def = $q.defer();
 
     System.import(src).then(() => {
       return def.resolve();
@@ -20,7 +20,7 @@ export default function (angularModule, routes) {
     return def.promise;
   };
 
-  var RouterConfig = ['$stateProvider',
+  return ['$stateProvider',
     function ($stateProvider) {
 
       routes.forEach(function (state) {
@@ -47,8 +47,6 @@ export default function (angularModule, routes) {
       });
     }
   ];
-
-  return RouterConfig;
 };
 
 @Injectable()
@@ -83,12 +81,7 @@ export class Router {
             header: 'router.interrupt.dialog.header',
             confirmLabel: 'router.interrupt.dialog.btn.leave',
             cancelLabel: 'router.interrupt.dialog.btn.stay'
-          }).then(() => {
-            resolve();
-          }).catch(() => {
-            reject();
-            delete toState.resolve.pauseStateChange;
-          });
+          }).then(resolve, reject);
         } else {
           resolve();
         }
@@ -96,6 +89,7 @@ export class Router {
 
       return confirmedNavigationPromise.then(() => {
         this.eventbus.publish(new RouterStateChangeStartEvent(arguments));
+      }).finally(() => {
         delete toState.resolve.pauseStateChange;
       });
     };

@@ -1,0 +1,42 @@
+package:
+  bash:
+    installed: true
+
+process:
+  java:
+    running: true
+
+command:
+  ps aux | grep java | grep standalone:
+    exit-status: 0
+
+file:
+  /opt/keycloak/:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /opt/keycloak/standalone/data:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+  /opt/keycloak/standalone/log:
+    exists: true
+    filetype: directory
+    owner: dockeru
+    group: dockeru
+
+addr:
+  tcp://0.0.0.0:8080:
+    reachable: true
+
+http:
+  http://0.0.0.0:8080/auth:
+    status: 200
+
+mount:
+  "/opt/keycloak/standalone/data":
+    exists: true
+  "/opt/keycloak/standalone/log":
+    exists: true

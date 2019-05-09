@@ -6,7 +6,7 @@ ENV DB_USER="sep" \
 	IDP_PORT="9443" \
 	SSO_ENABLED="true" \
 	LDAP_HOST="idp" \
-	LDAP_PORT="10389" \	
+	LDAP_PORT="10389" \
 	LDAP_USERNAME="uid\=admin,ou\=system" \
 	LDAP_PASSWORD="admin" \
 	LDAP_AUTH_TIMEOUT="5000"
@@ -16,7 +16,10 @@ COPY alfresco-emf-integration/alfresco/target/alfresco.war /opt/tomcat/webapps/
 
 RUN \
 	apk --no-cache add curl xvfb ttf-freefont fontconfig dbus zip && \
-	apk --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted add wkhtmltopdf && \
+	apk --no-cache \
+		--repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
+		--repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+		--allow-untrusted add wkhtmltopdf && \
 	unzip webapps/alfresco.war -d webapps/ && \
 	rm -rf webapps/alfresco.war webapps/WEB-INF/classes/alfresco/module/backup && \
 	sed -i 's|log4j.appender.File.File=|log4j.appender.File.File=/opt/tomcat/logs/|' webapps/WEB-INF/classes/log4j.properties && \

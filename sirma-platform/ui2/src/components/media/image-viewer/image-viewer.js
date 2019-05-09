@@ -1,5 +1,5 @@
 import {View, Component, Inject, NgElement, NgTimeout} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {CONTENT_TYPE} from 'services/rest/http-headers';
 

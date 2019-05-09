@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.Pair;
+import com.sirma.itt.seip.Trackable;
 import com.sirma.itt.seip.concurrent.FragmentedWork;
 import com.sirma.itt.seip.configuration.Options;
 import com.sirma.itt.seip.db.DbDao;
@@ -176,8 +177,10 @@ public class SeipToSemanticResourceSynchronizationConfig
 					.stream()
 						.map(id -> registryService.buildFullUri(id.toString()))
 						.collect(Collectors.toList());
-			return dbDao.fetchWithNamed(NamedQueries.SELECT_BY_IDS,
+			List<Instance> instances = dbDao.fetchWithNamed(NamedQueries.SELECT_BY_IDS,
 					singletonList(new Pair<>(NamedQueries.Params.URIS, uries)));
+			instances.forEach(Trackable::enableTracking);
+			return instances;
 		});
 	}
 
@@ -303,12 +306,13 @@ public class SeipToSemanticResourceSynchronizationConfig
 	 * @return new {@link ObjectInstance} which could be modified
 	 */
 	private static Instance toObjectInstance(Instance instance) {
-		Instance objectInstance = new ObjectInstance();
+		ObjectInstance objectInstance = new ObjectInstance();
 		objectInstance.setId(instance.getId());
 		objectInstance.setIdentifier(instance.getIdentifier());
 		objectInstance.setRevision(instance.getRevision());
 		objectInstance.setType(instance.type());
 		Map<String, Serializable> clonedProperties = PropertiesUtil.cloneProperties(instance.getProperties());
+		objectInstance.enableChangesTracking();
 		objectInstance.addAllProperties(clonedProperties);
 		return objectInstance;
 	}

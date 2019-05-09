@@ -35,10 +35,10 @@ export class BpmReleaseAction extends BpmTransitionAction {
     let currentObjectId = context.currentObject.getId();
     let actionPayload = this.bpmService.buildBPMActionPayload(currentObjectId, actionDefinition, models, OPERATION);
     return this.bpmService.releaseBpm(currentObjectId, actionPayload).then((response) => {
-        let createdObjectHeader = this.translateService.translateInstantWithInterpolation('bpm.transition', { transitionId : actionDefinition.label });
-        this.notificationService.success(createdObjectHeader);
-        this.notifyOnUpdate(undefined, response);
-        return response;
+      let createdObjectHeader = this.translateService.translateInstantWithInterpolation('bpm.transition', { transitionId : actionDefinition.label });
+      this.notificationService.success(createdObjectHeader);
+      this.notifyOnUpdate(undefined, response);
+      return response;
     });
   }
 

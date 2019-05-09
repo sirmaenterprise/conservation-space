@@ -2,10 +2,9 @@ import {Inject, Component} from 'app/app';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {Router} from 'adapters/router/router';
 import {TranslateService} from 'services/i18n/translate-service';
-import {BASE_PATH, HEADER_V2_JSON} from 'services/rest-client';
 import {STATE_PARAM_ID, STATE_PARAM_MODE, MODE_EDIT} from 'idoc/idoc-constants';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {ActionsService} from 'services/rest/actions-service';
 
 /**
  * @author Svetlosar Kovatchev
@@ -13,30 +12,21 @@ import {AuthenticationService} from 'services/security/authentication-service';
 @Component({
   selector: 'navigation-retainment'
 })
-@Inject(WindowAdapter, Router, TranslateService, StateParamsAdapter, AuthenticationService)
+@Inject(WindowAdapter, Router, TranslateService, StateParamsAdapter, ActionsService)
 export class NavigationRetainment {
-  constructor(windowAdapter, router, translateService, stateParamsAdapter, authenticationService) {
+  constructor(windowAdapter, router, translateService, stateParamsAdapter, actionsService) {
     this.windowAdapter = windowAdapter;
     this.router = router;
     this.translateService = translateService;
     this.stateParamsAdapter = stateParamsAdapter;
-    this.authenticationService = authenticationService;
+    this.actionsService = actionsService;
     this.windowAdapter.window.onbeforeunload = () => this.retain();
     this.windowAdapter.window.onunload = () => this.unlock();
   }
 
   unlock() {
     if(this.isLocked()) {
-      $.ajax({
-        type: 'POST',
-        contentType: HEADER_V2_JSON,
-        accept: HEADER_V2_JSON,
-        url: BASE_PATH + '/instances/' + this.stateParamsAdapter.getStateParam(STATE_PARAM_ID) + '/actions/unlock',
-        async: false,
-        headers: {
-          'Authorization': 'Bearer ' + this.authenticationService.getToken()
-        }
-      });
+      this.actionsService.unlock(this.stateParamsAdapter.getStateParam(STATE_PARAM_ID));
     }
     this.windowAdapter.window.removeEventListener('onunload', onunload);
   }

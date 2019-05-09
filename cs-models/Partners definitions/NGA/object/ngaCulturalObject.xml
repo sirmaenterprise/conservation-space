@@ -2,91 +2,61 @@
 <definition id="ngaCulturalObject" parentId="baseObject" isAbstract="true" type="object">
 	<configuration>
 		<fields>
-			<field name="existingInContext" type="an..50" codelist="CL26" uri="emf:existingInContext">
+			<field name="existingInContext" type="ANY" codelist="CL26" uri="emf:existingInContext">
 				<value>WITHOUT_CONTEXT</value>
 			</field>
 		</fields>
 	</configuration>
     <fields>
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+		<field name="rdf:type" >
             <value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject</value>
         </field>
 		
-		<field name="identifier" order="10" displayType="system" />
-        <field name="type" type="an..50" displayType="system" />
-        <field name="title" type="an..180" displayType="system"/>
-		<field name="description" type="an..5000" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-    	<field name="createdBy" type="uri" displayType="system" />
-        <field name="modifiedOn" type="dateTime" displayType="system"/>
-        <field name="modifiedBy" type="uri" displayType="system" />
-		<field name="status" type="an..50" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="hasRevision" type="uri" displayType="system" />
-		<field name="isRevisionOf" type="uri" displayType="system" />
-		<field name="lastPublishedRevision" type="uri" displayType="system" />
-		<field name="lastRevision" type="uri" displayType="system" />
-		<field name="nextRevision" type="uri" displayType="system" />
-		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="uri" displayType="system" />
 		<field name="hasWatcher" type="uri" displayType="system" override="true" />
+		<field name="hasParent" displayType="system" />
     </fields>
 	
 	<regions>	
 		<region id="generalCulturalObjectInformation" order="60" displayType="editable" label="ngaCulturalObject.generalCulturalObjectInformation.region.label">
 			<fields>
-				<field name="title" type="an..1000" label="ngaCulturalObject.title.label" tooltip="ngaCulturalObject.title.tooltip" mandatory="true" displayType="editable" order="602" uri="dcterms:title" />
-				<field name="type" type="an..50" label="nga.type.label" tooltip="nga.type.tooltip" codelist="CL7" displayType="readOnly" order="613" uri="emf:type" >
-					<value>DomainObject</value>
+				<field name="title" type="an..1000" tooltip="ngaCulturalObject.title.tooltip" order="602" />
+				<field name="type" tooltip="nga.type.tooltip" order="613" >
+					<value>NGACO</value>
+				</field>  
+				<field name="subType" type="ANY" codelist="CL247" tooltip="ngaCulturalObject.subType.tooltip" order="615" displayType="editable" 
+				uri="nga:subClassification"	>
 					<control id="RELATED_FIELDS">
-						<control-param id="fieldsToRerender" name="RERENDER">subType</control-param>
+						<control-param id="fieldsToRerender" name="RERENDER">type</control-param>
 						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
 						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
 					</control>
-				</field>  
-				<field name="subType" type="an..50" codelist="CL247" label="ngaCulturalObject.subType.label" tooltip="ngaCulturalObject.subType.tooltip" order="615" displayType="editable" 
-				uri="nga:subClassification"	>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="description" type="an..5000" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable" order="618" uri="dcterms:description" />
+				<field name="description" type="an..5000" tooltip="nga.description.tooltip" order="618" />
 			</fields>
 		</region>
 		<region id="systemData" order="70" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="sourceSystemId" type="an..50" codelist="CL250" label="nga.sourceSystemId.label" tooltip="nga.sourceSystemId.tooltip" displayType="readOnly" order="700" filters="ngaObjectSourceSystemId" uri="chc:sourceSystemId" >
+				<field name="sourceSystemId" type="ANY" codelist="CL250" label="nga.sourceSystemId.label" tooltip="nga.sourceSystemId.tooltip" displayType="readOnly" order="700" uri="chc:sourceSystemId" >
+					<control id="RELATED_FIELDS">
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">sourceSystemId</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGASR25001,NGASR25002</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
 					<value>NGASR25001</value>
 					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
 				</field>
-				<field name="identifier" type="an..50" label="ngaCulturalObject.identifier.label" tooltip="ngaCulturalObject.identifier.tooltip" displayType="readOnly" order="701" rnc="${eval(CO${seq({+coSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50" codelist="CL300" label="nga.status.label" tooltip="nga.status.tooltip" displayType="readOnly" order="702" previewEmpty="false" uri="emf:status" />
-				<field name="emf:version" type="an..10" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" order="704" uri="emf:version"/> 
-				<field name="createdOn" type="dateTime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" order="706" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readOnly" order="708" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readOnly" order="710" previewEmpty="false" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readOnly" order="712" previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" order="714" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="identifier" tooltip="ngaCulturalObject.identifier.tooltip" order="701" rnc="${eval(CO${seq({+coSequence})})}" />
+				<field name="status" codelist="CL300" tooltip="nga.status.tooltip" order="702" />
+				<field name="emf:version" tooltip="nga.version.tooltip" order="704" /> 
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" order="706" />
+				<field name="createdBy" tooltip="nga.createdBy.tooltip" order="708" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" order="710" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" order="712" />
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" order="714" />
 			</fields>
 		</region>
 		<region id="generalCulturalObjectRelationships" order="80" displayType="editable" label="nga.relationships.region.label">
@@ -113,15 +83,7 @@
 				<field name="duplicates" type="uri" label="ngaCulturalObject.duplicates.label" tooltip="ngaCulturalObject.duplicates.tooltip" displayType="editable" multiValued="true" order="8006" previewEmpty="false" uri="chc:duplicates" >
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
-						<control-param id="restrictions" name="restrictions">
-							 {
-								"condition": "AND",
-								"rules": [
-									{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]},
-									{"field": "chc:sourceSystemId", "operator": "in", "type": "codeList", "value": ["NGASR25002"]}
-								]
-							}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"condition": "AND","rules": [{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]},{"field": "chc:sourceSystemId", "operator": "in", "type": "codeList", "value": ["NGASR25002"]}]}</control-param>
 					</control>
 				</field>
 				<field name="chc:hasSample" type="uri" label="ngaCulturalObject.hasSample.label" tooltip="ngaCulturalObject.hasSample.tooltip" previewEmpty="false" displayType="editable" multiValued="true" order="8008" uri="chc:hasSample" >
@@ -132,9 +94,7 @@
 				<field name="isDocumentedIn" type="uri" label="nga.isDocumentedIn.label" tooltip="nga.isDocumentedIn.tooltip" displayType="readOnly" multiValued="true" order="8009" previewEmpty="false" uri="chc:isDocumentedIn" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "not_in", "type": "codeList", "value": ["APPROVED","OBSOLETE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "not_in", "type": "codeList", "value": ["APPROVED","OBSOLETE"]}</control-param>
 					</control>
 				</field>
 				<field name="emf:processedBy" type="uri" label="nga.processedBy.label" tooltip="nga.processedBy.tooltip" displayType="editable" multiValued="true" order="8010" previewEmpty="false" uri="emf:processedBy" >
@@ -152,7 +112,6 @@
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				
 				<field name="emf:hasWatcher" type="uri" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" displayType="editable" order="8016" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
@@ -161,66 +120,28 @@
 						</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" displayType="readOnly" order="8018" previewEmpty="false" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" order="8020" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" order="8022" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<!-- <field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" order="8022" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field> -->
-				
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" order="8026" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" order="8028" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasThumbnail" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" order="8018" />
+				<field name="emf:hasTemplate" order="8020" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" />
+				<field name="parentOf" tooltip="nga.parentOf.tooltip" order="8022" previewEmpty="false" />
+				<field name="partOf" displayType="readOnly" tooltip="nga.partOf.tooltip" order="8026" />
+				<field name="hasChild" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" order="8028" previewEmpty="false" />
 			</fields>
 		</region>
 		<region id="ngaCORevisions" order="81" displayType="editable" label="nga.achive.region.label">
 			<fields>
-				<field name="hasRevision" type="uri" displayType="readonly" order="8105" label="nga.hasRevision.label" tooltip="nga.hasRevision.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="isRevisionOf" type="uri" displayType="readonly" order="8110" label="nga.isRevisionOf.label" tooltip="nga.isRevisionOf.tooltip" previewEmpty="false" uri="emf:isRevisionOf" >
-					<control id="PICKER"/>
-				</field>
-				<field name="lastPublishedRevision" type="uri" displayType="readonly" order="8115" label="lastPublishedRevision.label" tooltip="nga.lastPublishedRevision.tooltip" previewEmpty="false" uri="emf:lastPublishedRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="lastRevision" type="uri" displayType="readonly" order="8120" label="lastRevision.label" tooltip="nga.lastRevision.tooltip" previewEmpty="false" uri="emf:lastRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="nextRevision" type="uri" displayType="readonly" order="8125" label="nextRevision.label" tooltip="nga.nextRevision.tooltip" previewEmpty="false" uri="emf:nextRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="previousRevision" type="uri" displayType="readonly" order="8130" label="previousRevision.label" tooltip="nga.previousRevision.tooltip" previewEmpty="false" uri="emf:previousRevision" >
-					<control id="PICKER"/>
-				</field>
+				<field name="hasRevision" order="8105" label="nga.hasRevision.label" tooltip="nga.hasRevision.tooltip" />
+				<field name="isRevisionOf" order="8110" label="nga.isRevisionOf.label" tooltip="nga.isRevisionOf.tooltip" />
+				<field name="lastPublishedRevision" order="8115" label="lastPublishedRevision.label" tooltip="nga.lastPublishedRevision.tooltip" />
+				<field name="lastRevision" order="8120" tooltip="nga.lastRevision.tooltip" />
+				<field name="nextRevision" order="8125" tooltip="nga.nextRevision.tooltip" />
+				<field name="previousRevision" order="8130" tooltip="nga.previousRevision.tooltip" />
 			</fields>
 		</region>	
 	</regions>
 	
 	<transitions>
 		<transition id="editDetails" order="10" actionPath="/actions" />
-		<transition id="createDocument" order="15" label="nga.createDocument.action.label" tooltip="nga.createDocument.action.tooltip" eventId="createDocument" purpose="createInstance" actionPath="/" >
+		<transition id="createDocument" order="15" label="nga.createDocument.action.label" tooltip="nga.createDocument.action.tooltip" purpose="createInstance" actionPath="/" >
       		<fields>
 				<field name="createDocConfig" type="json">
 					<value>
@@ -235,7 +156,7 @@
 		</transition>
 		
 		<group id="add" order="20" label="add.group.label" type="menu" />
-		<transition id="addAttachment" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -249,7 +170,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addPrimaryImage" label="ngaCulturalObject.addPrimaryImage.action.label" tooltip="ngaCulturalObject.addPrimaryImage.action.tooltip" eventId="addPrimaryImage" purpose="addRelation" group="add">
+		<transition id="addPrimaryImage" label="ngaCulturalObject.addPrimaryImage.action.label" tooltip="ngaCulturalObject.addPrimaryImage.action.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="addPrimaryImageConfig" type="json">
 					<value>
@@ -280,7 +201,7 @@
 			</fields>
 		</transition>
 		
-		<transition id="achive" order="25" label="nga.achive.action.label" tooltip="nga.achive.action.tooltip" eventId="publishAsPdf" purpose="publishAsPdf" confirmation="achive.confirm" >
+		<transition id="achive" order="25" label="nga.achive.action.label" tooltip="nga.achive.action.tooltip" purpose="publishAsPdf" confirmation="achive.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -313,7 +234,7 @@
                 </field>
 			</fields>
 		</transition>
-		<transition id="createWorkflow" order="30" label="nga.createWorkflow.action.label" tooltip="nga.createWorkflow.action.tooltip" eventId="createWorkflow" purpose="createInstance">
+		<transition id="createWorkflow" order="30" label="nga.createWorkflow.action.label" tooltip="nga.createWorkflow.action.tooltip" purpose="createInstance">
       		<fields>
 				<field name="createDocConfig" type="json">
 					<value>
@@ -327,7 +248,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="download" order="35" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" actionPath="/" />
+		<transition id="download" order="35" label="download.label" purpose="download" tooltip="download.tooltip" actionPath="/" />
 		
 		<group id="exportAs" order="40" label="exportAs.group.label" type="menu" />
 		<transition id="exportTabPDF" group="exportAs" />
@@ -341,12 +262,42 @@
 		<transition id="changeTemplate" tooltip="nga.changeTemplate.action.tooltip" group="template" />
 		
 		<group id="more" order="55" label="more.group.label" type="menu" />
+		<transition id="changeType" group="more" >
+			<fields>
+				<field name="onChangeType" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							var title = root.get('title');
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var subject = '(Changed type) ' + type + ': ' + title;
+							
+							//extract watchers
+							var recipients = [];
+							var watchers = root.get('emf:hasWatcher');
+							if(watchers != null){
+								for(var i = 0; i < watchers.length; i++){
+								recipients.push(watchers[i].toString());
+								}
+							}
+							//extract createdBy
+							recipients.push(root.get('createdBy').toString());
+							
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_change_object_type", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
 		<transition id="clone" group="more" />
 		<transition id="lock" group="more" />
 		<transition id="unlock" actionPath="/" group="more" />
 		<transition id="managePermissions" group="more" />
 	
-		<transition id="revoke" order="56" label="ngaCulturalObject.revoke.action.label" tooltip="ngaCulturalObject.revoke.action.tooltip" eventId="revoke" purpose="transition" immediate="true" confirmation="revoke.confirm" >
+		<transition id="revoke" order="56" label="ngaCulturalObject.revoke.action.label" tooltip="ngaCulturalObject.revoke.action.tooltip" purpose="transition" confirmation="revoke.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -381,7 +332,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="deleteCulturalObject" order="100" label="nga.deleteCulturalObject.action.label" tooltip="delete.tooltip" eventId="deleteCulturalObject" purpose="delete" confirmation="deleteCS.confirm" >
+		<transition id="deleteCulturalObject" order="100" label="nga.deleteCulturalObject.action.label" tooltip="delete.tooltip" purpose="delete" confirmation="deleteCS.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -419,11 +370,13 @@
 		<stateTransition from="INIT" transition="clone" to="CURRENT">
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
 		</stateTransition>	
+		<stateTransition from="INIT" transition="changeType" to="CURRENT" />
      		
         <stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="updateTemplate" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="changeTemplate" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeType" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="revertVersion" to="CURRENT" />
         <stateTransition from="CURRENT" transition="managePermissions" to="CURRENT" />
         <stateTransition from="CURRENT" transition="addThumbnail" to="CURRENT" />
@@ -434,7 +387,7 @@
 		<stateTransition from="CURRENT" transition="unlock" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="clone" to="CURRENT" >
 			<condition renderAs="PROPERTY" id="integrated">false</condition>
-		</stateTransition>	
+		</stateTransition>
 		
         <stateTransition from="CURRENT" transition="addPrimaryImage" to="CURRENT" />
         <stateTransition from="CURRENT" transition="addAttachment" to="CURRENT" />

@@ -1,5 +1,5 @@
 import {View, Component, Inject, NgElement, NgTimeout} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {UrlUtils} from 'common/url-utils';
 import {MODE_PRINT} from 'idoc/idoc-constants';
@@ -23,21 +23,22 @@ export class AudioPlayer {
   constructor($element, authenticationService, instanceRestService, $timeout) {
     this.$element = $element;
     this.$timeout = $timeout;
+    this.authenticationService = authenticationService;
 
-    //Creates a new audio element to check if the browser (IE/Edge) is compatible with audio elements.
-    try {
-      let audioEl = new Audio();
-      audioEl = undefined;
-    } catch(err) {
+    // Check if the browser (IE/Edge) is compatible with audio elements.
+    if (!window.Audio) {
       this.errorMessage = 'media.file.format.not.supported';
       this.fireReadyEvent();
     }
 
-    let src = instanceRestService.getContentDownloadUrl(this.instanceId);
-    this.src = UrlUtils.appendQueryParam(src, AuthenticationService.TOKEN_REQUEST_PARAM, authenticationService.getToken());
+    this.contentDownloadUrl = instanceRestService.getContentDownloadUrl(this.instanceId);
   }
 
   ngOnInit() {
+    this.authenticationService.getToken().then(token => {
+      this.src = UrlUtils.appendQueryParam(this.contentDownloadUrl, AuthenticationService.TOKEN_REQUEST_PARAM, token);
+    });
+
     this.audioElement = this.$element.find('audio');
 
     if (this.mode !== MODE_PRINT) {

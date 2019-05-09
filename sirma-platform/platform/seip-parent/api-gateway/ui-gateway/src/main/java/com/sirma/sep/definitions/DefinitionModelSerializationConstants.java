@@ -95,6 +95,8 @@ public final class DefinitionModelSerializationConstants {
 
 	public static final String FIELD_VALIDATION_UNIQUE = "validation.value.unique";
 
+	public static final String FIELD_VALIDATION_NOT_MATCH_FILTER = "validation.error.not.match.filter";
+
 	public static final String URI = "uri";
 
 	public static final String IS_DATA_PROPERTY = "isDataProperty";

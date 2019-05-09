@@ -22,6 +22,7 @@ import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.semantic.SemanticRepositoryProvisioning;
 import com.sirma.itt.seip.tenant.semantic.TenantSemanticContext;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 import com.sirma.itt.seip.tenant.wizard.exception.TenantCreationException;
@@ -63,7 +64,7 @@ public class TenantSemanticStepTest {
 		TenantStepData data = new TenantStepData("id", new JSONObject("{properties:[]}"));
 		mockConfigurations();
 
-		step.delete(data, new TenantInfo("tenantId"), false);
+		step.delete(data, new TenantDeletionContext(new TenantInfo("tenantId"), false));
 		verify(securityContextManager).initializeTenantContext("tenantId");
 		verify(securityContextManager).endContextExecution();
 		verify(repositoryProvisioning).rollback(any(TenantSemanticContext.class), any(TenantInfo.class));

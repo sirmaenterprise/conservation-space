@@ -1,0 +1,40 @@
+<div class="model-field form-group">
+  <label class="control-label"
+         label-hint hint-visible="true"
+         hint-text="modelFieldView.getTooltip()">
+    <span class="field-label">
+      {{ modelFieldView.model.getDescription().getValue() }}
+    </span>
+    <i class="field-parent" ng-if="modelFieldView.isParentVisible()">
+      ({{ modelFieldView.model.getParent().getDescription().getValue() }})
+    </i>
+    <sup ng-if="modelFieldView.getMandatory()" class="mandatory-mark">*</sup>
+  </label>
+
+  <div class="control-data">
+    <div class="control-view" ng-if="modelFieldView.isReadOnly()">
+      <label class="control-label">{{ modelFieldView.value }}</label>
+    </div>
+
+    <div class="control-edit" ng-if="modelFieldView.isEditable()" ng-switch on="modelFieldView.getType()">
+      <textarea ng-switch-when="text" type="text"
+                class="form-control" rows="1" ng-model="modelFieldView.value"></textarea>
+      <label ng-switch-when="boolean" class="checkbox">
+        <input type="checkbox" class="form-control" ng-model="modelFieldView.value"/><i></i>
+      </label>
+      <button ng-switch-when="picker" class="btn btn-xs btn-default">
+        <span aria-hidden="true">&#43;</span>
+      </button>
+      <seip-select ng-switch-when="select" class="control-field"
+                   ng-if="::modelFieldView.selectConfig"
+                   ng-model="modelFieldView.value"
+                   config="modelFieldView.selectConfig">
+      </seip-select>
+      <seip-datetime-picker ng-switch-when="date"></seip-datetime-picker>
+    </div>
+  </div>
+
+  <div class="control-buttons">
+    <model-select class="attributes" on-select="modelFieldView.selectModel()"></model-select>
+  </div>
+</div>

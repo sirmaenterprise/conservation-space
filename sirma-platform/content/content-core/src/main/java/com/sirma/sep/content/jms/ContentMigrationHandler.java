@@ -1,5 +1,6 @@
 package com.sirma.sep.content.jms;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,7 +9,12 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.json.JsonObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sirma.itt.seip.json.JSON;
+import com.sirma.itt.seip.tx.TransactionSupport;
+import com.sirma.sep.content.ContentCorruptedException;
 import com.sirma.sep.content.ContentStoreManagementService;
 import com.sirmaenterprise.sep.jms.annotations.DestinationDef;
 import com.sirmaenterprise.sep.jms.annotations.QueueListener;
@@ -27,12 +33,15 @@ import com.sirmaenterprise.sep.jms.annotations.QueueListener;
  */
 @ApplicationScoped
 public class ContentMigrationHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	@DestinationDef
+	@DestinationDef(maxRedeliveryAttempts = 5)
 	private static final String QUEUE_DEF = ContentDestinations.MOVE_CONTENT_QUEUE;
 
 	@Inject
 	private ContentStoreManagementService storeManagementService;
+	@Inject
+	private TransactionSupport transactionSupport;
 
 	@QueueListener(value = QUEUE_DEF, txTimeout = 1, timeoutUnit = TimeUnit.HOURS, selector = "index = '0'")
 	void onMigrateContentEven(Message message) throws JMSException {
@@ -48,7 +57,15 @@ public class ContentMigrationHandler {
 	private Void migrateContent(JsonObject jsonObject) {
 		String contentId = jsonObject.getString("contentId");
 		String targetStore = jsonObject.getString("targetStore");
-		storeManagementService.moveContent(contentId, targetStore);
+		try {
+			// wrap the move in a separate transaction so we can control when the message processing fails or not
+			// the time is less then the original transaction so we should not fail due to timeout
+			transactionSupport.invokeInNewTx(() -> storeManagementService.moveContent(contentId, targetStore), 59,
+					TimeUnit.MINUTES);
+		} catch (ContentCorruptedException e) {
+			// when this is thrown we cannot expect the file to fix it's size on the next retry so just move to other
+			LOGGER.warn(e.getMessage());
+		}
 		return null;
 	}
 }

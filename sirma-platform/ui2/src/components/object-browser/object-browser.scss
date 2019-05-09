@@ -1,3 +1,4 @@
+@import "../../style/mixins";
 @import "jspm_packages/npm/font-awesome@4.6.3/scss/_variables.scss";
 @import "jspm_packages/npm/font-awesome@4.6.3/scss/_mixins.scss";
 
@@ -14,10 +15,6 @@
     > li > a {
       margin-bottom: 4px;
     }
-  }
-
-  .highlighted {
-    text-decoration: underline;
   }
 
   .jstree-node {
@@ -43,6 +40,8 @@
     outline: none;
     cursor: default;
 
+    @include word-wrap();
+
     .jstree-checkbox {
       @include fa-icon;
       cursor: pointer;
@@ -56,6 +55,13 @@
 
     .lock-label {
       padding-right: 0.5em;
+
+      /* Handle issue in jstree where the font awesome lock icon in larger size causes a vertical scrollbar */
+      .fa-lock {
+        vertical-align: -10%;
+        line-height: initial;
+        font-size: 1.20em;
+      }
     }
   }
 
@@ -70,6 +76,14 @@
     .jstree-checkbox {
       display: none;
     }
+  }
+
+  .jstree-selected {
+    text-decoration: underline !important;
+  }
+
+  .jstree-default .jstree-clicked {
+    text-decoration: none;
   }
 
   .jstree-open > .jstree-icon, .jstree-closed > .jstree-icon, .jstree-leaf > .jstree-icon {
@@ -110,5 +124,11 @@
     padding: 0;
     margin-left: 8px;
     margin-top: 5px;
+  }
+
+  .jstree-anchor.instance-link {
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }

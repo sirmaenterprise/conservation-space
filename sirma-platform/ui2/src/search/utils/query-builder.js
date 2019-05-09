@@ -108,27 +108,27 @@ export class QueryBuilder {
 
         let value;
         switch (rule.field) {
-          case 'relationship':
-            value = joinValues('objectRelationship[]', rule.value);
-            break;
-          case 'location':
-            value = joinValues('location[]', rule.value);
-            break;
-          case 'types':
-            value = joinValues('objectType[]', rule.value);
-            break;
-          case 'subtypes':
-            value = joinValues('subType[]', rule.value);
-            break;
-          case 'createdBy':
-            value = joinValues('createdBy[]', rule.value);
-            break;
-          case 'metaText':
-            value = rule.field + '=' + encodeURIComponent(rule.value);
-            break;
-          default:
-            value = rule.field + '=' + rule.value;
-            break;
+        case 'relationship':
+          value = joinValues('objectRelationship[]', rule.value);
+          break;
+        case 'location':
+          value = joinValues('location[]', rule.value);
+          break;
+        case 'types':
+          value = joinValues('objectType[]', rule.value);
+          break;
+        case 'subtypes':
+          value = joinValues('subType[]', rule.value);
+          break;
+        case 'createdBy':
+          value = joinValues('createdBy[]', rule.value);
+          break;
+        case 'metaText':
+          value = rule.field + '=' + encodeURIComponent(rule.value);
+          break;
+        default:
+          value = rule.field + '=' + rule.value;
+          break;
         }
 
         query.push(value);

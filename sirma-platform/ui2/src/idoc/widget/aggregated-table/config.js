@@ -4,7 +4,7 @@ import {WidgetConfig} from 'idoc/widget/widget';
 import {MULTIPLE_SELECTION} from 'search/search-selection-modes';
 import {SELECT_OBJECT_AUTOMATICALLY, SELECT_OBJECT_MANUALLY, SELECT_OBJECT_CURRENT} from 'idoc/widget/object-selector/object-selector';
 import {TranslateService} from 'services/i18n/translate-service';
-import {InstanceSelect} from 'components/select/instance/instance-select';
+import 'components/select/instance/instance-select';
 import {PropertiesSelectorHelper} from 'idoc/widget/properties-selector/properties-selector-helper';
 import {SearchCriteriaUtils} from 'search/utils/search-criteria-utils';
 import {ObjectSelectorHelper} from 'idoc/widget/object-selector/object-selector-helper';
@@ -17,9 +17,7 @@ import './config.css!';
 export const PROPERTY_TYPE_PICKER = 'PICKER';
 
 @WidgetConfig
-@View({
-  template: template
-})
+@View({template})
 @Inject(ObjectSelectorHelper, PropertiesSelectorHelper, TranslateService, NgTimeout)
 export class AggregatedTableConfig extends Configurable {
 
@@ -43,7 +41,7 @@ export class AggregatedTableConfig extends Configurable {
       selection: this.config.selection,
       criteria: searchCriteria,
       selectObjectMode: this.config.selectObjectMode,
-      triggerSearch: triggerSearch,
+      triggerSearch,
       excludeOptions: [SELECT_OBJECT_CURRENT],
       // This callback is called when selectObjectMode is changed, when a search is performed or when selectedItems are changed
       onObjectSelectorChanged: (onSelectorChangedPayload) => {

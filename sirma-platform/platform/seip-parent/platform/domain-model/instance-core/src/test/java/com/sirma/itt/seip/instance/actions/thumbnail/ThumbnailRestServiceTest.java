@@ -1,5 +1,6 @@
 package com.sirma.itt.seip.instance.actions.thumbnail;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
@@ -9,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.instance.actions.Actions;
+import com.sirma.itt.seip.instance.actions.relations.AddRelationRequest;
 
 /**
  * Test for {@link ThumbnailRestService}.
@@ -30,10 +32,11 @@ public class ThumbnailRestServiceTest {
 	}
 
 	@Test
-	public void addThumbnail_actionsCalled() {
+	public void addThumbnail_shouldCallAddRelationRequest() {
 		AddThumbnailRequest request = new AddThumbnailRequest();
+		request.setThumbnailObjectId("emf:thumbnail-source");
 		service.addThumbnail(request);
-		verify(actions).callAction(request);
+		verify(actions).callAction(any(AddRelationRequest.class));
 	}
 
 }

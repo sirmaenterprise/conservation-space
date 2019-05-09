@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
+import org.apache.commons.lang3.StringUtils;
 
 import com.sirma.itt.emf.cls.columns.CLColumn;
 import com.sirma.itt.emf.cls.validator.exception.CodeValidatorException;
@@ -30,17 +31,17 @@ public class CodeValidatorImpl implements CodeValidator {
 	private static final String ITEM_DELIMITER = ",\u0020";
 
 	@Override
-	public void validateCodeList(CodeList codeList) throws CodeValidatorException {
+	public void validateCodeList(CodeList codeList) {
 		validateCodeLists(Collections.singletonList(codeList));
 	}
 
 	@Override
-	public void validateCodeValue(CodeValue codeValue) throws CodeValidatorException {
+	public void validateCodeValue(CodeValue codeValue) {
 		validateCodeValues(Collections.singletonList(codeValue));
 	}
 
 	@Override
-	public void validateCodeLists(List<CodeList> codeLists) throws CodeValidatorException {
+	public void validateCodeLists(List<CodeList> codeLists) {
 		Objects.requireNonNull(codeLists);
 
 		List<String> errors = validateCodes(codeLists);
@@ -51,7 +52,7 @@ public class CodeValidatorImpl implements CodeValidator {
 	}
 
 	@Override
-	public void validateCodeValues(List<CodeValue> codeValues) throws CodeValidatorException {
+	public void validateCodeValues(List<CodeValue> codeValues) {
 		Objects.requireNonNull(codeValues);
 
 		List<String> errors = validateCodes(codeValues);
@@ -126,7 +127,7 @@ public class CodeValidatorImpl implements CodeValidator {
 			valuesMap.computeIfAbsent(valueKey, key -> new ArrayList<>()).add(code);
 
 			for (CodeDescription descr : code.getDescriptions()) {
-				if (descr.getName().isEmpty()) {
+				if (StringUtils.isBlank(descr.getName())) {
 					continue;
 				}
 				CodeDescription descrKey = createDescriptionKey(descr);
@@ -176,7 +177,7 @@ public class CodeValidatorImpl implements CodeValidator {
 	/**
 	 * Creates a description as a key from a given description, consisting of the name and language only
 	 * 
-	 * @param description
+	 * @param createFrom
 	 *            the description for which to build the description name and language key
 	 * @return the key
 	 */

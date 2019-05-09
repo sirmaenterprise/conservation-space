@@ -67,8 +67,12 @@ describe('ChartViewWidget', () => {
     chartViewWidget.chartDrawnSubscription = {
       unsubscribe: sinon.spy()
     };
-    chartViewWidget.control.baseWidget = {
-      $onDestroy: sinon.spy()
+    chartViewWidget.control = {
+      getBaseWidget: () => {
+        return {
+          ngOnDestroy: sinon.stub()
+        };
+      }
     };
     chartViewWidget.ngOnDestroy();
     expect(chartViewWidget.chartDrawnSubscription.unsubscribe.calledOnce).to.be.true;

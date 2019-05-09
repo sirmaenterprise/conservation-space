@@ -102,6 +102,24 @@ public interface TempFileProvider {
 	File createTempDir(String dirName);
 
 	/**
+	 * Creates the temp dir starting with the specified prefix and an unique suffix.
+	 *
+	 * @param prefix the prefix for the new dir name.
+	 * @return the created dir or null if none is created.
+	 */
+	File createUniqueTempDir(String prefix);
+
+	/**
+	 * Creates child dir in the specified parent folder with the specified name.
+	 * If the target folder exists it will be cleared before returning.
+	 *
+	 * @param parent the parent dir
+	 * @param dirName the name of the new dir
+	 * @return the created dir or null if none is created or can not be emptied
+	 */
+	File createSubDir(File parent, String dirName);
+
+	/**
 	 * Delete file by first try to remove it, and on fail, tries to remove all child first recursively.
 	 *
 	 * @param tempFile

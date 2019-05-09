@@ -1,6 +1,5 @@
 package com.sirma.itt.seip.instance;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,6 +11,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.definition.DefinitionService;

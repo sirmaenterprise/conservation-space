@@ -94,10 +94,37 @@ describe('Controlled vocabularies management - edit:', () => {
         descriptions[2].setName(newName + '2');
         descriptions[2].setComment(newComment + '2');
 
-        descriptionsDialog.close();
+        descriptionsDialog.confirm();
       });
 
       assertCodeDetails(projectStateDetails, '1', newName + '2', newComment + '2', '', '', '');
+    });
+  });
+
+  it('should cancel update of controlled vocabulary name and comment in the current language through the' +
+    ' descriptions', () => {
+    // This tests the binding between description and descriptions fields
+    management.getCodeLists().then(codeLists => {
+      let projectState = codeLists[0].open();
+      let projectStateDetails = projectState.getDetails();
+      projectState.edit();
+
+      // initial values
+      let oldName = 'Project state';
+      let oldComment = 'The available project states';
+
+      projectStateDetails.setName(oldName);
+      projectStateDetails.setComment(oldComment);
+
+      let descriptionsDialog = projectStateDetails.openDescriptions();
+      descriptionsDialog.getDescriptions().then(descriptions => {
+        assertCodeDescriptions(descriptions[2], 'EN', oldName, oldComment);
+
+        descriptions[2].setName('Project state - canceled');
+        descriptions[2].setComment('The available project states - canceled');
+        descriptionsDialog.cancelChanges();
+      });
+      assertCodeDetails(projectStateDetails, '1', oldName, oldComment, '', '', '');
     });
   });
 
@@ -122,7 +149,7 @@ describe('Controlled vocabularies management - edit:', () => {
           descriptions[2].setName(newName + '2');
           descriptions[2].setComment(newComment + '2');
 
-          descriptionsDialog.close();
+          descriptionsDialog.confirm();
         });
 
         assertCodeDetails(completedState, 'COMPLETED', newName + '2', newComment + '2', 'The extra one', 'The extra two', 'The extra three');

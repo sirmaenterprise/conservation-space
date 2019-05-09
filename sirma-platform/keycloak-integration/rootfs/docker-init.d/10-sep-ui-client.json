@@ -1,0 +1,45 @@
+{
+  "clientId": "sep-ui",
+  "enabled": true,
+  "redirectUris": [
+    "${SEP_UI_ADDR}*"
+  ],
+  "webOrigins": [
+    "+"
+  ],
+  "bearerOnly": false,
+  "standardFlowEnabled": true,
+  "directAccessGrantsEnabled": true,
+  "publicClient": true,
+  "protocol": "openid-connect",
+  "protocolMappers": [
+    {
+      "name": "preferred_username",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "consentRequired": false,
+      "config": {
+        "userinfo.token.claim": "true",
+        "user.attribute": "username",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "preferred_username",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "name": "tenant",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-script-based-protocol-mapper",
+      "consentRequired": false,
+      "config": {
+        "userinfo.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "tenant",
+        "jsonType.label": "String",
+        "script": "realm.getId();"
+      }
+    }
+  ]
+}

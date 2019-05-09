@@ -57,7 +57,7 @@ public class SolrFieldValueRetriever extends PairFieldValueRetriever {
 			parameters.setParam(CommonParams.ROWS, "1");
 			parameters.setTimeAllowed(2000);
 			try {
-				QueryResponse queryResponse = solrConnector.queryWithGet(parameters);
+				QueryResponse queryResponse = solrConnector.query(parameters);
 				if (queryResponse != null) {
 					SolrDocumentList solrDocumentList = queryResponse.getResults();
 					if (!solrDocumentList.isEmpty()) {
@@ -134,7 +134,7 @@ public class SolrFieldValueRetriever extends PairFieldValueRetriever {
 			parameters.setParam(CommonParams.ROWS, String.valueOf(limit));
 			parameters.setTimeAllowed(2000);
 			try {
-				QueryResponse queryResponse = solrConnector.queryWithGet(parameters);
+				QueryResponse queryResponse = solrConnector.query(parameters);
 				if (queryResponse != null) {
 					SolrDocumentList solrDocumentList = queryResponse.getResults();
 					total = solrDocumentList.getNumFound();

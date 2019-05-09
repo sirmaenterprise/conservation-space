@@ -66,7 +66,7 @@ describe('ExportTabWordAction', () => {
     info: sinon.spy()
   };
   let authenticationService = {
-    getToken: sinon.spy()
+    getToken: sinon.stub().returns(PromiseStub.resolve('token'))
   };
   let instanceRestService = {
     load: () => PromiseStub.resolve({data: {properties: {title: 'idoc title'}}})

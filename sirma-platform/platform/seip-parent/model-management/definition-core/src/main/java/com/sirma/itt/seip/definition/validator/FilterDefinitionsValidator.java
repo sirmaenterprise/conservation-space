@@ -1,15 +1,13 @@
 package com.sirma.itt.seip.definition.validator;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.sirma.itt.seip.definition.RegionDefinitionModel;
-import com.sirma.itt.seip.domain.definition.DefinitionModel;
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 
 /**
  * Checks if filter for definitions is added to field which can't be filtered.
@@ -26,29 +24,35 @@ public class FilterDefinitionsValidator implements DefinitionValidator {
 		nonFilterableUris.add("emf:status");
 	}
 
-	private static final String FILTERING_NOT_SUPPORTED = "Field with property name: \"%1s\" and uri: \"%1s\" can't be filtering!";
-
 	@Override
-	public List<String> validate(RegionDefinitionModel model) {
-		return this.validate((DefinitionModel) model);
+	public List<ValidationMessage> validate(GenericDefinition definition) {
+		FilterValidatorMessageBuilder messageBuilder = new FilterValidatorMessageBuilder(definition);
+		definition.fieldsStream()
+				.filter(PropertyDefinition.hasUri())
+				.filter(propertyDefinition -> nonFilterableUris.contains(PropertyDefinition.resolveUri().apply(propertyDefinition)))
+				.filter(FilterDefinitionsValidator::hasDefinitionsFilter)
+				.forEach(propertyDefinition -> addMessage(propertyDefinition, messageBuilder));
+		return messageBuilder.getMessages();
 	}
 
-	@Override
-	public List<String> validate(DefinitionModel model) {
-		if (model instanceof GenericDefinition) {
-			return model.fieldsStream()
-					.filter(PropertyDefinition.hasUri())
-					.filter(propertyDefinition -> nonFilterableUris.contains(PropertyDefinition.resolveUri().apply(propertyDefinition)))
-					.filter(FilterDefinitionsValidator::hasDefinitionsFilter)
-					.map(propertyDefinition -> String.format(FILTERING_NOT_SUPPORTED, propertyDefinition.getName(),
-															 PropertyDefinition.resolveUri().apply(propertyDefinition)))
-					.collect(Collectors.toList());
-		}
-		return Collections.emptyList();
+	private static void addMessage(PropertyDefinition propertyDefinition, FilterValidatorMessageBuilder messageBuilder) {
+		messageBuilder.filteringNotSupported(propertyDefinition.getName(), PropertyDefinition.resolveUri().apply(propertyDefinition));
 	}
 
 	private static boolean hasDefinitionsFilter(PropertyDefinition propertyDefinition) {
-		Set<String> filters = propertyDefinition.getFilters();
-		return filters != null && !filters.isEmpty();
+		return CollectionUtils.isNotEmpty(propertyDefinition.getFilters());
+	}
+
+	public static class FilterValidatorMessageBuilder extends DefinitionValidationMessageBuilder {
+
+		public static final String FIELD_WITH_NON_SUPPORTED_FILTERING = "definition.validation.field.non.supported.filtering";
+
+		public FilterValidatorMessageBuilder(GenericDefinition genericDefinition) {
+			super(genericDefinition);
+		}
+
+		private void filteringNotSupported(String fieldName, String uri) {
+			error(getId(), FIELD_WITH_NON_SUPPORTED_FILTERING, getId(), fieldName, uri);
+		}
 	}
 }

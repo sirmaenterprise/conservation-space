@@ -58,6 +58,7 @@ public final class DefaultNamespaces {
 		tempNamespaces.add(new StringPair("sesame", "http://www.openrdf.org/schema/sesame#"));
 		tempNamespaces.add(new StringPair("psys", "http://proton.semanticweb.org/protonsys#"));
 		tempNamespaces.add(new StringPair("solr-inst", "http://www.ontotext.com/connectors/solr/instance#"));
+		tempNamespaces.add(new StringPair("prov", "http://www.w3.org/ns/prov#"));
 		tempNamespaces.add(new StringPair(OA.PREFIX, OA.NAMESPACE));
 		tempNamespaces.add(new StringPair(DC.PREFIX, DC.NAMESPACE));
 		tempNamespaces.add(new StringPair(CNT.PREFIX, CNT.NAMESPACE));

@@ -1,9 +1,7 @@
 import {Injectable, Inject} from 'app/app';
-import {NO_HEADER} from 'instance-header/header-constants';
 import {SELECT_OBJECT_CURRENT, SELECT_OBJECT_MANUALLY, SELECT_OBJECT_AUTOMATICALLY} from 'idoc/widget/object-selector/object-selector';
 import {ANY_OBJECT, SearchCriteriaUtils} from 'search/utils/search-criteria-utils';
-import {SINGLE_SELECTION, MULTIPLE_SELECTION} from 'search/search-selection-modes';
-import {QueryBuilder, DynamicTreeWalkListener} from 'search/utils/query-builder';
+import {SINGLE_SELECTION} from 'search/search-selection-modes';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {DefinitionService} from 'services/rest/definition-service';
 import {NamespaceService} from 'services/rest/namespace-service';
@@ -11,7 +9,6 @@ import uuid from 'common/uuid';
 import _ from 'lodash';
 
 const PROPERTY_DISPLAY_TYPE_SYSTEM = 'SYSTEM';
-const CRITERIA_TYPES_RULE_FIELD = 'types';
 
 export const COMMON_PROPERTIES = 'COMMON_PROPERTIES';
 

@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.definition.validator;
 
+import static com.sirma.itt.seip.definition.ValidationMessageUtils.hasError;
+import static com.sirma.itt.seip.definition.validator.DuplicateUriValidator.DuplicateUriMessageBuilder.DUPLICATED_URI;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -9,6 +11,7 @@ import org.junit.Test;
 
 import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.definition.model.PropertyDefinitionProxy;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 
 public class DuplicateUriValidatorTest {
 
@@ -29,11 +32,10 @@ public class DuplicateUriValidatorTest {
 		field2.setUri("http://1.com");
 		definition.getFields().add(field2);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-
-		assertTrue(errors.get(0).contains("(duplicate use of uri) : http://1.com"));
+		assertTrue(hasError(errors, DUPLICATED_URI, "d1", "http://1.com", "[f1, f2]"));
 	}
 
 	@Test
@@ -51,7 +53,7 @@ public class DuplicateUriValidatorTest {
 		field2.setUri("http://2.com");
 		definition.getFields().add(field2);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertTrue(errors.isEmpty());
 	}

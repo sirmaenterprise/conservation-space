@@ -31,12 +31,122 @@
                                                                   owl:imports <http://www.ontotext.com/proton/protontop> ,
                                                                               <http://www.w3.org/2004/02/skos/core> .
 
+
+
+
+#################################################################
+#
+#    Add Ontology Labels
+#
+#################################################################
+
+
+
+<http://www.w3.org/2004/02/skos/core> rdfs:label "SKOS Vocabulary"@en .
+
+<http://purl.org/dc/terms/> rdfs:label "Dublin Core Terms Ontology"@en .
+
+<http://purl.org/dc/elements/1.1/> rdfs:label "Dublin Core Elements Ontology"@en .
+
+<http://www.w3.org/2002/07/owl> rdfs:label "Owl Ontology"@en .
+
+<http://www.w3.org/2000/01/rdf-schema> rdfs:label "RDF Schema Vocabulary"@en .
+
+
+
+#################################################################
+#
+#    Data primitives
+#
+#################################################################
+
+
+
+### http://www.w3.org/2001/XMLSchema#string
+
+xsd:string rdf:type emf:Primitive;
+
+           rdfs:label "String"@en;
+            
+           rdfs:comment "Represents a string primitive"@en.
+
+        
+        
+### http://www.w3.org/2001/XMLSchema#int    
+ 
+xsd:int rdf:type emf:Primitive;
+
+        rdfs:label "Integer"@en;
+            
+        rdfs:comment "Represents an integer primitive"@en.
+         
+            
+            
+### http://www.w3.org/2001/XMLSchema#long    
+ 
+xsd:long rdf:type emf:Primitive;
+
+         rdfs:label "Long"@en;
+            
+         rdfs:comment "Represents a long primitive"@en.
+
+
+
+### http://www.w3.org/2001/XMLSchema#float    
+ 
+xsd:float rdf:type emf:Primitive;
+
+          rdfs:label "Float"@en;
+            
+          rdfs:comment "Represents a float primitive"@en.
+
+
+
+### http://www.w3.org/2001/XMLSchema#double    
+ 
+xsd:double rdf:type emf:Primitive;
+
+           rdfs:label "Double"@en;
+            
+           rdfs:comment "Represents a double primitive"@en.
+            
+
+            
+### http://www.w3.org/2001/XMLSchema#date    
+ 
+xsd:date rdf:type emf:Primitive;
+
+         rdfs:label "Date"@en;
+            
+         rdfs:comment "Represents a date primitive"@en.
+            
+   
+   
+### http://www.w3.org/2001/XMLSchema#dateTime    
+ 
+xsd:dateTime rdf:type emf:Primitive;
+
+             rdfs:label "Date time"@en;
+            
+             rdfs:comment "Represents a date-time primitive"@en.       
+             
+             
+             
+### http://www.w3.org/2001/XMLSchema#boolean    
+ 
+xsd:boolean rdf:type emf:Primitive;
+
+            rdfs:label "Boolean"@en;
+            
+            rdfs:comment "Represents a boolean primitive"@en.
+            
+            
+            
 #################################################################
 #
 #    Annotation properties
 #
 #################################################################
-
 
 
 
@@ -67,10 +177,10 @@ emf:definitionId rdf:type owl:AnnotationProperty ;
                  rdfs:label "Идентификатор на дефиниция"@bg ,
                             "Definition-ID"@da ,
                             "Definitions-ID"@de ,
-                            "Definition id"@en ,
-                            "Määritelmä id"@fi ;
+                            "Definition ID"@en ,
+                            "Määritelmä ID"@fi ;
                  
-                 skos:definition "Id of the definition of the object"@en ;
+                 skos:definition "ID of the definition of the object"@en ;
                  
                  dc:creator "Kiril Penev"@en .
 
@@ -87,8 +197,9 @@ emf:isPartOfObjectLibrary rdf:type owl:AnnotationProperty, emf:DefinitionDataPro
                                      "Osa osastokirjastosta"@fi ;
                           
                           skos:definition "Flag that shows if the instance type is part of the object library"@en ;
-                          dc:creator "Kiril Penev"@en .
-
+                          dc:creator "Kiril Penev"@en ;
+						  
+						  rdfs:range xsd:boolean .
 
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isSearchable
@@ -101,8 +212,7 @@ emf:isSearchable rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty, em
                             "Is searchable"@en ,
                             "On haettavissa"@fi ;
                  
-                 skos:definition "Can be used as an object type when executing a search "@en ;
-                 
+                 skos:definition "Flag that shows if the instance type is searchable"@en ;
                  dc:creator "Kiril Penev"@en ;
                  
                  rdfs:range xsd:boolean .
@@ -113,18 +223,30 @@ emf:isSearchable rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty, em
 
 emf:acceptDataTypePattern rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
                  
-                 rdfs:label "Позволени типове файлове"@bg ,
-                            "Datatype mønster"@da ,
-                            "Datentypmuster"@de ,
-                            "Datatype pattern"@en ,
-                            "Datatyyppikuvio"@fi ;
-                 
-                 skos:definition "Regex pattern that can be used to describe class that is more applicable to files of given mimetype"@en ;
+                 rdfs:label "Филтър за качване"@bg ,
+                            "Datatypefilter"@da ,
+                            "Datentyp-Filter"@de ,
+                            "Data type filter"@en ,
+                            "Data type filter"@fi ;
+			
+                 skos:definition "Regex pattern used to describe class that is more applicable to files of given mimetype"@en ;
                  
                  dc:creator "Borislav Bonev"@en ;
                  
                  rdfs:range xsd:string .
 
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#classCategory
+
+emf:classCategory rdf:type owl:AnnotationProperty;
+
+                  rdfs:label "Категория"@bg ,
+                             "Klasse kategori"@da ,
+							 "Kategori"@de ,
+                             "Category"@en ,
+							 "Category"@fi ;
+
+                      skos:definition "Class category"@en.
 
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isCreateable
@@ -134,10 +256,10 @@ emf:isCreateable rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty, em
                  rdfs:label "Може да се създава"@bg ,
                             "Er kreativ"@da ,
                             "Ist erstellbar"@de ,
-                            "Is createable"@en ,
+                            "Is creatable"@en ,
                             "Voidaan luoda"@fi ;
                  
-                 skos:definition "A mark for a class that can be used to create new instances from the system"@en ;
+                 skos:definition "Flag that shows if the class can be created in the system"@en ;
                  
                  dc:creator "Borislav Bonev"@en ;
                  
@@ -155,7 +277,7 @@ emf:isUploadable rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty, em
                             "Is uploadable"@en ,
                             "Voidaan ladata"@fi ;
                  
-                 skos:definition "Can be used as an object type to upload an instance of it"@en ;
+                 skos:definition "Flag that shows if the class can be uploaded in the system"@en ;
                  
                  dc:creator "Borislav Bonev"@en ;
                  
@@ -177,7 +299,6 @@ emf:isSystemProperty rdf:type owl:AnnotationProperty ;
                      
                      rdfs:comment "System properties are used to encode system specific information. They, as well as their instances and related information, should usually not be presented to the end-user. In practice, user-interface and visualization modules, can filter such entities."@en ;
 
-                     
                      dc:creator "Valeri Tishev"@en ;
                      
                      rdfs:range xsd:boolean .
@@ -193,7 +314,7 @@ emf:isVersionable rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty, e
 								"Is versionable"@en ,
 								"Voidaan verrata"@fi ;
                      
-                     skos:definition "Used as marker to show if instance is versionable or not. Primary used in content versioning."@en ;
+                     skos:definition "Flag that shows if instance is versionable or not"@en ;
                      
                      dc:creator "Tony Kunchev"@en ;
                      
@@ -209,7 +330,7 @@ emf:isMailboxSupportable rdf:type owl:AnnotationProperty, emf:DefinitionDataProp
                             "Is mailbox supportable"@en ,
                             "Onko postilaatikko tukevaa"@fi ;
                  
-                 skos:definition "Used to show if instance supports mailbox or not."@en ;
+                 skos:definition "Flag that shows if instance supports mailbox or not"@en ;
                  
                  dc:creator "Stella Djulgerova"@en ;
                  
@@ -222,21 +343,314 @@ emf:partOfOntology rdf:type owl:AnnotationProperty ;
                  rdfs:label "Част от онтология"@bg ,
                             "En del af ontologi"@da ,
                             "Part of ontology"@en ;
-                 
-                 
+
                  skos:definition "The ontology to which the class belongs to"@en ;
                  
                  dc:creator "Vilizar Tsonev"@en .
+                 
 
+### http://www.ontotext.com/proton/protontop#title
+ptop:title rdf:type owl:DatatypeProperty, owl:AnnotationProperty;
+                 rdfs:label "Наименование"@bg ,
+							"Title"@en ,
+							"Titel"@de ,
+							"Otsikko"@fi ,
+							"Titel"@da ;
+				 skos:definition "Official title of the item"@en .
 
+###  http://www.ontotext.com/proton/protontop#firstName		 
+ptop:firstName rdfs:label "Име"@bg ,
+							"First name"@en ,
+							"Vorname"@de ,
+							"Etunimi"@fi ,
+							"Fornavn"@da ;
+               
+                 skos:definition "The first name of the user"@en .
+
+###  http://www.ontotext.com/proton/protontop#lastName
+ptop:lastName rdfs:label "Фамилия"@bg ,
+							"Last name"@en ,
+							"Familienname, Nachname"@de ,
+							"Sukunimi"@fi ,
+							"Efternavn"@da ;
+
+                 skos:definition "The last name of the user"@en .
+
+###  http://www.ontotext.com/proton/protontop#hasMember
+ptop:hasMember rdfs:label "Има член"@bg ,
+							"Has member"@en ,
+							"Hat mitglied"@de ,
+							"Onko jäsen"@fi ,
+							"Har medlem"@da ;
+
+                 skos:definition "Users that are members of the group"@en .
+				 
 ###  http://purl.org/dc/elements/1.1/creator
+dc:creator rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Създадена от"@bg ,
+							"Created by"@en ,
+							"Erstellt von"@de ,
+							"Luonut"@fi ,
+							"Oprettet af"@da ;
+				 skos:definition "Creator is a person/ an organization/ or a service. Typically, the name of a Creator should be used to indicate the entity"@en .
 
-dc:creator rdf:type owl:AnnotationProperty .
+###  http://www.w3.org/2000/01/rdf-schema#label
+rdfs:label rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Наименование"@bg ,
+							"Title"@en ,
+							"Titel"@de ,
+							"Otsikko"@fi ,
+							"Titel"@da ;
+				 skos:definition "Official title of the item"@en .
 
+###  http://purl.org/dc/terms/title
+dcterms:title rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Наименование"@bg ,
+							"Title"@en ,
+							"Titel"@de ,
+							"Otsikko"@fi ,
+							"Titel"@da ;
+				 skos:definition "Official title of the item"@en .
+				 
+###  http://purl.org/dc/terms/identifier
+dcterms:identifier rdf:type emf:DefinitionDataProperty ;
+                 rdfs:label "Номер"@bg ,
+							"Identifier"@en ,
+							"Identifikator"@de ,
+							"Tunniste"@fi ,
+							"ID"@da ;
+				 skos:definition "Unique ID for item"@en .
+				 
+### http://www.w3.org/2000/01/rdf-schema#domain 
+rdfs:domain rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Домейн"@bg ,
+                            "Domain"@en ;
+                 skos:definition "Class in which current property is defined. Domain is used by SEP to filter the list of relations/object properties when searching by relations or creating relations."@en .	
+                 
 
+### http://www.w3.org/2000/01/rdf-schema#range 
+rdfs:range rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Диапазон"@bg ,
+                            "Range"@en ;
+                 skos:definition "Range is used to filter the list of relations/object properties when searching by relations or creating relations."@en .
+        
+### http://www.w3.org/2002/07/owl#inverseOf 
+owl:inverseOf rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Обратното на"@bg ,
+                            "Inverse of"@en ;
+                 skos:definition "Specifies which relation is inverse to the current relation so we can track the inverse relations between objects"@en .
+        
+### http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+rdf:type rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Тип"@bg ,
+                            "Type"@en ,
+							"Art"@de ,
+							"Tyyppi"@fi ,
+							"Type"@da ;
+			     skos:definition "System type of the item"@en ;
+			     
+				 rdfs:range owl:Class .			     
+       
+### http://www.w3.org/2000/01/rdf-schema#subPropertyOf 
+rdfs:subPropertyOf rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Под пропърти на"@bg ,
+                            "Sub property of"@en ;
+                  skos:definition "Shows which property is sub property of current"@en .	
+        
+### http://www.w3.org/2004/02/skos/core#definition
+skos:definition rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Описание"@bg ,
+                            "Description"@en ,
+							"Beschreibung"@de ,
+                            "Kuvaus"@fi	,
+							"Beskrivelse"@da ;
+				 skos:definition "Description of the item"@en .	
+     
+###  http://purl.org/dc/terms/description
+dcterms:description rdf:type owl:AnnotationProperty, emf:DefinitionDataProperty ;
+                 rdfs:label "Описание"@bg ,
+                            "Description"@en ,
+							"Beschreibung"@de ,
+                            "Kuvaus"@fi	,
+							"Beskrivelse"@da ;
+				 skos:definition "Description of the item"@en .	
+                            
+###  http://purl.org/dc/terms/language
+dcterms:language rdfs:label "Език"@bg ,
+                            "Language"@en ,
+							"Sprache"@de ,
+                            "Kieli"@fi	,
+							"Sprog"@da ;
+				 skos:definition "The language of the user"@en .	
+				 
+###  http://www.w3.org/2000/01/rdf-schema#subClassOf
+rdfs:subClassOf rdf:type owl:AnnotationProperty ;
+                 rdfs:label "Под клас на"@bg ,
+                            "Sub class of"@en ;
+                 skos:definition "Shows which class is sub class of current class"@en .	
 
+###  http://www.w3.org/2004/02/skos/core#member
+skos:member rdfs:label "Членове"@bg ,
+                            "Members"@en ,
+							"Mitglieder"@de ,
+                            "Jäsenet"@fi ,
+							"Medlemmer"@da ;
+				 skos:definition "Relates a collection to one of its members"@en .	
 
+###  http://www.w3.org/2004/02/skos/core#inScheme
+skos:inScheme rdfs:label "В схема"@bg ,
+                            "In scheme"@en ,
+							"In schema"@de ,
+                            "In scheme"@fi ,
+							"I systemplan"@da ;
 
+				 skos:definition "Relates a resource (for example a concept) to a concept scheme in which it is included"@en .	
+
+###  http://www.w3.org/2004/02/skos/core#topConceptOf
+skos:topConceptOf rdfs:label "Главна концепция на"@bg ,
+                            "Top concept of"@en ,
+							"Top-konzept von"@de ,
+                            "Top concept of"@fi ,
+							"Øvre koncept for"@da ;
+				 skos:definition "Top concept of"@en .
+
+###  http://www.w3.org/2004/02/skos/core#related
+skos:related rdfs:label "Свързана с"@bg ,
+                            "Related"@en ,
+							"Verbunden"@de ,
+                            "Liittyvä"@fi ,
+							"Relaterede"@da ;
+				 skos:definition "Related property is disjoint with Broader transitive property"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#broaderTransitive
+skos:broaderTransitive rdfs:label "Broader transitive"@bg ,
+                            "Broader transitive"@en ,
+							"Hat einen breiteren transitiv"@de ,
+                            "Broader transitive"@fi ,
+							"Broader transitive"@da ;
+				 skos:definition "Broader transitive property is a transitive superproperty of Broader property"@en .
+
+###  http://www.w3.org/2004/02/skos/core#broader
+skos:broader rdfs:label "Broader"@bg ,
+                            "Broader"@en ,
+							"Hat breiter"@de ,
+                            "Broader"@fi ,
+							"Bredere"@da ;
+				 skos:definition "Relates a concept to a concept that is more general in meaning"@en .
+
+###  http://www.w3.org/2004/02/skos/core#narrowerTransitive
+skos:narrowerTransitive	 rdfs:label "Narrower transitive"@bg ,
+                            "Narrower transitive"@en ,
+							"Hat einen breiteren transitiv"@de ,
+                            "Narrower transitive"@fi ,
+							"Smallere transitiv"@da ;
+				 skos:definition "Narrower transitive property is a transitive superproperty of Narrower property"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#narrower
+skos:narrower rdfs:label "Narrower"@bg ,
+                            "Narrower"@en ,
+							"Hat schmaler"@de ,
+                            "Narrower"@fi ,
+							"Smallere"@da ;
+				 skos:definition "Relates a concept to a concept that is more specific in meaning"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#broadMatch
+skos:broadMatch rdfs:label "Broad match"@bg ,
+                            "Broad match"@en ,
+							"Breites spiel"@de ,
+                            "Broad match"@fi ,
+							"Bredere match"@da ;
+				 skos:definition "Broad match is used to state a hierarchical mapping link between two conceptual resources in different concept schemes"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#narrowMatch
+skos:narrowMatch rdfs:label "Narrow match"@bg ,
+                            "Narrow match"@en ,
+							"Hat engere Übereinstimmung"@de ,
+                            "Narrow match"@fi ,
+							"Smallere match"@da ;
+				 skos:definition "Narrow match is used to state a hierarchical mapping link between two conceptual resources in different concept schemes"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#closeMatch
+skos:closeMatch	 rdfs:label "Close match"@bg ,
+                            "Close match"@en ,
+							"Hat enge Übereinstimmung"@de ,
+                            "Close match"@fi ,
+							"Nært match"@da ;
+				 skos:definition "Close match is used to link two concepts that are sufficiently similar that they can be used interchangeably in some information retrieval applications. In order to avoid the possibility of \"compound errors\" when combining mappings across more than two concept schemes, Close match is not declared to be a transitive property"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#exactMatch
+skos:exactMatch	 rdfs:label "Exact match"@bg ,
+                            "Exact match"@en ,
+							"Hat genaue Übereinstimmung"@de ,
+                            "Exact match"@fi ,
+							"Præcist match"@da ;
+				 skos:definition "Exact match is used to link two concepts, indicating a high degree of confidence that the concepts can be used interchangeably across a wide range of information retrieval applications. Exact match is a transitive property, and is a sub-property of Close match"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#relatedMatch
+skos:relatedMatch rdfs:label "Related match"@bg ,
+                            "Related match"@en ,
+							"Hat ein ähnliches spiel"@de ,
+                            "Related match"@fi ,
+							"Relateret match"@da ;
+				 skos:definition "Related match is used to state an associative mapping link between two conceptual resources in different concept schemes"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#example
+skos:example rdfs:label "Пример"@bg ,
+                            "Example"@en ,
+							"Beispiel"@de ,
+                            "Esimerkki"@fi ,
+							"Eksempel"@da ;
+				 skos:definition "An example of the use of a concept"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#note
+skos:note rdfs:label "Бележка"@bg ,
+                            "Note"@en ,
+							"Hinweis"@de ,
+                            "Huomautus"@fi ,
+							"Bemærk"@da ;
+				 skos:definition "A general note, for any purpose"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#notation
+skos:notation rdfs:label "Нотация"@bg ,
+                            "Notation"@en ,
+							"Notation"@de ,
+                            "Merkintätapa"@fi ,
+							"Notation"@da ;
+				 skos:definition "Notation is used with a typed literal in the object position of the triple"@en .
+
+###  http://www.w3.org/2004/02/skos/core#hiddenLabel
+skos:hiddenLabel rdfs:label "Скрит етикет"@bg ,
+                            "Hidden label"@en ,
+							"Verstecktes etikett"@de ,
+                            "Piilotettu tarra"@fi ,
+							"Skjult label"@da ;
+				 skos:definition "Hidden label"@en .
+
+###  http://www.w3.org/2004/02/skos/core#prefLabel
+skos:prefLabel rdfs:label "Предпочитан етикет"@bg ,
+                            "Preferred label"@en ,
+							"Bevorzugter aufkleber"@de ,
+                            "Suositeltava tarra"@fi ,
+							"Foretrukken label"@da ;
+				 skos:definition "Preferred label"@en .
+				 
+				 
+###  http://www.w3.org/2004/02/skos/core#altLabel
+skos:altLabel rdfs:label "Алтернативен етикет"@bg ,
+                            "Alternative label"@en ,
+							"Alternatives etikett"@de ,
+                            "Vaihtoehtoinen tarra"@fi ,
+							"Alternativ label"@da ;
+				 skos:definition "Alternative label"@en .
+				 
+###  http://www.w3.org/2004/02/skos/core#hasTopConcept
+skos:hasTopConcept rdfs:label "Главна концепция"@bg ,
+                            "Has top concept"@en ,
+							"Hat top-konzept"@de ,
+                            "On top concept"@fi ,
+							"Har øvre koncept"@da ;
+				 skos:definition "Relates, by convention, a concept scheme to a concept which is topmost in the broader/narrower concept hierarchies for that scheme, providing an entry point to these hierarchies"@en .
+				 
 #################################################################
 #
 #    Object Properties
@@ -249,18 +663,17 @@ dc:creator rdf:type owl:AnnotationProperty .
 emf:associatedWith rdf:type owl:ObjectProperty ,
                             owl:SymmetricProperty ;
                    
-                   rdfs:label "Свързан с"@bg ,
-                              "Forbundet med"@da ,
-                              "Verknüpft mit"@de ,
-                              "Associated With"@en ,
-                              "Liittyvä"@fi ;
-                   
+                   rdfs:label "Свързва се с обект"@bg ,
+                              "Associeret med"@da ,
+                              "Verknüpfen mit objekt"@de ,
+                              "Associated with object"@en ,
+                              "Associated with object"@fi ;
+
                    emf:isSearchable "true"^^xsd:boolean ;
                    
                    dc:creator "Lyubomir Marinov"@en ;
                    
-                   skos:definition "TBD"@en .
-           
+                   skos:definition "Item which is associated with the current"@en .
 
            
            
@@ -282,8 +695,7 @@ emf:blocks rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:Defi
            
            rdfs:range emf:Activity ;
            
-           owl:inverseOf emf:isBlockedBy .
-           
+           owl:inverseOf emf:isBlockedBy . 
 
            
            
@@ -294,7 +706,7 @@ emf:isBlockedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
            rdfs:label "Е блокиран от"@bg ,
                       "Blokeres af"@da ,
                       "Wird blockiert von"@de ,
-                      "Is Blocked By"@en ,
+                      "Is blocked by"@en ,
                       "On estetty"@fi ;
               
            skos:definition "Denotes that an activity is blocked by another activity"@en ;
@@ -359,7 +771,7 @@ emf:contactPerson rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , e
                   rdfs:label "Лице за контакт"@bg ,
                              "Kontaktperson"@da ,
                              "Gesprächspartner"@de ,
-                             "Contact Person"@en ,
+                             "Contact person"@en ,
                              "Yhteyshenkilö"@fi ;
                   
                   skos:definition "A person who provides a link for information or representation between two parties."@en ;
@@ -377,15 +789,15 @@ emf:createdBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:D
               
               rdfs:label "Създаден от"@bg ,
                          "Oprettet af"@da ,
-                         "Erstellt von"@de ,
-                         "Created By"@en ,
-                         "Luonut"@fi ;
+                         "System erstellt von"@de ,
+                         "System created by"@en ,
+                         "Järjestelmä luonut"@fi ;
               
               emf:isSearchable "true"^^xsd:boolean ;
               
               emf:isSystemProperty "true"^^xsd:boolean ;
               
-              skos:definition "Creator of the object"@en ;
+              skos:definition "The creator of the item in the system"@en ;
               
               dc:creator "Kiril Penev"@en ;
               
@@ -423,7 +835,7 @@ emf:destination rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
                 rdfs:label "Посока"@bg ,
                            "Bestemmelsessted"@da ,
                            "Ziel"@de ,
-                           "destination"@en ,
+                           "Destination"@en ,
                            "Määränpää"@fi ;
                 
                 emf:isSystemProperty "true"^^xsd:boolean ;
@@ -442,13 +854,13 @@ emf:destination rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
 
 emf:hasAgent rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
              
-             rdfs:label "Има агент"@bg ,
-                        "Har agent"@da ,
+             rdfs:label "Има Агент"@bg ,
+                        "Har Agent"@da ,
                         "Hat Agent"@de ,
                         "Has Agent"@en ,
-                        "Onko agentti"@fi ;
+                        "Onko Agentti"@fi ;
              
-             skos:definition "Associates Object class with Agent"@en ;
+             skos:definition "Associates object class with Agent"@en ;
              
              dc:creator "Kiril Penev"@en ;
              
@@ -462,15 +874,15 @@ emf:hasAssignee rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
                 
                 rdfs:label "Е възложен на"@bg ,
                            "Har ansvarlig"@da ,
-                           "Hat Bevollmächtigter"@de ,
-                           "Has Assignee"@en ,
+                           "Hat bevollmächtigter"@de ,
+                           "Has assignee"@en ,
                            "Onko vastaanottaja"@fi ;
-                
+	   
                 emf:isSearchable "true"^^xsd:boolean ;
                 
                 dc:creator "Kiril Penev"@en ;
                 
-                skos:definition "Specifies who is assignee to a Task or Project"@en ;
+                skos:definition "The person who is assignee of the item"@en ;
                 
                 rdfs:domain emf:Activity ;
                 
@@ -486,8 +898,8 @@ emf:hasAttachment rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , e
                   
                   rdfs:label "Има прикачен обект"@bg ,
                              "Vedhæftede filer"@da ,
-                             "Hat Anhang"@de ,
-                             "Has Attachment"@en ,
+                             "Hat anhang"@de ,
+                             "Has attachment"@en ,
                              "On kiinnitys"@fi ;
                   
                   skos:definition "Relation between two instances showing that the second one is attached to the first"@en ;
@@ -500,16 +912,15 @@ emf:hasAttachment rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , e
 
 
 
-
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#hasClient
 
 emf:hasClient rdf:type owl:ObjectProperty ;
               
               rdfs:label "Има клиент"@bg ,
                          "Har klient"@da ,
-                         "Hat Kunde"@de ,
-                         "Has Client"@en ,
-                         "Onko asiakas"@fin ;
+                         "Hat kunde"@de ,
+                         "Has client"@en ,
+                         "Onko asiakas"@fi ;
               
               emf:isSearchable "true"^^xsd:boolean ;
               
@@ -525,9 +936,9 @@ emf:hasClient rdf:type owl:ObjectProperty ;
 
 emf:hasChild rdf:type owl:ObjectProperty ;
              
-             rdfs:label "Има подобект"@bg ,
+             rdfs:label "Има деца"@bg ,
                         "Har underordnet kontekst"@da ,
-                        "Hat ein Kind"@de ,
+                        "Hat ein kind"@de ,
                         "Has child"@en ,
                         "Onko lapsi"@fi ;
              
@@ -537,7 +948,7 @@ emf:hasChild rdf:type owl:ObjectProperty ;
              
              dc:creator "Kiril Penev"@en ;
              
-             skos:definition "Specifies which are the children of the object. This relation is inverse to ptop:partOf"@en ;
+             skos:definition "Specifies which are the children of the object"@en ;
              
              owl:inverseOf ptop:partOf .
 
@@ -548,9 +959,9 @@ emf:hasChild rdf:type owl:ObjectProperty ;
 emf:hasMailAttachment rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
                       
                       rdfs:label "Има прикачен файл"@bg ,
-                                 "Har Mail Attachment"@da ,
-                                 "Hat Mail-Anhang"@de ,
-                                 "Has Mail Attachment"@en ,
+                                 "Har mail attachment"@da ,
+                                 "Hat mail-anhang"@de ,
+                                 "Has mail attachment"@en ,
                                  "Onko sähköpostiliite"@fi ;
                       
                       dc:creator "Kiril Penev"@en ;
@@ -568,9 +979,9 @@ emf:hasMailAttachment rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty
 emf:hasModel rdf:type owl:ObjectProperty ;
                       
                       rdfs:label "Има модел"@bg ,
-								 "Har Model"@da ,
-								 "Hat Modell"@de ,
-								 "Has Model"@en ,
+								 "Har model"@da ,
+								 "Hat model"@de ,
+								 "Has model"@en ,
 								 "Onko malli"@fi ;
                        
                       emf:isSystemProperty "true"^^xsd:boolean ;
@@ -591,8 +1002,8 @@ emf:hasRelation rdf:type owl:ObjectProperty ;
                       
                       rdfs:label "Има връзка"@bg ,
 								 "Har relation"@da ,
-								 "Hat Beziehung"@de ,
-								 "Has Relation"@en ,
+								 "Hat beziehung"@de ,
+								 "Has relation"@en ,
 								 "On suhde"@fi ;
                        
                       emf:isSystemProperty "true"^^xsd:boolean ;
@@ -609,9 +1020,9 @@ emf:hasSubsidiary rdf:type owl:ObjectProperty ;
                   
                   rdfs:label "Има филиал"@bg ,
                              "Har datterselskab"@da ,
-                             "Hat Tochtergesellschaft"@de ,
-                             "Has Subsidiary"@en ,
-                             "Onko tytäryhtiö"@fin ;
+                             "Hat tochtergesellschaft"@de ,
+                             "Has subsidiary"@en ,
+                             "Onko tytäryhtiö"@fi ;
                   
                   emf:isSearchable "true"^^xsd:boolean ;
                   
@@ -631,9 +1042,9 @@ emf:hasTemplate rdf:type owl:ObjectProperty;
                 
                 rdfs:label "Има шаблон"@bg ,
                            "Har skabelon"@da ,
-                           "Hat Vorlage"@de ,
-                           "Has Template"@en ,
-                           "Onko malli"@fi ;
+                           "Hat eine Vorlage"@de ,
+                           "Has template"@en ,
+                           "Malli"@fi ;
                 
                 emf:isSystemProperty "true"^^xsd:boolean ;
                 
@@ -641,7 +1052,7 @@ emf:hasTemplate rdf:type owl:ObjectProperty;
                 
                 dc:creator "Hristo Lungov"@en ;
                 
-                skos:definition "Links template instance with current instance"@en ;
+                skos:definition "Indicates the template of the item"@en ;
                 
                 rdfs:range emf:Template ;
                 
@@ -652,10 +1063,10 @@ emf:hasTemplate rdf:type owl:ObjectProperty;
 emf:templateVersion rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
             
                 rdfs:label "Версия на приложения шаблон"@bg ,
-                           "Skabelonversion"@da ,
-                           "Vorlagenversion"@de ,
-                           "Template version"@en ,
-                           "Mallipohja"@fi ;
+                           "Version af den anvendte skabelon"@da ,
+                           "Version der verwendeten vorlage"@de ,
+                           "Version of the applied template"@en ,
+                           "Käytetyn mallin versio"@fi ;
             
 				emf:isSystemProperty "true"^^xsd:boolean ;
             
@@ -675,11 +1086,11 @@ emf:hasHead rdf:type owl:ObjectProperty ;
 			   
 			   rdfs:label "Има ръководител"@bg ,
 						  "Har leder"@da ,
-						  "hat Führer"@de ,
-						  "Has Head"@en ,
-						  "on Leader"@fin ;
+						  "Hat führer"@de ,
+						  "Has head"@en ,
+						  "On leader"@fi ;
                
-               skos:definition "Has Head"@en .
+               skos:definition "Has head"@en .
 
 
 
@@ -689,17 +1100,17 @@ emf:hasParent rdf:type owl:ObjectProperty ;
               
               rdfs:label "Има родител"@bg ,
                          "Har overordnet kontekst"@da ,
-                         "Hat Elternteil"@de ,
-                         "Has Parent"@en ,
+                         "Hat elternteil"@de ,
+                         "Has parent"@en ,
                          "Onko vanhempi"@fi ;
-              
+
               dc:creator "Kiril Penev"@en ;
 
               emf:isSystemProperty "true"^^xsd:boolean ;
              
               emf:isSearchable "true"^^xsd:boolean ;
               
-              skos:definition "Specifies which entity is the parent of the current object"@en ;
+              skos:definition "The item that is parent of the current item"@en ;
               
               owl:inverseOf emf:parentOf ;
               
@@ -713,15 +1124,15 @@ emf:hasParent rdf:type owl:ObjectProperty ;
 
 emf:hasPoolAssignee rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
                     
-                    rdfs:label "Има изпълнител от група"@bg ,
+                    rdfs:label "Възможни изпълнители"@bg ,
                                "Potentielle ansvarlige"@da ,
-                               "Hat einen Pool-Beauftragten"@de ,
-                               "Has Pool Assignee"@en ,
-                               "On Pool Assignee"@fi ;
-                    
+                               "Mögliche beauftragte"@de ,
+                               "Possible assignees"@en ,
+                               "Mahdolliset toimihenkilöt"@fi ;
+							   
                     dc:creator "Kiril Penev"@en ;
                     
-                    skos:definition "Specifies a pool of users that  is assignee to a Task or Project"@en ;
+                    skos:definition "Pool of users that can be assigned of the item"@en ;
                     
                     emf:isSearchable "true"^^xsd:boolean ;
                     
@@ -738,12 +1149,12 @@ emf:hasPrimaryImage rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty ,
                     rdfs:label "Има основно изображение"@bg ,
                                "Primære billeder"@da ,
                                "Hat das primäre Image"@de ,
-                               "Has Primary Image"@en ,
+                               "Has primary image"@en ,
                                "Onko ensisijainen kuva"@fi ;
                     
                     emf:isSystemProperty "true"^^xsd:boolean ;
                     
-                    skos:definition "Specifies the primary image of the current object"@en ;
+                    skos:definition "The primary images that represents the current item"@en ;
                     
                     dc:creator "Valeri Tishev"@en ;
                     
@@ -758,9 +1169,9 @@ emf:hasProducer rdf:type owl:ObjectProperty ;
                 
                 rdfs:label "Има производител"@bg ,
                            "Har producent"@da ,
-                           "Hat Produzent"@de ,
-                           "Has Producer"@en ,
-                           "Tuotannossa"@fin ;
+                           "Hat produzent"@de ,
+                           "Has producer"@en ,
+                           "Tuotannossa"@fi ;
                 
                 emf:isSearchable "true"^^xsd:boolean ;
                 
@@ -777,9 +1188,9 @@ emf:hasProvider rdf:type owl:ObjectProperty ;
                 
                 rdfs:label "Има доставчик"@bg ,
                            "Har udbyder"@da ,
-                           "Hat Provider"@de ,
-                           "Has Provider"@en ,
-                           "Onko palveluntarjoaja"@fin ;
+                           "Hat provider"@de ,
+                           "Has provider"@en ,
+                           "Onko palveluntarjoaja"@fi ;
                 
                 emf:isSearchable "true"^^xsd:boolean ;
                 
@@ -797,8 +1208,8 @@ emf:hasTag rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:Defi
                     
                     rdfs:label "Има етикет"@bg ,
 							   "Har tag"@da ,
-							   "Hat Tag"@de ,
-							   "Has Tag"@en ,
+							   "Hat tag"@de ,
+							   "Has tag"@en ,
 							   "Onko tunniste"@fi ;
                     
                     skos:definition "Specifies that the entity has a tag."@en ;
@@ -818,7 +1229,7 @@ emf:hasRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
                 
                 rdfs:label "Има ревизия"@bg ,
                            "Har revision"@da ,
-                           "Hat Überarbeitung"@de ,
+                           "Hat überarbeitung"@de ,
                            "Has revision"@en ,
                            "Onko tarkistus"@fi ;
                 
@@ -828,7 +1239,7 @@ emf:hasRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
                 
                 emf:isSearchable "true"^^xsd:boolean ;
                 
-                skos:definition "Specifies that the resource has a revision. Generally from the same type as the original resource type."@en ;
+                skos:definition "The revisions of the item"@en ;
                 
                 rdfs:range ptop:Entity ;
                 
@@ -842,17 +1253,17 @@ emf:hasThumbnail rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , em
                  
                  rdfs:label "Има умалено изображение"@bg ,
                             "Har thumbnail"@da ,
-                            "Hat Miniaturansicht"@de ,
-                            "Has Thumbnail"@en ,
-                            "On Thumbnail"@fi ;
-                            
+                            "Hat miniaturansicht"@de ,
+                            "Has thumbnail"@en ,
+                            "Pienoiskuva"@fi ;
+
                  emf:isSearchable "true"^^xsd:boolean ;
 
                  emf:isSystemProperty "true"^^xsd:boolean ;
                  
                  dc:creator "Kiril Penev"@en ;
                  
-                 skos:definition "References the thumbnail image of an object."@en .
+                 skos:definition "The thumbnail image of the item"@en .
 
 
 
@@ -862,8 +1273,8 @@ emf:hasFavourite rdf:type owl:ObjectProperty ;
                  
                  rdfs:label "Има любим обект"@bg ,
                             "Har favorit"@da ,
-                            "Hat Favorit"@de ,
-                            "Has Favourite"@en ,
+                            "Hat favorit"@de ,
+                            "Has favourite"@en ,
                             "On suosikki"@fi ;
 
 
@@ -881,13 +1292,13 @@ emf:hasVendor rdf:type owl:ObjectProperty ;
               
               rdfs:label "Има търговец"@bg ,
                          "Har forhandler"@da ,
-                         "Hat Verkäufer"@de ,
-                         "Has Vendor"@en ,
+                         "Hat verkäufer"@de ,
+                         "Has vendor"@en ,
                          "Onko myyjä"@fi ;
               
               dc:creator "Kiril Penev"@en ;
               
-              skos:definition "TBD"@en ;
+              skos:definition "Has vendor"@en ;
               
               rdfs:range emf:Vendor .
 
@@ -897,17 +1308,17 @@ emf:hasVendor rdf:type owl:ObjectProperty ;
 
 emf:hasWatcher rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
               
-              rdfs:label "Има наблюдаващ"@bg ,
-                          "Har observatør"@da ,
-                          "Hat Wächter"@de ,
-                          "Has Watcher"@en ,
+              rdfs:label "Наблюдаващ"@bg ,
+                          "Har observator"@da ,
+                          "Hat watcher"@de ,
+                          "Has watcher"@en ,
                           "Onko Watcher"@fi ;
-              
+
               dc:creator "Kiril Penev"@en ;
               
               emf:isSearchable "true"^^xsd:boolean ;
               
-              skos:definition "Specifies which user is watcher of the given entity"@en ;
+              skos:definition "The users added as watchers for the item"@en ;
               
               rdfs:domain ptop:Entity ;
               
@@ -922,9 +1333,9 @@ emf:inverseRelation rdf:type owl:ObjectProperty ,
                     
                     rdfs:label "Обратна връзка"@bg ,
                                "Invers relation"@da ,
-                               "umgekehrte Beziehung"@de ,
+                               "Umgekehrte beziehung"@de ,
                                "Inverse relation"@en ,
-                               "käänteinen suhde"@fi ;
+                               "Käänteinen suhde"@fi ;
 					
 					emf:isSystemProperty "true"^^xsd:boolean ;		   
                     
@@ -940,11 +1351,11 @@ emf:isAgentOf rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:D
               
               rdfs:label "Е извършвано от"@bg ,
                          "Er agent of"@da ,
-                         "Ist Agent von"@de ,
-                         "Is Agent Of"@en ,
-                         "On Agent Of"@fi ;
+                         "Ist agent von"@de ,
+                         "Is agent of"@en ,
+                         "On agent of"@fi ;
               
-              skos:definition "Associates Agents with Objects"@en ;
+              skos:definition "Associates agents with item"@en ;
               
               dc:creator "Lidiya Dimitrova"@en ;
               
@@ -958,17 +1369,17 @@ emf:isAgentOf rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:D
 
 emf:isAssigneeOf rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
                  
-                 rdfs:label "Е изпълнител на"@bg ,
+                 rdfs:label "Изпълнител на"@bg ,
                             "Er ansvarlig for"@da ,
-                            "Ist Beauftragter von"@de ,
-                            "Is Assignee Of"@en ,
-                            "Onko Assignee Of"@fi ;
-                 
+                            "Ist bevollmächtigter von"@de ,
+                            "Is assignee of"@en ,
+                            "Oleskelulupa on"@fi ;
+
                  emf:isSearchable "true"^^xsd:boolean ;
                  
                  dc:creator "Lidiya Dimitrova" ;
                  
-                 skos:definition "Specifies the Task or Project the user is assinee to"@en ;
+                 skos:definition "The item the user is assinee to"@en ;
                  
                  rdfs:range emf:Activity ;
                  
@@ -987,7 +1398,7 @@ emf:isAttachedTo rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , em
                  rdfs:label "Е прикачен към"@bg ,
                             "Vedhæftet til"@da ,
                             "Ist beigefügt"@de ,
-                            "Is Attached To"@en ,
+                            "Is attached to"@en ,
                             "Liitetään mukaan"@fi ;
                  
                  skos:definition "A relation between two instances showing that the first is attached to the second"@en ;
@@ -1002,7 +1413,7 @@ emf:isAttachmentTo rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , 
                     
                    rdfs:label "Е приложение на"@bg ,
                               "Er vedhæftning af"@da ,
-                              "Ist Anhang von"@de ,
+                              "Ist anhang von"@de ,
                               "is attachment of"@en ,
                               "On liittäminen"@fi ;
                     
@@ -1018,15 +1429,15 @@ emf:isAuthorOf rdf:type owl:ObjectProperty ;
                
                rdfs:label "Е автор на"@bg ,
                           "Er forfatter af"@da ,
-                          "ist Autor von"@de ,
-                          "Is Author Of"@en ,
-                          "on kirjoittaja"@fin ;
+                          "Ist autor von"@de ,
+                          "Is author of"@en ,
+                          "On kirjoittaja"@fi ;
                
                emf:isSearchable "true"^^xsd:boolean ;
                
                dc:creator "Lyubomir Marinov"@en ;
                
-               skos:definition "Is author of"@en ;
+               skos:definition "The item that the user is author of"@en ;
                
                owl:inverseOf emf:hasAuthor .
 
@@ -1038,9 +1449,9 @@ emf:isClientOf rdf:type owl:ObjectProperty ;
                
                rdfs:label "Е клиент на"@bg ,
                           "Er klient af"@da ,
-                          "Ist Kunde von"@de ,
-                          "Is Client Of"@en ,
-                          "Asiakkaalla"@fin ;
+                          "Ist kunde von"@de ,
+                          "Is client of"@en ,
+                          "Asiakkaalla"@fi ;
                
                emf:isSearchable "true"^^xsd:boolean ;
                
@@ -1057,8 +1468,8 @@ emf:isDeliveredTo rdf:type owl:ObjectProperty ;
                   rdfs:label "Е доставен на"@bg ,
                              "Leveres til"@da ,
                              "Wird geliefert an"@de ,
-                             "Is Delivered to"@en ,
-                             "Toimitetaan"@fin ;
+                             "Is delivered to"@en ,
+                             "Toimitetaan"@fi ;
                   
                   emf:isSearchable "true"^^xsd:boolean ;
                   
@@ -1073,11 +1484,11 @@ emf:isDeliveredTo rdf:type owl:ObjectProperty ;
 emf:isDuplicatedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ,
                        owl:SymmetricProperty ;
                    
-                   rdfs:label "Е дублиран от"@bg ,
+                   rdfs:label "Дублира"@bg ,
                               "Duplikere"@da ,
-                              "Wird dupliziert von"@de ,
-                              "Is duplicated by"@en ,
-                              "Kopioidaan"@fi ;
+                              "Duplikate"@de ,
+                              "Duplicate"@en ,
+                              "Monistaa"@fi ;
                    
                    dc:creator "Kiril Penev"@en ;
                    
@@ -1093,8 +1504,8 @@ emf:isEmployeeOf rdf:type owl:ObjectProperty ;
                  rdfs:label "Е служител на"@bg ,
                             "Er medarbejder af"@da ,
                             "Ist Mitarbeiter von"@de ,
-                            "Is Employee Of"@en ,
-                            "On työntekijällä"@fin ;
+                            "Is employee of"@en ,
+                            "On työntekijällä"@fi ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
                  
@@ -1114,9 +1525,9 @@ emf:isHeadOf rdf:type owl:ObjectProperty ;
                
                rdfs:label "Е ръководител на"@bg ,
 						  "Er leder af"@da ,
-                          "Ist Anführer von"@de ,
-                          "Is Head Of"@en ,
-                          "Johtaja"@fin ;
+                          "Ist anführer von"@de ,
+                          "Is head of"@en ,
+                          "Johtaja"@fi ;
                
                emf:isSearchable "true"^^xsd:boolean ;
                
@@ -1138,9 +1549,9 @@ emf:isIssuerOf rdf:type owl:ObjectProperty ;
                
                rdfs:label "Е издател на"@bg ,
                           "Еr forlæggeren af"@da ,
-                          "Ist Emittent von"@de ,
-                          "Is Issuer Of"@en ,
-                          "IsIssuer Of"@fin ;
+                          "Ist emittent von"@de ,
+                          "Is issuer of"@en ,
+                          "Is issuer of"@fi ;
                
                emf:isSearchable "true"^^xsd:boolean ;
                
@@ -1160,13 +1571,13 @@ emf:isMemberOf rdf:type owl:ObjectProperty ;
                
                rdfs:label "Е член на"@bg ,
                           "Er medlem af"@da ,
-                          "Ist Mitglied von"@de ,
-                          "Is Member of"@en ,
+                          "Ist mitglied von"@de ,
+                          "Is member of"@en ,
                           "Onko jäsen"@fi ;
-               
+
                dc:creator "Kiril Penev"@en ;
                
-               skos:definition "Specifies which group the user is member of"@en ;
+               skos:definition "The group the user is member of"@en ;
                
                rdfs:domain ptop:Agent ;
                
@@ -1182,12 +1593,12 @@ emf:isMemberOf rdf:type owl:ObjectProperty ;
 
 emf:isMemberOfCollection rdf:type owl:ObjectProperty ;
                          
-                         rdfs:label "Е част от колекция"@bg ,
-                                    "Er medlem af samling"@da ,
-                                    "Ist Mitglied der Sammlung"@de ,
-                                    "Is Member of Collection"@en ,
-                                    "Onko jäsen kokoelmasta"@fi ;
-                         
+                         rdfs:label "Член на колекция"@bg ,
+                                    "Er del af samling"@da ,
+                                    "Ist mitglied der Sammlung"@de ,
+                                    "Is member of Collection"@en ,
+                                    "Onko jäsen Kokoelmasta"@fi ;
+
                          emf:isSearchable "true"^^xsd:boolean ;
                          
                          skos:definition "Relates Concept or Collection to a Collection"@en ;
@@ -1202,15 +1613,15 @@ emf:isMemberOfCollection rdf:type owl:ObjectProperty ;
 
 emf:isPoolAssigneeTo rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
                      
-                     rdfs:label "Е добавен към изпълнителите на"@bg ,
-                                "Er potentielle ansvarlige til"@da ,
-                                "Ist Pool-Beauftragter zu"@de ,
-                                "Is Pool Assignee To"@en ,
-                                "On Pool Assignee To"@fi ;
-                     
+                     rdfs:label "Е добавен към пул"@bg ,
+                                "Er knyttet via pulje til"@da ,
+                                "Ist pool-beauftragter zu"@de ,
+                                "Is pool assignee to"@en ,
+                                "On pool assignee to"@fi ;
+
                      dc:creator "Lidiya Dimitrova"@en ;
                      
-                     skos:definition "Specifies Task or Project that the users  is assignee to"@en ;
+                     skos:definition "The items that the users is assignee to"@en ;
                      
                      emf:isSearchable "true"^^xsd:boolean ;
                      
@@ -1250,9 +1661,9 @@ emf:isProducerOf rdf:type owl:ObjectProperty ;
                  
                  rdfs:label "Е производител на"@bg ,
                             "Er producent af"@da ,
-                            "Ist Produzent von"@de ,
-                            "Is Producer of"@en ,
-                            "Tuotannossa"@fin ;
+                            "Ist produzent von"@de ,
+                            "Is producer of"@en ,
+                            "Tuotannossa"@fi ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
                  
@@ -1270,9 +1681,9 @@ emf:isProviderOf rdf:type owl:ObjectProperty ;
                  
                  rdfs:label "Е доставчик на"@bg ,
                             "Er leverandør af"@da ,
-                            "Ist Anbieter von"@de ,
-                            "Is Provider Of"@en ,
-                            "Onko palveluntarjoaja"@fin ;
+                            "Ist anbieter von"@de ,
+                            "Is provider of"@en ,
+                            "Onko palveluntarjoaja"@fi ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
                  
@@ -1309,9 +1720,9 @@ emf:isRecipientOf rdf:type owl:ObjectProperty ;
                   
                   rdfs:label "Е получател на"@bg ,
                              "Er modtager af"@da ,
-                             "Ist Empfänger von"@de ,
-                             "Is Recipient Of"@en ,
-                             "Onko vastaanottaja"@fin ;
+                             "Ist empfänger von"@de ,
+                             "Is recipient of"@en ,
+                             "Onko vastaanottaja"@fi ;
                   
                   emf:isSearchable "true"^^xsd:boolean ;
                   
@@ -1331,17 +1742,17 @@ emf:isRevisionOf rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , em
                  
                  rdfs:label "Е ревизия на"@bg ,
                             "Er revision af"@da ,
-                            "Ist Revision von"@de ,
+                            "Ist revision von"@de ,
                             "Is revision of"@en ,
                             "Tarkistetaanko"@fi ;
-                            
+
                  emf:isSystemProperty "true"^^xsd:boolean ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
                  
                  dc:creator "Borislav Bonev"@en ;
                  
-                 skos:definition "Specifies that the resource is a revision of other entity"@en ;
+                 skos:definition "The item to which the current item is revision of"@en ;
                  
                  owl:inverseOf emf:hasRevision .
 
@@ -1353,9 +1764,9 @@ emf:isSubsidiaryOf rdf:type owl:ObjectProperty ;
                    
                    rdfs:label "Е филиал на"@bg ,
                               "Er datterselskab af"@da ,
-                              "Ist Tochtergesellschaft von"@de ,
-                              "Is Subsidiary Of"@en ,
-                              "On tytäryhtiö"@fin ;
+                              "Ist tochtergesellschaft von"@de ,
+                              "Is subsidiary of"@en ,
+                              "On tytäryhtiö"@fi ;
                    
                    emf:isSearchable "true"^^xsd:boolean ;
                    
@@ -1378,8 +1789,8 @@ emf:issuedBy rdf:type owl:ObjectProperty ;
              rdfs:label "Издаден от"@bg ,
                         "Udstedt af"@da ,
                         "Ausgestellt durch"@de ,
-                        "Issued By"@en ,
-                        "Myöntänyt"@fin ;
+                        "Issued by"@en ,
+                        "Myöntänyt"@fi ;
              
              emf:isSearchable "true"^^xsd:boolean ;
              
@@ -1397,17 +1808,17 @@ emf:isThumbnailOf rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , e
                   
                   rdfs:label "Е умалено изображение на"@bg ,
                              "Er thumbnail af"@da ,
-                             "ist ein Vorschaubild von"@de ,
-                             "is thumbnail of"@en ,
-                             "On pikkukuva"@fi ;
-                  
+                             "Ist thumbnail von"@de ,
+                             "Is thumbnail of"@en ,
+                             "On pienoiskuva"@fi ;
+
                   emf:isSearchable "true"^^xsd:boolean ;
                   
                   emf:isSystemProperty "true"^^xsd:boolean ;
                   
                   dc:creator "Kiril Penev"@en ;
                   
-                  skos:definition "Specifies of which object this Image is thumbnail"@en ;
+                  skos:definition "The object, that the image is thumbnail of"@en ;
                   
                   owl:inverseOf emf:hasThumbnail .
 
@@ -1419,13 +1830,13 @@ emf:isVendorOf rdf:type owl:ObjectProperty ;
                
                rdfs:label "Е търговец е на"@bg ,
                           "Er leverandør af"@da ,
-                          "Ist Verkäufer von"@de ,
-                          "Is Vendor Of"@en ,
+                          "Ist verkäufer von"@de ,
+                          "Is vendor of"@en ,
                           "Onko toimittaja"@fi ;
                
                dc:creator "Kiril Penev"@en ;
                
-               skos:definition "TBD"@en ;
+               skos:definition "Is vendor of"@en ;
 
                rdfs:domain emf:Vendor ;
                
@@ -1439,9 +1850,9 @@ emf:isWatcherOf rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
                
                rdfs:label "Наблюдава се от"@bg ,
                           "Er observatør af"@da ,
-                          "Ist Beobachter von"@de ,
-                          "Is Watcher Of"@en ,
-                          "Onko Watcher Of"@fi ;
+                          "Ist beobachter von"@de ,
+                          "Is watcher of"@en ,
+                          "Onko watcher of"@fi ;
                
                emf:isSearchable "true"^^xsd:boolean ;
                
@@ -1459,17 +1870,17 @@ emf:lastPublishedRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProp
                           
                           rdfs:label "Последна публикувана ревизия"@bg ,
                                      "Seneste publicerede revision"@da ,
-                                     "Letzte veröffentlichte Überarbeitung"@de ,
+                                     "Letzte veröffentlichte überarbeitung"@de ,
                                      "Last published revision"@en ,
                                      "Viimeisin julkaistu versio"@fi ;
-                          
+
                           emf:isSystemProperty "true"^^xsd:boolean ;
                           
                           emf:isSearchable "true"^^xsd:boolean ;
                           
                           dc:creator "Borislav Bonev"@en ;
                           
-                          skos:definition "Specifies that an entity has a revision that is the last approved revision is the system. Could be only one."@en ;
+                          skos:definition "The last approved and published revisions of the item. Could be only one."@en ;
                           
                           rdfs:range ptop:Entity ;
                           
@@ -1483,15 +1894,15 @@ emf:lastRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , em
                  
                  rdfs:label "Последна ревизия"@bg ,
                             "Seneste revision"@da ,
-                            "Letzte Überarbeitung"@de ,
+                            "Letzte überarbeitung"@de ,
                             "Last revision"@en ,
                             "Viimeinen tarkistus"@fi ;
-                 
+
                  emf:isSystemProperty "true"^^xsd:boolean ;
                  
                  dc:creator "Borislav Bonev"@en ;
                  
-                 skos:definition "Specifies that an entity has a revision that is the last revision is the system for the current entity. It could be approved or rejected. Could be only one."@en ;
+                 skos:definition "The last revisions of the item. It could be approved or rejected. Could be only one."@en ;
                  
                  rdfs:domain ptop:Entity ;
                  
@@ -1503,12 +1914,12 @@ emf:lastRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , em
 
 emf:loggedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
               
-              rdfs:label "Регистрирано от"@bg ,
-                        "Registreret af"@da ,
+              rdfs:label "Логнато от"@bg ,
+                        "Log ført af"@da ,
                         "Angemeldet von"@de ,
                         "Logged by"@en ,
                         "Kirjautunut"@fi ;
-              
+
               skos:definition "The user that logged the work"@en ;
               
               rdfs:range emf:User ;
@@ -1524,7 +1935,7 @@ emf:markedForDownload rdf:type owl:ObjectProperty ;
                rdfs:label "Маркирано за сваляне"@bg ,
                           "Markeret til download"@da ,
                           "Zum Download markiert"@de ,
-                          "Marked For Download"@en ,
+                          "Marked for download"@en ,
                           "Merkitty lataukseen"@fi ;
                
                emf:isSystemProperty "true"^^xsd:boolean ;
@@ -1543,17 +1954,17 @@ emf:markedForDownload rdf:type owl:ObjectProperty ;
 
 emf:modifiedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
                
-               rdfs:label "Променен от"@bg ,
+               rdfs:label "Актуализиран от"@bg ,
                           "Opdateret af"@da ,
-                          "Angepasst von"@de ,
+                          "Geändert von"@de ,
                           "Modified by"@en ,
                           "Muokannut"@fi ;
-               
+			
                emf:isSearchable "true"^^xsd:boolean ;
                
                dc:creator "Kiril Penev"@en ;
                
-               skos:definition "The person that last modified the Entity"@en ;
+               skos:definition "The person that last modified the item in the system"@en ;
                
                rdfs:range emf:User ;
                
@@ -1567,17 +1978,17 @@ emf:nextRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , em
                  
                  rdfs:label "Следваща ревизия"@bg ,
                             "Næste revision"@da ,
-                            "Nächste Überarbeitung"@de ,
+                            "Nächste überarbeitung"@de ,
                             "Next revision"@en ,
                             "Seuraava tarkistus"@fi ;
-                 
+
                  emf:isSystemProperty "true"^^xsd:boolean ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
                  
                  dc:creator "Borislav Bonev"@en ;
                  
-                 skos:definition "Specifies that a revision has a other revision and succeeds the current"@en ;
+                 skos:definition "The revision that succeeds the current"@en ;
                  
                  rdfs:range ptop:Entity ;
                  
@@ -1594,10 +2005,10 @@ emf:owner rdf:type owl:ObjectProperty ;
                      "Inhaber"@de ,
                      "Owner"@en ,
                      "Omistaja"@fi ;
-          
+
           dc:creator "Kiril Penev"@en ;
           
-          skos:definition "User that is owner of the Entity"@en ;
+          skos:definition "User that is owner of the item"@en ;
           
           rdfs:range ptop:Entity ;
           
@@ -1616,12 +2027,12 @@ emf:ownedBy rdf:type owl:ObjectProperty ;
                        "Gehört"@de ,
                        "Owned by"@en ,
                        "Omistuksessa"@fi ;
-          
+
           emf:isSystemProperty "true"^^xsd:boolean ;
           
           dc:creator "Valeri Tishev"@en ;
           
-          skos:definition "Entity belongs to an Agent"@en ;
+          skos:definition "Item that is owned by user"@en ;
           
           rdfs:range ptop:Agent ;
           
@@ -1638,7 +2049,7 @@ emf:parentOf rdf:type owl:ObjectProperty ;
              rdfs:label "Родител на"@bg ,
                         "Overordnet kontekst for"@da ,
                         "Elternteil von"@de ,
-                        "Parent Of"@en ,
+                        "Parent of"@en ,
                         "Vanhempi"@fi ;
              
              dc:creator "Kiril Penev"@en ;
@@ -1647,7 +2058,7 @@ emf:parentOf rdf:type owl:ObjectProperty ;
              
              emf:isSearchable "true"^^xsd:boolean ;
              
-             skos:definition "Specifies which Entity is parent of another Entity"@en ;
+             skos:definition "The item to which the current item is parent of"@en ;
              
              rdfs:domain ptop:Entity ;
              
@@ -1661,17 +2072,17 @@ emf:previousRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty 
                      
                      rdfs:label "Предишна ревизия"@bg ,
                                 "Forrige revision"@da ,
-                                "Vorherige Überarbeitung"@de ,
+                                "Vorherige überarbeitung"@de ,
                                 "Previous revision"@en ,
                                 "Edellinen versio"@fi ;
-                     
+
                      emf:isSystemProperty "true"^^xsd:boolean ;
                      
                      emf:isSearchable "true"^^xsd:boolean ;
                      
                      dc:creator "Borislav Bonev"@en ;
                      
-                     skos:definition "Specifies that a revision is a successor of other revision"@en ;
+                     skos:definition "The revision that is successor of other revision"@en ;
                      
                      rdfs:range ptop:Entity ;
                      
@@ -1683,13 +2094,13 @@ emf:previousRevision rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty 
 
 emf:processedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:DefinitionProperty ;
                 
-                rdfs:label "Обработвано от"@bg ,
+                rdfs:label "Обработен от"@bg ,
                            "Behandlet af"@da ,
                            "Verarbeitet von"@de ,
                            "Processed by"@en ,
-                           "Prosessoinut"@fi ;
-                
-                skos:definition "Automatic relation between a Document or Object to a Task or Workflow that are processing them. This relation is created when the Task or Workflow is created in the context of the Document or Object"@en ;
+                           "Jalostanut"@fi ;
+
+                skos:definition "Automatic relation between a Document or Object to a Task or Workflow that are processing them"@en ;
                 
                 dc:creator "Kiril Penev"@en ;
                 
@@ -1730,10 +2141,10 @@ emf:publishedBy rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf
                        "Veröffentlicht von"@de ,
                        "Published by"@en ,
                        "Julkaissut"@fi ;
-            
+
             dc:creator "Kiril Penev"@en ;
             
-            skos:definition "The user that published the Document"@en ;
+            skos:definition "The user that published the item"@en ;
             
             emf:isSearchable "true"^^xsd:boolean ;
             
@@ -1753,7 +2164,7 @@ emf:references rdf:type owl:ObjectProperty , emf:DefinitionObjectProperty , emf:
                           "Verweise"@de ,
                           "References"@en ,
                           "Viitteet"@fi ;
-               
+			
                dc:creator "Kiril Penev"@en ;
                
                skos:definition "Specifies that the resource has some reference to other resources"@en ;
@@ -1842,6 +2253,14 @@ ptop:hasMember rdf:type owl:ObjectProperty ,
 
 ptop:partOf rdf:type owl:ObjectProperty ;
             
+            rdfs:label "Част от"@bg ,
+                      "Del af"@da ,
+                      "Teil von"@de ,
+                      "Part of"@en ,
+                      "Osa"@fi ;
+
+			skos:definition "The object to which the current object is part of"@en ;		 
+			
             emf:isSystemProperty "true"^^xsd:boolean ;
 
             emf:isSearchable "true"^^xsd:boolean .
@@ -1853,9 +2272,9 @@ emf:isContactPersonOf rdf:type owl:ObjectProperty ;
                       
                       rdfs:label "Е лице за контакт"@bg ,
                                  "Er kontaktperson for"@da ,
-                                 "Ist Kontaktperson von"@de ,
-                                 "Is Contact Person Of"@en ,
-                                 "Yhteyshenkilö"@fin ;
+                                 "Ist kontaktperson von"@de ,
+                                 "Is contact person of"@en ,
+                                 "Yhteyshenkilö"@fi ;
                       
                       emf:isSearchable "true"^^xsd:boolean ;
                       
@@ -1873,8 +2292,8 @@ emf:isDefaultLocation rdf:type owl:ObjectProperty ;
                  
                  rdfs:label "Е локация по подразбиране"@bg ,
                             "Er standardplacering"@da ,
-                            "Ist der Standardstandort"@de ,
-                            "Is Default Location"@en ,
+                            "Ist der standardstandort"@de ,
+                            "Is default location"@en ,
                             "Oletuspaikka"@fi ;
 
                  emf:isSystemProperty "true"^^xsd:boolean ;
@@ -1891,13 +2310,13 @@ emf:isDefaultLocation rdf:type owl:ObjectProperty ;
          
 emf:mailboxAddress rdf:type owl:DatatypeProperty ;
 
-					rdfs:label "Адрес на електроннa поща"@bg ,
-                               "Email adresse"@da ,
-                               "E-Mail-Addresse"@de ,
-                               "Email Address"@en ,
-                               "Sähköpostiosoite"@fi ;
+					rdfs:label "Системен имейл"@bg ,
+                               "Systemgenereret e-mail"@da ,
+                               "System e-mail"@de ,
+                               "System e-mail"@en ,
+                               "System e-mail"@fi ;
    
-					skos:definition "Used to keep instance email address."@en ;
+					skos:definition "System e-mail of the item"@en ;
 					
 					emf:isSearchable "true"^^xsd:boolean ;
 					
@@ -1915,9 +2334,9 @@ emf:hasAuthor rdf:type owl:ObjectProperty ;
               
               rdfs:label "Има автор"@bg ,
                          "Har forfatter"@da ,
-                         "hat Autor"@de ,
-                         "Has Author"@en ,
-                         "on kirjoittaja"@fin ;
+                         "Hat autor"@de ,
+                         "Has author"@en ,
+                         "On kirjoittaja"@fi ;
               
               emf:isSearchable "true"^^xsd:boolean ;
               
@@ -1933,9 +2352,9 @@ emf:hasDeliveredItem rdf:type owl:ObjectProperty ;
                      
                      rdfs:label "Има доставяни продукти/услуги"@bg ,
                                 "Har leveret vare"@da ,
-                                "Hat Artikel geliefert"@de ,
-                                "Has Delivered Item"@en ,
-                                "Onko toimitettu tuote"@fin ;
+                                "Hat artikel geliefert"@de ,
+                                "Has delivered item"@en ,
+                                "Onko toimitettu tuote"@fi ;
                      
                      emf:isSearchable "true"^^xsd:boolean ;
                      
@@ -1953,9 +2372,9 @@ emf:hasEmployee rdf:type owl:ObjectProperty ;
                 
                 rdfs:label "Има служител"@bg ,
                            "Har medarbejder"@da ,
-                           "hat Mitarbeiter"@de ,
-                           "Has Employee"@en ,
-                           "on työntekijä"@fin ;
+                           "Hat mitarbeiter"@de ,
+                           "Has employee"@en ,
+                           "On työntekijä"@fi ;
                 
                 emf:isSearchable "true"^^xsd:boolean ;
                 
@@ -1978,8 +2397,8 @@ emf:hasRecipient rdf:type owl:ObjectProperty ;
              rdfs:label "Има получател"@bg ,
                         "Har modtager"@da ,
                         "Lautend auf"@de ,
-                        "Has Recipient"@en ,
-                        "Osoitettu"@fin ;
+                        "Has recipient"@en ,
+                        "Osoitettu"@fi ;
              
              emf:isSearchable "true"^^xsd:boolean ;
              
@@ -1997,10 +2416,10 @@ emf:hasReporter rdf:type owl:ObjectProperty ;
                 
                 rdfs:label "Докладван от"@bg ,
                            "Har rapportør"@da ,
-                           "Hat Reporter"@de ,
-                           "Has Reporter"@en ,
-                           "Onko Reporter"@fi ;
-                
+                           "Hat reporter"@de ,
+                           "Has reporter"@en ,
+                           "Onko reporter"@fi ;
+
                 emf:isSearchable "true"^^xsd:boolean ;
                 
                 dc:creator "Anna Radeva"@en ;
@@ -2012,17 +2431,17 @@ emf:hasReporter rdf:type owl:ObjectProperty ;
 
 emf:isReporterOf rdf:type owl:ObjectProperty ;
                  
-                 rdfs:label "Докладва за"@bg ,
-                            "Er rapportør afа"@da ,
-                            "Ist Reporter von"@de ,
-                            "Is Reporter Of"@en ,
-                            "Onko Reporter Of"@fi ;
+                 rdfs:label "Докладва"@bg ,
+                            "Er rapportør af"@da ,
+                            "Ist reporter von"@de ,
+                            "Is reporter of"@en ,
+                            "Onko toimittaja"@fi ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
                  
                  dc:creator "Anna Radeva" ;
                  
-                 skos:definition "Specifies the Object the user is reporter to"@en ;
+                 skos:definition "Reporter of the item"@en ;
  
 				owl:inverseOf emf:hasReporter .
 
@@ -2067,12 +2486,12 @@ skos:topConceptOf emf:isSearchable "true"^^xsd:boolean .
 
 emf:accumulatedActualEffort rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                             
-                            rdfs:label "Натрупано действително усилие"@bg ,
+                            rdfs:label "Натрупани действителни работни часове"@bg ,
                                        "Akkumuleret faktisk timeforbrug"@da ,
-                                       "Kumulierter tatsächlicher Aufwand"@de ,
-                                       "Accumulated Actual Effort"@en ,
-                                       "Kertynyt todellinen ponnistus"@fi ;
-                            
+                                       "Kumulierte tatsächliche arbeitsstunden"@de ,
+                                       "Accumulated actual effort hours"@en ,
+                                       "Kertyneet todelliset ponnistelutunnit"@fi ;
+									   
                             dc:creator "Kiril Penev"@en ;
                             
                             skos:definition "Sum of all actual efforts that are needed for the completion of an Activity. The effort is measured in man/days"@en ;
@@ -2087,12 +2506,12 @@ emf:accumulatedActualEffort rdf:type owl:DatatypeProperty , emf:DefinitionDataPr
 
 emf:accumulatedEstimatedEffort rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                                
-                               rdfs:label "Натрупано прогнозирано усилие"@bg ,
+                               rdfs:label "Натрупани прогнозни работни часове"@bg ,
                                           "Akkumuleret estimeret timeforbrug"@da ,
-                                          "Kumulierter geschätzter Aufwand"@de ,
-                                          "Accumulated Estimated Effort"@en ,
-                                          "Kertynyt arvioitu ponnistus"@fi ;
-                               
+                                          "Kumulierte geschätzte arbeitsstunden"@de ,
+                                          "Accumulated estimated effort hours"@en ,
+                                          "Kertyneet arvioidut ponnistelutunnit"@fi ;
+										  
                                dc:creator "Kiril Penev"@en ;
                                
                                skos:definition "Sum of all estimated effort that are estimated for completition of an Activity. The effort is measured in man/days"@en ;
@@ -2125,12 +2544,12 @@ emf:activityId rdf:type owl:DatatypeProperty ;
 
 emf:actualEffort rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                  
-                 rdfs:label "Действителна начална дата"@bg ,
-                            "Faktisk startdato"@da ,
-                            "Aktuelles Startdatum"@de ,
-                            "Actual Start Date"@en ,
-                            "Todellinen alkamispäivä"@fi ;
-                 
+                 rdfs:label "Действителни работни часове"@bg ,
+                            "Faktisk timeforbrug"@da ,
+                            "Tatsächliche aufwand stunden"@de ,
+                            "Actual effort hours"@en ,
+                            "Todelliset ponnistelutunnit"@fi ;
+			
                  skos:definition "Actual effort that was needed for completition of an Activity. The effort is measured in man/days"@en ;
                  
                  dc:creator "Kiril Penev"@en ;
@@ -2147,11 +2566,11 @@ emf:actualStartDate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty ,
                     
                     rdfs:label "Действителна начална дата"@bg ,
                                "Faktisk startdato"@da ,
-                               "Aktuelles Startdatum"@de ,
-                               "Actual Start Date"@en ,
+                               "Aktuelles startdatum"@de ,
+                               "Actual start date"@en ,
                                "Todellinen alkamispäivä"@fi ;
-                    
-                    skos:definition "Actual start date of the Activity"@en ;
+			
+                    skos:definition "Start date of the activity"@en ;
                     
                     dc:creator "Kiril Penev"@en ;
                     
@@ -2170,7 +2589,7 @@ emf:address rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Def
                        "Adresse"@de ,
                        "Address"@en ,
                        "Osoite"@fi ;
-            
+
             skos:definition "Address"@en ;
             
             dc:creator "Kiril Penev"@en .
@@ -2191,7 +2610,7 @@ emf:addressCity rdf:type owl:DatatypeProperty ;
                 
                 skos:definition "Address City"@en ;
                 
-                dcterms:creator "Lyubomir Marinov"@en .
+                dc:creator "Lyubomir Marinov"@en .
 
 
 
@@ -2202,7 +2621,7 @@ emf:addressCountry rdf:type owl:DatatypeProperty ;
               rdfs:label "Име на държава"@bg ,
                          "Land"@da ,
                          "Gebiet"@de ,
-                         "Address Country"@en ,
+                         "Address country"@en ,
                          "Maan nimi"@fi ;
               
               emf:isSearchable "true"^^xsd:boolean ;
@@ -2220,12 +2639,12 @@ emf:addressState rdf:type owl:DatatypeProperty ;
           rdfs:label "Област"@bg ,
                      "Stat"@da ,
                      "Zustand"@de ,
-                     "Address State"@en ,
+                     "Address state"@en ,
                      "Osavaltio"@fi ;
           
           emf:isSearchable "true"^^xsd:boolean ;
           
-          dcterms:creator "Lyubomir Marinov"@en ;
+          dc:creator "Lyubomir Marinov"@en ;
           
           skos:definition "State of America"@en .
 
@@ -2238,7 +2657,7 @@ emf:addressTimeZone rdf:type owl:DatatypeProperty ;
              rdfs:label "Времева зона"@bg ,
                         "Tidszone"@da ,
                         "Zeitzone"@de ,
-                        "Time Zone"@en ,
+                        "Time zone"@en ,
                         "Aikavyöhyke"@fi ;
              
              emf:isSearchable "true"^^xsd:boolean ;
@@ -2256,7 +2675,7 @@ emf:addressWebSite rdf:type owl:DatatypeProperty ;
             rdfs:label "Интернет страница"@bg ,
                        "Websted"@da ,
                        "Webseite"@de ,
-                       "Web Site"@en ,
+                       "Web site"@en ,
                        "Verkkosivusto"@fi ;
             
             emf:isSearchable "true"^^xsd:boolean ;
@@ -2283,7 +2702,7 @@ emf:addressZip rdf:type owl:DatatypeProperty ;
                
                skos:definition "Address zip"@en ;
                
-               dcterms:creator "Lyubomir Marinov"@en .
+               dc:creator "Lyubomir Marinov"@en .
 
 
 
@@ -2293,7 +2712,7 @@ emf:altTitle rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty ;
 
             rdfs:label "Алтернативно заглавие"@bg ,
                        "Alternativ titel"@da ,
-                       "Alternativer Titel"@de ,
+                       "Alternativer titel"@de ,
                        "Alternative title"@en ,
                        "Vaihtoehtoinen nimi"@fi ;
 
@@ -2313,7 +2732,7 @@ emf:author rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Defi
                       "Forfatter"@da ,
                       "Autor"@de ,
                       "Author"@en ,
-                      "kirjailija"@fi ;
+                      "Kirjailija"@fi ;
            
            skos:definition "Author of the document"@en ;
            
@@ -2349,7 +2768,7 @@ emf:businessSector rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , 
                    rdfs:label "Бизнес сектор"@bg ,
                               "Erhvervssektor"@da ,
                               "Geschäftsbereich"@de ,
-                              "Business Sector"@en ,
+                              "Business sector"@en ,
                               "Liiketoiminta-alue"@fi ;
                    
                    skos:definition "Business sector of the company"@en ;
@@ -2369,7 +2788,7 @@ emf:businessType rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , em
                  rdfs:label "Бизнес тип"@bg ,
                             "Forretnings type"@da ,
                             "Unternehmensart"@de ,
-                            "Business Type"@en ,
+                            "Business type"@en ,
                             "Yritystyyppi"@fi ;
                  
                  dc:creator "Kiril Penev"@en ;
@@ -2404,7 +2823,7 @@ emf:commentsOnSection rdf:type owl:DatatypeProperty ;
                       
                       rdfs:label "Коментари по секция"@bg ,
                                  "Kommentarer til sektion"@da ,
-                                 "Kommentare zum Abschnitt"@de ,
+                                 "Kommentare zum abschnitt"@de ,
                                  "Comments on section"@en ,
                                  "Huomautukset osasta"@fi ;
                       
@@ -2423,14 +2842,14 @@ emf:companyRole rdf:type owl:DatatypeProperty ;
                 rdfs:label "Роля на дружеството"@bg ,
                            "Virksomhedens rolle"@da ,
                            "Unternehmensrolle"@de ,
-                           "Company Role"@en ,
+                           "Company role"@en ,
                            "Yrityksen rooli"@fi ;
                 
                 emf:isSearchable "true"^^xsd:boolean ;
                 
                 skos:definition "Defines the role of Company in context of current orgranization."@en ;
                 
-                dcterms:creator "Yaldaz Mehmedova"@en .
+                dc:creator "Yaldaz Mehmedova"@en .
 
 
 
@@ -2438,7 +2857,7 @@ emf:companyRole rdf:type owl:DatatypeProperty ;
 
 emf:completedOn rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                 
-                rdfs:label "Приключено на"@bg ,
+                rdfs:label "Приключен на"@bg ,
                            "Afsluttet den"@da ,
                            "Vervollständigt am"@de ,
                            "Completed on"@en ,
@@ -2458,12 +2877,12 @@ emf:completedOn rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf
 
 emf:completedReason rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                     
-                    rdfs:label "Причина за приключване"@bg ,
-                               "Afsluttet årsag"@da ,
-                               "Abgeschlossener Grund"@de ,
-                               "Completed Reason"@en ,
-                               "Täytetty syy"@fi ;
-                    
+                    rdfs:label "Резолюция"@bg ,
+                               "Løsning/afklaring"@da ,
+                               "Auflösung"@de ,
+                               "Resolution"@en ,
+                               "Resolution"@fi ;
+			
                     dc:creator "Kiril Penev"@en ;
                     
                     skos:definition "Reason for complete of the activity"@en .
@@ -2474,11 +2893,11 @@ emf:completedReason rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty ,
 
 emf:content rdf:type owl:DatatypeProperty ;
             
-            rdfs:label "Съдържание"@bg ,
-                       "Indhold"@da ,
-                       "Inhalt"@de ,
-                       "Content"@en ,
-                       "Pitoisuus"@fi ;
+            rdfs:label "Съдържание на документa"@bg ,
+                       "Dokument indhold"@da ,
+                       "Dokumentinhalt"@de ,
+                       "Document content"@en ,
+                       "Asiakirjan sisältö"@fi ;
             
             skos:definition "Content of a document, file"@en ;
             
@@ -2494,11 +2913,11 @@ emf:ocrContent rdf:type owl:DatatypeProperty ;
             
             rdfs:label "OCR-съдържание"@bg ,
                        "OCR-indhold"@da ,
-                       "OCR-Inhalt"@de ,
-                       "OCR Content"@en ,
+                       "OCR-inhalt"@de ,
+                       "OCR content"@en ,
                        "OCR-sisältö"@fi ;
             
-            skos:definition "OCR Content of a document, file"@en ;
+            skos:definition "OCR content of a document, file"@en ;
             
             dc:creator "Hristo Lungov"@en ;
             
@@ -2510,12 +2929,12 @@ emf:ocrContent rdf:type owl:DatatypeProperty ;
 emf:ocrStatus rdf:type owl:DatatypeProperty;
               
               rdfs:label "OCR-състояние"@bg ,
-                         "OCR-Status"@da ,
-                         "OCR-Status"@de ,
-                         "OCR Status"@en ,
+                         "OCR-status"@da ,
+                         "OCR-status"@de ,
+                         "OCR status"@en ,
                          "OCR-tila"@fi ;
               
-              skos:definition "Status of OCR Process"@en ;
+              skos:definition "Status of OCR process"@en ;
               
               dc:creator "Hristo Lungov"@en ;
               
@@ -2529,11 +2948,11 @@ emf:ocrStatus rdf:type owl:DatatypeProperty;
 emf:countryName rdf:type owl:DatatypeProperty ;
             
             rdfs:label "Държава"@bg ,
-                       "Landenavn"@da ,
-                       "Ländername"@de ,
-                       "Country Name"@en ,
-                       "Maan nimi"@fi ;
-            
+                       "Land"@da ,
+                       "Land"@de ,
+                       "Country"@en ,
+                       "Maa"@fi ;
+			
             skos:definition "Name of the country"@en ;
             
             dc:creator "Kiril Penev"@en .
@@ -2545,12 +2964,12 @@ emf:countryName rdf:type owl:DatatypeProperty ;
 emf:createdOn rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
               
               rdfs:label "Създаден на"@bg ,
-                         "Oprettet den"@da ,
-                         "Erstellt am"@de ,
-                         "Created on"@en ,
-                         "Luotu"@fi ;
-              
-              skos:definition "Date of adding data about the Entity in the System"@en ;
+                         "Oprettet"@da ,
+                         "System erstellt am"@de ,
+                         "System created on"@en ,
+                         "Järjestelmä luotu"@fi ;
+
+              skos:definition "Date of adding data about the item in the system"@en ;
               
               dc:creator "Kiril Penev"@en ;
               
@@ -2574,7 +2993,7 @@ emf:currency rdf:type owl:DatatypeProperty ;
              
              skos:definition "Currency"@en ;
              
-             dcterms:creator "Lyubomir Marinov"@en .
+             dc:creator "Lyubomir Marinov"@en .
 
 
 
@@ -2585,7 +3004,7 @@ emf:defaultTemplate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty ,
                     rdfs:label "Шаблон по подразбиране"@bg ,
                                "Standardskabelon"@da ,
                                "Standardvorlage"@de ,
-                               "Default Template"@en ,
+                               "Default template"@en ,
                                "Oletusmalli"@fi ;
                     
                     skos:definition "Default template for the object"@en ;
@@ -2618,10 +3037,10 @@ emf:definitionId rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , em
                  rdfs:label "Идентификатор на дефиниция"@bg ,
                             "Definition-ID"@da ,
                             "Definitions-ID"@de ,
-                            "Definition id"@en ,
-                            "Määritelmä id"@fi ;	
+                            "Definition ID"@en ,
+                            "Määritelmä ID"@fi ;	
                  
-                 skos:definition "Id of the definition of the object"@en ;
+                 skos:definition "ID of the definition of the object"@en ;
                  
                  dc:creator "Kiril Penev"@en .
 
@@ -2634,7 +3053,7 @@ emf:departmentName rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , 
                    rdfs:label "Отдел"@bg ,
                               "Afdeling/enhed"@da ,
                               "Abteilungsname"@de ,
-                              "Department Name"@en ,
+                              "Department name"@en ,
                               "Osaston nimi"@fi ;
                    
                    dc:creator "Kiril Penev"@en ;
@@ -2648,12 +3067,12 @@ emf:departmentName rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , 
 emf:dmsId rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
           
           rdfs:label "DMS идентификатор"@bg ,
-                     "DMS Id"@da ,
-                     "DMS-Id"@de ,
-                     "DMS Id"@en ,
-                     "DMS Id"@fi ;
+                     "DMS ID"@da ,
+                     "DMS-ID"@de ,
+                     "DMS ID"@en ,
+                     "DMS ID"@fi ;
           
-          skos:definition "Id of the object in the Document Management System - Alfresco"@en ;
+          skos:definition "ID of the object in the Document Management System - Alfresco"@en ;
           
           dc:creator "Kiril Penev"@en .
 
@@ -2668,7 +3087,7 @@ emf:duration rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:De
                         "Dauer"@de ,
                         "Duration"@en ,
                         "Kesto"@fi ;
-             
+             			
              skos:definition "Duration of the Event. The duration is meashured in man/days"@en ;
              
              dc:creator "Kiril Penev"@en ;
@@ -2703,12 +3122,12 @@ emf:email rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Defin
 
 emf:estimatedEffort rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                     
-                    rdfs:label "Прогнозирано усилие"@bg ,
+                    rdfs:label "Прогнозни работни часове"@bg ,
                                "Estimeret timeforbrug"@da ,
-                               "Geschätzter Aufwand"@de ,
-                               "Estimated Effort"@en ,
-                               "Arvioitu ponnistus"@fi ;
-                    
+                               "Geschätzte arbeitsstunden"@de ,
+                               "Estimated effort hours"@en ,
+                               "Arvioitu pyyntiponnistus tuntia"@fi ;
+							   
                     dc:creator "Kiril Penev"@en ;
                     
                     skos:definition "The estimated effort given by a person that is needed to complete the Activity. The effort is measured in man/days"@en ;
@@ -2725,9 +3144,9 @@ emf:externalID rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:
                
                rdfs:label "Външен идентификатор"@bg ,
                           "Ekstern ID"@da ,
-                          "externe ID"@de ,
-                          "externalID"@en ,
-                          "ExternalID"@fi ;
+                          "Externe ID"@de ,
+                          "External ID"@en ,
+                          "External ID"@fi ;
                
                skos:definition "Contains corresponding ID in an external system"@en ;
                
@@ -2742,9 +3161,9 @@ emf:externalID rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:
 emf:fileCreatedDate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                     
                     rdfs:label "Дата на първоначално създаване"@bg ,
-                               "Original Oprettet Dato"@da ,
-                               "Ursprüngliches Erstellungsdatum"@de ,
-                               "Original Created Date"@en ,
+                               "Original oprettet dato"@da ,
+                               "Ursprüngliches erstellungsdatum"@de ,
+                               "Original created date"@en ,
                                "Alkuperäinen luontipäivämäärä"@fi ;
                     
                     skos:definition "Date of creation of the file"@en ;
@@ -2761,8 +3180,8 @@ emf:fileModifiedDate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty 
                      
                      rdfs:label "Дата на последна промяна"@bg ,
                                 "Original senest ændret dato"@da ,
-                                "Ursprüngliches Datum der letzten Änderung"@de ,
-                                "Original Last Modified Date"@en ,
+                                "Ursprüngliches datum der letzten änderung"@de ,
+                                "Original last modified date"@en ,
                                 "Alkuperäinen viimeisin muutettu päivämäärä"@fi ;
                      
                      dc:creator "Kiril Penev"@en ;
@@ -2780,7 +3199,7 @@ emf:fileName rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:De
              rdfs:label "Име на файл"@bg ,
                         "Filnavn"@da ,
                         "Dateiname"@de ,
-                        "File Name"@en ,
+                        "File name"@en ,
                         "Tiedoston nimi"@fi ;
              
              dc:creator "Kiril Penev"@en ;
@@ -2804,8 +3223,6 @@ emf:flag rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Defini
          dc:creator "Kiril Penev"@en ;
          
          rdfs:range xsd:boolean .
-
-
 
 
 
@@ -2835,8 +3252,8 @@ emf:hasPosition rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf
                 
                 rdfs:label "Позиция"@bg ,
                            "Har position"@da ,
-                           "hat Position"@de ,
-                           "has position"@en ,
+                           "Hat position"@de ,
+                           "Has position"@en ,
                            "On asema"@fi ;
                 
                 dc:creator "Kiril Penev"@en ;
@@ -2847,6 +3264,22 @@ emf:hasPosition rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf
 
 
 
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#helpTarget
+
+emf:helpTarget rdf:type owl:DatatypeProperty;
+                   
+                   rdfs:label "Цел на ръководството"@bg ,
+							  "Hjælp emne"@da ,
+							  "Zielhilfe"@de ,
+							  "Help target"@en ,
+							  "Auta kohde"@fi ;
+
+                   skos:definition "Target of the help"@en ;
+                   
+                   dc:creator "Nikolay Velkov"@en ;
+                   
+                   rdfs:domain emf:Help .
+                   
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#id
 
@@ -2855,12 +3288,12 @@ emf:id rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Definiti
        rdfs:label "Идентификатор"@bg ,
                   "ID"@da ,
                   "Ich würde"@de ,
-                  "id"@en ,
-                  "id"@fi ;
+                  "ID"@en ,
+                  "ID"@fi ;
        
        dc:creator "Teodor Martev"@en ;
        
-       skos:definition "unique identificator"@en .
+       skos:definition "Unique identificator"@en .
 
 
 
@@ -2871,12 +3304,12 @@ emf:instanceType rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , em
        rdfs:label "Тип инстанция"@bg ,
                   "Instans type"@da ,
                   "Instanztyp"@de ,
-                  "Instance Type"@en ,
+                  "Instance type"@en ,
                   "Istuntotyyppi"@fi ;
        
        dc:creator "Kiril Penev"@en ;
        
-       skos:definition "SEIP instance type"@en .
+       skos:definition "SEP instance type"@en .
 
 
 
@@ -2886,9 +3319,9 @@ emf:instantMessengerId rdf:type owl:DatatypeProperty ;
        
        rdfs:label "Идентификатор на потребителския акаунт в незабавни съобщения"@bg ,
                   "Instans messenger ID"@da ,
-                  "Instant-Messenger-ID"@de ,
+                  "Instant-messenger-ID"@de ,
                   "Instant messenger ID"@en ,
-                  "Instant Messenger-tunnus"@fi ;
+                  "Instant messenger-tunnus"@fi ;
        
        dc:creator "Kiril Penev"@en ;
        
@@ -2903,12 +3336,14 @@ emf:isActive rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:De
              rdfs:label "Е активно"@bg ,
                         "Er aktiv"@da ,
                         "Ist aktiv"@de ,
-                        "Is Active"@en ,
+                        "Is active"@en ,
                         "On aktiivinen"@fi ;
              
              dc:creator "Kiril Penev"@en ;
              
-             skos:definition "Shows if the current activity/relation is in active state or it is Completed"@en .
+             skos:definition "Shows if the current activity/relation is in active state or it is Completed"@en ;
+			 
+			 rdfs:range xsd:boolean .
 
 
 
@@ -2919,12 +3354,14 @@ emf:isDeleted rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:D
               rdfs:label "Е изтрито"@bg ,
                          "Er slettet"@da ,
                          "Ist gelöscht"@de ,
-                         "Is Deleted"@en ,
+                         "Is deleted"@en ,
                          "Poistetaan"@fi ;
               
-              skos:definition "Is Deleted flag that shows if the instance is deleted"@en ;
+              skos:definition "Is deleted flag that shows if the instance is deleted"@en ;
               
-              dc:creator "Kiril Penev"@en .
+              dc:creator "Kiril Penev"@en ;
+			  
+			  rdfs:range xsd:boolean .
 
 
 
@@ -2935,7 +3372,7 @@ emf:issueDate rdf:type owl:DatatypeProperty ;
               rdfs:label "Дата на издаване"@bg ,
                          "Udstedelsesdato"@da ,
                          "Ausgabedatum"@de ,
-                         "Issue Date"@en ,
+                         "Issue date"@en ,
                          "Julkaisupäivämäärä"@fi ;
               
               emf:isSearchable "true"^^xsd:boolean ;
@@ -2957,7 +3394,7 @@ emf:jobTitle rdf:type owl:DatatypeProperty ;
                          "Berufsbezeichnung"@de ,
                          "Job title"@en ,
                          "Työnimike"@fi ;
-              
+
               skos:definition "Job title"@en ;
               
               dc:creator "Kiril Penev"@en .
@@ -2972,8 +3409,8 @@ emf:majorVersion rdf:type owl:DatatypeProperty ,
                  rdfs:label "Основна версия"@bg ,
                             "Større version"@da ,
                             "Hauptversion"@de ,
-                            "majorVersion"@en ,
-                            "MajorVersion"@fi ;
+                            "Major version"@en ,
+                            "Major version"@fi ;
                  
                  dc:creator "Kiril Penev"@en ;
                  
@@ -2990,7 +3427,7 @@ emf:majorVersion rdf:type owl:DatatypeProperty ,
 emf:mimetype rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ,
                       owl:FunctionalProperty ;
              
-             rdfs:label "Тип разширение"@bg ,
+             rdfs:label "Разширение"@bg ,
                         "MIME-type"@da ,
                         "Mime Typ"@de ,
                         "Mimetype"@en ,
@@ -2998,18 +3435,18 @@ emf:mimetype rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:De
              
              dc:creator "Kiril Penev"@en ;
              
-             skos:definition "Mimetype of the object"@en .
+             skos:definition "Mimetype of the file: jpg, png, etc."@en .
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#size
 
 emf:size rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
              
-             rdfs:label "Размер"@bg ,
-						"Forlimning"@da ,
-						"Größe"@de ,
-						"Size"@en ,
-						"Koko"@fi ;
-             
+             rdfs:label "Големина (в байтове)"@bg ,
+						"Forlimning (i byte)"@da ,
+						"Größe (in Bytes)"@de ,
+						"Size (in bytes)"@en ,
+						"Koko (tavuina)"@fi ;
+						
              dc:creator "Tony Kunchev"@en ;
              
              skos:definition "The size of the object in bytes."@en ;
@@ -3024,9 +3461,9 @@ emf:minorVersion rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , em
                  
                  rdfs:label "Подверсия"@bg ,
                             "Mindre version"@da ,
-                            "Minor Version"@de ,
-                            "Minor Version"@en ,
-                            "Minor Version"@fi ;
+                            "Minor version"@de ,
+                            "Minor version"@en ,
+                            "Minor version"@fi ;
                  
                  dc:creator "Kiril Penev"@en ;
                  
@@ -3057,13 +3494,13 @@ emf:mobilePhoneNumber rdf:type owl:DatatypeProperty ;
 
 emf:modifiedOn rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                
-               rdfs:label "Променено на"@bg ,
+               rdfs:label "Актуализиран на"@bg ,
                           "Opdateret"@da ,
                           "Geändert am"@de ,
                           "Modified on"@en ,
                           "Muokattu"@fi ;
                
-               skos:definition "Date of last modification of the data about the Entity in the system"@en ;
+               skos:definition "Date of last modification of the data about the item in the system"@en ;
                
                dc:creator "Kiril Penev"@en ;
                
@@ -3087,7 +3524,9 @@ emf:mutable rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Def
             
             skos:definition "Mutable property of Saved search"@en ;
             
-            rdfs:domain emf:SavedSearch .
+            rdfs:domain emf:SavedSearch ;
+			
+			rdfs:range xsd:boolean .
 
 
 
@@ -3095,15 +3534,15 @@ emf:mutable rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Def
 
 emf:organizationName rdf:type owl:DatatypeProperty ;
             
-            rdfs:label "Организация"@bg ,
+            rdfs:label "Търговско предприятие"@bg ,
                        "Organisation navn"@da ,
                        "Name der Organisation"@de ,
-                       "Organization name"@en ,
-                       "Organisaation nimi"@fi ;
-            
+                       "Organization"@en ,
+                       "Organisaatio"@fi ;
+			
             dc:creator "Kiril Penev"@en ;
             
-            skos:definition "Organization name"@en .
+            skos:definition "Name of the organization"@en .
 
 
 
@@ -3111,12 +3550,12 @@ emf:organizationName rdf:type owl:DatatypeProperty ;
 
 emf:phoneNumber rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                 
-                rdfs:label "Телефонен номер"@bg ,
-                           "Telefonnummer"@da ,
-                           "Telefonnummer"@de ,
-                           "Phone number"@en ,
-                           "Puhelinnumero"@fi ;
-                
+                rdfs:label "Телефон"@bg ,
+                           "Telefon"@da ,
+                           "Hausnummer"@de ,
+                           "Telephone"@en ,
+                           "Puhelin"@fi ;
+
                 dc:creator "Kiril Penev"@en ;
                 
                 skos:definition "Phone number"@en ;
@@ -3135,11 +3574,9 @@ emf:plannedEndDate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , 
                               "Planlagt slutdato"@da ,
                               "Geplantes Enddatum"@de ,
                               "Planned end date"@en ,
-                              "Suunniteltu päättymispäivä"@fi ;
-                   
-                   dc:creator "Kiril Penev"@en ;
-                   
-                   skos:definition "Planned end date of the Event"@en ;
+                              "Suunniteltu paattymispaiva"@fi ;
+
+                   skos:definition "Planned end date of the activity"@en ;
                    
                    rdfs:domain ptop:Event ;
                    
@@ -3153,13 +3590,13 @@ emf:plannedStartDate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty 
                      
                      rdfs:label "Планирана начална дата"@bg ,
                                 "Planlagt startdato"@da ,
-                                "Geplantes Startdatum"@de ,
+                                "Geplantes startdatum"@de ,
                                 "Planned start date"@en ,
                                 "Suunniteltu alkamispäivä"@fi ;
                      
                      dc:creator "Kiril Penev"@en ;
                      
-                     skos:definition "Planned start date of the Event"@en ;
+                     skos:definition "Planned start date of the activity"@en ;
                      
                      rdfs:domain ptop:Event ;
                      
@@ -3176,8 +3613,8 @@ emf:priority rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:De
                         "Priorität"@de ,
                         "Priority"@en ,
                         "Prioriteetti"@fi ;
-             
-             skos:definition "Events Priority. Chosen from predefined dictionary"@en ;
+
+             skos:definition "The priority of the activity"@en ;
              
              dc:creator "Kiril Penev"@en ;
              
@@ -3192,7 +3629,7 @@ emf:productGroup rdf:type owl:DatatypeProperty ;
                  rdfs:label "Продуктова група"@bg ,
                             "Produktgruppe"@da ,
                             "Produktgruppe"@de ,
-                            "Product Group"@en ,
+                            "Product group"@en ,
                             "Tuoteryhmä"@fi ;
                  
                  emf:isSearchable "true"^^xsd:boolean ;
@@ -3210,7 +3647,7 @@ emf:productNumber rdf:type owl:DatatypeProperty ;
                   rdfs:label "Продуктов номер"@bg ,
                              "Produktnummer"@da ,
                              "Produktnummer"@de ,
-                             "Product Number"@en ,
+                             "Product number"@en ,
                              "Tuotenumero"@fi ;
                   
                   emf:isSearchable "true"^^xsd:boolean ;
@@ -3230,7 +3667,7 @@ emf:publishedOn rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf
                        "Veröffentlicht auf"@de ,
                        "Published on"@en ,
                        "Julkaistu"@fi ;
-            
+
             dc:creator "Kiril Penev"@en ;
             
             skos:definition "The date that the document is published"@en ;
@@ -3263,13 +3700,13 @@ emf:revisionOfDefinition rdf:type owl:DatatypeProperty ;
                          
                          rdfs:label "Ревизия на дефиницията"@bg ,
                                     "Revision af definition"@da ,
-                                    "Überarbeitung der Definition"@de ,
-                                    "Revision of Definition"@en ,
+                                    "Überarbeitung der definition"@de ,
+                                    "Revision of definition"@en ,
                                     "Määritelmän tarkistus"@fi ;
                          
                          dc:creator "Kiril Penev"@en ;
                          
-                         skos:definition "The revision of the Definition of the instance"@en .
+                         skos:definition "The revision of the definition of the instance"@en .
 
 
 
@@ -3301,7 +3738,7 @@ emf:salutation rdf:type owl:DatatypeProperty ;
                
                emf:isSearchable "true"^^xsd:boolean ;
                
-               dcterms:creator "Lyubomir Marinov"@en ;
+               dc:creator "Lyubomir Marinov"@en ;
                
                skos:definition "Salutation"@en .
 
@@ -3314,9 +3751,9 @@ emf:searchCriteria rdf:type owl:DatatypeProperty;
                    rdfs:label "Критерии за търсене"@bg ,
                               "Søgekriterier"@da ,
                               "Suchkriterium"@de ,
-                              "Search Criteria"@en ,
+                              "Search criteria"@en ,
                               "Hakukriteerit"@fi ;
-                   
+
                    skos:definition "Criterias of the search"@en ;
                    
                    dc:creator "Kiril Penev"@en ;
@@ -3368,17 +3805,14 @@ emf:searchType rdf:type owl:DatatypeProperty;
                rdfs:label "Тип на търсене"@bg ,
                           "Søgetype"@da ,
                           "Suchtyp"@de ,
-                          "Search Type"@en ,
+                          "Search type"@en ,
                           "Haku tyyppi"@fi ;
-               
+
                dc:creator "Kiril Penev"@en ;
                
                skos:definition "Type of the search - basic or advanced"@en ;
                
                rdfs:domain emf:SavedSearch .
-
-
-
 
 
 
@@ -3389,7 +3823,7 @@ emf:startDate rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:D
               rdfs:label "Начална дата"@bg ,
                          "Startdato"@da ,
                          "Anfangsdatum"@de ,
-                         "Start Date"@en ,
+                         "Start date"@en ,
                          "Aloituspäivämäärä"@fi ;
               
               dc:creator "Kiril Penev"@en ;
@@ -3410,7 +3844,7 @@ emf:status rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Defi
            
            dc:creator "Kiril Penev"@en ;
            
-           skos:definition "The status of the Entity. Its value is chosen from a Dictionary"@en ;
+           skos:definition "The status of the item"@en ;
            
            rdfs:domain ptop:Entity ;
            
@@ -3422,12 +3856,12 @@ emf:status rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Defi
 
 emf:stopReason rdf:type owl:DatatypeProperty ;
            
-           rdfs:label "Причина за прекратяване"@bg ,
-                      "Årsag til afbrydelse"@da ,
-                      "Stoppt den Grund"@de ,
-                      "Stop Reason"@en ,
-                      "Pysäytä syy"@fi ;
-           
+           rdfs:label "Причина за спиране на работния процес"@bg ,
+                      "Begrundelse for afbrydelse af workflow"@da ,
+                      "Grund, den Workflow zu stoppen"@de ,
+                      "Reason to stop the workflow"@en ,
+                      "Syy lopettaa työnkulku"@fi ;
+
            dc:creator "Kiril Penev"@en ;
            
            skos:definition "Reason for stopping a business process"@en ;
@@ -3445,14 +3879,14 @@ emf:subType rdf:type owl:DatatypeProperty ;
             rdfs:label "Под тип"@bg ,
                        "Undertype"@da ,
                        "Untertyp"@de ,
-                       "Sub Type"@en ,
+                       "Sub type"@en ,
                        "Alustyyppi"@fi ;
             
             emf:isSearchable "true"^^xsd:boolean ;
             
-            dcterms:creator "Lyubomir Marinov"@en ;
+            dc:creator "Lyubomir Marinov"@en ;
             
-            skos:definition "Sub Type"@en .
+            skos:definition "Sub type of the item"@en .
 
 
 
@@ -3484,12 +3918,12 @@ emf:templateRule rdf:type owl:DatatypeProperty ;
 
 emf:templateRuleDescription rdf:type owl:DatatypeProperty ;
            
-           rdfs:label "Описание на правило за шаблон"@bg ,
-                      "Skabelon regel beskrivelse"@da ,
-                      "Vorlagenregelbeschreibung"@de ,
-                      "Template rule description"@en ,
-                      "Mallin säännön kuvaus"@fi ;
-           
+           rdfs:label "Правило на шаблон"@bg ,
+                      "Regel skabelon"@da ,
+                      "Vorlagenregel"@de ,
+                      "Template rule"@en ,
+                      "Mallipohja"@fi ;
+		   
            dc:creator "Vilizar Tsonev"@en ;
            
            skos:definition "Describes a template rule in a human-readable way"@en ;
@@ -3539,8 +3973,8 @@ emf:timeSpent rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:D
 
 emf:transitionMatrix rdf:type owl:DatatypeProperty ;
               
-              rdfs:label "Матрица на преходите"@bg ,
-                         "Overgangsmatrice"@da ,
+              rdfs:label "Преходи"@bg ,
+                         "Transitionsmatrix"@da ,
                          "Übergangsmatrix"@de ,
                          "Transition matrix"@en ,
                          "Siirtymämatriisi"@fi ;
@@ -3564,7 +3998,7 @@ emf:type rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Defini
          
          dc:creator "Teodor Martev"@en ;
          
-         skos:definition "Type"@en .
+         skos:definition "Classification of the item"@en .
 
 
 
@@ -3644,13 +4078,13 @@ emf:version rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Def
             
             rdfs:label "Версия"@bg ,
                        "Version"@da ,
-                       "Ausführung"@de ,
+                       "Version"@de ,
                        "Version"@en ,
                        "Versio"@fi ;
             
             dc:creator "Kiril Penev"@en ;
             
-            skos:definition "Version of the Instance"@en ;
+            skos:definition "The version of the item"@en ;
             
             rdfs:domain ptop:Entity .
 
@@ -3661,14 +4095,14 @@ emf:version rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:Def
 emf:queriesContentId rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
 
             rdfs:label "Идентификатор на съдържанието на заявката за търсене"@bg ,
-                       "Forespørgsler indhold id"@da ,
-                       "Fragt die Content-ID ab"@de ,
-                       "Queries content id"@en ,
+                       "Forespørgsler indhold ID"@da ,
+                       "Fragt die content-ID ab"@de ,
+                       "Queries content ID"@en ,
                        "Kyselyt sisällön tunnusta"@fi ;
 
             dc:creator "Tony Kunchev"@en ;
 
-            skos:definition "System property that is used to store the id of the content of the queries for different instances versions."@en ;
+            skos:definition "System property that is used to store the ID of the content of the queries for different instances versions."@en ;
 
             rdfs:domain ptop:Entity .
 
@@ -3679,14 +4113,14 @@ emf:queriesContentId rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty 
 emf:queriesResultContentId rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
 
             rdfs:label "Идентификатор на резултата от заявката за търсене"@bg ,
-                       "Forespørgsler resultater indhold id"@da ,
-                       "Fragt die Inhalts-ID des Ergebnisses ab"@de ,
-                       "Queries results content id"@en ,
+                       "Forespørgsler resultater indhold ID"@da ,
+                       "Fragt die inhalts-ID des ergebnisses ab"@de ,
+                       "Queries results content ID"@en ,
                        "Kyselyjen tulosten sisällön tunnus"@fi ;
 
             dc:creator "Tony Kunchev"@en ;
 
-            skos:definition "System property that is used to store the result of the queries execution. The results are stored as content and this property contains id of this content."@en ;
+            skos:definition "System property that is used to store the result of the queries execution. The results are stored as content and this property contains ID of this content."@en ;
 
             rdfs:domain ptop:Entity .
 
@@ -3713,7 +4147,7 @@ emf:viewWidgetsContent rdf:type owl:DatatypeProperty ;
 
             rdfs:label "Преглед на съдържанието на уиджети"@bg ,
                        "Se widget indhold"@da ,
-                       "Widget-Inhalt anzeigen"@de ,
+                       "Widget-inhalt anzeigen"@de ,
                        "View widget content"@en ,
                        "Näytä widgetin sisältö"@fi ;
 
@@ -3727,12 +4161,12 @@ emf:viewWidgetsContent rdf:type owl:DatatypeProperty ;
 
 emf:viewDefinition rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty , emf:DefinitionProperty ;
                    
-                   rdfs:label "Преглед на дефиниция"@bg ,
-                              "Se definition"@da ,
-                              "Definition anzeigen"@de ,
-                              "View Definition"@en ,
-                              "Näytä määritelmä"@fi ;
-                   
+                   rdfs:label "Дефиниция"@bg ,
+                              "Definition"@da ,
+                              "Definition"@de ,
+                              "Definition"@en ,
+                              "Määritelmä"@fi ;
+				   
                    dc:creator "Kiril Penev"@en ;
                    
                    skos:definition "View definition of the instance"@en .
@@ -3746,7 +4180,7 @@ emf:workDescription rdf:type owl:DatatypeProperty , emf:DefinitionDataProperty ,
                     rdfs:label "Описание на работата"@bg ,
                                "Beskrivelse af arbejde"@da ,
                                "Arbeitsbeschreibung"@de ,
-                               "Description of Work"@en ,
+                               "Description of work"@en ,
                                "Työnkuvaus"@fi ;
                     
                     skos:definition "Description of the work that is done"@en ;
@@ -3760,8 +4194,8 @@ emf:widthOfSubject rdf:type owl:DatatypeProperty ;
                     
                     rdfs:label "Ширина на обекта"@bg ,
                                "Værkets bredde"@da ,
-                               "Breite des Betreffs"@de ,
-                               "Width of Subject"@en ,
+                               "Breite des betreffs"@de ,
+                               "Width of subject"@en ,
                                "Aiheen leveys"@fi ;
                     
                     skos:definition "Width of Subject"@en ;
@@ -3776,11 +4210,11 @@ emf:heightOfSubject rdf:type owl:DatatypeProperty ;
                     
                     rdfs:label "Височина на обекта"@bg ,
                                "Højde"@da ,
-                               "Höhe des Betreffs"@de ,
-                               "Height of Subject"@en ,
+                               "Höhe des betreffs"@de ,
+                               "Height of subject"@en ,
                                "Aiheen korkeus"@fi ;
-                    
-                    skos:definition "Height of Subject"@en ;
+
+                    skos:definition "Height of subject"@en ;
                     
                     dc:creator "Daniela Todorova"@en ;
                     
@@ -3794,10 +4228,10 @@ emf:dimensionUnit rdf:type owl:DatatypeProperty ;
                     rdfs:label "Мерна единица"@bg ,
 							   "Egenskabsenhed"@da ,
                                "Immobilieneinheit"@de ,
-                               "Property Unit"@en ,
+                               "Property unit"@en ,
                                "Kiinteistöyksikkö"@fi ;
-                    
-                    skos:definition "Property Unit"@en ;
+
+                    skos:definition "Property unit"@en ;
                     
                     dc:creator "Daniela Todorova"@en ;
                     
@@ -3813,10 +4247,10 @@ emf:outcome rdf:type owl:DatatypeProperty ;
                       "Ergebnis"@de ,
                       "Outcome"@en ,
                       "Tulokset"@fi ;
-   
+
            dc:creator "Anna Radeva"@en ;
            
-           skos:definition "Outcome"@en ;
+           skos:definition "The outcome of a task that is part of workflow"@en ;
                       
            rdfs:range xsd:string .
 
@@ -3830,7 +4264,7 @@ emf:taskNotes rdf:type owl:DatatypeProperty ;
                       "Aufgabennotizen"@de ,
                       "Task notes"@en ,
                       "Tehtävähuomautukset"@fi ;
-   
+
            dc:creator "Anna Radeva"@en ;
            
            skos:definition "Notes related to the task outcome"@en ;
@@ -3839,18 +4273,19 @@ emf:taskNotes rdf:type owl:DatatypeProperty ;
                       
            rdfs:range xsd:string .
            
+           
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#integrated
 
 emf:integrated rdf:type owl:DatatypeProperty ;
            
-           rdfs:label "Интегриран"@bg ,
+           rdfs:label "Импортиран"@bg ,
                       "Integreret"@da ,
                       "Integriert"@de ,
                       "Integrated"@en ,
                       "Integroitu"@fi ;
-   
+
            dc:creator "Anna Radeva"@en ;
-           
+			
            skos:definition "Defines if the object is imported or is created in the system"@en ;
                       
            rdfs:range xsd:boolean .
@@ -3862,9 +4297,9 @@ emf:issueType rdf:type owl:DatatypeProperty ;
               rdfs:label "Вид проблем"@bg ,
                          "Emnetype"@da ,
                          "Fehlertyp"@de ,
-                         "Issue Type"@en ,
-                         "Asia tyyppi"@fi ;
-              
+                         "Issue type"@en ,
+                         "Julkaisutyyppi"@fi ;
+
               skos:definition "Subtype for Issue. An issue could represent a bug, a task, a helpdesk ticket, a leave request form, a question, etc."@en ;
   
 			  rdfs:domain emf:Issue ;
@@ -3875,18 +4310,20 @@ emf:issueType rdf:type owl:DatatypeProperty ;
 
 emf:uniqueId rdf:type owl:DatatypeProperty ;
              
-             rdfs:label "Уникален идентификатор"@bg ,
-                        "Unikt ID"@da ,
-                        "Unique ID"@de ,
-                        "Unique ID"@en ;
-             
+             rdfs:label "Уникално ИД на колекция"@bg ,
+                        "Unik samlings-id"@da ,
+                        "Eindeutige sammlungs-ID"@de ,
+                        "Unique collection ID"@en ,
+						"Unique collection ID"@fi ;
+			
              skos:definition "Unique ID of an instance."@en ;
              
              dc:creator "Nadezhda Ganova"@en .
+             
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#defaultView
 
-emf:defaultView rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:defaultView rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                 rdfs:label "Изглед по подразбиране"@bg ,
                            "Standardvisning"@da ,
@@ -3897,58 +4334,69 @@ emf:defaultView rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#revisionNumber
 
-emf:revisionNumber rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:revisionNumber rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                 rdfs:label "Ревизия номер"@bg ,
                            "Revisionsnummer"@da ,
-                           "Revision number"@en ;
+                           "Revision number"@en ,
+                           "Revisionsnummer"@de ,
+                           "Tarkistusnumero"@fi ;
 
                 skos:definition "Revision number"@en .
 
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#ocrLanguage
 
-emf:ocrLanguage rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:ocrLanguage rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                        rdfs:label "Език за OCR"@bg ,
 								  "OCR sprog"@da ,
-								  "OCR Language"@en ;
-
+								  "OCR language"@en ,
+								  "OCR-sprache"@de , 
+								  "OCR language"@fi ;
+		  
                        skos:definition "Ocr language"@en.
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#contentId
 
-emf:contentId rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:contentId rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Идентификатор на съдържание"@bg ,
 								 "Indhold ID"@da ,
-								 "Content id"@en ;
+								 "Content ID"@en ;
 
-                      skos:definition "Content id"@en.
+                      skos:definition "Content ID"@en.
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#actualEndDate
 
-emf:actualEndDate rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:actualEndDate rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Действителна крайна дата"@bg ,
 								 "Faktisk slutdato"@da ,
-								 "Actual end date"@en ;
-
-                      skos:definition "Actual end date"@en.
+								 "Tatsächliches enddatum"@de ,
+								 "Actual end date"@en ,
+								 "Todellinen lopetuspäivä"@fi ;
+			
+                      skos:definition "End date of the activity"@en;
+					  
+					  rdfs:range xsd:dateTime .
+                      
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#mobileNumber
 
-emf:mobileNumber rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:mobileNumber rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
-                      rdfs:label "Мобилен номер"@bg ,
-								 "Mobilnummer"@da ,
-								 "Mobile number"@en ;
+                      rdfs:label "Мобилен телефон"@bg ,
+								 "Mobil"@da ,
+								 "Mobile nummer"@de ,
+								 "Mobile"@fi ,
+								 "Mobile"@en ;
 
                       skos:definition "Mobile number"@en.
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#internationality
 
-emf:internationality rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:internationality rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Интернационалност"@bg ,
                                  "Internationalitet"@da ,
@@ -3958,46 +4406,46 @@ emf:internationality rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isTopConcept
 
-emf:isTopConcept rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:isTopConcept rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Главна концепция"@bg ,
-								 "Er topkoncept"@da ,
-								 "Is top concept"@en ;
-
-                      skos:definition "Is top concept"@en.
+								 "Er øvre koncept"@da ,
+								 "Is top concept"@en ,
+								 "Is top concept"@fi ,
+								 "Ist top-konzept"@de ;
+		 
+                      skos:definition "Is top concept"@en;
+					  
+					  rdfs:range xsd:boolean .
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#templatePurpose
 
-emf:templatePurpose rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:templatePurpose rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Предназначение на шаблона"@bg ,
 								 "Formål skabelon"@da ,
-								 "Template purpose"@en ;
+								 "Template purpose"@en ,
+								 "Mallin tarkoitus"@fi ,
+								 "Vorlage Zweck"@de ;
 
                       skos:definition "Template purpose"@en.
 
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#isPrimaryTemplate
 
-emf:isPrimaryTemplate rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+emf:isPrimaryTemplate rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
-                      rdfs:label "Е главен шаблон"@bg ,
+                      rdfs:label "Главен шаблон"@bg ,
                                  "Primær skabelon"@da ,
-                                 "Is primary template"@en ;
+                                 "Primary template"@en ,
+								 "Ensisijainen malli"@fi ,
+								 "Primäre vorlage"@de ;
 
-                      skos:definition "Is primary template"@en.
-
-###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#classCategory
-
-emf:classCategory rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
-
-                      rdfs:label "Категория"@bg ,
-								 "Klasse kategori"@da ,
-								 "Class category"@en ;
-
-                      skos:definition "Class category"@en.
+                      skos:definition "Is primary template"@en;
+					  
+					  rdfs:range xsd:boolean .
 
 ### skos:prefLabel
-skos:prefLabel rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+skos:prefLabel rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Предпочитан етикет"@bg ,
 								 "Foretrukken label"@da ,
@@ -4006,7 +4454,7 @@ skos:prefLabel rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
                       skos:definition "Pref label"@en.
 
 ### skos:altLabel
-skos:altLabel rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+skos:altLabel rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Алтернативен етикет"@bg ,
 								 "Alternativ label"@da ,
@@ -4015,7 +4463,7 @@ skos:altLabel rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
                       skos:definition "Alt label"@en.
 
 ### dc:creator
-dc:creator rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
+dc:creator rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       rdfs:label "Създател"@bg ,
 								 "Skaberen"@da ,
@@ -4023,6 +4471,34 @@ dc:creator rdf:type emf:DefinitionDataProperty, emf:DefinitionProperty;
 
                       skos:definition "Creator"@en.
 
+
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#forObjectType
+
+emf:forObjectType rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
+                 
+                 rdfs:label "За тип"@bg ,
+                            "For værktype"@da ,
+                            "Für оbjekttyp"@de ,
+                            "Kohteen tyyppi"@fi ,
+                            "For object type"@en ;    
+                 
+                 skos:definition "Object type for which the template is applicable"@en ;
+
+                 dc:creator "Ginka Angelova"@en .
+                 
+                
+                
+###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#forObjectTypeLabel
+
+emf:forObjectTypeLabel rdf:type owl:DatatypeProperty, emf:DefinitionDataProperty, emf:DefinitionProperty;
+                 
+                 rdfs:label "Системен тип за шаблон"@bg ,
+                            "System type for template"@en ;    
+                 
+                 skos:definition "Materializes the label of \"For object type\" property"@en ;
+                 
+                 dc:creator "Ginka Angelova"@en .
+                 
 
 #################################################################
 #
@@ -4192,7 +4668,7 @@ emf:ClassDescription rdf:type owl:Class ;
                      rdfs:label "Описание на семантичен клас"@bg ,
                                 "Klasse beskrivelse"@da ,
                                 "Klassenbeschreibung"@de ,
-                                "Class Description"@en ,
+                                "Class description"@en ,
                                 "Luokka Kuvaus"@fi ;
                      
                      rdfs:subClassOf ptop:Abstract ;
@@ -4416,7 +4892,7 @@ emf:DataImportSource rdf:type owl:Class ;
                
                dc:creator "Kiril Penev"@en ;
 				
-			   emf:classCategory "objectinstance" ;
+			   emf:classCategory "dataimportsource" ;
 			   
 			   emf:definitionId "objectinstance" ;
 			   
@@ -4450,7 +4926,7 @@ emf:DataImportReport rdf:type owl:Class ;
                
                dc:creator "Kiril Penev"@en ;
 
-			   emf:classCategory "objectinstance" ;
+			   emf:classCategory "dataimportreport" ;
 			   
 			   emf:definitionId "objectinstance" ;
 
@@ -4594,23 +5070,6 @@ emf:Help rdf:type owl:Class ;
                 emf:classCategory "help" .
 
 
-###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#helpTarget
-
-emf:helpTarget rdf:type owl:DatatypeProperty;
-                   
-                   rdfs:label "Ръководство за"@bg ,
-							  "Hjælp emne"@da ,
-							  "Zielhilfe"@de ,
-							  "Help target"@en ,
-							  "Auta kohde"@fi ;
-                   
-                   skos:definition "Target of the help"@en ;
-                   
-                   dc:creator "Nikolay Velkov"@en ;
-                   
-                   rdfs:domain emf:Help .
-
-
 ###  http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image
 
 emf:Image rdf:type owl:Class ;
@@ -4741,7 +5200,7 @@ emf:Product rdf:type owl:Class ;
             
             skos:definition "A product is a tangible or intangible output that is the result of a process that does not include activities that are performed at the interface between the supplier (provider) and the customer. A product is a result of a process. The product is produced by supplier (provider) and delivered to a customer. The product's supplier and customer can be internal or external to the organization. Organization is supplier, customer is external - product is produced by the organization and delivered/sold to an external organization  - customer. Supplier and customer are within the organization - product manufactured by one process/department within the organization is input to another process/department within the organization.Organization is customer, supplier is external - product is requested/purchased by the organization and delivered by an external provider. Products can be tangible or intangible. There are three generic product categories: hardware, processed materials, and software. Many products combine several of these categories. For example, an automobile (a product) combines hardware (e.g. tires), software (e.g. engine control algorithms), and processed materials (e.g. lubricants)."@en ;
             
-            dcterms:creator "Yaldaz Mehmedova"@en ;
+            dc:creator "Yaldaz Mehmedova"@en ;
             
             emf:classCategory "objectinstance"@en ;
             
@@ -4863,7 +5322,7 @@ emf:Service rdf:type owl:Class ;
             
             skos:definition "A service is an intangible output and is the result of a process that includes at least one activity that is carried out at the interface between the supplier (provider) and the customer. Service provision can take many forms. Service can be provided to support an organization’s own products (e.g. warranty service or the serving of meals). Service can be provided for a product supplied by a customer (e.g. a repair service or a delivery service). Service can also involve the provision of an intangible thing to a customer (e.g. entertainment, ambience, transportation, or advice)."@en ;
             
-            dcterms:creator "Yaldaz Mehmedova"@en ;
+            dc:creator "Yaldaz Mehmedova"@en ;
             
             emf:classCategory "objectinstance"@en ;
             
@@ -5138,14 +5597,17 @@ ptop:Organization rdf:type owl:Class ;
                   
                   emf:isCreateable "true"^^xsd:boolean ;
 
-                  emf:definitionId "objectinstance" .
+                  emf:definitionId "objectinstance" ;
+				  
+				  emf:classCategory "organization".
 
 
 
 ###  http://www.ontotext.com/proton/protontop#Person
 
-ptop:Person rdf:type owl:Class .
+ptop:Person rdf:type owl:Class ; 
 
+			emf:classCategory "person".
 
 
 ###  http://www.ontotext.com/proton/protontop#Statement
@@ -5360,7 +5822,7 @@ emf:RecordSpace rdf:type owl:Class ;
              rdfs:subClassOf ptop:Object ;
              emf:isSearchable "true"^^xsd:boolean ;
              emf:isUploadable "false"^^xsd:boolean ;
-             emf:isCreateable "true"^^xsd:boolean ;
+             emf:isCreateable "false"^^xsd:boolean ;
              emf:isPartOfObjectLibrary "true"^^xsd:boolean ;
              dc:creator "Boyan Tonchev, Viktor Ribchev"@en ;
              skos:definition "Represents a space where revision will be stored."@en ;
@@ -5465,6 +5927,16 @@ emf:isWatcherOf  emf:auditEvent "+addIsWatcherOf|-removeIsWatcherOf|changeIsWatc
 emf:hasPrimaryImage  emf:auditEvent "+addHasPrimaryImage|-removeHasPrimaryImage|changeHasPrimaryImage" .
 
 emf:isPrimaryImageOf  emf:auditEvent "+addIsPrimaryImage|-removeIsPrimaryImage|changeIsPrimaryImage" .	
+
+emf:hasReporter emf:auditEvent "+addHasReporter|-removeHasReporter|changeHasReporter" .
+
+emf:isReporterOf emf:auditEvent "+addIsReporterOf|-removeIsReporterOf|changeIsReporterOf" .
+
+emf:isDuplicatedBy emf:auditEvent "+addIsDuplicatedBy|-removeIsDuplicatedBy|changeIsDuplicatedBy" .
+
+emf:hasPoolAssignee emf:auditEvent "+addPoolAssignees|-removePoolAssignees|changePoolAssignees" .
+
+emf:isPoolAssigneeTo emf:auditEvent "+addIsPoolAssigneeTo|-removeIsPoolAssigneeTo|changeIsPoolAssigneeTo" .
 
 #################################################################
 #

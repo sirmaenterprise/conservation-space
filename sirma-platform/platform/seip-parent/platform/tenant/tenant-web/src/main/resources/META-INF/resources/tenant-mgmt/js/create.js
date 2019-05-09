@@ -1,4 +1,4 @@
-$(document).ready(function () {
+function CreateController() {
 
     /**
      * Retrieve the tenant models and populate them in the base models drop-down.
@@ -52,7 +52,7 @@ $(document).ready(function () {
 	    	$("#dmsBundle").unwrap();
 	    }
     });
-    
+
     /**
      * Load the tenant data json, extract all label ids from the json and build the tenant creation
      * form.
@@ -82,11 +82,11 @@ $(document).ready(function () {
         var labelIds = _.map(groups, function (nested) {
             return _.map(nested.properties, 'label');
         });
-        
+
         var groupLabelIds = _.map(groups, function(group){
         	return group.label;
         });
-        
+
         return _.flatten(_.without(labelIds.concat(groupLabelIds), undefined));
     }
 
@@ -121,6 +121,10 @@ $(document).ready(function () {
                 row.append(label);
 
                 var input = $("<input>");
+                if (field.type === 'textarea') {
+                    input = $('<textarea>');
+                }
+
                 input.attr({
                     'type': field.type,
                     'id': field.id,
@@ -305,12 +309,18 @@ $(document).ready(function () {
         var properties = [];
         _.forEach($(group).find(".form-control"), function (property) {
             if (property.value !== "") {
+                var val = property.value;
+                if (property.type === 'password') {
+                    val = encodeURIComponent(val);
+                }
+
                 properties.push({
                     'id': property.id,
-                    'value': property.value
+                    'value': val
                 });
             }
         });
         return properties;
     }
-});
+
+}

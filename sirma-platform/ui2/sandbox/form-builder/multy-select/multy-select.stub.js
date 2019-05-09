@@ -11,7 +11,7 @@ import template from 'form-widget-template!text';
   }
 })
 @View({
-  template: template
+  template
 })
 export class FormWidget extends FormWidgetStub {
 
@@ -22,45 +22,33 @@ export class FormWidget extends FormWidgetStub {
       definitionId: 'ET123121',
       'validationModel': new InstanceModel({
         'multiSelectEdit': {
-          'dataType': 'text',
           'value': ['CH210001'],
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': ['CH210001'],
           'messages': []
         },
         'multiSelectPreview': {
-          'dataType': 'text',
           'value': ['CH210001', 'DT210099'],
           'valueLabel': 'Препоръки за внедряване, Other',
-          'defaultValue': ['CH210001', 'DT210099'],
           'messages': []
         },
         'multiSelectDisabled': {
-          'dataType': 'text',
           'value': ['CH210001'],
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': ['CH210001'],
           'messages': []
         },
         'multiSelectHidden': {
-          'dataType': 'text',
           'value': ['CH210001', 'DT210099'],
           'valueLabel': 'Препоръки за внедряване, Other',
-          'defaultValue': ['CH210001', 'DT210099'],
           'messages': []
         },
         'multiSelectSystem': {
-          'dataType': 'text',
           'value': ['CH210001', 'DT210099'],
           'valueLabel': 'Препоръки за внедряване, Other',
-          'defaultValue': ['CH210001', 'DT210099'],
           'messages': []
         },
         'editableMultiSelect1': {
-          'dataType': 'text',
           'value': ['CH210001'],
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': ['CH210001'],
           'messages': []
         }
       }),
@@ -78,18 +66,17 @@ export class FormWidget extends FormWidgetStub {
                 'displayType': 'EDITABLE',
                 'codelist': 210,
                 'tooltip': 'Test tooltip',
+                'dataType': 'ANY',
+                'label': 'Editable multy select',
+                'isMandatory': true,
+                'multivalue': true,
                 'validators': [
                   {
                     id: 'mandatory',
                     message: 'The field is mandatory',
                     level: 'error'
                   }
-                ],
-                'dataType': 'text',
-                'label': 'Editable multy select',
-                'isMandatory': true,
-                'maxLength': 50,
-                'multivalue': true
+                ]
               },
               {
                 'previewEmpty': true,
@@ -99,10 +86,9 @@ export class FormWidget extends FormWidgetStub {
                 'codelist': 210,
                 'tooltip': 'Test tooltip',
                 'validators': [],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'Preview multy select',
                 'isMandatory': false,
-                'maxLength': 50,
                 'multivalue': true
               },
               {
@@ -113,10 +99,9 @@ export class FormWidget extends FormWidgetStub {
                 'codelist': 210,
                 'tooltip': 'Test tooltip',
                 'validators': [],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'Disabled multy select',
                 'isMandatory': false,
-                'maxLength': 50,
                 'multivalue': true
               },
               {
@@ -126,10 +111,9 @@ export class FormWidget extends FormWidgetStub {
                 'displayType': 'HIDDEN',
                 'codelist': 210,
                 'validators': [],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'Hidden multy select',
                 'isMandatory': false,
-                'maxLength': 50,
                 'multivalue': true
               },
               {
@@ -139,10 +123,9 @@ export class FormWidget extends FormWidgetStub {
                 'displayType': 'SYSTEM',
                 'codelist': 210,
                 'validators': [],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'System multy select',
                 'isMandatory': false,
-                'maxLength': 50,
                 'multivalue': true
               }
             ]
@@ -157,18 +140,17 @@ export class FormWidget extends FormWidgetStub {
                 'disabled': false,
                 'displayType': 'EDITABLE',
                 'codelist': 210,
+                'dataType': 'ANY',
+                'label': 'Editable multy select',
+                'isMandatory': true,
+                'multivalue': true,
                 'validators': [
                   {
                     id: 'mandatory',
                     message: 'The field is mandatory',
                     level: 'error'
                   }
-                ],
-                'dataType': 'text',
-                'label': 'Editable multy select',
-                'isMandatory': true,
-                'maxLength': 50,
-                'multivalue': true
+                ]
               }
             ]
           },
@@ -183,18 +165,17 @@ export class FormWidget extends FormWidgetStub {
                 'disabled': false,
                 'displayType': 'EDITABLE',
                 'codelist': 210,
+                'dataType': 'ANY',
+                'label': 'Editable multy select',
+                'isMandatory': true,
+                'multivalue': true,
                 'validators': [
                   {
                     id: 'mandatory',
                     message: 'The field is mandatory',
                     level: 'error'
                   }
-                ],
-                'dataType': 'text',
-                'label': 'Editable multy select',
-                'isMandatory': true,
-                'maxLength': 50,
-                'multivalue': true
+                ]
               }
             ]
           }

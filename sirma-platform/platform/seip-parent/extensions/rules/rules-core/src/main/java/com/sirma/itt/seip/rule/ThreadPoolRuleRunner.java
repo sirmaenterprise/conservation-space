@@ -32,7 +32,6 @@ import com.sirma.itt.seip.configuration.annotation.ConfigurationGroupDefinition;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
 import com.sirma.itt.seip.configuration.convert.GroupConverterContext;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.monitor.StatCounter;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.time.TimeTracker;
@@ -55,7 +54,6 @@ public class ThreadPoolRuleRunner implements RuleRunner {
 
 	@Inject
 	private volatile Statistics statistics;
-	private volatile StatCounter activeRulesCounter;
 
 	@ConfigurationPropertyDefinition(defaultValue = "8", sensitive = true, type = Integer.class, label = "Maximum active rules", system = true, shared = false)
 	private static final String RULES_RUNNER_MAX_CONCURRENT_RULES = "rules.runner.maxConcurrentRules";
@@ -85,7 +83,6 @@ public class ThreadPoolRuleRunner implements RuleRunner {
 
 	@PostConstruct
 	void initialize() {
-		activeRulesCounter = statistics.getCounter(null, "ActiveRules");
 		// stop the current executor server and create new one the old task will complete on
 		// the old and new tasks will be scheduled to the new one
 		ruleExecutor.addValueDestroyListener(ExecutorService::shutdown);
@@ -141,7 +138,7 @@ public class ThreadPoolRuleRunner implements RuleRunner {
 		Collection<RuleExecutionStatusAccessor> collection = runningRules.get(activeRuleKey);
 
 		RulesExecutionContext executionContext = new RulesExecutionContext(rulesToRun, context, statistics,
-				activeRulesCounter, collection, transactionSupport, securityContextManager);
+				collection, transactionSupport, securityContextManager);
 		collection.add(executionContext);
 
 		// link the callable and the produced future so that we can cancel them if needed without
@@ -151,11 +148,8 @@ public class ThreadPoolRuleRunner implements RuleRunner {
 
 	@Override
 	public void runRules(List<InstanceRule> rulesToRun, RuleContext context) {
-		TimeTracker ruleTimeTracker = statistics.createTimeStatistics(null, "RuleExecutionTime");
-		statistics.logTrend(null, "TriggeredRules", rulesToRun.size());
-
 		for (InstanceRule rule : rulesToRun) {
-			transactionSupport.invokeInNewTx(new RuleCallable(rule, context, ruleTimeTracker, activeRulesCounter));
+			transactionSupport.invokeInNewTx(new RuleCallable(rule, context, new TimeTracker()));
 		}
 	}
 

@@ -16,10 +16,14 @@ public class TenantInitializationContext {
 	/** The tenant info. */
 	private TenantInfo tenantInfo;
 
+	private Mode mode;
+
 	/** The admin password. */
 	private String adminUser;
 	/** The new tenant admin password. */
 	private String newTenantAdminPassword;
+
+	private String idpProvider;
 
 	private Map<String, Object> provisions = new HashMap<>();
 
@@ -108,4 +112,28 @@ public class TenantInitializationContext {
 	public <T> T getProvisionContext(String stepId) {
 		return (T) provisions.get(stepId);
 	}
+
+	public Mode getMode() {
+		return mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+
+	public String getIdpProvider() {
+		return idpProvider;
+	}
+
+	public void setIdpProvider(String idpProvider) {
+		this.idpProvider = idpProvider;
+	}
+
+	/**
+	 * Defines current tenant mode, whether its creating new tenant, updating existing one or deleting.
+	 */
+	public enum Mode {
+		CREATE, UPDATE, DELETE
+	}
+
 }

@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="damCulturalObject" parentId="coreCulturalObject" isAbstract="false" type="object">
+	<fields>
+		<field name="tooltip_header" type="ANY" label="CO_OBJECT_TOOLTIP_HEADER_DAM" />
+		<field name="default_header" type="ANY" label="CO_DEFAULT_HEADER_DAM" />
+	</fields>
+	
+	<regions>
+		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
+			<fields>
+				<!-- system fields -->
+				<field name="chcart:distinguishingMarks" type="an..500" displayType="system" />
+				<field name="chcart:creditLine" type="an..1024" displayType="system" />
+				<field name="chcart:provenance" type="an..10000" displayType="system" />
+				<field name="chcart:curatorialDepartment" type="an..180" displayType="system" />
+				<field name="chcart:supportDescription" type="an..1024" displayType="system" />
+				<field name="chcart:homeLocation" type="an..180" displayType="system" />
+				<field name="chcart:bibliography" type="an..20000" displayType="system" />
+				<field name="ownedBy" type="uri" displayType="system" />
+				<field name="chcart:currentLocation" type="an..1800" displayType="system" />
+				<field name="chc:overallConditionAppraisal" type="ANY" displayType="system" />
+				<field name="chcart:treatmentPriority" type="ANY" displayType="system" />
+				
+				<field name="chcart:culturalObjectNumber" type="an..512" label="dam.culturalObjectNumber.label" order="1" unique="false" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>	
+				<field name="subType" type="ANY" order="5" />
+				<field name="departmentName" type="ANY" displayType="editable" codelist="CL245" order="10" label="core.departmentName.label" tooltip="dam.departmentCO.tooltip" uri="emf:departmentName" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:collection" type="ANY" displayType="editable" codelist="CL310" order="15" uri="dam:collection" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:artistNames" type="an..5000" label="dam.artist.label" order="20" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:countryName" type="an..1024" displayType="editable" order="25" uri="chcart:countryName" multiValued="true" override="true" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+					<field name="dam:locale" type="an..1024" displayType="editable" order="30" multiValued="true" uri="dam:locale" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:style" type="an..1024" label="dam.style.label" tooltip="dam.style.tooltip" order="35" multiValued="true" uri="chcart:style" override="true" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:period" type="an..1024" displayType="editable" order="40" multiValued="true" uri="dam:period" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>				
+				<field name="chcart:creationDates" type="an..1024" label="dam.creationDates.label" order="45" multiValued="true" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="title" type="an..5000" order="50" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+					<condition id="optionalFields" renderAs="OPTIONAL">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:objectName" type="an..1024" displayType="editable" multiValued="true" order="55" uri="dam:objectName" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:mediaFormat" type="an..1024" displayType="editable" multiValued="true" previewEmpty="false" order="60" uri="dam:mediaFormat" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[type] NOTIN ('damCulturalObject','CulturalObj021')</condition>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true') AND [type] IN ('damCulturalObject','CulturalObj021')</condition>
+				</field>
+				<field name="dam:mediaStorageDevice" type="ANY" displayType="editable" codelist="CL311" previewEmpty="false" order="65" uri="dam:mediaStorageDevice" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[type] NOTIN ('damCulturalObject','CulturalObj021')</condition>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true') AND [type] IN ('damCulturalObject','CulturalObj021')</condition>
+				</field>
+				<field name="dam:mediaStatus" type="an..180" displayType="editable" previewEmpty="false" order="70" uri="dam:mediaStatus" >
+					<condition id="hiddenFields" renderAs="HIDDEN">[type] NOTIN ('damCulturalObject','CulturalObj021')</condition>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true') AND [type] IN ('damCulturalObject','CulturalObj021')</condition>
+				</field>
+				<field name="dam:hasMediaElementCreator" type="ANY" displayType="editable" codelist="CL312" previewEmpty="false" order="75" uri="dam:hasMediaElementCreator">
+					<condition id="hiddenFields" renderAs="HIDDEN">[type] NOTIN ('damCulturalObject','CulturalObj021')</condition>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true') AND [type] IN ('damCulturalObject','CulturalObj021')</condition>
+				</field>
+				<field name="chcart:medium" type="an..1024" displayType="editable" label="dam.medium.label" order="80" uri="chcart:medium" multiValued="true" override="true" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:mediumFreeText" type="an..1024" displayType="editable" order="85" uri="dam:mediumFreeText" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:physicalDimensions" type="an..1024" order="90" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="description" type="an..100000" displayType="editable" tooltip="core.description.tooltip" order="95" uri="dcterms:description" override="true">
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:inscriptions" type="an..100000" displayType="editable" label="dam.inscriptions.label" order="100" uri="chcart:inscriptions" override="true" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:installationNotes" type="an..100000" displayType="editable" order="110" uri="dam:installationNotes" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:series" type="an..1024" displayType="editable" order="115" multiValued="true" uri="dam:series" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:edition" type="an..1024" displayType="editable" order="120" multiValued="true" uri="chcart:edition" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="chcart:curatorialRemarks" type="an..100000" label="dam.curatorialRemarks.label" order="125" multiValued="true" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:notes" type="an..100000" displayType="editable" order="130" multiValued="true" uri="dam:notes" >
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="dam:previousID" type="an..1024" displayType="editable" multiValued="true" uri="dam:previousID">
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+	
+				<!-- integration fields -->
+				<field name="references" type="an..1200" displayType="system" />
+				<field name="integratedSystemId" type="an..1024" displayType="system" uri="chc:integratedSystemId" />
+				<field name="emf:externalID" type="an..180" displayType="hidden" label="dam.externalID.label" uri="emf:externalID" unique="true" >
+					<condition id="mandatoryFields" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+				<field name="externalType" type="ANY" displayType="hidden" codelist="CL7" previewEmpty="false" uri="chc:externalType" />
+			</fields>
+		</region>
+		<region id="systemData" displayType="editable" order="30" label="core.systemData.region.label">
+			<fields>
+				<field name="type" >
+					<value>damCulturalObject</value>
+				</field>
+				<field name="sourceSystemId" type="ANY" displayType="readOnly" codelist="CL250" label="dam.sourceSystemId.label" tooltip="dam.sourceSystemId.tooltip" order="6" uri="chc:sourceSystemId">
+					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
+					<value>DAMSR25001</value>
+				</field>
+				<field name="integrated" type="boolean" displayType="hidden" label="cs.integrated.label" order="21" uri="chc:integrated">
+					<value>false</value>
+				</field>
+				<field name="duplicates" type="uri" displayType="editable" label="dam.duplicates.label" order="71" multiValued="true" uri="chc:duplicates" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+						<control-param id="restrictions" name="restrictions">{"condition": "AND","rules": [{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]},{"field": "chc:sourceSystemId", "operator": "in", "type": "codeList", "value": ["DAMSR25002"]}]}</control-param>
+					</control>
+					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	
+	<transitions>
+		<transition id="prepareImport" label="dam.prepareImport.action.label" purpose="prepareImport"  />
+		<transition id="import" order="11" label="dam.import.action.label" tooltip="dam.import.action.tooltip" purpose="import" confirmation="import.confirm" />
+		<transition id="updateInt" order="12" label="dam.updateInt.action.label" tooltip="dam.updateInt.action.tooltip" purpose="updateInt" confirmation="update.confirm" />
+		<transition id="changeType" group="more" actionPath="/" />
+		
+		<transition id="revoke" order="99" label="core.revoke.action.label" tooltip="core.revoke.action.tooltip" purpose="transition" confirmation="revoke.confirm" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[	
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Revoked) ' + type + ': ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients[i] = watchers[i].toString();
+								}
+							}
+							var targetID = root.get('duplicates');
+							var instances = [];
+							for(i = 0; i < targetID.length; i++) {
+							var ins = instance.load(targetID[i]);
+								instances.push(ins);
+							}
+							context.put('revokedInstance', instances);
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_revoke_object", recipients, context);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+	</transitions>
+	
+	<stateTransitions>
+		<!-- transitions related to integration with external system (Agrus) -->
+		<stateTransition from="INIT" transition="prepareImport" to="FOR_IMP"/>
+		
+		<stateTransition from="INIT" transition="create" to="CURRENT" />
+		<stateTransition from="INIT" transition="clone" to="CURRENT"/>
+		<stateTransition from="INIT" transition="changeType" to="CURRENT" />
+		
+		<stateTransition from="FOR_IMP" transition="import" to="CURRENT" />
+
+		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="updateInt" to="CURRENT" >	
+			<condition renderAs="PROPERTY" id="integrated">true</condition>
+		</stateTransition>	
+		<stateTransition from="CURRENT" transition="createDocument" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="uploadImage" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="createWorkflow" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="achive" to="ARCHIVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="CURRENT" transition="createConservationActivity" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="achive" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="addPrimaryImage" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addDepiction" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addCulturalObject" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addAttachment" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addThumbnail" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addWatchers" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="exportTabPDF" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="exportTabWord" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="printTab" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="updateTemplate" to="CURRENT" />
+		
+		<stateTransition from="CURRENT" transition="changeType" to="CURRENT" />
+		
+		<stateTransition from="CURRENT" transition="clone" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="lock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="unlock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="revertVersion" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="managePermissions" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="delete" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="createInContext" to="CURRENT"/>
+		
+		<stateTransition from="CURRENT" transition="revoke" to="OBSOLETE">
+			<condition id="requiredFields" renderAs="REQUIRED">[duplicates]</condition>
+			<condition renderAs="PROPERTY" id="integrated">false</condition>
+		</stateTransition>
+		
+		<stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE" />	
+		<stateTransition from="OBSOLETE" transition="exportTabWord" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE" />	
+		<stateTransition from="OBSOLETE" transition="clone" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE" />
+		
+		<stateTransition from="ARCHIVED" transition="createDocument" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="uploadImage" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="download" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="exportTabPDF" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="exportTabWord" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="printTab" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="managePermissions" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="createInContext" to="ARCHIVED" />
+		
+	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="Sample"/>
+		<child type="object" id="damCulturalObject"/>
+		<child type="object" id="coreAudio"/>
+		<child type="object" id="coreVideo"/>
+		<child type="object" id="coreImage"/>
+		<child type="task" id="all"/>
+		<child type="project" id="all"/>
+		<child type="object" id="coreConservationActivity"/>
+		<child type="workflow" id="moveCOWF"/>
+		<child type="workflow" id="photographCOWF"/>
+		<child type="workflow" id="takeMaterialSampleFromCOWF"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="CO_OBJECT_TOOLTIP_HEADER_DAM">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>:&nbsp;
+							<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>&nbsp;
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Type: </label>
+						<span data-property="type">${CL([type])}</span>
+					</span>
+					${if(${get([subType])}<>null).then(
+						<span class="tooltip-row">
+							<label>Sub-classification: </label>
+							<span data-property="subType">${CL([subType])}</span>
+						</span>
+					)}
+					${if(${get([chcart:artistNames])}<>null).then(
+						<span class="tooltip-row">
+							<label>All maker: </label>
+							<span data-property="chcart:artistNames">${get([chcart:artistNames])}</span>
+						</span>
+					)}
+					${if(${get([chcart:creationDates])}<>null).then(
+						<span class="tooltip-row">
+							<label>Dates: </label>
+							<span data-property="chcart:creationDates">${get([chcart:creationDates])}</span>
+						</span>
+					)}
+					${if(${get([chcart:physicalDimensions])}<>null).then(
+						<span class="tooltip-row">
+							<label>Dimensions: </label>
+							<span data-property="chcart:physicalDimensions">${get([chcart:physicalDimensions])}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>Version: </label>
+						<span data-property="emf:version">${get([emf:version])}</span>
+					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}	
+				</span>
+			)})}]]></value>
+		</label>
+		
+		<label id="CO_DEFAULT_HEADER_DAM">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>:&nbsp;
+					<span data-property="type">${CL([type])}</span>
+					${if(${get([status])} <> CURRENT).then(&nbsp;(<span data-property="status">${CL([status])}</span>))}
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					<br />
+						${if(${get([status])} <> FOR_IMP).then(
+							<b>
+								<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+									${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+									${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+										(Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+									)}
+									<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>&nbsp;
+									<span data-property="title">${get([title])}</span>
+								</a>&nbsp;
+							</b>
+						).else(
+							<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>&nbsp;
+							<span data-property="title">${get([title])}</span>&nbsp;
+						)}
+					${if(${get([chcart:artistNames])}<>null).then(<span data-property="chcart:artistNames">${get([chcart:artistNames])}</span>)}
+					${if(${get([isRevisionOf])}<>null).then(<br />Revision of:<span data-property="isRevisionOf">${objectProperty(${get([isRevisionOf])})}</span>)}
+				</span>
+			)}]]></value>
+		</label>							
+	</labels>
+</definition>

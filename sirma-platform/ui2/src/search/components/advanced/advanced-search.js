@@ -32,9 +32,7 @@ import template from './advanced-search.html!text';
     'context': 'context'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgTimeout, PropertiesRestService)
 export class AdvancedSearch extends SearchCriteriaComponent {
 

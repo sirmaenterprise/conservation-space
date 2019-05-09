@@ -69,4 +69,7 @@ public class FilterDefinitions {
 		return filter;
 	}
 
+	public void setFilter(List<FilterDefinition> filter) {
+		this.filter = filter;
+	}
 }

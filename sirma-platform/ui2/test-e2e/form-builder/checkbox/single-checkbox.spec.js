@@ -73,7 +73,7 @@ describe('Single checkbox field', () => {
     describe('when displayType=DISABLED', () => {
       it('should be disabled and checked', () => {
         expect(disabled.isChecked()).to.eventually.equal('true');
-        expect(disabled.isDisabled()).to.eventually.equal('true');
+        expect(disabled.isDisabled()).to.eventually.be.true;
       });
     });
 

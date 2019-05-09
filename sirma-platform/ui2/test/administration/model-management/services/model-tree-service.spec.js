@@ -34,7 +34,7 @@ describe('ModelTreeService', () => {
 
   it('should build a tree item from a hierarchy model', () => {
     let model = new ModelClass('model');
-    let enDescription = new ModelDescription('EN', 'Name');
+    let enDescription = new ModelDescription('en', 'Name');
 
     model.setIcon('icon');
     model.setDescription(enDescription);
@@ -104,8 +104,8 @@ describe('ModelTreeService', () => {
 
   function createModel(id, en, bg, icon) {
     let model = new ModelBase(id);
-    let enDescription = new ModelDescription('EN', en);
-    let bgDescription = new ModelDescription('BG', bg);
+    let enDescription = new ModelDescription('en', en);
+    let bgDescription = new ModelDescription('bg', bg);
 
     model.setIcon(icon);
     model.setDescription(enDescription);

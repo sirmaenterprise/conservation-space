@@ -1,7 +1,6 @@
 import {Component, View, Inject, NgElement, NgTimeout} from 'app/app';
 import {ActionExecutor} from 'services/actions/action-executor';
-import {ToTrustedHtml} from 'filters/to-trusted-html';
-import _ from 'lodash';
+import 'filters/to-trusted-html';
 import 'font-awesome/css/font-awesome.css!';
 
 import template from './submenu.html!text';
@@ -14,9 +13,7 @@ import './submenu.css!';
     'data': 'data'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(ActionExecutor, NgElement, NgTimeout)
 export class Submenu {
 

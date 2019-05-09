@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,12 +20,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
 import com.sirma.itt.seip.rest.exceptions.BadRequestException;
 import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
+import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.testutil.mocks.PropertyDefinitionMock;
 
 /**
@@ -41,6 +44,8 @@ public class RemoveRelationActionTest {
 	private DomainInstanceService instanceService;
 	@Mock
 	private DefinitionService definitionService;
+	@Mock
+	private LabelProvider labelProvider;
 
 	private Instance instance;
 	private RemoveRelationRequest request;
@@ -51,8 +56,8 @@ public class RemoveRelationActionTest {
 
 		request = new RemoveRelationRequest();
 		request.setTargetId("targetId");
-		instance = new EmfInstance(request.getTargetId());
-		when(instanceService.loadInstance(any())).thenReturn(instance);
+		request.setTargetReference(InstanceReferenceMock.createGeneric("targetId"));
+		instance = request.getTargetReference().toInstance();
 
 		when(instanceService.save(any(InstanceSaveContext.class)))
 		.then(a -> a.getArgumentAt(0, InstanceSaveContext.class).getInstance());
@@ -69,6 +74,20 @@ public class RemoveRelationActionTest {
 	@Test
 	public void getName() {
 		assertEquals(RemoveRelationRequest.OPERATION_NAME, action.getName());
+	}
+
+	@Test(expected = BadRequestException.class)
+	public void validate_shouldFailIfRelationIsNotDefinedInInstance() {
+		request.setRelations(
+				Collections.singletonMap("emf:someUndefinedRelation", new HashSet<>(Collections.singletonList("emf:destination"))));
+		action.validate(request);
+	}
+
+	@Test
+	public void validate_shouldNotFailIfRelationIsDefinedInInstance() {
+		request.setRelations(
+				Collections.singletonMap("emf:withInverse", new HashSet<>(Collections.singletonList("emf:destination"))));
+		action.validate(request);
 	}
 
 	@Test

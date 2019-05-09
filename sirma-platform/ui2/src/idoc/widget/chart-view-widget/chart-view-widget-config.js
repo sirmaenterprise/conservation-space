@@ -2,12 +2,15 @@ import {View, Inject} from 'app/app';
 import {WidgetConfig} from 'idoc/widget/widget';
 import {Configurable} from 'components/configurable';
 import {MULTIPLE_SELECTION} from 'search/search-selection-modes';
-import {SELECT_OBJECT_AUTOMATICALLY, SELECT_OBJECT_MANUALLY, SELECT_OBJECT_CURRENT} from 'idoc/widget/object-selector/object-selector';
+import {
+  SELECT_OBJECT_MANUALLY,
+  SELECT_OBJECT_CURRENT
+} from 'idoc/widget/object-selector/object-selector';
 import {TranslateService} from 'services/i18n/translate-service';
 import {ObjectSelectorHelper} from 'idoc/widget/object-selector/object-selector-helper';
 import {PropertiesSelectorHelper} from 'idoc/widget/properties-selector/properties-selector-helper';
 import {SearchCriteriaUtils} from 'search/utils/search-criteria-utils';
-import {InstanceSelect} from 'components/select/instance/instance-select';
+import 'components/select/instance/instance-select';
 import {FORBIDDEN} from 'idoc/idoc-constants';
 import _ from 'lodash';
 
@@ -15,9 +18,7 @@ import template from './chart-view-widget-config.html!text';
 import './chart-view-widget-config.css!';
 
 @WidgetConfig
-@View({
-  template: template
-})
+@View({template})
 @Inject(ObjectSelectorHelper, PropertiesSelectorHelper, TranslateService)
 export class ChartViewWidgetConfig extends Configurable {
   constructor(objectSelectorHelper, propertiesSelectorHelper, translateService) {
@@ -37,7 +38,7 @@ export class ChartViewWidgetConfig extends Configurable {
       selection: this.config.selection,
       criteria: searchCriteria,
       selectObjectMode: this.config.selectObjectMode,
-      triggerSearch: triggerSearch,
+      triggerSearch,
       excludeOptions: [SELECT_OBJECT_CURRENT],
       // This callback is called when selectObjectMode is changed, when a search is performed or when selectedItems are changed
       onObjectSelectorChanged: (onSelectorChangedPayload) => {

@@ -1,5 +1,24 @@
 package com.sirma.itt.seip.instance.validator.validators;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.reflection.Whitebox;
+
 import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.definition.label.LabelProvider;
@@ -9,24 +28,6 @@ import com.sirma.itt.seip.instance.validation.FieldValidationContext;
 import com.sirma.itt.seip.instance.validator.errors.FieldValidationErrorBuilder;
 import com.sirma.itt.seip.instance.validator.errors.TextFieldValidationError;
 import com.sirma.itt.seip.util.RegExGenerator;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test for {@link TextFieldValidator}.
@@ -74,7 +75,7 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_validate_success() throws Exception {
+	public void validate_success() throws Exception {
 		when(type.getName()).thenReturn("text");
 		when(property.getType()).thenReturn("an..30");
 		when(context.getValue()).thenReturn("some text to validate");
@@ -82,7 +83,7 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_validate_success_multiple_value() throws Exception {
+	public void validate_success_multiple_value() throws Exception {
 		when(type.getName()).thenReturn("text");
 		when(property.getType()).thenReturn("an..30");
 		when(property.isMultiValued()).thenReturn(true);
@@ -95,7 +96,19 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_validate_fail_multiple_value() throws Exception {
+	public void validate_fail_multiple_value_with_null() throws Exception {
+		when(type.getName()).thenReturn("text");
+		when(property.getType()).thenReturn("an..30");
+		when(property.isMultiValued()).thenReturn(true);
+		Collection<Serializable> values = new ArrayList<>();
+		values.add("test one");
+		values.add(null);
+		when(context.getValue()).thenReturn((Serializable) values);
+		assertTrue(cut.validate(context).findFirst().isPresent());
+	}
+
+	@Test
+	public void validate_fail_multiple_value() throws Exception {
 		when(type.getName()).thenReturn("text");
 		when(property.getType()).thenReturn("an..3");
 		when(property.isMultiValued()).thenReturn(true);
@@ -107,7 +120,7 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_validate_fail_multiple_value_with_multilanguage() throws Exception {
+	public void validate_fail_multiple_value_with_multilanguage() throws Exception {
 		when(type.getName()).thenReturn("text");
 		when(property.getType()).thenReturn("an..3");
 		when(property.isMultiValued()).thenReturn(true);
@@ -123,7 +136,7 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_validate_single_value_fail() throws Exception {
+	public void validate_single_value_fail() throws Exception {
 		when(type.getName()).thenReturn("text");
 		when(property.getType()).thenReturn("an..3");
 		when(context.getValue()).thenReturn("!@#$%^&*(()");
@@ -131,7 +144,7 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_isApplicable_cls_field() throws Exception {
+	public void isApplicable_cls_field() throws Exception {
 		when(property.getDataType()).thenReturn(type);
 		when(type.getName()).thenReturn("text");
 		when(property.getCodelist()).thenReturn(100);
@@ -140,11 +153,10 @@ public class TextFieldValidatorTest {
 	}
 
 	@Test
-	public void test_isApplicable() throws Exception {
+	public void isApplicable() throws Exception {
 		when(property.getDataType()).thenReturn(type);
 		when(type.getName()).thenReturn("text");
 		when(context.getValue()).thenReturn(mock(Serializable.class));
 		assertTrue(cut.isApplicable(context));
 	}
-
 }

@@ -52,19 +52,19 @@ import com.sirma.itt.seip.domain.rest.EmfApplicationException;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.mapping.ObjectMapper;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.template.db.TemplateDao;
 import com.sirma.itt.seip.template.jaxb.TemplateSchemaProvider;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.sep.xml.JAXBHelper;
 
 /**
  * Default implementation of {@link TemplateImportService}.
- * 
+ *
  * @author Vilizar Tsonev
  */
 @Singleton
 public class TemplateImportServiceImpl implements TemplateImportService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Inject
 	private TempFileProvider tempFileProvider;
@@ -76,9 +76,6 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 	private EventService eventService;
 
 	@Inject
-	private Statistics statistics;
-
-	@Inject
 	private ObjectMapper mapper;
 
 	@Inject
@@ -87,11 +84,12 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 	@Inject
 	private TemplateDao templateDao;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	@Inject
+	private TemplateValidator templateValidator;
 
 	@Override
-	public List<String> validate(String directoryPath) {
-		List<File> files = loadFromPath(directoryPath);
+	public List<String> validate(TemplateValidationRequest validationRequest) {
+		List<File> files = loadFromPath(validationRequest.getPath());
 
 		List<Message> xsdErrors = new LinkedList<>();
 		List<String> businessValidationErrors = new ArrayList<>();
@@ -120,6 +118,8 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 			// logical validation can be correctly executed only if there are no duplicate ids
 			List<Template> mergedWithExisting = mergeWithExistingActiveTemplates(templates);
 			businessValidationErrors.addAll(TemplateValidator.validate(mergedWithExisting));
+			businessValidationErrors.addAll(templateValidator.hasDefinition(templates, validationRequest::getDefinition));
+			businessValidationErrors.addAll(templateValidator.validateRules(templates, validationRequest::getDefinition));
 		}
 
 		if (!xsdErrors.isEmpty() || !businessValidationErrors.isEmpty()) {
@@ -130,13 +130,13 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 	}
 
 	private List<Template> mergeWithExistingActiveTemplates(List<Template> newlyImported) {
-		List<Template> exisitng = templateDao.getAllTemplates();
-		Map<String, Template> existingMapped = exisitng
-					.stream()
-					.collect(CollectionUtils.toIdentityMap(Template::getId));
+		List<Template> existing = templateDao.getAllTemplates();
+		Map<String, Template> existingMapped = existing
+				.stream()
+				.collect(CollectionUtils.toIdentityMap(Template::getId));
 		Map<String, Template> newlyImportedMapped = newlyImported
-					.stream()
-					.collect(CollectionUtils.toIdentityMap(Template::getId));
+				.stream()
+				.collect(CollectionUtils.toIdentityMap(Template::getId));
 		existingMapped.putAll(newlyImportedMapped);
 		return new ArrayList<>(existingMapped.values());
 	}
@@ -146,7 +146,6 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 		List<File> files = loadFromPath(directoryPath);
 
 		LOGGER.info("Initiating reload of {} template definitions", files.size());
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "importTemplates").begin();
 
 		files
 				.stream()
@@ -154,7 +153,6 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 					.map(TemplateImportServiceImpl::toTemplate)
 					.forEach(templateService::saveOrUpdateImportedTemplate);
 
-		LOGGER.info("Templates import finished in {} ms", tracker.stop());
 		eventService.fire(new TemplatesSynchronizedEvent());
 	}
 
@@ -200,14 +198,14 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 		}
 		return null;
 	}
-	
+
 	private static Optional<ComplexFieldDefinition> extractField(String name, List<ComplexFieldDefinition> fields) {
 		return fields
 				.stream()
 				.filter(field -> name.equals(field.getName()))
 				.findFirst();
 	}
-	
+
 	private static boolean hasField(String name, List<ComplexFieldDefinition> fields) {
 		return extractField(name, fields).isPresent();
 	}
@@ -287,7 +285,7 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 		List<PropertyDefinition> fields = definition.getFields();
 
 		fields.add(createField(TYPE, template.getForType()));
-		fields.add(createField(PRIMARY, Boolean.valueOf(template.getPrimary())));
+		fields.add(createField(PRIMARY, template.getPrimary()));
 		fields.add(createField(TITLE, template.getTitle()));
 		fields.add(createField(CONTENT, template.getContent()));
 		if (StringUtils.isNotBlank(template.getPurpose())) {
@@ -315,7 +313,7 @@ public class TemplateImportServiceImpl implements TemplateImportService {
 			impl.setType("boolean");
 		} else {
 			// this is set not to miss the definition type and later to become an invalid xml
-			LOGGER.warn("Unrecongnized type when creating definition. Setting it to ANY");
+			LOGGER.warn("Unrecognized type when creating definition. Setting it to ANY");
 			impl.setType("ANY");
 		}
 

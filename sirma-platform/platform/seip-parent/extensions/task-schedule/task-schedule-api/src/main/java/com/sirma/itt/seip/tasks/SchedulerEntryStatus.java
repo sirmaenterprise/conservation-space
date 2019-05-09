@@ -2,6 +2,8 @@ package com.sirma.itt.seip.tasks;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Defines the possible {@code com.sirma.itt.seip.tasks.SchedulerEntity} status.
@@ -43,9 +45,10 @@ public enum SchedulerEntryStatus {
 	 */
 	INVALID;
 
-	public static final Collection<SchedulerEntryStatus> ACTIVE_STATES = Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR,
-			RUNNING);
+	public static final Collection<SchedulerEntryStatus> ACTIVE_STATES = Collections
+			.unmodifiableSet(new HashSet<>(Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR, RUNNING)));
 
-	public static final Collection<SchedulerEntryStatus> ALL_STATES = Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR,
-			RUNNING, CANCELED, COMPLETED, FAILED, ROLLBACK_FAILED, ROLLBACKED, SKIPPED);
+	public static final Collection<SchedulerEntryStatus> ALL_STATES = Collections
+			.unmodifiableSet(new HashSet<>(Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR, RUNNING, CANCELED, COMPLETED, FAILED,
+					ROLLBACK_FAILED, ROLLBACKED, SKIPPED)));
 }

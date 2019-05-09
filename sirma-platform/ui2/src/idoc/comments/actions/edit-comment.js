@@ -16,7 +16,7 @@ export class EditCommentAction extends ActionHandler {
     return this.promiseAdapter.promise((resolve, reject) => {
       let comment = context.comment.data;
       let config = {
-        comment: comment,
+        comment,
         widgetId: context.config.widgetId,
         tabId: context.config.tabId,
         onClose: (buttonId) => {

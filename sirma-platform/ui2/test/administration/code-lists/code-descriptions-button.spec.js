@@ -10,7 +10,6 @@ describe('CodeDescriptionsButton', () => {
   beforeEach(() => {
     descriptionsButton = new CodeDescriptionsButton(stub(DialogService));
     descriptionsButton.mode = PREVIEW;
-    descriptionsButton.onClose = sinon.spy();
     descriptionsButton.onChange = sinon.spy();
   });
 
@@ -68,13 +67,5 @@ describe('CodeDescriptionsButton', () => {
       dialogConfig.onButtonClick({}, {}, dialogConfigSpy);
       expect(dialogConfigSpy.dismiss.calledOnce).to.be.true;
     });
-
-    it('should notify that the dialog is closed', () => {
-      descriptionsButton.openDescriptions();
-      let dialogConfig = descriptionsButton.dialogService.create.getCall(0).args[2];
-      dialogConfig.onButtonClick({}, {}, {dismiss: sinon.spy()});
-      expect(descriptionsButton.onClose.calledOnce).to.be.true;
-    });
   });
-
 });

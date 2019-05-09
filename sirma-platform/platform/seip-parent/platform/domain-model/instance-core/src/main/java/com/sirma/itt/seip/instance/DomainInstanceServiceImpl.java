@@ -34,6 +34,9 @@ import com.sirma.itt.seip.instance.dao.InstanceLoadDecorator;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.instance.version.InstanceVersionService;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.permissions.InstanceAccessEvaluator;
 import com.sirma.itt.seip.permissions.InstanceAccessPermissions;
 import com.sirma.itt.seip.rest.exceptions.ResourceException;
@@ -90,6 +93,7 @@ public class DomainInstanceServiceImpl implements DomainInstanceService {
 		}
 
 		Instance instance = instances.iterator().next();
+		instanceLoadDecorator.decorateInstance(instance);
 		InstanceAccessPermissions accessPermission = accessEvaluator.getAccessPermission(instance);
 		if (!InstanceAccessPermissions.canRead(accessPermission)) {
 			throw new NoPermissionsException(identifier, "No read permissions");
@@ -103,6 +107,7 @@ public class DomainInstanceServiceImpl implements DomainInstanceService {
 	}
 
 	@Override
+	@Monitored({@MetricDefinition(name = "instance_load_duration_seconds", type = Type.TIMER, descr = "Instance load duration in seconds via service method.")})
 	public Instance loadInstance(String instanceId, boolean allowDeleted) {
 		String identifier = toShortUri(instanceId);
 		Instance instance;
@@ -118,6 +123,7 @@ public class DomainInstanceServiceImpl implements DomainInstanceService {
 			throw new InstanceNotFoundException(identifier);
 		}
 
+		instanceLoadDecorator.decorateInstance(instance);
 		InstanceAccessPermissions accessPermissions = accessEvaluator.getAccessPermission(instance);
 		if (!instance.isDeleted() && !InstanceAccessPermissions.canRead(accessPermissions)) {
 			throw new NoPermissionsException(identifier, "No read permissions");
@@ -135,13 +141,20 @@ public class DomainInstanceServiceImpl implements DomainInstanceService {
 	}
 
 	@Override
+	@Monitored({
+		@MetricDefinition(name = "instance_batch_load_duration_seconds", type = Type.TIMER, descr = "Instance batch load duration in seconds for the service method."),
+		@MetricDefinition(name = "instance_batch_load_hit_count", type = Type.COUNTER, descr = "Hit counter on the instance batch load service method.")
+	})
 	public Collection<Instance> loadInstances(Collection<String> instanceIds, boolean allowDeleted) {
 		if (isEmpty(instanceIds)) {
 			return Collections.emptyList();
 		}
 
 		try {
-			Collection<String> identifiers = instanceIds.stream().map(this::toShortUri).collect(Collectors.toList());
+			Collection<String> identifiers = instanceIds.stream()
+					.filter(Objects::nonNull)
+					.map(this::toShortUri)
+					.collect(Collectors.toList());
 			Collection<Instance> instances;
 			Collection<Instance> nonDeleted = resolver.resolveInstances(identifiers);
 			if (allowDeleted && nonDeleted.size() != identifiers.size()) {
@@ -159,6 +172,8 @@ public class DomainInstanceServiceImpl implements DomainInstanceService {
 			} else {
 				instances = nonDeleted;
 			}
+
+			instanceLoadDecorator.decorateResult(instances);
 			Map<Serializable, InstanceAccessPermissions> permissions = accessEvaluator.getAccessPermissions(instances);
 
 			return instances
@@ -204,6 +219,7 @@ public class DomainInstanceServiceImpl implements DomainInstanceService {
 	@Override
 	@Transactional
 	// TODO check method call stack
+	@Monitored(@MetricDefinition(name = "instance_save_duration_seconds", type = Type.TIMER, descr = "Instance save duration in seconds via service method."))
 	public Instance save(InstanceSaveContext saveContext) {
 		return instanceSaveManager.saveInstance(saveContext);
 	}

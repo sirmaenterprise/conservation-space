@@ -80,6 +80,10 @@ public class StateTransitionDefinition {
 		return condition;
 	}
 
+	public void setCondition(List<ConditionDefinition> condition) {
+		this.condition = condition;
+	}
+
 	/**
 	 * Gets the value of the from property.
 	 *

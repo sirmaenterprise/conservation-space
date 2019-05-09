@@ -1,0 +1,59 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ptop: <http://www.ontotext.com/proton/protontop#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+    ?property skos:definition ?definition.
+    ?property rdfs:comment ?definition.
+    ?property dcterms:description ?description.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+    	emf:content rdfs:label "Съдържание на документa"@bg, "Dokument indhold"@da, "Dokumentinhalt"@de, "Document content"@en, "Asiakirjan sisältö"@fi .
+    	emf:content dcterms:title "Съдържание на документa"@bg, "Dokument indhold"@da, "Dokumentinhalt"@de, "Document content"@en, "Asiakirjan sisältö"@fi .
+    
+    	emf:transitionMatrix rdfs:label "Преходи"@bg, "Transitionsmatrix"@da, "Übergangsmatrix"@de, "Transition matrix"@en, "Siirtymämatriisi"@fi .
+    	emf:transitionMatrix dcterms:title "Преходи"@bg, "Transitionsmatrix"@da, "Übergangsmatrix"@de, "Transition matrix"@en, "Siirtymämatriisi"@fi .
+    
+    	emf:publishedBy dcterms:description "The user that published the item"@en .
+    	emf:publishedBy skos:definition "The user that published the item"@en .
+    	
+    	emf:outcome dcterms:description "The outcome of a task that is part of workflow"@en .
+    	emf:outcome skos:definition "The outcome of a task that is part of workflow"@en .
+    	
+    	emf:integrated rdfs:label "Импортиран"@bg, "Integreret"@da, "Integriert"@de, "Integrated"@en, "Integroitu"@fi .
+    	emf:integrated dcterms:title "Импортиран"@bg, "Integreret"@da, "Integriert"@de, "Integrated"@en, "Integroitu"@fi .
+    	
+    	emf:completedOn rdfs:label "Приключен на"@bg, "Afsluttet den"@da, "Vervollständigt am"@de, "Completed on"@en, "Valmistunut"@fi .
+    	emf:completedOn dcterms:title "Приключен на"@bg, "Afsluttet den"@da, "Vervollständigt am"@de, "Completed on"@en, "Valmistunut"@fi .
+    	
+    	emf:size rdfs:label "Големина (в байтове)"@bg, "Forlimning (i byte)"@da,"Größe (in Bytes)"@de, "Size (in bytes)"@en, "Koko (tavuina)"@fi .
+    	emf:size dcterms:title "Големина (в байтове)"@bg, "Forlimning (i byte)"@da,"Größe (in Bytes)"@de, "Size (in bytes)"@en, "Koko (tavuina)"@fi .
+    	
+    	emf:hasRevision dcterms:description "The revisions of the item"@en .
+    	emf:hasRevision skos:definition "The revisions of the item"@en .
+    	
+    	emf:nextRevision dcterms:description "The revision that succeeds the current"@en .
+    	emf:nextRevision skos:definition "The revision that succeeds the current"@en .
+    }
+} where {
+    {
+        ## titles only
+        ?property rdfs:label ?label.
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:content, emf:transitionMatrix, emf:integrated, emf:completedOn, emf:size))
+    } UNION {
+        ## descriptions only
+        ?property rdfs:comment|skos:definition ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        filter(?property in (emf:publishedBy, emf:outcome, emf:hasRevision, emf:nextRevision))
+    }
+}

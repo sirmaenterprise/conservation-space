@@ -69,7 +69,6 @@ import com.sirma.itt.seip.testutil.fakes.InstanceTypeFake;
 import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.tx.TransactionSupport;
-import com.sirma.itt.semantic.model.vocabulary.EMF;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.InstanceContentService;
@@ -220,7 +219,7 @@ public class InstanceVersionServiceImplTest {
 
 	@Test
 	public void setInitialVersion_instanceNullVersion() {
-		EmfInstance instance = new EmfInstance();
+		EmfInstance instance = new EmfInstance("emf:instanceId");
 		instance.setType(new InstanceType.DefaultInstanceType("id"));
 		instance.add(VERSION, null);
 		service.populateVersion(instance);
@@ -229,7 +228,7 @@ public class InstanceVersionServiceImplTest {
 
 	@Test
 	public void setInitialVersion_instanceEmptyVersion() {
-		EmfInstance instance = new EmfInstance();
+		EmfInstance instance = new EmfInstance("emf:instanceId");
 		instance.setType(new InstanceType.DefaultInstanceType("id"));
 		instance.add(VERSION, "");
 		service.populateVersion(instance);
@@ -238,7 +237,7 @@ public class InstanceVersionServiceImplTest {
 
 	@Test
 	public void should_notSetVersion_whenNotVersionable() {
-		EmfInstance instance = new EmfInstance();
+		EmfInstance instance = new EmfInstance("emf:instance-id");
 		InstanceType type = mock(InstanceType.class);
 		when(type.isVersionable()).thenReturn(false);
 
@@ -251,7 +250,7 @@ public class InstanceVersionServiceImplTest {
 
 	@Test
 	public void should_populateVersion_when_VersionIsEmpty_instanceHasOlderVersions() {
-		EmfInstance instance = new EmfInstance();
+		EmfInstance instance = new EmfInstance("emf:instanceId");
 		instance.setType(new InstanceType.DefaultInstanceType("id"));
 		instance.add(VERSION, "");
 
@@ -266,7 +265,7 @@ public class InstanceVersionServiceImplTest {
 
 	@Test
 	public void setInitialVersion_instanceWithVersion() {
-		EmfInstance instance = new EmfInstance();
+		EmfInstance instance = new EmfInstance("emf:instanceId");
 		instance.add(VERSION, "25.5");
 		service.populateVersion(instance);
 		assertEquals("25.5", instance.getString(VERSION));
@@ -532,7 +531,7 @@ public class InstanceVersionServiceImplTest {
 		} catch (Exception e) {
 			assertTrue(e instanceof RuntimeException);
 		} finally {
-			verify(firtsRevertStep).rollback(any(RevertContext.class));
+			verify(transactionSupport).invokeOnFailedTransactionInTx(any()); // verifies rollback registration
 			verify(lockService).tryUnlock(any(InstanceReference.class));
 		}
 	}
@@ -685,5 +684,4 @@ public class InstanceVersionServiceImplTest {
 		target.add(VERSION, "1.0");
 		assertTrue(service.hasInitialVersion(target));
 	}
-
 }

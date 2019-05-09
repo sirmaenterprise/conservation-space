@@ -10,11 +10,9 @@ import template from './textarea.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
-class Textarea extends TextField {
+export class Textarea extends TextField {
   constructor($element) {
     super($element);
   }

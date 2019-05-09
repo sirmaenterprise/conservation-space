@@ -18,7 +18,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 
-import com.sirma.itt.seip.instance.messaging.InstanceCommunicationConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -27,11 +26,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.sirma.itt.seip.instance.messaging.InstanceCommunicationConstants;
 import com.sirma.sep.content.Content;
+import com.sirma.sep.content.ContentImport;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.IdResolver;
 import com.sirma.sep.content.InstanceContentService;
 import com.sirma.sep.content.event.ContentAssignedEvent;
+import com.sirma.sep.content.event.ContentImportedEvent;
 import com.sirma.sep.content.event.ContentUpdatedEvent;
 import com.sirmaenterprise.sep.jms.api.SendOptions;
 import com.sirmaenterprise.sep.jms.api.SenderService;
@@ -40,7 +42,7 @@ import com.sirmaenterprise.sep.jms.exception.JmsRuntimeException;
 
 /**
  * Test the content topic.
- * 
+ *
  * @author nvelkov
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -102,7 +104,7 @@ public class ContentTopicTest {
 		doThrow(new JMSException("reason")).when(message).setObjectProperty(anyString(), anyObject());
 		messageInitializerCaptor.getValue().write(argumentsCaptor.getValue(), message);
 	}
-	
+
 	@Test
 	public void should_notAddUnresolvableInstance_toTopic() {
 		String contentId = "content";
@@ -139,8 +141,28 @@ public class ContentTopicTest {
 		ContentInfo contentInfo = mock(ContentInfo.class);
 		when(contentInfo.getContentId()).thenReturn(contentId);
 		when(contentInfo.getContentPurpose()).thenReturn(purpose);
+		when(contentInfo.exists()).thenReturn(Boolean.TRUE);
 		when(instanceContentService.getContent(eq(contentId), eq(null))).thenReturn(contentInfo);
 		return contentInfo;
 	}
 
+	@Test
+	public void onPrimaryContentImport_instanceNotResolved_notAdded() {
+		when(idResolver.resolve(any(Serializable.class))).thenReturn(Optional.empty());
+		contentTopic.onPrimaryContentImport(new ContentImportedEvent("content-id", ContentImport.createEmpty()));
+		verifyZeroInteractions(instanceContentService, senderService);
+	}
+
+	@Test
+	public void onPrimaryContentImport_addedAndSend() throws JMSException {
+		final String CONTENT_ID = "content-id";
+		final String INSTANCE_ID = "instance-id";
+		when(idResolver.resolve(any(Serializable.class))).thenReturn(Optional.of(INSTANCE_ID));
+		ContentInfo content = mockInstanceContentService(CONTENT_ID, "purpose");
+		ContentImportedEvent event = new ContentImportedEvent(CONTENT_ID,
+				ContentImport.copyFrom(content).setContentId(CONTENT_ID));
+
+		contentTopic.onPrimaryContentImport(event);
+		verifyMessageAddedToTopic(INSTANCE_ID, content);
+	}
 }

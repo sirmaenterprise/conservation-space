@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import com.sirma.itt.seip.security.UserPreferences;
 import org.apache.commons.lang.StringUtils;
 
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.domain.codelist.CodelistService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class CodelistRestService {
 	 * <ul>
 	 * <li>If filterBy and filterSource arguments are passed, then the result is filtered by property/ies found in
 	 * filterSource column in codelists.xls</li>
+	 * <li>If values argument is passed, then the result is filtered by provided code values identifiers</li>
 	 * <li>If customFilters argument is provided, then the filters are executed on codevalues from the given codelist
 	 * and the result is retained with the codevalues extracted and (optionally filtered on previous step).</li>
 	 * </ul>
@@ -56,6 +58,8 @@ public class CodelistRestService {
 	 *            the keyword to be used for filtering
 	 * @param filterSource
 	 *            against which description property to apply filter
+	 * @param values
+	 *            code values identifiers against which the codelist to be filtered
 	 * @param inclusive
 	 *            if the filter should be inclusive or not
 	 * @param customFilters
@@ -71,8 +75,9 @@ public class CodelistRestService {
 	@Path("/{codelist}")
 	public List<CodeValueInfo> retrieveCodeValues(@PathParam("codelist") Integer codelist,
 			@QueryParam("filterBy") String filterBy, @QueryParam("filterSource") String filterSource,
-			@QueryParam("inclusive") boolean inclusive, @QueryParam("customFilters[]") String[] customFilters,
-			@QueryParam("lang") String language, @QueryParam("q") String query) {
+			@QueryParam("values") List<String> values, @QueryParam("inclusive") boolean inclusive,
+			@QueryParam("customFilters[]") String[] customFilters, @QueryParam("lang") String language,
+			@QueryParam("q") String query) {
 
 		if (codelist == null) {
 			return Collections.emptyList();
@@ -82,7 +87,9 @@ public class CodelistRestService {
 				filterSource, inclusive, customFilters);
 
 		Map<String, com.sirma.itt.seip.domain.codelist.model.CodeValue> codeValues = null;
-		if (StringUtils.isNotEmpty(filterBy) && StringUtils.isNotEmpty(filterSource)) {
+		if (CollectionUtils.isNotEmpty(values)) {
+			codeValues = codeListService.filterCodeValues(codelist, inclusive, values);
+		} else if (StringUtils.isNotEmpty(filterBy) && StringUtils.isNotEmpty(filterSource)) {
 			codeValues = codeListService.filterCodeValues(codelist, inclusive, filterSource, filterBy);
 		} else {
 			codeValues = codeListService.getCodeValues(codelist);

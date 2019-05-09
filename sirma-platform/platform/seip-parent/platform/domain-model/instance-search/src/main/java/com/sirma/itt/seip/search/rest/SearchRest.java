@@ -16,12 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.rest.BadRequestException;
 import com.sirma.itt.seip.domain.search.SearchArguments;
 import com.sirma.itt.seip.domain.search.SearchRequest;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
+import com.sirma.itt.seip.rest.exceptions.BadRequestException;
 import com.sirma.itt.seip.rest.utils.Versions;
 import com.sirma.itt.seip.search.SearchService;
-import com.sirma.itt.seip.time.TimeTracker;
 
 /**
  * REST service providing instance searching.
@@ -50,12 +52,10 @@ public class SearchRest {
 	@Consumes(Versions.V2_JSON)
 	@Deprecated
 	public SearchArguments<Instance> search(@Context UriInfo uriInfo) {
-		LOGGER.debug("Received search request on uri '{}' with params {} ", uriInfo.getPath(),
-				uriInfo.getQueryParameters());
 		SearchRequest request = new SearchRequest(uriInfo.getQueryParameters());
 		SearchArguments<Instance> searchArgs = searchService.parseRequest(request);
 		if (searchArgs == null) {
-			throw new BadRequestException("Search request is not supported.");
+			throw new BadRequestException("Search argumets must be provided.");
 		}
 		return performSearch(searchArgs);
 	}
@@ -65,20 +65,22 @@ public class SearchRest {
 	 *
 	 * @param searchArgs
 	 *            {@link SearchArguments Search arguments}.
-	 * @return {@link SearchArguments Found results} with additional information e.g total number of results.
+	 * @return {@link SearchArguments Found results} with additional information
+	 *         e.g total number of results.
 	 */
 	@POST
 	@Consumes(Versions.V2_JSON)
+	@Monitored({
+		@MetricDefinition(name = "http_search_duration_seconds", type = Type.TIMER, descr = "Search request duration in seconds."),
+		@MetricDefinition(name = "http_search_hit_count", type = Type.COUNTER, descr = "Hit counter on the serach rest service.")
+	})
 	public SearchArguments<Instance> search(SearchArguments<Instance> searchArgs) {
 		return performSearch(searchArgs);
 	}
 
 	private SearchArguments<Instance> performSearch(SearchArguments<Instance> searchArgs) {
 		try {
-			TimeTracker tracker = TimeTracker.createAndStart();
 			searchService.searchAndLoad(Instance.class, searchArgs);
-			LOGGER.debug("Search results: {} took {} ms", Integer.valueOf(searchArgs.getResult().size()),
-					Double.valueOf(tracker.stopInSeconds()));
 		} catch (Exception e) {
 			LOGGER.error("Error during search request!", e);
 			searchArgs.setSearchError(e);

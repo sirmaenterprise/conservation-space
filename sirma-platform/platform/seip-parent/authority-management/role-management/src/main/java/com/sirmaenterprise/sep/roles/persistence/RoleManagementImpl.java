@@ -4,6 +4,7 @@ import static com.sirma.itt.seip.collections.CollectionUtils.isEmpty;
 import static com.sirma.itt.seip.collections.CollectionUtils.toIdentityMap;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -19,6 +20,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.Entity;
 import com.sirma.itt.seip.event.EventService;
@@ -41,6 +44,8 @@ import com.sirmaenterprise.sep.roles.events.RoleDefinitionsChangedEvent;
 @ApplicationScoped
 public class RoleManagementImpl implements RoleManagement {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	@Inject
 	private RoleActionsDao dao;
 	@Inject
@@ -49,9 +54,13 @@ public class RoleManagementImpl implements RoleManagement {
 	@Override
 	public void updateRoleActionMappings(RoleActionChanges changes) {
 		if (changes == null || isEmpty(changes.getChanges())) {
+			LOGGER.debug("Empty role action changes are passed! Skipping update.");
 			return;
 		}
+
 		Map<RoleActionId, RoleActionEntity> mapping = toIdentityMap(dao.getRoleActions(), RoleActionEntity::getId);
+
+		LOGGER.debug("Going to save role action mappings: {}", mapping);
 
 		for (RoleActionChange change : changes.getChanges()) {
 			RoleActionId id = new RoleActionId(change.getRole(), change.getAction());
@@ -66,6 +75,7 @@ public class RoleManagementImpl implements RoleManagement {
 	@Override
 	public void saveActions(Collection<ActionDefinition> definitions) {
 		if (isEmpty(definitions)) {
+			LOGGER.debug("Empty action definitions are passed! Skipping save.");
 			return;
 		}
 		Set<String> modifiedIds = definitions.stream().map(ActionDefinition::getId).collect(Collectors.toSet());
@@ -75,12 +85,16 @@ public class RoleManagementImpl implements RoleManagement {
 		for (ActionDefinition definition : definitions) {
 			roleMapping.compute(definition.getId(), mergeAndSave(definition, actionDefToEntity(), ActionEntity::new));
 		}
+
+		LOGGER.debug("Going to save actions: {}", roleMapping);
+
 		eventService.fire(new ActionDefinitionsChangedEvent());
 	}
 
 	@Override
 	public void saveRoles(Collection<RoleDefinition> definitions) {
 		if (isEmpty(definitions)) {
+			LOGGER.debug("Empty role definitions are passed! Skipping save.");
 			return;
 		}
 		Set<String> modifiedIds = definitions.stream().map(RoleDefinition::getId).collect(Collectors.toSet());
@@ -90,6 +104,9 @@ public class RoleManagementImpl implements RoleManagement {
 		for (RoleDefinition definition : definitions) {
 			roleMapping.compute(definition.getId(), mergeAndSave(definition, roleDefToEntity(), RoleEntity::new));
 		}
+
+		LOGGER.debug("Going to save roles: {}", roleMapping);
+
 		eventService.fire(new RoleDefinitionsChangedEvent());
 	}
 

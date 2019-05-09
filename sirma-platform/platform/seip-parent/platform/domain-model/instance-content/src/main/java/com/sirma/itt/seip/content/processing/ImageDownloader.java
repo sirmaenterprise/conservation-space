@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,7 +17,8 @@ import javax.ws.rs.core.MediaType;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.slf4j.Logger;
@@ -41,7 +43,8 @@ public class ImageDownloader {
 	/**
 	 * The max allowed download size of files. Current value is 10 MB
 	 */
-	public static final long MAX_DOWNLOADS_SIZE = 10L * 1024L * 1024L * 1024L;
+	static final long MAX_DOWNLOADS_SIZE = 10L * 1024L * 1024L * 1024L;
+	private static final String HR_MAX_DOWNLOADS_SIZE = FileUtil.humanReadableByteCount(MAX_DOWNLOADS_SIZE);
 
 	@Inject
 	private HTTPClient httpClient;
@@ -75,8 +78,13 @@ public class ImageDownloader {
 	}
 
 	private Pair<String, byte[]> download(URI targetURI) {
-		LOGGER.debug("Downloading image: {}", targetURI);
+		LOGGER.info("Downloading image: {}", targetURI);
 		HttpClientContext context = HttpClientContext.create();
+		context.setRequestConfig(RequestConfig.custom()
+				.setSocketTimeout((int) TimeUnit.SECONDS.toMillis(30))
+				.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(10))
+				.setConnectionRequestTimeout((int) TimeUnit.MINUTES.toMillis(1))
+				.build());
 		HttpGet get = new HttpGet(targetURI);
 		HttpHost httpHost = new HttpHost(targetURI.getHost(), targetURI.getPort(), targetURI.getScheme());
 		return httpClient.execute(get, context, httpHost, readResponse(), logError(targetURI));
@@ -90,18 +98,20 @@ public class ImageDownloader {
 		};
 	}
 
-	private static BiFunction<Integer, HttpResponse, Pair<String, byte[]>> readResponse() {
-		return (code, response) -> {
-			if (code.intValue() == 200) {
+	private static ResponseHandler<Pair<String, byte[]>> readResponse() {
+		return response -> {
+			int code = response.getStatusLine().getStatusCode();
+			if (code == 200) {
 				HttpEntity entity = response.getEntity();
 				long length = entity.getContentLength();
 				if (entity.getContentLength() <= MAX_DOWNLOADS_SIZE) {
 					return doDownload(entity);
 				}
+				String humanReadableSize = FileUtil.humanReadableByteCount(length);
 				LOGGER.warn("Skipped downloading an image of size {} as it's exceeds the max allowed size of {}",
-						FileUtil.humanReadableByteCount(length), FileUtil.humanReadableByteCount(MAX_DOWNLOADS_SIZE));
+						humanReadableSize, HR_MAX_DOWNLOADS_SIZE);
 			} else {
-				LOGGER.warn("Recieved response code {} different than 200 on image download", code);
+				LOGGER.warn("Received response code {} different than 200 on image download", code);
 			}
 			return NO_DATA;
 		};

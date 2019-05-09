@@ -30,7 +30,7 @@ import com.sirma.itt.seip.db.DbDao;
 
 /**
  * Test the sequence generator service.
- * 
+ *
  * @author nvelkov
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -59,7 +59,7 @@ public class SequenceGeneratorServiceImplTest {
 
 	@Test
 	public void should_createAndIncrementSequence_when_Missing() {
-		mockEntityManager(CollectionUtils.EMPTY_LIST);
+		mockEntityManager(CollectionUtils.emptyList());
 
 		Long id = sequenceGenerator.getNextId("case");
 		verifySequencePersisted("case", 1L);

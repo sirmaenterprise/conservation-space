@@ -2,42 +2,33 @@ package com.sirma.sep.model.management.hierarchy;
 
 import java.util.Map;
 
+import com.sirma.sep.model.ModelNode;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
- * Basic model hierarchy node holding information about a node and its parent if it has one.
+ * Basic model hierarchy node proxying {@link ModelNode}.
  *
  * @author Mihail Radkov
  */
-public abstract class ModelHierarchyNode {
+public abstract class ModelHierarchyNode<M extends ModelNode> {
 
-	private String id;
+	@JsonIgnore
+	protected final M modelNode;
 
-	private String parentId;
-
-	private Map<String, String> labels;
-
-	public String getId() {
-		return id;
+	public ModelHierarchyNode(M modelNode) {
+		this.modelNode = modelNode;
 	}
 
-	public ModelHierarchyNode setId(String id) {
-		this.id = id;
-		return this;
+	public String getId() {
+		return modelNode.getId();
 	}
 
 	public String getParentId() {
-		return parentId;
-	}
-
-	public ModelHierarchyNode setParentId(String parentId) {
-		this.parentId = parentId;
-		return this;
+		return modelNode.getParent();
 	}
 
 	public Map<String, String> getLabels() {
-		return labels;
-	}
-
-	public void setLabels(Map<String, String> labels) {
-		this.labels = labels;
+		return modelNode.getLabels();
 	}
 }

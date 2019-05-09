@@ -16,19 +16,17 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.sirma.itt.emf.solr.connector.SolrConfigurationProperties;
 import com.sirma.itt.emf.solr.exception.SolrClientException;
@@ -69,6 +67,7 @@ import com.sirma.itt.semantic.NamespaceRegistryService;
  *
  * @author nvelkov
  */
+@RunWith(MockitoJUnitRunner.class)
 public class SearchablePropertiesServiceTest {
 
 	@Mock
@@ -113,9 +112,8 @@ public class SearchablePropertiesServiceTest {
 	/**
 	 * Initialize the mocks.
 	 */
-	@BeforeMethod
+	@Before
 	public void init() {
-		MockitoAnnotations.initMocks(this);
 		mockLabelProvider();
 		Mockito.when(userPreferences.getLanguage()).thenReturn("en");
 		searchablePropertiesService.init();
@@ -126,8 +124,8 @@ public class SearchablePropertiesServiceTest {
 	 * Test the reset method of the {@link SearchablePropertiesService} with missing rdf type, covering all if
 	 * statements.
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testresetMissingRdfType() throws SolrClientException {
 		mockSolrConnector("tokenizedField", "fieldName", "fieldType");
 		mockSemanticDefinitionService("hasChild", "testRangeClass", "testClassId");
@@ -278,7 +276,7 @@ public class SearchablePropertiesServiceTest {
 		searchablePropertiesService.reset();
 		Map<String, List<PropertyDefinition>> allSearchableProperties = searchablePropertiesService.getTypeFields(null,
 				null, null);
-		Assert.assertEquals(allSearchableProperties.size(), 1);
+		Assert.assertEquals(1, allSearchableProperties.size());
 	}
 
 	/**
@@ -294,7 +292,7 @@ public class SearchablePropertiesServiceTest {
 		Mockito.when(typeConverter.convert(Uri.class, "testClassId")).thenReturn(new ShortUri("emf:testClassId"));
 		Map<String, List<PropertyDefinition>> allSearchableProperties = searchablePropertiesService.getTypeFields(null,
 				"testClassId", "testClassId");
-		Assert.assertEquals(allSearchableProperties.size(), 1);
+		Assert.assertEquals(1, allSearchableProperties.size());
 	}
 
 	/**
@@ -314,7 +312,7 @@ public class SearchablePropertiesServiceTest {
 		InstanceTypeFake.setType(instance, "emf:Case", "caseinstance");
 		Map<String, List<PropertyDefinition>> allSearchableProperties = searchablePropertiesService
 				.getTypeFields(instance, "emf:Case", null);
-		Assert.assertEquals(allSearchableProperties.size(), 1);
+		Assert.assertEquals(1, allSearchableProperties.size());
 	}
 
 	/**
@@ -332,7 +330,7 @@ public class SearchablePropertiesServiceTest {
 
 		Optional<SearchableProperty> searchableProperty = searchablePropertiesService
 				.getSearchableProperty("definitionId", "name");
-		Assert.assertEquals(searchableProperty.get().getId(), "name");
+		Assert.assertEquals("name", searchableProperty.get().getId());
 	}
 
 	/**
@@ -348,10 +346,10 @@ public class SearchablePropertiesServiceTest {
 		searchablePropertiesService.reset();
 
 		List<SearchableProperty> properties = searchablePropertiesCache.get("definitionId");
-		Assert.assertEquals(properties.size(), 1);
+		Assert.assertEquals(1, properties.size());
 
 		SearchableProperty property = properties.get(0);
-		Assert.assertEquals(property.getId(), "createdBy");
+		Assert.assertEquals("createdBy", property.getId());
 	}
 
 	@Test
@@ -420,8 +418,7 @@ public class SearchablePropertiesServiceTest {
 	 */
 	public void mockSolrConnector(String tokenizedFieldTypeName, String fieldName, String fieldType)
 			throws SolrClientException {
-		NamedList<Object> response = new NamedList<>();
-		LinkedHashMap<Object, Object> schema = new LinkedHashMap<>();
+		Map<String, Object> schema = new LinkedHashMap<>();
 
 		List<SimpleOrderedMap<Object>> fields = new ArrayList<>();
 		SimpleOrderedMap<Object> field = new SimpleOrderedMap<>();
@@ -439,11 +436,8 @@ public class SearchablePropertiesServiceTest {
 
 		schema.put("fields", fields);
 		schema.put("fieldTypes", fieldTypes);
-		response.add("schema", schema);
 
-		QueryResponse solrQueryResponse = new QueryResponse();
-		solrQueryResponse.setResponse(response);
-		Mockito.when(solrConnector.queryWithGet(any(SolrQuery.class))).thenReturn(solrQueryResponse);
+		Mockito.when(solrConnector.retrieveSchema()).thenReturn(schema);
 	}
 
 	/**

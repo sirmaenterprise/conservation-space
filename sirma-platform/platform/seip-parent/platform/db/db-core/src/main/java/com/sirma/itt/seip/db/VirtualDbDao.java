@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -36,7 +39,7 @@ import com.sirma.itt.seip.plugin.Plugins;
  */
 @VirtualDb
 @ApplicationScoped
-public class VirtualDbDao extends AbstractDbDao {
+public class VirtualDbDao extends AbstractDbDao implements ChainingDbDao {
 
 	private static final long serialVersionUID = -4270974964126511895L;
 
@@ -74,14 +77,7 @@ public class VirtualDbDao extends AbstractDbDao {
 
 	@Override
 	public <E extends Entity<? extends Serializable>> E find(Class<E> clazz, Object id) {
-		if (!(id instanceof Serializable)) {
-			return null;
-		}
-		Pair<Serializable, Entity<Serializable>> pair = getCache().getByKey((Serializable) id);
-		if (pair != null && clazz != null && clazz.isInstance(pair.getSecond())) {
-			return clazz.cast(pair.getSecond());
-		}
-		return null;
+		return find(clazz, id, null);
 	}
 
 	@Override
@@ -92,7 +88,7 @@ public class VirtualDbDao extends AbstractDbDao {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R, E extends Pair<String, Object>> List<R> fetchWithNamed(String namedQuery, List<E> params) {
-		return (List<R>) parse(p -> p.parseNamed(namedQuery, params));
+		return (List<R>) parse(p -> p.parseNamed(namedQuery, params), Collections.emptyList());
 	}
 
 	@Override
@@ -104,7 +100,50 @@ public class VirtualDbDao extends AbstractDbDao {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R, E extends Pair<String, Object>> List<R> fetch(String query, List<E> params) {
-		return (List<R>) parse(p -> p.parse(query, params));
+		return (List<R>) parse(p -> p.parse(query, params), Collections.emptyList());
+	}
+
+	@Override
+	public <E extends Entity<? extends Serializable>> E find(Class<E> clazz, Object id, Object previous) {
+		Objects.requireNonNull(clazz, "Type is required");
+		if (clazz.isInstance(previous)) {
+			return clazz.cast(previous);
+		}
+		if (!(id instanceof Serializable)) {
+			return null;
+		}
+		Pair<Serializable, Entity<Serializable>> pair = getCache().getByKey((Serializable) id);
+		if (pair != null && clazz.isInstance(pair.getSecond())) {
+			return clazz.cast(pair.getSecond());
+		}
+		return null;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R, E extends Pair<String, Object>> List<R> fetchWithNamed(String namedQuery, List<E> params,
+			List<R> previous) {
+		return (List<R>) parse(p -> p.parseNamed(namedQuery, params), (List<Object>) previous);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R, E extends Pair<String, Object>> List<R> fetchWithNamed(String namedQuery, List<E> params,
+			List<R> previous, int skip, int limit) {
+		return (List<R>) parse(p -> p.parseNamed(namedQuery, params), (List<Object>) previous);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R, E extends Pair<String, Object>> List<R> fetch(String query, List<E> params, List<R> previous) {
+		return (List<R>) parse(p -> p.parse(query, params), (List<Object>) previous);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R, E extends Pair<String, Object>> List<R> fetch(String query, List<E> params, List<R> previous, int skip,
+			int limit) {
+		return (List<R>) parse(p -> p.parse(query, params), (List<Object>) previous);
 	}
 
 	@Override
@@ -112,7 +151,14 @@ public class VirtualDbDao extends AbstractDbDao {
 		return fetch(query, params);
 	}
 
-	private List<Object> parse(Function<VirtualDbQueryParser, Optional<Collection<Object>>> tryParsing) {
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R, E extends Pair<String, Object>> List<R> fetchWithNative(String query, List<E> params, List<R> previous) {
+		return (List<R>) parse(p -> p.parse(query, params), (List<Object>) previous);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Object> parse(Function<VirtualDbQueryParser, Optional<Collection<Object>>> tryParsing, List<Object> previous) {
 		Collection<Object> ids = parsers
 				.stream()
 					.map(tryParsing)
@@ -121,14 +167,23 @@ public class VirtualDbDao extends AbstractDbDao {
 					.map(Optional::get)
 					.orElse(Collections.emptyList());
 
+		Map<Object, Object> toFilterIndex = buildEntityIndex(previous);
 		// for some reason this code written as stream does not compile via mvn build and only works build via the IDE
 		List<Object> result = new ArrayList<>(ids.size());
 		for (Object id : ids) {
-			addNonNullValue(result, find(Entity.class, id));
+			addNonNullValue(result, find(Entity.class, id, toFilterIndex.get(id)));
 		}
 		return result;
 	}
 
+	private Map<Object,Object> buildEntityIndex(List<Object> toFilter) {
+		return toFilter.stream().filter(Entity.class::isInstance).map(Entity.class::cast).collect(Collectors.toMap(Entity::getId, Function.identity()));
+	}
+
+	@Override
+	public <R, E extends Pair<String, Object>> List<R> fetchWithNative(String query, List<E> params) {
+		return fetch(query, params);
+	}
 
 	@Override
 	public <E extends Pair<String, Object>> int executeUpdate(String namedQuery, List<E> params) {

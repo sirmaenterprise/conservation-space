@@ -32,12 +32,14 @@ import com.sirma.itt.seip.configuration.annotation.Configuration;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
+import com.sirma.itt.seip.monitor.Metric;
+import com.sirma.itt.seip.monitor.Metric.Builder;
+import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.tasks.SchedulerConfiguration;
 import com.sirma.itt.seip.tasks.SchedulerContext;
 import com.sirma.itt.seip.tasks.SchedulerEntryType;
 import com.sirma.itt.seip.tasks.SchedulerService;
 import com.sirma.itt.seip.tasks.TransactionMode;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.tx.TransactionSupport;
 
 /**
@@ -48,9 +50,11 @@ import com.sirma.itt.seip.tx.TransactionSupport;
  */
 @ApplicationScoped
 class ScriptEvaluatorImpl implements ScriptEvaluator {
-
-	/** The Constant LOGGER. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScriptEvaluator.class);
+	private static final Metric SCRIPT_EVAL_DURATION_SECONDS = Builder
+			.timer("script_eval_duration_seconds", "Script evaluation duration in seconds").build();
+	private static final Metric SCRIPT_FN_EVAL_DURATION_SECONDS = Builder
+			.timer("script_fn_eval_duration_seconds", "Script function evaluation duration in seconds").build();
 	/**
 	 * Script engine to be used for executing custom server side scripts. <b>Default value: javascript</b>
 	 */
@@ -73,6 +77,9 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 
 	@Inject
 	private TransactionSupport transactionSupport;
+
+	@Inject
+	private Statistics stats;
 
 	private ScriptEngine functionalEngine;
 
@@ -98,15 +105,17 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 		if (script == null) {
 			throw new com.sirma.itt.seip.script.ScriptException("Cannot execute null script");
 		}
-		TimeTracker tracker = TimeTracker.createAndStart();
-		Object scriptResult = null;
-		if (isCompilationEnabled()) {
-			scriptResult = evalCompilableScript(script, bindings, tracker);
-		} else {
-			scriptResult = evalNonCompilableScript(script, bindings, tracker);
+
+		try {
+			stats.track(SCRIPT_EVAL_DURATION_SECONDS);
+			if (isCompilationEnabled()) {
+				return evalCompilableScript(script, bindings);
+			}
+
+			return evalNonCompilableScript(script, bindings);
+		} finally {
+			stats.end(SCRIPT_EVAL_DURATION_SECONDS);
 		}
-		LOGGER.trace("Script execution took {} ms", tracker.stop());
-		return scriptResult;
 	}
 
 	@Override
@@ -144,6 +153,7 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 		// reference to the current class
 		return (Map<String, Object> args) -> {
 			try {
+				stats.track(SCRIPT_FN_EVAL_DURATION_SECONDS);
 				Object result = compiledScript.eval(createBindings(engine, args));
 				if (result instanceof Boolean) {
 					return (Boolean) result;
@@ -152,6 +162,8 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 						"The script was expected to return boolean value but got " + result);
 			} catch (ScriptException e) {
 				throw new com.sirma.itt.seip.script.ScriptException("Failed script execution", e);
+			} finally {
+				stats.end(SCRIPT_FN_EVAL_DURATION_SECONDS);
 			}
 		};
 	}
@@ -165,9 +177,12 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 		CompiledScript compiledScript = compile(script, engine);
 		return (Map<String, Object> args) -> {
 			try {
+				stats.track(SCRIPT_FN_EVAL_DURATION_SECONDS);
 				return (R) compiledScript.eval(createBindings(engine, args));
 			} catch (ScriptException e) {
 				throw new com.sirma.itt.seip.script.ScriptException("Failed script execution", e);
+			} finally {
+				stats.end(SCRIPT_FN_EVAL_DURATION_SECONDS);
 			}
 		};
 	}
@@ -361,20 +376,16 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 	 *            the script
 	 * @param bindings
 	 *            the bindings
-	 * @param tracker
-	 *            the tracker
 	 * @return the object
 	 */
-	private static Object evalNonCompilableScript(String script, Map<String, Object> bindings, TimeTracker tracker) {
+	private static Object evalNonCompilableScript(String script, Map<String, Object> bindings) {
 		Object scriptResult;
 		ScriptEngine engine = getScriptEngine();
 		try {
-			tracker.begin();
 			setBindingToEngine(engine, bindings);
 			// we does not pass the binding to the eval method because the other method breaks the
 			// dynamic script importing
 			scriptResult = engine.eval(script);
-			LOGGER.trace("Script execution of a not compiled script took {} ms", tracker.stop());
 		} catch (ScriptException e) {
 			throw new com.sirma.itt.seip.script.ScriptException("Failed executing script", e);
 		} finally {
@@ -390,23 +401,19 @@ class ScriptEvaluatorImpl implements ScriptEvaluator {
 	 *            the script
 	 * @param bindings
 	 *            the bindings
-	 * @param tracker
-	 *            the tracker
 	 * @return the object
 	 */
-	private static Object evalCompilableScript(String script, Map<String, Object> bindings, TimeTracker tracker) {
+	private static Object evalCompilableScript(String script, Map<String, Object> bindings) {
 		// this should be called before setBindingToEngine() !
 		CompiledScript compiledScript = getOrCreateCompiledScript(script);
 
 		Object scriptResult = null;
 		ScriptEngine engine = getScriptEngine();
 		try {
-			tracker.begin();
 			setBindingToEngine(engine, bindings);
 			// we does not pass the binding to the eval method because the other method breaks the
 			// dynamic script importing
 			scriptResult = compiledScript.eval();
-			LOGGER.trace("Script execution of a compiled script took {} ms", tracker.stop());
 		} catch (ClassCastException e) {
 			LOGGER.warn("Failed to execute script due to incompatible script arguments", e);
 			LOGGER.debug("Failing script is \n{}", script);

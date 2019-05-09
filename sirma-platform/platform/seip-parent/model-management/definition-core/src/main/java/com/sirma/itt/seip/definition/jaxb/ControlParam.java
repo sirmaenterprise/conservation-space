@@ -15,6 +15,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
+import org.eclipse.persistence.oxm.annotations.XmlCDATA;
+
 /**
  * <p>
  * Java class for controlParam complex type.
@@ -39,6 +41,7 @@ public class ControlParam {
 
 	/** The value. */
 	@XmlValue
+	@XmlCDATA
 	protected String value;
 	@XmlAttribute(name = "id", required = true)
 	protected String id;
@@ -102,6 +105,10 @@ public class ControlParam {
 	 */
 	public String getType() {
 		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	/**

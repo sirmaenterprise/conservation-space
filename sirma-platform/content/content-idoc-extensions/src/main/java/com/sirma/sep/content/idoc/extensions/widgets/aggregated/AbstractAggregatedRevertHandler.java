@@ -2,7 +2,6 @@ package com.sirma.sep.content.idoc.extensions.widgets.aggregated;
 
 import com.sirma.sep.content.idoc.Widget;
 import com.sirma.sep.content.idoc.extensions.widgets.AbstractWidgetRevertHandler;
-import com.sirma.sep.content.idoc.extensions.widgets.aggregated.table.AggregatedTableVersionHandler;
 
 /**
  * /**
@@ -18,8 +17,7 @@ public abstract class AbstractAggregatedRevertHandler<W extends Widget> extends 
 
 	@Override
 	public HandlerResult handle(W node, HandlerContext context) {
-		node.getConfiguration().getConfiguration().remove(AggregatedTableVersionHandler.VERSION_DATA_CONFIG_KEY);
+		node.getConfiguration().getConfiguration().remove(AbstractAggregatedVersionHandler.VERSION_DATA_CONFIG_KEY);
 		return new HandlerResult(node);
 	}
-
 }

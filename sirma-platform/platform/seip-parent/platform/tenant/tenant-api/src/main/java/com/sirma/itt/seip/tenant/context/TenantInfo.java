@@ -15,17 +15,31 @@ import com.sirma.itt.seip.json.JsonUtil;
  */
 public class TenantInfo implements JsonRepresentable {
 
-	/** The tenant id. */
 	private final String tenantId;
+
+	private String tenantDisplayName;
+
+	private String tenantDescription;
 
 	/**
 	 * Instantiates a new tenant info.
 	 *
-	 * @param tenantId
-	 *            the tenant id
+	 * @param tenantId the tenant id
 	 */
 	public TenantInfo(String tenantId) {
 		this.tenantId = tenantId;
+	}
+
+	/**
+	 * Instantiates a new tenant info with given tenant id and description.
+	 *
+	 * @param tenantDescription the tenant description
+	 * @param tenantId          the tenant id
+	 */
+	public TenantInfo(String tenantId,String tenantDisplayName, String tenantDescription) {
+		this.tenantId = tenantId;
+		this.tenantDisplayName = tenantDisplayName;
+		this.tenantDescription = tenantDescription;
 	}
 
 	/**
@@ -37,23 +51,19 @@ public class TenantInfo implements JsonRepresentable {
 		return tenantId;
 	}
 
-	/**
-	 * To string.
-	 *
-	 * @return the string
-	 */
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("TenantInfo [tenantId=").append(tenantId).append("]");
-		return builder.toString();
+	public String getTenantDisplayName() {
+		return tenantDisplayName;
 	}
 
-	/**
-	 * Hash code.
-	 *
-	 * @return the int
-	 */
+	public String getTenantDescription() {
+		return tenantDescription;
+	}
+
+	@Override
+	public String toString() {
+		return "TenantInfo [tenantId=" + tenantId + ", tenantDescription=" + tenantDescription + "]";
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -65,8 +75,7 @@ public class TenantInfo implements JsonRepresentable {
 	/**
 	 * Equals.
 	 *
-	 * @param obj
-	 *            the obj
+	 * @param obj the obj
 	 * @return true, if successful
 	 */
 	@Override
@@ -92,6 +101,7 @@ public class TenantInfo implements JsonRepresentable {
 	public JSONObject toJSONObject() {
 		JSONObject object = new JSONObject();
 		JsonUtil.addToJson(object, "tenantId", tenantId);
+		JsonUtil.addToJson(object, "tenantDescription", tenantDescription);
 		return object;
 	}
 

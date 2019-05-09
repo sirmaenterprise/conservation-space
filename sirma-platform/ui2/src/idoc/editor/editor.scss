@@ -1,4 +1,5 @@
 @import "../../style/variables";
+@import "../../style/mixins";
 
 /* CKE doesn't put hover styles on the widget wrapper but onto its first child and this causes issues
    which is improper for inline widgets especially for input fields */
@@ -96,62 +97,7 @@ body.dragging, body.dragging * {
     }
   }
 
-  ul {
-    padding-left: 20px;
-
-    li {
-      list-style-position: inside;
-    }
-  }
-
-  /* Numbered list styles */
-  ol {
-    padding-left: 20px;
-    counter-reset: item;
-
-    li {
-      display: block;
-
-      &:before {
-        content: counters(item, '.') '. ';
-        counter-increment: item
-      }
-
-      > :first-child:not(li):not(ol):not(div) {
-        display: inline;
-      }
-    }
-
-    &.decimal {
-      > li:before {
-        content: counters(item, '.', decimal) '. ';
-      }
-    }
-
-    &.lower-roman {
-      > li:before {
-        content: counters(item, '.', lower-roman) '. ';
-      }
-    }
-
-    &.upper-roman {
-      > li:before {
-        content: counters(item, '.', upper-roman) '. ';
-      }
-    }
-
-    &.lower-alpha {
-      > li:before {
-        content: counters(item, '.', lower-alpha) '. ';
-      }
-    }
-
-    &.upper-alpha {
-      > li:before {
-        content: counters(item, '.', upper-alpha) '. ';
-      }
-    }
-  }
+  @include editor-lists-position();
 
   img {
     max-width: 100%;
@@ -160,6 +106,9 @@ body.dragging, body.dragging * {
 
   table {
     max-width: 100%;
+    td, th {
+      padding: 1px 3px;
+    }
   }
 
   .sep-table {

@@ -265,7 +265,7 @@ export class SearchCriteriaService {
     this.instances[SearchCriteriaUtils.ANY_OBJECT] = {
       id: SearchCriteriaUtils.ANY_OBJECT,
       label: this.translateService.translateInstant(ANY_OBJECT_LABEL)
-    }
+    };
   }
 
   cacheModels(response) {

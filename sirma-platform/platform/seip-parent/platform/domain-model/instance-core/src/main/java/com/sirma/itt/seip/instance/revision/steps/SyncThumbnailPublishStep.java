@@ -1,10 +1,8 @@
 package com.sirma.itt.seip.instance.revision.steps;
 
-import static com.sirma.itt.seip.collections.CollectionUtils.isEmpty;
-
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
-import java.util.List;
 import java.util.TimeZone;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,11 +12,9 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sirma.itt.seip.domain.instance.InstanceReference;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.instance.relation.LinkConstants;
-import com.sirma.itt.seip.instance.relation.LinkReference;
-import com.sirma.itt.seip.instance.relation.LinkService;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.tasks.SchedulerActionAdapter;
 import com.sirma.itt.seip.tasks.SchedulerConfiguration;
@@ -31,7 +27,9 @@ import com.sirma.sep.content.rendition.RenditionService;
 import com.sirma.sep.content.rendition.ThumbnailService;
 
 /**
- * Publish step that makes sure the thumbnail of the original instance is transferred to the revision
+ * Publish step that makes sure the thumbnail of the original instance is transferred to the revision. The steps takes
+ * the currently active thumbnail for the source instance and adds it as assigned thumbnail. This way if the revision
+ * has it's own template it will not override this from the source instance.
  *
  * @author BBonev
  */
@@ -48,7 +46,7 @@ public class SyncThumbnailPublishStep extends SchedulerActionAdapter implements 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Inject
-	private LinkService linkService;
+	private InstancePropertyNameResolver nameResolver;
 
 	@Inject
 	private ThumbnailService thumbnailService;
@@ -59,28 +57,21 @@ public class SyncThumbnailPublishStep extends SchedulerActionAdapter implements 
 	@Inject
 	private SchedulerService schedulerService;
 
-	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
-
 	@Override
 	public void execute(PublishContext publishContext) {
-		InstanceReference source = publishContext.getRequest().getInstanceToPublish().toReference();
-		List<LinkReference> links = linkService.getLinks(source, LinkConstants.HAS_THUMBNAIL);
-		if (isEmpty(links)) {
-			// the source instance does not have a custom thumbnail assigned
-			return;
-		}
-		InstanceReference revision = publishContext.getRevision().toReference();
-		InstanceReference thumbnailSource = links.get(0).getTo();
+		Instance source = publishContext.getRequest().getInstanceToPublish();
+		// for thumbnail source use the current assigned instance template or the current instance
+		Serializable thumbnailSource = source.get(LinkConstants.HAS_THUMBNAIL, source.getId(), nameResolver);
+		Serializable revisionId = publishContext.getRevision().getId();
 
-		String thumbnail = renditionService.getThumbnail(thumbnailSource.getId());
+		String thumbnail = renditionService.getThumbnail(thumbnailSource);
 		if (isValidThumbnail(thumbnail)) {
-			thumbnailService.addThumbnail(revision, thumbnail);
-			LOGGER.debug("Assigned thumbnail {} to revision {}", thumbnailSource.getId(), revision.getId());
+			thumbnailService.addAssignedThumbnail(revisionId, thumbnail);
+			LOGGER.debug("Assigned thumbnail {} to revisionId {}", thumbnailSource, revisionId);
 		} else {
 			LOGGER.debug("The thumbnail of {} is not fetched, yet. Will try to fetch it later for {}",
-					thumbnailSource.getId(), revision.getId());
-			scheduleAsyncThumbnailCheck(thumbnailSource.getId(), revision.getId());
+					thumbnailSource, revisionId);
+			scheduleAsyncThumbnailCheck(thumbnailSource.toString(), revisionId.toString());
 		}
 	}
 
@@ -103,7 +94,7 @@ public class SyncThumbnailPublishStep extends SchedulerActionAdapter implements 
 					.setMaxRetryCount(50)
 					.setRetryDelay(60L)
 					.setScheduleTime(calendar.getTime());
-		// of revision building fails and the user retries we will use the same entry if it's still there
+		// if revision building fails and the user retries we will use the same entry if it's still there
 		configuration.setIdentifier(thumbnailTarget);
 
 		schedulerService.schedule(NAME, configuration, context);
@@ -116,10 +107,8 @@ public class SyncThumbnailPublishStep extends SchedulerActionAdapter implements 
 		if (!isValidThumbnail(thumbnail)) {
 			throw new SchedulerRetryException("Thumbnail not available, yet");
 		}
-		String revisionid = context.getIfSameType(THUMBNAIL_TARGET, String.class);
-		InstanceReference revision = instanceTypeResolver.resolveReference(revisionid).orElseThrow(
-				() -> new SchedulerRetryException("Revision " + revisionid + " does not exist, yet"));
-		thumbnailService.addThumbnail(revision, thumbnail);
+		String revisionId = context.getIfSameType(THUMBNAIL_TARGET, String.class);
+		thumbnailService.addAssignedThumbnail(revisionId, thumbnail);
 		LOGGER.debug("Delayed fetch thumbnail {} for {}", sourceId, thumbnail);
 	}
 

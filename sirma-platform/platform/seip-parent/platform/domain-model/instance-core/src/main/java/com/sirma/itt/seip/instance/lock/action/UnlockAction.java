@@ -1,12 +1,8 @@
 package com.sirma.itt.seip.instance.lock.action;
 
-import java.io.Serializable;
-
 import javax.inject.Inject;
 
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.actions.Action;
-import com.sirma.itt.seip.instance.lock.LockInfo;
 import com.sirma.itt.seip.instance.lock.LockService;
 import com.sirma.itt.seip.plugin.Extension;
 
@@ -22,9 +18,6 @@ public class UnlockAction implements Action<UnlockRequest> {
 	@Inject
 	private LockService lockService;
 
-	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
-
 	@Override
 	public String getName() {
 		return UnlockRequest.UNLOCK;
@@ -32,11 +25,7 @@ public class UnlockAction implements Action<UnlockRequest> {
 
 	@Override
 	public Object perform(UnlockRequest request) {
-		Serializable targetId = request.getTargetId();
-		return instanceTypeResolver
-				.resolveReference(targetId)
-					.map(lockService::unlock)
-					.orElse(new LockInfo());
+		return lockService.unlock(request.getTargetReference());
 	}
 
 	@Override

@@ -1,0 +1,66 @@
+<div class="panel-body model-form container-fluid model-related-fields-control">
+
+  <div class="form-group row param-rerender">
+    <label class="col-sm-2 control-label" label-hint hint-visible="true"
+           hint-text="::'administration.models.management.field.controls.related_fields.rerender.tooltip' | translate">
+      <span class="control-description">
+        {{ ::'administration.models.management.field.controls.related_fields.rerender.label' | translate }}
+      </span>
+    </label>
+    <div class="col-sm-10 rerender">
+      <model-select-attribute ng-if="::modelRelatedFieldsControl.rerenderConfig"
+                              config="::modelRelatedFieldsControl.rerenderConfig"
+                              context="modelRelatedFieldsControl.context"
+                              editable="modelRelatedFieldsControl.editable"
+                              attribute="modelRelatedFieldsControl.getRerenderValueAttribute()"
+                              on-change="modelRelatedFieldsControl.onRerenderChange()"></model-select-attribute>
+    </div>
+  </div>
+
+  <div class="form-group row param-custom-filter" ng-if="modelRelatedFieldsControl.isCustomFilter()">
+    <label class="col-sm-2 control-label" label-hint hint-visible="true"
+           hint-text="::'administration.models.management.field.controls.related_fields.custom.tooltip' | translate">
+      <span class="control-description">
+        {{ ::'administration.models.management.field.controls.related_fields.custom.label' | translate }}
+      </span>
+    </label>
+    <div class="col-sm-10 custom-filter">
+      <seip-select config="::modelRelatedFieldsControl.customFilterConfig"
+                   ng-model="modelRelatedFieldsControl.customFilter"></seip-select>
+    </div>
+  </div>
+
+  <div class="form-group row param-filter-source">
+    <label class="col-sm-2 control-label" label-hint hint-visible="true"
+           hint-text="::'administration.models.management.field.controls.related_fields.filter.source.tooltip' | translate">
+      <span class="control-description">
+        {{ ::'administration.models.management.field.controls.related_fields.filter.source.label' | translate }}
+      </span>
+    </label>
+    <div class="col-sm-10 filter-source">
+      <model-select-attribute ng-if="modelRelatedFieldsControl.filterSourceConfig"
+                              config="modelRelatedFieldsControl.filterSourceConfig"
+                              context="modelRelatedFieldsControl.context"
+                              editable="modelRelatedFieldsControl.editable"
+                              attribute="modelRelatedFieldsControl.getFilterSourceValueAttribute()"
+                              on-change="modelRelatedFieldsControl.onFilterSourceChange()"></model-select-attribute>
+    </div>
+  </div>
+
+  <div class="form-group row param-inclusive">
+    <label class="col-sm-2 control-label" label-hint hint-visible="true"
+           hint-text="::'administration.models.management.field.controls.related_fields.inclusive.tooltip' | translate">
+      <span class="control-description">
+        {{::'administration.models.management.field.controls.related_fields.inclusive.label' | translate }}
+      </span>
+    </label>
+    <div class="col-sm-10 inclusive">
+      <model-boolean-attribute context="modelRelatedFieldsControl.context"
+                               editable="modelRelatedFieldsControl.editable"
+                               attribute="modelRelatedFieldsControl.getInclusiveValueAttribute()"
+                               on-change="modelRelatedFieldsControl.onInclusiveChange()"></model-boolean-attribute>
+    </div>
+  </div>
+
+
+</div>

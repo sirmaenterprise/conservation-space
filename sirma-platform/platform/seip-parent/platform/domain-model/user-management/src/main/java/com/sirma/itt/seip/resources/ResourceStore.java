@@ -126,7 +126,7 @@ class ResourceStore {
 	protected void initialize() {
 		if (!cacheContext.containsCache(RESOURCE_ENTITY_CACHE)) {
 			EntityLookupCache<String, ResourceEntity, Pair<String, ResourceType>> cache = cacheContext
-					.createCache(RESOURCE_ENTITY_CACHE, new ResourceLookupDao());
+					.createCache(RESOURCE_ENTITY_CACHE, new ResourceLookupDao().enableSecondaryKeyManagement());
 			initializeCache(cache);
 		}
 	}

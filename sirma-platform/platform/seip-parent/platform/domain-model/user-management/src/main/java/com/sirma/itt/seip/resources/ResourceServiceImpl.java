@@ -4,7 +4,6 @@ import static com.sirma.itt.seip.collections.CollectionUtils.emptyList;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.SEMANTIC_TYPE;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.TITLE;
 import static com.sirma.itt.seip.resources.ResourceProperties.GROUP_PREFIX;
-import static com.sirma.itt.seip.resources.ResourceProperties.USER_ID;
 import static com.sirma.itt.seip.util.EqualsHelper.nullSafeEquals;
 
 import java.io.Serializable;
@@ -13,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -544,31 +544,51 @@ public class ResourceServiceImpl implements ResourceService {
 			// no need to check anymore
 			return null;
 		}
-		Resource instance = null;
+		return resolveResource(args);
+	}
+
+	private Resource resolveResource(Object args) {
 		if (args instanceof String && StringUtils.isNotBlank((String) args)) {
-			instance = getResourceFromString(args.toString());
-		} else if (args instanceof Resource) {
-			// no check for resource because it will fall in here also
-			instance = getResourceFromResource((Resource) args);
-		} else if (args instanceof Instance) {
-			instance = parseAsResource(((Instance) args).getId());
-		} else {
-			// otherwise we will try to convert it to resource, probably in some externally
-			// supported format
-			try {
-				Resource convert = typeConverter.convert(Resource.class, args);
-				if (convert != null) {
-					instance = convert;
-				} else {
-					// it's not very likely to happen but just in case. The exception is more
-					// probable
-					LOGGER.warn("Tryied to conver the given object {} to {} but resulted null", args, Resource.class);
-				}
-			} catch (TypeConversionException e) {
-				LOGGER.warn("Cannot convert the resource " + args + " to " + Resource.class, e);
-			}
+			return getResourceFromString(args.toString());
 		}
-		return instance;
+
+		if (args instanceof Resource) {
+			// no check for resource because it will fall in here also
+			return getResourceFromResource((Resource) args);
+		}
+
+		if (args instanceof Instance) {
+			return parseAsResource(((Instance) args).getId());
+		}
+
+		if (args instanceof Collection) {
+			return getFromCollection(args);
+		}
+
+		// otherwise we will try to convert it to resource,
+		// probably in some externally supported format
+		return tryTypeConvertion(args);
+	}
+
+	private Resource getFromCollection(Object args) {
+		LOGGER.warn("The passed resource is of type collection. Only the first element will be processed!"
+				+ " Resource value - {}", args);
+		Iterator<?> iterator = Collection.class.cast(args).iterator();
+		return iterator.hasNext() ? resolveResource(iterator.next()) : null;
+	}
+
+	private Resource tryTypeConvertion(Object args) {
+		try {
+			Resource convert = typeConverter.convert(Resource.class, args);
+			if (convert != null) {
+				return convert;
+			}
+			// it's not very likely to happen but just in case. The exception is more probable
+			LOGGER.warn("Tryied to conver the given object {} to {} but resulted null", args, Resource.class);
+		} catch (TypeConversionException e) {
+			LOGGER.warn("Cannot convert the resource " + args + " to " + Resource.class, e);
+		}
+		return null;
 	}
 
 	private Resource getResourceFromResource(Resource instance) {

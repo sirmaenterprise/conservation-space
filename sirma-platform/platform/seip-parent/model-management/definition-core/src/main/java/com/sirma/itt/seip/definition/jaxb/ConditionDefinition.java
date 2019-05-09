@@ -91,9 +91,6 @@ public class ConditionDefinition {
 	 * @return possible object is {@link RenderAsType }
 	 */
 	public RenderAsType getRenderAs() {
-		if (renderAs == null) {
-			return RenderAsType.HIDDEN;
-		}
 		return renderAs;
 	}
 

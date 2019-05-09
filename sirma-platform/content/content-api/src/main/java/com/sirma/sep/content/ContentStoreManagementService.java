@@ -41,12 +41,23 @@ public interface ContentStoreManagementService {
 	StoreInfo moveAllContent(String sourceStore, String targetStore);
 
 	/**
+	 * Schedule asynchronous content move of a single content to the given target store. This is mainly used for
+	 * migrating content from one store to another on some special occasion like instance type change.<br>
+	 * The content will be moved asynchronously at the end of the current transaction.
+	 *
+	 * @param content the content id to move
+	 * @param targetStore the target store to move the content to
+	 */
+	void scheduleSingleContentMove(String content, String targetStore);
+
+	/**
 	 * Move the content identified by the given content identifier to the content store identified by the given store
 	 * name.
 	 *
 	 * @param content the content identifier of the content to move
 	 * @param targetStore the target store to move the content to
 	 * @throws IllegalArgumentException if the given target store is not valid
+	 * @throws ContentCorruptedException if the expected content size does not match the transferred size
 	 */
 	void moveContent(String content, String targetStore);
 

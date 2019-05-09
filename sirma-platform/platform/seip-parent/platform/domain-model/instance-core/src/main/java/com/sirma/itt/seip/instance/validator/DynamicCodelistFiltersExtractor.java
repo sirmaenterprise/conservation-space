@@ -69,8 +69,7 @@ public class DynamicCodelistFiltersExtractor {
 	 * {@link DynamicCodeListFilter} objects.
 	 * @see DynamicCodeListFilter
 	 */
-	static Map<String, DynamicCodeListFilter> getDynamicClFilters(DefinitionModel model,
-			Instance instance) {
+	public static Map<String, DynamicCodeListFilter> getDynamicClFilters(DefinitionModel model, Instance instance) {
 		return model.fieldsStream()
 				.filter(PropertyDefinition.hasCodelist().and(hasControlDefinitionWithRelatedFields()))
 				.map(propertyDefinition -> getFiltersForSinglePropertyDefinition(propertyDefinition, instance))
@@ -103,7 +102,6 @@ public class DynamicCodelistFiltersExtractor {
 				.stream()
 				.map(controlParamsByTheirType::get)
 				.map(list -> getDynamicFilter(propertyDefinition, list, instance))
-				.filter(DynamicCodeListFilter::isFilterValid)
 				.collect(Collectors.toMap(DynamicCodeListFilter::getReRenderFieldName, Function.identity()));
 	}
 
@@ -138,10 +136,11 @@ public class DynamicCodelistFiltersExtractor {
 		DynamicCodeListFilter clFilter = new DynamicCodeListFilter();
 		for (ControlParam parameter : controlParameters) {
 			if (RE_RENDER_PARAM_NAME.equalsIgnoreCase(parameter.getName())) {
-				clFilter.setReRenderFieldName(parameter.getValue());
+				clFilter.setReRenderFieldName(property.getName());
+				clFilter.setSourceFilterFieldName(parameter.getValue());
+				clFilter.setValues(getFieldValues(instance, parameter.getValue()));
 			} else if (FILTER_SOURCE_PARAM_NAME.equalsIgnoreCase(parameter.getName())) {
 				clFilter.setFilterSource(parameter.getValue());
-				clFilter.setValues(getFieldValues(instance, property.getName()));
 			} else if (INCLUSIVE.equalsIgnoreCase(parameter.getName())) {
 				clFilter.setInclusive(Boolean.parseBoolean(parameter.getValue().toLowerCase()));
 			}

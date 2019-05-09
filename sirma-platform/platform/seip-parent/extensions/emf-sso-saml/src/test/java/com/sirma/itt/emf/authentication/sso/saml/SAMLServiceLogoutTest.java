@@ -15,7 +15,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.enterprise.event.Event;
 import javax.servlet.ServletException;
@@ -41,7 +40,6 @@ import com.sirma.itt.emf.security.event.UserLogoutEvent;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.SystemConfiguration;
 import com.sirma.itt.seip.resources.EmfUser;
-import com.sirma.itt.seip.rest.secirity.SecurityTokensHolder;
 import com.sirma.itt.seip.rest.session.SessionManager;
 import com.sirma.itt.seip.rest.utils.JwtUtil;
 import com.sirma.itt.seip.security.UserStore;
@@ -81,9 +79,6 @@ public class SAMLServiceLogoutTest {
 
 	@Mock
 	private JwtUtil jwtUtil;
-
-	@Mock
-	private SecurityTokensHolder tokens;
 
 	@Mock
 	private SystemConfiguration systemConfiguration;
@@ -142,7 +137,6 @@ public class SAMLServiceLogoutTest {
 	public void testDoGet_verifyUi2RedirectAfterLogout() throws ServletException, IOException {
 		when(request.getParameter("jwt")).thenReturn("token");
 		when(jwtUtil.readUser(securityContextManager, userStore, "token")).thenReturn(new EmfUser());
-		when(tokens.getSamlToken("token")).thenReturn(Optional.of("saml"));
 
 		when(request.getParameter("RelayState")).thenReturn("");
 		logoutService.doGet(request, response);
@@ -154,7 +148,6 @@ public class SAMLServiceLogoutTest {
 	public void testDoGet_verifyRelayStateRedirectAfterLogout() throws ServletException, IOException {
 		when(request.getParameter("jwt")).thenReturn("token");
 		when(jwtUtil.readUser(securityContextManager, userStore, "token")).thenReturn(new EmfUser());
-		when(tokens.getSamlToken("token")).thenReturn(Optional.of("saml"));
 
 		when(request.getParameter("RelayState")).thenReturn("123");
 		logoutService.doGet(request, response);
@@ -164,11 +157,9 @@ public class SAMLServiceLogoutTest {
 
 	@Test
 	public void testDoGet_shouldSetSessionIndexAttributeInRequest() throws ServletException, IOException {
-
 		when(request.getParameter("jwt")).thenReturn("token");
 		when(jwtUtil.readUser(securityContextManager, userStore, "token")).thenReturn(new EmfUser());
 		when(jwtUtil.extractSessionIndex("token")).thenReturn("index");
-		when(tokens.getSamlToken("token")).thenReturn(Optional.of("saml"));
 
 		logoutService.doGet(request, response);
 
@@ -177,11 +168,9 @@ public class SAMLServiceLogoutTest {
 
 	@Test
 	public void testDoGet_ShouldRemoveJwtSession() throws ServletException, IOException {
-
 		when(request.getParameter("jwt")).thenReturn("token");
 		when(jwtUtil.readUser(securityContextManager, userStore, "token")).thenReturn(new EmfUser());
 		when(jwtUtil.extractSessionIndex("token")).thenReturn("index");
-		when(tokens.getSamlToken("token")).thenReturn(Optional.of("saml"));
 
 		logoutService.doGet(request, response);
 

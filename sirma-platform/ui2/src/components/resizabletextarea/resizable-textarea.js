@@ -42,7 +42,7 @@ export class ResizableTextarea {
           });
         },
         resize: () => {
-          this.$element.css('min-width', "100%");
+          this.$element.css('min-width', '100%');
           this.$element.css({'height': (parentElement.height() - 2) + 'px'});
         }
       });

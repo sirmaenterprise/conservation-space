@@ -1,39 +1,53 @@
 /*!
-* DOM elements observer jQuery plugin.
-* It's used to observe event listeners attached to DOM elements and all elements' children.
-* Useful to track for event listeners in detached DOM trees.
-*
-* COMMON USAGE:
-* 1. Go to start state web page.
-* 2. Invoke GC and take Heap Snapshot in chrome incognito window.
-* 3. Do some work.
-* 4. Return to start state. (Step 1)
-* 5. Invoke GC and take second Heap Snapshot.
-* 6. Repeat steps 3,4 and 5.
-* 7. Do make comparsion between snapshot 2 and 3.
-* 8. Examine detached Dom trees and decide which element will you observe.
-* 9. In the console type your dom elements observer command
-*
-* EXAMPLES:
-* Attaches to all div elements and observes dom changes (child elements included)
-* $('div').startObservation();
-*
-* Attaches to all div elements and observes dom changes (child elements excluded)
-* $('span').startObservation(false);
-*
-* Attaches to all body elements and observes dom changes with attributes changes (child elements excluded)
-* $('body').startObservation(false, {attributes: true, childList: true, characterData: true, attributeOldValue: true, characterDataOldValue: true});
-*
-* DESTROY:
-* Refresh the browser's tab or close it.
-*
-* WARNINGS:
-* DOM elements observer creates memory leaks! Do not take Heap Snapshots when started.
-* Do next element observation but destroy the started one first!
-*/
+ * DOM elements observer jQuery plugin. Runs under Chrome browser only.
+ * It's used to observe event listeners attached to DOM elements and all elements' children.
+ * Useful to track for event listeners in detached DOM trees.
+ *
+ * COMMON USAGE:
+ * 1. Go to start state web page.
+ * 2. Invoke GC and take Heap Snapshot in chrome incognito window.
+ * 3. Do some work.
+ * 4. Return to start state. (Step 1)
+ * 5. Invoke GC and take second Heap Snapshot.
+ * 6. Repeat steps 3,4 and 5.
+ * 7. Do make comparsion between snapshot 2 and 3.
+ * 8. Examine detached Dom trees and decide which element will you observe.
+ * 9. In the console type your dom elements observer command
+ *
+ * EXAMPLES:
+ * Attaches to all div elements and observes dom changes (child elements included)
+ * $('div').startObservation();
+ *
+ * Attaches to all div elements and observes dom changes (child elements excluded)
+ * $('span').startObservation(false);
+ *
+ * Attaches to all body elements and observes dom changes with attributes changes (child elements excluded)
+ * $('body').startObservation(false, {attributes: true, childList: true, characterData: true, attributeOldValue: true, characterDataOldValue: true});
+ *
+ * DESTROY:
+ * Refresh the browser's tab or close it.
+ *
+ * WARNINGS:
+ * DOM elements observer creates memory leaks! Do not take Heap Snapshots when started.
+ * Do next element observation but destroy the started one first!
+ */
 
 (function ($, window) {
   'use strict';
+
+  // IE11 returns undefined for window.chrome
+  // Opera 18+ outputs true for window.chrome, so we need to check if window.opr
+  // Edge outputs to true for window.chrome
+  let isChromium = window.chrome;
+  let winNav = window.navigator;
+  let vendorName = winNav.vendor;
+  let isOpera = typeof window.opr !== "undefined";
+  let isEdge = winNav.userAgent.indexOf("Edge") > -1;
+
+  if (isChromium === null || typeof isChromium === "undefined" || vendorName !== "Google Inc." || isOpera === true || isEdge === true) {
+    return 'Run DomElementsObserver under Chrome browser only!';
+  }
+
   let elementSelector;
   let observeChildren;
 
@@ -67,7 +81,7 @@
         });
       });
 
-      if (mutationObserverOptions){
+      if (mutationObserverOptions) {
         observer.observe(element, mutationObserverOptions);
       } else {
         observer.observe(element, {
@@ -84,7 +98,7 @@
   // Logs object attached events and mutations.
   function observeElement(element, mutation) {
     if ($._data($(element)[0], 'events')) {
-      console.groupCollapsed('Events in ',element.tagName , $._data($(element)[0], 'events'));
+      console.groupCollapsed('Events in ', element.tagName, $._data($(element)[0], 'events'));
       console.log('Element:');
       console.log(element);
       console.log('Mutation data:');

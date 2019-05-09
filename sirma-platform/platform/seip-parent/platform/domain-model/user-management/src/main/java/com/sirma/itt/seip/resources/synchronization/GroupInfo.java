@@ -3,8 +3,8 @@ package com.sirma.itt.seip.resources.synchronization;
 import static com.sirma.itt.seip.collections.CollectionUtils.addNonNullValue;
 import static com.sirma.itt.seip.util.EqualsHelper.nullSafeEquals;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Data object to carry information about a group during group member synchronization
@@ -15,10 +15,10 @@ import java.util.Set;
 public class GroupInfo {
 	private String systemGroupId;
 	private String groupName;
-	private Set<String> memberNames = new HashSet<>();
+	private Set<String> memberNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-	private Set<String> currentMembers = new HashSet<>();
-	private Set<String> newMembers = new HashSet<>();
+	private Set<String> currentMembers = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+	private Set<String> newMembers = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
 	public String getSystemGroupId() {
 		return systemGroupId;

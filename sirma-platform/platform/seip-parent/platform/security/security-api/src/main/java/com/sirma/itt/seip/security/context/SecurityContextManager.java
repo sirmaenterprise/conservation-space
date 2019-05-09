@@ -159,8 +159,21 @@ public interface SecurityContextManager {
 	 * order for the currently logged in user to perform more actions in the system but keeps the audit context.
 	 *
 	 * @param user the user permissions to use for executions
+	 * @throws SecurityException if tenant change is attempted
 	 */
 	void beginContextExecution(User user);
+
+	/**
+	 * Begin context execution. The method completely changes the current security context to the specified
+	 * user in order for the currently logged in user to appear as the given user. This operation is allowed only for
+	 * the system or admin user to appear as someone else from the same tenant. Regular user cannot call this method as
+	 * it will produce {@link SecurityException}. The method cannot change tenants.
+	 *
+	 * @param user the user to authenticate
+	 * @throws ContextNotActiveException if no active context is present before calling this method.
+	 * @throws SecurityException if current user is not System or Admin and if tenant change is attempted
+	 */
+	void beginContextExecutionAs(User user);
 
 	/**
 	 * Begins contextual execution using the current context as base and overriding the request id with the one passed.
@@ -169,6 +182,7 @@ public interface SecurityContextManager {
 	 * Note that the context should be closed using {@link #endContextExecution()}
 	 *
 	 * @param requestId the user permissions to use for executions
+	 * @throws ContextNotActiveException if no active context is present before calling this method.
 	 */
 	void beginContextExecution(String requestId);
 
@@ -284,6 +298,26 @@ public interface SecurityContextManager {
 		Objects.requireNonNull(user, "User is required argument");
 
 		beginContextExecution(user);
+		try {
+			return new SecurityContextualExecutor(this, createTransferableContext());
+		} finally {
+			endContextExecution();
+		}
+	}
+
+	/**
+	 * Creates an executor that will work with the given user and with the permission of the given user. This is mainly
+	 * used to downgrade from admin user to specific user in the same tenant. The executor will not allow changing the
+	 * tenant context.
+	 *
+	 * @param user to use to change the current security context
+	 * @return a contextual executor instance that invokes the functions in the specified user context.
+	 * @see SecurityContextManager#createTemporaryContext(User)
+	 */
+	default ContextualExecutor executeAsUser(User user) {
+		Objects.requireNonNull(user, "User is required argument");
+
+		beginContextExecutionAs(user);
 		try {
 			return new SecurityContextualExecutor(this, createTransferableContext());
 		} finally {

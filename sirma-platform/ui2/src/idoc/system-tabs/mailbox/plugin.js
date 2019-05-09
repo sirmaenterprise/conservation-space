@@ -3,7 +3,7 @@ PluginRegistry.add('idoc-system-tabs', {
   'name': 'system.tab.mailbox',
   'component': 'seip-mailbox',
   'module': 'idoc/system-tabs/mailbox/mailbox',
-  'filter': function (data) {
+  filter: function(data) {
     // Allow email box tab to be included only in objects instances which support emails or in the current logged in
     // user dashboard.
     if (!data.currentUser.mailboxSupportable) {

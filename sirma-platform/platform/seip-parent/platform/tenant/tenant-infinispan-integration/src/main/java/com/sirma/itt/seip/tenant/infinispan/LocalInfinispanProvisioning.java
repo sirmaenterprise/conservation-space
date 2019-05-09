@@ -2,6 +2,7 @@ package com.sirma.itt.seip.tenant.infinispan;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 import com.sirma.itt.seip.cache.CacheConfiguration;
 import com.sirma.itt.seip.cache.CacheConfigurationProvider;
 import com.sirma.itt.seip.cache.CacheRegister;
+import com.sirma.itt.seip.security.context.ContextualExecutor;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 
@@ -37,11 +39,18 @@ public class LocalInfinispanProvisioning {
 	 *            the tenant info
 	 */
 	public void provision(TenantInfo tenantInfo) {
-		Collection<CacheConfiguration> configurations = configurationExtension.getConfigurations().values();
+		ContextualExecutor executeAsTenant = contextManager.executeAsTenant(tenantInfo.getTenantId());
 
-		contextManager
-			.executeAsTenant(tenantInfo.getTenantId())
-				.predicate(cacheRegister::registerCaches, configurations);
+		Consumer<Collection<CacheConfiguration>> registerCaches = executeAsTenant.toWrapper()
+				.consumer(cacheRegister::registerCaches);
+
+		// need to collect the configuration in the context of the tenant otherwise we will see only default config
+		List<CacheConfiguration> configurations = executeAsTenant
+				.supplier(() -> getCacheNames().stream()
+						.map(configurationExtension::getConfiguration)
+						.collect(Collectors.toList()));
+
+		registerCaches.accept(configurations);
 	}
 
 	/**

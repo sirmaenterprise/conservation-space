@@ -1,5 +1,5 @@
 import {Inject, HttpInterceptor, NgInjector} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {StatusCodes} from 'services/rest/status-codes';
 
 import _ from 'lodash';
@@ -53,7 +53,7 @@ export class HttpErrorInterceptor {
       // make sure to load the NotificationService at run time
       // due to circular dependency issue revealed from CMF-28057
       _self.$injector.get('NotificationService').error({
-        message: message
+        message
       });
     }
 

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.MalformedQueryException;
@@ -31,20 +32,19 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.sirma.itt.seip.util.ReflectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.emf.GeneralSemanticTest;
 import com.sirma.itt.emf.mocks.NamespaceRegistryMock;
 import com.sirma.itt.emf.mocks.SemanticDefinitionServiceMock;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.definition.InverseRelationProvider;
 import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.event.EventService;
-import com.sirma.itt.seip.instance.HeadersService;
 import com.sirma.itt.seip.instance.library.LibraryProvider;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
+import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.configuration.SemanticConfiguration;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
@@ -61,9 +61,6 @@ public class SemanticDefinitionServiceTest extends GeneralSemanticTest<SemanticD
 	private DefinitionService definitionService;
 
 	@Mock
-	private HeadersService headersService;
-
-	@Mock
 	private SemanticConfiguration semanticConfiguration;
 
 	@Mock
@@ -78,7 +75,6 @@ public class SemanticDefinitionServiceTest extends GeneralSemanticTest<SemanticD
 	public void init() throws RepositoryException {
 		MockitoAnnotations.initMocks(this);
 		service = new SemanticDefinitionServiceMock(context);
-		ReflectionUtils.setFieldValue(service, "headersService", headersService);
 		ReflectionUtils.setFieldValue(service, "definitionService", definitionService);
 		ReflectionUtils.setFieldValue(service, "eventService", eventService);
 		service.initializeCache();
@@ -99,10 +95,13 @@ public class SemanticDefinitionServiceTest extends GeneralSemanticTest<SemanticD
 	public void testAllMethods() {
 		List<ClassInstance> classes = service.getClasses();
 		Assert.assertFalse(classes.isEmpty());
+		List<ClassInstance> dataTypes = service.getDataTypes();
+		Assert.assertFalse(dataTypes.isEmpty());
 		List<PropertyInstance> properties = service.getProperties();
 		Assert.assertFalse(properties.isEmpty());
 		List<PropertyInstance> relations = service.getRelations();
 		Assert.assertFalse(relations.isEmpty());
+
 		for (PropertyInstance propertyInstance : relations) {
 			Assert.assertNotNull(propertyInstance.getId());
 			Assert.assertNotNull(propertyInstance.getProperties().get("title"));
@@ -116,11 +115,23 @@ public class SemanticDefinitionServiceTest extends GeneralSemanticTest<SemanticD
 	}
 
 	/**
+	 * Test if semantic cache has loaded the inverse relations of a property
+	 */
+	@Test
+	public void relationsShouldHaveLoadedInverseProperty() {
+		InverseRelationProvider inverseRelationProvider = service.getInverseRelationProvider();
+		String inverse = inverseRelationProvider.inverseOf("emf:references");
+		assertEquals(inverse, "emf:references", "Inverse relation did not match");
+		inverse = inverseRelationProvider.inverseOf("emf:blocks");
+		assertEquals(inverse, "emf:isBlockedBy", "Inverse relation did not match");
+	}
+
+	/**
 	 * Test system relations
 	 */
 	@Test
 	public void testSystemRelations() {
-		/**
+		/*
 		 * Relations listed below are defined as system in EMF ontology (see emf.ttl)
 		 */
 		String[] expectedSystemRelations = new String[] { "emf:hasChild", "emf:isThumbnailOf" };
@@ -218,7 +229,7 @@ public class SemanticDefinitionServiceTest extends GeneralSemanticTest<SemanticD
 	}
 
 	/**
-	 * Data provider for {@link #testDomainFilter(List, List, String)}
+	 * Data provider for {@link #testFilterRelations(Collection, Collection)}
 	 *
 	 * @return test data.
 	 */

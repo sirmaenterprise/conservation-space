@@ -23,8 +23,6 @@ import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.util.DependencyResolver;
 import com.sirma.itt.seip.domain.util.DependencyResolvers;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
-import com.sirma.itt.seip.instance.archive.ArchiveService;
-import com.sirma.itt.seip.instance.archive.TransactionIdHolder;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.tasks.SchedulerActionAdapter;
 import com.sirma.itt.seip.tasks.SchedulerContext;
@@ -89,7 +87,7 @@ public class DeleteInstanceSchedulerExecutor extends SchedulerActionAdapter {
 			final boolean shouldArchive = !context.getIfSameType(IS_PERMANENT, Boolean.class, Boolean.FALSE);
 
 			LOGGER.info(
-					"Started asynchronous deletion of instance with {} and id={} deletion with transaction id {} initiated by user {}",
+					"Started asynchronous deletion of instance with {} and id={} deletion with transaction id={}.",
 					instance.getClass().getName(), instance.getId(), transactionId);
 
 			performDeletion(instance, operation, shouldArchive);

@@ -73,7 +73,7 @@ public class ChangeSystemUserPermissionsPatch implements CustomTaskChange {
 			ps.setString(2, currentUserName);
 
 			int updateCount = ps.executeUpdate();
-			LOGGER.info("Updated {} with {} number of rows, from {} to {}", updateCount, currentUserName,
+			LOGGER.info("Updated {} number of rows, from {} to {}", updateCount, currentUserName,
 					properUserName);
 		} catch (SQLException e) {
 			throw new EmfRuntimeException("Error executing permissions patch for system user", e);

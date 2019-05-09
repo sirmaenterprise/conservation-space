@@ -1,6 +1,7 @@
 package com.sirma.itt.emf.semantic.persistence;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -64,6 +65,14 @@ public class StatementBuilderProviderImpl implements StatementBuilderProvider {
 		public Statement build(Object subject, Object predicate, Serializable value) {
 			return SemanticPersistenceHelper.createLiteralStatement(subject, predicate, value, namespaceService,
 					factory);
+		}
+
+		@Override
+		public Statement build(Object subject, Object predicate, String value, String language) {
+			if (Objects.isNull(value) || Objects.isNull(language)) {
+				return null;
+			}
+			return build(subject, predicate, factory.createLiteral(value, language));
 		}
 	}
 

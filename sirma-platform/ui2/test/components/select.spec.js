@@ -59,7 +59,7 @@ describe('Select component', () => {
         return item.text + '1';
       },
       formatResult: (item) => {
-        return item.text + '2'
+        return item.text + '2';
       },
       formatSelection: (item) => {
         return item.text + '3';
@@ -141,7 +141,7 @@ describe('Select component', () => {
     };
     select.createActualConfig();
 
-    var expected = {results: ['test']};
+    let expected = {results: ['test']};
     let data = select.actualConfig.ajax.processResults(expected);
     expect(data).to.deep.equal(expected);
   });
@@ -183,7 +183,7 @@ describe('Select component', () => {
     let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
     select.config.dropdownAutoWidth = true;
     select.createActualConfig();
-    expect(select.actualConfig.dropdownAutoWidth).to.be.true
+    expect(select.actualConfig.dropdownAutoWidth).to.be.true;
   });
 
   describe('templateResult()', () => {
@@ -206,24 +206,24 @@ describe('Select component', () => {
         return `-${item.text}-`;
       };
       expect(select.templateResult(item, formatResult)).to.equal('<span data-value="itemId">-itemText-</span>');
-    })
+    });
   });
 
   describe('bindToModel()', () => {
 
     it('should create two-way binding if ngModel is present', () => {
-      var scopeMock = {
+      let scopeMock = {
         $watch: sinon.spy()
       };
-      let select = new Select(SelectMocks.mockElement(), scopeMock, SelectMocks.mockTimeout());
+      new Select(SelectMocks.mockElement(), scopeMock, SelectMocks.mockTimeout());
       expect(scopeMock.$watch.calledOnce).to.be.true;
     });
 
     it('should not create two-way binding if ngModel is missing', () => {
-      var scopeMock = {
+      let scopeMock = {
         $watch: sinon.spy()
       };
-      var elementMock = SelectMocks.mockElement();
+      let elementMock = SelectMocks.mockElement();
       elementMock.controller = () => {
       };
       let select = new Select(elementMock, scopeMock, SelectMocks.mockTimeout());
@@ -232,8 +232,8 @@ describe('Select component', () => {
     });
 
     it('should set new value on model change', () => {
-      var scopeMock = mock$scope();
-      var elementMock = SelectMocks.mockElement();
+      let scopeMock = mock$scope();
+      let elementMock = SelectMocks.mockElement();
       let select = new Select(elementMock, scopeMock, SelectMocks.mockTimeout());
       select.$element.val = sinon.spy((param) => {
         if (!param) {
@@ -247,8 +247,8 @@ describe('Select component', () => {
     });
 
     it('should not set new value on model change if it is the same', () => {
-      var scopeMock = mock$scope();
-      var elementMock = SelectMocks.mockElement();
+      let scopeMock = mock$scope();
+      let elementMock = SelectMocks.mockElement();
       let select = new Select(elementMock, scopeMock, SelectMocks.mockTimeout());
       select.$element.val = sinon.spy(() => {
         return 'newValue';
@@ -259,8 +259,8 @@ describe('Select component', () => {
     });
 
     it('should not set new value on model change if it is undefined', () => {
-      var scopeMock = mock$scope();
-      var elementMock = SelectMocks.mockElement();
+      let scopeMock = mock$scope();
+      let elementMock = SelectMocks.mockElement();
       let select = new Select(elementMock, scopeMock, SelectMocks.mockTimeout());
       select.$element.val = sinon.spy();
       select.ngModel.$viewValue = undefined;
@@ -270,8 +270,8 @@ describe('Select component', () => {
   });
 
   describe('initSelect()', () => {
-    var select;
-    var scopeMock;
+    let select;
+    let scopeMock;
 
     beforeEach(function () {
       scopeMock = mock$scope();
@@ -279,7 +279,7 @@ describe('Select component', () => {
     });
 
     it('should register an event to prevent auto opening when deselecting items', () => {
-      var onSpy = select.$element.on;
+      let onSpy = select.$element.on;
 
       // first two calls are not for this test
       expect(onSpy.callCount).to.equal(4);
@@ -293,7 +293,7 @@ describe('Select component', () => {
       select.config = {
         tags: true
       };
-      var stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
+      let stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
         return true;
       }));
       select.$element.on.reset();
@@ -303,7 +303,7 @@ describe('Select component', () => {
       expect(select.$element.on.calledOnce).to.be.true;
       expect(select.$element.on.getCall(0).args[0]).to.equal('DOMNodeInserted');
 
-      var callback = select.$element.on.getCall(0).args[1];
+      let callback = select.$element.on.getCall(0).args[1];
       callback();
       expect(select.$element.focus.called).to.be.true;
 
@@ -314,7 +314,7 @@ describe('Select component', () => {
       select.config = {
         tags: false
       };
-      var stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
+      let stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
         return true;
       }));
       select.$element.on.reset();
@@ -324,7 +324,7 @@ describe('Select component', () => {
       expect(select.$element.on.calledOnce).to.be.true;
       expect(select.$element.on.getCall(0).args[0]).to.equal('DOMNodeInserted');
 
-      var callback = select.$element.on.getCall(0).args[1];
+      let callback = select.$element.on.getCall(0).args[1];
       callback();
       expect(select.$element.focus.called).to.be.true;
 
@@ -332,7 +332,7 @@ describe('Select component', () => {
     });
 
     it('should not register an event to ensure the element is focused in IE11 when tags are undefined', () => {
-      var stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
+      let stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
         return true;
       }));
       select.$element.on.reset();
@@ -348,7 +348,7 @@ describe('Select component', () => {
       select.config = {
         tags: true
       };
-      var stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
+      let stub = sinon.stub(NavigatorAdapter, 'isInternetExplorer', sinon.spy(() => {
         return false;
       }));
       select.$element.on.reset();
@@ -362,11 +362,11 @@ describe('Select component', () => {
   });
 
   describe('autoExpandDropdownMenu()', () => {
-    var select;
+    let select;
     beforeEach(() => select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout()));
 
     it('should force dropdown menu expansion under Safari if configured to do so', () => {
-      var stub = sinon.stub(NavigatorAdapter, 'isSafari', () => true);
+      let stub = sinon.stub(NavigatorAdapter, 'isSafari', () => true);
       select.config.dropdownAutoWidth = true;
       select.autoExpandDropdownMenu();
       expect(stub.calledOnce).to.be.true;
@@ -376,7 +376,7 @@ describe('Select component', () => {
     });
 
     it('should not force dropdown menu expansion under Safari if not configured to do so', () => {
-      var stub = sinon.stub(NavigatorAdapter, 'isSafari', () => true);
+      let stub = sinon.stub(NavigatorAdapter, 'isSafari', () => true);
       select.config.dropdownAutoWidth = false;
       select.autoExpandDropdownMenu();
       expect(select.$element.select2.calledWith('open')).to.be.false;
@@ -385,7 +385,7 @@ describe('Select component', () => {
     });
 
     it('should not force dropdown menu expansion if not under Safari but configured to do so', () => {
-      var stub = sinon.stub(NavigatorAdapter, 'isSafari', () => false);
+      let stub = sinon.stub(NavigatorAdapter, 'isSafari', () => false);
       select.config.dropdownAutoWidth = true;
       select.autoExpandDropdownMenu();
       expect(select.$element.select2.calledWith('open')).to.be.false;
@@ -396,8 +396,8 @@ describe('Select component', () => {
 
   describe('ngOnInit()', () => {
     it('should not trigger change if there is a default value', () => {
-      var elementMock = SelectMocks.mockElement();
-      var select = new Select(elementMock, mock$scope(), SelectMocks.mockTimeout());
+      let elementMock = SelectMocks.mockElement();
+      let select = new Select(elementMock, mock$scope(), SelectMocks.mockTimeout());
       select.config = {
         data: [],
         multiple: false,
@@ -411,7 +411,7 @@ describe('Select component', () => {
   });
 
   describe('handleMenuOpeningEvent(event)', function () {
-    var event;
+    let event;
     beforeEach(function () {
       event = {
         preventDefault: sinon.spy()
@@ -419,14 +419,14 @@ describe('Select component', () => {
     });
 
     it('should not preventDefault if keepMenuClosed is false', function () {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.handleMenuOpeningEvent(event);
 
       expect(event.preventDefault.called).to.be.false;
     });
 
     it('should preventDefault if keepMenuClosed is true and set keepMenuClosed back to false', function () {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.keepMenuClosed = true;
       select.handleMenuOpeningEvent(event);
 
@@ -436,8 +436,8 @@ describe('Select component', () => {
   });
 
   describe('handleUnselectingEvent(event)', function () {
-    var jqIsStub;
-    var validEvent = {
+    let jqIsStub;
+    let validEvent = {
       params: {
         args: {
           originalEvent: {
@@ -456,8 +456,8 @@ describe('Select component', () => {
     });
 
     it('should not do anything if we cannot get the original target', function () {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
-      var event = {};
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let event = {};
 
       select.handleUnselectingEvent(event);
       expect(select.keepMenuClosed).to.be.undefined;
@@ -480,7 +480,7 @@ describe('Select component', () => {
     });
 
     it('should not do anything the original target is not what we expect', function () {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
 
       jqIsStub.returns(false);
       select.handleUnselectingEvent(validEvent);
@@ -490,7 +490,7 @@ describe('Select component', () => {
     });
 
     it('should not do anything the original target is not what we expect', function () {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
 
       jqIsStub.returns(true);
       select.handleUnselectingEvent(validEvent);
@@ -502,7 +502,7 @@ describe('Select component', () => {
 
   describe('enforceMinimumSelectionLength()', () => {
     it('should not register a minimum selection length listener if minimumSelectionLength is less than 1', () => {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.appendListeners = sinon.spy();
 
       select.enforceMinimumSelectionLength();
@@ -513,7 +513,7 @@ describe('Select component', () => {
     });
 
     it('should not prevent deselecting items if the current amount is more than the configured limit', () => {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.appendListeners = sinon.spy();
       select.$element.val = () => {
         return ['1', '2'];
@@ -521,10 +521,10 @@ describe('Select component', () => {
 
       select.enforceMinimumSelectionLength(1);
 
-      var listener = select.appendListeners.getCall(0).args[0];
+      let listener = select.appendListeners.getCall(0).args[0];
       expect(listener['select2:unselecting']).to.exist;
 
-      var eventSpy = {
+      let eventSpy = {
         preventDefault: sinon.spy()
       };
       listener['select2:unselecting'](eventSpy);
@@ -532,7 +532,7 @@ describe('Select component', () => {
     });
 
     it('should prevent deselecting items if the current amount is equal to the configured limit', () => {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.appendListeners = sinon.spy();
       select.$element.val = () => {
         return ['1'];
@@ -540,8 +540,8 @@ describe('Select component', () => {
 
       select.enforceMinimumSelectionLength(1);
 
-      var listener = select.appendListeners.getCall(0).args[0];
-      var eventSpy = {
+      let listener = select.appendListeners.getCall(0).args[0];
+      let eventSpy = {
         preventDefault: sinon.spy()
       };
       listener['select2:unselecting'](eventSpy);
@@ -551,7 +551,7 @@ describe('Select component', () => {
 
   describe('isDisabled()', () => {
     it('should use the configuration function if provided', () => {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.config.disabled = false;
       select.config.isDisabled = () => {
         return true;
@@ -560,14 +560,14 @@ describe('Select component', () => {
     });
 
     it('should consider undefined as false if config.isDisabled() is misconfigured', () => {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.config.disabled = true;
       select.config.isDisabled = () => {};
       expect(select.isDisabled()).to.be.false;
     });
 
     it('should use the configuration property if no function is provided', () => {
-      var select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
+      let select = new Select(SelectMocks.mockElement(), mock$scope(), SelectMocks.mockTimeout());
       select.config.disabled = true;
       select.config.isDisabled = undefined;
       expect(select.isDisabled()).to.be.true;

@@ -9,6 +9,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,8 +52,6 @@ import com.sirma.itt.seip.instance.relation.LinkService;
 import com.sirma.itt.seip.instance.revision.RevisionService;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.instance.state.StateService;
-import com.sirma.itt.seip.instance.validation.ValidationContext;
-import com.sirma.itt.seip.instance.validation.Validator;
 import com.sirma.itt.seip.time.TimeTracker;
 
 /**
@@ -90,9 +89,6 @@ public class InstanceServiceImpl implements InstanceService {
 
 	@Inject
 	private InstanceLoadDecorator instanceLoadDecorator;
-
-	@Inject
-	private Validator validatorService;
 
 	@Inject
 	private SemanticDefinitionService semanticDefinitionService;
@@ -134,7 +130,6 @@ public class InstanceServiceImpl implements InstanceService {
 			Options.CURRENT_OPERATION.set(operation);
 		}
 		TimeTracker tracker = TimeTracker.createAndStart();
-		validatorService.validate(new ValidationContext(instance, operation));
 
 		try {
 			InstanceEventProvider<Instance> eventProvider = serviceRegistry.getEventProvider(instance);
@@ -355,7 +350,11 @@ public class InstanceServiceImpl implements InstanceService {
 	@Override
 	public Instance clone(Instance instanceToClone, Operation operation) {
 		Instance instance = cloneInternal(instanceToClone, operation, NOT_CLONABLE_PROPERTIES, true);
-		instance.getProperties().keySet().removeAll(semanticDefinitionService.getRelationsMap().keySet());
+		Set<String> relationsKeys = new HashSet<>(semanticDefinitionService.getRelationsMap().keySet());
+
+		// rdf/semantic type is returned, because it is relation, but it should not be removed
+		relationsKeys.remove(SEMANTIC_TYPE);
+		instance.getProperties().keySet().removeAll(relationsKeys);
 		stateService.changeState(instanceToClone, operation);
 		return instance;
 	}

@@ -2,33 +2,39 @@ package com.sirma.itt.emf.label;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.collections.ContextualMap;
 import com.sirma.itt.seip.definition.label.LabelDefinition;
 import com.sirma.itt.seip.definition.label.LabelService;
-import com.sirma.itt.seip.domain.definition.label.LabelBundleProvider;
+import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
+import com.sirma.itt.seip.domain.definition.label.LabelResolverProvider;
 import com.sirma.itt.seip.domain.definition.label.LabelProvider;
+import com.sirma.itt.seip.domain.definition.label.LabelResolver;
 import com.sirma.itt.seip.expressions.ExpressionEvaluatorManager;
 import com.sirma.itt.seip.security.UserPreferences;
+import com.sirma.itt.seip.testutil.mocks.DataTypeDefinitionMock;
+import com.sirma.itt.seip.testutil.mocks.PropertyDefinitionMock;
 
 /**
  * Test the label provider.
@@ -37,6 +43,8 @@ import com.sirma.itt.seip.security.UserPreferences;
  */
 public class LabelProviderTest {
 
+	public static final String LABEL_ID = "labelId";
+	public static final String PROPERTY_URI = "emf:references";
 	@Mock
 	private LabelService labelService;
 
@@ -46,20 +54,28 @@ public class LabelProviderTest {
 	@Mock
 	private UserPreferences userPreferences;
 
+	@Spy
+	private List<LabelResolverProvider> labelProviders = new ArrayList<>();
+
 	@Mock
-	private Iterable<LabelBundleProvider> labelProviders;
+	private LabelResolverProvider bundleProvider;
 
 	/** Provided resource bundles mapped by language */
-	@Mock
-	private ContextualMap<String, List<ResourceBundle>> bundles;
+	@Spy
+	private ContextualMap<String, List<ResourceBundle>> bundles = ContextualMap.create();
 
 	@InjectMocks
-	private LabelProvider labelProvider = new LabelProviderImpl();
+	private LabelProviderImpl labelProvider = new LabelProviderImpl();
 
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		mockLanguage();
+		setEnglishAsSystemLanguage();
+		bundles.reset();
+		labelProviders.clear();
+		labelProviders.add(bundleProvider);
+
+		labelProvider.init();
 	}
 
 	/**
@@ -67,8 +83,8 @@ public class LabelProviderTest {
 	 */
 	@Test
 	public void testGetBundleValue() {
-		mockBundles(new HashSet<>(Arrays.asList("labelId")));
-		assertEquals("label", labelProvider.getBundleValue("labelId"));
+		mockBundleLanguage(Collections.singleton(LABEL_ID));
+		assertEquals("label", labelProvider.getBundleValue(LABEL_ID));
 	}
 
 	/**
@@ -76,25 +92,25 @@ public class LabelProviderTest {
 	 */
 	@Test
 	public void testGetBundleValueMissingLabel() {
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
-		assertEquals("labelId", labelProvider.getBundleValue("labelId"));
+		mockBundleLanguage(Collections.singleton("anotherLabel"));
+		assertEquals(LABEL_ID, labelProvider.getBundleValue(LABEL_ID));
 	}
 
 	@Test
 	public void testGetLabel_Should_ReturnNoLabel_When_LabelIdIsNull() {
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(Collections.singleton("anotherLabel"));
 		assertEquals(LabelProvider.NO_LABEL, labelProvider.getLabel(null));
 	}
 
 	@Test
 	public void testGetLabel_Should_ReturnPassedLabelId_When_NoLabelDefined() {
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(Collections.singleton("anotherLabel"));
 		assertEquals("notExistingLabel", labelProvider.getLabel("notExistingLabel"));
 	}
 
 	@Test
 	public void testGetLabel_Should_ReturnLabel_When_LabelIsDefined() {
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(Collections.singleton("anotherLabel"));
 		assertEquals("label", labelProvider.getLabel("anotherLabel"));
 	}
 
@@ -103,7 +119,7 @@ public class LabelProviderTest {
 		String labelId = "expLabel";
 		String evaluatedLabel = "evaluated";
 
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(new HashSet<>(Collections.singletonList("anotherLabel")));
 		when(manager.isExpression(labelId)).thenReturn(Boolean.TRUE);
 		when(manager.evaluate(labelId, String.class)).thenReturn(evaluatedLabel);
 		when(manager.isExpression(evaluatedLabel)).thenReturn(Boolean.FALSE);
@@ -115,7 +131,7 @@ public class LabelProviderTest {
 	public void testGetLabel_Should_ReturnLabelId_When_ExpressionEvaluatedNull() {
 		String labelId = "expLabel";
 
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(new HashSet<>(Collections.singletonList("anotherLabel")));
 		when(manager.isExpression(labelId)).thenReturn(Boolean.TRUE);
 
 		assertEquals(labelId, labelProvider.getLabel(labelId));
@@ -126,7 +142,7 @@ public class LabelProviderTest {
 		String labelId = "expLabel";
 		String evaluatedLabel = "expression";
 
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(Collections.singleton("anotherLabel"));
 		when(manager.isExpression(labelId)).thenReturn(Boolean.TRUE);
 		when(manager.evaluate(labelId, String.class)).thenReturn(evaluatedLabel);
 		when(manager.isExpression(evaluatedLabel)).thenReturn(Boolean.TRUE);
@@ -142,7 +158,7 @@ public class LabelProviderTest {
 		Map<String, String> labels = new HashMap<>();
 		labels.put(userPreferences.getLanguage(), labelValue);
 
-		mockBundles(new HashSet<>(Arrays.asList("anotherLabel")));
+		mockBundleLanguage(Collections.singleton("anotherLabel"));
 		when(labelDefinition.getLabels()).thenReturn(labels);
 		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
 
@@ -151,27 +167,305 @@ public class LabelProviderTest {
 
 	@Test
 	public void testGetLabel_Should_ReturnLabelFromBundle_When_ThereIsNoLabelDefinition() {
-		String labelId = "labelId";
+		String labelId = LABEL_ID;
 		LabelDefinition labelDefinition = mock(LabelDefinition.class);
-
-		mockBundles(new HashSet<>(Arrays.asList(labelId)));
 		when(labelDefinition.getLabels()).thenReturn(new HashMap<>());
 		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
+
+		mockBundleLanguage(Collections.singleton(labelId));
 
 		assertEquals("label", labelProvider.getLabel(labelId));
 	}
 
-	@SuppressWarnings("unchecked")
-	private void mockBundles(Set<String> keys) {
+	@Test
+	public void getLabelShouldReturnEnglishLabelIfNotDefiniedRequestedLangInDefinition() {
+		String labelId = LABEL_ID;
+		LabelDefinition labelDefinition = mock(LabelDefinition.class);
+		Map<String, String> labels = new HashMap<>();
+		labels.put("de", "Some German label");
+		labels.put("en", "Some English label");
+		when(labelDefinition.getLabels()).thenReturn(labels);
+		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
+
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "en"));
+		assertEquals("Some German label", labelProvider.getLabel(labelId, "de"));
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "fr"));
+	}
+
+	@Test
+	public void getLabelShouldReturnEnglishLabelIfDefinedButHasEmptyValueInDefinition() {
+		String labelId = LABEL_ID;
+		LabelDefinition labelDefinition = mock(LabelDefinition.class);
+		Map<String, String> labels = new HashMap<>();
+		labels.put("de", "");
+		labels.put("en", "Some English label");
+		when(labelDefinition.getLabels()).thenReturn(labels);
+		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
+
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "en"));
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "de"));
+	}
+
+	@Test
+	public void getLabelShouldReturnEnglishLabelIfNotDefiniedRequestedLangInDefinitionAndBundles() {
+		String labelId = LABEL_ID;
+		LabelDefinition labelDefinition = mock(LabelDefinition.class);
+		mockBundleLanguage("en", Collections.singletonMap(labelId, "Some English label"));
+		mockBundleLanguage("de", Collections.singletonMap(labelId, "Some German label"));
+		when(labelDefinition.getLabels()).thenReturn(new HashMap<>());
+		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
+
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "en"));
+		assertEquals("Some German label", labelProvider.getLabel(labelId, "de"));
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "fr"));
+	}
+
+	@Test
+	public void getLabelShouldReturnEnglishLabelIfBundleValueIsEmpty() {
+		String labelId = LABEL_ID;
+		LabelDefinition labelDefinition = mock(LabelDefinition.class);
+		mockBundleLanguage("en", Collections.singletonMap(labelId, "Some English label"));
+		mockBundleLanguage("de", Collections.singletonMap(labelId, ""));
+		when(labelDefinition.getLabels()).thenReturn(new HashMap<>());
+		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
+
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "en"));
+		assertEquals("Some English label", labelProvider.getLabel(labelId, "de"));
+	}
+
+	@Test
+	public void getValueShouldReturnEnglishLabelIfBundleValueIsEmpty() {
+		String labelId = LABEL_ID;
+		LabelDefinition labelDefinition = mock(LabelDefinition.class);
+		mockBundleLanguage("en", Collections.singletonMap(labelId, "Some English label"));
+		mockBundleLanguage("de", Collections.singletonMap(labelId, ""));
+		when(labelDefinition.getLabels()).thenReturn(new HashMap<>());
+		when(labelService.getLabel(labelId)).thenReturn(labelDefinition);
+
+		assertEquals("Some English label", labelProvider.getValue(labelId));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldReturnDefinitionLabelWhenPresent() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", "German definition label");
+		withSemanticLabel("de", "Some German semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("German definition label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldReturnSemanticLabelIfDefinitionIsNotPresent_noLanguageProvider() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticLabel("de", "Some German semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some German semantic label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldReturnDefinitionLabelForDefaultLanguageWhenRequestedAndSemanticAreNotPresent() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticLabel("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some English definition label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldReturnSemanticLabelForDefaultLanguageWhenRequestedAndDefinitionAreNotPresent() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition(null, null);
+		withSemanticLabel("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some English semantic label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldReturnLabelIdWhenNoLabelAreDefined() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition(null, null);
+		withSemanticLabel("en", "");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("emf:references.label/labelId", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldReturnDefaultLanguageLabelIfNotSemanticProperty() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticLabel("en", "");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+		propertyMock.setUri(null);
+
+		assertEquals("Some English definition label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldFallBackToSemanticIfLabelIdIsNotDefined() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticLabel("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+		propertyMock.setLabelId(null);
+
+		assertEquals("Some English semantic label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyLabel_shouldFallBackToSemanticIfLabelDefinitionIsNotDefined() {
+		setGermanAsSystemLanguage();
+		withSemanticLabel("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some English semantic label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	/// Tooltip methods
+
+	@Test
+	public void getPropertyTooltip_shouldReturnDefinitionLabelWhenPresent() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", "German definition label");
+		withSemanticDescription("de", "Some German semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("German definition label", labelProvider.getPropertyLabel(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldReturnSemanticLabelIfDefinitionIsNotPresent_noLanguageProvider() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticDescription("de", "Some German semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some German semantic label", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldReturnDefinitionLabelForDefaultLanguageWhenRequestedAndSemanticAreNotPresent() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticDescription("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some English definition label", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldReturnSemanticLabelForDefaultLanguageWhenRequestedAndDefinitionAreNotPresent() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition(null, null);
+		withSemanticDescription("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some English semantic label", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldReturnLabelIdWhenNoLabelAreDefined() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition(null, null);
+		withSemanticDescription("en", "");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("emf:references.tooltip/labelId", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldReturnDefaultLanguageLabelIfNotSemanticProperty() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticDescription("en", "");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+		propertyMock.setUri(null);
+
+		assertEquals("Some English definition label", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldFallBackToSemanticIfLabelIdIsNotDefined() {
+		setGermanAsSystemLanguage();
+		withLabelDefinition("Some English definition label", null);
+		withSemanticDescription("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+		propertyMock.setTooltipId(null);
+
+		assertEquals("Some English semantic label", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	@Test
+	public void getPropertyTooltip_shouldFallBackToSemanticIfLabelDefinitionIsNotDefined() {
+		setGermanAsSystemLanguage();
+		withSemanticDescription("en", "Some English semantic label");
+
+		PropertyDefinitionMock propertyMock = createPropertyDefinition();
+
+		assertEquals("Some English semantic label", labelProvider.getPropertyTooltip(propertyMock));
+	}
+
+	private PropertyDefinitionMock createPropertyDefinition() {
+		PropertyDefinitionMock propertyMock = new PropertyDefinitionMock();
+		propertyMock.setIdentifier("someProperty");
+		propertyMock.setDataType(new DataTypeDefinitionMock(DataTypeDefinition.URI));
+		propertyMock.setType(DataTypeDefinition.URI);
+		propertyMock.setUri(PROPERTY_URI);
+		propertyMock.setLabelId(LABEL_ID);
+		propertyMock.setTooltipId(LABEL_ID);
+		return propertyMock;
+	}
+
+	private void withLabelDefinition(String engLabel, String germanLabel) {
+		LabelDefinition labelDefinition = mock(LabelDefinition.class);
+		Map<String, String> map = new HashMap<>();
+		CollectionUtils.addNonNullValue(map, "en", engLabel);
+		CollectionUtils.addNonNullValue(map, "de", germanLabel);
+		when(labelDefinition.getLabels()).thenReturn(map);
+		when(labelService.getLabel(LABEL_ID)).thenReturn(labelDefinition);
+	}
+
+	private void mockBundleLanguage(Set<String> keys) {
+		keys.forEach(key -> mockBundleLanguage("en", Collections.singletonMap(key, "label")));
+	}
+
+	private void withSemanticLabel(String lang, String label) {
+		mockBundleLanguage(lang, Collections.singletonMap(LabelProvider.buildUriLabelId(PROPERTY_URI), label));
+	}
+	private void withSemanticDescription(String lang, String label) {
+		mockBundleLanguage(lang, Collections.singletonMap(LabelProvider.buildUriTooltipId(PROPERTY_URI), label));
+	}
+
+	private void mockBundleLanguage(String locale, Map<String, String> keyValues) {
 		ResourceBundle bundle = new ResourceBundle() {
 			@Override
 			protected Object handleGetObject(String key) {
-				return "label";
+				return keyValues.get(key);
 			}
 
 			@Override
 			protected Set<String> handleKeySet() {
-				return keys;
+				return keyValues.keySet();
 			}
 
 			@Override
@@ -179,11 +473,16 @@ public class LabelProviderTest {
 				return Collections.emptyEnumeration();
 			}
 		};
-		when(bundles.computeIfAbsent(Matchers.anyString(), Matchers.any(Function.class))).thenReturn(
-				Arrays.asList(bundle));
+		when(bundleProvider.getLabelResolver(Locale.forLanguageTag(locale))).thenReturn(LabelResolver.wrap(bundle));
 	}
 
-	private void mockLanguage() {
+	private void setEnglishAsSystemLanguage() {
+		reset(userPreferences);
 		when(userPreferences.getLanguage()).thenReturn("en");
+	}
+
+	private void setGermanAsSystemLanguage() {
+		reset(userPreferences);
+		when(userPreferences.getLanguage()).thenReturn("de");
 	}
 }

@@ -1,0 +1,57 @@
+<div class="model-create-property clearfix">
+  <div ng-if="::modelCreateProperty.isPropertySectionVisible()" class="panel panel-default property-section" collapsible-panel>
+    <div class="panel-heading">
+      <i class="panel-caret fa fa-caret-down"></i>
+      <span class="model-header">
+        <strong class="model-title">"{{ modelCreateProperty.getPropertyTitle() }}"</strong>
+        <span>{{ ::'administration.models.management.field.generic' | translate }}</span>
+      </span>
+    </div>
+
+    <div class="panel-body model-form container-fluid form-horizontal">
+      <div ng-if="modelCreateProperty.isPropertyDuplicate()" class="alert alert-danger duplicate-property-message">
+        {{::'administration.models.management.property.create.field.duplicate.message' | translate}}
+      </div>
+
+      <model-attribute-view ng-repeat="attribute in modelCreateProperty.getPropertyAttributes() track by attribute.getId()"
+                            id="{{attribute.getId()}}" ng-show="attribute.getRestrictions().isVisible()"
+                            on-attribute-change="modelCreateProperty.notifyForModelAttributeChange(attribute, modelCreateProperty.getProperty())"
+                            attribute="attribute" context="modelCreateProperty.getProperty()"
+                            editable="modelCreateProperty.isEditable(attribute)"
+                            config="::modelCreateProperty.createAttributesConfig">
+      </model-attribute-view>
+    </div>
+  </div>
+
+  <div ng-if="::modelCreateProperty.isFieldSectionVisible()" class="panel panel-default field-section" collapsible-panel>
+    <div class="panel-heading">
+      <i class="panel-caret fa fa-caret-down"></i>
+      <span class="model-header">
+        <strong class="model-title">"{{ modelCreateProperty.getFieldTitle() }}"</strong>
+        <span>{{ ::'administration.models.management.field.specific' | translate }}</span>
+      </span>
+    </div>
+
+    <div class="panel-body model-form container-fluid form-horizontal">
+      <div class="alert alert-info destination-models-message">
+        {{::'administration.models.management.property.create.field.destination.message' | translate}}
+        <span class="models">{{ ::modelCreateProperty.getDestinationModels().join(', ') }}</span>
+      </div>
+
+      <model-attribute-view ng-repeat="attribute in modelCreateProperty.getFieldAttributes() track by attribute.getId()"
+                            id="{{attribute.getId()}}" ng-show="attribute.getRestrictions().isVisible()"
+                            on-attribute-change="modelCreateProperty.notifyForModelAttributeChange(attribute, modelCreateProperty.getField())"
+                            attribute="attribute" context="modelCreateProperty.getField()"
+                            editable="modelCreateProperty.isEditable(attribute)"
+                            config="::modelCreateProperty.createAttributesConfig">
+      </model-attribute-view>
+    </div>
+  </div>
+
+  <model-controls>
+    <model-save on-save="modelCreateProperty.saveAllChanges()"
+                enabled="modelCreateProperty.isSaveAllowed()">
+    </model-save>
+    <model-cancel on-cancel="modelCreateProperty.revertAllChanges()"></model-cancel>
+  </model-controls>
+</div>

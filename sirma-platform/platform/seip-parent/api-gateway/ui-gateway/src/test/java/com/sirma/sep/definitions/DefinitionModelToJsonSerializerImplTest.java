@@ -2,6 +2,7 @@ package com.sirma.sep.definitions;
 
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.DEFAULT_VALUE_PATTERN;
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.FIELD_VALIDATION_MANDATORY_LBL;
+import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.FIELD_VALIDATION_NOT_MATCH_FILTER;
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.PROPERY_BINDING_KEY;
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.PROPERY_FUNCTION_KEY;
 import static com.sirma.sep.definitions.DefinitionModelSerializationConstants.RELATED_FIELDS;
@@ -119,6 +120,7 @@ public class DefinitionModelToJsonSerializerImplTest {
 	public void serialize() throws IOException {
 		DefinitionModel model = mock(DefinitionModel.class);
 		when(model.getIdentifier()).thenReturn("testDefinition");
+		when(labelProvider.getValue(FIELD_VALIDATION_NOT_MATCH_FILTER)).thenReturn("Filter don't match!");
 
 		Instance instance = prepareInstance();
 

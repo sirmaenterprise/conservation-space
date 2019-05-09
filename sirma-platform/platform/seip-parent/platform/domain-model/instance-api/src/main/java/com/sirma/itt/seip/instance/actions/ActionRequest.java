@@ -58,8 +58,7 @@ public abstract class ActionRequest implements Serializable {
 	 * Sets the user operation that need to be executed. This operation will be logged in the audit log if enabled. This
 	 * operation may be equal or not to the one set with {@link #setUserOperation(String)}.
 	 *
-	 * @param userOperation
-	 *            the new user operation
+	 * @param userOperation the new user operation
 	 */
 	public void setUserOperation(String userOperation) {
 		this.userOperation = userOperation;
@@ -77,8 +76,7 @@ public abstract class ActionRequest implements Serializable {
 	/**
 	 * Sets the target id of the instance/object that will be affected by this operation request.
 	 *
-	 * @param targetId
-	 *            the new target id
+	 * @param targetId the new target id
 	 */
 	public void setTargetId(Serializable targetId) {
 		this.targetId = targetId;
@@ -96,8 +94,7 @@ public abstract class ActionRequest implements Serializable {
 	/**
 	 * Set the resolved reference from the target id
 	 *
-	 * @param targetReference
-	 *            the targetReference to set
+	 * @param targetReference the targetReference to set
 	 */
 	public void setTargetReference(InstanceReference targetReference) {
 		this.targetReference = targetReference;
@@ -115,8 +112,7 @@ public abstract class ActionRequest implements Serializable {
 	/**
 	 * Sets the placeholder where this operation was triggered.
 	 *
-	 * @param placeholder
-	 *            the new placeholder
+	 * @param placeholder the new placeholder
 	 */
 	public void setPlaceholder(String placeholder) {
 		this.placeholder = placeholder;
@@ -136,11 +132,21 @@ public abstract class ActionRequest implements Serializable {
 	 * of hierarchy so that the first element is the top of the context and the last is the instance just before the
 	 * target instance/object provided via {@link #setTargetId(Serializable)}
 	 *
-	 * @param contextPath
-	 *            the new context path
+	 * @param contextPath the new context path
 	 */
 	@SuppressWarnings("unchecked")
 	public void setContextPath(List<? extends Serializable> contextPath) {
 		this.contextPath = (List<Serializable>) contextPath;
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder()
+				.append("ActionRequest [operation=").append(toOperation())
+				.append(", targetId=").append(targetId)
+				.append(", targetReference=").append(targetReference)
+				.append(", placeholder=").append(placeholder)
+				.append(", contextPath=").append(contextPath)
+				.append("]").toString();
 	}
 }

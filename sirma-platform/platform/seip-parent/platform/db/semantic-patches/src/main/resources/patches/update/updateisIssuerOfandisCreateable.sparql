@@ -1,0 +1,27 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+DELETE {
+   emf:isIssuerOf rdfs:label ?o.
+   emf:isCreateable rdfs:label ?o2.
+   emf:isIssuerOf dcterms:title ?o3.
+   emf:isCreateable dcterms:title ?o4.
+}
+INSERT {
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        emf:isIssuerOf rdfs:label "Е издател на"@bg, "Еr forlæggeren af"@da, "Ist Emittent von"@de , "Is Issuer Of"@en , "Is Issuer Of"@fi.
+        emf:isCreateable rdfs:label "Може да се създава"@bg,"Er kreativ"@da,"Ist erstellbar"@de,"Is creatable"@en, "Voidaan luoda"@fi.
+        emf:isIssuerOf dcterms:title "Е издател на"@bg, "Еr forlæggeren af"@da, "Ist Emittent von"@de , "Is Issuer Of"@en , "Is Issuer Of"@fi.
+        emf:isCreateable dcterms:title "Може да се създава"@bg,"Er kreativ"@da,"Ist erstellbar"@de,"Is creatable"@en, "Voidaan luoda"@fi.
+    }
+} WHERE {
+     emf:isIssuerOf rdfs:label ?o.
+     emf:isCreateable rdfs:label ?o2.
+
+     optional {
+        emf:isIssuerOf dcterms:title ?o3.
+     }
+     optional {
+        emf:isCreateable dcterms:title ?o4.
+     }
+}

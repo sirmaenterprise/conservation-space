@@ -1,18 +1,18 @@
 'use strict';
 
-var AuditLogSandboxPage = require('./audit-log.js').AuditLogSandboxPage;
+let AuditLogSandboxPage = require('./audit-log.js').AuditLogSandboxPage;
 
 describe('AuditLog page test', () => {
 
-  var sandboxPage = new AuditLogSandboxPage();
-  var auditLog;
+  let sandboxPage = new AuditLogSandboxPage();
+  let auditLog;
   beforeEach(() => {
     sandboxPage.open();
     auditLog = sandboxPage.getAuditLog();
   });
 
   it('should render all elements in the page', () => {
-    var advancedSearchSection = auditLog.getAdvancedSearchSection();
+    let advancedSearchSection = auditLog.getAdvancedSearchSection();
     expect(advancedSearchSection.element.isPresent()).to.eventually.be.true;
     expect(auditLog.getSearchButton().isPresent()).to.eventually.be.true;
     expect(auditLog.getClearButton().isPresent()).to.eventually.be.true;

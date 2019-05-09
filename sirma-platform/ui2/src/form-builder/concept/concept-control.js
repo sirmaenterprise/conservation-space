@@ -2,7 +2,6 @@ import {View, Component, Inject, NgElement} from 'app/app';
 import {FormControl} from 'form-builder/form-control';
 import {ModelUtils} from 'models/model-utils';
 import {MODE_EDIT, MODE_PREVIEW} from 'idoc/idoc-constants';
-import {HEADER_BREADCRUMB} from 'instance-header/header-constants';
 import {MULTIPLE_SELECTION, SINGLE_SELECTION} from 'search/search-selection-modes';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {HeadersService} from 'instance-header/headers-service';
@@ -18,9 +17,7 @@ import template from './concept-control.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(InstanceRestService, NgElement, HeadersService)
 export class ConceptControl extends FormControl {
 

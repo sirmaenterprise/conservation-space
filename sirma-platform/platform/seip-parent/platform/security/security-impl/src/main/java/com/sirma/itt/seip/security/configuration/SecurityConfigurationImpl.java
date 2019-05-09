@@ -29,7 +29,6 @@ import com.sirma.itt.seip.runtime.boot.Startup;
 import com.sirma.itt.seip.runtime.boot.StartupPhase;
 import com.sirma.itt.seip.security.User;
 import com.sirma.itt.seip.security.UserStore;
-import com.sirma.itt.seip.security.authentication.Authenticator;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.security.exception.SecurityException;
 import com.sirma.itt.seip.security.util.SecurityUtil;
@@ -144,7 +143,7 @@ public class SecurityConfigurationImpl implements SecurityConfiguration {
 
 	@Inject
 	@Configuration
-	@ConfigurationPropertyDefinition(name = "security.idp.provider", defaultValue = "wso2Idp", sensitive = true, label = "The name of the IdP provider that will be used for this tenant. One of the possible values are: wso2Idp (default), keycloak (if module deployed)")
+	@ConfigurationPropertyDefinition(name = "security.idp.provider", defaultValue = SecurityConfiguration.KEYCLOAK_IDP, sensitive = true, label = "The name of the IdP provider that will be used for this tenant. One of the possible values are: keycloak (default), wso2Idp")
 	private ConfigurationProperty<String> idpProviderName;
 
 	private static User systemAdminUserCached = null;
@@ -211,35 +210,16 @@ public class SecurityConfigurationImpl implements SecurityConfiguration {
 	 *            the user store
 	 * @param securityContext
 	 *            the security context
-	 * @param authenticator
-	 *            the authenticator
 	 * @return the tenant admin user
 	 */
 	@ConfigurationConverter(ADMIN_USER)
-	static User buildAdminUser(GroupConverterContext context, UserStore userStore, SecurityContext securityContext,
-			Authenticator authenticator) {
+	static User buildAdminUser(GroupConverterContext context, UserStore userStore, SecurityContext securityContext) {
 		String currentTenantId = securityContext.getCurrentTenantId();
 		String adminName = context.get(ADMIN_NAME);
 		String password = context.get(ADMIN_PWD);
 		String fullIdentity = SecurityUtil.buildTenantUserId(adminName, currentTenantId);
-		LOGGER.debug("Authenticating admin user {}", fullIdentity);
-		if (password != null) {
-			// for system admin use no tenantid
-			AdminUser adminUser = new AdminUser(fullIdentity, currentTenantId, password, "Admin " + currentTenantId);
-
-			Object ticket = authenticator.authenticate(adminUser);
-			// AdminUser API does not support auto ticket setup
-			adminUser.setTicket(String.valueOf(ticket));
-			return userStore.wrap(adminUser);
-		}
-
-		User admin = userStore.loadByIdentityId(fullIdentity, securityContext.getCurrentTenantId());
-		if (admin == null) {
-			LOGGER.warn("Could not find admin user {}@{}", adminName, securityContext.getCurrentTenantId());
-			return null;
-		}
-
-		return admin;
+		AdminUser adminUser = new AdminUser(fullIdentity, currentTenantId, password, "Admin " + currentTenantId);
+		return userStore.wrap(adminUser);
 	}
 
 	/**
@@ -251,13 +231,10 @@ public class SecurityConfigurationImpl implements SecurityConfiguration {
 	 *            the user store
 	 * @param securityContext
 	 *            the security context
-	 * @param authenticator
-	 *            the authenticator
 	 * @return the tenant system user
 	 */
 	@ConfigurationConverter(SYSTEM_USER)
-	static User buildSystemUser(GroupConverterContext context, UserStore userStore, SecurityContext securityContext,
-			Authenticator authenticator) {
+	static User buildSystemUser(GroupConverterContext context, UserStore userStore, SecurityContext securityContext) {
 		String currentTenantId = securityContext.getCurrentTenantId();
 		if (SecurityContext.isSystemTenant(currentTenantId)) {
 			LOGGER.error("System user for system tenant should not be requested!");
@@ -267,10 +244,6 @@ public class SecurityConfigurationImpl implements SecurityConfiguration {
 		String displayName = context.get(SYSTEM_USER_DISPLAYNAME);
 		String fullIdentity = SecurityUtil.buildTenantUserId(systemUserName, currentTenantId);
 		SystemUser systemUser = new SystemUser(fullIdentity, currentTenantId, null, password, displayName, false);
-		LOGGER.debug("Authenticating system user {}", fullIdentity);
-		Object ticket = authenticator.authenticate(systemUser);
-		// SystemUser API does not support auto ticket setup
-		systemUser.setTicket(String.valueOf(ticket));
 		return userStore.wrap(systemUser);
 	}
 
@@ -281,25 +254,15 @@ public class SecurityConfigurationImpl implements SecurityConfiguration {
 	 *            the context
 	 * @param userStore
 	 *            the user store
-	 * @param securityContext
-	 *            the security context
-	 * @param authenticator
-	 *            the authenticator
 	 * @return the tenant system user
 	 */
 	@ConfigurationConverter(SYSTEMADMIN_USER)
-	static User buildSystemAdminUser(GroupConverterContext context, UserStore userStore,
-			SecurityContext securityContext, Authenticator authenticator) {
-
+	static User buildSystemAdminUser(GroupConverterContext context, UserStore userStore) {
 		String currentTenantId = SecurityContext.SYSTEM_TENANT;
 		String systemUserName = SecurityContext.getSystemAdminName();
 		String fullIdentity = SecurityUtil.buildTenantUserId(systemUserName, currentTenantId);
 		SystemUser systemUser = new SystemUser(fullIdentity, currentTenantId, null, null,
 				context.get(SYSTEMADMIN_USER_DISPLAYNAME), true);
-		LOGGER.debug("Authenticating system admin user {}", fullIdentity);
-		Object ticket = authenticator.authenticate(systemUser);
-		// SystemUser API does not support auto ticket setup
-		systemUser.setTicket(String.valueOf(ticket));
 		return userStore.wrap(systemUser);
 	}
 

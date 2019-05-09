@@ -11,3 +11,4 @@ export const EMF_TEMPLATE_VERSION = 'emf:templateVersion';
 export const INTEGRATED = 'integrated';
 export const PARENT = 'hasParent';
 export const DEFINITION_ID = 'definitionId';
+export const CONTENT_ID = 'emf:contentId';

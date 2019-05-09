@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.annotation.PurposeQualifier;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.db.DatabaseIdManager;
 import com.sirma.itt.seip.db.DbDao;
@@ -34,6 +35,7 @@ import com.sirma.itt.seip.tasks.SchedulerEntryType;
 import com.sirma.itt.seip.tasks.SchedulerService;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.sep.content.event.ContentAssignedEvent;
+import com.sirma.sep.content.event.ContentImportedEvent;
 import com.sirma.sep.content.jms.ContentDestinations;
 import com.sirma.sep.content.type.MimeTypeResolver;
 import com.sirmaenterprise.sep.jms.api.SendOptions;
@@ -178,7 +180,11 @@ class InstanceContentServiceImpl implements InstanceContentService {
 					contentImport.getRemoteSourceName(), contentImport.getRemoteId());
 			return null;
 		}
-		return entityDao.importEntity(contentImport).getId();
+
+		String contentId = entityDao.importEntity(contentImport).getId();
+		eventService.fire(new ContentImportedEvent(contentId, contentImport),
+				new PurposeQualifier(contentImport.getPurpose()));
+		return contentId;
 	}
 
 	@Override
@@ -231,7 +237,7 @@ class InstanceContentServiceImpl implements InstanceContentService {
 			return Collections.emptyList();
 		}
 
-		List<ContentEntity> found = entityDao.getContentsForInstance(identifier, contentsToSkip);
+		List<ContentEntity> found = entityDao.getContentsForInstance(id, contentsToSkip);
 		return contentPersistProvider.getPersister(false).toContentInfo(found);
 	}
 

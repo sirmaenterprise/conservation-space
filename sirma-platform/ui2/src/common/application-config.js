@@ -1,4 +1,5 @@
-import {Injectable, Inject, Event} from 'app/app';
+import {Injectable, Inject} from 'app/app';
+import {ConfigurationsUpdateEvent, ConfigurationsLoadedEvent} from './configuration-events';
 import {ConfigurationRestService} from 'services/rest/configurations-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {CommandChain} from 'common/command-chain/command-chain';
@@ -101,35 +102,6 @@ export class Configuration {
   }
 }
 
-/**
- * Event carrying array of configurations that are updated somehow.
- *
- * Designed for components that need to be notified when the configurations are changed.
- *
- * @author Mihail Radkov
- */
-@Event()
-export class ConfigurationsUpdateEvent {
-  constructor() {
-    this.args = arguments;
-  }
-
-  getData() {
-    return this.args;
-  }
-}
-
-@Event()
-export class ConfigurationsLoadedEvent {
-  constructor() {
-    this.args = arguments;
-  }
-
-  getData() {
-    return this.args;
-  }
-}
-
 Configuration.APPLICATION_MODE_DEVELOPMENT = 'application.mode.development';
 Configuration.UI_TEXTAREA_MIN_CHARS = 'ui.textarea.min.chars';
 Configuration.IDOC_TABS_TITLE_MAX_LENGTH = 'idoc.tabs.title.max.length';
@@ -141,7 +113,6 @@ Configuration.UPLOAD_MAX_SIMULTANEOUS_NUMBER_FILES = 'file.upload.max.simultaneo
 Configuration.LOGO_LOCATION = 'application.logo.image.path';
 Configuration.RNC_DEBUG_ENABLED = 'clientside.rnc.debug.mode';
 
-Configuration.SESSION_TIMEOUT = 'session.timeout';
 Configuration.SESSION_TIMEOUT_PERIOD = 'session.timeout.period';
 
 Configuration.USER_RECENT_OBJECTS_SIZE = 'user.recent.objects.size';

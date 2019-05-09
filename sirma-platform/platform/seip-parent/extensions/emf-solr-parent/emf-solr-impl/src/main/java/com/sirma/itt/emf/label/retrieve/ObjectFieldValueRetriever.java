@@ -94,7 +94,7 @@ public class ObjectFieldValueRetriever extends PairFieldValueRetriever {
 
 			parameters.setParam(CommonParams.FQ, filterQuery.toString());
 			try {
-				QueryResponse queryResponse = solrConnector.queryWithGet(parameters);
+				QueryResponse queryResponse = solrConnector.query(parameters);
 				if (queryResponse != null) {
 					return readSolrDocumentResults(queryResponse.getResults(), field)
 							.findAny()
@@ -140,7 +140,7 @@ public class ObjectFieldValueRetriever extends PairFieldValueRetriever {
 			parameters.setTimeAllowed(2000);
 
 			try {
-				QueryResponse queryResponse = solrConnector.queryWithPost(parameters);
+				QueryResponse queryResponse = solrConnector.query(parameters);
 				if (queryResponse != null) {
 					result = readSolrDocumentResults(queryResponse.getResults(), field).collect(Pair.toMap());
 				}
@@ -175,7 +175,7 @@ public class ObjectFieldValueRetriever extends PairFieldValueRetriever {
 
 		long total = 0;
 		try {
-			QueryResponse queryResponse = solrConnector.queryWithGet(parameters);
+			QueryResponse queryResponse = solrConnector.query(parameters);
 			if (queryResponse != null) {
 				SolrDocumentList solrDocumentList = queryResponse.getResults();
 				total = solrDocumentList.getNumFound();

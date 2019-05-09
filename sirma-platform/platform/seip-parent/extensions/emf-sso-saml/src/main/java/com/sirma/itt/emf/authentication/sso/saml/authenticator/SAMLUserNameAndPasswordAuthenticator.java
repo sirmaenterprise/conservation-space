@@ -3,10 +3,14 @@
  */
 package com.sirma.itt.emf.authentication.sso.saml.authenticator;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.StringPair;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
@@ -25,6 +29,9 @@ import com.sirma.itt.seip.security.exception.AuthenticationException;
  */
 @Extension(target = Authenticator.NAME, order = 10)
 public class SAMLUserNameAndPasswordAuthenticator extends BaseSamlAuthenticator {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	@Inject
 	private Instance<SecurityTokenService> securityTokenService;
 
@@ -46,7 +53,8 @@ public class SAMLUserNameAndPasswordAuthenticator extends BaseSamlAuthenticator 
 			throw new AuthenticationException(username, "Security token request failed", e);
 		}
 		if (token == null) {
-			throw new AuthenticationException(username, "Invalid username/password or SSO configuration");
+			LOGGER.warn("Invalid username/password or SSO configuration. Continuing authenticators chain.");
+			return null;
 		}
 		return authenticateWithToken(token.getBytes(StandardCharsets.UTF_8));
 	}

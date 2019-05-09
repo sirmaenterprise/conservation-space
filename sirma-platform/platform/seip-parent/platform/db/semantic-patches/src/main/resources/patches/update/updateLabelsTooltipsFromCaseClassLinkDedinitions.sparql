@@ -1,0 +1,88 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+    ?property skos:definition ?definition.
+    ?property rdfs:comment ?definition.
+    ?property dcterms:description ?description.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+    	emf:priority dcterms:description "The priority of the activity"@en .
+    	emf:priority skos:definition "The priority of the activity"@en .
+    
+    	emf:plannedStartDate dcterms:description "Planned start date of the activity"@en .
+    	emf:plannedStartDate skos:definition "Planned start date of the activity"@en .
+    	
+    	emf:plannedEndDate dcterms:description "Planned end date of the activity"@en .
+    	emf:plannedEndDate skos:definition "Planned end date of the activity"@en .
+    	
+    	emf:estimatedEffort rdfs:label "Прогнозни работни часове"@bg, "Estimeret timeforbrug"@da, "Geschätzte arbeitsstunden"@de, "Estimated effort hours"@en, "Arvioitu pyyntiponnistus tuntia"@fi .
+    	emf:estimatedEffort dcterms:title "Прогнозни работни часове"@bg, "Estimeret timeforbrug"@da, "Geschätzte arbeitsstunden"@de, "Estimated effort hours"@en, "Arvioitu pyyntiponnistus tuntia"@fi .
+    
+		emf:mailboxAddress rdfs:label "Пощенска кутия"@bg, "Email adresse"@da,"E-Mail-addresse"@de, "E-mail address"@en, "Sähköpostiosoite"@fi .
+    	emf:mailboxAddress dcterms:title "Пощенска кутия"@bg, "Email adresse"@da,"E-Mail-addresse"@de, "E-mail address"@en, "Sähköpostiosoite"@fi .
+    	emf:mailboxAddress dcterms:description "The e-mail of the item"@en .
+    	emf:mailboxAddress skos:definition "The e-mail of the item"@en .
+    	
+    	dc:creator rdfs:label "Създадена от"@bg, "Created by"@en, "Erstellt von"@de, "Luonut"@fi, "Oprettet af"@da .
+    	dc:creator dcterms:title "Създадена от"@bg, "Created by"@en, "Erstellt von"@de, "Luonut"@fi, "Oprettet af"@da .
+    	dc:creator dcterms:description "Creator is a person/ an organization/ or a service. Typically, the name of a Creator should be used to indicate the entity"@en .
+    	dc:creator skos:definition "Creator is a person/ an organization/ or a service. Typically, the name of a Creator should be used to indicate the entity"@en .
+    	
+    	emf:isVersionable dcterms:description "Flag that shows if instance is versionable or not"@en .
+    	emf:isVersionable skos:definition "Flag that shows if instance is versionable or not"@en .
+    	
+    	emf:isMailboxSupportable dcterms:description "Flag that shows if instance supports mailbox or not"@en .
+    	emf:isMailboxSupportable skos:definition "Flag that shows if instance supports mailbox or not"@en .
+    	
+    	emf:acceptDataTypePattern rdfs:label "Филтър за качване"@bg, "Datatypefilter"@da, "Datentyp-Filter"@de, "Data type filter"@en, "Data type filter"@fi .
+    	emf:acceptDataTypePattern dcterms:title "Филтър за качване"@bg, "Datatypefilter"@da, "Datentyp-Filter"@de, "Data type filter"@en, "Data type filter"@fi .
+    	emf:acceptDataTypePattern dcterms:description "Regex pattern used to describe class that is more applicable to files of given mimetype"@en .
+    	emf:acceptDataTypePattern skos:definition "Regex pattern used to describe class that is more applicable to files of given mimetype"@en .
+    	
+    	emf:classCategory rdfs:label "Категория"@bg, "Klasse kategori"@da, "Kategori"@de, "Category"@en, "Category"@fi .
+    	emf:classCategory dcterms:title "Категория"@bg, "Klasse kategori"@da, "Kategori"@de, "Category"@en, "Category"@fi .
+    	
+    	sec:allowInheritLibraryPermissions rdfs:label "Allow inherit library permissions"@en, "Tilladte nedarvede bibliotekstilladelser"@da, "Allow inherit library permissions"@de, "Allow inherit library permissions"@fi, "Позволи наследяване на права от библиотеката"@bg .
+    	sec:allowInheritLibraryPermissions dcterms:title "Allow inherit library permissions"@en, "Tilladte nedarvede bibliotekstilladelser"@da, "Allow inherit library permissions"@de, "Allow inherit library permissions"@fi, "Позволи наследяване на права от библиотеката"@bg .
+    	
+    	sec:allowInheritParentPermissions rdfs:label "Allow inherit parent permissions"@en, "Tilladte nedarvede tilladelser fra overordnet kontekst"@da, "Allow inherit parent permissions"@de, "Allow inherit parent permissions"@fi, "Позволи наследяване на права от родителя"@bg .
+    	sec:allowInheritParentPermissions dcterms:title "Allow inherit parent permissions"@en, "Tilladte nedarvede tilladelser fra overordnet kontekst"@da, "Allow inherit parent permissions"@de, "Allow inherit parent permissions"@fi, "Позволи наследяване на права от родителя"@bg .
+    	
+    	emf:loggedBy rdfs:label "Логнато от"@bg, "Log ført af"@da, "Angemeldet von"@de, "Logged by"@en, "Kirjautunut"@fi .
+    	emf:loggedBy dcterms:title "Логнато от"@bg, "Log ført af"@da, "Angemeldet von"@de, "Logged by"@en, "Kirjautunut"@fi .
+    }
+} where {
+    {
+        ## titles only
+        ?property rdfs:label ?label.
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:estimatedEffort, emf:classCategory, sec:allowInheritLibraryPermissions, sec:allowInheritParentPermissions, emf:loggedBy))
+    } UNION {
+        ## descriptions only
+        ?property rdfs:comment|skos:definition ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        filter(?property in (emf:priority, emf:plannedStartDate, emf:plannedEndDate, emf:isVersionable, emf:isMailboxSupportable))
+    }
+	UNION {
+        ## both
+        ?property rdfs:label ?label.
+        ?property skos:definition|rdfs:comment ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:mailboxAddress, dc:creator, emf:acceptDataTypePattern))
+    }
+}

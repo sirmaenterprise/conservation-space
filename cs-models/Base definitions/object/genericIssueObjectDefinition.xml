@@ -1,69 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="issue" parentId="baseObject" isAbstract="true" type="object">
+<definition id="baseIssue" parentId="baseObject" isAbstract="true" type="object">
 	<fields>
 		<!-- HEADERS AND TOOLTIP -->
 		<field name="default_header" type="ANY" label="ISSUE_DEFAULT_HEADER" displayType="system"/>
-		<field name="compact_header" type="an..4096" label="ISSUET_COMPACT_HEADER" displayType="system"/>
-		<field name="breadcrumb_header" type="an..4096" label="ISSUE_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="compact_header" type="ANY" label="ISSUET_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="ANY" label="ISSUE_BREADCRUMB_HEADER" displayType="system"/>
 		<field name="tooltip_header" type="ANY" label="ISSUE_TOOLTIP_HEADER" displayType="system"/>
 
 		<!-- Hidden irrelevant object fields -->
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="hasRevision" type="uri" displayType="system" />
-		<field name="isRevisionOf" type="uri" displayType="system" />
-		<field name="lastPublishedRevision" type="uri" displayType="system" />
-		<field name="lastRevision" type="uri" displayType="system" />
-		<field name="nextRevision" type="uri" displayType="system" />
-		<field name="previousRevision" type="uri" displayType="system" />
+		<field name="outcome" displayType="system" />
+		<field name="integrated" displayType="system" />
+		<field name="uri" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="hasRevision" displayType="system" />
+		<field name="isRevisionOf" displayType="system" />
+		<field name="lastPublishedRevision" displayType="system" />
+		<field name="lastRevision" displayType="system" />
+		<field name="nextRevision" displayType="system" />
+		<field name="previousRevision" displayType="system" />
 
 		<!-- System fields -->
-		<field name="rdf:type" type="URI" label="type.label" displayType="system" uri="rdf:type">
+		<field name="rdf:type">
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Issue</value>
 		</field>
-		<field name="type" type="an..50" codelist="CL7">
-			<value>Issue</value>
+		<field name="type">
+			<value>baseIssue</value>
 		</field>
 
 		<!-- General data field for each Issue -->
-		<field name="issueType" type="an..180" codelist="CL18" label="issue.issueType.label" displayType="editable" mandatory="true" previewEmpty="false" uri="emf:issueType" />
+		<field name="issueType" type="ANY" codelist="CL18" displayType="editable" mandatory="true" previewEmpty="false" uri="emf:issueType" />
 		<field name="title" type="an..500" />
-		<field name="description" type="an..1500" mandatory="true" />
-		<field name="status" type="an..50" codelist="CL19">
+		<field name="description" mandatory="true" />
+		<field name="status" codelist="CL19">
 			<condition id="hiddenFieldStatus" renderAs="HIDDEN">[status] IN ('INIT')</condition>
 		</field>
-		<field name="priority" type="an..20" codelist="CL20" label="priority.label" displayType="editable" mandatory="true" rnc="${to.dmsConvert(CL20,value,extra1)}|${from.dmsConvert(CL20,extra1,value)}" uri="emf:priority" />
-		<field name="hasReporter" type="uri" label="hasReporter" displayType="editable" mandatory="true"  uri="emf:hasReporter">
+		<field name="priority" type="ANY" codelist="CL20" displayType="editable" mandatory="true" uri="emf:priority" />
+		<field name="hasReporter" type="uri" displayType="editable" mandatory="true"  uri="emf:hasReporter">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:User</control-param>
-				<control-param id="restrictions" name="restrictions">
-					{"field":"emf:status", "operator":"in", "type": "codeList", "value": ["ACTIVE"]}
-				</control-param>				
+				<control-param id="restrictions" name="restrictions">{"field":"emf:status", "operator":"in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 			</control>
 			<value>${currentUser.id}</value>
 		</field>
-		<field name="assignee" type="uri" label="assignee" displayType="readOnly" mandatory="true" uri="emf:hasAssignee">
+		<field name="assignee" type="uri" displayType="readOnly" mandatory="true" uri="emf:hasAssignee">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:User</control-param>
 			</control>
 			<value>${config(help.support.email)}</value>
 		</field>
-		<field name="dueDate" type="date" label="dueDate.label" displayType="editable" uri="emf:plannedEndDate" />
-		<field name="resolution" type="an..180" codelist="CL21" label="resolution.label" displayType="editable" previewEmpty="false" uri="emf:completedReason" />
-		<field name="isDuplicatedBy" type="uri" label="isDuplicatedBy" displayType="editable" previewEmpty="false" uri="emf:isDuplicatedBy">
+		<field name="dueDate" type="date" displayType="editable" uri="emf:plannedEndDate" />
+		<field name="resolution" type="ANY" codelist="CL21" displayType="editable" previewEmpty="false" uri="emf:completedReason" />
+		<field name="isDuplicatedBy" type="uri" displayType="editable" previewEmpty="false" uri="emf:isDuplicatedBy">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:Issue</control-param>
 			</control>
 		</field>
-		<field name="references" type="uri" label="references" displayType="editable" multiValued="true" previewEmpty="false" uri="emf:references">
+		<field name="references" type="uri" displayType="editable" multiValued="true" previewEmpty="false" uri="emf:references">
 			<control id="PICKER" />
 		</field>
 	</fields>
 
 	<transitions>
-		<transition id="create" eventId="create" purpose="create">
+		<transition id="create" label="create" purpose="create">
 			<fields>
 				<field name="putDefaultDueDate" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -100,7 +98,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="clone" eventId="clone" purpose="clone">
+		<transition id="clone" purpose="clone">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -123,8 +121,8 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="startProgress" label="startProgress.action.label" tooltip="start.tooltip" eventId="startProgress" purpose="transition" immediate="true" />
-		<transition id="clarify" label="clarify.action.label" tooltip="clarify.action.tooltip" eventId="clarify" purpose="transition" immediate="true" >
+		<transition id="startProgress" label="startProgress.action.label" tooltip="start.tooltip" purpose="transition" />
+		<transition id="clarify" label="clarify.action.label" tooltip="clarify.action.tooltip" purpose="transition" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -153,7 +151,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="clarified" label="clarified.action.label" tooltip="clarified.action.tooltip" eventId="clarified" purpose="transition" immediate="true" >
+		<transition id="clarified" label="clarified.action.label" tooltip="clarified.action.tooltip" purpose="transition" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -182,8 +180,8 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="suspend" label="suspend.label" tooltip="suspend.tooltip" eventId="suspend" purpose="transition" immediate="true" />
-		<transition id="resolveIssue" label="issue.resolveIssue.action.label" tooltip="issue.resolveIssue.action.tooltip" eventId="resolveIssue" purpose="transition" immediate="true" >
+		<transition id="suspend" label="suspend.label" tooltip="suspend.tooltip" purpose="transition" />
+		<transition id="resolveIssue" label="issue.resolveIssue.action.label" tooltip="issue.resolveIssue.action.tooltip" purpose="transition" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -216,8 +214,8 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="restart" label="restart.label" tooltip="restart.tooltip" eventId="restart" purpose="transition" immediate="true" />
-		<transition id="reopen" label="reopen.action.label" tooltip="issue.reopen.action.tooltip" eventId="reopen" purpose="transition" immediate="true">
+		<transition id="restart" label="restart.label" tooltip="restart.tooltip" purpose="transition" />
+		<transition id="reopen" label="reopen.action.label" tooltip="issue.reopen.action.tooltip" purpose="transition" immediate="true">
 			<fields>
 				<field name="cleanResolutionFiled" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -231,7 +229,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="complete" label="complete.label" tooltip="complete.tooltip" eventId="complete" purpose="transition" immediate="true" >
+		<transition id="complete" label="complete.label" tooltip="complete.tooltip" purpose="transition" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system">
 					<value><![CDATA[
@@ -264,7 +262,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="reassign" label="reassign.label" eventId="reassign" purpose="addRelation" tooltip="reassign.tooltip">
+		<transition id="reassign" label="reassign.label" purpose="addRelation" tooltip="reassign.tooltip">
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -326,7 +324,7 @@
 		<stateTransition from="OPEN" transition="changeTemplate" to="OPEN" />
 		<stateTransition from="OPEN" transition="updateTemplate" to="OPEN" />
 		<stateTransition from="OPEN" transition="addWatchers" to="OPEN" />
-		
+
 		<!-- IN_PROGRESS -->
 		<stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="suspend" to="ON_HOLD" />
@@ -351,7 +349,7 @@
 		<stateTransition from="IN_PROGRESS" transition="changeTemplate" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS" />
 		<stateTransition from="IN_PROGRESS" transition="addWatchers" to="IN_PROGRESS" />
-		
+
 		<!-- CLARIFY -->
 		<stateTransition from="CLARIFY" transition="editDetails" to="CLARIFY" />
 		<stateTransition from="CLARIFY" transition="clarified" to="IN_PROGRESS" />
@@ -372,7 +370,7 @@
 		<stateTransition from="CLARIFY" transition="changeTemplate" to="CLARIFY" />
 		<stateTransition from="CLARIFY" transition="updateTemplate" to="CLARIFY" />
 		<stateTransition from="CLARIFY" transition="addWatchers" to="CLARIFY" />
-		
+
 		<!-- ON_HOLD -->
 		<stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS" />
@@ -393,7 +391,7 @@
 		<stateTransition from="ON_HOLD" transition="changeTemplate" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="updateTemplate" to="ON_HOLD" />
 		<stateTransition from="ON_HOLD" transition="addWatchers" to="ON_HOLD" />
-		
+
 		<!-- RESOLVED -->
 		<stateTransition from="RESOLVED" transition="editDetails" to="RESOLVED" />
 		<stateTransition from="RESOLVED" transition="reopen" to="OPEN" />
@@ -415,7 +413,7 @@
 		<stateTransition from="RESOLVED" transition="changeTemplate" to="RESOLVED" />
 		<stateTransition from="RESOLVED" transition="updateTemplate" to="RESOLVED" />
 		<stateTransition from="RESOLVED" transition="addWatchers" to="RESOLVED" />
-		
+
 		<!-- COMPLETED -->
 		<stateTransition from="COMPLETED" transition="reopen" to="OPEN" />
 		<stateTransition from="COMPLETED" transition="reassign" to="COMPLETED" />
@@ -486,8 +484,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>Modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.YYYY, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 			<value lang="de"><![CDATA[${eval(#{eval(
@@ -537,10 +541,16 @@
 					</span>
 					<span class="tooltip-row">
 						<label>Geändert am: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.YYYY, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
 				</span>
-			)})}]]></value>	
+			)})}]]></value>
 			<value lang="bg"><![CDATA[${eval(#{eval(
 				<span class="thumbnail-content">
 					<img class="thumbnail" src="${thumbnailUri(64)}" />
@@ -588,8 +598,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>Актуализиран на: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.YYYY, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 			<value lang="da"><![CDATA[${eval(#{eval(
@@ -639,8 +655,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>Opdateret: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.YYYY, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
 				</span>
 			)})}]]></value>
 		</label>
@@ -652,6 +674,7 @@
                 <span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></b>&nbsp;)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							(<span data-property="issueType">${CL([issueType])}</span>)&nbsp;
 							<span data-property="identifier">${get([identifier])}</span>,&nbsp;
 							<span data-property="title">${get([title])}</span>
@@ -664,7 +687,6 @@
 						&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 					)}
 					${if(${get([references])}<>null).then(<br />References:&nbsp;<span data-property="references">${objectProperty(${get([references])})}</span>)}
-                	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
                 </span>)}]]>
 			</value>
 			<value lang="de"><![CDATA[${eval(
@@ -674,6 +696,7 @@
                 <span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Gelöscht)</span></b>&nbsp;)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							(<span data-property="issueType">${CL([issueType])}</span>)&nbsp;
 							<span data-property="identifier">${get([identifier])}</span>,&nbsp;
 							<span data-property="title">${get([title])}</span>
@@ -686,7 +709,6 @@
 						&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 					)}
 					${if(${get([references])}<>null).then(<br />Verweise:&nbsp;<span data-property="references">${objectProperty(${get([references])})}</span>)}
-                	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt)}${user([lockedBy])}</span>)}
                 </span>)}]]>
 			</value>
 			<value lang="bg"><![CDATA[${eval(
@@ -696,6 +718,7 @@
                 <span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></b>&nbsp;)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							(<span data-property="issueType">${CL([issueType])}</span>)&nbsp;
 							<span data-property="identifier">${get([identifier])}</span>,&nbsp;
 							<span data-property="title">${get([title])}</span>
@@ -708,7 +731,6 @@
 						&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 					)}
 					${if(${get([references])}<>null).then(<br />Препраща&nbsp;към:&nbsp;<span data-property="references">${objectProperty(${get([emf:references])})}</span>)}
-                	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
                 </span>)}]]>
 			</value>
 			<value lang="da"><![CDATA[${eval(
@@ -718,6 +740,7 @@
                 <span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Slettet)</span></b>&nbsp;)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						(<span data-property="issueType">${CL([issueType])}</span>)&nbsp;
 						<span data-property="identifier">${get([identifier])}</span>,&nbsp;
 						<span data-property="title">${get([title])}</span>
@@ -730,7 +753,6 @@
 						&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 					)}
 					${if(${get([references])}<>null).then(<br />Referencer:&nbsp;<span data-property="references">${objectProperty(${get([references])})}</span>)}
-                	${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
                 </span>)}]]>
 			</value>
 		</label>
@@ -739,7 +761,7 @@
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></b>&nbsp;)}
@@ -756,7 +778,7 @@
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Gelöscht)</span></b>&nbsp;)}
@@ -768,12 +790,12 @@
 							&nbsp;<span data-property="emf:version">${get([emf:version])}</span>
 						)}
 				</span>)}]]>
-			</value>			
+			</value>
 			<value lang="bg"><![CDATA[${eval(
-              ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></b>&nbsp;)}
@@ -790,7 +812,7 @@
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Slettet)</span></b>&nbsp;)}
@@ -807,10 +829,8 @@
 		<label id="ISSUE_BREADCRUMB_HEADER">
 			<value lang="bg"><![CDATA[${eval(
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-                ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
-                ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
  				<span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></>&nbsp;)}
@@ -821,10 +841,8 @@
 			</value>
 			<value lang="en"><![CDATA[${eval(
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-                ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
-                ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
  				<span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Deleted)</span></>&nbsp;)}
@@ -835,10 +853,8 @@
 			</value>
 			<value lang="de"><![CDATA[${eval(
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-                ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
-                ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
  				<span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Gelöscht)</span></>&nbsp;)}
@@ -849,10 +865,8 @@
 			</value>
 			<value lang="da"><![CDATA[${eval(
                 ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-                ${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
-                ${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
                 <span ><img src="${thumbnailUri(16)}"/></span>
-                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+                ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
  				<span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<b><span>(Slettet)</span></>&nbsp;)}
@@ -863,5 +877,4 @@
 			</value>
 		</label>
 	</labels>
-
 </definition>

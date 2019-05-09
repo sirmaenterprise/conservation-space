@@ -1,6 +1,6 @@
 import {Inject, Injectable} from 'app/app';
 import {RestClient, HEADER_V2_JSON} from 'services/rest-client';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 
 const SERVICE_PATH = '/annotations';
 const RECENT_COMMENTS = '/discussions';
@@ -11,13 +11,10 @@ export class CommentsRestService {
 
   constructor(restClient, authenticationService) {
     this.restClient = restClient;
-    this.token = authenticationService.getToken();
+    this.authenticationService = authenticationService;
     this.config = {
       headers: {
         'Content-Type': HEADER_V2_JSON
-      },
-      params: {
-        APIKey: this.token
       }
     };
   }
@@ -29,16 +26,19 @@ export class CommentsRestService {
    * @returns {*} the comments
    */
   loadComments(instanceId, tabId) {
-    let config = {
-      params: {
-        media: 'image',
-        limit: '1000',
-        id: instanceId,
-        tabId: tabId,
-        APIKey: this.token
-      }
-    };
-    return this.restClient.get(`${SERVICE_PATH}/search`, config);
+    return this.authenticationService.getToken().then(token => {
+      let config = {
+        params: {
+          media: 'image',
+          limit: '1000',
+          id: instanceId,
+          tabId,
+          APIKey: token
+        }
+      };
+
+      return this.restClient.get(`${SERVICE_PATH}/search`, config);
+    });
   }
 
   /**
@@ -47,15 +47,18 @@ export class CommentsRestService {
    * @param id the id of the instance
    */
   loadAllComments(id) {
-    let config = {
-      params: {
-        media: 'image',
-        limit: '1000',
-        id: id,
-        APIKey: this.token
-      }
-    };
-    return this.restClient.get(`${SERVICE_PATH}/search/all`, config);
+    return this.authenticationService.getToken().then(token => {
+      let config = {
+        params: {
+          media: 'image',
+          limit: '1000',
+          id,
+          APIKey: token
+        }
+      };
+
+      return this.restClient.get(`${SERVICE_PATH}/search/all`, config);
+    });
   }
 
   /**
@@ -64,33 +67,41 @@ export class CommentsRestService {
    * @returns {*} the comment and its replies
    */
   loadReplies(id) {
-    return this.restClient.get(`${SERVICE_PATH}/${encodeURIComponent(id)}`, {
-      params: {
-        media: 'image',
-        limit: '1000',
-        APIKey: this.token
-      }
+    return this.authenticationService.getToken().then(token => {
+      return this.restClient.get(`${SERVICE_PATH}/${encodeURIComponent(id)}`, {
+        params: {
+          media: 'image',
+          limit: '1000',
+          APIKey: token
+        }
+      });
     });
   }
 
   createComment(data) {
-    return this.restClient.post(`${SERVICE_PATH}/create`, data, {
-      params: {
-        APIKey: this.token
-      }
+    return this.authenticationService.getToken().then(token => {
+      return this.restClient.post(`${SERVICE_PATH}/create`, data, {
+        params: {
+          APIKey: token
+        }
+      });
     });
   }
 
   updateComment(id, data) {
-    return this.restClient.post(`${SERVICE_PATH}/update/${encodeURIComponent(id)}`, data, {
-      params: {
-        APIKey: this.token
-      }
+    return this.authenticationService.getToken().then(token => {
+      return this.restClient.post(`${SERVICE_PATH}/update/${encodeURIComponent(id)}`, data, {
+        params: {
+          APIKey: token
+        }
+      });
     });
   }
 
   deleteComment(id) {
-    return this.restClient.delete(`${SERVICE_PATH}/destroy?APIKey=${this.token}&id=${encodeURIComponent(id)}`);
+    return this.authenticationService.getToken().then(token => {
+      return this.restClient.delete(`${SERVICE_PATH}/destroy?APIKey=${token}&id=${encodeURIComponent(id)}`);
+    });
   }
 
   loadRecentComments(data) {

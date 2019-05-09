@@ -1,0 +1,35 @@
+<?xml version="1.0"?> <!-- Denver Document -->
+<definition id="document" type="document" parentId="coreAbstractDocument" isAbstract="false">
+	<regions>	
+		<region id="generalData">
+			<fields>
+				<field name="chc:hasAuthor" >
+					<value>${currentUser.id}</value>
+				</field>
+				<field name= "title" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:type]_$[chc:hasAuthor]_$[emf:createdOn]</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+		<region id="systemData">
+			<fields>
+				<field name="type" codelist="CL7" >
+					<value>FC236005</value>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="Sample"/>
+		<child type="object" id="coreAudio"/>
+		<child type="object" id="coreVideo"/>
+		<child type="object" id="coreImage"/>
+		<child type="task" id="all"/>
+		<child type="workflow" id="reviewAndApproveReportsWF"/>
+	</allowedChildren>
+
+</definition>

@@ -1,0 +1,15 @@
+<div class="model-values-view">
+  <div class="model-value form-group row"
+       ng-repeat="value in modelValuesView.getValues() track by value.getLanguage()"
+       ng-class="{'has-error': modelValuesView.isInvalid(value), 'dirty-value': modelValuesView.isDirty(value)}">
+    <label class="col-md-2 control-label">
+      {{ ::modelValuesView.getLanguageLabel(value.getLanguage()) }}
+    </label>
+    <div class="col-md-10 control-value">
+      <input type="text" class="form-control" ng-readonly="!modelValuesView.editable"
+             ng-model="value.value" ng-change="modelValuesView.onModelChange(value, '{{value.getValueEscaped()}}')">
+      <model-validation-messages ng-if="modelValuesView.isInvalid(value)"
+                                 validation="modelValuesView.getValidation(value)"></model-validation-messages>
+    </div>
+  </div>
+</div>

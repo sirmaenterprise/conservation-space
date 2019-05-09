@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import {CURRENT_OBJECT_TEMP_ID} from 'models/instance-object';
 
+const PURPOSE_CREATE = 'create';
+const PURPOSE_UPLOAD = 'upload';
+
 /**
  * Utility class for common logic related to instance objects.
  *
@@ -36,5 +39,16 @@ export class InstanceUtils {
    */
   static isTempId(id) {
     return id === CURRENT_OBJECT_TEMP_ID;
+  }
+
+  static getPurpose(contentId) {
+    // We need to know whether an persisted object is creatable or uploadable in order to dispalay the correct templates. Persisted
+    // uploadable objects will always have set value in emf:contentId and creatable won't. At the moment we don't have better
+    // mechanism to differentiate between uploadable and creatable persisted objects.
+    return contentId ? PURPOSE_UPLOAD : PURPOSE_CREATE;
+  }
+
+  static isCreatable(purpose) {
+    return purpose === PURPOSE_CREATE;
   }
 }

@@ -52,7 +52,6 @@ import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.instance.InstanceTypes;
 import com.sirma.itt.seip.instance.state.StateTransitionManager;
-import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.permissions.action.AuthorityService;
 import com.sirma.itt.seip.resources.EmfUser;
 import com.sirma.itt.seip.resources.ResourceService;
@@ -115,7 +114,6 @@ public class SemanticAnnotationServiceTest extends GeneralSemanticTest<SemanticA
 
 		ReflectionUtils.setFieldValue(service, "securityContext", securityContextMock);
 		ReflectionUtils.setFieldValue(service, "idManager", idManager);
-		ReflectionUtils.setFieldValue(service, "statistics", new NoOpStatistics());
 		ReflectionUtils.setFieldValue(service, "searchService", new SearchServiceMock(context));
 		ReflectionUtils.setFieldValue(service, "queryBuilder", new AnnotationQueryBuilderMock(context));
 
@@ -143,6 +141,7 @@ public class SemanticAnnotationServiceTest extends GeneralSemanticTest<SemanticA
 		when(instanceTypes.from(OA.ANNOTATION)).thenReturn(Optional.of(new ClassInstance()));
 	}
 
+	@Override
 	@BeforeMethod
 	public void beginTransaction() {
 		super.beginTransaction();

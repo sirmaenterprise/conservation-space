@@ -28,7 +28,7 @@ import com.sirma.itt.seip.domain.definition.ControlParam;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.rest.utils.JsonKeys;
 import com.sirma.itt.seip.testutil.mocks.ControlDefintionMock;
 import com.sirma.itt.seip.testutil.mocks.ControlParamMock;
@@ -62,7 +62,7 @@ public class PropertiesValuesEvaluatorRestTest {
 	private DefinitionModel definitionModel;
 
 	@Mock
-	private InstanceTypeResolver instanceTypeResolver;
+	private DomainInstanceService instanceService;
 
 	@Mock
 	private DefinitionService definitionService;
@@ -83,7 +83,7 @@ public class PropertiesValuesEvaluatorRestTest {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, INSTANCE_PROPERTY_VALUE,
 				INSTANCE_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 		Mockito.when(definitionModel.getField(NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME)).thenReturn(Optional.empty());
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME);
@@ -99,7 +99,7 @@ public class PropertiesValuesEvaluatorRestTest {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, INSTANCE_PROPERTY_VALUE,
 				INSTANCE_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 		setupPropertyDefinition(NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME, true);
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME);
@@ -114,7 +114,7 @@ public class PropertiesValuesEvaluatorRestTest {
 	public void should_NotEvaluatePropertyValue_When_PropertyIsNull() {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, null, INSTANCE_MULTI_VALUED_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME);
@@ -128,7 +128,7 @@ public class PropertiesValuesEvaluatorRestTest {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, (Serializable) INSTANCE_MULTI_VALUED_PROPERTY_VALUE,
 				INSTANCE_MULTI_VALUED_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 		setupPropertyDefinition(NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME, false);
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_SINGLE_VALUED_PROPERTY_NAME);
@@ -144,7 +144,7 @@ public class PropertiesValuesEvaluatorRestTest {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, (Serializable) INSTANCE_MULTI_VALUED_PROPERTY_VALUE,
 				INSTANCE_MULTI_VALUED_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 		setupPropertyDefinition(NEW_INSTANCE_VALUE_SUGGEST_PROPERTY_NAME, false, DEFAULT_VALUE_PATTERN);
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_VALUE_SUGGEST_PROPERTY_NAME);
@@ -155,11 +155,28 @@ public class PropertiesValuesEvaluatorRestTest {
 	}
 
 	@Test
+	public void should_NotEvaluatePropertyValue_When_UserHaveNoPermission() {
+		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
+		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, (Serializable) INSTANCE_MULTI_VALUED_PROPERTY_VALUE,
+				INSTANCE_MULTI_VALUED_PROPERTY_EVALUATED_VALUE);
+		setupPropertyDefinition(NEW_INSTANCE_VALUE_SUGGEST_PROPERTY_NAME, true, DEFAULT_VALUE_PATTERN);
+		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
+		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_VALUE_SUGGEST_PROPERTY_NAME);
+		request.setNewInstanceDefinitionId(NEW_INSTANCE_DEFINITION_ID);
+
+		PropertiesValuesEvaluatorResponse eval = propertiesValuesEvaluatorRest.eval(request);
+
+		Map<String, Object> instanceData = eval.getInstancesData().get(0);
+		Assert.assertEquals(INSTANCE_ID, instanceData.get(JsonKeys.ID));
+		Assert.assertTrue(((List<Map<String, Serializable>>) instanceData.get(JsonKeys.PROPERTIES)).size() == 0);
+	}
+
+	@Test
 	public void should_EvaluatePropertyValue_When_PropertyOfNewInstanceIsValueSuggestControlAndMultiValued() {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, (Serializable) INSTANCE_MULTI_VALUED_PROPERTY_VALUE,
 				INSTANCE_MULTI_VALUED_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 		setupPropertyDefinition(NEW_INSTANCE_VALUE_SUGGEST_PROPERTY_NAME, true, DEFAULT_VALUE_PATTERN);
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_VALUE_SUGGEST_PROPERTY_NAME);
@@ -175,7 +192,7 @@ public class PropertiesValuesEvaluatorRestTest {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, (Serializable) INSTANCE_MULTI_VALUED_PROPERTY_VALUE,
 				INSTANCE_MULTI_VALUED_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 		setupPropertyDefinition(NEW_INSTANCE_MULTI_VALUED_PROPERTY_NAME, true);
 		PropertiesValuesEvaluatorRequest request = new PropertiesValuesEvaluatorRequest();
 		request.addObjectProperty(INSTANCE_ID, INSTANCE_PROPERTY_NAME, NEW_INSTANCE_MULTI_VALUED_PROPERTY_NAME);
@@ -253,16 +270,16 @@ public class PropertiesValuesEvaluatorRestTest {
 		InstanceBuilder instanceBuilder = new InstanceBuilder(INSTANCE_ID);
 		instanceBuilder.addProperty(REAL_INSTANCE_PROPERTY_NAME, INSTANCE_PROPERTY_VALUE,
 				INSTANCE_PROPERTY_EVALUATED_VALUE);
-		setUpInstanceResolver(Collections.singletonList(instanceBuilder));
+		setupInstanceService(Collections.singletonList(instanceBuilder));
 
 		return instanceBuilder;
 	}
 
-	private void setUpInstanceResolver(List<InstanceBuilder> instanceBuilders) {
+	private void setupInstanceService(List<InstanceBuilder> instanceBuilders) {
 		Map<Serializable, Instance> resolvedInstances = instanceBuilders.stream().map(InstanceBuilder::getInstance)
 				.collect(Collectors.toMap(Instance::getId, instance -> instance));
 
-		Mockito.when(instanceTypeResolver.resolveInstances(Matchers.anyCollection())).then(invocation -> {
+		Mockito.when(instanceService.loadInstances(Matchers.anyCollection())).then(invocation -> {
 			Collection<String> instancesIds = invocation.getArgumentAt(0, List.class);
 			return instancesIds.stream().map(resolvedInstances::get).collect(Collectors.toList());
 		});

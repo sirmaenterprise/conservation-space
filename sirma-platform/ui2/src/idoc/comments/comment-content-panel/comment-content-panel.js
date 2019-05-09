@@ -1,11 +1,11 @@
 import {Component, View, Inject, NgTimeout, NgElement} from 'app/app';
-import {Configurable} from 'components/configurable';
-import {Configuration} from 'common/application-config';
 import {NavigatorAdapter} from 'adapters/navigator-adapter';
 import {IdocEditorChangeListener} from 'idoc/editor/idoc-editor-change-listener';
+import {IdocEditorContentProcessor} from 'idoc/editor/content/idoc-editor-content-processor';
 
 import 'common/lib/ckeditor/ckeditor';
 import _ from 'lodash';
+
 import './comment-content-panel.css!';
 import commentContentPanelTemplate from './comment-content-panel.html!text';
 
@@ -22,88 +22,87 @@ const tagMatcher = /<\/?[^>]+(>)|&\w+;/g;
 @View({
   template: commentContentPanelTemplate
 })
-@Inject(NgTimeout, NgElement)
+@Inject(NgTimeout, NgElement, IdocEditorContentProcessor)
 export class CommentContentPanel {
 
-  constructor($timeout, $element) {
+  constructor($timeout, $element, idocEditorContentProcessor) {
     this.$timeout = $timeout;
     this.$element = $element;
+    this.idocEditorContentProcessor = idocEditorContentProcessor;
     this.idocEditorChangeListener = new IdocEditorChangeListener({});
+  }
+
+  ngAfterViewInit() {
     this.initEditor();
   }
 
-  getEditorConfig() {
-    return PluginRegistry.get(editorToolbar)[0].data;
-  }
-
   initEditor() {
-    this.$timeout(() => {
-      CKEDITOR.dtd.$cdata.p = 1;
-      this.editor = CKEDITOR.replace(CommentContentPanel.EDITOR_SELECTOR, {
-        colorButton_foreStyle: {
-          element: 'span',
-          styles: {'color': '#(color)', '-webkit-text-fill-color': '#(color)'},
-          overrides: [{element: 'font', attributes: {'color': null}}]
-        },
-        colorButton_backStyle: {
-          element: 'span',
-          styles: {'background-color': '#(color) !important'},
-          overrides: {element: 'span'}
-        },
-        toolbar: this.getEditorConfig(),
-        extraPlugins: 'default_target,undo',
-        removePlugins: 'autogrow',
-        allowedContent: true
-      });
+    this.editor = CKEDITOR.replace(CommentContentPanel.EDITOR_SELECTOR, {
+      colorButton_foreStyle: {
+        element: 'span',
+        styles: {'color': '#(color)', '-webkit-text-fill-color': '#(color)'},
+        overrides: [{element: 'font', attributes: {'color': null}}]
+      },
+      colorButton_backStyle: {
+        element: 'span',
+        styles: {'background-color': '#(color) !important'},
+        overrides: {element: 'span'}
+      },
+      toolbar: this.getEditorConfig(),
+      extraPlugins: 'default_target,undo',
+      removePlugins: 'autogrow',
+      allowedContent: true
+    });
 
-      this.editor.on('instanceReady', () => {
-        if (this.comment) {
-          this.editor.setData(this.comment.getDescription());
-        }
-        //apply workaround for IE11
-        if (NavigatorAdapter.isInternetExplorer()) {
-          //text selection is broken in ie. This positions the caret at the desired click position.
-          $('.cke_wysiwyg_div').on('click', (e) => {
-            //when you click on the div element caret is positioned properly,
-            //but when you click on the element you want the caret to be, nothing happens.
-            //Here its checked for the position of the selection and sets the appropriate range.
-            if (!$(e.target).is('div')) {
-              let selection = window.getSelection();
-              //apply this only when you click, not select a lot of text
-              if (selection.anchorOffset === selection.focusOffset) {
-                let range = document.createRange();
-                range.selectNodeContents(e.target);
-                range.collapse(true);
-                range.setStart(selection.focusNode, selection.focusOffset);
-                selection.removeAllRanges();
-                selection.addRange(range);
-              }
+    this.editor.on('instanceReady', () => {
+      if (this.comment) {
+        let description = this.comment.getDescription();
+        let valueToSet = this.idocEditorContentProcessor.preprocessContent(this.editor, description);
+        this.editor.setData(valueToSet);
+      }
+      //apply workaround for IE11
+      if (NavigatorAdapter.isInternetExplorer()) {
+        //text selection is broken in ie. This positions the caret at the desired click position.
+        $('.cke_wysiwyg_div').on('click', (e) => {
+          //when you click on the div element caret is positioned properly,
+          //but when you click on the element you want the caret to be, nothing happens.
+          //Here its checked for the position of the selection and sets the appropriate range.
+          if (!$(e.target).is('div')) {
+            let selection = window.getSelection();
+            //apply this only when you click, not select a lot of text
+            if (selection.anchorOffset === selection.focusOffset) {
+              let range = document.createRange();
+              range.selectNodeContents(e.target);
+              range.collapse(true);
+              range.setStart(selection.focusNode, selection.focusOffset);
+              selection.removeAllRanges();
+              selection.addRange(range);
             }
-          });
-          //In IE, the change event is not always fired, because the input event is fired at a the body element for some reason.
-          //workaround for https://ittruse.ittbg.com/jira/browse/CMF-21017
-          this.bodyBinding = $('body').on('keydown', (e) => {
-            //moving to new line is forced when you press ENTER key because most of the time its not detected.
-            if (e.keyCode === 13) {
-              this.editor.execCommand('shiftEnter');
-            }
-            this.editor.fire('change');
-          });
-        }
-      });
+          }
+        });
+        //In IE, the change event is not always fired, because the input event is fired at a the body element for some reason.
+        //workaround for https://ittruse.ittbg.com/jira/browse/CMF-21017
+        this.bodyBinding = $('body').on('keydown', (e) => {
+          //moving to new line is forced when you press ENTER key because most of the time its not detected.
+          if (e.keyCode === 13) {
+            this.editor.execCommand('shiftEnter');
+          }
+          this.editor.fire('change');
+        });
+      }
+    });
 
-      this.editor.on('change', (evt) => {
-        this.idocEditorChangeListener.updateListStyles(evt.editor);
-        // resolve problems related to invoking code outside angular-js lifecycle,
-        // in this case we trigger timeout to update the save button visibility
-        this.$timeout(() => {
-          this.config.dialog.buttons[0].disabled = !this.isValid(this.getCommentContent());
-        }, 0);
-      });
-      // scrolling doesn't close the font size dropdown, making it move with the page CMF-19649
-      this.scrollHandler = _.debounce(this.handleWindowScrollEvent, 250, {leading: true});
-      window.addEventListener('scroll', this.scrollHandler);
-    }, 0);
+    this.editor.on('change', (evt) => {
+      this.idocEditorChangeListener.updateListStyles(evt.editor);
+      // resolve problems related to invoking code outside angular-js lifecycle,
+      // in this case we trigger timeout to update the save button visibility
+      this.$timeout(() => {
+        this.config.dialog.buttons[0].disabled = !this.isValid(this.getCommentContent());
+      }, 0);
+    });
+    // scrolling doesn't close the font size dropdown, making it move with the page CMF-19649
+    this.scrollHandler = _.debounce(this.handleWindowScrollEvent, 250, {leading: true});
+    window.addEventListener('scroll', this.scrollHandler);
   }
 
   /**
@@ -128,7 +127,7 @@ export class CommentContentPanel {
   }
 
   isValid(html) {
-    return $.trim(html.replace(tagMatcher, "")).length !== 0;
+    return $.trim(html.replace(tagMatcher, '')).length !== 0;
   }
 
   getCommentContent() {
@@ -143,6 +142,10 @@ export class CommentContentPanel {
       })
     );
     return ids;
+  }
+
+  getEditorConfig() {
+    return PluginRegistry.get(editorToolbar)[0].data;
   }
 
   ngOnDestroy() {

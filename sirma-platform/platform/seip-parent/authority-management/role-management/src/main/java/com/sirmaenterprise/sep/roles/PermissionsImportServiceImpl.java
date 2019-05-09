@@ -5,11 +5,14 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.enterprise.event.Observes;
@@ -103,6 +106,7 @@ public class PermissionsImportServiceImpl implements PermissionsImportService {
 		List<com.sirmaenterprise.sep.roles.RoleDefinition> roles = new ArrayList<>(roleData.size());
 		List<ActionDefinition> actions = new LinkedList<>();
 		RoleActionChanges roleActionChanges = new RoleActionChanges();
+		Collection<LabelDefinition> actionLabels = new HashSet<>();
 
 		for (Role role : roleData.values()) {
 			RoleIdentifier roleId = role.getRoleId();
@@ -122,13 +126,14 @@ public class PermissionsImportServiceImpl implements PermissionsImportService {
 					action = current;
 					actions.add(toActionDefinition(action, false));
 				}
-				copyLabelAndTooltip(action);
+				copyLabelAndTooltip(action, actionLabels::add);
 			}
 		}
 
 		roleManagement.saveActions(actions);
 		roleManagement.saveRoles(roles);
 		roleManagement.updateRoleActionMappings(roleActionChanges);
+		saveNewActionLabels(actionLabels);
 		LOGGER.info("Permission definitions imported for {} ms", tracker.stop());
 	}
 
@@ -165,15 +170,21 @@ public class PermissionsImportServiceImpl implements PermissionsImportService {
 
 		List<ActionDefinition> actions = new LinkedList<>();
 		Map<String, Action> actionsData = getActions();
+		Collection<LabelDefinition> actionLabels = new HashSet<>();
 
 		for (Entry<String, Action> actionEntry : actionsData.entrySet()) {
 			Action action = actionEntry.getValue();
-			copyLabelAndTooltip(action);
+			copyLabelAndTooltip(action, actionLabels::add);
 			actions.add(toActionDefinition(action, !action.isDisabled()));
 		}
 
 		roleManagement.saveActions(actions);
+		saveNewActionLabels(actionLabels);
 		LOGGER.info("{} Actions imported for {} ms", actions.size(), tracker.stop());
+	}
+
+	private void saveNewActionLabels(Collection<LabelDefinition> actionLabels) {
+		labelService.saveLabels(new ArrayList<>(actionLabels));
 	}
 
 	private static ActionDefinition toActionDefinition(Action action, boolean enabled) {
@@ -199,25 +210,22 @@ public class PermissionsImportServiceImpl implements PermissionsImportService {
 		return oldId + "." + postfix;
 	}
 
-	private void copyLabelAndTooltip(Action action) {
-		if (action.getLabelId() != null) {
-			LabelDefinition label = labelService.getLabel(action.getLabelId());
+	private void copyLabelAndTooltip(Action action, Consumer<LabelDefinition> labelConsumer) {
+		createLabelDef(action.getLabelId(), action.getActionId(), Action.LABEL_KEY).ifPresent(labelConsumer);
+		createLabelDef(action.getTooltip(), action.getActionId(), Action.TOOLTIP).ifPresent(labelConsumer);
+	}
+
+	private Optional<LabelDefinition> createLabelDef(String originalLabelId, String actionId, String labelSuffix) {
+		if (originalLabelId != null) {
+			LabelDefinition label = labelService.getLabel(originalLabelId);
 			if (label != null) {
 				LabelImpl labelCopy = new LabelImpl();
-				labelCopy.setIdentifier(transformLabelId(action.getActionId(), Action.LABEL_KEY));
+				labelCopy.setIdentifier(transformLabelId(actionId, labelSuffix));
 				labelCopy.setLabels(label.getLabels());
-				labelService.saveLabel(labelCopy);
+				return Optional.of(labelCopy);
 			}
 		}
-		if (action.getTooltip() != null) {
-			LabelDefinition tooltip = labelService.getLabel(action.getTooltip());
-			if (tooltip != null) {
-				LabelImpl tooltipCopy = new LabelImpl();
-				tooltipCopy.setIdentifier(transformLabelId(action.getActionId(), Action.TOOLTIP));
-				tooltipCopy.setLabels(tooltip.getLabels());
-				labelService.saveLabel(tooltipCopy);
-			}
-		}
+		return Optional.empty();
 	}
 
 	private Map<RoleIdentifier, Role> getRoles(String path) {

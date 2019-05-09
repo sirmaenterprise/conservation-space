@@ -52,7 +52,7 @@ public class InstanceLinkExpressionEvaluator extends BaseEvaluator {
 				if (!instance.isDeleted()) {
 					link = buildInstanceLink(instance);
 				}
-			} else if (instanceKey.indexOf(':') > 0) {
+			} else if (instanceKey.contains(":")) {
 				// if uri use it directly we will resolve the type later
 				link = linkProviderService.buildLink(instanceKey);
 			}

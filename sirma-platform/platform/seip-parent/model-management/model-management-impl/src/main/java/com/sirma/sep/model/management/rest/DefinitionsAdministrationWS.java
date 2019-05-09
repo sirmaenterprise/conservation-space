@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.soap.MTOM;
 
+import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.rest.annotations.security.AdminResource;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -51,7 +52,7 @@ public class DefinitionsAdministrationWS {
 	private static final String EXIST = "exist";
 
 	@Inject
-	private EventService eventService;
+	private SemanticDefinitionService semanticDefinitionService;
 
 	@Inject
 	private TypeConverter converter;
@@ -69,7 +70,7 @@ public class DefinitionsAdministrationWS {
 	@Path("reloadSemanticDefinitions")
 	public void reloadSemanticDefinitions() {
 		LOGGER.info("Called reloadSemanticDefinitions from WS port");
-		eventService.fire(new LoadSemanticDefinitions());
+		semanticDefinitionService.modelUpdated();
 	}
 
 	/**

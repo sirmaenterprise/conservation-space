@@ -1,4 +1,4 @@
-﻿/**
+﻿﻿/**
  * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
@@ -31,7 +31,6 @@
 			var undoCommand = editor.addCommand( 'undo', {
 				exec: function() {
 					if ( undoManager.undo() ) {
-						editor.selectionChange();
 						this.fire( 'afterUndo' );
 					}
 				},
@@ -42,7 +41,6 @@
 			var redoCommand = editor.addCommand( 'redo', {
 				exec: function() {
 					if ( undoManager.redo() ) {
-						editor.selectionChange();
 						this.fire( 'afterRedo' );
 					}
 				},
@@ -67,9 +65,8 @@
 					undoManager.save();
 			}
 
-			// We'll save snapshots before and after executing a command.
-			editor.on( 'beforeCommandExec', recordCommand );
-			editor.on( 'afterCommandExec', recordCommand );
+			// We'll save snapshots before executing a command.
+      editor.on( 'beforeCommandExec', recordCommand );
 
 			// Save snapshots before doing custom changes.
 			editor.on( 'saveSnapshot', function( evt ) {
@@ -419,9 +416,15 @@
 			// Start transaction - do not allow any mutations to the
 			// snapshots stack done when selecting bookmarks (much probably
 			// by selectionChange listener).
-			this.locked = { level: 999 };
 
-			this.editor.loadSnapshot( image.contents );
+			// this lock check is added, so that lock level can be smoothly updated if plugin has been locked by selection plugin or some other plugin by the editor
+			if ( this.locked ) {
+				this.locked.level += 999;
+			} else {
+				this.locked = {level: 999};
+			}
+
+			this.editor.loadSnapshot(image.getImageContents())
 
 			if ( image.bookmarks )
 				sel.selectBookmarks( image.bookmarks );
@@ -433,19 +436,16 @@
 				$range.collapse( true );
 				$range.select();
 			}
-
-			this.locked = null;
-
+			// instead making useless checks in update, update manually.
 			this.index = image.index;
+			this.snapshots[this.index] = image;
 			this.currentImage = this.snapshots[ this.index ];
-
-			// Update current image with the actual editor
-			// content, since actualy content may differ from
-			// the original snapshot due to dom change. (https://dev.ckeditor.com/ticket/4622)
-			this.update();
 			this.refreshState();
 
-			editor.fire( 'change' );
+			// level is decreased instead of null-ed since widgets are probably not ready.
+			// not remaining locked, creates a snapshot of incomplete widgets which is bad
+			var lockedLevel = this.locked.level - 999;
+			this.locked = lockedLevel ? {level:lockedLevel} : null;
 		},
 
 		/**
@@ -557,8 +557,8 @@
 			while ( i > 0 && this.currentImage.equalsContent( snapshots[ i - 1 ] ) )
 				i -= 1;
 
-			snapshots.splice( i, this.index - i + 1, newImage );
-			this.index = i;
+      snapshots.splice(i + 1, 1, newImage);
+      this.index = i;
 			this.currentImage = newImage;
 		},
 
@@ -791,7 +791,17 @@
 			if ( CKEDITOR.env.ie && contents )
 				contents = contents.replace( /\s+data-cke-expando=".*?"/g, '' );
 
-			this.contents = contents;
+		  this.contents = contents;
+
+      // strip and format content for future comparison.
+      this.strippedContentObject = {};
+      if (editor.stripContentCallback) {
+        this.strippedContentObject = editor.stripContentCallback(contents, editor.widgets.instances);
+      }
+
+      if (CKEDITOR.env.ie && ( CKEDITOR.env.ie7Compat || CKEDITOR.env.quirks )) {
+        this.strippedContentObject.strippedContents.replace(protectedAttrs, '');
+      }
 
 			if ( !contentsOnly ) {
 				var selection = contents && editor.getSelection();
@@ -810,20 +820,37 @@
 		 * @returns {Boolean} Returns `true` if content in `otherImage` is the same.
 		 */
 		equalsContent: function( otherImage ) {
-			var thisContents = this.contents,
-				otherContents = otherImage.contents;
-
-			// For IE7 and IE QM: Comparing only the protected attribute values but not the original ones.(https://dev.ckeditor.com/ticket/4522)
-			if ( CKEDITOR.env.ie && ( CKEDITOR.env.ie7Compat || CKEDITOR.env.quirks ) ) {
-				thisContents = thisContents.replace( protectedAttrs, '' );
-				otherContents = otherContents.replace( protectedAttrs, '' );
+      if (this.strippedContentObject.strippedContents && otherImage.strippedContentObject.strippedContents) {
+				return this.performContentsComparison(this.strippedContentObject.strippedContents, otherImage.strippedContentObject.strippedContents);
 			}
-
-			if ( thisContents != otherContents )
-				return false;
-
-			return true;
+			return this.performContentsComparison(this.contents, otherImage.contents);
 		},
+
+    performContentsComparison: function(thisContents, otherContents) {
+      if (CKEDITOR.env.ie && ( CKEDITOR.env.ie7Compat || CKEDITOR.env.quirks )) {
+        thisContents = thisContents.replace(protectedAttrs, '');
+        otherContents = otherContents.replace(protectedAttrs, '');
+      }
+      if ( thisContents !== otherContents )
+        return false;
+
+      return true;
+    },
+
+    getImageContents: function() {
+      if(this.strippedContentObject.$contents) {
+        var widgetsRepository = this.strippedContentObject.widgetRefs;
+        this.strippedContentObject.$contents.find(this.strippedContentObject.widgetSelector).each(function() {
+          var widgetElement = widgetsRepository[this.id];
+          // sets correct html to widget element which is hollow
+          if (widgetElement) {
+            this.outerHTML = widgetElement.getOuterHtml();
+          }
+        });
+        return this.strippedContentObject.$contents.html();
+      }
+      return this.contents;
+    },
 
 		/**
 		 * @param {CKEDITOR.plugins.undo.Image} otherImage Image to compare to.

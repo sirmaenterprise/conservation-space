@@ -39,6 +39,12 @@ export class CodelistRestService {
     });
   }
 
+  getCodeList(codeList) {
+    return this.promiseAdapter.resolve({
+      data: managementData[codeList]
+    });
+  }
+
   getCodeLists() {
     return this.promiseAdapter.resolve({
       data: Object.values(managementData)

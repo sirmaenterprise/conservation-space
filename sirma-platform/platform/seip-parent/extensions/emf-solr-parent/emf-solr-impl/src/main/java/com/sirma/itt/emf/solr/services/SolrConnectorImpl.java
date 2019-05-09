@@ -1,5 +1,9 @@
 package com.sirma.itt.emf.solr.services;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,6 +11,7 @@ import javax.inject.Inject;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.QueryRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.params.CommonParams;
@@ -20,82 +25,49 @@ import com.sirma.itt.emf.solr.exception.SolrClientException;
 import com.sirma.itt.emf.solr.services.query.DefaultQueryVisitor;
 import com.sirma.itt.seip.domain.search.Query;
 import com.sirma.itt.seip.domain.search.SearchArguments;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
 
 /**
- * The SolrConnector is implementation that supports various request to solr server through http requests.
+ * The SolrConnector is implementation that supports various request to solr
+ * server through http requests.
  *
  * @author Borislav Banchev
  */
 @ApplicationScoped
 public class SolrConnectorImpl implements SolrConnector {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(SolrConnectorImpl.class);
-	private static final boolean TRACE_ENABLED = LOGGER.isTraceEnabled();
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Inject
 	private SolrConfiguration solrConfig;
 
 	@Inject
-	private Statistics statistics;
-
-	@Inject
 	private SolrSearchConfiguration searchConfiguration;
 
 	@Override
-	public QueryResponse queryWithGet(SolrQuery parameters) throws SolrClientException {
-		return query(parameters, METHOD.GET);
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> retrieveSchema() {
+		SolrQuery query = new SolrQuery();
+		query.setParam(CommonParams.QT, "/schema");
+		query.setParam(CommonParams.WT, "json");
+
+		try {
+			Map<String, Object> res = (Map<String, Object>) runQuery(query, METHOD.GET).getResponse().get("schema");
+			return new LinkedHashMap<>(res);
+		} catch (SolrClientException e) {
+			LOGGER.error("unable to load solr schema", e);
+		}
+		return null;
 	}
 
 	@Override
-	public QueryResponse queryWithPost(SolrQuery parameters) throws SolrClientException {
-		return query(parameters, METHOD.POST);
+	@Monitored(@MetricDefinition(name = "solr_search_duration_seconds", type = Type.TIMER, descr = "Search in solr duration in seconds."))
+	public QueryResponse query(SolrQuery query) throws SolrClientException {
+		return runQuery(query, METHOD.POST);
 	}
 
-	/**
-	 * Executes a remote query over solr with the specified method.
-	 *
-	 * @param parameters
-	 *            the parameters
-	 * @param method
-	 *            the specified method
-	 * @return the solr response with results and all the relevant data.
-	 * @throws SolrClientException
-	 *             the solr client exception
-	 */
-	private QueryResponse query(SolrQuery parameters, METHOD method) throws SolrClientException {
-		try {
-			TimeTracker start = statistics.createTimeStatistics(getClass(), "solrSearch");
-			if (TRACE_ENABLED) {
-				start.begin();
-			}
-			parameters.set(CommonParams.OMIT_HEADER, true);
-			if (TRACE_ENABLED) {
-				parameters.set(CommonParams.DEBUG_QUERY, "true");
-				LOGGER.trace("Executing solr search with params: " + parameters);
-			}
-
-			includeDefaults(parameters);
-
-			QueryResponse response = new QueryRequest(parameters, method).process(solrConfig.getSolrServer());
-			if (TRACE_ENABLED) {
-				long stop = start.stop();
-				Object debugInfo = parameters.get(CommonParams.Q);
-				debugInfo = debugInfo == null ? parameters.toString() : debugInfo;
-				LOGGER.trace("Solr search took {} ms for query '{}'.Result is of size: {}", stop, debugInfo,
-						response.getResults() != null ? response.getResults().size() : -1);
-				LOGGER.trace("Query Debug:" + response.getDebugMap());
-			}
-			return response;
-		} catch (Exception e) {
-			LOGGER.error("Solr search failed for query '{}'", parameters.get(CommonParams.Q));
-			throw new SolrClientException(e);
-		}
-
-	}
-
-	private void includeDefaults(SolrQuery query) {
+	private QueryResponse runQuery(SolrQuery query, METHOD method) throws SolrClientException {
 		if (query.get(CommonParams.TZ) == null) {
 			query.set(CommonParams.TZ, TimeZone.getDefault().getID());
 		}
@@ -111,11 +83,28 @@ public class SolrConnectorImpl implements SolrConnector {
 		if (searchConfiguration.getStatusFilterQuery().isSet()) {
 			query.add(CommonParams.FQ, searchConfiguration.getStatusFilterQuery().get());
 		}
+
+		boolean trace = LOGGER.isTraceEnabled();
+		if (trace) {
+			query.set(CommonParams.DEBUG_QUERY, "true");
+		}
+
+		try {
+			QueryResponse response = new QueryRequest(query, method).process(solrConfig.getSolrServer());
+
+			if (trace) {
+				Object debugInfo = query.get(CommonParams.Q);
+				LOGGER.trace("solr search query: {}", debugInfo);
+				LOGGER.trace("solr search query debug: {}", response.getDebugMap());
+			}
+			return response;
+		} catch (SolrServerException | IOException e) {
+			throw new SolrClientException(e);
+		}
 	}
 
 	@Override
 	public QueryResponse suggest(SearchArguments<Object> query) throws SolrClientException {
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "suggest").begin();
 		try {
 			SolrQuery parameters = new SolrQuery();
 			String mQueryString = query.getStringQuery();
@@ -127,10 +116,7 @@ public class SolrConnectorImpl implements SolrConnector {
 			return new QueryRequest(parameters).process(solrConfig.getSolrServer());
 		} catch (Exception e) {
 			throw new SolrClientException(e);
-		} finally {
-			tracker.stop();
 		}
-
 	}
 
 	/**
@@ -153,5 +139,4 @@ public class SolrConnectorImpl implements SolrConnector {
 		queryVisitor.visit(query.getQuery());
 		return queryVisitor.getQuery().toString();
 	}
-
 }

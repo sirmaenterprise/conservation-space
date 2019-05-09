@@ -2,7 +2,7 @@ import _ from 'lodash';
 import {Component, View, Inject} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {InstanceRestService} from 'services/rest/instance-service';
-import {InstanceByTypeFilter} from 'filters/instance-by-type-filter';
+import 'filters/instance-by-type-filter';
 import {HEADER_DEFAULT, HEADER_BREADCRUMB, HEADER_COMPACT} from 'instance-header/header-constants';
 import 'header-container/header-container';
 
@@ -19,9 +19,7 @@ import './instance-list.css!';
     typesFilter: 'types-filter'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(InstanceRestService)
 export class InstanceList extends Configurable {
 

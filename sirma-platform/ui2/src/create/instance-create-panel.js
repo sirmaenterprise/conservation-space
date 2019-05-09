@@ -1,7 +1,7 @@
 import {Component, View, Inject} from 'app/app';
 import {Configurable} from 'components/configurable';
-import {ContextSelector} from 'components/contextselector/context-selector';
-import {InstanceCreateConfiguration} from 'create/instance-create-configuration';
+import 'components/contextselector/context-selector';
+import 'create/instance-create-configuration';
 import {ModelsService} from 'services/rest/models-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {NotificationService} from 'services/notification/notification-service';

@@ -1,8 +1,9 @@
 package com.sirma.sep.definition.validation;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,13 +13,12 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.definition.validator.DefinitionValidator;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
+import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
+import com.sirma.sep.definition.DefinitionImportMessageBuilder;
 
 /**
  * Validates definitions.
@@ -31,8 +31,6 @@ public class DefinitionValidationService {
 	@Any
 	private Instance<DefinitionValidator> validators;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	/**
 	 * Performs formal validation of definitions.
 	 * Should be used before compilation.
@@ -41,24 +39,22 @@ public class DefinitionValidationService {
 	 * @return list with errors during validation
 	 */
 	@SuppressWarnings("static-method")
-	public List<String> validateDefinitions(List<? extends GenericDefinition> definitions) {
-		List<String> errors = new ArrayList<>();
+	public List<ValidationMessage> validateDefinitions(List<? extends GenericDefinition> definitions) {
+		DefinitionImportMessageBuilder validationBuilder = new DefinitionImportMessageBuilder();
 
-		List<String> duplicateDefinitionErrors = checkForDuplicateDefinitions(definitions);
-		errors.addAll(duplicateDefinitionErrors);
+		checkForDuplicateDefinitions(definitions, validationBuilder);
 
-		List<String> definitionsCycleErrors = checkForHierarchyCycles(definitions);
-		errors.addAll(definitionsCycleErrors);
+		checkForHierarchyCycles(definitions, validationBuilder);
 
-		List<String> missingParentErrors = checkForMissingParent(definitions);
-		errors.addAll(missingParentErrors);
+		checkForMissingParent(definitions, validationBuilder);
 
-		return errors;
+		checkForDuplicatedFields(definitions, validationBuilder);
+
+		return validationBuilder.getMessages();
 	}
 
-	private static List<String> checkForDuplicateDefinitions(List<? extends GenericDefinition> definitions) {
-		List<String> errors = new ArrayList<>();
-
+	private void checkForDuplicateDefinitions(List<? extends GenericDefinition> definitions,
+			DefinitionImportMessageBuilder validationBuilder) {
 		Set<String> visited = new HashSet<>();
 
 		Set<String> duplicatedIds = new HashSet<>();
@@ -67,67 +63,54 @@ public class DefinitionValidationService {
 			String id = definition.getIdentifier();
 
 			if (visited.contains(id)) {
-				LOGGER.debug("Duplicate definition id found {}", id);
-				errors.add("Multiple definitions with id '" + id + "' are found");
-
 				duplicatedIds.add(id);
+				validationBuilder.duplicatedDefinitions(id);
 			}
 
 			visited.add(id);
 		}
 
 		definitions.removeIf(definition -> duplicatedIds.contains(definition.getIdentifier()));
-
-		return errors;
 	}
 
-	private static List<String> checkForMissingParent(List<? extends GenericDefinition> definitions) {
+	private void checkForMissingParent(List<? extends GenericDefinition> definitions,
+			DefinitionImportMessageBuilder validationBuilder) {
 		Map<String, GenericDefinition> index = toMap(definitions);
 
 		Set<String> definitionsWithMissingParent = new HashSet<>();
 
-		List<String> errors = new ArrayList<>();
-
 		definitions.stream()
-					.filter(definition -> definition.getParentDefinitionId() != null)
-					.forEach(definition -> {
-						boolean missing = false;
+				.filter(definition -> definition.getParentDefinitionId() != null)
+				.forEach(definition -> {
+					boolean missing = false;
 
-						if (!index.containsKey(definition.getParentDefinitionId())) {
-							missing = true;
-						} else {
-							GenericDefinition current = definition;
+					if (!index.containsKey(definition.getParentDefinitionId())) {
+						missing = true;
+					} else {
+						GenericDefinition current = definition;
 
-							// traverse the hierarchy upwards to find if some of the ancestors is missing
-							while (current.getParentDefinitionId() != null) {
-								if (!index.containsKey(current.getParentDefinitionId())) {
-									missing = true;
-									break;
-								}
-
-								current = index.get(current.getParentDefinitionId());
+						// traverse the hierarchy upwards to find if some of the ancestors is missing
+						while (current.getParentDefinitionId() != null) {
+							if (!index.containsKey(current.getParentDefinitionId())) {
+								missing = true;
+								break;
 							}
+
+							current = index.get(current.getParentDefinitionId());
 						}
+					}
 
-						if (missing) {
-							definitionsWithMissingParent.add(definition.getIdentifier());
-
-							String error = "The parent definition '" + definition.getParentDefinitionId() + "'"
-									+ " of definition '" + definition.getIdentifier() + "' is missing or has validation errors";
-							LOGGER.debug(error);
-
-							errors.add(error);
-						}
-					});
+					if (missing) {
+						definitionsWithMissingParent.add(definition.getIdentifier());
+						validationBuilder.missingParent(definition.getIdentifier(), definition.getParentDefinitionId());
+					}
+				});
 
 		definitions.removeIf(definition -> definitionsWithMissingParent.contains(definition.getIdentifier()));
-
-		return errors;
 	}
 
-	private static List<String> checkForHierarchyCycles(List<? extends GenericDefinition> definitions) {
-		List<String> errors = new ArrayList<>();
-
+	private void checkForHierarchyCycles(List<? extends GenericDefinition> definitions,
+			DefinitionImportMessageBuilder validationBuilder) {
 		Set<String> definitionsFormingCycle = new HashSet<>();
 
 		Map<String, GenericDefinition> index = toMap(definitions);
@@ -140,13 +123,8 @@ public class DefinitionValidationService {
 			while (current != null) {
 				if (visited.contains(current)) {
 					visited.add(current);
-
-					String error = "Definition '" + id + "' contains hierarchy cycle " + StringUtils.join(visited, " -> ");
-					errors.add(error);
-					LOGGER.debug(error);
-
 					definitionsFormingCycle.add(id);
-
+					validationBuilder.hierarchyCycle(id, visited);
 					break;
 				}
 
@@ -161,13 +139,22 @@ public class DefinitionValidationService {
 		}
 
 		definitions.removeIf(definition -> definitionsFormingCycle.contains(definition.getIdentifier()));
+	}
 
-		return errors;
+	private void checkForDuplicatedFields(List<? extends GenericDefinition> definitions,
+			DefinitionImportMessageBuilder validationBuilder) {
+		definitions.forEach(definition -> {
+			// Collect all field names (root fields + from regions)
+			List<String> fieldNames = definition.fieldsStream().map(PropertyDefinition::getName).collect(Collectors.toList());
+			fieldNames.stream()
+					.filter(fieldName -> Collections.frequency(fieldNames, fieldName) > 1)
+					.collect(Collectors.toSet())
+					.forEach(duplicatedField -> validationBuilder.duplicatedFields(definition.getIdentifier(), duplicatedField));
+		});
 	}
 
 	private static Map<String, GenericDefinition> toMap(List<? extends GenericDefinition> definitions) {
-		return definitions.stream()
-							.collect(CollectionUtils.toIdentityMap(GenericDefinition::getIdentifier));
+		return definitions.stream().collect(CollectionUtils.toIdentityMap(GenericDefinition::getIdentifier));
 	}
 
 	/**
@@ -177,22 +164,12 @@ public class DefinitionValidationService {
 	 * @param definitions definitions to validate.
 	 * @return list with error messages.
 	 */
-	public List<String> validateCompiledDefinitions(List<? extends GenericDefinition> definitions) {
-		List<String> allErrors = new ArrayList<>();
-
+	public List<ValidationMessage> validateCompiledDefinitions(List<? extends GenericDefinition> definitions) {
+		List<ValidationMessage> validationMessages = new LinkedList<>();
 		for (GenericDefinition definition : definitions) {
-			List<String> definitionErrors = new ArrayList<>();
-
-			validators.forEach(validator -> definitionErrors.addAll(validator.validate(definition)));
-
-			List<String> errors = definitionErrors.stream()
-							.map(message -> "Error found in definition '" + definition.getIdentifier() + "': " + message)
-							.collect(Collectors.toList());
-
-			allErrors.addAll(errors);
+			validators.forEach(validator -> validationMessages.addAll(validator.validate(definition)));
 		}
-
-		return allErrors;
+		return validationMessages;
 	}
 
 }

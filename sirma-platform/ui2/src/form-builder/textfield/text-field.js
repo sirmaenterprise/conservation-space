@@ -12,7 +12,10 @@ export class TextField extends FormControl {
 
   ngOnInit() {
     this.initElement();
-
+    let initialValue = this.validationModel[this.fieldViewModel.identifier].value;
+    if (this.isObjectPropertyValue(initialValue)) {
+      this.validationModel[this.fieldViewModel.identifier].value = initialValue.results.join();
+    }
     this.editField.val(this.validationModel[this.fieldViewModel.identifier].value);
     this.editField.on('input', () => {
       if (this.isControl(DEFAULT_VALUE_PATTERN)) {
@@ -47,5 +50,9 @@ export class TextField extends FormControl {
 
   notifyWhenReady() {
     return true;
+  }
+
+  isObjectPropertyValue(value) {
+    return value instanceof Object && value.results;
   }
 }

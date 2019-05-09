@@ -12,6 +12,7 @@ import com.sirma.itt.seip.domain.DmsAware;
 import com.sirma.itt.seip.domain.instance.DMSInstance;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.io.FileAndPropertiesDescriptor;
 import com.sirma.itt.seip.io.FileDescriptor;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
@@ -64,15 +65,15 @@ public class Alfresco4ContentStore implements ContentStore {
 
 	@Override
 	public StoreItemInfo add(Serializable target, Content descriptor) {
-		if (!(target instanceof Instance) || descriptor == null) {
+		if (descriptor == null) {
 			return null;
 		}
-		Instance instance = (Instance) target;
+		DMSInstance instance = copyToDMsInstance(target);
 		try {
 			UploadWrapperDescriptor adapter = new UploadWrapperDescriptor(descriptor.getContent(),
-					documentAdapter.getLibraryDMSId(), instance.getProperties());
+					documentAdapter.getLibraryDMSId(), Collections.emptyMap());
 			adapter.setUploadMode(UploadMode.CUSTOM);
-			FileAndPropertiesDescriptor result = documentAdapter.uploadContent((DMSInstance) instance, adapter,
+			FileAndPropertiesDescriptor result = documentAdapter.uploadContent(instance, adapter,
 					getContentAspect());
 			return createStoreInfo().setRemoteId(result.getId()).setContentLength(adapter.uploadedSize());
 		} catch (DMSException e) {
@@ -92,7 +93,7 @@ public class Alfresco4ContentStore implements ContentStore {
 
 	@Override
 	public StoreItemInfo update(Serializable source, Content descriptor, StoreItemInfo previousVersion) {
-		if (!(source instanceof Instance && descriptor != null)) {
+		if (descriptor == null) {
 			throw new IllegalArgumentException("Missing required parameters");
 		}
 		if (!isFromThisStore(previousVersion)) {
@@ -101,11 +102,10 @@ public class Alfresco4ContentStore implements ContentStore {
 		}
 		String remoteId = previousVersion.getRemoteId();
 		try {
-			Instance instance = (Instance) source;
 			UploadWrapperDescriptor adapter = new UploadWrapperDescriptor(descriptor.getContent(), null,
-					instance.getProperties());
+					Collections.emptyMap());
 
-			DMSInstance copy = copyToDMsInstance(instance);
+			DMSInstance copy = copyToDMsInstance(source);
 			copy.setDmsId(remoteId);
 
 			FileAndPropertiesDescriptor propertiesDescriptor = documentAdapter.uploadNewVersion(copy, adapter);
@@ -119,7 +119,23 @@ public class Alfresco4ContentStore implements ContentStore {
 		}
 	}
 
-	private static DMSInstance copyToDMsInstance(Instance instance) {
+	private static DMSInstance copyToDMsInstance(Serializable source) {
+		// affected issue: CMF-30354
+		// also some functionality does not work with instances anymore, also no properties should be send or read
+		// to and from alfresco so instance is not required by the service, but the alfresco adapter logic still depends
+		// on it, these changes are so that logic to just work a little more until it's completely removed
+		if (source == null) {
+			ObjectInstance instance = new ObjectInstance();
+			instance.getOrCreateProperties();
+			return instance;
+		}
+		if (source instanceof String) {
+			ObjectInstance instance = new ObjectInstance();
+			instance.getOrCreateProperties();
+			instance.setId(source.toString());
+			return instance;
+		}
+		Instance instance = (Instance) source;
 		DMSInstance copy;
 		if (instance instanceof DMSInstance) {
 			copy = (DMSInstance) ReflectionUtils.newInstance(instance.getClass());

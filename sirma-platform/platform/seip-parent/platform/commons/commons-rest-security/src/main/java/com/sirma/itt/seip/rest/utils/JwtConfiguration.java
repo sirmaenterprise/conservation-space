@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.crypto.KeyGenerator;
@@ -63,6 +64,11 @@ public class JwtConfiguration {
 	private ConfigurationProperty<String> parameterName;
 
 	@Inject
+	@Configuration
+	@ConfigurationPropertyDefinition(name = "security.jwt.revocation.time", type = Date.class, label = "Revoke any tokens issued before this date. Expected format is in ISO 8601. Default value is empty which means NO revocation.")
+	private ConfigurationProperty<Date> revocationTime;
+
+	@Inject
 	private ConfigurationManagement configurationManagement;
 
 	/**
@@ -116,6 +122,10 @@ public class JwtConfiguration {
 	 */
 	public String getJwtParameterName() {
 		return parameterName.get();
+	}
+
+	public ConfigurationProperty<Date> getRevocationTimeConfig() {
+		return revocationTime;
 	}
 
 	/**

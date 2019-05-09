@@ -1513,4 +1513,94 @@
 		<comment>Increase locktype column size</comment>
 		<modifyDataType tableName="seip_lockedentity" columnName="locktype" newDataType="varchar(128)"/>
 	</changeSet>
+
+	<changeSet id="definition-db-2.25.0-1" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="emf_labels"/>
+		</preConditions>
+		<comment>Adds new column to store definition ids where label is defined</comment>
+		<addColumn tableName="emf_labels">
+			<column name="defined_in" type="varchar(2048)" />
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="definition-db-2.25.0-2" author="bbonev">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="emf_filterdefinition"/>
+		</preConditions>
+		<comment>Adds new column to store definition ids where filter is defined</comment>
+		<addColumn tableName="emf_filterdefinition">
+			<column name="defined_in" type="varchar(2048)" />
+		</addColumn>
+	</changeSet>
+    
+    <changeSet id="sep-2.28.0-1" author="bbonev" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="emf_propertyvalue" />
+			<tableExists tableName="emf_properties" />
+			<not>
+				<sqlCheck expectedResult="0">select count(id) from emf_properties</sqlCheck>
+			</not>
+        </preConditions>
+        <comment>Trim extra rows from emf_propertyvalue that are not part of the emf_properties</comment>
+		<sql endDelimiter=";">
+			begin;
+
+			CREATE TABLE public.emf_propertyvalue_copy
+			(
+			id bigint NOT NULL,
+			actualtype integer,
+			booleanvalue smallint,
+			doublevalue double precision,
+			floatvalue real,
+			longvalue bigint,
+			persistedtype integer,
+			stringvalue character varying(2048),
+			serializablevalue_id bigint,
+			CONSTRAINT emf_propertyvalue_copy_pkey PRIMARY KEY (id)
+			);
+
+			CREATE TABLE public.emf_properties_copy
+			(
+			id bigint NOT NULL,
+			bean_id character varying(100),
+			bean_type integer NOT NULL,
+			listindex integer,
+			propertyid bigint NOT NULL,
+			value_id bigint,
+			CONSTRAINT emf_properties_copy_pkey PRIMARY KEY (id)
+			);
+
+			-- copy only the needed values. Note that the current query will keep all present properties intact and
+			-- will remove only the values that are currently referenced.
+			INSERT INTO emf_properties_copy (id, bean_id, bean_type, listindex, propertyid, value_id) (select id, bean_id, bean_type, listindex, propertyid, value_id from emf_properties);
+			INSERT INTO emf_propertyvalue_copy (id, actualtype, booleanvalue, doublevalue, floatvalue, longvalue, persistedtype, stringvalue, serializablevalue_id) (select id, actualtype, booleanvalue, doublevalue, floatvalue, longvalue, persistedtype, stringvalue, serializablevalue_id from emf_propertyvalue where id in (select value_id from emf_properties_copy));
+
+			-- remove the foreign key constrains so truncate and inserts will work properly
+			-- remove the foreign key to emf_serializablevalue so truncate does not clear that table as well because its shared table and not all data is from here
+			alter table emf_propertyvalue drop constraint fk3f9056db89f52d0f;
+			alter table emf_properties drop constraint fkc4be17548af55c15;
+
+			-- truncate only the specified tables, do not want to clear the emf_serializablevalue table
+			TRUNCATE emf_properties, emf_propertyvalue;
+
+			-- copy back the data
+			INSERT INTO emf_properties (select id, bean_id, bean_type, listindex, propertyid, value_id from emf_properties_copy);
+			INSERT INTO emf_propertyvalue (select id, actualtype, booleanvalue, doublevalue, floatvalue, longvalue, persistedtype, stringvalue, serializablevalue_id from emf_propertyvalue_copy);
+
+			-- restore the foreign keys
+			alter table public.emf_propertyvalue ADD CONSTRAINT fk3f9056db89f52d0f FOREIGN KEY (serializablevalue_id)
+			REFERENCES public.emf_serializablevalue (id) MATCH SIMPLE
+			ON UPDATE NO ACTION ON DELETE CASCADE;
+
+			alter table public.emf_properties ADD CONSTRAINT fkc4be17548af55c15 FOREIGN KEY (value_id)
+			REFERENCES public.emf_propertyvalue (id) MATCH SIMPLE
+			ON UPDATE NO ACTION ON DELETE CASCADE;
+
+			DROP TABLE emf_propertyvalue_copy;
+			DROP TABLE emf_properties_copy;
+
+			commit;
+		</sql>
+    </changeSet>
 </databaseChangeLog>

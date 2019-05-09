@@ -1,6 +1,5 @@
 import {Inject, Injectable} from 'app/app';
 import {RestClient, HEADER_V2_JSON} from 'services/rest-client';
-import _ from 'lodash';
 
 const INTEGRATION_URL = '/integration';
 

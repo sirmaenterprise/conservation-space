@@ -1,120 +1,87 @@
 <?xml version="1.0" ?>
-<definition id="ngaStandaloneCommonTask" parentId="standaloneCommonTask" type="task">
+<definition id="ngaStandaloneCommonTask" parentId="baseTask" type="task">
 	<fields>
 		<field name="default_header" type="ANY" label="STANDALONE_TASK_DEFAULT_HEADER_NGA" />
-		<field name="compact_header" type="an..4096" label="STANDALONE_TASK_COMPACT_HEADER_NGA" />
-		<field name="breadcrumb_header" type="an..4096" label="STANDALONE_TASK_BREADCRUMB_HEADER_NGA" />
+		<field name="compact_header" type="ANY" label="STANDALONE_TASK_COMPACT_HEADER_NGA" />
+		<field name="breadcrumb_header" type="ANY" label="STANDALONE_TASK_BREADCRUMB_HEADER_NGA" />
 		<field name="tooltip_header" type="ANY" label="STANDALONE_TASK_TOOLTIP_HEADER_NGA" />
-
-		<field name="assignee" type="uri" displayType="system"/>	
-		<field name="priority" type="an..20" displayType="system"/>
+	
 		<field name="title" type="an..1024" displayType="system" mandatory="false" >
 			<value>Task</value>
 		</field>
-		<field name="identifier" type="an..50" displayType="system" />	
-		<field name="plannedStartDate" type="dateTime" displayType="system"/>
-		<field name="plannedEndDate" type="dateTime" displayType="system"/>
-		<field name="type" type="an..20" displayType="system"/>
-		<field name="status" type="an..20" displayType="system" />
-		<field name="description" type="an..1000" displayType="system"/>
-		<field name="modifiedOn" type="datetime" displayType="system"/>
-		<field name="modifiedBy" type="uri" displayType="system"/>
-		<field name="createdOn" type="datetime" displayType="system" />
-		<field name="createdBy"	type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="integrated" type="boolean" label="emf.integrated.label" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="poolAssignees" type="uri" displayType="system" />
-		<field name="assignees" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" />
-		
+		<field name="uri" displayType="system" />
+		<field name="poolAssignees" displayType="system" />
+		<field name="assignees" displayType="system" />
 	</fields>
 	<regions>
 		<region id="taskAssignment" order="100" displayType="editable" label="ngaStandaloneCommonTask.taskAssignment.label" >
 			<fields>
-				<field name="type" type="an..20" codelist="CL7" label="nga.type.label" tooltip="nga.type.tooltip" mandatory="true" displayType="readOnly" order="10" uri="emf:type" >
+				<field name="type" codelist="CL7" tooltip="nga.type.tooltip" order="10" >
 					<value>NGATSK</value>
 				</field>	
-				<field name="subType" type="an..180" mandatory="true" displayType="editable" codelist="CL28" order="12" label="nga.subType.label" tooltip="nga.subType.tooltip" uri="nga:subClassification" >
+				<field name="subType" type="ANY" mandatory="true" displayType="editable" codelist="CL28" order="12" label="nga.subType.label" tooltip="nga.subType.tooltip" uri="nga:subClassification" >
 					<condition id="readonlyFields" renderAs="READONLY">+[activityId]</condition>
 				</field>
-				<field name="purpose" type="an..10" displayType="editable" codelist="CL214" label="nga.purpose.label" tooltip="ngaDocument.purpose.tooltip" order="13" uri="nga:purpose" previewEmpty="false" />
-				<field name="department" type="an..1024" mandatory="true" codelist="CL245" label="nga.department.label" tooltip="nga.department.tooltip" displayType="editable" order="15" multiValued="true" filters="ngaConservationDepartment2" uri="emf:departmentName" >
+				<field name="purpose" type="ANY" displayType="editable" codelist="CL214"  tooltip="ngaDocument.purpose.tooltip" order="13" uri="nga:purpose" previewEmpty="false" />
+				<field name="department" type="ANY" mandatory="true" codelist="CL245" label="nga.department.label" tooltip="nga.department.tooltip" displayType="editable" order="15" multiValued="true" uri="emf:departmentName" >
 					<condition id="optionalField" renderAs="OPTIONAL">+[activityId]</condition>
-					<control id="DEFAULT_VALUE_PATTERN">
+					<control id="RELATED_FIELDS">
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">department</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGACDP24501,NGACDP24502,NGACDP24503,NGACDP24504,NGACDP24505,NGACDP24506,NGACDP24507,NGACDP24508,NGACDP24509</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
 						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
 					</control>
 				</field>
-				<field name="assignee" type="uri" label="nga.hasAssignee.label" tooltip="nga.assignee.tooltip" mandatory="true" displayType="editable" order="20" previewEmpty="false" uri="emf:hasAssignee">
+				<field name="assignee" label="nga.hasAssignee.label" tooltip="nga.assignee.tooltip" mandatory="true" order="20" >
 					<condition id="readonlyFields" renderAs="READONLY">[status] NOTIN ('INIT','NEW')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 					<value>${currentUser.id}</value>
 				</field>
-				<field name="description" type="an..1000" label="nga.description.label" tooltip="nga.description.tooltip" displayType="editable" previewEmpty="false" order="25" uri="dcterms:description" />
-				<field name="nga:numberOfObjects" type="an..10" displayType="editable" label="nga.numberOfObjects.label" tooltip="nga.numberOfObjects.tooltip" order="26" previewEmpty="false" uri="nga:numberOfObjects" />
-				<field name="nga:relatedObjectClassification" type="an..50" displayType="editable" codelist="CL7" label="nga.type-classification.label" tooltip="nga.relatedObjectClassification.tooltip" order="27" multiValued="true" previewEmpty="false" uri="nga:relatedObjectClassification" filters="relatedCOInTask2" />
-				<field name="nga:exhibitionDescription" type="an..1024" displayType="editable" label="nga.exhibitionDescription.label" tooltip="nga.exhibitionDescription.tooltip" order="30" previewEmpty="false" uri="nga:exhibitionDescription"  />
-				<field name="nga:exhibitionId" type="an..1024" displayType="editable" label="NGAPR001.exhibitionId.label" tooltip="NGAPR001.exhibitionId.tooltip" order="35" previewEmpty="false" uri="nga:exhibitionId"  />
-				<field name="nga:loanId" type="an..1024" displayType="editable" label="nga.loanId.label" tooltip="nga.loanId.tooltip" order="40" previewEmpty="false" uri="nga:loanId" />
-				<field name="priority" type="an..20" codelist="CL29" label="priority.label" tooltip="nga.priority.tooltip" mandatory="false" displayType="editable" order="45" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority"><value>0006-000084</value></field>
-				<field name="plannedStartDate" type="date" label="nga.plannedStartDate.label" tooltip="nga.plannedStartDate.tooltip" displayType="editable" order="48" uri="emf:plannedStartDate">
+				<field name="description" tooltip="nga.description.tooltip" order="25" previewEmpty="false" />
+				<field name="nga:numberOfObjects" type="an..10" displayType="editable" tooltip="nga.numberOfObjects.tooltip" order="26" previewEmpty="false" uri="nga:numberOfObjects" />
+				<field name="nga:relatedObjectClassification" type="ANY" displayType="editable" codelist="CL7" label="nga.type-classification.label" tooltip="nga.relatedObjectClassification.tooltip" order="27" multiValued="true" previewEmpty="false" uri="nga:relatedObjectClassification" >
+					<control id="RELATED_FIELDS">
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">nga:relatedObjectClassification</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGACO7001,NGACO7002,NGACO7003,NGACO7004,NGACO7005,NGACO7006,NGACO7007,NGACO7008,NGACO7009,NGACO7010,NGACO7011,NGACO7012</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
+				<field name="nga:exhibitionDescription" type="an..1024" displayType="editable" tooltip="nga.exhibitionDescription.tooltip" order="30" previewEmpty="false" uri="nga:exhibitionDescription"  >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="nga:exhibitionId" type="an..1024" displayType="editable" tooltip="NGAPR001.exhibitionId.tooltip" order="35" previewEmpty="false" uri="nga:exhibitionId"  />
+				<field name="nga:loanId" type="an..1024" displayType="editable" tooltip="nga.loanId.tooltip" order="40" previewEmpty="false" uri="nga:loanId" />
+				<field name="priority" tooltip="nga.priority.tooltip" order="45" ><value>0006-000084</value></field>
+				<field name="plannedStartDate" type="date" label="nga.plannedStartDate.label" tooltip="nga.plannedStartDate.tooltip" order="48" >
 					<value>${today}</value>
 				</field>
-				<field name="plannedEndDate" type="date" order="50" label="nga.plannedEndDate.label" tooltip="nga.plannedEndDate.tooltip" displayType="editable" previewEmpty="false" uri="emf:plannedEndDate"/>
-				<field name="treatmentType" type="an..10" order="52" codelist="CL342" label="nga.treatmentType.label" tooltip="nga.treatmentType.tooltip" displayType="hidden" previewEmpty="false" uri="nga:treatmentType">
+				<field name="plannedEndDate" type="date" order="50" label="nga.plannedEndDate.label" tooltip="nga.plannedEndDate.tooltip" previewEmpty="false" />
+				<field name="treatmentType" type="ANY" order="52" codelist="CL342" tooltip="nga.treatmentType.tooltip" displayType="hidden" previewEmpty="false" uri="nga:treatmentType">
 					<condition id="visibleFields" renderAs="VISIBLE">[subType] IN ('NGA24336','NGA24337','NGA24338','NGA24339','NGA24340')</condition>
 					<condition id="editableFields" renderAs="ENABLED">[subType] IN ('NGA24336','NGA24337','NGA24338','NGA24339','NGA24340')</condition>
 				</field>	
-				<field name="completedOn" type="datetime" displayType="readOnly" order="53" label="completedOn.label" tooltip="nga.completedOn.tooltip" previewEmpty="false" uri="emf:completedOn" >
+				<field name="completedOn" order="53" tooltip="nga.completedOn.tooltip" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NOT_YET_STARTED','IN_PROGRESS','ON_HOLD','INIT') OR -[activityId]</condition>
 				</field>
-				<field name="outcome" type="an..50" codelist="CL22" displayType="readOnly" order="54" label="outcome.label" tooltip="nga.outcome.tooltip" previewEmpty="false" uri="emf:outcome" >
+				<field name="outcome" order="54" tooltip="nga.outcome.tooltip" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NOT_YET_STARTED','IN_PROGRESS','ON_HOLD','INIT') OR -[activityId]</condition>
 				</field>	
 			</fields>
 		</region> 
 		<region id="systemInformation" order="500" displayType="editable" label="nga.systemInformation.region.label">
 			<fields>
-				<field name="identifier" type="an..50" label="nga.identifier.label" tooltip="nga.identifier.tooltip" displayType="readOnly" order="500" rnc="${eval(TC${seq({+tcSequence})})}" uri="dcterms:identifier">
-					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NEW')</condition>
-				</field>
-				<field name="status" type="an..20" order="505" codelist="CL27" label="nga.status.label" tooltip="nga.status.tooltip" displayType="readOnly" previewEmpty="false" uri="emf:status">
-					<condition id="hiddenFieldStatus" renderAs="HIDDEN">[status] IN ('NEW')</condition>
-				</field>
-				<field name="emf:version" type="an..10" label="object.version" tooltip="nga.version.tooltip" displayType="readOnly" order="510" uri="emf:version"/>
+				<field name="identifier" tooltip="nga.identifier.tooltip" order="500" rnc="${eval(TC${seq({+tcSequence})})}" />
+				<field name="status" order="505" tooltip="nga.status.tooltip" />
+				<field name="emf:version" tooltip="nga.version.tooltip" order="510" />
 				<field name="integrated" type="boolean" label="emf.integrated.label" displayType="hidden" order="512" uri="emf:integrated" />
-				<field name="createdOn" type="datetime" label="nga.createdOn.label" tooltip="nga.createdOn.tooltip" displayType="readOnly" order="515" previewEmpty="false" uri="emf:createdOn"/>
-				<field name="createdBy"	type="uri" label="nga.createdBy.label" tooltip="nga.createdBy.tooltip" displayType="readonly" order="520" previewEmpty="false" uri="emf:createdBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>		
-				<field name="modifiedOn" type="datetime" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" displayType="readonly" order="525" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" displayType="readonly" order="530" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" label="nga.lockedBy.label" tooltip="nga.lockedBy.tooltip" displayType="readonly" order="535" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" order="515" />
+				<field name="createdBy"	tooltip="nga.createdBy.tooltip" order="520" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" order="525" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" order="530" />
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" order="535" />
 			</fields>
 		</region>
 		<region id="taskRelationships" order="700" displayType="editable" label="nga.relationships.region.label">
@@ -135,47 +102,19 @@
 						<control-param id="range" name="range">emf:Document,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Image,emf:Task,emf:Project,chc:ConservationActivity,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" displayType="editable" order="7016" multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="hasThumbnail" type="uri" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" displayType="readOnly" order="7018" previewEmpty="false" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" label="nga.parentOf.label" tooltip="nga.parentOf.tooltip" displayType="readOnly" multiValued="true" order="7020" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" displayType="readOnly" order="7022" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" order="7024" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" displayType="readOnly" multiValued="false" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" label="nga.partOf.label" tooltip="nga.partOf.tooltip" displayType="readOnly" order="7026" multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" displayType="readOnly" order="7028" multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasWatcher" label="nga.hasWatcher.label" tooltip="nga.hasWatcher.tooltip" order="7016" previewEmpty="false" />
+				<field name="hasThumbnail" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" order="7018" />
+				<field name="parentOf" tooltip="nga.parentOf.tooltip" order="7020" previewEmpty="false" />
+				<field name="hasParent" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" order="7022" />
+				<field name="emf:hasTemplate" order="7024" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" />
+				<field name="partOf" displayType="readOnly" tooltip="nga.partOf.tooltip" order="7026" />
+				<field name="hasChild" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" order="7028" previewEmpty="false" />
 			</fields>
 		</region>
 	</regions>
 	<transitions>
 		<!--common transitions -->
-		<transition id="create" eventId="create" purpose="create">
+		<transition id="create" label="create" purpose="create">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -342,7 +281,7 @@
 				</field>
 			</fields>
 		</transition>	
-		<transition id="stop" order="35"  label="stop.label" tooltip="stop.tooltip" eventId="stop" purpose="transition" immediate="true" confirmation="confirmation.action" >
+		<transition id="stop" order="35"  label="stop.label" tooltip="stop.tooltip" purpose="transition" confirmation="confirmation.action" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -400,7 +339,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="createSubTask" order="45" label="nga.createSubTask.action.label" tooltip="nga.createSubTask.action.tooltip" eventId="createSubTask" purpose="createInstance">
+		<transition id="createSubTask" order="45" label="nga.createSubTask.action.label" tooltip="nga.createSubTask.action.tooltip" purpose="createInstance">
 			<fields>
 				<field name="createSubTaskConfig" type="json">
 					<value>
@@ -415,19 +354,19 @@
 		</transition>
 		
 		<!--workflow transitions -->
-		<transition id="approveAndPublish" order="50" label="nga.approveAndPublish.action.label" tooltip="nga.approveAndPublish.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="approveAndPublish" purpose="bpmTransition" />
-		<transition id="approve" order="51" label="nga.approve.action.label" tooltip="nga.approve.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="approve" purpose="bpmTransition" />
-		<transition id="finalApprove" order="52" label="nga.finalApprove.action.label" tooltip="nga.finalApprove.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="finalApprove" purpose="bpmTransition" />
-		<transition id="implementRecommendations" order="53" label="nga.implementRecommendations.action.label" tooltip="nga.implementRecommendations.action.wf.tooltip" confirmation="complete.wf.task.confirm"  eventId="implementRecommendations" purpose="bpmTransition" />
-		<transition id="finish" order="54" label="nga.finish.action.label" tooltip="nga.finish.action.wf.tooltip" confirmation="complete.wf.task.confirm"  eventId="finish" purpose="bpmTransition" />
-		<transition id="rejectMovement" order="55" label="nga.rejectMovement.action.label" tooltip="nga.rejectMovement.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="rejectMovement" purpose="bpmTransition" />
-		<transition id="rejectTask" order="56" label="nga.rejectTask.action.label" tooltip="nga.rejectTask.action.wf.tooltip" confirmation="complete.wf.task.confirm"  eventId="rejectTask" purpose="bpmTransition" />
-		<transition id="amendPhotos" order="57" label="nga.amendPhotos.action.label" tooltip="nga.amendPhotos.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="amendPhotos" purpose="bpmTransition" />
-		<transition id="takeMoreSamples" order="58" label="nga.takeMoreSamples.action.label" tooltip="nga.takeMoreSamples.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="amendPhotos" purpose="bpmTransition" />
-		<transition id="reject" order="59" label="nga.reject.action.label" tooltip="nga.reject.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="reject" purpose="bpmTransition" />
+		<transition id="approveAndPublish" order="50" label="nga.approveAndPublish.action.label" tooltip="nga.approveAndPublish.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="approve" order="51" label="nga.approve.action.label" tooltip="nga.approve.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="finalApprove" order="52" label="nga.finalApprove.action.label" tooltip="nga.finalApprove.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="implementRecommendations" order="53" label="nga.implementRecommendations.action.label" tooltip="nga.implementRecommendations.action.wf.tooltip" confirmation="complete.wf.task.confirm"  purpose="bpmTransition" />
+		<transition id="finish" order="54" label="nga.finish.action.label" tooltip="nga.finish.action.wf.tooltip" confirmation="complete.wf.task.confirm"  purpose="bpmTransition" />
+		<transition id="rejectMovement" order="55" label="nga.rejectMovement.action.label" tooltip="nga.rejectMovement.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="rejectTask" order="56" label="nga.rejectTask.action.label" tooltip="nga.rejectTask.action.wf.tooltip" confirmation="complete.wf.task.confirm"  purpose="bpmTransition" />
+		<transition id="amendPhotos" order="57" label="nga.amendPhotos.action.label" tooltip="nga.amendPhotos.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="takeMoreSamples" order="58" label="nga.takeMoreSamples.action.label" tooltip="nga.takeMoreSamples.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="reject" order="59" label="nga.reject.action.label" tooltip="nga.reject.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
 		
 		<group id="add" order="65" label="add.group.label" type="menu" />
-		<transition id="addAttachment" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="nga.addAttachment.action.label" tooltip="nga.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="attachToConfig" type="json">
 					<value>
@@ -499,7 +438,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="clone" label="clone.label" eventId="clone" purpose="clone" tooltip="clone.tooltip" group="more" />
+		<transition id="clone" label="clone.label" purpose="clone" tooltip="clone.tooltip" group="more" />
 		<transition id="lock" group="more" />
 		<transition id="unlock" actionPath="/" group="more" />
 		<transition id="managePermissions" group="more" />
@@ -639,10 +578,6 @@
 		<child type="object" id="NGAIT211003"/>
 		<child type="task" id="all"/>
 	</allowedChildren>
-	
-	<filterDefinitions>
-		<filter id="relatedCOInTask2" mode="INCLUDE">NGACO7001,NGACO7002,NGACO7003,NGACO7004,NGACO7005,NGACO7006,NGACO7007,NGACO7008,NGACO7009,NGACO7010,NGACO7011,NGACO7012</filter>
-	</filterDefinitions>
 
 	<labels>
 		<label id="STANDALONE_TASK_TOOLTIP_HEADER_NGA">
@@ -660,10 +595,12 @@
                         <label>Sub-type: </label>
                         <span data-property="subType">${CL([subType])}</span>
                     </span>
-                    <span class="tooltip-row">
-                        <label>Department: </label>
-                        <span data-property="department">${CL([department])}</span>
-                    </span>
+					${if(${get([department])}<>null).then(
+						<span class="tooltip-row">
+							<label>Department: </label>
+							<span data-property="department">${CL([department])}</span>
+						</span>
+					)}	
 					<span class="tooltip-row">
                         <label>Status: </label>
                         <span data-property="status">${CL([status])}</span>
@@ -676,16 +613,22 @@
 					)}	
 					${if(${get([plannedStartDate])}<>null).then(
 						<span class="tooltip-row">
-							<label>Planned start date: </label>
-							<span data-property="plannedStartDate">${date([plannedStartDate]).format(YYYY-MM-dd)}</span>
+							<label>Start date: </label>
+							<span data-property="plannedStartDate">${date([plannedStartDate])}</span>
 						</span>
 					)}	
 					${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
-							<label>Planned end date: </label>
-							<span data-property="plannedEndDate">${date([plannedEndDate]).format(YYYY-MM-dd)}</span>
+							<label>End date: </label>
+							<span data-property="plannedEndDate">${date([plannedEndDate])}</span>
 						</span>
-					)}	
+					)}
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
                 </span>
             )}]]></value>
 		</label>
@@ -695,17 +638,20 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(64)}"/></span>
 			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span class="truncate-element">
 					Priority:&nbsp;<span data-property="priority">${CL([priority])}</span>&nbsp;
 					${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
 				</span>
 				<br />
 				<span class="truncate-element">
-					<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-							<span data-property="subType">${CL([subType])}</span>
-					</a>
-					${if(${get([plannedEndDate])} <> null).then(,&nbsp; Planned end date: <span>${date([plannedEndDate]).format(YYYY-MM-dd)}</span>)}
+					<b>
+						<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+								<span data-property="subType">${CL([subType])}</span>
+						</a>
+					</b>	
+					${if(${get([plannedEndDate])} <> null).then(,&nbsp;End date: <span>${date([plannedEndDate])}</span>)}
 				</span>	
 				<br />
 				<span class="truncate-element">
@@ -713,8 +659,7 @@
 					${if(${var.isVersion}).then(
 						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
 					)}
-				</span>	
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>
 			</span>)}]]></value>
 		</label>
 		<label id="STANDALONE_TASK_COMPACT_HEADER_NGA">
@@ -723,7 +668,7 @@
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
             <span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<span>
 					<span class="truncate-element">
 						<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
@@ -743,7 +688,7 @@
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)} 
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="${get([status])} task-state-${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-property="subType">${CL([subType])}</span>

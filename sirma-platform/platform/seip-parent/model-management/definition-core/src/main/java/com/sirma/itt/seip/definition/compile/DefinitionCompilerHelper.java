@@ -5,19 +5,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.enterprise.inject.Any;
@@ -29,10 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.definition.DefinitionService;
-import com.sirma.itt.seip.definition.Mergeable;
 import com.sirma.itt.seip.definition.MutableDefinitionService;
 import com.sirma.itt.seip.definition.RegionDefinition;
 import com.sirma.itt.seip.definition.RegionDefinitionModel;
@@ -42,20 +34,16 @@ import com.sirma.itt.seip.definition.TransitionDefinition;
 import com.sirma.itt.seip.definition.Transitional;
 import com.sirma.itt.seip.definition.ValidationLoggingUtil;
 import com.sirma.itt.seip.definition.WritablePropertyDefinition;
-import com.sirma.itt.seip.definition.model.ConditionDefinitionImpl;
 import com.sirma.itt.seip.definition.model.ControlDefinitionImpl;
 import com.sirma.itt.seip.definition.model.PropertyDefinitionProxy;
 import com.sirma.itt.seip.definition.model.RegionDefinitionImpl;
 import com.sirma.itt.seip.definition.model.TransitionDefinitionImpl;
 import com.sirma.itt.seip.definition.util.DefinitionUtil;
 import com.sirma.itt.seip.definition.util.PathHelper;
-import com.sirma.itt.seip.definition.util.hash.HashCalculator;
 import com.sirma.itt.seip.definition.validator.DefinitionValidator;
 import com.sirma.itt.seip.domain.BidirectionalMapping;
 import com.sirma.itt.seip.domain.Identity;
 import com.sirma.itt.seip.domain.PathElement;
-import com.sirma.itt.seip.domain.definition.Condition;
-import com.sirma.itt.seip.domain.definition.Conditional;
 import com.sirma.itt.seip.domain.definition.ControlDefinition;
 import com.sirma.itt.seip.domain.definition.ControlParam;
 import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
@@ -77,11 +65,8 @@ import com.sirma.sep.xml.JAXBHelper;
 public class DefinitionCompilerHelper {
 
 	public static final String DEFAULT_VALUE_PATTERN_TYPE = "default_value_pattern";
-	private static final Pattern ASCII_CHARACTER_PATTERN = Pattern.compile("^[\\x20-\\x7E\\r\\n\\t]+$");
-	private static final Pattern SP_CHARACTER_PATTERN = Pattern.compile("[\\s][\\s]+");
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	private static final String FROM = "] from [";
 
 	@Inject
 	private MutableDefinitionService mutableDefinitionService;
@@ -95,9 +80,6 @@ public class DefinitionCompilerHelper {
 
 	@Inject
 	private TransactionSupport transactionSupport;
-
-	@Inject
-	private HashCalculator hashCalculator;
 
 	/**
 	 * Loads The content of the given file and converts it using JAXB unmarshaller.
@@ -278,159 +260,6 @@ public class DefinitionCompilerHelper {
 	}
 
 	/**
-	 * Removes all regions that are mark as DisplayType = SYSTEM.
-	 *
-	 * @param model
-	 *            the region model definition
-	 */
-	public List<String> synchRegionProperties(GenericDefinition definition) {
-		for (Iterator<RegionDefinition> regionIt = definition.getRegions().iterator(); regionIt.hasNext();) {
-			RegionDefinition region = regionIt.next();
-			if (region.getDisplayType() == DisplayType.SYSTEM) {
-				regionIt.remove();
-				LOGGER.debug("Removing disabled region [{}] from [{}]", region.getIdentifier(),
-						PathHelper.getPath(definition));
-			}
-		}
-
-		List<String> errors = new ArrayList<>();
-
-		Map<String, PropertyInfo> fieldsInfo = collectFieldsInfo(definition);
-		for (PropertyInfo info : fieldsInfo.values()) {
-			if (info.getVisible().isEmpty()) {
-				noVisible(info, errors);
-			} else if (info.getVisible().size() == 1) {
-				oneVisible(info);
-			} else {
-				// more then one visible means that the definition is invalid
-				moreThanOneVisible(info, errors);
-			}
-		}
-
-		return errors;
-	}
-
-	private void noVisible(PropertyInfo info, List<String> errors) {
-		if (info.getSystem().size() == 1) {
-			// we have only one field so we a good to go and no need to continue
-			return;
-		}
-		// no visible fields found - so all are system we could check if all of them are
-		// identical and leave one
-		int hash = 0;
-		boolean allEquals = true;
-		for (Pair<PropertyDefinition, DefinitionModel> pair : info.getSystem()) {
-			Integer currentHash = hashCalculator.computeHash(pair.getFirst());
-			if (hash == 0) {
-				hash = currentHash;
-			} else if (hash != currentHash) {
-				// found non equal field and no need to continue
-				// the definition will be marked as invalid later in the validation
-				allEquals = false;
-				break;
-			}
-		}
-		if (!allEquals) {
-			printErrorMessagesForSystemFields(info, errors);
-			return;
-		}
-		List<Pair<PropertyDefinition, DefinitionModel>> list = info.getSystem();
-		removeFields(list.subList(1, list.size()));
-	}
-
-	@SuppressWarnings("unchecked")
-	private static void oneVisible(PropertyInfo info) {
-		// we can copy all data from the system field to the visible one except the
-		// visibility
-		PropertyDefinition propertyDefinition = info.getVisible().get(0).getFirst();
-		for (Pair<PropertyDefinition, DefinitionModel> pair : info.getSystem()) {
-			if (propertyDefinition instanceof Mergeable) {
-				((Mergeable<PropertyDefinition>) propertyDefinition).mergeFrom(pair.getFirst());
-			}
-		}
-		// remove all system fields we have only one visible
-		removeFields(info.getSystem());
-	}
-
-	private static void moreThanOneVisible(PropertyInfo info, List<String> errors) {
-		for (Pair<PropertyDefinition, DefinitionModel> pair : info.getVisible()) {
-			String message;
-			if (pair.getSecond() instanceof RegionDefinition) {
-				message = "Found duplicate VISIBLE field [" + pair.getFirst().getIdentifier() + "] in ["
-						+ PathHelper.getPath((PathElement) pair.getSecond()) + "/" + pair.getSecond().getIdentifier()
-						+ "]";
-			} else {
-				message = "Found duplicate VISIBLE field [" + pair.getFirst().getIdentifier() + FROM
-						+ PathHelper.getPath((PathElement) pair.getSecond()) + "]";
-			}
-			errors.add(message);
-			ValidationLoggingUtil.addErrorMessage(message);
-			LOGGER.error(message);
-		}
-
-		printErrorMessagesForSystemFields(info, errors);
-	}
-
-	private static void printErrorMessagesForSystemFields(PropertyInfo info, List<String> errors) {
-		for (Pair<PropertyDefinition, DefinitionModel> pair : info.getSystem()) {
-			String message;
-			if (pair.getSecond() instanceof RegionDefinition) {
-				message = "Found duplicate field [" + pair.getFirst().getIdentifier() + "] in ["
-						+ PathHelper.getPath((PathElement) pair.getSecond()) + "/" + pair.getSecond().getIdentifier()
-						+ "] that cannot be auto removed because both are system fields!";
-			} else {
-				message = "Found duplicate field [" + pair.getFirst().getIdentifier() + FROM
-						+ PathHelper.getPath((PathElement) pair.getSecond())
-						+ "] that cannot be auto removed because both are system fields!";
-			}
-			errors.add(message);
-			ValidationLoggingUtil.addWarningMessage(message);
-			LOGGER.warn(message);
-		}
-	}
-
-
-	private static void removeFields(Collection<Pair<PropertyDefinition, DefinitionModel>> subList) {
-		for (Pair<PropertyDefinition, DefinitionModel> pair : subList) {
-			boolean removed = pair.getSecond().getFields().remove(pair.getFirst());
-			String path;
-			if (pair.getSecond() instanceof RegionDefinition) {
-				path = pair.getFirst().getIdentifier() + FROM + PathHelper.getPath((PathElement) pair.getSecond()) + "/"
-						+ pair.getSecond().getIdentifier() + "]";
-			} else {
-				path = pair.getFirst().getIdentifier() + FROM + PathHelper.getPath((PathElement) pair.getSecond())
-						+ "]";
-			}
-			if (removed) {
-				LOGGER.debug("Removed duplicate field [{}", path);
-			} else {
-				LOGGER.error("Failed to remove field [{}", path);
-			}
-		}
-	}
-
-	private static void collectFieldsInfo(DefinitionModel model, Map<String, PropertyInfo> mapping) {
-		for (PropertyDefinition propertyDefinition : model.getFields()) {
-			PropertyInfo info = mapping.computeIfAbsent(propertyDefinition.getIdentifier(), k -> new PropertyInfo());
-			Pair<PropertyDefinition, DefinitionModel> pair = new Pair<>(propertyDefinition, model);
-			if (propertyDefinition.getDisplayType() == DisplayType.SYSTEM) {
-				info.getSystem().add(pair);
-			} else {
-				info.getVisible().add(pair);
-			}
-		}
-	}
-
-	private static Map<String, PropertyInfo> collectFieldsInfo(RegionDefinitionModel model) {
-		Map<String, PropertyInfo> mapping = new HashMap<>();
-		collectFieldsInfo(model, mapping);
-		for (RegionDefinition regionDefinition : model.getRegions()) {
-			collectFieldsInfo(regionDefinition, mapping);
-		}
-		return mapping;
-	}
-
-	/**
 	 * Sets the default properties of a definition, its regions and transitions.
 	 *
 	 * @param definition definition where to set default properties
@@ -463,97 +292,6 @@ public class DefinitionCompilerHelper {
 		impl.setDefaultProperties();
 		if (impl.getControlDefinition() != null) {
 			setDefaultProperties(impl.getControlDefinition());
-		}
-	}
-
-	/**
-	 * Validate expression based on the given region definition model. If all fields defined in the expression are
-	 * editable in the given definition model then the expression is valid.
-	 *
-	 * @param model
-	 *            the model
-	 * @param expression
-	 *            the expression
-	 * @return true, if valid
-	 */
-	public boolean validateExpression(DefinitionModel model, String expression) {
-		if (expression == null) {
-			return true;
-		}
-		// if the expression is not present then is not valid
-		// if the target model does not have any fields or regions then we have
-		// nothing to do for the expression
-		// we also validate the expression for non ASCII characters
-		boolean hasRegions = model instanceof RegionDefinitionModel
-				&& ((RegionDefinitionModel) model).getRegions().isEmpty();
-		if (StringUtils.isBlank(expression) || model.getFields().isEmpty() && !hasRegions) {
-			LOGGER.warn("No fields in the target model to support the expression: {}", expression);
-			return false;
-		}
-		if (!ASCII_CHARACTER_PATTERN.matcher(expression).matches()) {
-			LOGGER.warn("Found cyrillic characters in the expression: {}", expression);
-			return false;
-		}
-		// we first collect all fields from the expression
-		Set<String> fields = new LinkedHashSet<>(DefinitionUtil.getRncFields(expression));
-		// if no fields are found then the expression is not valid
-		if (fields.isEmpty()) {
-			LOGGER.warn("No fields found into the expression: {}", expression);
-			// TODO: Fix FIELD_PATTERN for accepting new condition
-			// +n[i-documentType], +n[o-documentType] and negative values
-		}
-		Set<DisplayType> allowedTypes = EnumSet.of(DisplayType.EDITABLE, DisplayType.READ_ONLY, DisplayType.HIDDEN,
-				DisplayType.SYSTEM);
-		Set<String> modelFields = collectFieldNames(model, allowedTypes);
-		// if the expression contains all fields then it's OK
-		boolean containsAll = modelFields.containsAll(fields);
-		if (!containsAll) {
-			// we will check which fields are missing
-			fields.removeAll(modelFields);
-			LOGGER.warn("The fields {} in the expression {} are not found into the target model!", fields, expression);
-		}
-		return containsAll;
-	}
-
-	private static Set<String> collectFieldNames(DefinitionModel model, Set<DisplayType> allowedTypes) {
-		return model
-				.fieldsStream()
-					.flatMap(PropertyDefinition::stream)
-					.filter(property -> allowedTypes.contains(property.getDisplayType()))
-					.map(PropertyDefinition::getName)
-					.collect(Collectors.toSet());
-	}
-
-	/**
-	 * Validate expressions. against the given target model. If any of conditions is invalid it will be removed from the
-	 * list of conditions
-	 *
-	 * @param targetModel
-	 *            the target model
-	 * @param conditions
-	 *            the conditions
-	 */
-	public void validateExpressions(DefinitionModel targetModel, Conditional conditions) {
-		if (conditions.getConditions() == null || conditions.getConditions().isEmpty()) {
-			return;
-		}
-		for (Iterator<Condition> it = conditions.getConditions().iterator(); it.hasNext();) {
-			Condition condition = it.next();
-			if (condition.getExpression() == null || !validateExpression(targetModel, condition.getExpression())) {
-				it.remove();
-
-				LOGGER.warn(" !!! Expression in condition: {} is not valid and will be removed !!!", condition);
-			} else {
-				// the expression is valid so we will check the white space
-				Matcher matcher = SP_CHARACTER_PATTERN.matcher(condition.getExpression());
-				String updatedExpression = matcher.replaceAll(" ");
-				if (LOGGER.isTraceEnabled() && !condition.getExpression().equals(updatedExpression)) {
-					LOGGER.trace("Updated expression to: " + updatedExpression);
-				}
-				if (condition instanceof ConditionDefinitionImpl) {
-					((ConditionDefinitionImpl) condition).setExpression(updatedExpression);
-				}
-			}
 		}
 	}
 
@@ -768,44 +506,5 @@ public class DefinitionCompilerHelper {
 			model.getFields().addAll(updatedFields);
 		}
 
-	}
-
-	/**
-	 * Class used for collecting and storing field visibility information.
-	 *
-	 * @author bbonev
-	 */
-	private static class PropertyInfo extends
-			Pair<List<Pair<PropertyDefinition, DefinitionModel>>, List<Pair<PropertyDefinition, DefinitionModel>>> {
-
-		/**
-		 * Comment for serialVersionUID.
-		 */
-		private static final long serialVersionUID = 6298677791297526462L;
-
-		/**
-		 * Instantiates a new property info.
-		 */
-		PropertyInfo() {
-			super(new LinkedList<>(), new LinkedList<>());
-		}
-
-		/**
-		 * Gets the visible fields.
-		 *
-		 * @return the visible
-		 */
-		public List<Pair<PropertyDefinition, DefinitionModel>> getVisible() {
-			return getFirst();
-		}
-
-		/**
-		 * Gets the system fields.
-		 *
-		 * @return the system
-		 */
-		public List<Pair<PropertyDefinition, DefinitionModel>> getSystem() {
-			return getSecond();
-		}
 	}
 }

@@ -49,7 +49,7 @@ export class ModelingIdocContextBuilder {
     };
 
     var wrappedContext = decorate(idocContext, {
-      'getCurrentObject': function () {
+      getCurrentObject() {
         if (this.substitution) {
           return promiseAdapter.resolve(this.substitution);
         }
@@ -73,7 +73,7 @@ export class ModelingIdocContextBuilder {
           }
         });
       },
-      'getSharedObjects': function (ids, widgetId, reset, config) {
+      getSharedObjects(ids, widgetId, reset, config) {
         // handles a specific case where getSharedObjects() is used instead of getCurrentObject()
         if (ids.length === 1 && ids[0] === idocContext.getCurrentObjectId()) {
           return this.getCurrentObject().then(currentObject => {
@@ -83,7 +83,7 @@ export class ModelingIdocContextBuilder {
 
         return idocContext.getSharedObjects(ids, widgetId, reset, config);
       },
-      'getSharedObject': function (id, widgetId, reset) {
+      getSharedObject(id, widgetId, reset) {
         // handles a specific case where getSharedObject() is used instead of getCurrentObject()
         if (id === idocContext.getCurrentObjectId()) {
           return this.getCurrentObject();
@@ -95,5 +95,4 @@ export class ModelingIdocContextBuilder {
 
     return wrappedContext;
   }
-
 }

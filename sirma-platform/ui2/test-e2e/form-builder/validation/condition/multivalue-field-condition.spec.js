@@ -1,19 +1,20 @@
-var FormControl = require('./../../form-control.js').FormControl;
-var InputField = require('./../../form-control.js').InputField;
-var MultySelectMenu = require('./../../form-control.js').MultySelectMenu;
-var SandboxPage = require('../../../page-object').SandboxPage;
+'use strict';
 
-var page = new SandboxPage();
+let InputField = require('./../../form-control.js').InputField;
+let MultySelectMenu = require('./../../form-control.js').MultySelectMenu;
+let SandboxPage = require('../../../page-object').SandboxPage;
+
+let page = new SandboxPage();
 
 describe('Multivalue field condition validator', function () {
 
-  var selected_1;
-  var selected_2;
-  var selected_3;
+  let selected_1;
+  let selected_2;
+  let selected_3;
 
-  var textField1;
-  var textField2;
-  var textField3;
+  let textField1;
+  let textField2;
+  let textField3;
 
   beforeEach(() => {
     selected_1 = new MultySelectMenu($('#emf\\:selected_1-wrapper'));

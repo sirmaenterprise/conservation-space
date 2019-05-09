@@ -1,10 +1,8 @@
 let SEPReporter = require('./scripts/sep-reporter.js');
+let remote = require('selenium-webdriver/remote');
 
 // Reference config - https://github.com/angular/protractor/blob/master/docs/referenceConf.js
 exports.config = {
-  // The advantage of directly connecting to browser drivers is that your test scripts may start up and run faster.
-  directConnect: true,
-
   framework: 'mocha',
 
   // A base URL for your application under test. Calls to protractor.get()
@@ -14,7 +12,7 @@ exports.config = {
   // Capabilities to be passed to the webdriver instance.
   capabilities: {
     'chromeOptions': {
-      args: ['--no-sandbox', '--disable-gpu']
+      args: ['--no-sandbox', '--disable-gpu', '--start-maximized']
     },
     shardTestFiles: false,
     maxInstances: 1
@@ -50,8 +48,6 @@ exports.config = {
       coverage: browser.params['coverage'],
       protractor: 'true'
     };
-
-    browser.driver.manage().window().maximize();
 
     // can be used for debugging in protractor tests as a normal browser console
     browser.log = function () {

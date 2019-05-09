@@ -2,7 +2,6 @@ import {Injectable, Inject} from 'app/app';
 import {MULTIPLE_SELECTION} from 'search/search-selection-modes';
 import {PickerService, SEARCH_EXTENSION} from 'services/picker/picker-service';
 import {TranslateService} from 'services/i18n/translate-service';
-import {ObjectLinkWidget} from 'idoc/widget/object-link-widget/object-link-widget';
 import {NEW_ATTRIBUTE} from 'idoc/widget/widget';
 import base64 from 'common/lib/base64';
 import _ from 'lodash';

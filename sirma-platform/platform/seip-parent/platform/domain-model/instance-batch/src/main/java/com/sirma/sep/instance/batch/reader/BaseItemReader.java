@@ -1,7 +1,5 @@
 package com.sirma.sep.instance.batch.reader;
 
-import static com.sirma.itt.seip.util.EqualsHelper.getOrDefault;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,7 +41,13 @@ public abstract class BaseItemReader<T> extends AbstractItemReader {
 
 	@Override
 	public void open(Serializable checkpoint) throws Exception {
-		checkpointIndex = (Integer) getOrDefault(checkpoint, 0);
+		if (checkpoint == null) {
+			// in case of new job the initial value will be 0
+			// in case of job restart the index will be the number of already processed data entries
+			checkpointIndex = batchDataService.getJobProgress(batchProperties.getJobId(jobContext.getExecutionId()));
+		} else {
+			checkpointIndex = (Integer) checkpoint;
+		}
 
 		loadMoreData();
 	}

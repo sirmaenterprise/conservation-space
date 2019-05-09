@@ -32,7 +32,7 @@ describe('AdvancedSearchKeywordCriteria', () => {
     it('should return previous order and disable relevance if there is no entered text', () => {
       keywordCriteria.getInput().setValue(undefined, 'test');
       keywordCriteria.getInput().setValue(undefined, '');
-      expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified On');
+      expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified on');
     });
   });
 
@@ -43,7 +43,7 @@ describe('AdvancedSearchKeywordCriteria', () => {
         row.changeProperty('title');
         row.waitForOperatorSelectToRender();
 
-        expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified On');
+        expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified on');
       });
     });
   });
@@ -52,7 +52,7 @@ describe('AdvancedSearchKeywordCriteria', () => {
     it('should return previous order and disable relevance', () => {
       keywordCriteria.getInput().setValue(undefined, 'test');
       return advancedSearchSection.addObjectType('http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document').then(() => {
-        expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified On');
+        expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified on');
       });
     });
   });
@@ -61,7 +61,7 @@ describe('AdvancedSearchKeywordCriteria', () => {
     it('should return previous order and disable relevance', () => {
       keywordCriteria.getInput().setValue(undefined, 'test');
       search.getCriteria().getAdvancedSearch().clear();
-      expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified On');
+      expect(search.getToolbar().getOrderToolbar().getOrderByOption()).to.eventually.equal('Modified on');
     });
   });
 });

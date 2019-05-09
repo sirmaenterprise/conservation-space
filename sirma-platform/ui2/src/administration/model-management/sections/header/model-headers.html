@@ -1,0 +1,38 @@
+<div class="model-headers col-md-12">
+
+  <div ng-if="!modelHeaders.isModelDefinition()" class="selected-message alert alert-info">
+    {{ ::'administration.models.management.fields.model.message' | translate}}
+  </div>
+
+  <div ng-if="modelHeaders.isModelDefinition()" class="headers-details">
+    <div class="header-controls">
+      <model-language-select class="language-select-control clearfix"
+                             languages="modelHeaders.languages" language="modelHeaders.selectedLanguage"
+                             on-language-changed="modelHeaders.onLanguageChanged(language)"></model-language-select>
+    </div>
+
+    <div ng-repeat="header in modelHeaders.getHeaders() track by header.getId()" id="{{ header.getId() }}">
+      <model-header-view definition="modelHeaders.model" attribute="header.getLabelAttribute()"
+                         language="modelHeaders.selectedLanguage" emitter="modelHeaders.emitter"
+                         on-header-change="modelHeaders.notifyForModelAttributeChange(attribute, modelHeaders.model)">
+        <button class="btn btn-default btn-xs restore-header"
+                ng-if="modelHeaders.isRestoreInheritedForHeaderEnabled(header)"
+                ng-click="modelHeaders.onHeaderRestoreInherited($event, header)"
+                title="{{ ::'administration.models.management.headers.restore.title' | translate }}">
+          <i class="fa fa-undo"></i>
+          <span>{{ ::'administration.models.management.headers.restore' | translate }}</span>
+        </button>
+      </model-header-view>
+    </div>
+
+    <model-controls>
+      <model-save loading="modelHeaders.isSectionSaving()"
+                  enabled="modelHeaders.isSaveAllowed()"
+                  on-save="modelHeaders.saveAllChanges()"></model-save>
+
+      <model-cancel loading="modelHeaders.isSectionSaving()"
+                    enabled="modelHeaders.isSectionDirty()"
+                    on-cancel="modelHeaders.revertAllChanges()"></model-cancel>
+    </model-controls>
+  </div>
+</div>

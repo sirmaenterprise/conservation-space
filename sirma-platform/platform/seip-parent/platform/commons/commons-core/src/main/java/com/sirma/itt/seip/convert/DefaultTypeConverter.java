@@ -51,50 +51,8 @@ import com.sirma.itt.seip.time.ISO8601DateFormat;
 public class DefaultTypeConverter implements TypeConverterProvider {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final String UTF_8 = "UTF-8";
-	private static final Long LONG_FALSE = Long.valueOf(0L);
-	private static final Long LONG_TRUE = Long.valueOf(1L);
-
-	/**
-	 * The Class ListToStringConverter.
-	 *
-	 * @param <L>
-	 *            the list type type
-	 */
-	private static final class CollectionToStringConverter<L extends Collection> implements Converter<L, String> {
-
-		/** The converter. */
-		private TypeConverter converter;
-
-		/**
-		 * Instantiates a new list to string converter.
-		 *
-		 * @param converter
-		 *            the converter
-		 */
-		public CollectionToStringConverter(TypeConverter converter) {
-			this.converter = converter;
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String convert(L source) {
-			if (source != null) {
-				StringBuilder result = new StringBuilder();
-				int i = source.size();
-				for (Object element : source) {
-					result.append(converter.convert(String.class, element));
-					i--;
-					if (i > 0) {
-						result.append(",");
-					}
-				}
-				return result.toString();
-			}
-			return "";
-		}
-	}
+	private static final Long LONG_FALSE = 0L;
+	private static final Long LONG_TRUE = 1L;
 
 	@Override
 	public void register(TypeConverter converter) {
@@ -121,7 +79,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 			if (source == null || source.length() == 0) {
 				return null;
 			}
-			return Character.valueOf(source.charAt(0));
+			return source.charAt(0);
 		});
 
 		converter.addConverter(String.class, Number.class, source -> {
@@ -132,32 +90,30 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 			}
 		});
 
-		converter.addConverter(String.class, Byte.class, source -> Byte.valueOf(source));
+		converter.addConverter(String.class, Byte.class, Byte::valueOf);
 
-		converter.addConverter(String.class, Short.class, source -> Short.valueOf(source));
+		converter.addConverter(String.class, Short.class, Short::valueOf);
 
-		converter.addConverter(String.class, Integer.class, source -> Integer.valueOf(source));
+		converter.addConverter(String.class, Integer.class, Integer::valueOf);
 
-		converter.addConverter(String.class, Long.class, source -> Long.valueOf(source));
+		converter.addConverter(String.class, Long.class, Long::valueOf);
 
-		converter.addConverter(String.class, Float.class, source -> Float.valueOf(source));
+		converter.addConverter(String.class, Float.class, Float::valueOf);
 
-		converter.addConverter(String.class, Double.class, source -> Double.valueOf(source));
+		converter.addConverter(String.class, Double.class, Double::valueOf);
 
-		converter.addConverter(String.class, BigInteger.class, source -> new BigInteger(source));
+		converter.addConverter(String.class, BigInteger.class, BigInteger::new);
 
-		converter.addConverter(String.class, BigDecimal.class, source -> new BigDecimal(source));
+		converter.addConverter(String.class, BigDecimal.class, BigDecimal::new);
 
 		converter.addConverter(String.class, Date.class, source -> {
 			try {
 				// Converts timestamp value passed as string to date
 				if (source.matches("\\d*")) {
 					Timestamp time = new Timestamp(Long.parseLong(source));
-					Date date = new Date(time.getTime());
-					return date;
+					return new Date(time.getTime());
 				}
-				Date date = ISO8601DateFormat.parse(source);
-				return date;
+				return ISO8601DateFormat.parse(source);
 			} catch (RuntimeException e) {
 				throw new TypeConversionException("Failed to convert string " + source + " to date", e);
 			}
@@ -187,33 +143,33 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// From enum
 		//
 
-		converter.addConverter(Enum.class, String.class, source -> source.toString());
+		converter.addConverter(Enum.class, String.class, Enum::toString);
 
 		// From Class
 
-		converter.addConverter(Class.class, String.class, source -> source.getName());
+		converter.addConverter(Class.class, String.class, Class::getName);
 
 		//
 		// Number to Subtypes and Date
 		//
 
-		converter.addConverter(Number.class, Boolean.class, source -> Boolean.valueOf(source.longValue() > 0));
+		converter.addConverter(Number.class, Boolean.class, source -> source.longValue() > 0);
 
-		converter.addConverter(Number.class, Byte.class, source -> Byte.valueOf(source.byteValue()));
+		converter.addConverter(Number.class, Byte.class, Number::byteValue);
 
-		converter.addConverter(Number.class, Short.class, source -> Short.valueOf(source.shortValue()));
+		converter.addConverter(Number.class, Short.class, Number::shortValue);
 
-		converter.addConverter(Number.class, Integer.class, source -> Integer.valueOf(source.intValue()));
+		converter.addConverter(Number.class, Integer.class, Number::intValue);
 
-		converter.addConverter(Number.class, Long.class, source -> Long.valueOf(source.longValue()));
+		converter.addConverter(Number.class, Long.class, Number::longValue);
 
-		converter.addConverter(Number.class, Float.class, source -> Float.valueOf(source.floatValue()));
+		converter.addConverter(Number.class, Float.class, Number::floatValue);
 
-		converter.addConverter(Number.class, Double.class, source -> Double.valueOf(source.doubleValue()));
+		converter.addConverter(Number.class, Double.class, Number::doubleValue);
 
 		converter.addConverter(Number.class, Date.class, source -> new Date(source.longValue()));
 
-		converter.addConverter(Number.class, String.class, source -> source.toString());
+		converter.addConverter(Number.class, String.class, Object::toString);
 
 		converter.addConverter(Number.class, BigInteger.class, source -> {
 			if (source instanceof BigDecimal) {
@@ -237,7 +193,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 
 		converter.addConverter(Timestamp.class, Date.class, source -> new Date(source.getTime()));
 
-		converter.addConverter(Date.class, Number.class, source -> Long.valueOf(source.getTime()));
+		converter.addConverter(Date.class, Number.class, Date::getTime);
 
 		converter.addConverter(Date.class, String.class, source -> {
 			try {
@@ -265,15 +221,15 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 
 		converter.addConverter(ZonedDateTime.class, Date.class, DateUtil::toDate);
 
-		converter.addConverter(ZonedDateTime.class, String.class, source -> source.toString());
+		converter.addConverter(ZonedDateTime.class, String.class, ZonedDateTime::toString);
 
 		//
 		// Boolean ->
 		//
 
-		converter.addConverter(Boolean.class, Long.class, source -> source.booleanValue() ? LONG_TRUE : LONG_FALSE);
+		converter.addConverter(Boolean.class, Long.class, source -> source ? LONG_TRUE : LONG_FALSE);
 
-		converter.addConverter(Boolean.class, String.class, source -> source.toString());
+		converter.addConverter(Boolean.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Boolean.class, String.class, InputStream.class);
 
@@ -281,7 +237,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Character ->
 		//
 
-		converter.addConverter(Character.class, String.class, source -> source.toString());
+		converter.addConverter(Character.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Character.class, String.class, InputStream.class);
 
@@ -289,7 +245,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Byte
 		//
 
-		converter.addConverter(Byte.class, String.class, source -> source.toString());
+		converter.addConverter(Byte.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Byte.class, String.class, InputStream.class);
 
@@ -297,7 +253,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Short
 		//
 
-		converter.addConverter(Short.class, String.class, source -> source.toString());
+		converter.addConverter(Short.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Short.class, String.class, InputStream.class);
 
@@ -305,7 +261,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Integer
 		//
 
-		converter.addConverter(Integer.class, String.class, source -> source.toString());
+		converter.addConverter(Integer.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Integer.class, String.class, InputStream.class);
 
@@ -313,7 +269,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Long
 		//
 
-		converter.addConverter(Long.class, String.class, source -> source.toString());
+		converter.addConverter(Long.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Long.class, String.class, InputStream.class);
 
@@ -321,7 +277,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Float
 		//
 
-		converter.addConverter(Float.class, String.class, source -> source.toString());
+		converter.addConverter(Float.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Float.class, String.class, InputStream.class);
 
@@ -329,7 +285,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Double
 		//
 
-		converter.addConverter(Double.class, String.class, source -> source.toString());
+		converter.addConverter(Double.class, String.class, Object::toString);
 
 		converter.addDynamicTwoStageConverter(Double.class, String.class, InputStream.class);
 
@@ -337,7 +293,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// BigInteger
 		//
 
-		converter.addConverter(BigInteger.class, String.class, source -> source.toString());
+		converter.addConverter(BigInteger.class, String.class, BigInteger::toString);
 
 		converter.addDynamicTwoStageConverter(BigInteger.class, String.class, InputStream.class);
 
@@ -345,7 +301,7 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// Calendar
 		//
 
-		converter.addConverter(Calendar.class, Date.class, source -> source.getTime());
+		converter.addConverter(Calendar.class, Date.class, Calendar::getTime);
 
 		converter.addConverter(Calendar.class, String.class, source -> {
 			try {
@@ -369,11 +325,13 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 		// list to to string conversions
 		// we cannot register just to List interface but to concrete implementations and we should
 		// register at least the 2 most used implementations
-		converter.addConverter(ArrayList.class, String.class, new CollectionToStringConverter<>(converter));
-		converter.addConverter(LinkedList.class, String.class, new CollectionToStringConverter<>(converter));
-		converter.addConverter(AbstractList.class, String.class, new CollectionToStringConverter<>(converter));
-		converter.addConverter(HashSet.class, String.class, new CollectionToStringConverter<>(converter));
-		converter.addConverter(LinkedHashSet.class, String.class, new CollectionToStringConverter<>(converter));
+		converter.addConverter(Collection.class, String.class, collectionToString(converter));
+		converter.addConverter(List.class, String.class, collectionToString(converter));
+		converter.addConverter(ArrayList.class, String.class, collectionToString(converter));
+		converter.addConverter(LinkedList.class, String.class, collectionToString(converter));
+		converter.addConverter(AbstractList.class, String.class, collectionToString(converter));
+		converter.addConverter(HashSet.class, String.class, collectionToString(converter));
+		converter.addConverter(LinkedHashSet.class, String.class, collectionToString(converter));
 		converter.addConverter(String.class, List.class, source -> {
 			String[] split = source.split(",");
 			return new ArrayList<>(Arrays.asList(split));
@@ -423,47 +381,51 @@ public class DefaultTypeConverter implements TypeConverterProvider {
 
 		converter.addDynamicTwoStageConverter(InputStream.class, String.class, Boolean.class);
 
-		converter.addConverter(DateRange.class, String.class, new Converter<DateRange, String>() {
-			private static final String DATE_FROM_SUFFIX = "T00:00:00";
-			/** The Constant DATE_SUFFIX. */
-			private static final String DATE_TO_SUFFIX = "T23:59:59";
-			/** example 2012-09-26T00:00:00. */
-			public final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+		converter.addConverter(DateRange.class, String.class, dateRangeStringConverter());
 
-			@Override
-			public String convert(DateRange value) {
-				return createDateRange(value.getFirst(), value.getSecond());
-			}
+		converter.addConverter(JSONObject.class, String.class, JSONObject::toString);
+	}
 
-			/**
-			 * Creates the range.
-			 *
-			 * @param from
-			 *            the start date
-			 * @param to
-			 *            the end date
-			 * @return the string
-			 */
-			private String createDateRange(Serializable from, Serializable to) {
-				String result = null;
-				if (from != null && !from.toString().isEmpty()) {
-					String fromData = DATE_FORMAT.format(from);
-					if (to != null && !to.toString().isEmpty()) {
-						result = "[\"" + fromData + DATE_FROM_SUFFIX + "\" TO \"" + DATE_FORMAT.format(to)
-								+ DATE_TO_SUFFIX + "\"]";
-					} else {
-						result = "[\"" + fromData + DATE_FROM_SUFFIX + "\" TO MAX]";
-					}
-				} else if (to != null && !to.toString().isEmpty()) {
-					String format = DATE_FORMAT.format(to) + DATE_TO_SUFFIX;
-					result = "[MIN TO \"" + format + "\"]";
+	private static Converter<DateRange, String> dateRangeStringConverter() {
+		final String DATE_FROM_SUFFIX = "T00:00:00";
+		final String DATE_TO_SUFFIX = "T23:59:59";
+		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		return value -> {
+			Serializable from = value.getFirst();
+			Serializable to = value.getSecond();
+			String result = null;
+			if (from != null && !from.toString().isEmpty()) {
+				String fromData = dateFormat.format(from);
+				if (to != null && !to.toString().isEmpty()) {
+					result = "[\"" + fromData + DATE_FROM_SUFFIX + "\" TO \"" + dateFormat.format(to)
+							+ DATE_TO_SUFFIX + "\"]";
+				} else {
+					result = "[\"" + fromData + DATE_FROM_SUFFIX + "\" TO MAX]";
 				}
-				return result;
-
+			} else if (to != null && !to.toString().isEmpty()) {
+				String format = dateFormat.format(to) + DATE_TO_SUFFIX;
+				result = "[MIN TO \"" + format + "\"]";
 			}
-		});
+			return result;
+		};
+	}
 
-		converter.addConverter(JSONObject.class, String.class, (json) -> json.toString());
+	private static <L extends Collection> Converter<L, String> collectionToString(TypeConverter converter) {
+		return source -> {
+			if (source != null) {
+				StringBuilder result = new StringBuilder();
+				int i = source.size();
+				for (Object element : source) {
+					result.append(converter.convert(String.class, element));
+					i--;
+					if (i > 0) {
+						result.append(",");
+					}
+				}
+				return result.toString();
+			}
+			return "";
+		};
 	}
 
 }

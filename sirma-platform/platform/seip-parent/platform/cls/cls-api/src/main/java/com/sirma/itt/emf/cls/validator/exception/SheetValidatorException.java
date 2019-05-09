@@ -7,7 +7,7 @@ import com.sirma.itt.emf.cls.validator.SheetValidator;
  *
  * @author svetlozar.iliev
  */
-public class SheetValidatorException extends Exception {
+public class SheetValidatorException extends RuntimeException {
 
 	/** Auto generated serial version UID. */
 	private static final long serialVersionUID = 3320209427900719033L;

@@ -1,4 +1,3 @@
-import {$location} from 'angular-ui-router';
 import {Inject,Injectable} from 'app/app';
 
 @Injectable()

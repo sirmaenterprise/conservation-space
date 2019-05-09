@@ -24,9 +24,6 @@ var addUpdateCKEditorTask = require('./scripts/gulp/update-ckeditor-task');
 var replace = require('gulp-replace');
 var lint = require('./scripts/gulp/lint');
 
-// register start-dev task
-require('./scripts/gulp/start-dev')(gulp);
-
 //Uncomment for debug file order and you need to install gulp-debug
 //var debug  = require('gulp-debug');
 //use by calling: .pipe(debug({title: 'Processing:'}))
@@ -36,6 +33,7 @@ require('./scripts/gulp/start-dev')(gulp);
 var paths = {
   workDir: __dirname,
   src: 'src/',
+  generated: 'generated/',
   dist: 'dist/',
   build: 'build/',
   buildInstrumented: 'build-instrumented/',
@@ -70,7 +68,15 @@ var development = eval(gutil.env.development);
 var sandboxBrowserSync;
 
 // register lint task
-lint(gulp, paths.src + '**/*.js');
+lint(gulp, `${paths.src}**/*.js`);
+
+// register start-dev task
+require('./scripts/gulp/start-dev')(gulp);
+
+//register report-missing-label-translations task
+require('./scripts/gulp/report-missing-label-translations.js')(gulp, paths);
+
+require('./scripts/gulp/build-labels.js')(gulp, paths);
 
 gulp.task('dev', function (callback) {
   development = true;
@@ -81,16 +87,17 @@ gulp.task('dev', function (callback) {
   // wait enough time so all other files are being processed
   setTimeout(function () {
     runSequence('browser-sync-app', 'browser-sync-sandbox');
-  }, 20000);
+  }, 120000);
 });
 
 gulp.task('compile', function (callback) {
   del.sync(paths.build + '*');
+  del.sync(paths.generated + '*');
   del.sync(paths.reports.root + '*');
 
   gulp.src([paths.src + 'index.html', 'config.js']).pipe(gulp.dest(paths.build));
 
-  runSequence('plugin-definitions', 'js', 'static-files', 'sass', 'html', callback);
+  runSequence('plugin-definitions', 'build-labels', 'js', 'static-files', 'sass', 'html', callback);
 });
 
 gulp.task('dist', function (done) {
@@ -158,10 +165,11 @@ gulp.task('mark-production', function (done) {
 });
 
 gulp.task('js', function () {
-  var es6scripts = paths.src + '**/*.js';
-  var libs = paths.src + '**/common/lib/**/*.js';
+  let es6scripts = paths.src + '**/*.js';
+  let es6generated = paths.generated + '**/*.js';
+  let libs = paths.src + '**/common/lib/**/*.js';
 
-  var babelConfig = {
+  let babelConfig = {
     // systemjs requires 'system' type -
     // https://github.com/ModuleLoader/es6-module-loader/wiki/Production-Workflows
     modules: 'system',
@@ -173,7 +181,7 @@ gulp.task('js', function () {
     optional: ["es7.decorators", "runtime"]
   };
 
-  var scriptPaths = [es6scripts, '!' + libs, '!' + paths.plugins];
+  let scriptPaths = [es6scripts, es6generated, '!' + libs, '!' + paths.plugins];
 
   gulp.src(scriptPaths).pipe(plumber(plumberErrorHandler))
     .pipe(development ? watch(scriptPaths) : gutil.noop())
@@ -182,7 +190,7 @@ gulp.task('js', function () {
     .pipe(sourcemaps.write('.')).pipe(gulp.dest(paths.build));
 
   // directly copy es5 scripts
-  var es5scripts = [libs, paths.plugins];
+  let es5scripts = [libs, paths.plugins];
 
   gulp.src(es5scripts).pipe(plumber(plumberErrorHandler)).pipe(development ? watch(es5scripts) : gutil.noop())
     .pipe(gulp.dest(paths.build));
@@ -246,19 +254,45 @@ gulp.task('e2e-ci', function (done) {
 gulp.task('browser-sync-app', function () {
   var backendUrl = gutil.env.backend;
 
-  if (!backendUrl) {
-    throw new Error('Backend url not supplied. Use --backend=<backend url> I.e. -backend=http://<address>:<port>/emf');
+  var proxyHandler = (req, res, next) => {
+    if (req.originalUrl.startsWith('/remote')) {
+      console.log('backend url not supplied - use --backend=<scheme>://<address>:<port>/<context-path>');
+    }
+    next();
   }
 
-  var proxy = httpProxy.createProxyServer({
-    timeout: 120000,
-    changeOrigin: true,
-    secure: false,
-    target: {
-      https: backendUrl.startsWith('https://')
+  if (backendUrl) {
+    var proxy = httpProxy.createProxyServer({
+      timeout: 120000,
+      changeOrigin: true,
+      secure: false,
+      target: {
+        https: backendUrl.startsWith('https://')
+      }
+    })
+    .on('error', err => console.error('Proxy error:', err));
+
+    proxyHandler = (req, res, next) => {
+      //proxy all the remote calls
+      if (!req.originalUrl.startsWith('/remote')) {
+        next();
+        return;
+      }
+
+      var pathWithoutProxyPrefix = req.originalUrl.substring('/remote'.length);
+      if (pathWithoutProxyPrefix.startsWith('/auth')) {
+        res.writeHead(302, {
+          Location: backendUrl + pathWithoutProxyPrefix
+        });
+
+        res.end();
+        return;
+      }
+
+      req.url = pathWithoutProxyPrefix;
+      proxy.web(req, res, {target: backendUrl});
     }
-  })
-  .on('error', err => console.error('Proxy error:', err));
+  }
 
   var devBrowserSync = browserSync.create();
   devBrowserSync.init({
@@ -267,25 +301,7 @@ gulp.task('browser-sync-app', function () {
       routes: {
         "/jspm_packages": "jspm_packages"
       },
-      middleware: function (req, res, next) {
-        //proxy all the remote calls
-        if (req.originalUrl.startsWith('/remote')) {
-          var pathWithoutProxyPrefix = req.originalUrl.substring('/remote'.length);
-
-          if (pathWithoutProxyPrefix.startsWith('/auth')) {
-            res.writeHead(302,
-              {Location: backendUrl + pathWithoutProxyPrefix}
-            );
-            res.end();
-            return;
-          }
-
-          req.url = pathWithoutProxyPrefix;
-          proxy.web(req, res, {target: backendUrl});
-        } else {
-          next();
-        }
-      }
+      middleware: proxyHandler
     },
     ghostMode: false,
     injectChanges: false,

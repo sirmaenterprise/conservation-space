@@ -181,7 +181,11 @@ public class VersionDao {
 		}
 
 		// some times we receive way to may instance to check so we do a separate queries to overcome the problem
-		Collection<Object[]> result = FragmentedWork.doWorkWithResult(new HashSet<>(targetIds), FRAGMENT_SIZE,
+		// the fragment size is reduced by 1 because the executed query accepts the fragment twice and has one more argument
+		// so the actual argument count is fragment * 2 + 1 which overflows the max allowed parameters of 32768 by 1
+		// apparently JDBC requires all parameters in a 'in' clause to be send as a separate parameter and this causes
+		// the problem
+		Collection<Object[]> result = FragmentedWork.doWorkWithResult(new HashSet<>(targetIds), FRAGMENT_SIZE - 1,
 				part -> queryVersionIdsByTargetIdAndDateInternal(part, date));
 		return result.stream()
 				// merge function is added just in case there are duplicated entities (somehow)
@@ -191,13 +195,11 @@ public class VersionDao {
 	private List<Object[]> queryVersionIdsByTargetIdAndDateInternal(Collection<Serializable> targetIds,
 			Serializable date) {
 		List<Pair<String, Object>> params = new ArrayList<>(2);
-		// in case there are duplicated ids, we are using set to remove them
 		params.add(new Pair<>(IDS_QUERY_PARAM_KEY, targetIds));
 		params.add(new Pair<>(VERSION_DATE_QUERY_PARAM_KEY, date));
 
 		// the result is 2 columns where the first is the target id and the second is the version id
-		return dbDao
-				.fetchWithNamed(ArchivedEntity.QUERY_LAST_VERSION_ID_BY_TARGET_ID_AND_CREATED_ON_DATE_KEY, params);
+		return dbDao.fetchWithNamed(ArchivedEntity.QUERY_LAST_VERSION_ID_BY_TARGET_ID_AND_CREATED_ON_DATE_KEY, params);
 	}
 
 	/**

@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<definition id="csRecordSpace" parentId="baseRecordSpace" type="object">
+   <fields>
+		<field name="tooltip_header" type="ANY" label="CS_RECORD_TOOLTIP_HEADER" />
+		<field name="default_header" type="ANY" label="CS_RECORD_DEFAULT_HEADER" />
+		<field name="compact_header" type="ANY" label="CS_RECORD_COMPACT_HEADER" />
+		<field name="breadcrumb_header" type="ANY" label="CS_RECORD_BREADCRUMB_HEADER" />
+		
+		<field name="hasWatcher" type="uri" displayType="system" override="true" />
+    </fields>
+	<regions>	
+		<region id="generalRecordSpace" order="10" displayType="editable" label="nga.specificInformation.region.label">
+			<fields>
+				<field name="title" type="an..1024" label="nga.title.label" tooltip="nga.title.tooltip" />
+				<field name="description" tooltip="nga.description.tooltip" previewEmpty="false" />
+			</fields>
+		</region>	
+		<region id="systemInformation" order="30" label="nga.systemInformation.region.label">
+			<fields>
+				 <field name="type" label="nga.type-classification.label" tooltip="nga.type.tooltip" >
+					<value>recordSpace</value>
+				</field>
+				<field name="identifier" type="an..50" tooltip="nga.identifier.tooltip" displayType="readOnly" rnc="${eval(RS${seq({+rsSequence})})}" uri="dcterms:identifier" />
+				<field name="status" tooltip="nga.status.tooltip" />
+				<field name="emf:version" tooltip="nga.version.tooltip" />
+				<field name="integrated" type="boolean" label="emf.integrated.label" displayType="hidden" uri="emf:integrated" />
+				<field name="createdOn" tooltip="nga.createdOn.tooltip" />
+				<field name="createdBy" tooltip="nga.createdBy.tooltip" />
+				<field name="modifiedOn" label="nga.modifiedOn.label" tooltip="nga.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="nga.modifiedBy.label" tooltip="nga.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="nga.lockedBy.tooltip" />
+			</fields>	
+		</region>	
+		<region id="csRecordSpaceRelation" order="40" displayType="editable" label="nga.relationships.region.label">
+			<fields>
+				<field name="hasThumbnail" label="nga.hasThumbnail.label" tooltip="nga.hasThumbnail.tooltip" />
+				<field name="partOf" displayType="readOnly" tooltip="nga.partOf.tooltip" />
+				<field name="hasChild" label="nga.hasChild.label" tooltip="nga.hasChild.tooltip" previewEmpty="false" />
+				<field name="emf:hasTemplate" label="nga.hasTemplate.label" tooltip="nga.hasTemplate.tooltip" />
+				<field name="parentOf" tooltip="nga.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasParent" label="nga.hasParent.label" tooltip="nga.hasParent.tooltip" />
+			</fields>
+		</region>
+	</regions>
+	<transitions>
+		<transition id="editDetails" order="10" actionPath="/actions" />
+
+		<group id="add" order="40" label="add.group.label" type="menu" />
+		<transition id="addThumbnail" group="add" />
+		
+		<group id="exportAs" order="55" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs" />
+		<transition id="exportTabWord" group="exportAs" />
+
+		<transition id="printTab" order="60" />
+		
+		<group id="template" order="65" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="nga.updateTemplate.action.tooltip" group="template" />
+		<transition id="changeTemplate" tooltip="nga.changeTemplate.action.tooltip" group="template" />
+		
+		<group id="more" order="70" label="more.group.label" type="menu" />
+		<transition id="lock" group="more" />
+		<transition id="unlock" actionPath="/" group="more" />
+		<transition id="managePermissions" group="more" />
+		
+		<transition id="delete" order="100" confirmation="deleteCS.confirm" />
+	</transitions>
+	
+	<stateTransitions>
+        <stateTransition from="INIT" transition="create" to="ACTIVE"/>
+        <stateTransition from="NOT_CREATED" transition="create" to="ACTIVE"/>
+        
+        <stateTransition from="ACTIVE" transition="editDetails" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="addAttachment" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="addThumbnail" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="exportTabPDF" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="exportTabWord" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="printTab" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="saveAsTemplate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="updateTemplate" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="changeTemplate" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="lock" to="ACTIVE" />
+        <stateTransition from="ACTIVE" transition="unlock" to="ACTIVE" />
+		<stateTransition from="ACTIVE" transition="managePermissions" to="ACTIVE" />
+		<!-- <stateTransition from="ACTIVE" transition="delete" to="ACTIVE"/> -->
+		
+		<stateTransition from="ACTIVE" transition="createInContext" to="ACTIVE" />
+    </stateTransitions>
+	
+	<allowedChildren>
+		<child type="object" id="ngaMedia"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="CS_RECORD_TOOLTIP_HEADER">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified by: </label>
+						<span data-property="modifiedBy">${objectProperty(${get([modifiedBy])})}</span>
+					</span>
+					<span class="tooltip-row">
+						<label>System modified on: </label>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
+					</span>
+				</span>
+			)})}]]></value>
+		</label>
+		<label id="CS_RECORD_DEFAULT_HEADER">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<b>
+						<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+							${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
+							<span data-property="title">${get([title])}</span>
+						</a>
+					</b>
+					${if(${var.isVersion}).then(
+						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+					)}
+				</span>)}]]>
+			</value>
+		</label>
+		<label id="CS_RECORD_COMPACT_HEADER">
+			<value lang="en"><![CDATA[${eval(
+   			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>
+					</a>&nbsp;
+					${if(${var.isVersion}).then(
+						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
+					)}
+				</span>
+			</span>)}]]></value>
+		</label>
+		<label id="CS_RECORD_BREADCRUMB_HEADER">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span>
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>)}]]>
+			</value>
+		</label>
+	</labels>		
+</definition>

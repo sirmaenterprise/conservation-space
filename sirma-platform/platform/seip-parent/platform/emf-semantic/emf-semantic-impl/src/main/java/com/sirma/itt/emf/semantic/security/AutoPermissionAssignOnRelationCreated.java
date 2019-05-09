@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.ContextNotActiveException;
@@ -32,8 +34,12 @@ import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.domain.instance.event.ObjectPropertyAddEvent;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
+import com.sirma.itt.seip.exceptions.InstanceNotFoundException;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.context.InstanceContextService;
+import com.sirma.itt.seip.instance.dao.InstanceExistResult;
+import com.sirma.itt.seip.instance.dao.InstanceService;
+import com.sirma.itt.seip.instance.version.InstanceVersionService;
 import com.sirma.itt.seip.permissions.InstancePermissionsHierarchyResolver;
 import com.sirma.itt.seip.permissions.PermissionService;
 import com.sirma.itt.seip.permissions.role.PermissionsChange;
@@ -107,6 +113,9 @@ public class AutoPermissionAssignOnRelationCreated extends SchedulerActionAdapte
 	@Inject
 	private InstanceContextService contextService;
 
+	@Inject
+	private InstanceService instanceService;
+
 	void onRelationCreated(@Observes(during = TransactionPhase.BEFORE_COMPLETION) ObjectPropertyAddEvent event) {
 		addChangeRequest(createChangeRequest(event));
 
@@ -167,7 +176,7 @@ public class AutoPermissionAssignOnRelationCreated extends SchedulerActionAdapte
 				.setRemoveOnSuccess(true)
 				.setPersistent(true)
 				.setMaxRetryCount(5)
-				.setRetryDelay(Long.valueOf(10))
+				.setRetryDelay(10L)
 				.setIncrementalDelay(true);
 
 		SchedulerContext context = new SchedulerContext();
@@ -177,7 +186,7 @@ public class AutoPermissionAssignOnRelationCreated extends SchedulerActionAdapte
 	}
 
 	@Override
-	@RunAsSystem(protectCurrentTenant = true)
+	@RunAsSystem
 	public void execute(SchedulerContext context) throws Exception {
 		Collection<PermissionChangeRequest> changes = context.getIfSameType(CHANGES, Collection.class);
 
@@ -226,61 +235,76 @@ public class AutoPermissionAssignOnRelationCreated extends SchedulerActionAdapte
 			throw new EmfRuntimeException("Could not find information about role: " + minimalRoleId);
 		}
 
-		Collection<InstanceReference> references = resolveReferences(changeRequest.getTargetInstance(),
-				changeRequest.getTargetResource());
-		if (references.size() != 2) {
-			// didn't find one or both instances
-			LOGGER.warn(
-					"Could not find both instances on automatic permission assign! Was looking for [{},{}] but got {}",
-					changeRequest.getTargetInstance(), changeRequest.getTargetResource(), references);
-			throw new EmfRuntimeException("Could not find both instances on automatic permission assign!");
+		Optional<InstanceReference> targetInstance = getTargetInstance(changeRequest.getTargetInstance());
+		if (!targetInstance.isPresent()) {
+			return;
+		}
+		Optional<InstanceReference> targetResource = getTargetResource(changeRequest.getTargetResource());
+		if (!targetResource.isPresent()) {
+			return;
 		}
 
-		doPermissionAssignIfNeeded(references, minimalRole, changeRequest.isAllowOverride(),
+		doPermissionAssignIfNeeded(targetInstance.get(), targetResource.get(), minimalRole,
+				changeRequest.isAllowOverride(),
 				changeRequest.getParentRoleToAssign());
 	}
 
-	private void doPermissionAssignIfNeeded(Collection<InstanceReference> references, RoleIdentifier minimalRole,
+	private Optional<InstanceReference> getTargetInstance(String targetInstanceId) {
+		return loadInstance(targetInstanceId, this::isInstanceAllowedForAutoPermissionAssignment,
+				"Could not find the affected instance for automatic permission assign! Was looking for {}");
+	}
+
+	private Optional<InstanceReference> getTargetResource(String targetResourceId) {
+		return loadInstance(targetResourceId, this::isAllowedResourceInstance,
+				"Could not find required resource instance for automatic permission assign! Was looking for {}");
+	}
+
+	private Optional<InstanceReference> loadInstance(String id, Predicate<InstanceReference> instanceFilter, String notFoundMessage) {
+		String localId = id;
+		// if this is called during revert the given id is version id so we resolve the original ID
+		if (InstanceVersionService.isVersion(id)) {
+			localId = (String) InstanceVersionService.getIdFromVersionId(id);
+		}
+		Optional<InstanceReference> targetResource = instanceTypeResolver.resolveReference(localId);
+		if (targetResource.isPresent()) {
+			if (instanceFilter.negate().test(targetResource.get())) {
+				// the target is neither user or group so we cannot continue
+				return Optional.empty();
+			}
+		} else {
+			InstanceExistResult<String> exist = instanceService.exist(Collections.singletonList(localId), true);
+			LOGGER.warn(notFoundMessage, localId);
+			if (exist.getNotExisting().contains(localId)) {
+				throw new InstanceNotFoundException(localId);
+			}
+			// else instance is deleted we may skip the request
+		}
+		return targetResource;
+	}
+
+	private void doPermissionAssignIfNeeded(InstanceReference currentInstance, InstanceReference targetResource,
+			RoleIdentifier minimalRole,
 			boolean allowOverride, String parentRoleId) {
-
-		Iterator<InstanceReference> it = references.iterator();
-		InstanceReference currentInstance = it.next();
-		InstanceReference targetResource = it.next();
-
-		if (!isInstanceAllowedForAutoPermissionAssignment(currentInstance)) {
-			// the current instance is not applicable for automatic permission assignment
-			return;
-		}
-
-		if (!(targetResource.getType().instanceOf(EMF.USER) || targetResource.getType().instanceOf(EMF.GROUP))) {
-			// the target is neither user or group
-			return;
-		}
-
 		assignMinimalRole(currentInstance, targetResource, minimalRole, allowOverride);
 
 		RoleIdentifier parentRole = roleService.getRoleIdentifier(parentRoleId);
 		Optional<InstanceReference> context = contextService.getContext(currentInstance);
-		if (isParentAllowedForPermissionAssignment(context)) {
+		if (context.isPresent() && isParentAllowedForPermissionAssignment(context)) {
 			assignParentRole(context.get(), targetResource, parentRole);
 		}
 	}
 
-	private static boolean isInstanceAllowedForAutoPermissionAssignment(InstanceReference currentInstance) {
+	private boolean isAllowedResourceInstance(InstanceReference targetResource) {
+		return targetResource.getType().instanceOf(EMF.USER) || targetResource.getType().instanceOf(EMF.GROUP);
+	}
+
+	private boolean isInstanceAllowedForAutoPermissionAssignment(InstanceReference currentInstance) {
 		return !(currentInstance.getType().instanceOf(EMF.USER) || currentInstance.getType().instanceOf(EMF.GROUP)
 				|| currentInstance.getType().instanceOf(EMF.CLASS_DESCRIPTION));
 	}
 
-	private Collection<InstanceReference> resolveReferences(String sourceId, String destinationId) {
-		return instanceTypeResolver.resolveReferences(Arrays.asList(sourceId, destinationId));
-	}
-
-	private static boolean isParentAllowedForPermissionAssignment(Optional<InstanceReference> reference) {
-		// check is root
-		if (!reference.isPresent()) {
-			return false;
-		}
-		return isInstanceAllowedForAutoPermissionAssignment(reference.get());
+	private boolean isParentAllowedForPermissionAssignment(Optional<InstanceReference> reference) {
+		return reference.filter(this::isInstanceAllowedForAutoPermissionAssignment).isPresent();
 	}
 
 	private boolean isRelationApplicable(PropertyInstance relation) {
@@ -315,7 +339,7 @@ public class AutoPermissionAssignOnRelationCreated extends SchedulerActionAdapte
 	}
 
 	private ResourceRole getAssignmentForCurrentUser(InstanceReference instance, InstanceReference resource) {
-		Map<String, ResourceRole> permissionAssignments = permissionService.getPermissionAssignments(instance);
+		Map<String, ResourceRole> permissionAssignments = permissionService.getPermissionAssignments(instance.getId());
 		if (permissionAssignments.containsKey(resource.getId())) {
 			return permissionAssignments.get(resource.getId());
 		}
@@ -337,7 +361,7 @@ public class AutoPermissionAssignOnRelationCreated extends SchedulerActionAdapte
 			return;
 		}
 
-		ResourceRole currentRole = permissionService.getPermissionAssignment(target, resource.getId());
+		ResourceRole currentRole = permissionService.getPermissionAssignment(target.getId(), resource.getId());
 		if (currentRole == null || currentRole.getRole() == null
 				|| hasPermissionsViaAllOthers(currentRole.getAuthorityId(), resource.getId())) {
 			assignPermission(target, resource, roleToAssign);

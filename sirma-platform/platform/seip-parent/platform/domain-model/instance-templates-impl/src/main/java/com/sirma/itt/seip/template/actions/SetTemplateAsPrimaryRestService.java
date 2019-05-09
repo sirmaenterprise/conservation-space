@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.template.actions;
 
+import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -27,13 +29,13 @@ public class SetTemplateAsPrimaryRestService {
 	/**
 	 * Sets the template as primary. If there is existing active primary template for the given rule, or with no rules
 	 * it will be demoted.
-	 * 
-	 * @param request
-	 *            is the {@link SetTemplateAsPrimaryActionRequest}
+	 *
+	 * @param request is the {@link SetTemplateAsPrimaryActionRequest}
+	 * @return the id of the updated template instance
 	 */
 	@POST
 	@Path("{id}/actions/set-template-as-primary")
-	public void setAsPrimary(SetTemplateAsPrimaryActionRequest request) {
-		actions.callAction(request);
+	public String setAsPrimary(SetTemplateAsPrimaryActionRequest request) {
+		return Objects.toString(actions.callAction(request));
 	}
 }

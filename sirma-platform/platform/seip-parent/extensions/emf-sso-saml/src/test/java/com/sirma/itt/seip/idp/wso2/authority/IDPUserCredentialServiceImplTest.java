@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,11 +19,10 @@ import org.mockito.MockitoAnnotations;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 
-import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.idp.exception.IDPClientException;
-import com.sirma.itt.seip.resources.event.UserPasswordChangeEvent;
 import com.sirma.itt.seip.resources.security.PasswordChangeFailException;
 import com.sirma.itt.seip.resources.security.PasswordChangeFailException.PasswordFailType;
+import com.sirma.itt.seip.security.configuration.SecurityConfiguration;
 
 /**
  * Tests for {@link IDPUserCredentialServiceImpl}.
@@ -43,9 +40,6 @@ public class IDPUserCredentialServiceImplTest {
 	@Mock
 	private UserStoreManager userStoreManager;
 
-	@Mock
-	private EventService eventService;
-
 	@Before
 	public void beforeMethod() {
 		MockitoAnnotations.initMocks(this);
@@ -60,7 +54,6 @@ public class IDPUserCredentialServiceImplTest {
 
 		assertTrue(result);
 		verify(userStoreManager).updateCredential("john", newPass, oldPass);
-		verify(eventService).fire(any(UserPasswordChangeEvent.class));
 	}
 
 	@Test
@@ -76,7 +69,6 @@ public class IDPUserCredentialServiceImplTest {
 		} catch (PasswordChangeFailException e) {
 			assertEquals(PasswordFailType.WRONG_OLD_PASSWORD, e.getType());
 			assertFalse(result);
-			verify(eventService, times(0)).fire(any(UserPasswordChangeEvent.class));
 		}
 	}
 
@@ -86,7 +78,7 @@ public class IDPUserCredentialServiceImplTest {
 			credentialService.validatePassword("123", "");
 			fail("PasswordChangeFailException expected");
 		} catch (PasswordChangeFailException e) {
-			assertEquals(PasswordFailType.NEW_PASSWORD_EMPTY, e.getType());
+			assertEquals(PasswordChangeFailException.PasswordFailType.NEW_PASSWORD_EMPTY, e.getType());
 		}
 	}
 
@@ -96,7 +88,7 @@ public class IDPUserCredentialServiceImplTest {
 			credentialService.validatePassword("", "123");
 			fail("PasswordChangeFailException expected");
 		} catch (PasswordChangeFailException e) {
-			assertEquals(PasswordFailType.OLD_PASSWORD_EMPTY, e.getType());
+			assertEquals(PasswordChangeFailException.PasswordFailType.OLD_PASSWORD_EMPTY, e.getType());
 		}
 	}
 
@@ -106,7 +98,7 @@ public class IDPUserCredentialServiceImplTest {
 			credentialService.validatePassword("123456", "123456");
 			fail("PasswordChangeFailException expected");
 		} catch (PasswordChangeFailException e) {
-			assertEquals(PasswordFailType.SAME_PASSWORD, e.getType());
+			assertEquals(PasswordChangeFailException.PasswordFailType.SAME_PASSWORD, e.getType());
 		}
 	}
 
@@ -116,7 +108,7 @@ public class IDPUserCredentialServiceImplTest {
 			credentialService.validatePassword("123456", "123");
 			fail("PasswordChangeFailException expected");
 		} catch (PasswordChangeFailException e) {
-			assertEquals(PasswordFailType.SHORT_PASSWORD, e.getType());
+			assertEquals(PasswordChangeFailException.PasswordFailType.SHORT_PASSWORD, e.getType());
 		}
 	}
 
@@ -126,8 +118,13 @@ public class IDPUserCredentialServiceImplTest {
 			credentialService.validatePassword("123456", "1234567890myLongPassword^QWERTYUIOPASDFGHJKLZXCVBNM");
 			fail("PasswordChangeFailException expected");
 		} catch (PasswordChangeFailException e) {
-			assertEquals(PasswordFailType.LONG_PASSWORD, e.getType());
+			assertEquals(PasswordChangeFailException.PasswordFailType.LONG_PASSWORD, e.getType());
 		}
+	}
+
+	@Test
+	public void should_HaveName() {
+		assertEquals(SecurityConfiguration.WSO_IDP, credentialService.getName());
 	}
 
 }

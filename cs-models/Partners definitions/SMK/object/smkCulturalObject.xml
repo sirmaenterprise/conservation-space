@@ -2,150 +2,121 @@
 <definition id="smkCulturalObject" parentId="baseObject" isAbstract="true" type="object">
 	<configuration>
 		<fields>
-			<field name="existingInContext" type="an..50" codelist="CL26" uri="emf:existingInContext">
+			<field name="existingInContext" >
 				<value>WITHOUT_CONTEXT</value>
 			</field>
 		</fields>
 	</configuration>
 	<fields>
 		<field name="default_header" type="ANY" label="CO_DEFAULT_HEADER_SMK" />
-		<field name="compact_header" type="an..4096" label="CO_COMPACT_HEADER_SMK" />
-		<field name="breadcrumb_header" type="an..4096" label="CO_BREADCRUMB_HEADER_SMK" />
+		<field name="compact_header" type="ANY" label="CO_COMPACT_HEADER_SMK" />
+		<field name="breadcrumb_header" type="ANY" label="CO_BREADCRUMB_HEADER_SMK" />
 		<field name="tooltip_header" type="ANY" label="CO_OBJECT_TOOLTIP_HEADER_SMK" />
 
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+		<field name="rdf:type" >
 			<value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject</value>
 		</field>
-		<field name="identifier" order="10" displayType="system" />
-		<field name="type" type="an..50" displayType="system" />
-		<field name="title" type="an..180" displayType="system"/>
-		<field name="status" type="an..50" displayType="system" />		
-		<field name="description" type="an..5000" displayType="system" />
-		<field name="createdOn" type="dateTime" displayType="system"  />
-		<field name="createdBy" type="uri" displayType="system" />
-		<field name="modifiedOn" type="dateTime" displayType="system"/>
-		<field name="modifiedBy" type="uri" displayType="system" />		
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri"  displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />	
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="hasRevision" type="uri" displayType="system" />
-		<field name="isRevisionOf" type="uri" displayType="system" />
-		<field name="lastPublishedRevision" type="uri" displayType="system" />
-		<field name="lastRevision" type="uri" displayType="system" />
-		<field name="nextRevision" type="uri" displayType="system" />
-		<field name="previousRevision" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true"  />
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="uri" displayType="system" />
+		<field name="lastRevision" displayType="system" />
+		<field name="hasParent" displayType="system" />
 	</fields>
 
 	<regions>	
 		<region id="generalCMSData" displayType="editable" order="10" label="smk.generalCMSData.region.label">
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL7" order="101" label="smk.type.label" tooltip="smk.type.tooltip" uri="emf:type">
-					<value>Cultural Object</value>
-					<control id="RELATED_FIELDS">
-						<control-param id="fieldsToRerender" name="RERENDER">subType</control-param>
-						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
-					</control>
+				<field name="type" order="101" tooltip="smk.type.tooltip" >
+					<value>FC236006</value>
 				</field>
-				<field name="title" type="an..180" mandatory="true" displayType="editable" order="105" label="smk.title.label" tooltip="smk.title.tooltip" uri="dcterms:title">
+				<field name="title" type="an..180" order="105" tooltip="smk.title.tooltip" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="titleAlternative" 	type="an..180" displayType="editable" order="110"  label="smk.titleAlternative.label" tooltip="smk.titleAlternative.tooltip" previewEmpty="false" uri="smk:titleAlternative" >
+				<field name="titleAlternative" type="an..180" displayType="editable" order="110" previewEmpty="false" uri="smk:titleAlternative" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition>
 				</field>
 				<field name="objectId" type="an..180" displayType="hidden" order="115" label="smk.inventoryID.label" tooltip="smk.inventoryID.tooltip" previewEmpty="false" uri="emf:externalID" >
 					<condition id="mandatoryFields" renderAs="MANDATORY">[integrated] IN ('true')</condition>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="subType" type="an..50" displayType="editable" codelist="CL247" order="120"  label="smk.subType.label" tooltip="smk.subType.tooltip" uri="smk:subType" >
+				<field name="subType" type="ANY" displayType="editable" codelist="CL247" order="120" uri="smk:subType" >
+					<control id="RELATED_FIELDS">
+						<control-param id="fieldsToRerender" name="RERENDER">type</control-param>
+						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="artist" type="an..180" mandatory="true" displayType="editable" order="125" label="smk.artist.label" tooltip="smk.artist.tooltip" uri="smk:artistNames" >
+				<field name="artist" type="an..180" mandatory="true" displayType="editable" order="125" uri="smk:artistNames" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>					
-				<field name="createdDate" type="an..1024" mandatory="true" displayType="editable" order="130" label="smk.createdDate.label" tooltip="smk.createdDate.tooltip" uri="smk:creationDates" >
+				<field name="createdDate" type="an..1024" mandatory="true" displayType="editable" order="130" uri="smk:creationDates" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>	
-				<field name="provenance" type="an..1024" displayType="editable" order="135" label="smk.provenance.label" tooltip="smk.provenance.tooltip" previewEmpty="false"  uri="smk:provenance" >
+				<field name="provenance" type="an..1024" displayType="editable" order="135" previewEmpty="false" uri="smk:provenance" >
+					<control id="RICHTEXT"/>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="technique" type="an..1024" mandatory="true" displayType="editable" order="140" label="smk.technique.label"  tooltip="smk.technique.tooltip"  uri="smk:technique"  >
+				<field name="technique" type="an..1024" mandatory="true" displayType="editable" order="140" uri="smk:technique"  >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="materials" type="an..50" displayType="editable" codelist="CL261" order="145" label="smk.materials.label" tooltip="smk.materials.tooltip" previewEmpty="false" multiValued="true" uri="smk:materials" >
+				<field name="materials" type="ANY" displayType="editable" codelist="CL261" order="145" previewEmpty="false" uri="smk:materials" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>					
-				<field name="medium" type="an..50" displayType="editable" codelist="CL262"  order="150" label="smk.medium.label" tooltip="smk.medium.tooltip" previewEmpty="false" multiValued="true" uri="smk:medium"  >
+				<field name="medium" type="ANY" displayType="editable" codelist="CL262"  order="150" previewEmpty="false" uri="smk:medium" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>			
-				<field name="dimensionsNet" type="an..180" displayType="editable" order="155"   label="smk.dimensionsNet.label" tooltip="smk.dimensionsNet.tooltip" previewEmpty="false" uri="smk:dimensionsNet" >
+				<field name="dimensionsNet" type="an..180" displayType="editable" order="155" previewEmpty="false" uri="smk:dimensionsNet" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>					
-				<field name="imageDimensions" type="an..180" displayType="editable" order="156" label="smk.imageDimensions.label" tooltip="smk.imageDimensions.tooltip" previewEmpty="false" uri="smk:imageDimensions" >
+				<field name="imageDimensions" type="an..180" displayType="editable" order="156" previewEmpty="false" uri="smk:imageDimensions" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="dimensionsGross" type="an..5000" displayType="editable" order="160" label="smk.dimensionsGross.label" tooltip="smk.dimensionsGross.tooltip" previewEmpty="false" uri="smk:dimensionsGross" >
+				<field name="dimensionsGross" type="an..5000" displayType="editable" order="160" previewEmpty="false" uri="smk:dimensionsGross" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>	
-				<field name="inscription" type="an..180" displayType="editable"  order="170" label="smk.inscription.label" tooltip="smk.inscription.tooltip" previewEmpty="false" uri="smk:inscriptions"  >
+				<field name="inscription" type="an..1024" displayType="editable" order="170" previewEmpty="false" uri="smk:inscriptions" >
+					<control id="RICHTEXT"/>
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>	
-				<field name="portfolioSeries" type="an..180" order="175"  label="smk.portfolioSeries.label" tooltip="smk.portfolioSeries.tooltip" displayType="editable" previewEmpty="false" uri="smk:portfolioTitle" >
+				<field name="portfolioSeries" type="an..180" order="175" displayType="editable" previewEmpty="false" uri="smk:portfolioTitle" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>	
-				<field name="currentLocation" type="an..180" order="180" label="smk.currentLocation.label" tooltip="smk.currentLocation.tooltip"  displayType="editable" previewEmpty="false" uri="smk:currentLocation" >
+				<field name="currentLocation" type="an..180" order="180" displayType="editable" previewEmpty="false" uri="smk:currentLocation" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="currentLocationMoveDate" type="an..180" displayType="editable" order="185" label="smk.currentLocationMoveDate.label" tooltip="smk.currentLocationMoveDate.tooltip" previewEmpty="false" uri="smk:currentLocationMoveDate" >
+				<field name="currentLocationMoveDate" type="an..180" displayType="editable" order="185" previewEmpty="false" uri="smk:currentLocationMoveDate" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="currentLocationMovePurpose" type="an..50" codelist="CL264" displayType="editable" order="190" label="smk.currentLocationMovePurpose.label" tooltip="smk.currentLocationMovePurpose.tooltip" previewEmpty="false" uri="smk:currentLocationMovePurpose" >
+				<field name="currentLocationMovePurpose" type="ANY" codelist="CL264" displayType="editable" order="190" previewEmpty="false" uri="smk:currentLocationMovePurpose" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="homeLocation" type="an..180"  displayType="editable" order="191" label="smk.homeLocation.label" tooltip="smk.homeLocation.tooltip" uri="chc:homeLocation" >
+				<field name="homeLocation" type="an..180" displayType="editable" order="191" uri="smk:homeLocation" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="objectStatus" type="an..50" displayType="editable" codelist="CL260" order="200" label="smk.objectStatus.label" tooltip="smk.objectStatus.tooltip" previewEmpty="false" multiValued="true" uri="smk:objectStatus" >
+				<field name="objectStatus" type="ANY" displayType="editable" codelist="CL260" order="200" previewEmpty="false" multiValued="true" uri="smk:objectStatus" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="legalStatus" type="an..50" displayType="editable" codelist="CL265" order="205" label="smk.legalStatus.label" tooltip="smk.legalStatus.tooltip" previewEmpty="false" uri="smk:legalStatus">
+				<field name="legalStatus" type="ANY" displayType="editable" codelist="CL265" order="205" previewEmpty="false" uri="smk:legalStatus">
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>	
-				<field name="hasBackSideProtection" type="boolean" displayType="editable" order="206" label="smk.hasBackSideProtection.label" tooltip="smk.hasBackSideProtection.tooltip" previewEmpty="false" uri="smk:hasBackSideProtection" >
+				<field name="hasBackSideProtection" type="boolean" displayType="editable" order="206" uri="smk:hasBackSideProtection" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="inMicroClimateFrame" type="boolean" displayType="editable" order="207" label="smk.inMicroClimateFrame.label" tooltip="smk.inMicroClimateFrame.tooltip" previewEmpty="false" uri="smk:inMicroClimateFrame" >
+				<field name="inMicroClimateFrame" type="boolean" displayType="editable" order="207" uri="smk:inMicroClimateFrame" >
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="ownerName" type="an..180" displayType="editable"  order="210" label="smk.ownerName.label" tooltip="smk.ownerName.tooltip" previewEmpty="false" uri="smk:ownerName">
+				<field name="ownerName" type="an..180" displayType="editable" order="210" previewEmpty="false" uri="smk:ownerName">
 					<condition id="readonlyFields" renderAs="READONLY">[integrated] IN ('true')</condition></field>
-				<field name="description" type="an..1024" displayType="editable" order="211" label="smk.description.label" tooltip="smk.description.tooltip" previewEmpty="false" uri="dcterms:description" />
-				<field name="marks" type="an..1024" displayType="editable" order="212" label="smk.marks.label"  tooltip="smk.marks.tooltip" previewEmpty="false" uri="smk:marks" />
+				<field name="description" type="an..1024" displayType="editable" order="211" tooltip="smk.description.tooltip" previewEmpty="false" uri="dcterms:description" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="marks" type="an..1024" displayType="editable" order="212" previewEmpty="false" uri="smk:marks" >
+					<control id="RICHTEXT"/>
+				</field>
 			</fields> 
 		</region>
 		<region id="generalCSData" displayType="editable" order="20" label="smk.generalCSData.region.label">
 			<fields>				
-				<field name="weight" type="an..50" displayType="editable" order="202" label="smk.weight.label" tooltip="smk.weight.tooltip" uri="smk:weight" />
+				<field name="weight" type="an..50" displayType="editable" order="202" uri="smk:weight" />
 			</fields>	
 		</region>
 
 		<region id="systemData" displayType="editable" order="30" label="smk.systemData.region.label">
 			<fields>					
-				<field name="identifier" type="an..50" displayType="readOnly" order="301"  label="smk.identifier.label" tooltip="smk.identifier.tooltip"  rnc="${eval(CO${seq({+coSequence})})}" uri="dcterms:identifier"/>
-				<field name="status" type="an..50"  displayType="readOnly" codelist="CL300" order="305" label="smk.status.label" tooltip="smk.status.tooltip"  previewEmpty="false" uri="emf:status" />
-				<field name="emf:version" type="an..10" displayType="readOnly" order="310" label="smk.version.label" tooltip="smk.version.tooltip" uri="emf:version"/> 
+				<field name="identifier" order="301" tooltip="smk.identifier.tooltip" rnc="${eval(CO${seq({+coSequence})})}" />
+				<field name="status" codelist="CL300" order="305" tooltip="smk.status.tooltip" />
+				<field name="emf:version" order="310" tooltip="smk.version.tooltip" /> 
 				<field name="integrated" type="boolean" displayType="hidden" order="311" uri="emf:integrated">
 					<value>false</value>
 				</field>
+				<field name="externalType" type="ANY" displayType="hidden" codelist="CL7" order="312" previewEmpty="false" uri="chc:externalType" />
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly"  order="315" label="smk.createdOn.label" tooltip="smk.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" order="320" label="smk.createdBy.label" tooltip="smk.createdBy.tooltip" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" order="325"  label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" previewEmpty="false" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" order="330" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip"  previewEmpty="false" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" order="335" label="smk.lockedBy.label"  tooltip="smk.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-
+				<field name="createdOn" order="315" tooltip="smk.createdOn.tooltip" />
+				<field name="createdBy" order="320" tooltip="smk.createdBy.tooltip" />
+				<field name="modifiedOn" order="325" label="smk.modifiedOn.label" tooltip="smk.modifiedOn.tooltip" />
+				<field name="modifiedBy" order="330" label="smk.modifiedBy.label" tooltip="smk.modifiedBy.tooltip" />
+				<field name="lockedBy" order="335" tooltip="smk.lockedBy.tooltip" />
 				<!-- system integration fields -->
-				<field name="sourceSystemId" type="an..50" displayType="readOnly" codelist="CL250" order="314" label="smk.sourceSystemId.label" tooltip="smk.sourceSystemId.tooltip" uri="chc:sourceSystemId">
+				<field name="sourceSystemId" type="ANY" displayType="readOnly" codelist="CL250" order="314" label="smk.sourceSystemId.label" tooltip="smk.sourceSystemId.tooltip" uri="chc:sourceSystemId">
 					<condition id="mandatoryField" renderAs="MANDATORY">[integrated] IN ('true')</condition>
 					<value>SMKSR25001</value>
 				</field>
@@ -165,22 +136,18 @@
 						<control-param id="range" name="range">emf:Image</control-param>
 					</control>
 				</field>
-				<field name="processedBy" type="uri" label="smk.processedBy.label" tooltip="smk.processedBy.tooltip" displayType="readOnly" multiValued="true" order="355" previewEmpty="false" uri="emf:processedBy" >
+				<field name="processedBy" type="uri" tooltip="smk.processedBy.tooltip" displayType="readOnly" multiValued="true" order="355" previewEmpty="false" uri="emf:processedBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Task,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasThumbnail" type="uri" displayType="readOnly" order="360" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" previewEmpty="false" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="hasAttachment" type="uri" displayType="editable" order="365" label="smk.hasAttachment.label" tooltip="smk.hasAttachment.tooltip" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
+				<field name="hasThumbnail" order="360" label="smk.hasThumbnail.label" tooltip="smk.hasThumbnail.tooltip" />
+				<field name="hasAttachment" type="uri" displayType="editable" order="365" label="smk.hasAttachment.label" multiValued="true" previewEmpty="false" uri="chc:hasAttachment" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="attachmentOf" type="uri" displayType="editable" order="370" label="smk.attachmentOf.label" tooltip="smk.attachmentOf.tooltip" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
+				<field name="attachmentOf" type="uri" displayType="editable" order="370" label="smk.attachmentOf.label" multiValued="true" previewEmpty="false" uri="chc:attachmentOf" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:CulturalObject,chc:Sample,emf:Task,emf:Project,emf:Case,chc:Exhibition,emf:BusinessProcess</control-param>
 					</control>
@@ -200,75 +167,32 @@
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" order="390" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readonly" order="395" label="smk.parentOf.label" tooltip="smk.parentOf.tooltip" multiValued="true" previewEmpty="false" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readonly" order="400" label="smk.hasParent.label" tooltip="smk.hasParent.tooltip" previewEmpty="false" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" order="405" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" order="450"  label="smk.partOf.label" tooltip="smk.partOf.tooltip"  multiValued="true" previewEmpty="false" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" order="460" label="smk.hasChild.label" tooltip="smk.hasChild.tooltip"  multiValued="true" previewEmpty="false" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
+				<field name="hasWatcher" order="390" label="smk.hasWatcher.label" tooltip="smk.hasWatcher.tooltip" previewEmpty="false" />
+				<field name="parentOf" order="395" tooltip="smk.parentOf.tooltip" previewEmpty="false" />
+				<field name="emf:hasTemplate" order="405" label="smk.hasTemplate.label" tooltip="smk.hasTemplate.tooltip" />
+				<field name="hasChild" order="460" tooltip="smk.hasChild.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 		<region id="smkCORevisions" order="30" displayType="editable" label="smk.archivedRevisions.region.label">
 			<fields>
-				<field name="hasRevision" type="uri" displayType="readonly" order="300" label="smk.hasRevision.label" tooltip="smk.hasRevision.tooltip" multiValued="true" previewEmpty="false" uri="emf:hasRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="isRevisionOf" type="uri" displayType="readonly" order="305" label="smk.isRevisionOf.label" tooltip="smk.isRevisionOf.tooltip" previewEmpty="false" uri="emf:isRevisionOf" >
-					<control id="PICKER"/>
-				</field>
-				<field name="lastPublishedRevision" type="uri" displayType="readonly" order="310" label="lastPublishedRevision.label" tooltip="smk.lastPublishedRevision.tooltip" previewEmpty="false" uri="emf:lastPublishedRevision" >
-					<control id="PICKER"/>
-				</field>
-				<!-- this field is added to template, if you want to use just remove a comment
-				<field name="lastRevision" type="uri" displayType="readonly" order="315" label="lastRevision.label" tooltip="smk.lastRevision.tooltip" previewEmpty="false" uri="emf:lastRevision" >
-					<control id="PICKER"/>
-				</field> -->
-				<field name="nextRevision" type="uri" displayType="readonly" order="320" label="nextRevision.label" tooltip="smk.nextRevision.tooltip" previewEmpty="false" uri="emf:nextRevision" >
-					<control id="PICKER"/>
-				</field>
-				<field name="previousRevision" type="uri" displayType="readonly" order="325" label="previousRevision.label" tooltip="smk.previousRevision.tooltip" previewEmpty="false" uri="emf:previousRevision" >
-					<control id="PICKER"/>
-				</field>
+				<field name="hasRevision" label="smk.hasRevision.label" tooltip="smk.hasRevision.tooltip" />
+				<field name="isRevisionOf" label="smk.isRevisionOf.label" tooltip="smk.isRevisionOf.tooltip" />
+				<field name="lastPublishedRevision" tooltip="smk.lastPublishedRevision.tooltip" />
+				<field name="nextRevision" tooltip="smk.nextRevision.tooltip" />
+				<field name="previousRevision" tooltip="smk.previousRevision.tooltip" />
 			</fields>
 		</region>	
 	</regions>
 
 	<transitions>
-		<transition id="prepareImport" label="smk.prepareImport.action.label" tooltip="smk.prepareImport.action.tooltip" eventId="prepareImport" purpose="prepareImport"  />
+		<transition id="prepareImport" label="smk.prepareImport.action.label" tooltip="smk.prepareImport.action.tooltip" purpose="prepareImport"  />
 		
 		<transition id="editDetails" order="10" actionPath="/actions" />
-		<transition id="import" order="15" label="smk.import.action.label" tooltip="smk.import.action.tooltip" eventId="import" purpose="import" confirmation="import.confirm" />
-		<transition id="updateInt" order="20" label="smk.updateInt.action.label" tooltip="smk.updateInt.action.tooltip" eventId="updateInt" purpose="updateInt" confirmation="update.confirm" />
+		<transition id="import" order="15" label="smk.import.action.label" tooltip="smk.import.action.tooltip" purpose="import" confirmation="import.confirm" />
+		<transition id="updateInt" order="20" label="smk.updateInt.action.label" tooltip="smk.updateInt.action.tooltip" purpose="updateInt" confirmation="update.confirm" />
 		
 		<group id="create" order="25" label="create.group.label" type="menu" />
-		<transition id="createDocument" label="smk.createDocument.action.label" tooltip="smk.createDocument.action.tooltip" eventId="createDocument" purpose="createInstance" actionPath="/" group="create">
+		<transition id="createDocument" label="smk.createDocument.action.label" tooltip="smk.createDocument.action.tooltip" purpose="createInstance" actionPath="/" group="create">
       		<fields>
 				<field name="createDocumentConfig" type="json">
 					<value>
@@ -281,7 +205,7 @@
  		   		</field>
  		   </fields>
 		</transition>
-		<transition id="createWorkflow" label="smk.createWorkflow.action.label" tooltip="smk.createWorkflow.action.tooltip" eventId="createWorkflow" purpose="createInstance" group="create">
+		<transition id="createWorkflow" label="smk.createWorkflow.action.label" tooltip="smk.createWorkflow.action.tooltip" purpose="createInstance" group="create">
       		<fields>
 				<field name="createWorkflowConfig" type="json">
 					<value>
@@ -297,21 +221,21 @@
 		</transition>
 		
 		<group id="add" order="30" label="add.group.label" type="menu" />
-		<transition id="addPrimaryImage" label="smk.addPrimaryImage.action.label" tooltip="smk.addPrimaryImage.action.tooltip" eventId="addPrimaryImage" purpose="addRelation" group="add">
+		<transition id="addPrimaryImage" label="smk.addPrimaryImage.action.label" tooltip="smk.addPrimaryImage.action.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="addPrimaryImageConfig" type="json">
 					<value>
 							{
 								"predefinedTypes" : ["emf:Image"],
 								"selection" : "multiple",
-								"relation" : ["emf:hasPrimaryImage"]
+								"relation" : ["emf:hasPrimaryImage","chc:hasDepiction","emf:hasThumbnail"]
 							}
 					</value>
 					<control id="configuration" />
 				</field>
 			</fields>
 		</transition>
-		<transition id="addDepiction" label="smk.addDepiction.action.label" tooltip="smk.addDepiction.action.tooltip" eventId="addDepiction" purpose="addRelation" group="add">
+		<transition id="addDepiction" label="smk.addDepiction.action.label" tooltip="smk.addDepiction.action.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="addDepictionConfig" type="json">
 					<value>
@@ -325,7 +249,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addAttachment" label="smk.addAttachment.action.label"  tooltip="smk.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add">
+		<transition id="addAttachment" label="smk.addAttachment.action.label"  tooltip="smk.addAttachment.action.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>
@@ -340,7 +264,7 @@
 			</fields>
 		</transition>
 		<transition id="addThumbnail" group="add"/>	
-		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add">
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" purpose="addRelation" group="add">
 			<fields>
 				<field name="addWatcherConfig" type="json">
 					<value>						
@@ -357,7 +281,7 @@
 			</fields>
 		</transition>
 		
-		<transition id="achive" order="35" label="smk.achive.action.label" tooltip="smk.achive.action.tooltip" eventId="publishAsPdf" purpose="publishAsPdf" confirmation="achive.confirm" >
+		<transition id="achive" order="35" label="smk.achive.action.label" tooltip="smk.achive.action.tooltip" purpose="publishAsPdf" confirmation="achive.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -390,7 +314,7 @@
                 </field>
 			</fields>
 		</transition>
-		<transition id="download" order="40" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" actionPath="/" />
+		<transition id="download" order="40" label="download.label" purpose="download" tooltip="download.tooltip" actionPath="/" />
 		
 		<group id="exportAs" order="45" label="exportAs.group.label" type="menu" />
 		<transition id="exportTabPDF" group="exportAs"/>	
@@ -408,13 +332,43 @@
 		<transition id="changeTemplate" tooltip="smk.changeTemplate.action.tooltip" group="template"/>	
 		
 		<group id="more" order="60" label="more.group.label" type="menu" />
+		<transition id="changeType" group="more" >
+			<fields>
+				<field name="onChangeType" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							var title = root.get('title');
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var subject = '(Ændret type) ' + type + ': ' + title;
+							
+							//extract watchers
+							var recipients = [];
+							var watchers = root.get('hasWatcher');
+							if(watchers != null){
+								for(var i = 0; i < watchers.length; i++){
+								recipients.push(watchers[i].toString());
+								}
+							}
+							//extract createdBy
+							recipients.push(root.get('createdBy').toString());
+							
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_change_object_type_smk", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
 		<transition id="clone" confirmation="clone.confirm" group="more"/>	
 		<transition id="lock" group="more"/>	
 		<transition id="unlock" group="more"/>	
 		<transition id="managePermissions" group="more"/>	
 		
 		<transition id="revertVersion" order="70" />
-		<transition id="revoke" order="75" label="smk.revoke.action.label" tooltip="smk.revoke.action.tooltip" eventId="revoke" purpose="transition" immediate="true" confirmation="revoke.confirm">
+		<transition id="revoke" order="75" label="smk.revoke.action.label" tooltip="smk.revoke.action.tooltip" purpose="transition" confirmation="revoke.confirm">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
 					<value>
@@ -489,6 +443,8 @@
 		<stateTransition from="INIT" transition="clone" to="CURRENT"/>
 
 		<stateTransition from="FOR_IMP" transition="import" to="CURRENT" />
+		
+		<stateTransition from="INIT" transition="changeType" to="CURRENT" />
 
 		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />		
 		<stateTransition from="CURRENT" transition="addPrimaryImage" to="CURRENT" />
@@ -520,6 +476,9 @@
 		<stateTransition from="CURRENT" transition="managePermissions" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="changeTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeType" to="CURRENT" >
+			<condition renderAs="PROPERTY" id="integrated">false</condition>
+		</stateTransition>	
 		<stateTransition from="CURRENT" transition="updateTemplate" to="CURRENT" />
 		<stateTransition from="CURRENT" transition="createInContext" to="CURRENT"/>
 		<stateTransition from="CURRENT" transition="createDocument" to="CURRENT"/>
@@ -620,8 +579,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>System modified on: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 			</span>)})}]]></value>
 			<value lang="da"><![CDATA[${eval(#{eval(
 				<span class="thumbnail-content">
@@ -670,8 +635,14 @@
 					</span>
 					<span class="tooltip-row">
 						<label>Opdateret: </label>
-						<span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+						<span data-property="modifiedOn">${date([modifiedOn])}</span>
 					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}
 			</span>)})}]]></value>
 		</label>
 		<label id="CO_DEFAULT_HEADER_SMK">
@@ -682,14 +653,17 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
-					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span>(</span>Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
-						)}
-						${if(${get([status])}<>FOR_IMP).then(
-							${if(${get([integrated])}==false).then(<span data-property="identifier">${get([identifier])}</span>).else(<span data-property="objectId">${get([objectId])}</span>)})}
-					</a>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<b>
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+								<span>(</span>Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+							)}
+							${if(${get([status])}<>FOR_IMP).then(
+								${if(${get([integrated])}==false).then(<span data-property="identifier">${get([identifier])}</span>).else(<span data-property="objectId">${get([objectId])}</span>)})}
+						</a>
+					</b>	
 					${if(${get([status])}==FOR_IMP).then(<span data-property="objectId">${get([objectId])}</span>)},&nbsp;
 					<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>:&nbsp;
 					<span data-property="type">${CL([type])}</span>
@@ -702,7 +676,6 @@
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
 					${if(${get([isRevisionOf])}<>null).then(<br />Revision of:<span data-property="isRevisionOf">${objectProperty(${get([isRevisionOf])})}</span>)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>
 			)}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -712,15 +685,18 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
-					<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
-						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
-						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span>(</span>Arkiverede revisioner:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
-						)}
-						${if(${get([status])}<>FOR_IMP).then(
-							${if(${get([integrated])}==false).then(<span data-property="identifier">${get([identifier])}</span>).else(<span data-property="objectId">${get([objectId])}</span>)}
-						)}
-					</a>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<b>
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
+							${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+								<span>(</span>Arkiverede revisioner:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+							)}
+							${if(${get([status])}<>FOR_IMP).then(
+								${if(${get([integrated])}==false).then(<span data-property="identifier">${get([identifier])}</span>).else(<span data-property="objectId">${get([objectId])}</span>)}
+							)}
+						</a>
+					</b>	
 					${if(${get([status])}==FOR_IMP).then(<span data-property="objectId">${get([objectId])}</span>)},&nbsp;
 					<span data-property="sourceSystemId">${CL([sourceSystemId])}</span>:&nbsp;
 					<span data-property="type">${CL([type])}</span>
@@ -733,7 +709,6 @@
 						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
 					)}
 					${if(${get([isRevisionOf])}<>null).then(<br />Revision af:<span data-property="isRevisionOf">${objectProperty(${get([isRevisionOf])})}</span>)}
-					${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
 				</span>
 			)}]]></value>
 		</label>
@@ -745,7 +720,7 @@
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span class="truncate-element">
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					${if(${or(${var.isLatest} or ${var.isRevision})}).then(
@@ -768,7 +743,7 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span class="truncate-element">
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
@@ -792,7 +767,7 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
@@ -808,7 +783,7 @@
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
-					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 						${if(${get([emf:isDeleted])} == true).then(<span>(Slettet)</span>&nbsp;)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(

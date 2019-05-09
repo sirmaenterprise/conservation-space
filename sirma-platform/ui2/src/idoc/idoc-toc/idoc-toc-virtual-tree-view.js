@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import uuid from 'common/uuid';
 import {DragAndDrop} from 'components/draganddrop/drag-and-drop';
 import {ToCUtils} from './idoc-toc-utils';
 import {ToCConstants} from './idoc-toc-constants';

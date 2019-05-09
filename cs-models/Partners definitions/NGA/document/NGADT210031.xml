@@ -1,48 +1,35 @@
 <?xml version="1.0" ?>
 <definition id="NGADT210031" type="document" parentId="NGADT210003"> <!-- Loan Request and Approval  -->
+	<configuration>
+		<fields>
+			<field name="revisionContextConfiguration" type="json">
+				<value>
+					{
+						"recordContextDefinitionId" : "csRecordSpace",
+						"recordContextName" : "Loan Request and Approval Published Revisions"
+					}
+				</value>
+			</field>
+		</fields>
+	</configuration>
 	<fields>
 		<field name="type"><value>NGADT210031</value></field>
-		<field name="treatedObjects" type="an..10" displayType="editable" codelist="CL212" label="ngaDocument.treatedObjects.label" tooltip="ngaDocument.treatedObjects.tooltip" mandatory="true" order="11" uri="nga:treatedObjects" >
+		<field name="treatedObjects" type="ANY" displayType="editable" codelist="CL212" tooltip="ngaDocument.treatedObjects.tooltip" mandatory="true" order="11" uri="nga:treatedObjects" >
 			<value>NGA212001</value>
 		</field>
-		<field name="purpose" type="an..10" displayType="editable" codelist="CL214" label="nga.purpose.label" tooltip="ngaDocument.purpose.tooltip" mandatory="true" order="12" uri="nga:purpose"  />
+		<field name="purpose" type="ANY" displayType="editable" codelist="CL214" tooltip="ngaDocument.purpose.tooltip" mandatory="true" order="12" uri="nga:purpose"  />
 		<!-- new fields -->
-		<field name="nga:exhibitionDescription" type="an..1024" displayType="editable" label="nga.exhibitionDescription.label" tooltip="nga.exhibitionDescription.tooltip" order="13" uri="nga:exhibitionDescription"  />
-		<field name="nga:exhibitionId" type="an..1024" displayType="editable" label="NGAPR001.exhibitionId.label" tooltip="NGAPR001.exhibitionId.tooltip" order="14" uri="nga:exhibitionId"  />
-		<field name="nga:loanId" type="an..1024" displayType="editable" label="nga.loanId.label" tooltip="nga.loanId.tooltip" order="15" uri="nga:loanId" />
-		<field name="chc:documents" type="uri" mandatory="true" />
+		<field name="nga:exhibitionDescription" type="an..1024" displayType="editable" tooltip="nga.exhibitionDescription.tooltip" order="13" uri="nga:exhibitionDescription" >
+			<control id="RICHTEXT"/>
+		</field>
+		<field name="nga:exhibitionId" type="an..1024" displayType="editable" tooltip="NGAPR001.exhibitionId.tooltip" order="14" uri="nga:exhibitionId"  />
+		<field name="nga:loanId" type="an..1024" displayType="editable" tooltip="nga.loanId.tooltip" order="15" uri="nga:loanId" />
+		<field name="chc:documents" mandatory="true" />
 	</fields>
 	<regions>
-		<region id="generalDocumentInformation" order="70" displayType="editable" label="nga.spcificDocInformation.region.label">
+		<region id="generalDocumentInformation" label="nga.spcificDocInformation.region.label" order="70" >
 			<fields>
-				<field name="overallConditionAppraisal" type="an..1800" order="7000" label="NGADT210003.overallConditionAppraisal.label" tooltip="NGADT210003.overallConditionAppraisal.tooltip" displayType="editable" previewEmpty="false" uri="nga:overallConditionAppraisal" />
-				<!-- <field name="structureCondition" type="an..180" codelist="CL336" order="7005" label="NGADT210003.structureCondition.label" tooltip="NGADT210003.structureCondition.tooltip" displayType="editable" previewEmpty="false" multiValued="true" uri="nga:structureCondition"/>
-				<field name="surfaceCondition" type="an..1800" order="7010" label="NGADT210003.surfaceCondition.label" tooltip="NGADT210003.surfaceCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:surfaceCondition" />
-				<field name="baseCondition" type="an..1800" order="7015" label="NGADT210003.baseCondition.label" tooltip="NGADT210003.baseCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:baseCondition" />				
-				<field name="mountCondition" type="an..1800" order="7020" label="NGADT210003.mountCondition.label" tooltip="NGADT210003.mountCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:mountCondition" />
-				<field name="secondarySupportCondition" type="an..1800" order="7025" label="NGADT210003.secondarySupportCondition.label" tooltip="NGADT210003.secondarySupportCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:secondarySupportCondition" />
-				<field name="housingCondition" type="an..1800" order="7030" label="NGADT210003.housingCondition.label" tooltip="NGADT210003.housingCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:housingCondition" />
-				<field name="supportCondition" type="an..180" order="7035" codelist="CL320" label="NGADT210003.supportCondition.label" tooltip="NGADT210003.supportCondition.tooltip" displayType="editable" previewEmpty="false" multiValued="true" uri="nga:supportCondition" />
-				<field name="displayedPages" type="an..1800" order="7040" label="NGADT210003.displayedPages.label" tooltip="NGADT210003.displayedPages.tooltip" displayType="editable" previewEmpty="false" uri="nga:displayedPages" />
-				<field name="substrateCondition" type="an..1800" order="7045" label="NGADT210003.substrateCondition.label" tooltip="NGADT210003.substrateCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:substrateCondition" />
-				<field name="mediaCondition" type="an..180" order="7050" label="NGADT210003.mediaCondition.label" tooltip="NGADT210003.mediaCondition.tooltip" displayType="editable" codelist="CL332" previewEmpty="false" multiValued="true" uri="nga:mediaCondition" />
-				<field name="appliedMediaCondition" type="an..1800" order="7055" label="NGADT210003.appliedMediaCondition.label" tooltip="NGADT210003.appliedMediaCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:appliedMediaCondition" />
-				<field name="primingCondition" type="an..1800" order="7060" label="NGADT210003.primingCondition.label" tooltip="NGADT210003.primingCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:primingCondition" />				
-				<field name="paintLayersCondition" type="an..1800" order="7065" label="NGADT210003.paintLayersCondition.label" tooltip="NGADT210003.paintLayersCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:paintLayersCondition" />
-				<field name="surfaceCoatingCondition" type="an..1800" order="7070" label="NGADT210003.surfaceCoatingCondition.label" tooltip="NGADT210003.surfaceCoatingCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:surfaceCoatingConditio" />
-				<field name="imageLayerCondition" type="an..100" order="7075" label="NGADT210003.imageLayerCondition.label" tooltip="NGADT210003.imageLayerCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:imageLayerCondition"  />
-				<field name="matCondition" type="an..100" order="7076" label="NGADT210003.matCondition.label" tooltip="NGADT210003.matCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:matCondition" />
-				<field name="matAttachmentCondition" type="an..100" order="7080" codelist="CL322" label="NGADT210003.matAttachmentCondition.label" tooltip="NGADT210003.matAttachmentCondition.tooltip" displayType="editable" previewEmpty="false" multiValued="true" uri="nga:matAttachmentCondition" />
-				<field name="framingPackageCondition" type="an..100" order="7085" codelist="CL323" label="NGADT210003.framingPackageCondition.label" tooltip="NGADT210003.framingPackageCondition.tooltip" displayType="editable" previewEmpty="false" multiValued="true" uri="nga:framingPackageCondition" />
-				<field name="binderCondition" type="an..1800" order="7090" label="NGADT210003.binderCondition.label" tooltip="NGADT210003.binderCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:binderCondition" />
-				<field name="frameCondition" type="an..1800" order="7095" label="nga.frameCondition.label" tooltip="nga.frameCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:frameCondition" />
-				<field name="laminateCondition" type="an..1800" order="7100" label="NGADT210003.laminateCondition.label" tooltip="NGADT210003.laminateCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:laminateCondition" />
-				<field name="preserverCondition" type="an..1800" order="7105" label="NGADT210003.preserverCondition.label" tooltip="NGADT210003.preserverCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:preserverCondition" />
-				<field name="caseCondition" type="an..1800" order="7110" label="NGADT210003.caseCondition.label" tooltip="NGADT210003.caseCondition.tooltip" displayType="editable" previewEmpty="false" uri="nga:caseCondition" />
-				<field name="designatedOpeningCondition" type="an..180" codelist="CL335" order="7115" label="NGADT210003.designatedOpeningCondition.label" tooltip="NGADT210003.designatedOpeningCondition.tooltip" displayType="editable" previewEmpty="false" multiValued="true" uri="nga:designatedOpeningCondition" />
-				<field name="reportDate" type="date" order="7120" label="ngaDocument.reportDate.label" tooltip="ngaDocument.reportDate.tooltip" displayType="editable" uri="nga:reportDate" >
-					<value>${today}</value>
-				</field> -->
+				<field name="overallConditionAppraisal" type="an..1800" order="7000" tooltip="NGADT210003.overallConditionAppraisal.tooltip" displayType="editable" previewEmpty="false" uri="nga:overallConditionAppraisal" />
 			</fields>
 		</region>
 	</regions>

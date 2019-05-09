@@ -10,6 +10,7 @@ export function stub(type) {
   getClassMethods(type).forEach(function (method) {
     result[method] = sinon.stub();
   });
+  result.constructor = {name: type.prototype.constructor.name};
 
   Object.seal(result);
 

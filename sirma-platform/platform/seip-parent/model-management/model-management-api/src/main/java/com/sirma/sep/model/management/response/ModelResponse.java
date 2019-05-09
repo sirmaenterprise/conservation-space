@@ -16,6 +16,8 @@ public class ModelResponse {
 
 	private List<ModelDefinition> definitions;
 
+	private long modelVersion;
+
 	public List<ModelClass> getClasses() {
 		return classes;
 	}
@@ -32,5 +34,13 @@ public class ModelResponse {
 	public ModelResponse setDefinitions(List<ModelDefinition> definitions) {
 		this.definitions = definitions;
 		return this;
+	}
+
+	public long getModelVersion() {
+		return modelVersion;
+	}
+
+	public void setModelVersion(long modelVersion) {
+		this.modelVersion = modelVersion;
 	}
 }

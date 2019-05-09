@@ -4,10 +4,9 @@ import {ExportHandler, EXPORT_RESTRICT_NOTIFICATION} from 'idoc/actions/export-h
 import {ActionsService} from 'services/rest/actions-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {NotificationService} from 'services/notification/notification-service';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
-import $ from 'jquery';
 
 export const NOTIFICATION_LABEL_ID = 'action.export.pdf.idoc.notification';
 

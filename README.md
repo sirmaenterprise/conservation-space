@@ -8,9 +8,10 @@ The source code is distributed under GPLv3 license (http://www.gnu.org/copyleft/
 # Building
 
 ## Required tools
+1. Java 1.8 JDK and JavaFX
 1. Maven 3.x
-2. golang 1.9
-3. Docker
+2. golang 1.12.x
+3. Docker 18.09.5
 4. nodejs 6.x
 5. npm 3.x
 
@@ -19,7 +20,7 @@ Install `gulp` and `jspm` globally by running (this requires root or sudo permis
 npm install -g gulp jspm
 ```
 
-Because jspm downloads (a lot) from github.com it is very likely to hit github's rate limit. To avoid this you need to create an API token or log into github. To do so execute `jspm config registries.github` and follow the instructions. 
+Because jspm downloads (a lot) from github.com it is very likely to hit github's rate limit. To avoid this you need to create an API token or log into github. To do so execute `jspm config registries.github` and follow the instructions.
 
 To build all artefacts and docker images run:
 ```bash
@@ -40,4 +41,4 @@ Also for graphdb to work you need to place your license file in `/etc/sep/licens
 To deploy the compose file (stack) run:
 ```bash
 NGINX_SERVER_NAME="example.com" docker stack deploy --compose-file ./docker-stack.yml sep
-``` 
+```

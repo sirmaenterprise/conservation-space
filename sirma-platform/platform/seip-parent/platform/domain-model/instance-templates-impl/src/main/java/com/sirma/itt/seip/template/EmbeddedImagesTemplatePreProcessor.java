@@ -64,7 +64,7 @@ public class EmbeddedImagesTemplatePreProcessor implements TemplatePreProcessor 
 				.children()
 					.filter(ContentNode::isImage)
 					.map(ImageNode.class::cast)
-					.filter(image -> StringUtils.isNotBlank(image.getProperty(ImageNode.EMBEDDED_ID)))
+					.filter(image -> StringUtils.isNotBlank(image.getEmbeddedId()))
 					.map(loadContentInfo())
 					.collect(Collectors.toList());
 
@@ -84,7 +84,7 @@ public class EmbeddedImagesTemplatePreProcessor implements TemplatePreProcessor 
 		for (Pair<ImageNode, ContentInfo> pair : nodes) {
 			ImageNode node = pair.getFirst();
 			ContentInfo content = pair.getSecond();
-			String embeddedId = node.getProperty(ImageNode.EMBEDDED_ID);
+			String embeddedId = node.getEmbeddedId();
 
 			// do not schedule non existing content nodes
 			if (!content.exists()) {
@@ -128,7 +128,7 @@ public class EmbeddedImagesTemplatePreProcessor implements TemplatePreProcessor 
 
 	private Function<ImageNode, Pair<ImageNode, ContentInfo>> loadContentInfo() {
 		return node -> {
-			String embeddedId = node.getProperty(ImageNode.EMBEDDED_ID);
+			String embeddedId = node.getEmbeddedId();
 			ContentInfo content = contentService.getContent(embeddedId, null);
 			return new Pair<>(node, content);
 		};
@@ -147,7 +147,7 @@ public class EmbeddedImagesTemplatePreProcessor implements TemplatePreProcessor 
 	private static Consumer<String> setLoadedData(ImageNode node, String mimetype) {
 		return data -> {
 			node.setSource(mimetype, data);
-			node.removeProperty(ImageNode.EMBEDDED_ID);
+			node.removeEmbeddedId();
 		};
 	}
 

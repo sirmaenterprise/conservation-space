@@ -1,6 +1,7 @@
 package com.sirma.itt.seip.permissions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.sirma.itt.seip.permissions.model.PermissionId;
@@ -104,12 +105,12 @@ public interface SecurityModel {
 					.setUserDefined(false);
 
 		/** Collection of all roles */
-		public static final List<RoleIdentifier> ALL = Arrays.asList(ADMINISTRATOR, MANAGER, COLLABORATOR, CONTRIBUTOR,
-				CREATOR, CONSUMER, VIEWER, NO_PERMISSION);
+		public static final List<RoleIdentifier> ALL = Collections.unmodifiableList(Arrays.asList(ADMINISTRATOR,
+				MANAGER, COLLABORATOR, CONTRIBUTOR, CREATOR, CONSUMER, VIEWER, NO_PERMISSION));
 
 		/** The list of default public roles that can be assigned by users */
-		public static final List<RoleIdentifier> PUBLIC = Arrays.asList(CONSUMER, CONTRIBUTOR,
-				COLLABORATOR, MANAGER);
+		public static final List<RoleIdentifier> PUBLIC = Collections
+				.unmodifiableList(Arrays.asList(CONSUMER, CONTRIBUTOR, COLLABORATOR, MANAGER));
 
 		/**
 		 * Finds the identifier based on {@link RoleIdentifier#getIdentifier()} return value for each enum entry

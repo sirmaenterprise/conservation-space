@@ -1,0 +1,16 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+select ?instance ?title ?description where {
+    {
+        ?instance a owl:AnnotationProperty .
+    } UNION {
+        ?instance a owl:DatatypeProperty .
+    } UNION {
+        ?instance a owl:ObjectProperty .
+    }
+    ?instance dcterms:title ?title .
+    optional {
+        ?instance dcterms:description ?description .
+    }
+}

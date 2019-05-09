@@ -136,6 +136,14 @@ public abstract class BaseRelationalDbDao extends AbstractDbDao {
 		return fetchInternal(query, params, skip, limit);
 	}
 
+	@Override
+	public <R, E extends Pair<String, Object>> List<R> fetchWithNative(String query, List<E> params) {
+		LOGGER.trace(GOING_TO_EXECUTE_QUERY_WITH_PARAMS, query, params);
+
+		Query nativeQuery = getEntityManager().createNativeQuery(query);
+		return fetchInternal(nativeQuery, params, 0, -1);
+	}
+
 	/**
 	 * Executes the query to the relating db
 	 *

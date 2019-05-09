@@ -2,7 +2,6 @@ package com.sirmaenterprise.sep.bpm.camunda.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +16,7 @@ import java.util.List;
 import javax.enterprise.inject.Instance;
 
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
@@ -26,16 +26,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.xml.sax.SAXException;
 
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
 import com.sirma.itt.seip.io.TempFileProvider;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
 
 
 /**
  * Tests {@link BPMDefinitionImportServiceImpl}.
- * 
+ *
  * @author Vilizar Tsonev
  */
 public class BPMDefinitionImportServiceImplTest {
@@ -52,9 +51,6 @@ public class BPMDefinitionImportServiceImplTest {
 	@Mock
 	private DeploymentBuilder deploymentBuilder;
 
-	@Mock
-	private Statistics statistics;
-
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
@@ -70,13 +66,12 @@ public class BPMDefinitionImportServiceImplTest {
 		when(engine.getName()).thenReturn("testEngine");
 
 		when(instance.get()).thenReturn(engine);
-		when(statistics.createTimeStatistics(any(), anyString())).thenReturn(TimeTracker.createAndStart());
 	}
 
 	@Test
 	public void should_Pass_Loaded_Files_To_Deployment_Builder() {
 		bPMDefinitionImportService.importDefinitions(getTestFilesDirectory());
-		verifyBPMFilesPersisted("test_bmpm1.bpmn", "test_bmpm2.bpmn");
+		verifyBPMFileStreamsAreAdded("test_bmpm1.bpmn", "test_bmpm2.bpmn", "test_bpmn_invalid.bpmn");
 	}
 
 	@Test
@@ -98,9 +93,18 @@ public class BPMDefinitionImportServiceImplTest {
 		verify(instance).destroy(any(ProcessEngine.class));
 	}
 
-	private void verifyBPMFilesPersisted(String... filenames) {
+	@Test(expected = IllegalArgumentException.class)
+	public void should_Throw_Exception_When_BPMN_File_Is_Invalid() {
+		when(deploymentBuilder.getResourceNames()).thenReturn(Collections.singletonList("test_bpmn_invalid.bpmn"));
+		when(deploymentBuilder.deploy()).thenThrow(new ProcessEngineException(new SAXException()));
+		bPMDefinitionImportService.importDefinitions(
+				getTestFilesDirectory() + File.separator + "test_bpmn_invalid.bpmn");
+		verify(instance).destroy(any(ProcessEngine.class));
+	}
+
+	private void verifyBPMFileStreamsAreAdded(String... filenames) {
 		List<String> expectedFilenames = Arrays.asList(filenames);
-		
+
 		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 		verify(deploymentBuilder, times(expectedFilenames.size())).addInputStream(captor.capture(),
 				any(FileInputStream.class));

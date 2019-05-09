@@ -25,9 +25,7 @@ import template from './contextual-help.html!text';
     'target': 'target'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(HelpService, WindowAdapter)
 export class ContextualHelp {
 

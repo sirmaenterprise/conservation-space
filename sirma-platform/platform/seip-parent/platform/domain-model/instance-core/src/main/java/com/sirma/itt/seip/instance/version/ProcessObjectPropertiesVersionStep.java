@@ -82,29 +82,38 @@ public class ProcessObjectPropertiesVersionStep implements VersionStep {
 
 		Instance version = context.getVersionInstance().orElseThrow(
 				() -> new EmfRuntimeException("Version instance should be available at this point."));
+
+		VersionIdsCache cache = new VersionIdsCache(context.getCreationDate(), this::versionIds);
 		definitionService
 				.getInstanceObjectProperties(version)
 					.filter(PropertyDefinition.hasName(SEMANTIC_TYPE).negate().and(
 							property -> version.isValueNotNull(property.getName())))
-					.collect(toMap(PropertyDefinition::getName, transform(version, context.getCreationDate())))
+					.collect(toMap(PropertyDefinition::getName, transform(version, cache)))
 					.forEach(version::add);
+	}
+
+	private Map<Serializable, Serializable> versionIds(Collection<Serializable> ids, Date date) {
+		Collection<Serializable> filtered = instanceService.exist(ids).get();
+		return versionDao.findVersionIdsByTargetIdAndDate(filtered, date);
 	}
 
 	/**
 	 * Transforms object properties values, which are actually instance ids to version ids. Supports transformation for
 	 * multi and single value properties.
 	 */
-	private Function<PropertyDefinition, Serializable> transform(Instance instance, Date date) {
+	private Function<PropertyDefinition, Serializable> transform(Instance instance, VersionIdsCache cache) {
 		return property -> {
 			String name = property.getName();
 			LOGGER.trace("Transforming the value/s of object property - [{}]", name);
 			Serializable value = instance.get(name);
-			return property.isMultiValued() ? handleAsMultivalue(value, date) : handleAsSingleValue(value, date);
+			return (property.isMultiValued() || value instanceof Collection) ?
+					handleAsMultivalue(value, cache) :
+					handleAsSingleValue(value, cache);
 		};
 	}
 
 	@SuppressWarnings("unchecked")
-	private Serializable handleAsMultivalue(Serializable value, Date date) {
+	private Serializable handleAsMultivalue(Serializable value, VersionIdsCache cache) {
 		if (value instanceof Collection<?>) {
 			Collection<String> ids = (Collection<String>) value;
 			if (ids.isEmpty()) {
@@ -113,21 +122,22 @@ public class ProcessObjectPropertiesVersionStep implements VersionStep {
 			}
 
 			Collection<Serializable> convertedIds = convertToShortUris(ids);
-			return versionPropertyValues(convertedIds, ids, date);
+			return versionPropertyValues(convertedIds, ids, cache);
 		}
 
 		// instance data validations tho -> this should not be plausible
 		LOGGER.warn("There is multivalue field, which value isn't collection, it will be handled as single"
 				+ " value property. Check the defined model and fix it!");
-		return handleAsSingleValue(value, date);
+		return handleAsSingleValue(value, cache);
 	}
 
 	private Collection<Serializable> convertToShortUris(Collection<String> ids) {
 		return typeConverter.convert(ShortUri.class, ids).stream().map(ShortUri::toString).collect(Collectors.toList());
 	}
 
-	private Serializable versionPropertyValues(Collection<Serializable> converted, Collection<String> ids, Date date) {
-		Map<Serializable, Serializable> versionsMap = versionIds(converted, date);
+	private static Serializable versionPropertyValues(Collection<Serializable> converted, Collection<String> ids,
+			VersionIdsCache cache) {
+		Map<Serializable, Serializable> versionsMap = cache.getVersioned(converted);
 		if (ids.size() != versionsMap.size()) {
 			ids.forEach(id -> versionsMap.computeIfAbsent(id, Function.identity()));
 		}
@@ -135,14 +145,9 @@ public class ProcessObjectPropertiesVersionStep implements VersionStep {
 		return new ArrayList<>(versionsMap.values());
 	}
 
-	private Map<Serializable, Serializable> versionIds(Collection<Serializable> ids, Date date) {
-		Collection<Serializable> filtered = instanceService.exist(ids).get();
-		return versionDao.findVersionIdsByTargetIdAndDate(filtered, date);
-	}
-
-	private Serializable handleAsSingleValue(Serializable value, Date date) {
+	private Serializable handleAsSingleValue(Serializable value, VersionIdsCache cache) {
 		Collection<Serializable> converted = convertToShortUris(Collections.singleton(value.toString()));
-		Map<Serializable, Serializable> versionsMap = versionIds(converted, date);
+		Map<Serializable, Serializable> versionsMap = cache.getVersioned(converted);
 		if (versionsMap.isEmpty()) {
 			return value;
 		}

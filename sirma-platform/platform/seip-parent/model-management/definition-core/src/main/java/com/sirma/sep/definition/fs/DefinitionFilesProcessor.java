@@ -37,7 +37,9 @@ import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.definition.model.LabelImpl;
 import com.sirma.itt.seip.definition.schema.BaseSchemas;
 import com.sirma.itt.seip.domain.filter.Filter;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 import com.sirma.itt.seip.mapping.ObjectMapper;
+import com.sirma.sep.definition.DefinitionImportMessageBuilder;
 import com.sirma.sep.definition.DefinitionValidationException;
 import com.sirma.sep.definition.db.DefinitionContent;
 import com.sirma.sep.xml.JAXBHelper;
@@ -65,7 +67,7 @@ public class DefinitionFilesProcessor {
 	 * imported in a flat structure (removing the original directory structure). Validates the new definitions for
 	 * duplicate file names in different directories.
 	 *
-	 * @param newDefinitionsDirectory
+	 * @param newDefinitionsDirectory directory containing new definitions for processing
 	 * @throws DefinitionValidationException
 	 *             when validation fails.
 	 */
@@ -135,7 +137,7 @@ public class DefinitionFilesProcessor {
 	 * @param destination list where to store the parsed definitions
 	 * @return list of errors found during parsing
 	 */
-	public List<String> parseDefinitions(Path newDefinitionsDirectory, boolean includeContent, List<ParsedDefinition> destination) {
+	public List<ValidationMessage> parseDefinitions(Path newDefinitionsDirectory, boolean includeContent, List<ParsedDefinition> destination) {
 		Path existingDefinitionsDirectory = newDefinitionsDirectory.resolve(EXISTING_DEFINITIONS_PATH);
 
 		if (Files.notExists(existingDefinitionsDirectory)) { //NOSONAR
@@ -143,7 +145,7 @@ public class DefinitionFilesProcessor {
 			throw new IllegalArgumentException("Definitions should be prepared first");
 		}
 
-		List<String> errors = new ArrayList<>();
+		DefinitionImportMessageBuilder messageBuilder = new DefinitionImportMessageBuilder();
 
 		try (Stream<Path> definitionFilesStream = Files.walk(newDefinitionsDirectory);
 				Stream<Path> existingFilesStream = Files.walk(existingDefinitionsDirectory)) {
@@ -167,7 +169,7 @@ public class DefinitionFilesProcessor {
 				List<String> parserErrors = validateDefinitionFile(definitionFile);
 
 				if (!parserErrors.isEmpty()) {
-					errors.addAll(parserErrors);
+					messageBuilder.xmlParsingFailure(definitionFile.getFileName().toString(), parserErrors);
 					continue;
 				}
 
@@ -196,7 +198,7 @@ public class DefinitionFilesProcessor {
 			throw new IllegalStateException(e);
 		}
 
-		return errors;
+		return messageBuilder.getMessages();
 	}
 
 	private Map<String, String> checkForChangedIdentifiers(Map<String, Path> existingFiles,
@@ -230,7 +232,7 @@ public class DefinitionFilesProcessor {
 	private static List<LabelDefinition> getLabels(Definition definition) {
 		List<LabelDefinition> labels;
 		if (definition.getLabels() != null) {
-			labels = convertLabels(definition.getLabels().getLabel());
+			labels = convertLabels(definition.getLabels().getLabel(), definition.getId());
 		} else {
 			labels = new ArrayList<>();
 		}
@@ -240,7 +242,7 @@ public class DefinitionFilesProcessor {
 	private List<Filter> getFilters(Definition definition) {
 		List<Filter> filters;
 		if (definition.getFilterDefinitions() != null) {
-			filters = convertFilter(definition.getFilterDefinitions().getFilter());
+			filters = convertFilter(definition.getFilterDefinitions().getFilter(), definition.getId());
 		} else {
 			filters = new ArrayList<>();
 		}
@@ -248,18 +250,10 @@ public class DefinitionFilesProcessor {
 	}
 
 	private static List<String> validateDefinitionFile(Path definitionFile) {
-		List<String> xsdErrors = JAXBHelper.validateFile(definitionFile, BaseSchemas.GENERIC_DEFINITION);
-
-		if (!xsdErrors.isEmpty() && LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Found errors during XSD validation of {} - {}", definitionFile.getFileName().toString(), xsdErrors);
-		}
-
-		return xsdErrors.stream()
-			.map(xsdError -> "XML validation error in " + definitionFile.getFileName().toString() + ": " + xsdError)
-			.collect(Collectors.toList());
+		return JAXBHelper.validateFile(definitionFile, BaseSchemas.GENERIC_DEFINITION);
 	}
 
-	private static List<LabelDefinition> convertLabels(List<Label> labels) {
+	private static List<LabelDefinition> convertLabels(List<Label> labels, String definedIn) {
 		return labels.stream()
 					.map(current -> {
 						LabelImpl label = new LabelImpl();
@@ -270,15 +264,16 @@ public class DefinitionFilesProcessor {
 							map.put(value.getLang(), value.getValue());
 						}
 						label.setLabels(map);
-
+						label.addDefinedIn(definedIn);
 						return label;
 					})
 					.collect(Collectors.toList());
 	}
 
-	private List<Filter> convertFilter(List<FilterDefinition> labels) {
+	private List<Filter> convertFilter(List<FilterDefinition> labels, String definitionId) {
 		return labels.stream()
 					.map(current -> objectMapper.map(current, FilterDefinitionImpl.class))
+					.peek(filter -> filter.addDefinedIn(definitionId))
 					.collect(Collectors.toList());
 	}
 

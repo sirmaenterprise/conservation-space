@@ -1,11 +1,8 @@
 import {CommentContentPanel} from 'idoc/comments/comment-content-panel/comment-content-panel';
-import {ReloadCommentsEvent} from 'idoc/comments/events/reload-comments-event';
-import {ReloadRepliesEvent} from 'idoc/comments/events/reload-replies-event';
 import {CommentContentDialogClosedEvent} from 'idoc/comments/events/comment-content-dialog-closed-event';
 import {CommentsHelper} from 'idoc/comments/comments-helper';
 import 'common/lib/textcomplete/textcomplete';
 import emoji from 'node-emoji';
-import _ from 'lodash';
 
 const USER_ICON_NAME = 'user';
 const USER_ICON_SIZE = 16;
@@ -41,7 +38,7 @@ export class CommentContentDialog {
       let width = $(window).width() / 3;
       CommentContentPanel.setFocus();
       //Sets the dimensions of the dialog.
-      $('.modal-content').css({width: width});
+      $('.modal-content').css({width});
     };
     this.dialogService.create(CommentContentPanel, this.createPropertyDefinition(config.comment, buttons), dialogConfig);
     this.matchUserMentionOrEmoji();
@@ -57,7 +54,7 @@ export class CommentContentDialog {
             includeUsers: true,
             includeGroups: false,
             limit: 10,
-            term: term
+            term
           };
           this.resourceRestService.getResources(searchTerm).then((response) => {
             callback($.map(response.data.items, function (user) {
@@ -81,7 +78,7 @@ export class CommentContentDialog {
       {
         // emoji strategy matches the symbol (:) a.k.a colon
         match: /(^|\s):(\w*)$/,
-        search: function (term, callback) {
+        search(term, callback) {
           let cache = ['smile', 'laughing', 'smiling_imp', 'wink', 'weary', 'angry', 'cry', 'beer', 'v', 'clock10'];
           callback($.map(cache, function (emo) {
             return emo.indexOf(term) === 0 ? emoji.get(emo) : null;
@@ -91,11 +88,11 @@ export class CommentContentDialog {
             return emo.indexOf(term) === 0 ? emoji.get(emo) : null;
           }));
         },
-        replace: function (value) {
+        replace(value) {
           CKEDITOR.instances[CommentContentPanel.EDITOR_SELECTOR].fire('change');
           return value;
         },
-        template: function (value) {
+        template(value) {
           return value + ' ' + emoji.which(value);
         },
         cache: true
@@ -175,7 +172,7 @@ export class CommentContentDialog {
 
 
     return {
-      header: header,
+      header,
       showClose: true,
       onClose: () => {
         //Textcomlete Leaking Event Handler #287 https://github.com/yuku-t/jquery-textcomplete/issues/287

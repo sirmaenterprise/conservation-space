@@ -18,10 +18,14 @@ public enum SemanticQueries {
 	QUERY_CLASSES_TYPES_FOR_SEARCH("QUERY_CLASSES_TYPES_FOR_SEARCH", "queryClassMetadata.sparql", null),
 
 	QUERY_CLASSES_TYPES("QUERY_CLASSES_TYPES", "queryClassDataForTypesXmlGeneration.sparql", null),
+	
+	QUERY_DATA_TYPES("QUERY_DATA_TYPES", "queryDataTypes.sparql", null),
 
 	QUERY_DATA_PROPERTIES("QUERY_DATA_PROPERTIES", "queryDataProperties.sparql", null),
 
 	QUERY_RELATION_PROPERTIES("QUERY_RELATION_PROPERTIES", "queryRelationProperties.sparql", null),
+	
+	QUERY_ANNOTATION_PROPERTIES("QUERY_ANNOTATION_PROPERTIES", "queryAnnotationProperties.sparql", null),
 
 	QUERY_DEFINITIONS_FOR_CLASS("QUERY_DEFINITIONS_FOR_CLASS",
 			"select ?instance (emf:ClassDescription as ?instanceType) ?definitionId where {\n" +
@@ -37,6 +41,9 @@ public enum SemanticQueries {
 	QUERY_LIBRARIES_AS_OBJECTS("QUERY_LIBRARIES_AS_OBJECTS", "queryLibraries.sparql", null),
 
 	QUERY_CLASS_DESCRIPTION("QUERY_CLASS_DESCRIPTION", "queryClassDescription.sparql", null),
+	QUERY_PROPERTY_DESCRIPTION("QUERY_PROPERTY_DESCRIPTION", "queryPropertyDescription.sparql", null),
+	QUERY_RUNTIME_CLASS_DESCRIPTION("QUERY_CLASS_PROPERTY_DESCRIPTION", "queryClassRuntimeData.sparql", null),
+	QUERY_RUNTIME_PROPERTY_DESCRIPTION("QUERY_RUNTIME_PROPERTY_DESCRIPTION", "queryPropertyRuntimeData.sparql", null),
 
 	/**
 	 * Query instance hierarchy by returning the parent instances and their parents

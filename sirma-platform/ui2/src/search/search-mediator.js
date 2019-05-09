@@ -59,7 +59,7 @@ export class SearchMediator {
 
   addCriteria(rule, parentId) {
     let query = this.queryBuilder;
-    let eventData = {rule: rule, parentId: parentId, query: query};
+    let eventData = {rule, parentId, query};
 
     this.trigger(EVENT_BEFORE_SEARCH_CRITERIA_CHANGED, eventData);
     this.queryBuilder.add(rule, parentId);
@@ -68,7 +68,7 @@ export class SearchMediator {
 
   removeCriteria(rule) {
     let query = this.queryBuilder;
-    let eventData = {rule: rule, query: query};
+    let eventData = {rule, query};
 
     this.trigger(EVENT_BEFORE_SEARCH_CRITERIA_CHANGED, eventData);
     this.queryBuilder.remove(rule);
@@ -100,17 +100,17 @@ export class SearchMediator {
     return {
       query: queryCopy,
       arguments: argumentsMap,
-      searchMode: searchMode,
-      context: context
+      searchMode,
+      context
     };
   }
 
   static buildSearchResponse(query, response, argumentsMap, searchMode) {
     return {
-      query: query,
-      response: response,
+      query,
+      response,
       arguments: argumentsMap,
-      searchMode: searchMode
+      searchMode
     };
   }
 

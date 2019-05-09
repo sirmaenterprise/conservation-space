@@ -1,8 +1,8 @@
 import angular from 'angular';
 import application from 'app/app';
 import 'angular-translate';
-import {LabelRestService} from 'services/rest/label-service';
-import {Eventbus} from 'services/eventbus/eventbus';
+import 'services/rest/label-service';
+import 'services/eventbus/eventbus';
 import {LanguageChangeSuccessEvent} from 'services/i18n/language-change-success-event';
 
 var translateModule = angular.module('translate', [application.name, 'pascalprecht.translate']);

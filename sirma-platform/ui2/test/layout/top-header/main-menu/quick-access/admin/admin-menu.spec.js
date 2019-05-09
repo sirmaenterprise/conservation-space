@@ -23,7 +23,7 @@ describe('AdminMenuTest', function () {
 
       let testConfig = {
         extensionPoint: 'admin-menu-items',
-        triggerLabel: '<i class="fa fa-2x fa-fw fa fa-cogs"></i>',
+        triggerLabel: '<i class="fa fa-lg fa-fw fa-gear"></i>',
         wrapperClass: 'admin-menu',
         buttonAsTrigger: false,
         context: {},

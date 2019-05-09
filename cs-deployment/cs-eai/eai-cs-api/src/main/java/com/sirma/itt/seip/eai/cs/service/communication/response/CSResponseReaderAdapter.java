@@ -40,6 +40,7 @@ import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.domain.search.SearchArguments;
 import com.sirma.itt.seip.domain.search.SearchArguments.QueryResultPermissionFilter;
 import com.sirma.itt.seip.domain.search.SearchDialects;
@@ -59,6 +60,7 @@ import com.sirma.itt.seip.eai.model.URIServiceRequest;
 import com.sirma.itt.seip.eai.model.communication.RequestInfo;
 import com.sirma.itt.seip.eai.model.communication.ResponseInfo;
 import com.sirma.itt.seip.eai.model.error.ErrorBuilderProvider;
+import com.sirma.itt.seip.eai.model.internal.ExternalInstanceIdentifier;
 import com.sirma.itt.seip.eai.model.internal.ProcessedInstanceModel;
 import com.sirma.itt.seip.eai.model.internal.RelationInformation;
 import com.sirma.itt.seip.eai.model.internal.RetrievedInstances;
@@ -110,9 +112,10 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 	@Inject
 	protected QueryBuilder queryBuilder;
 	@Inject
+	private InstancePropertyNameResolver propertyNameResolver;
+	@Inject
 	@VirtualDb
 	private DbDao dbDao;
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public <R extends ProcessedInstanceModel> R parseResponse(ResponseInfo response) throws EAIException {
@@ -144,7 +147,7 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 		SearchResultInstances<Instance> parsedInstances = new SearchResultInstances<>();
 		parsedInstances.setInstances(new ArrayList<>(normalized.size()));
 		Map<CSExternalInstanceId, Instance> existing = loadExistingItems(
-				normalized.stream().map(e -> e.getRecord()).collect(Collectors.toList()), errorBuilder);
+				normalized.stream().map(CSResultItem::getRecord).collect(Collectors.toList()), errorBuilder);
 		for (CSResultItem item : normalized) {
 			CSExternalInstanceId externalId = null;
 			CSItemRecord record = item.getRecord();
@@ -329,14 +332,14 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 		if (relationships == null) {
 			return;
 		}
+		String externalType = getExternalType(source);
 		for (CSItemRelations nextRelation : relationships) {
 			Object to = loadRelationAsInformation(srcRecord, nextRelation, existing, errorBuilder);
 			if (to == null) {
 				// still not imported or not needed - skip it
 				continue;
 			}
-			EntityRelation relation = modelConfiguration.getRelationByExternalName(source.getIdentifier(),
-					nextRelation.getType());
+			EntityRelation relation = modelConfiguration.getRelationByExternalName(externalType, nextRelation.getType());
 			if (relation == null) {
 				errorBuilder
 						.append("\r\n Missing relation information: ")
@@ -512,7 +515,12 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 	private void checkAndMapInstanceToExternalId(
 			final Map<CSExternalInstanceId, CSItemRecord> externalIdToExternalRecord, Instance instance,
 			Map<CSExternalInstanceId, Instance> externalIdToInternalInstance) throws EAIException {
-		DefinitionModel instanceDefinition = definitionService.getInstanceDefinition(instance);
+
+		// if external type property is not defined then the instance definition will be used for verification
+		// we cannot use property name converter here as the new type may not have the defined external type so we
+		// need to check for all this here
+		String externalType = getExternalType(instance);
+		DefinitionModel instanceDefinition = definitionService.find(externalType);
 		if (instanceDefinition == null) {
 			throw new EAIRuntimeException("Missing s definition for object with id: " + instance.getId());
 		}
@@ -530,7 +538,8 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 					"Type for classification: " + csItemRecord.getClassification() + " not found in model!",
 					Objects.toString(csItemRecord, null));
 		}
-		if (!instance.getIdentifier().equals(typeByExternalName.getIdentifier())) {
+
+		if (!externalType.equals(typeByExternalName.getIdentifier())) {
 			throw new EAIReportableException(
 					"The received classification " + typeByExternalName.getIdentifier()
 							+ " does not match the classification " + instance.getIdentifier()
@@ -541,6 +550,11 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 		if (existing != null) {
 			throw new EAIRuntimeException("Duplicate entry with external id: " + recordId);
 		}
+	}
+
+	private String getExternalType(Instance instance) {
+		return instance.getString(EAIServicesConstants.PROPERTY_EXTERNAL_TYPE,
+				() -> instance.getString(EAIServicesConstants.URI_EXTERNAL_TYPE, instance.getIdentifier()));
 	}
 
 	private Serializable extractExternalIdFromInstance(Instance instance, DefinitionModel instanceDefinition) {
@@ -582,7 +596,7 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 					.provideModelConverter(
 							instance.getProperties().get(EAIServicesConstants.PROPERTY_INTEGRATED_SYSTEM_ID).toString())
 						.convertSEIPtoExternalProperty(EAIServicesConstants.URI_SUB_SYSTEM_ID, externalIdLoaded,
-								instanceDefinition.getIdentifier());
+								getExternalType(instance));
 		} catch (EAIModelException e) { // NOSONAR
 			// rethrow with original cause and message
 			throw new EAIRuntimeException(e.getMessage(), e.getCause());
@@ -636,6 +650,10 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 			throws EAIReportableException {
 		instance.add(EAIServicesConstants.PROPERTY_INTEGRATED_SYSTEM_ID, getName());
 		instance.add(EAIServicesConstants.PROPERTY_INTEGRATED_FLAG_ID, Boolean.TRUE);
+		// define the initial import type of the instance if not defined in the external mapping configuration
+		if (!instance.isPropertyPresent(EAIServicesConstants.URI_EXTERNAL_TYPE, propertyNameResolver)) {
+			instance.add(EAIServicesConstants.URI_EXTERNAL_TYPE, instance.getIdentifier(), propertyNameResolver);
+		}
 	}
 
 	/**
@@ -654,6 +672,13 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 		Map<String, Serializable> convertExternaltoSEIPProperties = modelConverter
 				.convertExternaltoSEIPProperties(record.getProperties(), createdInstance);
 		createdInstance.getProperties().putAll(convertExternaltoSEIPProperties);
+
+		// override the type of the instance. If the instance exists and it's type has been changed the above properties
+		// update will override the changed type. This is not desired so we reset the type field back to the one known
+		// in the system
+		if (createdInstance.getIdentifier() != null) {
+			createdInstance.add(DefaultProperties.TYPE, createdInstance.getIdentifier());
+		}
 	}
 
 	/**
@@ -680,7 +705,7 @@ public abstract class CSResponseReaderAdapter implements EAIResponseReaderAdapte
 		}
 		// references is id by spec
 		createdInstance.getProperties().put(EAIServicesConstants.PROPERTY_REFERENCES, String.join(", ",
-				relationsByIds.keySet().stream().map(e -> e.getExternalId()).collect(Collectors.toList())));
+				relationsByIds.keySet().stream().map(ExternalInstanceIdentifier::getExternalId).collect(Collectors.toList())));
 	}
 
 	/**

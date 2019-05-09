@@ -14,24 +14,33 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.sirma.itt.seip.permissions.InstanceAccessEvaluator;
+import com.sirma.itt.seip.rest.secirity.SecurityTokensManager;
 import com.sirma.itt.seip.rest.utils.JwtConfiguration;
+import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirmaenterprise.sep.eai.spreadsheet.configuration.SpreadsheetIntegrationConfiguration;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * {@link ContentToolProviderRest} is provider of jnlp file for the EAI content tool. Needed jar libraries are described
- * in the jnlp content and are served as web resources as part of the current module.
+ * in the jnlp content and are served as web resources as part of the current module. a
  *
  * @author bbanchev
  */
 @Singleton
 @Path("/integration/content/tool")
 public class ContentToolProviderRest {
+
+	@Inject
+	private SecurityContext securityContext;
+
+	@Inject
+	private SecurityTokensManager tokensManager;
+
 	@Inject
 	private JwtConfiguration jwtConfiguration;
+
 	@Inject
 	private InstanceAccessEvaluator instanceAccessEvaluator;
+
 	@Inject
 	private SpreadsheetIntegrationConfiguration spreadsheetIntegrationConfiguration;
 
@@ -39,7 +48,6 @@ public class ContentToolProviderRest {
 	 * Builds the JNLP descriptor for the content tool.
 	 *
 	 * @param uriDetails is the current uri request
-	 * @param jwt is the jwt token for current user
 	 * @param instanceId is the processed spreadsheet
 	 * @return the jnlp file as string and as "application/x-java-jnlp-file" content
 	 */
@@ -47,23 +55,21 @@ public class ContentToolProviderRest {
 	@Transactional
 	@Path("/descriptor")
 	@Produces("application/x-java-jnlp-file")
-	public Response loadTool(@Context UriInfo uriDetails, @QueryParam("jwt") String jwt,
-			@QueryParam("id") String instanceId) {
-		if (StringUtils.isBlank(jwt)) {
-			return Response.status(401).build();
-		}
+	public Response loadTool(@Context UriInfo uriDetails, @QueryParam("id") String instanceId) {
 		// check if user has write access to the requited spreadsheet - if not tool could be not be used
 		if (!instanceAccessEvaluator.canWrite(instanceId)) {
-			return Response
-					.status(401)
-					.entity("Could not access for modification instance with id: " + instanceId)
+			return Response.status(401).entity("Could not access for modification instance with id: " + instanceId)
 					.build();
 		}
+
+		String jwtToken = tokensManager.generate(securityContext.getAuthenticated());
+
 		// fill the template with the required arguments.
 		String jnlp = String.format(spreadsheetIntegrationConfiguration.getContentToolJNLP().get(),
 				uriDetails.resolve(URI.create("../eai/")),
-				"eai-content-tool-jfx.jar?" + jwtConfiguration.getJwtParameterName() + "=" + jwt, uriDetails
-						.getBaseUri().toString(), "Bearer " + jwt, instanceId);
+				"eai-content-tool-jfx.jar?" + jwtConfiguration.getJwtParameterName() + "=" + jwtToken,
+				uriDetails.getBaseUri().toString(), "Jwt " + jwtToken, instanceId);
+
 		// set the mimetype
 		return Response.ok(jnlp).header("Content-Type", "application/x-java-jnlp-file").build();
 	}

@@ -25,6 +25,7 @@ import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.db.RelationDbProvisioning;
 import com.sirma.itt.seip.tenant.db.TenantRelationalContext;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 import com.sirma.itt.seip.tenant.wizard.exception.TenantCreationException;
@@ -86,15 +87,17 @@ public class TenantCamundaStepTest {
 		TenantStepData data = new TenantStepData("id", new JSONObject("{properties:[]}"));
 		TenantInitializationContext context = new TenantInitializationContext();
 		context.setTenantInfo(new TenantInfo("tenantId"));
-		boolean result = step.delete(data, new TenantInfo("tenantId"), false);
+		boolean result = step.delete(data, new TenantDeletionContext(new TenantInfo("tenantId"), false));
 		assertTrue(result);
-		verify(camundaDbProvisioning).rollback(any(TenantRelationalContext.class), any(TenantRelationalContext.class),
-				any(TenantInfo.class), anyBoolean());
+		verify(camundaDbProvisioning)
+				.rollback(any(TenantRelationalContext.class), any(TenantRelationalContext.class), any(TenantInfo.class),
+						anyBoolean());
 	}
 
 	@Test
 	public void should_returnFalse_onException() throws JSONException {
-		boolean result = step.delete(new TenantStepData("id", new JSONObject()), new TenantInfo("tenantId"), false);
+		boolean result = step.delete(new TenantStepData("id", new JSONObject()),
+				new TenantDeletionContext(new TenantInfo("tenantId"), false));
 		assertFalse(result);
 	}
 

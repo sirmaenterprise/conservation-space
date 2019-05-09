@@ -1,5 +1,4 @@
 import {Injectable} from 'app/app';
-import _ from 'lodash';
 
 export const SHOW = 'show';
 export const HIDE = 'hide';

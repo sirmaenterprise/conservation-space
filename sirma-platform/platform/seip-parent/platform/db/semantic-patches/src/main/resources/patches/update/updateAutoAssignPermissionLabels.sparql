@@ -1,0 +1,29 @@
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+DELETE {
+   sec:autoAssignPermissionRole rdfs:label ?o.
+   sec:autoAssignParentPermissionRole rdfs:label ?o2.
+   sec:autoAssignPermissionRole dcterms:title ?o3.
+   sec:autoAssignParentPermissionRole dcterms:title ?o4.
+}
+INSERT {
+    GRAPH <http://www.sirma.com/ontologies/2014/11/security> {
+        sec:autoAssignPermissionRole rdfs:label "Auto-assign permission role"@en.
+        sec:autoAssignParentPermissionRole rdfs:label "Auto-assign parent permission role"@en.
+        sec:autoAssignPermissionRole dcterms:title "Auto-assign permission role"@en.
+        sec:autoAssignParentPermissionRole dcterms:title "Auto-assign parent permission role"@en.
+    }
+} WHERE {
+     sec:autoAssignPermissionRole rdfs:label ?o.
+     sec:autoAssignParentPermissionRole rdfs:label ?o2.
+     optional {
+        sec:autoAssignPermissionRole dcterms:title ?o3.
+     }
+     optional {
+        sec:autoAssignParentPermissionRole dcterms:title ?o4.
+     }
+}

@@ -14,7 +14,9 @@ export class IdocEditorSelectionListener {
         let selection = editor.getSelection();
         // there are cases where the selection doesn't provide start element
         if (selection && selection.getStartElement()) {
+          editor.fire('lockSnapshot');
           this.publishSelectionChangedEvent(selection);
+          editor.fire('unlockSnapshot');
 
           // for Firefox only
           if (!editor.readOnly && CKEDITOR.env.gecko) {

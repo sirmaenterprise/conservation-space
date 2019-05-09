@@ -7,7 +7,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,25 +21,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
+import org.jglue.cdiunit.AdditionalClasses;
+import org.jglue.cdiunit.AdditionalClasspaths;
+import org.jglue.cdiunit.AdditionalPackages;
+import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.InjectMocks;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import com.sirma.itt.seip.convert.TypeConverter;
+import com.sirma.itt.seip.configuration.ConfigurationProperty;
+import com.sirma.itt.seip.configuration.annotation.Configuration;
+import com.sirma.itt.seip.convert.TypeConverterImpl;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.io.FileDescriptor;
+import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
 import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
-import com.sirma.itt.seip.tx.TransactionSupport;
+import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.IdResolver;
 import com.sirma.sep.content.InstanceContentService;
+import com.sirma.sep.content.InstanceViewPreProcessor;
 import com.sirma.sep.content.ViewPreProcessorContext;
 import com.sirma.sep.content.idoc.ContentNode;
 import com.sirma.sep.content.idoc.ContentNodeFactory;
@@ -52,25 +62,34 @@ import com.sirma.sep.content.idoc.nodes.image.ImageNodeBuilder;
  *
  * @author BBonev
  */
+@RunWith(CdiRunner.class)
+@AdditionalClasses({IdResolver.class, EmbeddedImageExtractor.class, SecurityContextManagerFake.class, TransactionSupportFake.class})
+@AdditionalPackages({ TypeConverterImpl.class})
+@AdditionalClasspaths({})
 public class EmbeddedImageExtractionTest {
 
-	@InjectMocks
+	@Inject
+	@Extension(target = InstanceViewPreProcessor.TARGET_NAME, order = 50)
 	private EmbeddedImageExtraction extension;
 
 	@Mock
+	@Produces
 	private InstanceContentService contentService;
+
 	@Mock
+	@Produces
 	private SecurityContext securityContext;
 
-	@Spy
+	@Inject
 	private SecurityContextManagerFake securityContextManager = new SecurityContextManagerFake();
-	@Spy
-	private TransactionSupport transactionSupport = new TransactionSupportFake();
 
 	@Spy
-	private IdResolver idResolver = new IdResolver(mock(TypeConverter.class));
+	@Produces
+	@Configuration
+	private ConfigurationProperty<String[]> whitelistPatterns = new ConfigurationPropertyMock<>(new String[]{});
 
 	@Mock
+	@Produces
 	private ImageDownloader imageDownloader;
 
 	@BeforeClass
@@ -80,7 +99,6 @@ public class EmbeddedImageExtractionTest {
 
 	@Before
 	public void beforeMethod() {
-		MockitoAnnotations.initMocks(this);
 		when(securityContext.getCurrentTenantId()).thenReturn("tenant.com");
 		when(contentService.saveContent(any(Serializable.class), any(Content.class)))
 				.then(a -> mockContentInfo(true));
@@ -101,7 +119,8 @@ public class EmbeddedImageExtractionTest {
 		ViewPreProcessorContext context = new ViewPreProcessorContext(new EmfInstance(), createIdocContent());
 		extension.process(context);
 
-		verify(contentService, times(4)).saveContent(any(Serializable.class), any(Content.class));
+		// wait for up to 2 seconds for 4 invocations of saveContent to happen
+		verify(contentService, timeout(2000).times(4)).saveContent(any(Serializable.class), any(Content.class));
 
 		Idoc idoc = Idoc.parse(context.getView().getContent().getInputStream());
 		List<ImageNode> imageLinks = idoc

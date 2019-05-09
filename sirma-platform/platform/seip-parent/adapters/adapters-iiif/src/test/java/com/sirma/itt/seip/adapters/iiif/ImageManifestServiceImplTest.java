@@ -36,6 +36,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.sirma.itt.seip.configuration.SystemConfiguration;
 import com.sirma.itt.seip.db.DatabaseIdManager;
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
@@ -73,7 +74,7 @@ public class ImageManifestServiceImplTest {
 	private SecurityContext securityContext;
 
 	@Spy
-	private Statistics statistics = Statistics.NO_OP;
+	private Statistics statistics = NoOpStatistics.INSTANCE;
 
 	@Spy
 	ImageServerConfigurationsMock configMock = new ImageServerConfigurationsMock();

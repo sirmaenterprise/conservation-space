@@ -33,7 +33,7 @@ export class HtmlUtil {
 
   static escapeHtml(html) {
     if (html) {
-      return html.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
   }
 }

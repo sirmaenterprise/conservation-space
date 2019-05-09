@@ -136,6 +136,9 @@ public interface ContentImport extends Content {
 	 */
 	Serializable getInstanceId();
 
+	@Override
+	ContentImport disableContentStoreEnforcingOnVersionUpdate();
+
 	/**
 	 * Creates an empty {@link ContentImport} implementation. The default implementation supports setting all fields.
 	 *
@@ -297,6 +300,11 @@ public interface ContentImport extends Content {
 		public ContentImport setContentId(String id) {
 			super.setContentId(id);
 			return this;
+		}
+
+		@Override
+		public ContentImport disableContentStoreEnforcingOnVersionUpdate() {
+			return (ContentImport) super.disableContentStoreEnforcingOnVersionUpdate();
 		}
 	}
 }

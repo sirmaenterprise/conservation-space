@@ -47,6 +47,22 @@ class WildflyCLIUtil {
 	}
 
 	/**
+	 * Add a absolute path entry in the server configuration. The path entry could be referenced later in the server
+	 * configuration by the provided path name.
+	 *
+	 * @param steps the node to be added to
+	 * @param pathName the path name to reference the path entry later in the configurations
+	 * @param pathLocation the absolute path location
+	 */
+	static void addPathConfiguration(ModelNode steps, String pathName, String pathLocation) {
+		ModelNode step = steps.add();
+		ModelNode address = step.get(OP_ADDR);
+		address.add("path", pathName);
+		step.get(ClientConstants.OP).set(ClientConstants.ADD);
+		step.get("path").set(pathLocation);
+	}
+
+	/**
 	 * Add remove operation for the given attribute name
 	 *
 	 * @param node the target node

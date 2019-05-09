@@ -199,6 +199,8 @@
 												<#assign rdfType = target.properties['rdf:type']>
 												<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
 													Workflow er blevet slettet
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													Document er blevet slettet
 												<#else>
 													${codelists.getCodeValue(7, target.properties['type']).properties['da']} er blevet slettet
 												</#if>
@@ -231,7 +233,7 @@
 												</#if>
 											</strong>
 											 er slettet af 
-											${notifications.getDisplayName(target.properties['modifiedBy'])}.<br/></br>
+											${user.getDisplayName()}.<br/></br>
 											<strong>Flere detaljer om objektet:</strong><br>
 											Oprettet af: ${notifications.getDisplayName(target.properties['createdBy'])}<br>
 											Oprettet den: ${target.properties['createdOn']?datetime}
@@ -251,45 +253,45 @@
 												<#if target.getParent()??>
 												<#assign parent = target.getParent()>
 												<#assign parentRDF = parent.properties['rdf:type']>
-												<#assign title = parent.properties['title']>
+												<#assign titleParent = parent.properties['title']>
 													<#if parentRDF??> 
 														<br/>Overordnet kontekst: 
 														<#if parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project'> 
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(7, target.properties['type']).properties['da']}: ${codelists.getCodeValue(2, parent.properties['subType']).properties['da']}) 
-																${title}
+																(${codelists.getCodeValue(7, parent.properties['type']).properties['da']}: ${codelists.getCodeValue(2, parent.properties['subType']).properties['da']}) 
+																${titleParent}
 															</a>
 														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Case'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(7, target.properties['type']).properties['da']}: ${codelists.getCodeValue(4, parent.properties['subType']).properties['da']}) 
-																${title}
+																(${codelists.getCodeValue(7, parent.properties['type']).properties['da']}: ${codelists.getCodeValue(4, parent.properties['subType']).properties['da']}) 
+																${titleParent}
 															</a>
 														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Task'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(7, target.properties['type']).properties['da']}) ${codelists.getCodeValue(28, parent.properties['subType']).properties['da']}
+																(${codelists.getCodeValue(7, parent.properties['type']).properties['da']}) ${codelists.getCodeValue(28, parent.properties['subType']).properties['da']}
 															</a>
 														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(Workflow) ${codelists.getCodeValue(10, target.properties['type']).properties['da']}
+																(Workflow) ${codelists.getCodeValue(10, parent.properties['type']).properties['da']}
 															</a>
 														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Image'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(7, target.properties['type']).properties['da']}: ${codelists.getCodeValue(211, parent.properties['subType']).properties['da']})
-																${title}
+																(${codelists.getCodeValue(7, parent.properties['type']).properties['da']}: ${codelists.getCodeValue(211, parent.properties['subType']).properties['da']})
+																${titleParent}
 															</a>
 														<#elseif parentRDF == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Sample'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(7, target.properties['type']).properties['da']}: ${codelists.getCodeValue(248, parent.properties['subType']).properties['da']})
-																${title}
+																(${codelists.getCodeValue(7, parent.properties['type']).properties['da']}: ${codelists.getCodeValue(248, parent.properties['subType']).properties['da']})
+																${titleParent}
 															</a>
 														<#elseif parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
 															<a href="${notifications.buildFullURI(parent)}">
-																(${codelists.getCodeValue(6, target.properties['type']).properties['da']}) ${title}
+																(${codelists.getCodeValue(6, parent.properties['type']).properties['da']}) ${titleParent}
 															</a>
 														<#else>
 															<a href="${notifications.buildFullURI(parent)}">
 																(${codelists.getCodeValue(7, parent.properties['type']).properties['da']})
-																 ${title}
+																 ${titleParent}
 															</a>
 														</#if>
 													</#if>	

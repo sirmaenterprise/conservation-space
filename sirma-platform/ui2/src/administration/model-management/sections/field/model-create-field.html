@@ -1,0 +1,64 @@
+<div class="model-form clearfix">
+  <div class="form-group select-property">
+    <label class="col-sm-3 control-label">
+      {{ ::'administration.models.management.field.create.select.property' | translate }}
+    </label>
+    <seip-select ng-if="::modelCreateField.propertySelect"
+                 class="col-sm-9 control-data" config="::modelCreateField.propertySelect"
+                 ng-model="modelCreateField.getModelUriAttribute().getValue().value"
+                 ng-change="modelCreateField.onPropertySelected()"></seip-select>
+  </div>
+
+  <div ng-if="modelCreateField.hasSelectedProperty()">
+    <div class="panel panel-default" collapsible-panel ng-if="modelCreateField.isPropertyTypeVisible()">
+      <div class="panel-heading">
+        <i class="panel-caret fa fa-caret-down"></i>
+        <span class="model-header">
+        <strong class="model-title">"{{ modelCreateField.getPropertyTitle() }}"</strong>
+        <span>{{ ::'administration.models.management.field.generic' | translate }}</span>
+      </span>
+      </div>
+
+      <div class="panel-body model-form container-fluid form-horizontal">
+        <div class="alert alert-warning missing-type" ng-if="modelCreateField.isPropertyTypeEmpty()">
+          {{::'administration.models.management.field.create.missing.type' | translate}}
+        </div>
+        <model-attribute-view id="{{modelCreateField.getPropertyType().getId()}}"
+                              attribute="modelCreateField.getPropertyType()"
+                              context="modelCreateField.model.getProperty()"
+                              config="::modelCreateField.createAttributesConfig"
+                              editable="modelCreateField.isPropertyTypeVisible()"
+                              on-attribute-change="modelCreateField.notifyForModelAttributeChange(modelCreateField.getPropertyType(), modelCreateField.model)">
+        </model-attribute-view>
+      </div>
+    </div>
+
+    <div class="panel panel-default" collapsible-panel>
+      <div class="panel-heading">
+        <i class="panel-caret fa fa-caret-down"></i>
+        <span class="model-header">
+        <strong class="model-title">"{{ modelCreateField.getModelTitle() }}"</strong>
+        <span>{{ ::'administration.models.management.field.specific' | translate }}</span>
+      </span>
+      </div>
+
+      <div class="panel-body model-form container-fluid form-horizontal">
+        <model-attribute-view id="{{attribute.getId()}}" ng-show="attribute.getRestrictions().isVisible()"
+                              ng-repeat="attribute in modelCreateField.model.getAttributes() track by attribute.getId()"
+                              attribute="attribute"
+                              context="modelCreateField.model"
+                              config="::modelCreateField.createAttributesConfig"
+                              on-attribute-change="modelCreateField.notifyForModelAttributeChange(attribute, modelCreateField.model)">
+        </model-attribute-view>
+      </div>
+    </div>
+  </div>
+
+  <model-controls>
+    <model-save on-save="modelCreateField.saveAllChanges()"
+                enabled="modelCreateField.isSaveAllowed()"
+                loading="modelCreateField.isLoadingUri()">
+    </model-save>
+    <model-cancel on-cancel="modelCreateField.revertAllChanges()"></model-cancel>
+  </model-controls>
+</div>

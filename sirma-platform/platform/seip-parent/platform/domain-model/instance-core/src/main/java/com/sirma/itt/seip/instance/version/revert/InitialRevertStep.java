@@ -53,7 +53,7 @@ public class InitialRevertStep implements RevertStep {
 					.orElseThrow(() -> new InstanceNotFoundException(currentInstanceId));
 
 		Instance resultInstance = instanceService.deepClone(version, context.getOperation());
-		resultInstance.removeProperties(VersionProperties.getVersionProperties(Collections.singleton(VersionProperties.DEFINITION_ID)));
+		resultInstance.removeProperties(VersionProperties.get(Collections.singleton(VersionProperties.DEFINITION_ID)));
 		context.setRevertResultInstance(resultInstance).setCurrentInstance(current);
 	}
 }

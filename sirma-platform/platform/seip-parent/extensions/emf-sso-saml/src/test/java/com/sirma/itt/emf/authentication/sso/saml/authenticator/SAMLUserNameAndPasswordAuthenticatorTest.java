@@ -122,14 +122,14 @@ public class SAMLUserNameAndPasswordAuthenticatorTest {
 		authenticator.authenticate(context);
 	}
 
-	@Test(expected = AuthenticationException.class)
+	@Test
 	public void authenticate_noSaml_noToken() throws Exception {
 		Map<String, String> properties = new HashMap<>();
 		properties.put(Authenticator.USERNAME, "name");
 		properties.put(Authenticator.CREDENTIAL, "pass");
 		AuthenticationContext context = AuthenticationContext.create(properties);
 
-		authenticator.authenticate(context);
+		assertNull(authenticator.authenticate(context));
 	}
 
 	@Test(expected = EmfApplicationException.class)

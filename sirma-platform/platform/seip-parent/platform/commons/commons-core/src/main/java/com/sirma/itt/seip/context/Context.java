@@ -25,11 +25,8 @@ import com.sirma.itt.seip.util.EqualsHelper;
 public class Context<K, V> implements Map<K, V>, Serializable {
 	private static final long serialVersionUID = 4797754957801742634L;
 
-	/**
-	 * Unmodifiable empty context instance
-	 */
 	@SuppressWarnings("rawtypes")
-	public static final Context<?, ?> EMPTY_CONTEXT = new Context(0) {
+	private static final Context<?, ?> EMPTY_CONTEXT = new Context(0) {
 		private static final long serialVersionUID = -1199684732601990015L;
 
 		@Override

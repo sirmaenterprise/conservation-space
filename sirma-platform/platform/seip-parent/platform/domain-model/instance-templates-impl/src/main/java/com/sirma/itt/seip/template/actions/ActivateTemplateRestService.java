@@ -7,6 +7,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.actions.Actions;
 import com.sirma.itt.seip.rest.utils.Versions;
 
@@ -27,12 +28,12 @@ public class ActivateTemplateRestService {
 	/**
 	 * Activates the template. When activated, the template becomes available for its forType, and it can be applied.
 	 *
-	 * @param request
-	 *            is the request for template activation
+	 * @param request is the request for template activation
+	 * @return activated template instance
 	 */
 	@POST
 	@Path("{id}/actions/activate-template")
-	public void activate(ActivateTemplateActionRequest request) {
-		actions.callAction(request);
+	public Instance activate(ActivateTemplateActionRequest request) {
+		return Instance.class.cast(actions.callAction(request));
 	}
 }

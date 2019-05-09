@@ -2,6 +2,8 @@ package com.sirma.itt.seip.instance.actions.compare;
 
 import static com.sirma.itt.seip.instance.version.compare.VersionCompareContext.create;
 
+import java.io.File;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Response.Status;
 
@@ -31,9 +33,9 @@ public class VersionCompareAction implements Action<VersionCompareRequest> {
 	}
 
 	@Override
-	public String perform(VersionCompareRequest request) {
+	public File perform(VersionCompareRequest request) {
 		VersionCompareContext context = create(request.getFirstSourceId(), request.getSecondSourceId(),
-				request.getAuthenticationHeaders()).setOriginalInstanceId(request.getTargetId());
+				request.getAuthentication()).setOriginalInstanceId(request.getTargetId());
 
 		try {
 			return compareVersionsService.compareVersionsContent(context);

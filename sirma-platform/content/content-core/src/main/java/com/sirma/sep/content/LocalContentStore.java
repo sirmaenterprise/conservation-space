@@ -136,7 +136,7 @@ public class LocalContentStore implements ContentStore {
 				LOGGER.trace("Overriding file: {}", previousVersion.getRemoteId());
 				File resolveFile = resolveFile(previousVersion.getRemoteId());
 				if (resolveFile == null) {
-					throw new ContentNotFoundRuntimeException("Could not find content at: " + previousVersion.getRemoteId());
+					resolveFile = handleMissingFile(previousVersion);
 				}
 				long written = descriptor.getContent().writeTo(resolveFile);
 				return buildStoreInfo(previousVersion.getRemoteId(), written);
@@ -145,6 +145,15 @@ public class LocalContentStore implements ContentStore {
 			}
 		}
 		throw new ContentStoreMissMatchException(getName(), previousVersion == null ? null : previousVersion.getProviderType());
+	}
+
+	private File handleMissingFile(StoreItemInfo previousVersion) {
+		LOGGER.warn("File which should be updated is missing. Attempting to recover by creating "
+				+ "new file, where the data will be stored.");
+		File resolveFile = new File(getStoreLocation(), previousVersion.getRemoteId());
+		// creates parent folder if does not exist, before returning the file
+		getOrCreateFolder(resolveFile.getParentFile());
+		return resolveFile;
 	}
 
 	private StoreItemInfo buildStoreInfo(String id, long written) {
@@ -209,6 +218,7 @@ public class LocalContentStore implements ContentStore {
 		try {
 			Files.delete(new File(location).toPath());
 		} catch (NoSuchFileException e) {
+			LOGGER.trace("Failed to complete standard delete of file at {}", location, e);
 			// The filename is resolved using configuration which has to be executed in the tenant's config.
 			File file = contextManager.executeAsTenant(deleteContentData.getTenantId())
 					.function(this::resolveFile, deleteContentData.getString("filename"));
@@ -224,6 +234,7 @@ public class LocalContentStore implements ContentStore {
 				return;
 			} catch (IOException e1) {
 				LOGGER.warn("Could not delete file: {}", file.getAbsolutePath());
+				LOGGER.trace("", e1);
 			}
 			LOGGER.warn("Could not delete file: {} as it's probably already deleted", location);
 		} catch (IOException e) {
@@ -293,7 +304,7 @@ public class LocalContentStore implements ContentStore {
 		}
 	}
 
-	private void moveInternal(File moveFrom, File moveTo) {
+	private static void moveInternal(File moveFrom, File moveTo) {
 		if (!shouldMoveToDestination(moveFrom, moveTo)) {
 			return;
 		}
@@ -313,7 +324,7 @@ public class LocalContentStore implements ContentStore {
 		}
 	}
 
-	private boolean shouldMoveToDestination(File moveFrom, File moveTo) {
+	private static boolean shouldMoveToDestination(File moveFrom, File moveTo) {
 		if (moveTo.exists()) {
 			if (moveTo.length() == moveFrom.length()) {
 				try {
@@ -324,28 +335,32 @@ public class LocalContentStore implements ContentStore {
 				}
 				// file already moved, just delete the original
 				return false;
-			} else {
-				// files do not match, probably server was restarted during file move
-				// back it up and we will try again
-				try {
-					Path moveToPath = moveTo.toPath().toAbsolutePath();
-					Path newName = moveToPath.resolveSibling(moveTo.getName() + ".old");
-					Files.move(moveToPath, newName);
-					LOGGER.info("Found file at {} with unexpected file size. Renamed to {}",
-							moveToPath, newName.getFileName());
-				} catch (IOException e) {
-					LOGGER.warn("Unable to rename potentially corrupted file {}. Will try to override it",
-							moveTo.getAbsolutePath(), e);
-				}
+			}
+
+			// files do not match, probably server was restarted during file move
+			// back it up and we will try again
+			try {
+				Path moveToPath = moveTo.toPath().toAbsolutePath();
+				Path newName = moveToPath.resolveSibling(moveTo.getName() + ".old");
+				Files.move(moveToPath, newName);
+				LOGGER.info("Found file at {} with unexpected file size. Renamed to {}", moveToPath,
+						newName.getFileName());
+			} catch (IOException e) {
+				LOGGER.warn("Unable to rename potentially corrupted file {}. Will try to override it",
+						moveTo.getAbsolutePath(), e);
 			}
 		}
 		return true;
 	}
 
-	private File getFolder() {
-		File directory = new File(getStoreLocation(), new SimpleDateFormat(PATH_PATTERN).format(new Date()));
+	private File createNewFile() {
+		File parent = new File(getStoreLocation(), new SimpleDateFormat(PATH_PATTERN).format(new Date()));
+		return new File(getOrCreateFolder(parent), UUID.randomUUID() + ".bin");
+	}
+
+	private static File getOrCreateFolder(File directory) {
 		if (!directory.exists() && !directory.mkdirs()) {
-        	if (directory.exists()) {
+			if (directory.exists()) {
 				// created by other thread
 				return directory;
 			}
@@ -354,13 +369,13 @@ public class LocalContentStore implements ContentStore {
 		return directory;
 	}
 
-	private File createNewFile() {
-		return new File(getFolder(), UUID.randomUUID() + ".bin");
-	}
-
 	@Override
 	public String getName() {
 		return LocalStore.NAME;
 	}
 
+	@Override
+	public boolean isCleanSupportedOnTenantDelete() {
+		return true;
+	}
 }

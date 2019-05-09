@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.definition.validator;
 
+import static com.sirma.itt.seip.definition.ValidationMessageUtils.hasError;
+import static com.sirma.itt.seip.definition.validator.ConditionValidator.ConditionValidatorMessageBuilder.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -13,6 +15,7 @@ import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.definition.model.PropertyDefinitionProxy;
 import com.sirma.itt.seip.definition.model.RegionDefinitionImpl;
 import com.sirma.itt.seip.definition.model.TransitionDefinitionImpl;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 
 public class ConditionValidatorTest {
 
@@ -21,12 +24,13 @@ public class ConditionValidatorTest {
 	@Test
 	public void should_Not_AllowEmptyExpression() {
 		GenericDefinitionImpl definition = new GenericDefinitionImpl();
+		definition.setIdentifier("d1");
 		definition.setExpression("");
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Expression should not be empty"));
+		assertTrue(hasError(errors, EMPTY_EXPRESSION, "d1"));
 	}
 
 	@Test
@@ -42,10 +46,10 @@ public class ConditionValidatorTest {
 
 		definition.getFields().add(field);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("No fields in the target model "));
+		assertTrue(hasError(errors, MISSING_FIELDS_FOR_EXPRESSION));
 	}
 
 	@Test
@@ -64,10 +68,10 @@ public class ConditionValidatorTest {
 
 		definition.getRegions().add(region);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("No fields in the target model "));
+		assertTrue(hasError(errors, MISSING_FIELDS_FOR_EXPRESSION));
 	}
 
 	@Test
@@ -83,10 +87,10 @@ public class ConditionValidatorTest {
 
 		definition.getTransitions().add(transition);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("No fields in the target model "));
+		assertTrue(hasError(errors, MISSING_FIELDS_FOR_EXPRESSION));
 	}
 
 }

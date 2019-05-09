@@ -17,7 +17,7 @@ describe('IdocComments', function () {
     let tab = idocPage.getIdocTabs().getTabByIndex(0);
     let commentSection = tab.getContent().getCommentsSection();
     let commentsToolbar = new IdocCommentsToolbar(commentSection);
-    expect(commentsToolbar.getCommentButton().isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(commentsToolbar.getCommentButton()), DEFAULT_TIMEOUT);
   });
 
   it('should open the create-comment-dialog when posting new comment', function () {
@@ -27,7 +27,7 @@ describe('IdocComments', function () {
     let commentSection = tab.getContent().getCommentsSection();
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let dialog = comments.openCommentDialog();
-    expect(dialog.element.isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(dialog.element), DEFAULT_TIMEOUT);
   });
 
   it('should not create comment with empty comment description', function () {
@@ -37,7 +37,7 @@ describe('IdocComments', function () {
     let commentSection = tab.getContent().getCommentsSection();
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let dialog = comments.openCommentDialog();
-    expect(dialog.element.isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(dialog.element), DEFAULT_TIMEOUT);
     expect(dialog.getOkButton().isEnabled()).to.eventually.be.false;
   });
 
@@ -105,7 +105,7 @@ describe('IdocComments', function () {
     let commentSection = tab.getContent().getCommentsSection();
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let commentDialog = comments.getCommentByIndex(0).getCommentActions().edit();
-    expect(commentDialog.isPresent()).to.eventually.to.be.true;
+    browser.wait(EC.presenceOf(commentDialog), DEFAULT_TIMEOUT);
   });
 
   it('should open dialog with the edited comment content', function () {
@@ -116,7 +116,7 @@ describe('IdocComments', function () {
     let commentDesc = 'Test Comment';
     comments.postComment(commentDesc).then(function (comment) {
       let commentDialog = comment.getCommentActions().edit();
-      expect(commentDialog.getEditorContent()).to.eventually.equal(commentDesc);
+      browser.wait(EC.textToBePresentInElement(commentDialog.element, commentDesc), DEFAULT_TIMEOUT);
     });
   });
 
@@ -130,7 +130,7 @@ describe('IdocComments', function () {
     let additionalDesc = '2';
     commentDialog.type(additionalDesc).then(function () {
       commentDialog.ok();
-      expect(comment.getDescriptionAsText()).to.eventually.equal('default comment' + additionalDesc);
+      browser.wait(EC.textToBePresentInElement(comment.element, 'default comment' + additionalDesc), DEFAULT_TIMEOUT);
     });
   });
 
@@ -140,7 +140,7 @@ describe('IdocComments', function () {
     let commentSection = tab.getContent().getCommentsSection();
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let replyAction = comments.getCommentByIndex(0).getCommentActions().getReplyAction();
-    expect(replyAction.isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(replyAction), DEFAULT_TIMEOUT);
   });
 
   it('should open dialog when reply action is selected', function () {
@@ -149,7 +149,7 @@ describe('IdocComments', function () {
     let commentSection = tab.getContent().getCommentsSection();
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let replyDialog = comments.getCommentByIndex(0).getCommentActions().reply();
-    expect(replyDialog.element.isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(replyDialog.element), DEFAULT_TIMEOUT);
   });
 
   it('should create reply', function () {
@@ -163,7 +163,7 @@ describe('IdocComments', function () {
     replyDialog.type('TestReply').then(function () {
       replyDialog.ok();
       comment.getReplies().then(function (replies) {
-        expect(replies[1].getDescriptionAsText()).to.eventually.equal('TestReply');
+        browser.wait(EC.textToBePresentInElement(replies[1].element, 'TestReply'), DEFAULT_TIMEOUT);
       });
     });
   });
@@ -207,10 +207,9 @@ describe('IdocComments', function () {
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let comment = comments.getCommentByIndex(0);
     comment.expandComment();
-    let replyDesc = 'default reply';
     comment.getReplies().then(function (replies) {
       let editReplyDialog = replies[0].getCommentActions().edit();
-      expect(editReplyDialog.getEditorContent()).to.eventually.equal(replyDesc);
+      browser.wait(EC.textToBePresentInElement(editReplyDialog.element, 'default reply'), DEFAULT_TIMEOUT);
     });
   });
 
@@ -228,9 +227,8 @@ describe('IdocComments', function () {
         editReplyDialog.ok();
         comment.expandComment();
         comment.getReplies().then(function (replies) {
-          expect(replies[0].getDescriptionAsText()).to.eventually.equal('default reply' + additionalDesc);
+          browser.wait(EC.textToBePresentInElement(replies[0].element, 'default reply' + additionalDesc), DEFAULT_TIMEOUT);
         });
-
       });
     });
   });
@@ -243,8 +241,7 @@ describe('IdocComments', function () {
     let comment = comments.getCommentByIndex(0);
     comment.expandComment();
     let replyDialog = comment.clickReplyButton();
-
-    expect(replyDialog.element.isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(replyDialog.element), DEFAULT_TIMEOUT);
   });
 
   it('comments should have reply button when expanded', function () {
@@ -255,8 +252,7 @@ describe('IdocComments', function () {
     let comment = comments.getCommentByIndex(0);
     comment.expandComment();
     let replyBtn = comment.getReplyButton();
-
-    expect(replyBtn.isPresent()).to.eventually.be.true;
+    browser.wait(EC.presenceOf(replyBtn), DEFAULT_TIMEOUT);
   });
 
   it('comments should be collapsed by default', function () {
@@ -277,7 +273,7 @@ describe('IdocComments', function () {
     let comment = comments.getCommentByIndex(0);
     comment.expandComment();
     comment.getReplies().then(function (replies) {
-      expect(replies[0].getReplyButton().isPresent()).to.eventually.be.false;
+      browser.wait(EC.not(EC.presenceOf(replies[0].getReplyButton())), DEFAULT_TIMEOUT);
     });
   });
 
@@ -290,10 +286,10 @@ describe('IdocComments', function () {
     comments.postComment(commentDesc).then(function () {
       let newComment = comments.getCommentByIndex(0);
       newComment.expandComment();
-      expect(newComment.getReplyButton().isPresent()).to.eventually.be.true;
+      browser.wait(EC.presenceOf(newComment.getReplyButton()), DEFAULT_TIMEOUT);
       comments.getCommentByIndex(1).expandComment();
-      expect(newComment.getReplyButton().isDisplayed()).to.eventually.be.false;
-      expect(newComment.getDescriptionAsText()).to.eventually.equal(commentDesc);
+      browser.wait(EC.not(EC.visibilityOf(newComment.getReplyButton())), DEFAULT_TIMEOUT)
+      browser.wait(EC.textToBePresentInElement(newComment.element, commentDesc), DEFAULT_TIMEOUT);
     });
   });
 
@@ -320,7 +316,7 @@ describe('IdocComments', function () {
     comment.getCommentActions().suspend();
     comment.getCommentActions().restart();
 
-    expect(comment.getCommentActions().getSuspendAction().isDisplayed()).to.eventually.be.true;
+    browser.wait(EC.visibilityOf(comment.getCommentActions().getSuspendAction()), DEFAULT_TIMEOUT)
   });
 
   function writeMentionOrEmoji(dialog, content, selectElement) {
@@ -357,8 +353,7 @@ describe('IdocComments', function () {
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let dialog = comments.openCommentDialog();
     writeMentionOrEmoji(dialog, '@Ja', true);
-    let comment = comments.getCommentByIndex(0);
-    expect(comment.getDescriptionAsText(true)).to.eventually.equal('Jane Doe');
+    browser.wait(EC.textToBePresentInElement(comments.getCommentByIndex(0).element, 'Jane Doe'), DEFAULT_TIMEOUT);
   });
 
   it('should build link when mentioning an user', function () {
@@ -383,8 +378,7 @@ describe('IdocComments', function () {
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let dialog = comments.openCommentDialog();
     writeMentionOrEmoji(dialog, '@Jane Doe', false);
-    let comment = comments.getCommentByIndex(0);
-    expect(comment.getDescriptionAsText()).to.eventually.equal('@Jane Doe');
+    browser.wait(EC.textToBePresentInElement(comments.getCommentByIndex(0).element, '@Jane Doe'), DEFAULT_TIMEOUT);
   });
 
   it('should type emoji', function () {
@@ -394,8 +388,7 @@ describe('IdocComments', function () {
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let dialog = comments.openCommentDialog();
     writeMentionOrEmoji(dialog, ':smil', true);
-    let comment = comments.getCommentByIndex(0);
-    expect(comment.getDescriptionAsText()).to.eventually.equal('😄');
+    browser.wait(EC.textToBePresentInElement(comments.getCommentByIndex(0).element, '😄'), DEFAULT_TIMEOUT);
   });
 
   it('should not type emoji when emoji is not selected from dropdown', function () {
@@ -405,8 +398,7 @@ describe('IdocComments', function () {
     let comments = new Comments(commentSection, new IdocCommentsToolbar(commentSection));
     let dialog = comments.openCommentDialog();
     writeMentionOrEmoji(dialog, ':smile', false);
-    let comment = comments.getCommentByIndex(0);
-    expect(comment.getDescriptionAsText()).to.eventually.equal(':smile');
+    browser.wait(EC.textToBePresentInElement(comments.getCommentByIndex(0).element, ':smile'), DEFAULT_TIMEOUT);
   });
 
   it('should apply comments filtering', function () {
@@ -422,9 +414,6 @@ describe('IdocComments', function () {
       comments.getComments().then(function (commentsEl) {
         expect(commentsEl.length).to.equal(0);
       });
-
     });
-
   });
-
 });

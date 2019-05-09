@@ -37,7 +37,7 @@ import com.sirma.itt.emf.solr.services.impl.SolrSearchEngine;
 import com.sirma.itt.emf.solr.services.impl.facet.FacetResultTransformer;
 import com.sirma.itt.emf.solr.services.impl.facet.FacetSolrHelper;
 import com.sirma.itt.seip.collections.CollectionUtils;
-import com.sirma.itt.seip.collections.ContextualMap;
+import com.sirma.itt.seip.collections.ContextualConcurrentMap;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.search.Query;
 import com.sirma.itt.seip.domain.search.SearchArguments;
@@ -118,7 +118,7 @@ public class SolrSearchFacadeTest {
 
 		Mockito.when(userPreferences.getLanguage()).thenReturn("en");
 		ReflectionUtils.setFieldValue(dateConverter, "userPreferences", userPreferences);
-		ReflectionUtils.setFieldValue(dateConverter, "dateFormats", ContextualMap.create());
+		ReflectionUtils.setFieldValue(dateConverter, "dateFormats", ContextualConcurrentMap.create());
 		ReflectionUtils.setFieldValue(dateConverter, "converterDateFormatPattern",
 				new ConfigurationPropertyMock<>("dd.MM.yyyy"));
 		ReflectionUtils.setFieldValue(dateConverter, "converterDatetimeFormatPattern",
@@ -210,7 +210,7 @@ public class SolrSearchFacadeTest {
 		// check with diff formatter
 		ReflectionUtils.setFieldValue(dateConverter, "converterDateFormatPattern",
 				new ConfigurationPropertyMock<>("yy.dd.MM"));
-		ReflectionUtils.setFieldValue(dateConverter, "dateFormats", ContextualMap.create());
+		ReflectionUtils.setFieldValue(dateConverter, "dateFormats", ContextualConcurrentMap.create());
 
 		request.getRequest().clear();
 		request.getRequest().put("createdFromDate", Collections.singletonList("14.12.12"));
@@ -376,7 +376,7 @@ public class SolrSearchFacadeTest {
 		// Avoiding NPE
 		Mockito.when(queryResponse.getResults()).thenReturn(new SolrDocumentList());
 		try {
-			Mockito.when(solrConnector.queryWithPost(Matchers.any(SolrQuery.class))).thenReturn(queryResponse);
+			Mockito.when(solrConnector.query(Matchers.any(SolrQuery.class))).thenReturn(queryResponse);
 		} catch (SolrClientException e) {
 			Assert.fail(e.getMessage());
 		}
@@ -476,7 +476,7 @@ public class SolrSearchFacadeTest {
 	private ArgumentCaptor<SolrQuery> getSolrConnectorCaptor() {
 		ArgumentCaptor<SolrQuery> solrParameters = ArgumentCaptor.forClass(SolrQuery.class);
 		try {
-			Mockito.verify(solrConnector, Mockito.atLeastOnce()).queryWithPost(solrParameters.capture());
+			Mockito.verify(solrConnector, Mockito.atLeastOnce()).query(solrParameters.capture());
 		} catch (SolrClientException e) {
 			Assert.fail(e.getMessage());
 		}

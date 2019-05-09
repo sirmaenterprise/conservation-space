@@ -37,8 +37,6 @@ import com.sirma.itt.seip.definition.DefinitionAccessor;
 import com.sirma.itt.seip.definition.event.DefinitionsChangedEvent;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
 
@@ -55,9 +53,6 @@ import com.sirma.itt.semantic.model.vocabulary.EMF;
 public class DefaultRelationInitializer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-	@Inject
-	private Statistics statistics;
 
 	@Inject
 	@Any
@@ -101,10 +96,6 @@ public class DefaultRelationInitializer {
 	 */
 	@SuppressWarnings("boxing")
 	private void getModelFromDefinitionsOnLoad() {
-		TimeTracker timeTracker = statistics
-				.createTimeStatistics(DefaultRelationInitializer.class, "getAllRelations")
-					.begin();
-
 		Model addModel = new LinkedHashModel();
 
 		Map<String, Boolean> existingRelations = getExistingRelations();
@@ -133,8 +124,6 @@ public class DefaultRelationInitializer {
 			SemanticPersistenceHelper.saveModel(repositoryConnection, addModel, EMF.DEFAULT_RELATION_CONTEXT);
 		}
 		// TODO add remove of relation when definitions can be removed
-		LOGGER.debug("Initialization of all relations to be subPropertyOf default relation took {} ms",
-				timeTracker.stop());
 	}
 
 	@SuppressWarnings("boxing")
@@ -154,9 +143,6 @@ public class DefaultRelationInitializer {
 
 	@SuppressWarnings("boxing")
 	private Map<String, Boolean> getExistingRelations() {
-		TimeTracker timeTracker = statistics
-				.createTimeStatistics(DefaultRelationInitializer.class, "getAllRelations")
-					.begin();
 		TupleQuery tupleQuery = SPARQLQueryHelper.prepareTupleQuery(repositoryConnection, QUERY_GET_ALL_RELATIONS,
 				CollectionUtils.emptyMap(), false);
 
@@ -170,8 +156,6 @@ public class DefaultRelationInitializer {
 				existingRelations.put(relationUri, extendsDefaultRelation);
 			}
 		}
-		LOGGER.debug("Retrieving all relations and extend default relation flag took {} ms", timeTracker.stop());
-
 		return existingRelations;
 	}
 

@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -22,7 +21,7 @@ import javax.xml.bind.annotation.XmlType;
  * Java class for regionsDefinition complex type.
  * <p>
  * The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="regionsDefinition"&gt;
  *   &lt;complexContent&gt;
@@ -39,8 +38,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "regionsDefinition", propOrder = { "region" })
 public class RegionsDefinition {
 
-	/** The region. */
-	@XmlElement(required = true)
+	/**
+	 * The region.
+	 */
 	protected List<RegionDefinition> region;
 
 	/**
@@ -51,7 +51,7 @@ public class RegionsDefinition {
 	 * the region property.
 	 * <p>
 	 * For example, to add a new item, do as follows:
-	 *
+	 * <p>
 	 * <pre>
 	 * getRegion().add(newItem);
 	 * </pre>
@@ -65,6 +65,10 @@ public class RegionsDefinition {
 			region = new ArrayList<>();
 		}
 		return region;
+	}
+
+	public void setRegion(List<RegionDefinition> region) {
+		this.region = region;
 	}
 
 }

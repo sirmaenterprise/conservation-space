@@ -1,5 +1,5 @@
 import {Inject,Injectable} from 'app/app';
-import {$translate} from 'angular-translate';
+import 'angular-translate';
 
 /**
  * Adapter for angular-translate's $translate service

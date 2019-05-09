@@ -263,12 +263,9 @@ public class ConfigurationProducer implements ConfigurationProvider {
 	 * @param instance
 	 *            the instance
 	 * @return the configuration property
-	 * @throws ConfigurationException
-	 *             the configuration exception
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> ConfigurationProperty<T> buildProperty(final ConfigurationInstance instance)
-			throws ConfigurationException {
+	private <T> ConfigurationProperty<T> buildProperty(final ConfigurationInstance instance) {
 		cacheLock.writeLock().lock();
 		try {
 			// check if someone build the property before we get here

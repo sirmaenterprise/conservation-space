@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -113,6 +114,10 @@ public class DefinitionMock implements GenericDefinition, JsonRepresentable {
 	@Override
 	public boolean isAbstract() {
 		return isAstract;
+	}
+
+	public void setAbstract(boolean asAbstract) {
+		isAstract = asAbstract;
 	}
 
 	@Override
@@ -254,4 +259,8 @@ public class DefinitionMock implements GenericDefinition, JsonRepresentable {
 		this.configurations = configurations;
 	}
 
+	@Override
+	public Optional<PropertyDefinition> getField(String name) {
+		return findField(PropertyDefinition.hasName(name).or(PropertyDefinition.hasUri(name)));
+	}
 }

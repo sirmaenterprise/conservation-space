@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.sirma.itt.emf.semantic.persistence;
 
 import java.io.Serializable;
@@ -90,8 +87,6 @@ public class SemanticPersistenceHelper {
 	 *            Connection to the semantic repository
 	 * @param model
 	 *            Model with semantic statements
-	 * @param graph
-	 *            Graph to insert the statements from the model
 	 */
 	public static void removeModel(RepositoryConnection connection, Model model) {
 		removeModel(connection, model, null);
@@ -202,7 +197,7 @@ public class SemanticPersistenceHelper {
 	 *            Namespace registry service
 	 * @param valueFactory
 	 *            Value factory
-	 * @return Builded statement from the input parameters or null if one of them is null
+	 * @return Built statement from the input parameters or null if one of them is null
 	 */
 	private static Statement createStatement(Object subjectUri, Object predicate, Serializable value, boolean isLiteral,
 			NamespaceRegistryService registryService, ValueFactory valueFactory) {

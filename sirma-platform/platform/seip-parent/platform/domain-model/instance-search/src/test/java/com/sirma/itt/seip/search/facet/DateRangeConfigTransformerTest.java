@@ -194,17 +194,17 @@ public class DateRangeConfigTransformerTest {
 		}
 
 		@Override
-		public Iterable<ResourceBundle> getBundles(String language) {
-			return null;
-		}
-
-		@Override
-		public Iterable<ResourceBundle> getBundles() {
-			return null;
-		}
-
-		@Override
 		public String getBundleValue(String key) {
+			return null;
+		}
+
+		@Override
+		public String getPropertyLabel(PropertyDefinition propertyDefinition) {
+			return null;
+		}
+
+		@Override
+		public String getPropertyTooltip(PropertyDefinition propertyDefinition) {
 			return null;
 		}
 	}

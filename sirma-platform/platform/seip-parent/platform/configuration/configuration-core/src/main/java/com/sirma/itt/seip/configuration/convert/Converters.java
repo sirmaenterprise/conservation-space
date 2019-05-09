@@ -27,6 +27,7 @@ import com.sirma.itt.seip.IntegerPair;
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.StringPair;
 import com.sirma.itt.seip.Uri;
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.configuration.ConfigurationException;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationConverter;
 import com.sirma.itt.seip.convert.TypeConverter;
@@ -378,6 +379,30 @@ public class Converters {
 		}
 		return Collections.unmodifiableSet(result);
 	}
+
+	/**
+	 * Convert to string array.
+	 *
+	 * @param context
+	 *            the configuration context
+	 * @return the array of the configuration values split by comma or semi comma.
+	 */
+	@ConfigurationConverter
+	public static String[] convertToStringArray(ConverterContext context) {
+		String rawValue = context.getRawValue();
+		if (rawValue == null) {
+			return null; // NOSONAR
+		}
+		String[] split = PROP_SPLIT_PATTERN.split(rawValue);
+		List<String> result = new ArrayList<>(split.length);
+		for (String prop : split) {
+			if (!prop.isEmpty()) {
+				result.add(prop);
+			}
+		}
+		return CollectionUtils.toArray(result, String.class);
+	}
+
 
 	/**
 	 * Convert to string list.

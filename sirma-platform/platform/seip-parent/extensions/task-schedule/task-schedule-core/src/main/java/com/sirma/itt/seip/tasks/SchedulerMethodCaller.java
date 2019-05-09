@@ -5,6 +5,7 @@ package com.sirma.itt.seip.tasks;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -226,6 +227,9 @@ class SchedulerMethodCaller {
 			methodToCall.setAccessible(true);
 			methodToCall.invoke(bean,
 					buildArgumentsList(methodToCall, manager, predefinedParameter, predefinedParameterIndex));
+		} catch (InvocationTargetException e) {
+			throw new IllegalStateException("Failed invoking bean method " + methodToCall.getDeclaringClass().getName()
+					+ "." + methodToCall.getName(), e.getCause());
 		} catch (Exception e) {
 			throw new IllegalStateException("Failed invoking bean method " + methodToCall.getDeclaringClass().getName()
 					+ "." + methodToCall.getName(), e);

@@ -84,7 +84,7 @@ export class FileUpload extends Configurable {
     this.maxNumberOfFiles = this.configuration.get(Configuration.UPLOAD_MAX_SIMULTANEOUS_NUMBER_FILES);
 
     element.fileupload({
-      add: function (e, data) {
+      add(e, data) {
         if (_this.currentlyUploading >= _this.maxNumberOfFiles) {
           _this.filesToUploadLater.push(data.files[0]);
 
@@ -103,7 +103,7 @@ export class FileUpload extends Configurable {
         file.id = uuid();
 
         _this.entries.unshift({
-          file: file,
+          file,
           uploadControl: data
         });
 
@@ -116,7 +116,7 @@ export class FileUpload extends Configurable {
       },
       start: _this.onUploadStarted.bind(_this),
       always: _this.onUploadCompleted.bind(_this),
-      progress: function (e, data) {
+      progress(e, data) {
         let progress = parseInt(data.loaded / data.total * 90, 10);
         let id = data.files[0].id;
 
@@ -268,7 +268,7 @@ export class FileUpload extends Configurable {
         this.eventbus.publish(new RefreshWidgetsCommand());
       }
 
-      if (this.config.userOperation && (this.config.userOperation === "uploadNewVersion" || this.config.userOperation === "uploadRevision")) {
+      if (this.config.userOperation && (this.config.userOperation === 'uploadNewVersion' || this.config.userOperation === 'uploadRevision')) {
         this.config.onClosed();
       }
     }

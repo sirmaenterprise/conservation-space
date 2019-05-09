@@ -2,27 +2,21 @@
 <definition id="PR0001" parentId="genericTestProject" saveCondition="+[title]" type="project">
     <!-- Main Project -->
     <fields>
-        <field name="identifier" type="an..50" displayType="system"/>
-        <field name="type" type="an..180" displayType="system"/>
-        <field name="title" type="an..50" displayType="system"/>
-        <field name="description" type="an..1024" displayType="system"/>
-        <field name="status" type="an..50" displayType="system"/>
-        <field name="ownedBy" type="uri" displayType="system"/>
-        <field name="priority" type="an..20" displayType="system"/>
-        <field name="plannedStartDate" type="date" displayType="system"/>
-        <field name="plannedEndDate" type="date" displayType="system"/>
-        <field name="actualStartDate" type="date" displayType="system"/>
-        <field name="actualEndDate" type="date" displayType="system"/>
-        <field name="estimatedEffortHours" type="n..10" displayType="system"/>
-        <field name="actualEffortHours" type="n..10" displayType="system"/>
-        <field name="accumulatedEstimatedEffortHours" type="n..10" displayType="system"/>
-        <field name="accumulatedActualEffortHours" type="n..10" displayType="system"/>
+        <field name="state" type="ANY"/>
+        <field name="alternativeTitle" type="an..1024" label="alternativeTitle.label" tooltip="alternativeTitle.PR0001.tooltip"
+               displayType="editable" mandatory="false" previewEmpty="true" uri="emf:alternativeTitle" />
+        <field name="hasAssignee" type="uri" label="hasAssignee" displayType="readonly" uri="emf:hasAssignee">
+            <control id="PICKER">
+                <control-param id="restrictions" name="restrictions" type="picker">Restriction</control-param>
+                <control-param id="range" name="range" type="picker">emf:User</control-param>
+            </control>
+        </field>
     </fields>
     <regions>
         <region id="generalDetails" order="10" label="generalDetails.region.label" displayType="editable">
             <fields>
                 <field name="type" type="an..50" codelist="CL2" label="type.label" displayType="readOnly" uri="emf:type"
-                       previewEmpty="true">
+                       previewEmpty="true" mandatory="false" multiValued="false">
                     <value>PR0001</value>
                     <condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('INIT')</condition>
                 </field>
@@ -42,7 +36,13 @@
                         </control-param>
                     </control>
                 </field>
-                <field name="status" type="an..50" codelist="CL1" label="status.label" displayType="readOnly" previewEmpty="true"
+                <field name="richtextInfo" type="an..1024" label="richtextInfo.label" tooltip="richtextInfo.PR0001.tooltip"
+                       displayType="editable" mandatory="true" previewEmpty="true" uri="emf:richtextInfo">
+                    <control id="RICHTEXT">
+                        <control-param type="default_value_pattern" id="template" name="template">$[emf:dependsOn.description]</control-param>
+                    </control>
+                </field>
+                <field name="status" codelist="CL1" label="status.label" displayType="readOnly" previewEmpty="true"
                        uri="emf:status">
                     <condition id="hiddenFieldId" renderAs="HIDDEN">[status] IN ('INIT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'DELETED',
                         'COMPLETED', 'ON_HOLD', 'STOPPED')
@@ -59,12 +59,6 @@
                     <condition id="hiddenFieldId" renderAs="READONLY">[status] IN ('APPROVED', 'IN_PROGRESS', 'DELETED', 'COMPLETED',
                         'ON_HOLD', 'STOPPED')
                     </condition>
-                    <control id="RADIO_BUTTON_GROUP">
-                        <fields>
-                            <field name="visibleToAll" type="an..1024" label="radioButton1.label" displayType="editable"/>
-                            <field name="visibleToMembers" type="an..1024" label="radioButton2.label" displayType="editable"/>
-                        </fields>
-                    </control>
                 </field>
                 <field name="checkbox" type="boolean" label="flag.label" displayType="editable" previewEmpty="true" uri="emf:flag"/>
                 <field name="internationality" type="an..10" codelist="CL555" label="internationality.label" displayType="editable"
@@ -74,6 +68,11 @@
                        uri="emf:departmentName"/>
                 <field name="functional" type="an..35" codelist="CL504" label="functional.label" tooltip="functional.PR0001.tooltip"
                        displayType="editable" previewEmpty="false" uri="chd:functional">
+                    <control id="RELATED_FIELDS">
+                        <control-param type="related_field" id="fieldsToRerender" name="RERENDER">department</control-param>
+                        <control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+                        <control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+                    </control>
                     <condition id="conditionHIDDEN" renderAs="HIDDEN">[department] IN ('CEG')</condition>
                     <condition id="conditionREADONLY" renderAs="READONLY">[department] IN ('ENG')</condition>
                     <condition id="conditionMANDATORY" renderAs="MANDATORY">[department] IN ('QAL') AND [checkbox] IN ('true') AND
@@ -167,9 +166,6 @@
                 <field name="plannedStartDate" type="date" order="10" label="plannedStartDate.label" displayType="editable"
                        previewEmpty="true" uri="emf:plannedStartDate">
                     <condition id="readOnlyFields" renderAs="READONLY">[status] IN ('COMPLETED', 'STOPPED')</condition>
-                    <control id="DATERANGE">
-                        <control-param id="endDateField" name="END_DATE_FIELD">plannedEndDate</control-param>
-                    </control>
                     <control id="DEFAULT_VALUE_PATTERN">
                         <control-param type="default_value_pattern" id="template" name="template">$[emf:dependsOn.plannedStartDate]
                         </control-param>
@@ -308,7 +304,7 @@
 							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_complete_instance", recipients, context);]]></value>
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async ">true</control-param>
+                        <control-param id="async" name="async">true</control-param>
                         <control-param id="persistent" name="persistent">false</control-param>
                     </control>
                 </field>
@@ -443,7 +439,7 @@
 							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_upload_or_create_instance", recipients, context);]]></value>
                     <control id="SCRIPT">
                         <control-param id="phase" name="phase">after</control-param>
-                        <control-param id="async" name="async ">false</control-param>
+                        <control-param id="async" name="async">false</control-param>
                     </control>
                 </field>
             </fields>

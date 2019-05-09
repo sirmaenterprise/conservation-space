@@ -1,5 +1,7 @@
 package com.sirma.sep.model.management.semantic;
 
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 
 /**
@@ -10,7 +12,9 @@ import org.openrdf.model.vocabulary.RDFS;
  */
 public class PropertyModelAttributes {
 
-	public static final String LABEL = RDFS.LABEL.toString();
+	public static final String LABEL = DCTERMS.TITLE.toString();
+	public static final String PROPERTY_TYPE = RDF.TYPE.toString();
+	public static final String DOMAIN = RDFS.DOMAIN.toString();
 
 	private PropertyModelAttributes() {
 		// prevent instantiation

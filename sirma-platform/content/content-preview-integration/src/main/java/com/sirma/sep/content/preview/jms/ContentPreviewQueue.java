@@ -131,8 +131,8 @@ public class ContentPreviewQueue {
 		}
 
 		if (!mimeTypeSupport.supportsThumbnail()) {
-			thumbnailService.removeThumbnail(instanceId, RenditionService.DEFAULT_PURPOSE);
-			thumbnailService.removeThumbnail(instanceVersionId, RenditionService.DEFAULT_PURPOSE);
+			thumbnailService.removeSelfThumbnail(instanceId);
+			thumbnailService.removeSelfThumbnail(instanceVersionId);
 		}
 
 		if (mimeTypeSupport.supportsPreview() || mimeTypeSupport.supportsThumbnail()) {

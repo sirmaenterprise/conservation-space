@@ -1,10 +1,13 @@
 package com.sirma.sep.content.rendition;
 
+import static com.sirma.itt.seip.instance.relation.LinkConstants.HAS_THUMBNAIL;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import com.sirma.itt.seip.domain.instance.Instance;
+import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.event.AfterInstanceDeleteEvent;
@@ -24,6 +27,8 @@ public class RenditionRegisterObserver {
 	private ThumbnailService thumbnailService;
 	@Inject
 	private InstanceTypeResolver instanceResolver;
+	@Inject
+	private InstancePropertyNameResolver nameResolver;
 
 	/**
 	 * Register the newly uploaded instance for thumbnail retrieval. This cannot be done in the content assigned
@@ -33,23 +38,26 @@ public class RenditionRegisterObserver {
 	 */
 	public <I extends Instance> void onUploaded(@Observes AfterInstancePersistEvent<I, ?> event) {
 		Instance instance = event.getInstance();
-		if (!instance.isUploaded()) {
-			return;
+		if (shouldRegister(instance)) {
+			thumbnailService.register(instance);
 		}
-		thumbnailService.register(instance);
+	}
+
+	private boolean shouldRegister(Instance instance) {
+		return instance.isUploaded() && !instance.isPropertyPresent(HAS_THUMBNAIL, nameResolver);
 	}
 
 	/**
 	 * Updates instance thumbnail, when there is a change in the instance content.
 	 *
-	 * @param event {@link ContentUpdatedEvent} which triggers thumbnail update
+	 * @param event {@link ContentAssignedEvent} which triggers thumbnail update
 	 */
 	public void onThumbnailChange(@Observes ContentAssignedEvent event) {
 		instanceResolver
 				.resolveReference(event.getInstanceId())
 				.map(InstanceReference::toInstance)
-				.filter(Instance::isUploaded)
-				.ifPresent(instance -> thumbnailService.register(instance, instance));
+				.filter(this::shouldRegister)
+				.ifPresent(thumbnailService::register);
 	}
 
 	/**

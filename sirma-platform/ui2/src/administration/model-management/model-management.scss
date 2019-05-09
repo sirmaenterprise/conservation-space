@@ -1,20 +1,23 @@
 @import "../../style/variables";
+@import "./style/management-mixins";
+@import "./style/management-variables";
+@import "./style/management-overrides";
 
 .model-management {
-  margin-top: $navbar-height + $breadcrumb-height;
-  padding-top: 0.5em;
+  padding-top: $navbar-height + $breadcrumb-height + $default-gap;
   display: flex;
 
   .model-tree {
     bottom: 0;
     width: 15%;
+    max-width: 45%;
 
     margin-right: 0.5em;
     border-right: 1px solid $panel-border-color;
   }
 
   .model-data {
-    width: 85%;
+    flex-basis: 85%;
 
     .select-message, .missing-model-message, .loading-message {
       margin: $default-gap;
@@ -24,5 +27,49 @@
       margin-right: $default-gap;
     }
 
+    .model-data-header {
+      display: flex;
+
+      .model-sections {
+        flex-basis: 95%;
+
+        .modified-section {
+          a {
+            color: $modified-color;
+          }
+
+          .message {
+            font-size: 75%;
+            color: $link-color;
+          }
+        }
+      }
+
+      .model-deployment {
+        // Match with the tab borders
+        border: 1px solid #dddddd;
+        border-right: none;
+        border-left: none;
+
+        .model-deploy {
+          // Slightly smaller to avoid breaking the tabs dimensions
+          margin: $default-gap - 1px;
+        }
+      }
+    }
+  }
+
+  // Elements
+  .horizontal-divider {
+    border-top: 1px solid #ccc;
+    background-color: $panel-border-color;
+  }
+
+  .dirty-model {
+    @include dirty-model;
+  }
+
+  .highlighted-model {
+    @include highlighted-model;
   }
 }

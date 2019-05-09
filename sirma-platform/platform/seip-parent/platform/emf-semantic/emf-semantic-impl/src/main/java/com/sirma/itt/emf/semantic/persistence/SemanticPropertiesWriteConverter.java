@@ -5,6 +5,7 @@ import static com.sirma.itt.seip.util.EqualsHelper.getMapComparison;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,8 +24,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.emf.semantic.persistence.PersistStep.PersistStepFactory;
 import com.sirma.itt.seip.db.DatabaseIdManager;
@@ -38,10 +37,9 @@ import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.event.EventService;
+import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.instance.properties.SemanticNonPersistentPropertiesExtension;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.plugin.ExtensionPoint;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.util.EqualsHelper.MapValueComparison;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
@@ -54,7 +52,6 @@ import com.sirma.itt.semantic.model.vocabulary.EMF;
 @ApplicationScoped
 public class SemanticPropertiesWriteConverter extends BasePropertiesConverter {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticPropertiesWriteConverter.class);
 	private Set<String> forbiddenProperties;
 
 	@Inject
@@ -72,9 +69,6 @@ public class SemanticPropertiesWriteConverter extends BasePropertiesConverter {
 
 	@Inject
 	private EventService eventService;
-
-	@Inject
-	private Statistics statistics;
 
 	@Inject
 	private PersistStepFactoryBuilder persistStepFactoryBuilder;
@@ -111,8 +105,6 @@ public class SemanticPropertiesWriteConverter extends BasePropertiesConverter {
 	@SuppressWarnings("boxing")
 	public Resource buildModelForInstance(Instance newInstance, Instance oldInstance, Model addModel,
 			Model removeModel) {
-
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "buildPersistModel");
 		// remove properties that should not be persisted
 		removeForbiddenProperties(newInstance, oldInstance);
 
@@ -122,22 +114,29 @@ public class SemanticPropertiesWriteConverter extends BasePropertiesConverter {
 		// set the subject's type
 		IRI subject = namespaceRegistryService.buildUri(newInstance.getId().toString());
 
-		PersistStepFactory stepFactory = persistStepFactoryBuilder.build(subject, newInstance, oldInstance);
+		Instance newInstanceRemapped = remapPropertiesToUris(newInstance);
+		Instance oldInstanceRemapped = remapPropertiesToUris(oldInstance);
+
+		PersistStepFactory stepFactory = persistStepFactoryBuilder.build(subject, newInstanceRemapped, oldInstanceRemapped);
 
 		// add instance's member variables diff
 		Stream<PersistStep> memberVariables = getInstanceMemberVariables(stepFactory, newInstance, oldInstance);
 		// add instance properties diff
-		Stream<PersistStep> properties = getPropertiesPersistSteps(stepFactory, newInstance, oldInstance);
+		Stream<PersistStep> properties = getPropertiesPersistSteps(stepFactory, newInstanceRemapped, oldInstanceRemapped);
 
 		Stream
 				.concat(memberVariables, properties)
 					.flatMap(PersistStep::getStatements)
 					.filter(LocalStatement::hasStatement)
+					.sorted(deletedStatementFirstSorter())
 					.flatMap(notifyForObjectPropertyChange())
 					.forEach(localStatement -> localStatement.addTo(addModel, removeModel));
 
-		LOGGER.trace("Persist model build for {} took {} ms", newInstance.getId(), tracker.stop());
 		return subject;
+	}
+
+	private Comparator<? super LocalStatement> deletedStatementFirstSorter() {
+		return (st1, st2) -> Boolean.compare(st1.isToAdd(), st2.isToAdd());
 	}
 
 	/**
@@ -228,7 +227,7 @@ public class SemanticPropertiesWriteConverter extends BasePropertiesConverter {
 				BaseRelationChangeEvent event = fireObjectPropertyEvent(statement, service, registryService);
 				// return the current statement and any other statements if any
 				// scan the returned statements for relation properties and fire events for them also
-				return Stream.concat(Stream.of(statement), event.getStatements().flatMap(secondPass));
+				return Stream.concat(Stream.of(statement), event.getStatements().flatMap(secondPass).sorted(deletedStatementFirstSorter()));
 			}
 			return Stream.of(statement);
 		};
@@ -272,6 +271,33 @@ public class SemanticPropertiesWriteConverter extends BasePropertiesConverter {
 		if (oldInstance != null) {
 			oldInstance.removeProperties(forbiddenProperties);
 		}
+	}
+
+	/**
+	 * Clone instance data in a way that the instance properties are mapped using their URIs and not their definition
+	 * names. If no definition is found for the instance then the same argument is returned. If property is
+	 * not found in the definition then it's not modified.
+	 *
+	 * @param instance the instance to remap
+	 * @return the updated instance with it's properties remapped to their URIs
+	 */
+	private Instance remapPropertiesToUris(Instance instance) {
+		if (instance == null) {
+			return null;
+		}
+		DefinitionModel definition = definitionService.getInstanceDefinition(instance);
+		if (definition == null) {
+			return instance;
+		}
+		ObjectInstance copy = new ObjectInstance();
+		copy.setId(instance.getId());
+		copy.setIdentifier(instance.getIdentifier());
+		copy.setType(instance.type());
+		instance.getProperties().forEach((key, value) -> {
+			String newKey = definition.getField(key).map(PropertyDefinition.resolveUri()).orElse(key);
+			copy.add(newKey, value);
+		});
+		return copy;
 	}
 
 	/**

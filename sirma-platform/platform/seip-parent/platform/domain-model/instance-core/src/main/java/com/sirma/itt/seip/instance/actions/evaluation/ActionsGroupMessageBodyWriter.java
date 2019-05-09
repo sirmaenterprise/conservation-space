@@ -4,20 +4,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonBuilderFactory;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.sirma.itt.seip.rest.handlers.writers.AbstractMessageBodyWriter;
 import com.sirma.itt.seip.rest.utils.Versions;
 import com.sirma.sep.instance.actions.group.ActionMenu;
 import com.sirma.sep.instance.actions.group.ActionMenuMember;
@@ -32,12 +31,7 @@ import com.sirma.sep.instance.actions.group.Visitor;
  */
 @Provider
 @Produces(Versions.V2_JSON)
-public class ActionsGroupMessageBodyWriter implements MessageBodyWriter<ActionMenu> {
-
-	@Override
-	public long getSize(ActionMenu arg0, Class<?> arg1, Type arg2, Annotation[] arg3, MediaType arg4) {
-		return -1;
-	}
+public class ActionsGroupMessageBodyWriter extends AbstractMessageBodyWriter<ActionMenu> {
 
 	@Override
 	public boolean isWriteable(Class<?> clazz, Type type, Annotation[] annotations, MediaType mediaType) {
@@ -45,48 +39,45 @@ public class ActionsGroupMessageBodyWriter implements MessageBodyWriter<ActionMe
 	}
 
 	@Override
-	public void writeTo(ActionMenu menu, Class<?> clazz, Type type, Annotation[] annotations,
-			MediaType mediaType, MultivaluedMap<String, Object> headers, OutputStream stream) throws IOException {
+	public void writeTo(ActionMenu menu, Class<?> clazz, Type type, Annotation[] annotations, MediaType mediaType,
+			MultivaluedMap<String, Object> headers, OutputStream stream) throws IOException {
 		if (menu != null) {
-			ActionMenuJsonGenerator generatedMenu = new ActionMenuJsonGenerator(menu);
-			stream.write(generatedMenu.getJsonMenu().toString().getBytes());
+			stream.write(new ActionMenuJsonGenerator(menu).getJsonMenu().toString().getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
 	/**
-	 * Inner class for transforming {@link ActionMenu} to {@link JsonValue}. Act as {@link ActionMenu} visitor.
+	 * Inner class for transforming {@link ActionMenu} to {@link JsonArray}. Act as {@link ActionMenu} visitor.
 	 *
 	 * @author T. Dossev
 	 */
 	private class ActionMenuJsonGenerator implements Visitor {
 
-		private JsonBuilderFactory factoryBuilder;
+		private static final String DATA = "data";
 		private ActionMenu menu;
 
 		public ActionMenuJsonGenerator(ActionMenu menu) {
 			this.menu = menu;
-			this.factoryBuilder = Json.createBuilderFactory(null);
 		}
 
-		@SuppressWarnings("unchecked")
-		private JsonValue toJson(List<ActionMenu> groupItems, JsonArrayBuilder builder) {
-			for(ActionMenu item : groupItems) {
+		public JsonArray getJsonMenu() {
+			menu.acceptVisitor(this);
+			List<ActionMenu> menuMembers = menu.getMenuMembers(this);
+			return toJson(menuMembers, Json.createArrayBuilder());
+		}
+
+		private JsonArray toJson(List<ActionMenu> groupItems, JsonArrayBuilder builder) {
+			for (ActionMenu item : groupItems) {
 				visitMenu(item);
-				if (visitMenuMembers(item).isEmpty()) {
-					builder.add((JsonValue) visitMenuMember(item).toJsonHelper());
+				List<ActionMenu> visitMenuMembers = visitMenuMembers(item);
+				JsonObjectBuilder visitMenuMemberJson = visitMenuMember(item).toJsonHelper();
+				if (visitMenuMembers.isEmpty()) {
+					builder.add(visitMenuMemberJson);
 				} else {
-					builder.add(((JsonObjectBuilder) visitMenuMember(item).toJsonHelper())
-							.add("data",
-									toJson(visitMenuMembers(item), factoryBuilder.createArrayBuilder())));
+					builder.add(visitMenuMemberJson.add(DATA, toJson(visitMenuMembers, Json.createArrayBuilder())));
 				}
 			}
 			return builder.build();
-		}
-
-		public JsonValue getJsonMenu() {
-			menu.acceptVisitor(this);
-			List<ActionMenu> menuMembers = menu.getMenuMembers(this);
-			return toJson(menuMembers, factoryBuilder.createArrayBuilder());
 		}
 
 		@Override

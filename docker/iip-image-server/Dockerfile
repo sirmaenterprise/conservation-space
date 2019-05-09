@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 
 COPY rootfs/ /
 
@@ -23,8 +23,8 @@ RUN \
 	# Install and setup image server
     mkdir /opt/iipsrv && \
     cd /opt/iipsrv && \
-    git clone https://github.com/sirmaenterprise/iipsrv ./ && \
-    git checkout tags/v2.9 && \
+    git clone https://github.com/ruven/iipsrv ./ && \
+    git checkout tags/iipsrv-1.0 && \
     chmod +x autogen.sh && sleep 2 && ./autogen.sh && \
     chmod +x configure && sleep 2 && ./configure && sleep 2 && make && make install && \
     # copy iipsrv binary to fcgi-bin

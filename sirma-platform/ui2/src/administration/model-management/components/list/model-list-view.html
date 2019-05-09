@@ -1,0 +1,39 @@
+<div class="model-list">
+
+  <div class="empty-list-message alert alert-info" ng-if="::!modelListView.hasModelsToDisplay()">
+    {{ ::'administration.models.management.list.view.empty.message' | translate}}
+  </div>
+
+  <div ng-if="::modelListView.hasModelsToDisplay()">
+    <div class="list-actions" ng-if="modelListView.isSelectDeselectEnabled()">
+      <a class="select-all" href="javascript:void(0)" ng-click="modelListView.selectAll()">
+        {{::'administration.models.management.list.view.select.all' | translate}}
+      </a> /
+      <a class="deselect-all" href="javascript:void(0)" ng-click="modelListView.deselectAll()">
+        {{::'administration.models.management.list.view.deselect.all' | translate}}
+      </a>
+    </div>
+
+    <table class="table table-hover table-condensed">
+      <tr class="model-item-wrapper" ng-repeat="item in modelListView.models.getModels() track by item.getId()">
+        <td class="model-item">
+          <div class="model-data-section">
+            <label ng-if="::modelListView.config.selectableItems" class="{{::modelListView.getSelectionControlType()}}">
+              <input class="form-control" type="{{::modelListView.getSelectionControlType()}}"
+                     name="selectedItems" value="{{::item.getId()}}"
+                     ng-click="::modelListView.toggleItem(item)"
+                     ng-checked="modelListView.isSelected(item)"/>
+              <i class="select-control"></i>
+            </label>
+
+            <h5 class="model-data">
+              <span ng-class="::item.getIcon()" class="model-icon"></span>
+              <span class="model-name">{{ ::modelListView.getModelName(item) }}</span>
+              <span class="model-id">({{ ::modelListView.getModelIdentifier(item) }})</span>
+            </h5>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

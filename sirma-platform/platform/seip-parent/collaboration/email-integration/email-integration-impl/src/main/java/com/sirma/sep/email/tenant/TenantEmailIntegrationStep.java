@@ -18,6 +18,7 @@ import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -142,8 +143,10 @@ public class TenantEmailIntegrationStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
 		try {
+			TenantInfo tenantInfo = context.getTenantInfo();
+
 			securityContextManager.initializeTenantContext(tenantInfo.getTenantId());
 			String tenantDomainAddress = Optional
 					.ofNullable(emailIntegrationConfiguration.getTenantDomainAddress().get())

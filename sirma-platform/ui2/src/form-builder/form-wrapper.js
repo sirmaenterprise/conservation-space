@@ -1,5 +1,4 @@
 import {View, Component, Inject, NgElement, NgScope, NgTimeout} from 'app/app';
-import $ from 'jquery';
 import _ from 'lodash';
 import {Logger} from 'services/logging/logger';
 import {Eventbus} from 'services/eventbus/eventbus';
@@ -11,7 +10,6 @@ import {PropertiesSelectorHelper} from 'idoc/widget/properties-selector/properti
 import {AfterFormValidationEvent} from 'form-builder/validation/after-form-validation-event';
 import {ModelUtils} from 'models/model-utils';
 import {CONTROL_TYPE} from 'models/model-utils';
-import uuid from 'common/uuid';
 import './form-wrapper.css!';
 import template from './form-wrapper.html!text';
 
@@ -71,6 +69,7 @@ const SYSTEM_PROPERTIES = ['rdf:type', 'content', 'emf:revisionType', 'thumbnail
  * {
  *    formViewMode: FormWrapper.FORM_VIEW_MODE_EDIT|FormWrapper.FORM_VIEW_MODE_PREVIEW
  *    renderMandatory: true|false : if only mandatory fields must be rendered (usually regions are not set as mandatory in definitions)
+ *    modeling: true|false : in modeling mode conditions are not processed
  *    showRegionsNames: true|false
  *    form: the angular's form controller
  *    layout: 'vertical|horizontal|table' the default is 'vertical'
@@ -298,7 +297,8 @@ export class FormWrapper {
       this.controls = controls;
 
       // Conditions are filtered according to form config for performance reasons.
-      FormWrapper.configureConditions(this.clonedViewModel, this.selectedProperties, this.config.renderMandatory, this.formViewMode, this.renderAll);
+      FormWrapper.configureConditions(this.clonedViewModel, this.selectedProperties, this.config.renderMandatory,
+        this.formViewMode, this.renderAll, this.config.modeling);
       // Set preview attribute to every field before validation to be executed to allow conditions to override it if necessary.
       FormWrapper.setFieldPreviewAttribute(this.clonedViewModel.fields, this.formViewMode);
       this.applyValidation().then(() => {
@@ -307,7 +307,7 @@ export class FormWrapper {
           return;
         }
         this.fieldsBorder = this.config.showInputFieldBorders && (FormWrapper.isPreviewMode(this.formViewMode) || FormWrapper.isPrintMode(this.formViewMode)) ? 'with-border' : '';
-        let formHtml = `<div ng-class="[\'form-content\', formWrapper.formViewMode.toLowerCase(), formWrapper.config.labelPosition, formWrapper.config.labelTextAlign, formWrapper.config.styles.grid]"> 
+        let formHtml = `<div ng-class="[\'form-content\', formWrapper.formViewMode.toLowerCase(), formWrapper.config.labelPosition, formWrapper.config.labelTextAlign, formWrapper.config.styles.grid]">
                           ${this.buildForm(this.clonedViewModel.fields, this.formConfig.models.validationModel, this.formViewMode)}
                         </div>`;
 
@@ -375,36 +375,35 @@ export class FormWrapper {
    * As precondition should be known that all fields are rendered in any case but only a specific subset of them  is
    * visible!
    *
-   * (1) renderMandatory=true (create, upload, transition and save dialogs) :
+   * (1) modeling=true
+   * - All conditions are suspended
+   *
+   * (2) renderMandatory=true (create, upload, transition and save dialogs) :
    * -- Only the mandatory and invalid fields are visible.
    * -- All conditions are executed.
    *
-   * (2) formViewMode=PREVIEW :
+   * (3) formViewMode=PREVIEW :
    * - Fields are visible according to their definitions (displayType, previewEmpty).
    * - Only VISIBLE|HIDDEN conditions are executed.
    *
-   * (3) formViewMode=EDIT and selectedFields.length>0 :
+   * (4) formViewMode=EDIT and selectedFields.length>0 :
    * - Only the selected properties are visible according to their definitions (displayType, previewEmpty).
    * - All conditions are executed.
    * - MANDATORY|OPTIONAL conditions are executed (fields which are not selected but made mandatory from a condition
    *   are later filtered during the rendering process and are not displayed)
    *
-   * (4) showAllFields=true ([show more] is executed in create|upload dialogs) and formViewMode=EDIT
+   * (5) showAllFields=true ([show more] is executed in create|upload dialogs) and formViewMode=EDIT
    * - All fields are visible according to their definitions (displayType, previewEmpty).
    * - All conditions should be executed.
    *
-   * (5) formViewMode=EDIT and selectedProperties.length=0 :
+   * (6) formViewMode=EDIT and selectedProperties.length=0 :
    * - The form should be empty.
    * - No conditions should be executed.
-   *
-   * @param clonedViewModel
-   * @param selectedProperties
-   * @param renderMandatory
-   * @param formViewMode
-   * @param renderAll
    */
-  static configureConditions(clonedViewModel, selectedProperties, renderMandatory, formViewMode, renderAll) {
-    if (FormWrapper.isPreviewMode(formViewMode) && !renderMandatory && !renderAll) {
+  static configureConditions(clonedViewModel, selectedProperties, renderMandatory, formViewMode, renderAll, modeling) {
+    if (modeling) {
+      FormWrapper.toggleConditions(clonedViewModel.fields, [], true);
+    } else if (FormWrapper.isPreviewMode(formViewMode) && !renderMandatory && !renderAll) {
       // (2) enable only VISIBLE/HIDDEN conditions
       FormWrapper.toggleConditions(clonedViewModel.fields, ['visible', 'hidden'], false);
     } else if (renderMandatory || renderAll) {
@@ -421,7 +420,7 @@ export class FormWrapper {
 
   /**
    * Set disabled=disable [true|false] to every conditional validator type that is passed with the 'conditionIds' argument.
-   * Unmatched conditions are set with the inversed value of the 'disable' attribute.
+   * Unmatched conditions are set with the inverse value of the 'disable' attribute.
    * Passing empty 'conditionIds' array is considered  to match 'every condition' and as result every condition in the
    * model would receive disabled='disable'.
    *
@@ -432,11 +431,11 @@ export class FormWrapper {
   static toggleConditions(clonedViewModel, conditionIds, disable) {
     clonedViewModel.forEach((fieldViewModel) => {
       fieldViewModel.validators && fieldViewModel.validators.forEach((validator) => {
-        if (validator.id === 'condition') {
-          validator.rules.forEach((rule) => {
-            FormWrapper.toggleCondition(rule, conditionIds, disable);
-          });
-        } else if (validator.id === 'mandatory') {
+        validator.rules && validator.rules.forEach((rule) => {
+          FormWrapper.toggleCondition(rule, conditionIds, disable);
+        });
+        // A mandatory validator has no rules
+        if (validator.id === 'mandatory') {
           FormWrapper.toggleCondition(validator, conditionIds, disable);
         }
       });
@@ -689,16 +688,17 @@ export class FormWrapper {
         }
         return false;
       }
-      let isMandatory = false;
+      let isStaticMandatory = fieldViewModel.isMandatory;
+      let isConditionalMandatory = false;
       let validators = fieldViewModel.validators || [];
       validators.forEach((validator) => {
         if (validator.id === 'mandatory' && validator.isMandatoryForState) {
-          isMandatory = true;
+          isConditionalMandatory = true;
         }
       });
       let isValid = validationModel[fieldViewModel.identifier].valid === undefined || validationModel[fieldViewModel.identifier].valid;
       let visibleOptional = fieldViewModel.rendered && validationModel[fieldViewModel.identifier]._wasInvalid;
-      fieldViewModel.rendered = isMandatory || !isValid || visibleOptional;
+      fieldViewModel.rendered = isConditionalMandatory || isStaticMandatory || !isValid || visibleOptional;
       if (fieldViewModel.rendered) {
         hasRenderedFields = true;
       }
@@ -857,7 +857,7 @@ export class FormWrapper {
 
     let displayType = viewModel.displayType;
     let key = '';
-    if (ModelUtils.isRegion(viewModel) || isEmpty != undefined && !isEmpty) {
+    if (ModelUtils.isRegion(viewModel) || !isEmpty) {
       key += 'FULL_';
     } else {
       key += 'EMPTY_';

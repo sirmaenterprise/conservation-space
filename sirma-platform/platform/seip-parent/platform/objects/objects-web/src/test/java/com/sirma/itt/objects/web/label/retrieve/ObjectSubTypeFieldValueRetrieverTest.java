@@ -133,9 +133,8 @@ public class ObjectSubTypeFieldValueRetrieverTest {
 	@Test
 	public void testRelationSubtypeSemanticLabelRetrieval() {
 		PropertyInstance propertyInstance = new PropertyInstance();
-		Map<String, Serializable> properties = new HashMap<>();
-		properties.put("title", "mockedTitle");
-		propertyInstance.setProperties(properties);
+		propertyInstance.setLabel("en", "mockedTitle");
+		propertyInstance.setProperties(new HashMap<>());
 		mockSemanticDefinitionservice(null, propertyInstance);
 		String label = objectSubtypeFieldValueRetriever.getLabel("relationDefinition",
 				FieldValueRetrieverTestHelper.createMultiValueMap(FieldValueRetrieverParameters.OBJECTTYPE, "parent"));

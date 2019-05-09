@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -39,7 +38,6 @@ import javax.xml.bind.annotation.XmlType;
 public class StateTransitionsDefinition {
 
 	/** The state transition. */
-	@XmlElement(required = true)
 	protected List<StateTransitionDefinition> stateTransition;
 
 	/**
@@ -66,4 +64,7 @@ public class StateTransitionsDefinition {
 		return stateTransition;
 	}
 
+	public void setStateTransition(List<StateTransitionDefinition> stateTransition) {
+		this.stateTransition = stateTransition;
+	}
 }

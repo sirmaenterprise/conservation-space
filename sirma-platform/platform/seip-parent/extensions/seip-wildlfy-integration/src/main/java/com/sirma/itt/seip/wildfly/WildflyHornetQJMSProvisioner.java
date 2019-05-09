@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.as.controller.client.helpers.ClientConstants;
 import org.jboss.dmr.ModelNode;
 import org.slf4j.Logger;
@@ -77,6 +78,8 @@ public class WildflyHornetQJMSProvisioner implements JmsProvisioner {
 	private static final String DEFAULT_DLQUEUE_ADDRESS = "java:/jms.queue.DLQ";
 	private static final String CLIENT_ID_PROPERTY = "client-id";
 	private static final String ADDRESS_SETTING = "address-setting";
+	private static final String PATH = "path";
+	private static final String HORNETQ_SHARED_DIR = "hornetq.shared.dir";
 
 	private final WildflyControllerService controller;
 	private final WildflyCLIUtil cliUtil;
@@ -276,6 +279,16 @@ public class WildflyHornetQJMSProvisioner implements JmsProvisioner {
 		writeHornetQAttribute(steps.add(), "persistence-enabled", String.valueOf(model.isPersistenceEnabled()));
 		writeHornetQAttribute(steps.add(), "security-enabled", String.valueOf(model.isSecurityEnabled()));
 		writeHornetQAttribute(steps.add(), "journal-file-size", Integer.toString(model.getJournalFileSize()));
+
+		// set custom persistent location for JMS data if configured
+		String persistenceLocation = model.getPersistenceStoreLocation();
+		if (StringUtils.isNotBlank(persistenceLocation)) {
+			WildflyCLIUtil.addPathConfiguration(steps, HORNETQ_SHARED_DIR, persistenceLocation);
+			writeHornetQDirectory(steps, "paging-directory", "paging", HORNETQ_SHARED_DIR);
+			writeHornetQDirectory(steps, "bindings-directory", "bindings", HORNETQ_SHARED_DIR);
+			writeHornetQDirectory(steps, "journal-directory", "journal", HORNETQ_SHARED_DIR);
+			writeHornetQDirectory(steps, "large-messages-directory", "large-messages", HORNETQ_SHARED_DIR);
+		}
 
 		addSecurityConfigurations(steps);
 
@@ -535,9 +548,24 @@ public class WildflyHornetQJMSProvisioner implements JmsProvisioner {
 	}
 
 	private static void writeHornetQAttribute(ModelNode step, String name, String value) {
-		LOGGER.info("Adding Attribute to Messaging subsystem - {}={}", name, value);
+		LOGGER.info("Adding attribute to Messaging subsystem: {}={}", name, value);
 		addHornetQServerPath(step);
 		WildflyCLIUtil.writeAttribute(step, name, value);
+	}
+
+	private static void writeHornetQDirectory(ModelNode steps, String dirName, String path, String relativeTo) {
+		LOGGER.info("Adding location attribute to Messaging subsystem: {} path={}, relativeTo={}", dirName, path, relativeTo);
+		ModelNode step = steps.add();
+		addHornetQServerPath(step).add(PATH, dirName);
+		step.get(ClientConstants.OP).set(ClientConstants.ADD);
+		step = steps.add();
+		addHornetQServerPath(step).add(PATH, dirName);
+		WildflyCLIUtil.writeAttribute(step, PATH, path);
+		if (relativeTo != null) {
+			step = steps.add();
+			addHornetQServerPath(step).add(PATH, dirName);
+			WildflyCLIUtil.writeAttribute(step, "relative-to", relativeTo);
+		}
 	}
 
 	private static ModelNode addHornetQServerPath(ModelNode node) {

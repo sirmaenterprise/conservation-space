@@ -1,4 +1,4 @@
-import {View, Component, Inject, Injectable, NgElement} from 'app/app';
+import {View, Component, Inject, NgElement} from 'app/app';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {ReloadRepliesEvent} from 'idoc/comments/events/reload-replies-event';
@@ -67,5 +67,3 @@ export class CommentActions {
     }
   }
 }
-
-

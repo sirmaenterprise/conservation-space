@@ -1,7 +1,7 @@
 import {View, Inject} from 'app/app';
 import {WidgetConfig} from 'idoc/widget/widget';
 import {Configurable} from 'components/configurable';
-import {SELECT_OBJECT_CURRENT, SELECT_OBJECT_AUTOMATICALLY} from 'idoc/widget/object-selector/object-selector';
+import {SELECT_OBJECT_CURRENT} from 'idoc/widget/object-selector/object-selector';
 import {MULTIPLE_SELECTION} from 'search/search-selection-modes';
 import {TranslateService} from 'services/i18n/translate-service';
 import 'components/select/select';

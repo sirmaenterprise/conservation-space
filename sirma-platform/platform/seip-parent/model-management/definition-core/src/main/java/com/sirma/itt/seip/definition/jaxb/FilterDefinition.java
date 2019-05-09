@@ -92,9 +92,6 @@ public class FilterDefinition {
 	 * @return the mode possible object is {@link String }
 	 */
 	public String getMode() {
-		if (mode == null) {
-			return "INCLUDE";
-		}
 		return mode;
 	}
 

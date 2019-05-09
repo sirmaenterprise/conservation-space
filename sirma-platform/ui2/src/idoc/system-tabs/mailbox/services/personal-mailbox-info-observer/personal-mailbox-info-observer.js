@@ -1,6 +1,6 @@
 import {Inject, Injectable} from 'app/app';
 import {BootstrapService} from 'services/bootstrap-service';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {PersonalMailboxUpdatedEvent} from 'idoc/system-tabs/mailbox/events/personal-mailbox-updated-event';
 import {MailboxInfoService} from 'services/rest/mailbox-info-service';

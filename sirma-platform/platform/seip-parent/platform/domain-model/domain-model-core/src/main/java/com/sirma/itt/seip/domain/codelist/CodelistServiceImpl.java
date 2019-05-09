@@ -289,6 +289,16 @@ public class CodelistServiceImpl implements CodelistService {
 		return map;
 	}
 
+	@Override
+	public void refreshCache() {
+		CodelistAdapter adapter = getAdapterInstance();
+		if (adapter == null) {
+			return;
+		}
+		adapter.resetCodelist();
+		getCache().clear();
+	}
+
 	/**
 	 * On codelist reset.
 	 *
@@ -297,12 +307,7 @@ public class CodelistServiceImpl implements CodelistService {
 	 */
 	@SecureObserver
 	public void onCodelistReset(@Observes ResetCodelistEvent event) {
-		CodelistAdapter adapter = getAdapterInstance();
-		if (adapter == null) {
-			return;
-		}
-		adapter.resetCodelist();
-		getCache().clear();
+		refreshCache();
 	}
 
 	/**
@@ -390,6 +395,13 @@ public class CodelistServiceImpl implements CodelistService {
 		}
 	}
 
+	@Override
+	public Map<String, CodeValue> filterCodeValues(Integer codelist, boolean inclusive, List<String> values) {
+		Map<String, CodeValue> codeValues = copy(getCodeValues(codelist));
+		codeValues.values().removeIf(value -> inclusive ^ values.contains(value.getValue()));
+		return codeValues;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -414,7 +426,7 @@ public class CodelistServiceImpl implements CodelistService {
 				String[] splittedProperty = CODEVALUE_PROPERTY_SPLIT_PATTERN.split(codeValueProperty);
 
 				Set<String> splittedPropertyAsSet = new HashSet<>(Arrays.asList(splittedProperty));
-				filterInternal(inclusive, filterValuesList, entries, splittedPropertyAsSet, filterValues);
+				filterInternal(inclusive, filterValuesList, entries, splittedPropertyAsSet);
 			} else {
 				entries.remove();
 			}
@@ -424,18 +436,9 @@ public class CodelistServiceImpl implements CodelistService {
 	}
 
 	private static void filterInternal(boolean inclusive, List<String> filterValuesList,
-			Iterator<Map.Entry<String, CodeValue>> entries, Set<String> splittedPropertyAsSet, String... filterValues) {
-		if (inclusive) {
-			if (!splittedPropertyAsSet.containsAll(filterValuesList)) {
-				entries.remove();
-			}
-		} else {
-			for (String filterValue : filterValues) {
-				if (splittedPropertyAsSet.contains(filterValue)) {
-					break;
-				}
-				entries.remove();
-			}
+			Iterator<Map.Entry<String, CodeValue>> entries, Set<String> splittedPropertyAsSet) {
+		if (inclusive ^ splittedPropertyAsSet.containsAll(filterValuesList)) {
+			entries.remove();
 		}
 	}
 

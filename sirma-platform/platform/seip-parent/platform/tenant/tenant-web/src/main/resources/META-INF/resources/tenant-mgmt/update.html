@@ -4,61 +4,13 @@
     <title>Tenant Management</title>
     <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="./css/custom.css">
-    <script type="text/javascript" src="./js/jquery.js"></script>
-    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/lib/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="./js/lib/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/lib/lodash.min.js"></script>
+    <script type="text/javascript" src="./js/lib/select2.min.js"></script>
+    <script type="text/javascript" src="./js/lib/keycloak.min.js"></script>
     <script src="./js/common.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#data").submit(function (event) {
-                var tenantId = $('#tenants').find('option:selected').val()
-                var patches = $('input[name=SemanticDbUpdate_attachment_patches]')[0].files[0];
-                var message = "Are you sure you want to update tenant " + tenantId + " with no semantic customization file?";
-                if (patches) {
-                    message = "Are you sure you want to update tenant " + tenantId + " with semantic customization file " + patches.name + "?";
-                }
-                if (window.confirm(message)) {
-                    //grab all form data
-                    var formData = new FormData();
-                    formData.append('DMSUpdate_attachment_definitions', $('input[name=DMSUpdate_attachment_definitions]')[0].files[0]);
-                    formData.append('SemanticDbUpdate_attachment_patches', patches);
-
-                    var result = $.ajax({
-                        type: "POST",
-                        url: "../service/tenant/" + tenantId,
-                        data: formData,
-                        async: false,
-                        processData: false,
-                        contentType: false,
-                        success: function (response) {
-                            alert("Successfully updated ontology");
-                        },
-                        error: function (response) {
-                            alert(response.responseText);
-                        }
-                    });
-                }
-            });
-
-            // get all tenants
-            $.get("../api/tenant/list", function (tenantList) {
-                var option = '';
-                if (tenantList.length > 0) {
-                    for (var i = 0; i < tenantList.length; i++) {
-                        option += '<option value="' + tenantList[i].tenantId + '">' + tenantList[i].tenantId + '</option>';
-                    }
-                    $('#tenants').append(option);
-                } else {
-                    document.location.href = "../tenant-mgmt/index.html";
-                    alert('There is no active tenants. Do you want to create one?');
-                }
-            });
-
-        function showhide(id) {
-            var e = document.getElementById(id);
-            e.style.display = (e.style.display == 'block') ? 'none' : 'block';
-        }
-	});
-    </script>
+    <script src="./js/update.js"></script>
 </head>
 <body style="background-color: #f9f9f9; color: #222; font-size: 12px;">
 <div id="container" class="container">
@@ -352,11 +304,11 @@ defaultNamespaces.ns</pre>
                     </select>
                 </div>
 
-                <div style="display: none; width: 500px; margin-top: 0.2em;">
-                    <label for="DMSUpdate_attachment_definitions">DMS
+                <div style="width: 500px; margin-top: 0.2em;">
+                    <label for="DMSInitialization_attachment_definitions">DMS
                         Initialization ZIP bundle.</label> <input type="file"
                                                                   style="margin-left: 50px; float: right;"
-                                                                  name="DMSUpdate_attachment_definitions"
+                                                                  name="DMSInitialization_attachment_definitions"
                                                                   value="Definitions.zip"></input>
                 </div>
                 <div style="width: 500px; margin-top: 0.2em;">
@@ -368,7 +320,7 @@ defaultNamespaces.ns</pre>
                 </div>
                 <div class="actions">
 						<span> <input TYPE="submit" class="btn btn-primary btn-md"
-                                      style="cursor: pointer;" value="Update Ontology"></input> <input
+                                      style="cursor: pointer;" value="Update tenant"></input> <input
                                 TYPE="reset" class="btn btn-default btn-md"
                                 style="cursor: pointer;"></input>
 						</span>
@@ -378,6 +330,11 @@ defaultNamespaces.ns</pre>
     </div>
 </div>
 
+<script type="text/javascript">
+    $(document).ready(function () {
+        Init('update');
+    });
+</script>
 
 </body>
 

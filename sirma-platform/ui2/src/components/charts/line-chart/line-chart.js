@@ -1,6 +1,6 @@
 import {View, Component, Inject, NgElement} from 'app/app';
 import {TooltipAdapter} from 'adapters/tooltip-adapter';
-import {ToTrustedHtml} from 'filters/to-trusted-html';
+import 'filters/to-trusted-html';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {Chart} from 'components/charts/chart';
 import {ResizeDetectorAdapter} from 'adapters/resize-detector-adapter';
@@ -15,9 +15,7 @@ import './line-chart.css!';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement, TooltipAdapter, Eventbus, ResizeDetectorAdapter)
 export class LineChart extends Chart {
   constructor($element, tooltipAdapter, eventbus, resizeDetectorAdapter) {

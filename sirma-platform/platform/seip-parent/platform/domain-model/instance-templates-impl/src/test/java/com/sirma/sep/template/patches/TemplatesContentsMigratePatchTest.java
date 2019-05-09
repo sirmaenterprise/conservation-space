@@ -215,7 +215,7 @@ public class TemplatesContentsMigratePatchTest {
 
 	@SuppressWarnings("unchecked")
 	private void withTemplateIds(String[]... ids) {
-		when(dbDao.fetch(anyString(), anyList())).thenReturn(Arrays.asList(ids));
+		when(dbDao.fetchWithNative(anyString(), anyList())).thenReturn(Arrays.asList(ids));
 	}
 
 	private Template withExistingDummyTemplate(String identifier) {

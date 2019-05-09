@@ -2,6 +2,7 @@ package com.sirma.itt.emf.semantic.persistence;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class SemanticPropertiesReadConverterTest {
 		field.setIdentifier("emf:title");
 
 		DefinitionMock model = new DefinitionMock();
-		model.setFields(Arrays.asList(field));
+		model.setFields(Collections.singletonList(field));
 
 		Map<String, Set<Value>> instanceProperties = new HashMap<>();
 		SimpleValueFactory factory = SimpleValueFactory.getInstance();
@@ -71,9 +72,9 @@ public class SemanticPropertiesReadConverterTest {
 		converter.convertPropertiesFromSemanticToInternalModel(model, instanceProperties, properties);
 
 		MultiLanguageValue multiLanguageValue = (MultiLanguageValue) properties.get("emf:title");
-		Assert.assertEquals("someTitleEn", multiLanguageValue.getValues("en"));
-		Assert.assertEquals("someTitleBg", multiLanguageValue.getValues("bg"));
-		// This language doesn't exist so we will just return the first one.
-		Assert.assertEquals("someTitleEn", multiLanguageValue.getValues("ger"));
+		Assert.assertEquals("someTitleEn", multiLanguageValue.getValues("en").findFirst().orElse(null));
+		Assert.assertEquals("someTitleBg", multiLanguageValue.getValues("bg").findFirst().orElse(null));
+		// This language doesn't exist so we will just return empty stream
+		Assert.assertNull(multiLanguageValue.getValues("ger").findFirst().orElse(null));
 	}
 }

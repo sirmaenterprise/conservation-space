@@ -17,7 +17,7 @@ import com.sirma.itt.seip.security.authentication.Authenticator;
  *
  * @author BBonev
  */
-@Extension(target = Authenticator.NAME, order = 2)
+@Extension(target = Authenticator.NAME, order = 6)
 public class JwtParameterAuthenticator extends JwtAuthenticator {
 
 	/**
@@ -37,7 +37,7 @@ public class JwtParameterAuthenticator extends JwtAuthenticator {
 		if (StringUtils.isBlank(parameterValue)) {
 			return null;
 		}
-		return readUser(parameterValue, getConsumer());
+		return readUser(parameterValue);
 	}
 
 	@Override

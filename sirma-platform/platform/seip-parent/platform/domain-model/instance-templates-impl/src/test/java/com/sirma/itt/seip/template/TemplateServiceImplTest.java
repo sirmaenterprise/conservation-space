@@ -89,7 +89,6 @@ import com.sirma.itt.seip.instance.dao.InstanceDao;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.dozer.CommonDozerProvider;
 import com.sirma.itt.seip.instance.state.Operation;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.resources.User;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.tasks.DefaultSchedulerConfiguration;
@@ -109,7 +108,6 @@ import com.sirma.itt.seip.testutil.fakes.InstanceTypeFake;
 import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.InstanceContentService;
@@ -156,9 +154,6 @@ public class TemplateServiceImplTest {
 
 	@Mock
 	private TemplatePreProcessor preProcessor;
-
-	@Mock
-	private Statistics statistics;
 
 	@Mock
 	private DomainInstanceService domainInstanceService;
@@ -225,7 +220,6 @@ public class TemplateServiceImplTest {
 			}
 			return arg.toString();
 		});
-		when(statistics.createTimeStatistics(any(), anyString())).thenReturn(TimeTracker.createAndStart());
 
 		SchedulerConfiguration dummyConfiguration = new DefaultSchedulerConfiguration();
 		when(schedulerService.buildEmptyConfiguration(any())).thenReturn(dummyConfiguration);
@@ -239,7 +233,7 @@ public class TemplateServiceImplTest {
 		when(securityContext.isActive()).thenReturn(Boolean.TRUE);
 		User user = mock(User.class);
 		when(user.getIdentityId()).thenReturn("user");
-		when(securityContext.getEffectiveAuthentication()).thenReturn(user);
+		when(securityContext.getAuthenticated()).thenReturn(user);
 	}
 
 	@Test

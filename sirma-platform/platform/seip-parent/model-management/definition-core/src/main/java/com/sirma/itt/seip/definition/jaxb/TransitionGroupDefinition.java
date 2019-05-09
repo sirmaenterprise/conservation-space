@@ -97,8 +97,8 @@ public class TransitionGroupDefinition {
 	/**
 	 * Sets the value of the parent property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param parent
+	 *            the parent
 	 */
 	public void setParent(String parent) {
 		this.parent = parent;
@@ -116,8 +116,8 @@ public class TransitionGroupDefinition {
 	/**
 	 * Sets the value of the type property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
+	 * @param type
+	 *            the type
 	 */
 	public void setType(String type) {
 		this.type = type;

@@ -9,6 +9,7 @@ import static com.sirma.itt.seip.util.EqualsHelper.getOrDefault;
 import java.io.BufferedInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import com.sirma.itt.seip.Properties;
 import com.sirma.itt.seip.db.DatabaseIdManager;
 import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.tx.TransactionSupport;
+import com.sirma.sep.content.batch.ContentInfoMatcher;
 import com.sirma.sep.content.type.MimeTypeResolver;
 
 /**
@@ -182,7 +184,9 @@ public class ContentEntityDao {
 			entity = createNewEntity(incrementedVersion, contentId);
 			// copy the remote source name so that the new version is uploaded in the same store without any
 			// additional checks
-			entity.setRemoteSourceName(oldRemoteSource);
+			if (content.isContentStoreEnforcedOnVersionUpdate()) {
+				entity.setRemoteSourceName(oldRemoteSource);
+			}
 		}
 		entity.setInstanceId(Objects.toString(instanceId, null));
 
@@ -396,6 +400,7 @@ public class ContentEntityDao {
 
 	/**
 	 * Fetch entities that use the given content identified by the given remote id from the given store
+	 *
 	 * @param remoteSourceName the store name
 	 * @param remoteId the remote id from the given store
 	 * @return the list of entities that reuse the content
@@ -406,5 +411,61 @@ public class ContentEntityDao {
 
 		return dbDao.fetchWithNamed(ContentEntity.QUERY_CONTENTS_BY_STORE_NAME_AND_REMOTE_ID_KEY,
 				Arrays.asList(new Pair<>("storeName", remoteSourceName), new Pair<>("remoteId", remoteId)));
+	}
+
+	/**
+	 * Query content identifiers that match the given content selector
+	 *
+	 * @param contentSelector the content selector that carry content query information.
+	 * @return a collection if found content identifiers
+	 */
+	public Collection<String> getContentIdBy(ContentInfoMatcher contentSelector) {
+		// TODO: the query is limited by the number of arguments passed. If it exceeds Short.MAX_VALUE it will have problems
+		// we should add checks to limit the allowed searched instances/contents or handle it, but it's too custom.
+		// for now this should do
+
+		List<Pair<String, Object>> args = new ArrayList<>();
+		String query = "select id from ContentEntity";
+
+		String purposePredicate = createPredicate("purpose", contentSelector.getPurpose(), args);
+		String storePredicate = createPredicate("remoteSourceName", contentSelector.getStoreName(), args);
+		String contentIds = createPredicate("id", contentSelector.getContentIds(), args);
+		String instanceIds = createPredicate("instanceId", contentSelector.getInstanceIds(), args);
+		String instancePattern = createPredicate("instanceId", contentSelector.getInstanceIdPattern(), args);
+
+		query += appendQueryPredicates(purposePredicate, storePredicate, contentIds, instanceIds, instancePattern);
+
+		return dbDao.fetch(query, args);
+	}
+
+	private String appendQueryPredicates(String... predicates) {
+		if (predicates == null || predicates.length == 0) {
+			return "";
+		}
+		String query = Arrays.stream(predicates).filter(Objects::nonNull).collect(Collectors.joining(" and "));
+		if (StringUtils.isBlank(query)) {
+			return query;
+		}
+		return " where " + query;
+	}
+
+	private String createPredicate(String propertyName, Object selector, List<Pair<String, Object>> args) {
+		if (selector == null || (selector instanceof Collection && ((Collection) selector).isEmpty())) {
+			return null;
+		}
+		String operator = " = ";
+		String variableName = ":" + propertyName;
+		if (isWildcard(selector)) {
+			operator = " like ";
+		} else if (selector instanceof Collection) {
+			operator = " in ";
+			variableName = "(:" + propertyName + ")";
+		}
+		args.add(new Pair<>(propertyName, selector));
+		return propertyName + operator + variableName;
+	}
+
+	private boolean isWildcard(Object value) {
+		return value instanceof String && (value.toString().contains("%") || value.toString().contains("?"));
 	}
 }

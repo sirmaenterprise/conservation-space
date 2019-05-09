@@ -6,6 +6,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
+import java.io.Serializable;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,8 +51,7 @@ public class VersionThumbnailStepTest {
 		VersionContext context = VersionContext.create(new EmfInstance());
 		step.execute(context);
 
-		verify(thumbnailService, never()).addThumbnail(any(InstanceReference.class), eq("thumbnail-image"));
-		verify(thumbnailService, never()).register(any(Instance.class));
+		verifyZeroInteractions(thumbnailService);
 	}
 
 	@Test
@@ -65,7 +67,7 @@ public class VersionThumbnailStepTest {
 		context.setVersionInstance(version);
 		step.execute(context);
 
-		verify(thumbnailService).addThumbnail(any(InstanceReference.class), eq("thumbnail-image"));
+		verify(thumbnailService).addAssignedThumbnail(any(Serializable.class), eq("thumbnail-image"));
 	}
 
 	@Test

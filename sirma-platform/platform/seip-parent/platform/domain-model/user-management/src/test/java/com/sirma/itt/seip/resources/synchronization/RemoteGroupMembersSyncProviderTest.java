@@ -136,6 +136,19 @@ public class RemoteGroupMembersSyncProviderTest {
 	}
 
 	@Test
+	public void groupInfo_Should_PerformCaseInsensitiveOperations() {
+		GroupInfo externalGroupInfo = new GroupInfo();
+		externalGroupInfo.setGroupName("test");
+		externalGroupInfo.addMember("regularuser");
+
+		GroupInfo localGroupInfo = new GroupInfo();
+		localGroupInfo.setGroupName("test");
+		localGroupInfo.addMember("RegularUser");
+
+		assertTrue(externalGroupInfo.equals(localGroupInfo));
+	}
+
+	@Test
 	public void groupInfoHashCode() {
 		GroupInfo info1 = new GroupInfo();
 

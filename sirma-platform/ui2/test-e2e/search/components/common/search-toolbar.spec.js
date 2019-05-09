@@ -37,7 +37,7 @@ describe('SearchToolbar', () => {
     expect(orderToolbar.getOrderByOption()).to.eventually.eq('Relevance');
 
     page.clearFtsField();
-    expect(orderToolbar.getOrderByOption()).to.eventually.eq('Modified On');
+    expect(orderToolbar.getOrderByOption()).to.eventually.eq('Modified on');
   });
 
   it('should restore previous order by when fts is cleared', () => {

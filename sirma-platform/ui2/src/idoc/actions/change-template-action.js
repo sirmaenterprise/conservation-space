@@ -9,7 +9,13 @@ import {Router} from 'adapters/router/router';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {IdocDraftService} from 'services/idoc/idoc-draft-service';
 import {SessionStorageService} from 'services/storage/session-storage-service';
-import {STATE_PARAM_MODE, STATE_PARAM_ID, MODE_EDIT, MODE_PREVIEW, IDOC_STATE, SHOW_TEMPLATE_SELECTOR} from 'idoc/idoc-constants';
+import {
+  STATE_PARAM_MODE,
+  STATE_PARAM_ID,
+  MODE_EDIT,
+  IDOC_STATE,
+  SHOW_TEMPLATE_SELECTOR
+} from 'idoc/idoc-constants';
 
 @Injectable()
 @Inject(Router, StateParamsAdapter, InstanceRestService, Eventbus, Logger, ActionsService, PromiseAdapter, IdocDraftService, SessionStorageService)
@@ -40,5 +46,9 @@ export class ChangeTemplateAction extends EditIdocAction {
       this.router.navigate(IDOC_STATE, this.stateParamsAdapter.getStateParams(), {notify: true});
       return this.promiseAdapter.resolve();
     }
+  }
+
+  skipCurrentObjectView() {
+    return true;
   }
 }

@@ -75,6 +75,8 @@ public class EditOfflineCheckInAction implements Action<UploadRequest> {
 			throw new BadRequestException(
 					"You are trying to save a different version of the document. You cannot save the current version.");
 		}
+
+		request.setTargetReference(instanceReference);
 	}
 
 	@Override

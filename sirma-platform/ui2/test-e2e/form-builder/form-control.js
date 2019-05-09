@@ -1,5 +1,7 @@
 'use strict';
 
+let elementToStopMoving = require('../utils/conditions').elementToStopMoving;
+
 class FormControl {
 
   constructor(control) {
@@ -123,8 +125,27 @@ class FormControl {
     return this.getAttributeValue(selector, 'disabled');
   }
 
+  /**
+   * Returns the readonly attribute of an input field if any.
+   * @param selector
+   * @returns {!webdriver.promise.Promise.<?string>}
+   */
+  isReadOnly(selector) {
+    return this.getAttributeValue(selector, 'readonly');
+  }
+
   getAttributeValue(selector, attributeName) {
     return this.getControl(selector).getAttribute(attributeName);
+  }
+
+  getElementAttributeValue(element, attributeName) {
+    return element.getAttribute(attributeName);
+  }
+
+  hasElementAttribute(element, attributeName) {
+    return this.getElementAttributeValue(element, attributeName).then((attribute) => {
+      return !!attribute;
+    });
   }
 
   waitToShow() {
@@ -137,12 +158,16 @@ class FormControl {
     });
   }
 
+  getTooltipIcon() {
+    return this.control.$('.fa-info');
+  }
+
   isTooltipIconVisible() {
-    browser.wait(EC.visibilityOf(this.control.$('i')), DEFAULT_TIMEOUT, 'Tooltip icon should be visible!');
+    browser.wait(EC.visibilityOf(this.getTooltipIcon()), DEFAULT_TIMEOUT, 'Tooltip icon should be visible!');
   }
 
   isTooltipIconHidden() {
-    browser.wait(EC.invisibilityOf(this.control.$('i')), DEFAULT_TIMEOUT, 'Tooltip icon should be hidden!');
+    browser.wait(EC.invisibilityOf(this.getTooltipIcon()), DEFAULT_TIMEOUT, 'Tooltip icon should be hidden!');
   }
 }
 
@@ -153,9 +178,15 @@ class InputField extends FormControl {
   }
 
   getInputElement() {
-    var inputElement = this.control.$('.form-control');
-    browser.wait(EC.visibilityOf(inputElement), DEFAULT_TIMEOUT);
+    let inputElement = this.control.$('.form-control');
+    browser.wait(EC.visibilityOf(inputElement), DEFAULT_TIMEOUT, 'Input field should be visible!');
     return inputElement;
+  }
+
+  getPreviewElement() {
+    let previewElement = this.control.$('.preview-field');
+    browser.wait(EC.visibilityOf(previewElement), DEFAULT_TIMEOUT);
+    return previewElement;
   }
 
   /**
@@ -178,26 +209,26 @@ class InputField extends FormControl {
    */
   setValue(selector, text) {
     if (selector) {
-      var field = $(selector);
+      let field = $(selector);
       browser.wait(EC.visibilityOf(field), DEFAULT_TIMEOUT);
       field.sendKeys(text);
       browser.wait(EC.textToBePresentInElementValue(field, text), DEFAULT_TIMEOUT);
     } else {
-      var inputElement = this.getInputElement();
-      var script = `var field = $(arguments[0]); field.val("${text}"); field.trigger("change")`;
+      let inputElement = this.getInputElement();
+      let script = `var field = $(arguments[0]); field.val("${text}"); field.trigger("change")`;
       browser.executeScript(script, inputElement.getWebElement());
       inputElement.click();
     }
   }
 
   blurField(selector) {
-    var element;
+    let element;
     if (selector) {
       element = $(selector);
     } else {
       element = this.getInputElement();
     }
-    var script = 'var field = $(arguments[0]); field.trigger("blur");';
+    let script = 'var field = $(arguments[0]); field.trigger("blur");';
     browser.executeScript(script, element.getWebElement());
   }
 
@@ -217,9 +248,14 @@ class InputField extends FormControl {
     if (selector) {
       return super.isDisabled(selector);
     }
-    return this.getInputElement().getAttribute('disabled').then((attribute) => {
-      return !!attribute;
-    });
+    return this.hasElementAttribute(this.getInputElement(), 'disabled');
+  }
+
+  isReadOnly(selector) {
+    if (selector) {
+      return super.isReadOnly(selector);
+    }
+    return this.hasElementAttribute(this.getInputElement(), 'readonly');
   }
 
 }
@@ -341,9 +377,7 @@ class DatetimeField extends InputField {
   }
 
   isDisabled() {
-    return this.control.$('input').getAttribute('disabled').then((attribute) => {
-      return !!attribute;
-    });
+    return this.hasElementAttribute(this.control.$('input'), 'disabled');
   }
 
 }
@@ -373,12 +407,22 @@ class CheckboxField extends InputField {
     return this.control.$('input').getAttribute('checked');
   }
 
+  isSelected() {
+    return this.isChecked().then(checked => {
+      return !!checked;
+    });
+  }
+
   isPreview() {
     return this.control.$('.state-disabled').isPresent();
   }
 
   isDisabled() {
-    return this.control.$('input').getAttribute('disabled');
+    return this.hasElementAttribute(this.control.$('input'), 'disabled');
+  }
+
+  isReadOnly() {
+    return this.hasElementAttribute(this.control.$('input'), 'readonly');
   }
 
 }
@@ -491,9 +535,11 @@ class SingleSelectMenu extends InputField {
   }
 
   isDisabled(selector) {
-    return this.getControl(selector).$('select').getAttribute('disabled').then((attribute) => {
-      return !!attribute;
-    });
+    return this.hasElementAttribute(this.getControl(selector).$('select'), 'disabled');
+  }
+
+  isReadOnly(selector) {
+    return this.hasElementAttribute(this.getControl(selector).$('select'), 'readonly');
   }
 
   isOptionDisabled(name) {
@@ -799,12 +845,38 @@ class ObjectControl extends FormControl {
    * control is collapsed they won't be returned.
    * @returns {wdpromise.Promise<any[]>}
    */
-  getSelectedObjects() {
+  getSelectedObjects(expectedObjects = 0) {
+    if (expectedObjects > 0) {
+      browser.wait(() => {
+        return this.control.$$('.instance-box').then((count) => {
+          return count.length >= expectedObjects;
+        });
+      }, DEFAULT_TIMEOUT);
+    }
     return this.control.$$('.instance-box').then((els) => {
       return els.map((el) => {
         return new ObjectControlItem(el);
       });
     });
+  }
+
+  /**
+   * Returns selected objects which are in select2.
+   * @returns {wdpromise.Promise<any[]>}
+   */
+  getSelectedObjectsRenderedInSelect2() {
+    let renderedSelection = this.control.$('.select2-selection__rendered');
+    if(renderedSelection.length) {
+      browser.wait(EC.visibilityOf(renderedSelection), DEFAULT_TIMEOUT);
+
+      return renderedSelection.$$('li.select2-selection__choice').then((els) => {
+        return els.map((el) => {
+          return new ObjectControlItem(el);
+        });
+      });
+    } else {
+      return [];
+    }
   }
 
   /**
@@ -814,18 +886,19 @@ class ObjectControl extends FormControl {
    * @param header The header text to compare against.
    */
   isHeaderVisible(index, header) {
-    this.getSelectedObjects().then((selectedObjects) => {
+    this.getSelectedObjects(index + 1).then((selectedObjects) => {
       browser.wait(EC.textToBePresentInElement(selectedObjects[index].element, header), DEFAULT_TIMEOUT);
     });
   }
 
   /**
    * Returns visible selected objects count.
-   * @returns {*}
+   *
+   * @expectedCount The expected selected objects count which this method would wait for.
    */
-  getSelectedObjectsCount() {
-    return this.getSelectedObjects().then((selectedObjects) => {
-      return selectedObjects.length;
+  getSelectedObjectsCount(expectedCount) {
+    return Promise.all([this.getSelectedObjects(expectedCount), this.getSelectedObjectsRenderedInSelect2()]).then(([selectedObjects, selectedObjectsInSelect2]) => {
+      return selectedObjects.length + selectedObjectsInSelect2.length;
     });
   }
 
@@ -837,7 +910,7 @@ class ObjectControl extends FormControl {
    */
   waitForSelectedItems(expectedCount) {
     browser.wait(() => {
-      return this.getSelectedObjectsCount().then((count) => {
+      return this.getSelectedObjectsCount(expectedCount).then((count) => {
         return expectedCount === count;
       });
     }, DEFAULT_TIMEOUT);
@@ -845,21 +918,24 @@ class ObjectControl extends FormControl {
 
   /**
    * Returns the objects count which are not visible because the component is collapsed.
-   * @returns {Promise<R>}
    */
   getHiddenObjectsCount() {
-    return this.getShowAllButton().$('.hidden-objects-count').getText().then((text) => {
+    this.isShowAllButtonVisible();
+    let counterElement = this.getShowAllButton().$('.hidden-objects-count');
+    browser.wait(EC.visibilityOf(counterElement), DEFAULT_TIMEOUT, 'Hidden objects counter should be visible!');
+
+    return counterElement.getText().then((text) => {
       return text.trim();
     });
   }
 
   verifyHiddenObjectsCountIs(count) {
-    browser.wait(EC.textToBePresentInElement(this.getShowAllButton(), count + ''), DEFAULT_TIMEOUT);
+    browser.wait(EC.textToBePresentInElement(this.getShowAllButton(), count + ''), DEFAULT_TIMEOUT, 'Hidden objects count should be present!');
   }
 
   selectInstance() {
-    var button = this.getSelectInstanceButton();
-    browser.wait(EC.elementToBeClickable(button), DEFAULT_TIMEOUT);
+    let button = this.getSelectInstanceButton();
+    browser.wait(EC.elementToBeClickable(button), DEFAULT_TIMEOUT, 'Select instance button should be clickable!');
     button.click();
   }
 
@@ -868,18 +944,44 @@ class ObjectControl extends FormControl {
    * @param index of selected object.
    */
   removeInstance(index) {
-    this.getSelectedObjects().then((selectedObjects => {
+    this.getSelectedObjects(1).then((selectedObjects => {
       let instance = selectedObjects[index].getElement();
       browser.wait(EC.visibilityOf(instance), DEFAULT_TIMEOUT);
-      browser.actions().mouseMove(instance, {x: 2, y:2}).perform();
+      browser.actions().mouseMove(instance, {x: 2, y: 2}).perform();
       let removeButton = instance.$('.remove-instance-btn');
-      browser.wait(EC.elementToBeClickable(removeButton), DEFAULT_TIMEOUT);
+      let cond = EC.and(EC.elementToBeClickable(removeButton), elementToStopMoving(removeButton));
+      browser.wait(cond, DEFAULT_TIMEOUT);
       removeButton.click();
     }));
   }
 
+  /**
+   * Remove the value from the multi select menu by it's title attribute.
+   * @param title the element's title attribute
+   * @returns {*}
+   */
+  removeFromSelectionByTitle(title) {
+    return this.control.$(`.select2-selection__choice[title=\"${title}\"] .select2-selection__choice__remove`).click();
+  }
+
+  removeFromSelectionByIndex(index) {
+    return this.control.$(`.select2-selection__choice:nth-child(${index+1}) .select2-selection__choice__remove`).click();
+  }
+
+  isRemoveButtonVisible(index) {
+    browser.wait(EC.visibilityOf(this.control.$(`.select2-selection__choice:nth-child(${index+1}) .select2-selection__choice__remove`)), DEFAULT_TIMEOUT);
+  }
+
+  isRemoveButtonHidden(index) {
+    browser.wait(EC.invisibilityOf(this.control.$(`.select2-selection__choice:nth-child(${index+1}) .select2-selection__choice__remove`)), DEFAULT_TIMEOUT);
+  }
+
+  isElementSelectedByTitle(title) {
+    browser.wait(EC.visibilityOf(this.control.$(`.select2-selection__choice[title=\"${title}\"]`)), DEFAULT_TIMEOUT)
+  }
+
   getInstance(index) {
-    return this.getSelectedObjects().then((selectedObjects => {
+    return this.getSelectedObjects(index + 1).then((selectedObjects => {
       return selectedObjects[index].getElement();
     }));
   }
@@ -893,11 +995,11 @@ class ObjectControl extends FormControl {
   }
 
   isSelectInstanceButtonVisible() {
-    browser.wait(EC.visibilityOf(this.getSelectInstanceButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.getSelectInstanceButton()), DEFAULT_TIMEOUT, 'Select instance button should be visible!');
   }
 
   isSelectInstanceButtonHidden() {
-    browser.wait(EC.invisibilityOf(this.getSelectInstanceButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.invisibilityOf(this.getSelectInstanceButton()), DEFAULT_TIMEOUT, 'Select instance button should be hidden!');
   }
 
   getSelectInstanceButton() {
@@ -905,11 +1007,11 @@ class ObjectControl extends FormControl {
   }
 
   isRemoveInstanceButtonVisible() {
-    browser.wait(EC.visibilityOf(this.getRemoveInstanceButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.getRemoveInstanceButton()), DEFAULT_TIMEOUT, 'Remove instance button should be visible!');
   }
 
   isRemoveInstanceButtonHidden() {
-    browser.wait(EC.invisibilityOf(this.getRemoveInstanceButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.invisibilityOf(this.getRemoveInstanceButton()), DEFAULT_TIMEOUT, 'Remove instance button should be hidden!');
   }
 
   getRemoveInstanceButton() {
@@ -917,11 +1019,11 @@ class ObjectControl extends FormControl {
   }
 
   isShowAllButtonVisible() {
-    browser.wait(EC.visibilityOf(this.getShowAllButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.getShowAllButton()), DEFAULT_TIMEOUT, 'Show all selected objects button should be visible!');
   }
 
   isShowAllButtonHidden() {
-    browser.wait(EC.invisibilityOf(this.getShowAllButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.invisibilityOf(this.getShowAllButton()), DEFAULT_TIMEOUT, 'Show all selected objects button should be hidden!');
   }
 
   getShowAllButton() {
@@ -929,11 +1031,11 @@ class ObjectControl extends FormControl {
   }
 
   isShowLessButtonVisible() {
-    browser.wait(EC.visibilityOf(this.getShowLessButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf(this.getShowLessButton()), DEFAULT_TIMEOUT, 'Show less button should be visible!');
   }
 
   isShowLessButtonHidden() {
-    browser.wait(EC.invisibilityOf(this.getShowLessButton()), DEFAULT_TIMEOUT);
+    browser.wait(EC.invisibilityOf(this.getShowLessButton()), DEFAULT_TIMEOUT, 'Show less button should be hidden!');
   }
 
   getShowLessButton() {

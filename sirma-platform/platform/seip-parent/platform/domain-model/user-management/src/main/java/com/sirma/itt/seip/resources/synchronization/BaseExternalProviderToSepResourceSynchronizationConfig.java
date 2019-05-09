@@ -133,7 +133,8 @@ public abstract class BaseExternalProviderToSepResourceSynchronizationConfig
 	protected abstract SynchronizationProvider<Collection<Resource>> loadRemoteResources();
 
 	private static Function<Resource, String> getIdentityResolver() {
-		return Resource::getName;
+		// makes diff calculation case insensitive, since both source and destination mappings will be with lower case keys
+		return resource -> resource.getName().toLowerCase();
 	}
 
 	@Override

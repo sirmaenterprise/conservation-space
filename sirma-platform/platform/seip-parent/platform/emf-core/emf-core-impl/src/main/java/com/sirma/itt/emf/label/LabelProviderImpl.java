@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
@@ -15,6 +15,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +24,16 @@ import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.collections.ContextualMap;
 import com.sirma.itt.seip.definition.label.LabelDefinition;
 import com.sirma.itt.seip.definition.label.LabelService;
-import com.sirma.itt.seip.domain.definition.label.LabelBundleProvider;
+import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.definition.label.LabelResolverProvider;
 import com.sirma.itt.seip.domain.definition.label.LabelProvider;
+import com.sirma.itt.seip.domain.definition.label.LabelResolver;
 import com.sirma.itt.seip.expressions.ExpressionEvaluatorManager;
 import com.sirma.itt.seip.plugin.ExtensionPoint;
 import com.sirma.itt.seip.security.UserPreferences;
 
 /**
- * Default implementation for the {@link LabelProvider} interface. Caches the located {@link ResourceBundle} instances
+ * Default implementation for the {@link LabelProvider} interface. Caches the located {@link LabelResolver} instances
  * for a given language.
  *
  * @author BBonev
@@ -41,6 +44,7 @@ public class LabelProviderImpl implements LabelProvider {
 
 	/** The Constant logger. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(LabelProviderImpl.class);
+	private static final String DEFAULT_LANGUAGE = Locale.ENGLISH.getLanguage();
 
 	/** The label service. */
 	@Inject
@@ -53,18 +57,21 @@ public class LabelProviderImpl implements LabelProvider {
 	private UserPreferences userPreferences;
 
 	@Inject
-	@ExtensionPoint(value = LabelBundleProvider.TARGET_NAME, reverseOrder = true)
-	private Iterable<LabelBundleProvider> labelProviders;
+	@ExtensionPoint(value = LabelResolverProvider.TARGET_NAME, reverseOrder = true)
+	private Iterable<LabelResolverProvider> labelProviders;
 
-	/** Provided resource bundles mapped by language */
+	/** Provided resource resolvers mapped by language */
 	@Inject
-	private ContextualMap<String, List<ResourceBundle>> bundles;
+	private ContextualMap<String, List<LabelResolver>> resolvers;
 
 	@PostConstruct
 	void init() {
 		// on change in label providers clear the cache, note that this will clear only the cache for the current tenant
 		// and not all of them
-		MutationObservable.registerToAll(labelProviders, () -> bundles.clear());
+		MutationObservable.registerToAll(labelProviders, () -> {
+			LOGGER.info("Reloading label providers");
+			resolvers.clear();
+		});
 	}
 
 	@Override
@@ -110,66 +117,137 @@ public class LabelProviderImpl implements LabelProvider {
 
 		LabelDefinition definition = labelService.getLabel(labelId);
 		if (definition == null) {
-			return getBundleValue(labelId);
+			return getLabelOrDefault(labelId, language);
 		}
 
 		String label = definition.getLabels().get(language);
-		if (label == null) {
-			label = getBundleValue(labelId);
+		if (StringUtils.isBlank(label) && !isDefaultLanguage(language)) {
+			label = definition.getLabels().get(DEFAULT_LANGUAGE);
+		}
+		if (StringUtils.isBlank(label)) {
+			label = getLabelOrDefault(labelId, language);
 		}
 		return label;
+	}
+
+	private static boolean isDefaultLanguage(String language) {
+		return DEFAULT_LANGUAGE.equals(language);
 	}
 
 	@Override
 	public String getValue(final String key) {
 		String language = getLanguage();
-		return getBundleValue(key, language, () -> getLabelFromCache(key, language));
+		return getResolverValue(key, language, () -> getLabelFromCache(key, language));
 	}
 
 	@Override
 	public String getBundleValue(final String key) {
-		return getBundleValue(key, getLanguage(), () -> key);
+		return getLabelOrDefault(key, getLanguage());
 	}
 
-	private String getBundleValue(final String key, String language, Supplier<String> defaultValueSupplier) {
-		for (ResourceBundle bundle : getBundles(language)) {
-			if (bundle.containsKey(key)) {
-				return bundle.getString(key);
+	@Override
+	public String getPropertyLabel(PropertyDefinition propertyDefinition) {
+		return resolvePropertyLabel(propertyDefinition, LabelProvider::buildUriLabelId, propertyDefinition.getLabelId());
+	}
+
+	@Override
+	public String getPropertyTooltip(PropertyDefinition propertyDefinition) {
+		return resolvePropertyLabel(propertyDefinition, LabelProvider::buildUriTooltipId, propertyDefinition.getTooltipId());
+	}
+
+	private String resolvePropertyLabel(PropertyDefinition propertyDefinition, Function<String, String> uriToLabelMapper, String definitionLabelId) {
+		String language = getLanguage();
+		return getDefinitionLabelOrElse(definitionLabelId, language, () -> {
+			if (PropertyDefinition.hasUri().test(propertyDefinition)) {
+				String uriKey = uriToLabelMapper.apply(PropertyDefinition.resolveUri().apply(propertyDefinition));
+
+				if (isDefaultLanguage(language)) {
+					return getResolverValue(uriKey, DEFAULT_LANGUAGE, () -> uriKey + "/" + definitionLabelId);
+				}
+			/*
+			  The logic runs the following steps and returns the first found value:
+				1. check if the given label has value for the given language
+				2. check if the given uri id has value for the given language
+				3. check if the given label has value for the default language
+				4. check if the given uri id has value for the default language
+			 */
+				return getResolverValue(uriKey, language,
+						() -> getDefinitionLabelOrElse(definitionLabelId, DEFAULT_LANGUAGE,
+								() -> getResolverValue(uriKey, DEFAULT_LANGUAGE,
+										() -> uriKey + "/" + definitionLabelId)));
+			}
+			return getDefinitionLabelOrElse(definitionLabelId, DEFAULT_LANGUAGE, () -> definitionLabelId);
+		});
+	}
+
+	private String getDefinitionLabelOrElse(String labelId, String language, Supplier<String> defaultValueSupplier) {
+		if (labelId == null) {
+			return defaultValueSupplier.get();
+		}
+		LabelDefinition definition = labelService.getLabel(labelId);
+		if (definition == null) {
+			return defaultValueSupplier.get();
+		}
+		Map<String, String> labels = definition.getLabels();
+		if (labels == null) {
+			return defaultValueSupplier.get();
+		}
+		String label = labels.get(language);
+		if (StringUtils.isEmpty(label)) {
+			return defaultValueSupplier.get();
+		}
+		return label;
+	}
+
+	private String getLabelOrDefault(String key, String language) {
+		return getResolverValue(key, language, () -> {
+			// same language no need to get it twice just return the key
+			if (isDefaultLanguage(language)) {
+				return key;
+			}
+			return getResolverValue(key, DEFAULT_LANGUAGE, () -> key);
+		});
+	}
+
+	/*
+	 * Resolvers are bundle files and semantic repository
+	 */
+	private String getResolverValue(final String key, String language, Supplier<String> defaultValueSupplier) {
+		for (LabelResolver resolver : getResolvers(language)) {
+			if (resolver.containsLabel(key)) {
+				String value = resolver.getLabel(key);
+				if (StringUtils.isNotBlank(value)) {
+					return value;
+				}
 			}
 		}
 		return defaultValueSupplier.get();
 	}
 
-	@Override
-	public Iterable<ResourceBundle> getBundles(String language) {
-		return bundles.computeIfAbsent(language, this::getBundlesInternal);
+	private Iterable<LabelResolver> getResolvers(String language) {
+		return resolvers.computeIfAbsent(language, this::getResolversInternal);
 	}
 
-	private List<ResourceBundle> getBundlesInternal(String language) {
-		LOGGER.debug("Computing bundles for locale: {}", language);
-		List<ResourceBundle> result = new ArrayList<>();
-		Locale locale = null;
+	private List<LabelResolver> getResolversInternal(String language) {
+		LOGGER.debug("Computing resolvers for locale: {}", language);
+		List<LabelResolver> result = new ArrayList<>();
+		Locale locale;
 		if (language == null) {
 			String userLang = userPreferences.getLanguage();
-			LOGGER.warn("Missing param for bundle language! Using default: {}", userLang);
+			LOGGER.warn("Missing param for resolver language! Using default: {}", userLang);
 			locale = new Locale(userLang);
 		} else {
 			locale = new Locale(language);
 		}
-		for (LabelBundleProvider provider : labelProviders) {
-			ResourceBundle bundle = provider.getBundle(locale);
-			if (bundle != null) {
-				result.add(bundle);
+		for (LabelResolverProvider provider : labelProviders) {
+			LabelResolver resolver = provider.getLabelResolver(locale);
+			if (resolver != null) {
+				result.add(resolver);
 			} else {
-				LOGGER.debug("Labels bundle not found for extension {}", provider.getClass());
+				LOGGER.debug("Labels resolver not found for extension {}", provider.getClass());
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public Iterable<ResourceBundle> getBundles() {
-		return getBundles(getLanguage());
 	}
 
 	/**

@@ -1,5 +1,5 @@
 import {Component, View} from 'app/app';
-import {ColorPicker} from 'components/color-picker/color-picker';
+import 'components/color-picker/color-picker';
 
 import './widget-common-display-configurations.css!';
 import template from './widget-common-display-configurations.html!text';

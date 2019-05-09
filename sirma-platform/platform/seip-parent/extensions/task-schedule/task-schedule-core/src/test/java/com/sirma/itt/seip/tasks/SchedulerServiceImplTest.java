@@ -25,6 +25,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.event.EventService;
+import com.sirma.itt.seip.resources.EmfUser;
+import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.serialization.SerializationHelper;
 import com.sirma.itt.seip.serialization.kryo.KryoHelper;
 import com.sirma.itt.seip.tasks.entity.SchedulerEntity;
@@ -53,6 +55,8 @@ public class SchedulerServiceImplTest {
 	private SerializationHelper serializationHelper;
 	@Mock
 	private SchedulerEntryStore schedulerStore;
+	@Mock
+	private SecurityContext securityContext;
 
 	@Before
 	public void beforeMethod() {
@@ -64,6 +68,10 @@ public class SchedulerServiceImplTest {
 			return entity;
 		});
 		when(schedulerStore.persist(any())).then(a -> a.getArgumentAt(0, SchedulerEntity.class));
+
+		EmfUser user = new EmfUser("admin");
+		user.setId("emf:admin");
+		when(securityContext.getAuthenticated()).thenReturn(user);
 	}
 
 	@Test
@@ -95,6 +103,30 @@ public class SchedulerServiceImplTest {
 		service.schedule("action", configuration);
 
 		assertNotNull(configuration.getScheduleTime());
+	}
+
+	@Test
+	public void scheduleTimedTaskShouldSetRunAsUserIdIfNotPresent() throws Exception {
+		SchedulerConfiguration configuration = service.buildEmptyConfiguration(SchedulerEntryType.TIMED);
+		configuration.setSynchronous(true).setPersistent(false).setRunAs(RunAs.USER);
+
+		when(schedulerExecuter.executeImmediate(any())).thenReturn(Boolean.TRUE);
+
+		service.schedule("action", configuration);
+
+		assertEquals("The user id should have been set","emf:admin", configuration.getRunUserId());
+	}
+
+	@Test
+	public void scheduleTimedTaskShouldSetRunAsUserIdIfPresent() throws Exception {
+		SchedulerConfiguration configuration = service.buildEmptyConfiguration(SchedulerEntryType.TIMED);
+		configuration.setSynchronous(true).setPersistent(false).setRunAs("emf:testUser");
+
+		when(schedulerExecuter.executeImmediate(any())).thenReturn(Boolean.TRUE);
+
+		service.schedule("action", configuration);
+
+		assertEquals("The user id should have not been overridden","emf:testUser", configuration.getRunUserId());
 	}
 
 	@Test

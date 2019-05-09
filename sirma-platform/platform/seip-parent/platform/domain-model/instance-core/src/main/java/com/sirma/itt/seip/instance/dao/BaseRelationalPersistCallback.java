@@ -50,7 +50,7 @@ public abstract class BaseRelationalPersistCallback implements InstancePersistCa
 	 */
 	@PostConstruct
 	protected void initializeCache() {
-		cacheContext.createCacheIfAbsent(getCacheName(), isCachingEnabled(), new EntityLookupDao(this));
+		cacheContext.createCacheIfAbsent(getCacheName(), isCachingEnabled(), new EntityLookupDao(this).enableSecondaryKeyManagement());
 	}
 
 	/**

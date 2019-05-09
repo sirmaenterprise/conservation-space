@@ -15,12 +15,15 @@ import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sirma.itt.seip.definition.DefinitionService;
 import com.sirma.itt.seip.domain.definition.ControlDefinition;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.rest.utils.JsonKeys;
 import com.sirmaenterprise.sep.properties.expression.evaluation.PropertiesValuesEvaluatorService;
 
@@ -35,10 +38,14 @@ import com.sirmaenterprise.sep.properties.expression.evaluation.PropertiesValues
 @ApplicationScoped
 public class PropertiesValuesEvaluatorRest {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesValuesEvaluatorRest.class);
+
+	private static final String MESSAGE = "The instance with id \"{}\" was not found or the user does not have permissions, no properties were transferred for it";
+
 	private static final String DEFAULT_VALUE_PATTERN = "default_value_pattern";
 
 	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
+	private DomainInstanceService instanceService;
 
 	@Inject
 	private DefinitionService definitionService;
@@ -70,7 +77,7 @@ public class PropertiesValuesEvaluatorRest {
 	 * @return map with key -> instanceId and value instance.
 	 */
 	private Map<Serializable, Instance> loadInstances(Collection<String> instanceIds) {
-		return instanceTypeResolver.resolveInstances(instanceIds).stream()
+		return instanceService.loadInstances(instanceIds).stream()
 				.collect(Collectors.toMap(Instance::getId, instance -> instance));
 	}
 
@@ -89,11 +96,15 @@ public class PropertiesValuesEvaluatorRest {
 		PropertiesValuesEvaluatorResponse expressionTemplateResponse = new PropertiesValuesEvaluatorResponse();
 		expressionTemplateRequest.getExpressionTemplateModelAsStream().forEach(entry -> {
 			String instanceId = entry.getKey();
-			Instance instance = instances.get(instanceId);
-			List<PropertiesValuesEvaluatorProperty> requestedProperties = entry.getValue();
 			List<Map<String, Serializable>> instanceProperties = new LinkedList<>();
-			requestedProperties.forEach(requestedProperty -> instanceProperties
-					.add(extractInstanceProperty(definitionModel, instance, requestedProperty)));
+			Instance instance = instances.get(instanceId);
+			if (instance != null) {
+				List<PropertiesValuesEvaluatorProperty> requestedProperties = entry.getValue();
+				requestedProperties.forEach(requestedProperty -> instanceProperties.add(
+						extractInstanceProperty(definitionModel, instance, requestedProperty)));
+			} else {
+				LOGGER.debug(MESSAGE, instanceId);
+			}
 			Map<String, Object> instanceData = new HashMap<>(2);
 			instanceData.put(JsonKeys.ID, instanceId);
 			instanceData.put(JsonKeys.PROPERTIES, instanceProperties);

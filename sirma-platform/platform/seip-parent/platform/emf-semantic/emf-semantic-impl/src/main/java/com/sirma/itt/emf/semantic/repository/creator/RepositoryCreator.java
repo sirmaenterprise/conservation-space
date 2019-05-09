@@ -28,6 +28,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.emf.semantic.model.init.ClassDescriptionGenerator;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.io.ResourceSource;
 import com.sirma.itt.semantic.namespaces.DefaultNamespaces;
@@ -126,6 +127,8 @@ public class RepositoryCreator {
 
 				// import files
 				importSparqlFiles(properties, connection);
+
+				new ClassDescriptionGenerator(connection).initClassAndPropertiesDescription();
 			}
 			return repository;
 		} catch (RepositoryException e) {

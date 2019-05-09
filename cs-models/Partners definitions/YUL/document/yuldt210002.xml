@@ -3,16 +3,15 @@
 	<regions>
 		<region id="generalData" >
 			<fields>
-				<field name="singleOrMultiple" type="an..20" mandatory="true" displayType="editable" codelist="CL265" order="2" label="yul.singleOrMultiple.label" tooltip="yul.singleOrMultiple.tooltip" uri="yul:singleOrMultiple" >
-					<control id="RELATED_FIELDS">
-						<control-param type="purpose" id="fieldsToRerender" name="RERENDER">purpose</control-param>
-						<control-param type="purpose" id="filterSource" name="FILTER_SOURCE">extra2</control-param>
-						<control-param type="purpose" id="filterInclusive" name="INCLUSIVE">true</control-param>
-					 </control>
-				</field>
-				<field name="purpose" type="an..20" mandatory="true" displayType="editable" codelist="CL264" order="3" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="yul:purpose" />
-					
-				<field name="overallCondition" type="an..20" displayType="editable" codelist="CL266" label="yul.overallCondition.label" tooltip="yul.overallCondition.tooltip" uri="yul:overallCondition" />
+				<field name="singleOrMultiple" type="ANY" mandatory="true" displayType="editable" codelist="CL265" order="2" label="yul.singleOrMultiple.label" tooltip="yul.singleOrMultiple.tooltip" uri="yul:singleOrMultiple" />
+				<field name="purpose" type="ANY" mandatory="true" displayType="editable" codelist="CL264" order="3" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="yul:purpose" >
+					<control id="RELATED_FIELDS">							
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">singleOrMultiple</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra2</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>	
+				<field name="overallCondition" type="ANY" displayType="editable" codelist="CL266" label="yul.overallCondition.label" tooltip="yul.overallCondition.tooltip" uri="yul:overallCondition" />
 				<field name="chc:documents" type="uri" mandatory="true" uri="chc:documents" >
 					<condition id="optionalField" renderAs="OPTIONAL">[singleOrMultiple] IN ('YUL264002')</condition>
 					<control id="PICKER">

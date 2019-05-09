@@ -1,10 +1,13 @@
 package com.sirma.itt.seip.instance.validator.validators;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+
+import org.apache.commons.lang3.RandomStringUtils;
 
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
@@ -32,6 +35,8 @@ import com.sirma.itt.seip.plugin.Extension;
 @Extension(target = PropertyFieldValidator.TARGET_NAME, order = 5)
 public class TextFieldValidator extends PropertyFieldValidator {
 
+	private static final String NULL_MARKER = RandomStringUtils.randomAlphanumeric(10);
+
 	@Inject
 	private FieldValidationErrorBuilder builder;
 
@@ -51,9 +56,11 @@ public class TextFieldValidator extends PropertyFieldValidator {
 		Pair<String, String> nameRegEx = regExGenerator.getPattern(context.getPropertyDefinition().getType(), null);
 		Pattern pattern = Pattern.compile(nameRegEx.getFirst());
 
-		return collectValues(context).flatMap(TextFieldValidator::convertMultiValue).map(String.class::cast)
-				.filter(value -> !pattern.matcher(value).matches())
-				.map(value -> builder.buildTextFieldError(context.getPropertyDefinition(), nameRegEx.getSecond()));
+		return collectValues(context)
+				.flatMap(TextFieldValidator::convertMultiValue)
+					.map(value -> Objects.toString(value, NULL_MARKER))
+					.filter(value -> NULL_MARKER.equals(value) || !pattern.matcher(value).matches())
+					.map(value -> builder.buildTextFieldError(context.getPropertyDefinition(), nameRegEx.getSecond()));
 	}
 
 	/**

@@ -37,19 +37,13 @@ public class SuggestSearchOperationTest {
 	public void init() {
 		ConfigurationPropertyMock<String> ftsIndexName = new ConfigurationPropertyMock<>("solr-inst:ftsearch");
 		Mockito.when(semanticConfigurations.getFtsIndexName()).thenReturn(ftsIndexName);
-		Mockito.when(freeTextSearchProcessor.process(Matchers.anyString(), Matchers.anyString(), Matchers.eq(false)))
+		Mockito.when(freeTextSearchProcessor.buildFieldSuggestionQuery(Matchers.anyString(), Matchers.anyString()))
 				.thenReturn("solrSearch");
 	}
 
 	@Test
 	public void should_BuildQuery() {
-		String expectedQuery = "{"
-				+ "?searchasolr-inst:ftsearch;solr:query'''solrSearch''';solr:entities?instance."
-				+ "}UNION{"
-				+ "?searchasolr-inst:ftsearch;solr:query'''solrSearch''';solr:entities?instance."
-				+ "}UNION{"
-				+ "?searchasolr-inst:ftsearch;solr:query'''solrSearch''';solr:entities?instance."
-				+ "}";
+		String expectedQuery = "?searchasolr-inst:ftsearch;solr:query'''solrSearch''';solr:entities?instance.";
 		StringBuilder query = new StringBuilder();
 		Rule rule = new RuleBuilder().setOperation("suggest").addValue("some").setField("someField").build();
 		suggestSearchOperation.buildOperation(query, rule);

@@ -1,0 +1,91 @@
+<?xml version="1.0"?> <!-- CORE Document -->
+<!-- The only one difference between CORE and YUAG document is the culturalObjectTypes filter-->
+<definition id="document" type="document" parentId="coreAbstractDocument" isAbstract="true">
+	<regions>	
+		<region id="generalData">
+			<fields>
+				<field name="chc:hasAuthor" >
+					<value>${currentUser.id}</value>
+				</field>
+				<field name= "title" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[emf:type]_$[chc:hasAuthor]_$[emf:createdOn]</control-param>
+					</control>
+				</field>
+			</fields>
+		</region>
+		<region id="systemData">
+			<fields>
+				<field name="type" codelist="CL7" >
+					<value>FC236005</value>
+				</field>
+			</fields>
+		</region>
+	</regions>
+	
+	<transitions>	
+		<transition id="create" label="create" >
+			<fields>
+				<field name="onCreate" type="an10">
+					<value>
+						<![CDATA[
+							var newAppraisal = root.get('chc:overallConditionAppraisal');
+							var culturalObjects = root.get('chc:documents');
+							if(culturalObjects != null){
+								for (i = 0; i < culturalObjects.length; i++) {
+									var object = instance.load(culturalObjects[i]);
+									if(newAppraisal != null){object.add('chc:overallConditionAppraisal', newAppraisal);}
+									object.save();
+								}
+							}	
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">false</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="complete" order="16" label="complete.label" tooltip="complete.tooltip" purpose="transition" confirmation="complete.confirm" actionPath="/" >
+			<fields>
+				<field name="onComplete" type="an10">
+					<value>
+						<![CDATA[
+							var newAppraisal = root.get('chc:overallConditionAppraisal');
+							var newTreatmentPriority = root.get('chcart:treatmentPriority');
+	
+							var culturalObjects = root.get('chc:documents');
+							if(culturalObjects != null){
+								for (i = 0; i < culturalObjects.length; i++) {
+									var object = instance.load(culturalObjects[i]);
+									if(newAppraisal != null){object.add('chc:overallConditionAppraisal', newAppraisal);}
+									if(newTreatmentPriority != null){object.add('chcart:treatmentPriority', newTreatmentPriority);}
+									object.save();
+								}
+							}	
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">false</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+	</transitions>
+
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="Sample"/>
+		<child type="object" id="coreAudio"/>
+		<child type="object" id="coreVideo"/>
+		<child type="object" id="coreImage"/>
+		<child type="task" id="all"/>
+		<child type="workflow" id="reviewAndApproveReportsWF"/>
+	</allowedChildren>
+<!--
+	<filterDefinitions>
+		<filter id="culturalObjectTypes" mode="INCLUDE">CulturalObj002,CulturalObj003,CulturalObj004,CulturalObj005,CulturalObj006,CulturalObj007,CulturalObj008,CulturalObj009,CulturalObj010,CulturalObj013,CulturalObj014,CulturalObj015,CulturalObj017,CulturalObj018,CulturalObj019,CulturalObj020,CulturalObj021</filter>
+	</filterDefinitions> -->
+</definition>

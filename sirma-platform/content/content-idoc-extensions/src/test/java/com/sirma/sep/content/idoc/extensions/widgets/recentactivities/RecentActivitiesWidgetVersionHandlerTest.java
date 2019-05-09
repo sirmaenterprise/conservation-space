@@ -20,9 +20,11 @@ import org.junit.Test;
 
 import com.sirma.itt.emf.audit.processor.StoredAuditActivitiesWrapper;
 import com.sirma.itt.emf.audit.processor.StoredAuditActivity;
+import com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties;
 import com.sirma.sep.content.idoc.WidgetResults;
 import com.sirma.sep.content.idoc.WidgetSelectionMode;
 import com.sirma.sep.content.idoc.extensions.widgets.utils.WidgetMock;
+import com.sirma.sep.content.idoc.handler.ContentNodeHandler.HandlerContext;
 import com.sirma.sep.content.idoc.nodes.widgets.recentactivities.RecentActivitiesWidget;
 import com.sirma.sep.content.idoc.nodes.widgets.recentactivities.RecentActivitiesWidgetConfiguration;
 
@@ -60,7 +62,9 @@ public class RecentActivitiesWidgetVersionHandlerTest {
 		Map<String, Object> resultMap = new HashMap<>();
 		resultMap.put("storedActivities", buildSearchResults());
 		resultMap.put("instanceIds", Arrays.asList("instance-id-1", "instance-id-2", "instance-id-3"));
-		handler.processResults(widget, WidgetResults.fromSearch(resultMap), new Date());
+		HandlerContext context = new HandlerContext();
+		context.put(WidgetsHandlerContextProperties.VERSION_DATE_KEY, new Date());
+		handler.processResults(widget, WidgetResults.fromSearch(resultMap), context);
 		RecentActivitiesWidgetConfiguration configuration = widget.getConfiguration();
 		assertNotNull(configuration);
 		assertEquals(WidgetSelectionMode.MANUALLY, configuration.getSelectionMode());

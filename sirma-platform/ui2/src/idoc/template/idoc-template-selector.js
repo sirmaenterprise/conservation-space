@@ -1,10 +1,13 @@
 import {View, Component, Inject, NgScope, NgTimeout} from 'app/app';
 import {TemplateService} from 'services/rest/template-service';
-import 'components/select/instance/instance-select';
 import {ModelUtils} from 'models/model-utils';
-import {ValidationService} from 'form-builder/validation/validation-service';
 import {TemplateRuleUtils} from 'idoc/template/rules/template-rule-utils';
+import {CONTENT_ID} from 'instance/instance-properties';
+
+import 'components/select/instance/instance-select';
+
 import _ from 'lodash';
+
 import template from './idoc-template-selector.html!text';
 
 const DEBOUNCE_INTERVAL = 200;
@@ -26,15 +29,16 @@ const DEBOUNCE_INTERVAL = 200;
   },
   events: ['onTemplateSelected', 'onTemplateContentLoaded']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(TemplateService, NgScope, NgTimeout)
 export class IdocTemplateSelector {
 
   constructor(templateService, $scope, $timeout) {
     this.templateService = templateService;
     this.$timeout = $timeout;
+    // TODO: This debounce is not needed. IMO it was added due to the fact that changing any eligible property value
+    // triggers multiple propertyChanged events with the different attributes being changed and thus the multiple
+    // #loadTemplate invocations. If we listen only for value propertyChange, we can limit invocations to one.
     this.loadTemplatesWithDebounce = _.debounce(this.loadTemplates, DEBOUNCE_INTERVAL);
     this.propertySubscriptions = [];
 
@@ -98,8 +102,11 @@ export class IdocTemplateSelector {
     this.getEligibleFields().forEach(viewModelField => {
       let validationField = this.instanceObject.getModels().validationModel[viewModelField.identifier];
       if (validationField) {
-        this.propertySubscriptions.push(validationField.subscribe('propertyChanged', () => {
-          this.loadTemplatesWithDebounce();
+        this.propertySubscriptions.push(validationField.subscribe('propertyChanged', (evt) => {
+          // trigger loading only when property value get's changed
+          if ('value' in evt) {
+            this.loadTemplates();
+          }
         }));
       }
     });
@@ -125,9 +132,16 @@ export class IdocTemplateSelector {
 
   getTemplatePurpose() {
     if (!this.purpose) {
-      return this.instanceObject.getPurpose();
+      return this.getPurpose();
     }
     return this.purpose;
+  }
+
+  // We need to know whether an persisted object is creatable or uploadable in order to dispalay the correct templates. Persisted
+  // uploadable objects will always have set value in emf:contentId and creatable won't. At the moment we don't have better
+  // mechanism to differentiate between uploadable and creatable persisted objects.
+  getPurpose() {
+    return this.instanceObject.getPropertyValue(CONTENT_ID) ? 'uploadable' : 'creatable';
   }
 
   /**
@@ -154,16 +168,14 @@ export class IdocTemplateSelector {
         }
       });
       this.onTemplateSelected({
-        event: {
-          template: template
-        }
+        event: {template}
       });
       this.templateService.loadContent(templateId).then((response) => {
         let content = response.data;
         this.onTemplateContentLoaded({
           event: {
-            content: content,
-            template: template
+            content,
+            template
           }
         });
       });

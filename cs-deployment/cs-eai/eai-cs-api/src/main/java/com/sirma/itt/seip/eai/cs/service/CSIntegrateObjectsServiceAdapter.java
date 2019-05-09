@@ -193,7 +193,9 @@ public abstract class CSIntegrateObjectsServiceAdapter implements IntegrateObjec
 		if (externalSystemId == null || !getName().equalsIgnoreCase(String.valueOf(externalSystemId))) {
 			return null;
 		}
-		DefinitionModel instanceDefinition = definitionService.getInstanceDefinition(source);
+		String externalType = source.getString(EAIServicesConstants.URI_EXTERNAL_TYPE,
+				() -> source.getString(EAIServicesConstants.PROPERTY_EXTERNAL_TYPE, source.getIdentifier()));
+		DefinitionModel instanceDefinition = definitionService.find(externalType);
 		// cache by uri the properties
 		Optional<PropertyDefinition> externalURI = instanceDefinition
 				.fieldsStream()
@@ -214,7 +216,7 @@ public abstract class CSIntegrateObjectsServiceAdapter implements IntegrateObjec
 		List<Pair<String, Serializable>> sourceSystemId = modelService
 				.provideModelConverter(getName())
 					.convertSEIPtoExternalProperty(EAIServicesConstants.URI_SUB_SYSTEM_ID,
-							properties.get(externalSystem.get().getName()), instanceDefinition.getIdentifier());
+							properties.get(externalSystem.get().getName()), externalType);
 		if (sourceSystemId.isEmpty()) {
 			throw new EAIRuntimeException("Missing required argument source system id for instance: " + source);
 		}

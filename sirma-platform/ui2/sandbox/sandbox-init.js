@@ -26,7 +26,7 @@ function bootstrapSandbox(configuration) {
   paths['services/rest/definition-service'] = 'sandbox/services/rest/definition-service.stub.js';
   paths['services/rest/instance-service'] = 'sandbox/services/rest/instance-service.stub.js';
   paths['services/rest/configurations-service'] = 'sandbox/services/rest/configurations-service.stub.js';
-  paths['services/security/authentication-service'] = 'sandbox/services/security/authentication-service.stub.js';
+  paths['security/authentication-service'] = 'sandbox/security/authentication-service.stub.js';
   paths['services/rest/resources-service'] = 'sandbox/services/rest/resources-service.stub.js';
   paths['services/rest/search-service'] = 'sandbox/services/rest/search-service.stub.js';
   paths['services/rest/relationships-service'] = 'sandbox/services/rest/relationships-service.stub.js';
@@ -45,7 +45,7 @@ function bootstrapSandbox(configuration) {
   paths['services/rest/bpm-service'] = 'sandbox/services/rest/bpm-service.stub.js';
   paths['services/create/create-panel-service'] = 'sandbox/services/create/create-panel-service.stub.js';
   paths['services/rest/role-management-service'] = 'sandbox/services/rest/role-management-service.stub.js';
-  paths['services/identity/user-service'] = 'sandbox/services/identity/user-service.stub.js';
+  paths['security/user-service'] = 'sandbox/security/user-service.stub.js';
   paths['services/rest/eai-service'] = 'sandbox/services/rest/eai-service.stub.js';
   paths['services/rest/label-service'] = 'sandbox/services/rest/label-service.stub.js';
   paths['services/rest/audit-log-service'] = 'sandbox/services/rest/audit-log-service.stub.js';

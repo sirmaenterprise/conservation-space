@@ -32,14 +32,12 @@ import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.StringPair;
 import com.sirma.itt.seip.collections.ContextualMap;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
-import com.sirma.itt.seip.rest.secirity.SecurityTokensHolder;
 import com.sirma.itt.seip.security.UserPreferences;
 import com.sirma.itt.seip.security.util.SecurityUtil;
 import com.sirma.itt.seip.tasks.Schedule;
 
 /**
  * Manager is responsible to synchronize and organize logout process during concurrent invocations.<br>
- * It supports http sessions and sessions for jwt tokens.
  *
  * TODO: refactor to support per user user sessions and to remove dependency from web sessions. <br>
  * TODO: add multi session per user
@@ -70,9 +68,6 @@ public class SessionManager {
 
 	private Map<String, Pair<String, Date>> loggedUsers;
 
-	@Inject
-	private SecurityTokensHolder tokensHolder;
-
 	/**
 	 * Inits the logged in users info timer.
 	 */
@@ -81,9 +76,6 @@ public class SessionManager {
 		sessions.initializeWith(WeakHashMap::new);
 		users = new ConcurrentHashMap<>();
 		loggedUsers = new ConcurrentHashMap<>();
-		tokensHolder.getAll()
-				.forEach(token -> loggedUsers.put(token.getJwt(),
-						new Pair<>(token.getIdentityId(), token.getLoggedInDate())));
 	}
 
 	/**
@@ -139,7 +131,6 @@ public class SessionManager {
 		long timeout = TimeUnit.MINUTES.toMillis(userPreferences.getSessionTimeout());
 		long now = new Date().getTime();
 		cleanUpHttpSessions(timeout, now);
-		cleanUpJwtSessions(timeout, now);
 
 		printLoggedUsers();
 	}
@@ -165,31 +156,6 @@ public class SessionManager {
 				LOGGER.info("Removing user from http session due to {}", e.getMessage());
 				LOGGER.trace(e.getMessage(), e);
 				iterator.remove();
-			}
-		}
-	}
-
-	/**
-	 * Cleans up jwt sessions. Its intended for the new web where jwt tokens are used for authentication.
-	 *
-	 * @param timeout
-	 *            in miliseconds for allowed active user session
-	 * @param now
-	 *            the current time in miliseconds
-	 */
-	private void cleanUpJwtSessions(long timeout, long now) {
-		Iterator<Entry<String, Pair<String, Date>>> iterator = loggedUsers.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<String, Pair<String, Date>> entry = iterator.next();
-			if (now - entry.getValue().getSecond().getTime() >= timeout) {
-				if (userPreferences.shouldRedirectOnSessionTimeout().booleanValue()) {
-					// the user will be redirected to idp and whether the session is active there it will
-					// automatically log the user or will ask for credentials
-					tokensHolder.removeByJwtToken(entry.getKey());
-				}
-				iterator.remove();
-				LOGGER.info("Automatically removed user '{}' due to inactivity in jwt session",
-						entry.getValue().getFirst());
 			}
 		}
 	}

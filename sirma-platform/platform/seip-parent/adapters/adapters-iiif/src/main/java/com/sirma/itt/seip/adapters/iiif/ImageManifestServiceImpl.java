@@ -37,10 +37,11 @@ import org.slf4j.LoggerFactory;
 import com.sirma.itt.seip.configuration.SystemConfiguration;
 import com.sirma.itt.seip.db.DatabaseIdManager;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
-import com.sirma.itt.seip.monitor.Statistics;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.rest.utils.JSON;
 import com.sirma.itt.seip.security.context.SecurityContext;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.util.file.FileUtil;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
@@ -76,8 +77,6 @@ public class ImageManifestServiceImpl implements ImageManifestService {
 	@Inject
 	private SystemConfiguration systemConfiguration;
 	@Inject
-	private Statistics statistics;
-	@Inject
 	private SecurityContext securityContext;
 	@Inject
 	private IiifImageContentStore iiifImageContentStore;
@@ -109,9 +108,8 @@ public class ImageManifestServiceImpl implements ImageManifestService {
 	}
 
 	@Override
+	@Monitored(@MetricDefinition(name = "iiif_manifest_build_duration_seconds", type = Type.TIMER, descr = "IIIF manifest build duration in seconds."))
 	public Manifest getManifest(String manifestId) {
-		TimeTracker tracker = statistics.createTimeStatistics(ImageManifestService.class, "buildManifest").begin();
-
 		ContentInfo content = contentService.getContent(manifestId, MANIFEST_PURPOSE);
 		if (content.exists()) {
 			String imageWidgetID = FileUtil.getName(content.getName());
@@ -121,7 +119,6 @@ public class ImageManifestServiceImpl implements ImageManifestService {
 					instanceIds);
 			JsonObject manifest = buildManifest(imageWidgetID, instanceIds);
 
-			LOGGER.debug("Manifest {} build took {} ms", manifestId, tracker.stop());
 			return new Manifest(new ManifestContent(content, manifest));
 		}
 		// old manifest format for backward compatibility
@@ -420,7 +417,7 @@ public class ImageManifestServiceImpl implements ImageManifestService {
 		public boolean isIndexable() {
 			return false;
 		}
-		
+
 		@Override
 		public String getChecksum() {
 			return null;

@@ -3,7 +3,6 @@ import {Configurable} from 'components/configurable';
 import {IconsService} from 'services/icons/icons-service';
 import {DialogService} from 'components/dialog/dialog-service';
 import {UrlDecorator} from 'layout/url-decorator/url-decorator';
-import {SINGLE_SELECTION} from 'search/search-selection-modes';
 import 'filters/to-trusted-html';
 import _ from 'lodash';
 

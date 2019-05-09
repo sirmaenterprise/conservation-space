@@ -277,7 +277,7 @@ describe('Controlled vocabularies management - validation:', () => {
     descriptionsDialog.getDescriptions().then(descriptions => {
       let description = descriptions[languageIndex];
       description.setName(name);
-      descriptionsDialog.close();
+      descriptionsDialog.confirm();
     });
   }
 

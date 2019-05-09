@@ -1,7 +1,9 @@
 package com.sirma.itt.seip.instance.version.compare;
 
+import java.io.File;
+
 /**
- * Defines specified methods for comparing contents of version instances.
+ * Defines methods for comparing contents of version instances.
  *
  * @author A. Kunchev
  */
@@ -13,8 +15,8 @@ public interface VersionCompareService {
 	 * @param compareContext
 	 *            {@link VersionCompareContext} object the contains the information required for successful execution
 	 *            of compare operation
-	 * @return link to the generated file, which represents the result of the compared contents
+	 * @return {@link File} representing the diff between the versions
 	 */
-	String compareVersionsContent(VersionCompareContext compareContext);
+	File compareVersionsContent(VersionCompareContext compareContext);
 
 }

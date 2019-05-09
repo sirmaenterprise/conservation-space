@@ -1,6 +1,6 @@
 import {View, Component, Inject} from 'app/app';
 import {Eventbus} from 'services/eventbus/eventbus';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {Router} from 'adapters/router/router';

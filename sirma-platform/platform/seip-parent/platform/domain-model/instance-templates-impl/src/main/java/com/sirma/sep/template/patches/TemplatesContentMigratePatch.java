@@ -82,7 +82,7 @@ public class TemplatesContentMigratePatch implements CustomTaskChange {
 
 	private void migrateContents() {
 		// query template identifiers and template location in DMS as dynamic query as the next patch will remove the DMS column
-		List<Object[]> templateIds = dbDao.fetch("select templateid, dmsid from sep_template", CollectionUtils.emptyList());
+		List<Object[]> templateIds = dbDao.fetchWithNative("select templateid, dmsid from sep_template", CollectionUtils.emptyList());
 		LOGGER.info("Initializing content migration for {} templates", templateIds.size());
 
 		templateIds.forEach(templateRow -> {

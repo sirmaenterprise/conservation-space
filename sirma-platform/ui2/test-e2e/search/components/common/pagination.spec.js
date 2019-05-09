@@ -1,5 +1,6 @@
-var Pagination = require('./pagination.js');
-var SandboxPage = require('../../../page-object').SandboxPage;
+let Pagination = require('./pagination.js');
+let SandboxPage = require('../../../page-object').SandboxPage;
+let hasClass = require('../../../test-utils').hasClass;
 
 const PAGINATION_URL = '/sandbox/search/components/common/pagination';
 
@@ -9,8 +10,8 @@ const MULTIPLE_PAGES_PAGINATION = '#multiple-pages';
 
 describe('Pagination', () => {
 
-  var page = new SandboxPage();
-  var pagination;
+  let page = new SandboxPage();
+  let pagination;
 
   beforeEach(() => {
     page.open(PAGINATION_URL);
@@ -29,13 +30,8 @@ describe('Pagination', () => {
     it('Then it should not show first and last buttons', () => {
       pagination = new Pagination($(NO_BUTTONS_PAGINATION));
       pagination.waitUntilOpened();
-
-      element.all(by.css(NO_BUTTONS_PAGINATION + pagination.getFirstPageButtonSelector())).then((items) => {
-        expect(items.length).to.equal(0);
-      });
-      element.all(by.css(NO_BUTTONS_PAGINATION + pagination.getLastPageButtonSelector())).then((items) => {
-        expect(items.length).to.equal(0);
-      });
+      expect(pagination.getFirstPageButton().isPresent()).to.eventually.be.false;
+      expect(pagination.getLastPageButton().isPresent()).to.eventually.be.false;
     });
   });
 
@@ -44,10 +40,10 @@ describe('Pagination', () => {
       pagination = new Pagination($(TWO_PAGES_PAGINATION));
       pagination.waitUntilOpened();
 
-      var firstPage = pagination.getFirstPageButton();
+      let firstPage = pagination.getFirstPageButton();
       expect(firstPage.isDisplayed()).to.eventually.be.true;
 
-      var lastPage = pagination.getLastPageButton();
+      let lastPage = pagination.getLastPageButton();
       expect(lastPage.isDisplayed()).to.eventually.be.true;
     });
   });
@@ -61,29 +57,24 @@ describe('Pagination', () => {
     });
 
     it('Then it should disable first page button if it is the current one', () => {
-      var firstPage = pagination.getFirstPageButton();
-      return firstPage.getAttribute('class').then((classes) => {
-        expect(classes).to.contains(pagination.getDisabledClass());
-        return pagination.goToPage(2);
-      }).then(() => {
-        pagination.waitForActiveButton();
-        return firstPage.getAttribute('class');
-      }).then((classes) => {
-        expect(classes).to.not.contains(pagination.getDisabledClass());
-      });
+      expect(pagination.isFirstPageButtonDisabled()).to.eventually.be.true;
+      expect(pagination.istLastPageButtonDisabled()).to.eventually.be.false;
+      pagination.goToPage(2);
+      expect(pagination.isFirstPageButtonDisabled()).to.eventually.be.false;
+      expect(pagination.istLastPageButtonDisabled()).to.eventually.be.false;
     });
 
     it('Then it should disable last page button if it is the current one', () => {
-      var lastPage = pagination.getLastPageButton();
-      expect(lastPage.getAttribute('class')).to.eventually.not.have.string(pagination.getDisabledClass());
-
+      expect(pagination.isFirstPageButtonDisabled()).to.eventually.be.true;
+      expect(pagination.istLastPageButtonDisabled()).to.eventually.be.false;
       pagination.goToLastPage();
-      expect(lastPage.getAttribute('class')).to.eventually.have.string(pagination.getDisabledClass());
+      expect(pagination.isFirstPageButtonDisabled()).to.eventually.be.false;
+      expect(pagination.istLastPageButtonDisabled()).to.eventually.be.true;
     });
 
     it('Then it should show the active page button', () => {
-      var activeButton = pagination.getPageButton(1);
-      expect(activeButton.getAttribute('class')).to.eventually.have.string('active');
+      let activeButton = pagination.getPageButton(1);
+      expect(hasClass(activeButton, 'active')).to.eventually.be.true;
     });
 
     it('Then it should display only the last 5 pages if the current page is at the end', () => {

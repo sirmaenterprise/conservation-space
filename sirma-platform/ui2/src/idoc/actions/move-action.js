@@ -9,7 +9,6 @@ import {TranslateService} from 'services/i18n/translate-service';
 import {NotificationService} from 'services/notification/notification-service';
 import {DialogService} from 'components/dialog/dialog-service';
 import {StatusCodes} from 'services/rest/status-codes';
-import {InstanceObject} from 'models/instance-object';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {InstanceRestService, EDIT_OPERATION_NAME} from 'services/rest/instance-service';
 import {IDOC_PAGE_ACTIONS_PLACEHOLDER} from 'idoc/idoc-constants';
@@ -139,15 +138,15 @@ export class MoveAction extends InstanceAction {
               }, 0);
             });
         }).catch((error) => {
-        if (error.status === StatusCodes.NOT_ALLOWED) {
-          this.notificationService.warning(this.translateService.translateInstant('action.move.not.allowed.error'));
-        } else if (error.status === StatusCodes.PRECONDITION_FAILED) {
-          this.notificationService.warning(error.data.message);
-        } else {
-          this.notificationService.error(this.translateService.translateInstant('action.move.error'));
-        }
-        reject();
-      });
+          if (error.status === StatusCodes.NOT_ALLOWED) {
+            this.notificationService.warning(this.translateService.translateInstant('action.move.not.allowed.error'));
+          } else if (error.status === StatusCodes.PRECONDITION_FAILED) {
+            this.notificationService.warning(error.data.message);
+          } else {
+            this.notificationService.error(this.translateService.translateInstant('action.move.error'));
+          }
+          reject();
+        });
     } else {
       reject();
     }

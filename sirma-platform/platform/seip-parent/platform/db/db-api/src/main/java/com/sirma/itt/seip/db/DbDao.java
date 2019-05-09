@@ -174,6 +174,25 @@ public interface DbDao {
 	<R, E extends Pair<String, Object>> List<R> fetch(String query, List<E> params, int skip, int limit);
 
 	/**
+	 * Fetch entries from the DB by executing the given native query. This will return all entries matching the query.
+	 *
+	 * IMPORTANT: This is not the recommended way for fetching results but some functionalities may require running native queries for
+	 * tables that cannot be mapped to {@link javax.persistence.Entity}.
+	 * Use {@link #fetch(String, List)} and {@link #fetchWithNamed(String, List)} along with their related methods for general use.
+	 *
+	 * @param <R>
+	 *            the return type
+	 * @param <E>
+	 *            the parameter type
+	 * @param query
+	 *            the query to execute
+	 * @param params
+	 *            the parameters to pass to query
+	 * @return the list of results
+	 */
+	<R, E extends Pair<String, Object>> List<R> fetchWithNative(String query, List<E> params);
+
+	/**
 	 * Execute query update in a transaction.
 	 *
 	 * @param <E>

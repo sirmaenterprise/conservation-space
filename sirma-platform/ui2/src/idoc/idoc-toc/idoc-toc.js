@@ -56,13 +56,17 @@ export class IdocToC {
     // We don't need to rebuild the toc so often.
     let _slowRefresh = _.debounce(this.refresh.bind(this), 500);
     this.events.push(eventbus.subscribe({
-      channel: channel, topic: 'idoc:editor:content-changed', callback: () => {
+      channel,
+      topic: 'idoc:editor:content-changed',
+      callback: () => {
         _slowRefresh();
       }
     }));
 
     this.events.push(eventbus.subscribe({
-      channel: channel, topic: 'idoc:toc:section-moved', callback: (data) => {
+      channel,
+      topic: 'idoc:toc:section-moved',
+      callback: (data) => {
         this.domTree.moveSection(data.uiItem);
       }
     }));
@@ -78,13 +82,17 @@ export class IdocToC {
     }, 250, {'leading': true, 'trailing': false});
 
     this.events.push(eventbus.subscribe({
-      channel: channel, topic: 'idoc:editor:heading-collapsed-expanded', callback: function (data) {
+      channel,
+      topic: 'idoc:editor:heading-collapsed-expanded',
+      callback(data) {
         _collapseExpandSection(data.sectionID);
       }
     }));
 
     this.events.push(eventbus.subscribe({
-      channel: channel, topic: 'idoc:toc:heading-collapsed-expanded', callback: () => {
+      channel,
+      topic: 'idoc:toc:heading-collapsed-expanded',
+      callback: () => {
         this.refresh();
       }
     }));
@@ -95,11 +103,12 @@ export class IdocToC {
      */
     let _mediumRefresh = _.debounce(this.refresh.bind(this), 200, {'leading': true, 'trailing': true});
     this.events.push(eventbus.subscribe({
-      channel: channel, topic: SELECTION_CHANGED_TOPIC, callback: function () {
+      channel,
+      topic: SELECTION_CHANGED_TOPIC,
+      callback() {
         _mediumRefresh();
       }
     }));
-
   }
 
   subscribeAndRefreshToC(id) {

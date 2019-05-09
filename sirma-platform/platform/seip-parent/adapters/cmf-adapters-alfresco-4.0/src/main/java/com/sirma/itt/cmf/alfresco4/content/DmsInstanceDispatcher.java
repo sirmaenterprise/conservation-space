@@ -4,9 +4,7 @@ import java.io.Serializable;
 
 import javax.inject.Inject;
 
-import com.sirma.itt.seip.configuration.ConfigurationProperty;
-import com.sirma.itt.seip.configuration.annotation.Configuration;
-import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
+import com.sirma.itt.seip.adapters.AdaptersConfiguration;
 import com.sirma.itt.seip.domain.instance.DMSInstance;
 import com.sirma.itt.seip.instance.integration.InstanceDispatcher;
 import com.sirma.itt.seip.plugin.Extension;
@@ -22,18 +20,11 @@ import com.sirma.sep.content.Content;
 public class DmsInstanceDispatcher implements InstanceDispatcher {
 
 	@Inject
-	@Configuration
-	@ConfigurationPropertyDefinition(name = "content.store.alfresco4.enabled", defaultValue = "true", type = Boolean.class, sensitive = true, subSystem = "content", label = "Determines if instance primary content should go to Alfresco or to the Local content store")
-	private ConfigurationProperty<Boolean> alfrescoStoreEnabled;
-
-	@Inject
-	@Configuration
-	@ConfigurationPropertyDefinition(name = "content.store.alfresco4view.enabled", defaultValue = "true", type = Boolean.class, sensitive = true, subSystem = "content", label = "Determines if instance primary view should go to Alfresco or to the Local content store")
-	private ConfigurationProperty<Boolean> alfrescoViewStoreEnabled;
+	private AdaptersConfiguration adaptersConfiguration;
 
 	@Override
 	public String getContentManagementSystem(Serializable instance, Content content) {
-		if (instance instanceof DMSInstance && alfrescoStoreEnabled.get()) {
+		if (instance instanceof DMSInstance && adaptersConfiguration.getAlfrescoStoreEnabled().get()) {
 			return Alfresco4ContentStore.STORE_NAME;
 		}
 		return null;
@@ -41,7 +32,7 @@ public class DmsInstanceDispatcher implements InstanceDispatcher {
 
 	@Override
 	public String getViewManagementSystem(Serializable instance, Content content) {
-		if (instance instanceof DMSInstance && alfrescoViewStoreEnabled.get()) {
+		if (instance instanceof DMSInstance && adaptersConfiguration.getAlfrescoViewStoreEnabled().get()) {
 			return Alfresco4ViewContentStore.VIEW_STORE_NAME;
 		}
 		return null;

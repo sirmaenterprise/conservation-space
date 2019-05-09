@@ -13,23 +13,23 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HeaderElement;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -41,9 +41,10 @@ import com.sirma.itt.seip.adapters.AdaptersConfiguration;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.annotation.Configuration;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
-import com.sirma.itt.seip.security.User;
+import com.sirma.itt.seip.resources.security.SecurityTokenService;
+import com.sirma.itt.seip.security.configuration.SecurityConfiguration;
 import com.sirma.itt.seip.security.context.SecurityContext;
-import com.sirma.itt.seip.security.context.SecurityContextManager;
+import com.sirma.itt.seip.security.exception.AuthenticationException;
 import com.sirma.itt.seip.security.util.SecurityUtil;
 
 /**
@@ -97,9 +98,14 @@ public class AlfrescoRESTClient implements RESTClient {
 	@Inject
 	private SecurityContext securityContext;
 	@Inject
-	private SecurityContextManager securityContextManager;
+	private SecurityConfiguration securityConfiguration;
 	@Inject
 	private AdaptersConfiguration configuration;
+
+	@Inject
+	private SecurityTokenService tokenService;
+
+	private Map<String, String> tokensCache = new ConcurrentHashMap<>();
 
 	private transient Supplier<HttpClient> httpClientSupplier = HttpClient::new;
 
@@ -148,7 +154,7 @@ public class AlfrescoRESTClient implements RESTClient {
 		try {
 			HttpClient client = getClient();
 
-			setAuthentication(method, uri, client);
+			setAuthentication(uri, method);
 
 			method.setURI(uri);
 
@@ -205,38 +211,39 @@ public class AlfrescoRESTClient implements RESTClient {
 		}
 	}
 
-	private void setAuthentication(HttpMethod method, Object uri, HttpClient client) {
-		String ticket = null;
-		String username = null;
-		String password = null;
-		if (method.getRequestHeader(SAML_TOKEN) != null) {
-			ticket = method.getRequestHeader(SAML_TOKEN).getValue();
-		} else {
-			User authentication = securityContextManager.getAdminUser();
-			username = SecurityUtil.buildTenantUserId(authentication.getIdentityId(),
-					securityContext.getCurrentTenantId());
-			password = org.apache.commons.lang.StringUtils.trimToNull((String) authentication.getCredentials());
-			ticket = org.apache.commons.lang.StringUtils.trimToNull(authentication.getTicket());
-		}
-
-		if (ticket != null) {
-			// as header does not support \r\n in the middle of the message
-			int size = ticket.length();
-			String ticketUpdated = ticket.replace("\r\n", "\t");
-			if (size == ticketUpdated.length()) {
-				ticketUpdated = ticketUpdated.replace("\r", "\t").replace("\n", "\t");
+	/**
+	 * Sets HTTP Basic authentication for the given HttpMethod by adding authorization header. Uses tenant admin
+	 * credentials.
+	 *
+	 * @param uri the remote uri
+	 * @param method the http method in which to set authorization
+	 */
+	private void setAuthentication(Object uri, HttpMethod method) {
+		String username = getAdminUserName();
+		String token = tokensCache.computeIfAbsent(username, user -> {
+			try {
+				String samlToken = tokenService.requestToken(username, getAdminPassword());
+				byte[] encryptedToken = SecurityUtil
+						.encrypt(Base64.decodeBase64(samlToken), securityConfiguration.getCryptoKey().get());
+				return new String(Base64.encodeBase64(encryptedToken), StandardCharsets.UTF_8);
+			} catch (Exception e) {
+				throw new AuthenticationException(username, "Security token request failed", e);
 			}
-			// add the saml ticket
-			method.addRequestHeader(SAML_TOKEN, ticketUpdated);
-			LOGGER.trace("INVOKING WEBSCRIPT @ {} user: {} token: PROTECTED", uri, username);
-		} else if (username != null && password != null) {
-			setDefaultCredentials(client, username, password);
-			LOGGER.trace("INVOKING WEBSCRIPT @ {} user: {} pass: PROTECTED", uri, username);
-		} else {
-			// we still could login without login information? - depends on
-			// alfresco security plan
-			LOGGER.warn("Unauthenticated request to {}", uri);
+		});
+
+		method.addRequestHeader(SAML_TOKEN, token);
+		LOGGER.trace("INVOKING WEBSCRIPT @ {} user: {}", uri, username);
+	}
+
+	private String getAdminUserName() {
+		if (securityContext.isSystemTenant()) {
+			return securityConfiguration.getSystemAdminUsername();
 		}
+		return securityConfiguration.getAdminUserName().get();
+	}
+
+	private String getAdminPassword() {
+		return securityConfiguration.getAdminUserPassword().get();
 	}
 
 	/**
@@ -439,29 +446,6 @@ public class AlfrescoRESTClient implements RESTClient {
 	 */
 	void setClient(Supplier<HttpClient> httpClientSupplier) {
 		this.httpClientSupplier = httpClientSupplier;
-	}
-
-	/**
-	 * Initialize user credentials for the given host and port.
-	 *
-	 * @param client
-	 *            to set auth context for
-	 * @param user
-	 *            is the user name
-	 * @param password
-	 *            is the password for the given user name
-	 */
-	public void setDefaultCredentials(HttpClient client, String user, String password) {
-		java.net.URI address = configuration.getDmsAddress().get();
-		if (address == null) {
-			throw new IllegalArgumentException("DMS address is not defined!");
-		}
-		if (user != null) {
-			HttpState httpState = new HttpState();
-			httpState.setCredentials(new AuthScope(address.getHost(), address.getPort()),
-					new UsernamePasswordCredentials(user, password));
-			client.setState(httpState);
-		}
 	}
 
 	/**

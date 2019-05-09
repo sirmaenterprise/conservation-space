@@ -56,13 +56,13 @@ public class RegionDefinition {
 	/** The fields. */
 	protected ComplexFieldsDefinition fields;
 
-	/** The order. */
-	@XmlAttribute(name = "order")
-	protected BigInteger order;
-
 	/** The id. */
 	@XmlAttribute(name = "id", required = true)
 	protected String id;
+
+	/** The order. */
+	@XmlAttribute(name = "order")
+	protected BigInteger order;
 
 	/** The display type. */
 	@XmlAttribute(name = "displayType")
@@ -117,6 +117,10 @@ public class RegionDefinition {
 			condition = new ArrayList<>();
 		}
 		return condition;
+	}
+
+	public void setCondition(List<ConditionDefinition> condition) {
+		this.condition = condition;
 	}
 
 	/**

@@ -18,7 +18,7 @@ export class SuspendCommentAction extends ActionHandler {
     comment.removeActions();
     let config = {
       instanceId: comment.getId(),
-      comment: comment,
+      comment,
       content: comment.getComment()
     };
     return context.config.dataProvider.updateComment(config).then(() => {

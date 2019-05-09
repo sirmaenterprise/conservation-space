@@ -33,6 +33,10 @@ PluginRegistry.add('actions',
     module: 'idoc/actions/clone-action',
     forceRefresh: true
   }, {
+    name: 'changeTypeAction',
+    module: 'idoc/actions/change-type/change-type-action',
+    forceRefresh: true
+  }, {
     name: 'deleteAction',
     module: 'idoc/actions/delete-action',
     forceRefresh: true

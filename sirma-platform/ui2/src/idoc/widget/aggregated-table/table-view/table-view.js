@@ -1,6 +1,6 @@
 import {Component, View, Inject, NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
-import {FormWrapper} from 'form-builder/form-wrapper';
+import 'form-builder/form-wrapper';
 import tableViewTemplate from 'idoc/widget/aggregated-table/table-view/table-view.html!text';
 import './table-view.css!';
 

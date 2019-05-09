@@ -82,6 +82,10 @@ public class ControlDefinition {
 		return controlParam;
 	}
 
+	public void setControlParam(List<ControlParam> controlParam) {
+		this.controlParam = controlParam;
+	}
+
 	/**
 	 * Gets the value of the uiParam property.
 	 * <p>
@@ -104,6 +108,10 @@ public class ControlDefinition {
 			uiParam = new ArrayList<>();
 		}
 		return uiParam;
+	}
+
+	public void setUiParam(List<UiParam> uiParam) {
+		this.uiParam = uiParam;
 	}
 
 	/**

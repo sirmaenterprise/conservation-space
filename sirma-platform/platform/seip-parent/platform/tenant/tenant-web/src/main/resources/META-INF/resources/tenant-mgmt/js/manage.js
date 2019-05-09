@@ -1,4 +1,4 @@
-$(document).ready(function () {
+function ManageController() {
 
     /**
      * Query the tenant status.
@@ -7,22 +7,25 @@ $(document).ready(function () {
      *        the tenant id
      * @param successCallback
      *        callback function called when the process has been finished
+     * @param failCallback
+     *        callback function called when the process fails
      */
-    function queryStatus(tenantId, successCallback) {
+    function queryStatus(tenantId, successCallback, failCallback) {
         $.ajax({
             type: 'GET',
             url: '../service/tenant/status/' + tenantId,
             statusCode: {
                 202: function () {
                     setTimeout(function () {
-                        queryStatus(tenantId, successCallback)
+                        queryStatus(tenantId, successCallback, failCallback);
                     }, 1000);
                 },
                 200: function () {
                     successCallback(tenantId);
                 },
                 500: function (data) {
-                	showError(tenantId + " deletion failed due to " + data.responseText);
+                    showError(tenantId + " deletion failed due to " + data.responseText);
+                    failCallback(tenantId);
                 }
             }
         });
@@ -65,25 +68,40 @@ $(document).ready(function () {
                 async: true,
                 processData: false,
                 contentType: false,
+                beforeSend : function() {
+                    addProcessIndication(tenantId);
+                },
                 statusCode: {
-		           	200: function (data) {
-		           		queryStatus(tenantId, markTenantRowAsDeleted);
-		            },
-		            500: function (data) {
-		            	showError(data.responseText);
-		            }
+                    200: function (data) {
+		           		queryStatus(tenantId, markTenantRowAsDeleted, removeProcessIndication);
+                    },
+                    500: function (data) {
+                        showError(data.responseText);
+                        removeProcessIndication(tenantId);
+                    }
                }
             });
-           
         });
-
+    }
+    
+    function addProcessIndication(tenantId) {
+        $("#process-" + escapeTenantId(tenantId)).append("<div class='loader' />");
+        $("#delete").addClass('disabled').attr('title',  'Disabled until tenant ' + tenantId + ' is processed.');
+    }
+    
+    /**
+     * Removes the progress indicator from the row and enables tenant delete button.
+     */
+    function removeProcessIndication(tenantId) {
+        $("#process-" + escapeTenantId(tenantId)).empty();
+        $("#delete").removeClass('disabled').removeAttr('title');
     }
 
     function showError(message) {
-	    $("#errorMessage").text(message);
+	    $("#errorMessage").html(message);
 	    $("#errorDialog").modal("show");
     }
-    
+
     /**
      * Mark the tenant row as deleted. Change it's color, lock it and change the status to deleted.
      *
@@ -91,6 +109,7 @@ $(document).ready(function () {
      *        the tenant id
      */
     function markTenantRowAsDeleted(tenantId) {
+        removeProcessIndication(tenantId);
         var row = $("#" + escapeTenantId(tenantId));
         row.addClass("danger");
         lockTenant(row);
@@ -102,7 +121,7 @@ $(document).ready(function () {
      */
     function getSelectedTenantIds() {
         var tenantIds = [];
-        var selectedRows = $("#tenant-table-body").find('tr input[type="checkbox"]:checked').closest("tr");
+        var selectedRows = $("#tenant-table-body").find('tr input[type="radio"]:checked').closest("tr");
         _.forEach(selectedRows, function (row) {
             tenantIds.push($(row).find("#tenantId").text());
         });
@@ -126,9 +145,15 @@ $(document).ready(function () {
         success: function (data) {
             var tenantTable = $("#tenant-table-body");
             _.forEach(data, function (tenant) {
-                var row = $("<tr data-toggle='tooltip' id='" + escapeTenantId(tenant.tenantId) + "'><td><input type='checkbox' value=''></td>");
+                var escapedTenantId = escapeTenantId(tenant.tenantId);
+                var row = $("<tr data-toggle='tooltip' id='" + escapedTenantId + "'><td><input type='radio' name='tenants' value=''></td>");
                 row.append("<td id='tenantId'>" + tenant.tenantId + "</td>");
-                row.append("<td>" + tenant.description + "</td>");
+                row.append("<td>" + tenant.displayName + "</td>");
+                if (tenant.description) {
+                    row.append("<td>" + tenant.description + "</td>");
+                } else {
+                    row.append("<td></td>");
+                }
                 if (tenant.status === "DELETED") {
                     row.addClass('danger');
                     row.attr('title', "This tenant has been deleted and it's tenant id will be reusable on next server restart.");
@@ -141,7 +166,7 @@ $(document).ready(function () {
                     row.addClass('warning');
                 }
                 row.append("<td id='tenantStatus'>" + tenant.status + "</td>");
-
+                row.append("<td id='process-" + escapedTenantId + "'></td>");
                 tenantTable.append(row);
 
             });
@@ -161,5 +186,5 @@ $(document).ready(function () {
             });
         }
     });
-    
-});
+
+}

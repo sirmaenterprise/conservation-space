@@ -117,11 +117,19 @@ public class ConditionalExpressionEvaluator extends BaseEvaluator {
 			return Optional.empty();
 		}
 
-		String first = matcher.group(1);
+		String first = normalizeValue(matcher.group(1));
 		String sign = matcher.group(2);
-		String second = matcher.group(3);
+		String second = normalizeValue(matcher.group(3));
 		BiFunction<String, String, Boolean> biFunction = getComputationChain().execute(sign);
 		return Optional.of(biFunction.apply(first, second));
+	}
+
+	// make sure the empty string values are treated as nulls
+	private String normalizeValue(String value) {
+		if (StringUtils.isBlank(value)) {
+			return "null";
+		}
+		return value;
 	}
 
 	/**

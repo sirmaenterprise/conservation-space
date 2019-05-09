@@ -17,6 +17,7 @@ import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.db.RelationDbProvisioning;
 import com.sirma.itt.seip.tenant.db.TenantRelationalContext;
 import com.sirma.itt.seip.tenant.step.AbstractTenantRelationalStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -76,7 +77,8 @@ public class TenantAuditStep extends AbstractTenantRelationalStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
+		TenantInfo tenantInfo = context.getTenantInfo();
 		TenantRelationalContext relationalContext = getRelationalContext(auditDatabaseConfigurations,
 				auditDbProvisioning.getDatasourceName(tenantInfo), tenantInfo);
 		try {

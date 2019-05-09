@@ -1,4 +1,3 @@
-
 PluginRegistry.add('settings-menu', {
   'order': 30,
   'name': 'seip-settings-preferences',

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -28,6 +27,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -138,25 +138,26 @@ public class HTTPRepositoryManager implements RepositoryManagement {
 				configuration.getAddress().getScheme());
 	}
 
-	protected static BiFunction<Integer, HttpResponse, HttpResponse> errorIfNot(int... code) {
-		return (i, r) -> {
+	protected static ResponseHandler<HttpResponse> errorIfNot(int... code) {
+		return response -> {
+			int status = response.getStatusLine().getStatusCode();
 			boolean matchFound = false;
 			for (int j : code) {
-				if (i.intValue() == j) {
+				if (status == j) {
 					matchFound = true;
 					break;
 				}
 			}
 			if (!matchFound) {
-				throw new EmfRuntimeException("Could not contact semantic repository! Response: " + r);
+				throw new EmfRuntimeException("Could not contact semantic repository! Response: " + response);
 			}
-			return r;
+			return response;
 		};
 	}
 
 	@SuppressWarnings("boxing")
 	protected <T> T executeHttpRequest(HttpUriRequest post, HttpClientContext context, HttpHost targetHost,
-			BiFunction<Integer, HttpResponse, T> statusCodeConsumer) {
+			ResponseHandler<T> statusCodeConsumer) {
 		return httpClient.execute(post, context, targetHost, statusCodeConsumer);
 	}
 
@@ -243,9 +244,10 @@ public class HTTPRepositoryManager implements RepositoryManagement {
 	 * @return the bi function
 	 */
 	@SuppressWarnings("boxing")
-	private static <T> BiFunction<Integer, HttpResponse, T> parseResponse(Function<String, T> parser, T defaultValue,
+	private static <T> ResponseHandler<T> parseResponse(Function<String, T> parser, T defaultValue,
 			Supplier<String> errorMessage) {
-		return (Integer statusCode, HttpResponse response) -> {
+		return response -> {
+			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode == 404 || statusCode != 200) {
 				return defaultValue;
 			}

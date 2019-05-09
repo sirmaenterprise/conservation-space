@@ -87,6 +87,16 @@ public class MailConfiguration {
 	 */
 	public static final String SSL_PROTOCOLS = "ssl.protocols";
 
+	/**
+	 * If set, specifies that authentication should be used for communication with that username.
+	 */
+	public static final String USERNAME = "username";
+
+	/**
+	 * Specifies the password used if authentication is set.
+	 */
+	public static final String PASSWORD = "password"; // NOSONAR
+
 	static final String DEFAULT_SSL_SOCKET_FACTORY = "com.sun.mail.util.MailSSLSocketFactory";
 	static final String DEFAULT_SSL_TRUST_ZONE = "*";
 	static final String SECURITY_TYPE_NO_SECURITY = "NO";

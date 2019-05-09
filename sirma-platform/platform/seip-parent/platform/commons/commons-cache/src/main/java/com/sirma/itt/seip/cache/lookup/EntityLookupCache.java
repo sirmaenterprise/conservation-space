@@ -37,7 +37,7 @@ import com.sirma.itt.seip.cache.SimpleCache;
  * @author Derek Hulley
  * @since 3.2
  */
-public class EntityLookupCache<K extends Serializable, V extends Object, S extends Serializable>
+public class EntityLookupCache<K extends Serializable, V, S extends Serializable>
 		implements Destroyable {
 
 	/**
@@ -59,6 +59,8 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 	private final EntityLookupCallbackDAO<K, V, S> entityLookup;
 
 	private final String cacheRegion;
+
+	private boolean secondaryKeyEnabled = false;
 
 	/**
 	 * Construct the lookup cache <b>without any cache</b>. All calls are passed directly to the underlying DAO entity
@@ -103,6 +105,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 		this.cache = cache;
 		this.cacheRegion = cacheRegion;
 		this.entityLookup = entityLookup;
+		secondaryKeyEnabled = entityLookup.isSecondaryKeyEnabled();
 	}
 
 	/**
@@ -146,14 +149,16 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 			cache.put(keyCacheKey, VALUE_NOT_FOUND);
 		} else {
 			value = entityPair.getSecond();
-			// Get the value key
-			S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
-			// Check if the value has a good key
-			if (valueKey != null) {
-				CacheRegionValueKey valueCacheKey = new CacheRegionValueKey(cacheRegion, valueKey);
-				// The key is good, so we can cache the value
-				// BB: the callback could change the key
-				cache.put(valueCacheKey, entityPair.getFirst());
+			if (secondaryKeyEnabled) {
+				// Get the value key
+				S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
+				// Check if the value has a good key
+				if (valueKey != null) {
+					CacheRegionValueKey valueCacheKey = new CacheRegionValueKey(cacheRegion, valueKey);
+					// The key is good, so we can cache the value
+					// BB: the callback could change the key
+					cache.put(valueCacheKey, entityPair.getFirst());
+				}
 			}
 			// update the cache key if the callback update the key
 			if (!key.equals(entityPair.getFirst())) {
@@ -197,6 +202,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 	 */
 	@SuppressWarnings("unchecked")
 	public Pair<K, V> getByValue(V value) { // NOSONAR
+		checkIsSecondaryKeyEnabled();
 		// Handle missing cache
 		if (cache == null) {
 			return entityLookup.findByValue(value);
@@ -241,6 +247,12 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 		return entityPair;
 	}
 
+	private void checkIsSecondaryKeyEnabled() {
+		if (!secondaryKeyEnabled) {
+			throw new IllegalStateException("Secondary key look up is not enabled!");
+		}
+	}
+
 	/**
 	 * Find the entity associated with the given value and create it if it doesn't exist. The
 	 * {@link EntityLookupCallbackDAO#findByValue(Object)} and {@link EntityLookupCallbackDAO#createValue(Object)} will
@@ -252,6 +264,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 	 */
 	@SuppressWarnings("unchecked")
 	public Pair<K, V> getOrCreateByValue(V value) { // NOSONAR
+		checkIsSecondaryKeyEnabled();
 		// Handle missing cache
 		if (cache == null) {
 			Pair<K, V> entityPair = entityLookup.findByValue(value);
@@ -329,13 +342,15 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 			return updateCount;
 		}
 
-		// Get the value key.
-		S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
-		// Check if the value has a good key
-		if (valueKey != null) {
-			// There is a good value key, cache by value
-			CacheRegionValueKey valueCacheKey = new CacheRegionValueKey(cacheRegion, valueKey);
-			cache.put(valueCacheKey, key);
+		if (secondaryKeyEnabled) {
+			// Get the value key.
+			S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
+			// Check if the value has a good key
+			if (valueKey != null) {
+				// There is a good value key, cache by value
+				CacheRegionValueKey valueCacheKey = new CacheRegionValueKey(cacheRegion, valueKey);
+				cache.put(valueCacheKey, key);
+			}
 		}
 		// Cache by key
 		cache.put(new CacheRegionKey(cacheRegion, key), value == null ? VALUE_NULL : value);
@@ -353,7 +368,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 	@SuppressWarnings("unchecked")
 	public K getKey(S valueKey) {
 		// handle missing cache
-		if (cache == null) {
+		if (cache == null || !isSecondaryKeyEnabled()) {
 			return null;
 		}
 		// There is a good value key, cache by value
@@ -364,6 +379,40 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 			key = null;
 		}
 		return key;
+	}
+
+	/**
+	 * Cache-only operation: Update the cache's value.
+	 *
+	 * @param key
+	 *            The entity key, which may be valid or invalid (<tt>null</tt> not allowed)
+	 * @param value
+	 *            The new entity value (may be <tt>null</tt>)
+	 */
+	@SuppressWarnings("unchecked")
+	public void setValue(K key, V value) {
+		// Handle missing cache
+		if (cache == null) {
+			return;
+		}
+
+		// Remove entries for the key (bidirectional removal removes the old
+		// value as well)
+		removeByKey(key);
+
+		if (isSecondaryKeyEnabled()) {
+			// Get the value key.
+			S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
+			// Check if the value has a good key
+			if (valueKey != null) {
+				// There is a good value key, cache by value
+				CacheRegionValueKey valueCacheKey = new CacheRegionValueKey(cacheRegion, valueKey);
+				cache.put(valueCacheKey, key);
+			}
+		}
+		// Cache by key
+		cache.put(new CacheRegionKey(cacheRegion, key), value == null ? VALUE_NULL : value);
+		// Done
 	}
 
 	/**
@@ -392,38 +441,6 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 		} else {
 			return value;
 		}
-	}
-
-	/**
-	 * Cache-only operation: Update the cache's value.
-	 *
-	 * @param key
-	 *            The entity key, which may be valid or invalid (<tt>null</tt> not allowed)
-	 * @param value
-	 *            The new entity value (may be <tt>null</tt>)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setValue(K key, V value) {
-		// Handle missing cache
-		if (cache == null) {
-			return;
-		}
-
-		// Remove entries for the key (bidirectional removal removes the old
-		// value as well)
-		removeByKey(key);
-
-		// Get the value key.
-		S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
-		// Check if the value has a good key
-		if (valueKey != null) {
-			// There is a good value key, cache by value
-			CacheRegionValueKey valueCacheKey = new CacheRegionValueKey(cacheRegion, valueKey);
-			cache.put(valueCacheKey, key);
-		}
-		// Cache by key
-		cache.put(new CacheRegionKey(cacheRegion, key), value == null ? VALUE_NULL : value);
-		// Done
 	}
 
 	/**
@@ -461,6 +478,9 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 	 * @return Returns the row deletion count
 	 */
 	public int deleteByValue(V value) {
+		if (!secondaryKeyEnabled) {
+			return 0;
+		}
 		// Handle missing cache
 		if (cache == null) {
 			return entityLookup.deleteByValue(value);
@@ -488,7 +508,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 
 		CacheRegionKey keyCacheKey = new CacheRegionKey(cacheRegion, key);
 		V value = (V) cache.get(keyCacheKey);
-		if (value != null && !value.equals(VALUE_NOT_FOUND) && !value.equals(VALUE_NULL)) {
+		if (isSecondaryKeyEnabled() && value != null && !value.equals(VALUE_NOT_FOUND) && !value.equals(VALUE_NULL)) {
 			// Get the value key and remove it
 			S valueKey = entityLookup.getValueKey(value);
 			if (valueKey != null) {
@@ -511,6 +531,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 		if (cache == null) {
 			return;
 		}
+		checkIsSecondaryKeyEnabled();
 
 		// Get the value key
 		S valueKey = value == null ? (S) VALUE_NULL : entityLookup.getValueKey(value);
@@ -560,7 +581,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 			return Collections.emptySet();
 		}
 		try (Stream<Serializable> keys = cache.getKeys()) {
-			return keys.filter(k -> k instanceof CacheRegionKey).map(k -> (K) ((CacheRegionKey) k).getCacheKey()).collect(
+			return keys.filter(CacheRegionKey.class::isInstance).map(k -> (K) ((CacheRegionKey) k).getCacheKey()).collect(
 					Collectors.toSet());
 		}
 	}
@@ -573,15 +594,24 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 	@SuppressWarnings("unchecked")
 	public Set<S> secondaryKeys() {
 		// Handle missing cache
-		if (cache == null) {
+		if (cache == null || !secondaryKeyEnabled) {
 			return Collections.emptySet();
 		}
 		try (Stream<Serializable> keys = cache.getKeys()) {
 			return keys
-					.filter(k -> k instanceof CacheRegionValueKey)
+					.filter(CacheRegionValueKey.class::isInstance)
 						.map(k -> (S) ((CacheRegionValueKey) k).getCacheValueKey())
 						.collect(Collectors.toSet());
 		}
+	}
+
+	public boolean isSecondaryKeyEnabled() {
+		return secondaryKeyEnabled;
+	}
+
+	public EntityLookupCache<K, V, S> setSecondaryKeyEnabled(boolean secondaryKeyEnabled) {
+		this.secondaryKeyEnabled = secondaryKeyEnabled;
+		return this;
 	}
 
 	/**
@@ -622,7 +652,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 
 		@Override
 		public String toString() {
-			return new StringBuilder(cacheRegion).append(".").append(cacheKey).toString();
+			return cacheRegion + "." + cacheKey;
 		}
 
 		@Override
@@ -680,7 +710,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, S exten
 
 		@Override
 		public String toString() {
-			return new StringBuilder().append(cacheRegion).append(".").append(cacheValueKey).toString();
+			return cacheRegion + "." + cacheValueKey;
 		}
 
 		@Override

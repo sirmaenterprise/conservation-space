@@ -60,8 +60,8 @@ public interface PropertyDefinition
 	 * @see DataTypeDefinition
 	 */
 	static Predicate<PropertyDefinition> hasType(String typeName) {
-		return property -> nullSafeEquals(property.getDataType().getName(), typeName, true)
-				|| nullSafeEquals(property.getType(), typeName, true);
+		return property -> (property.getDataType() != null && nullSafeEquals(property.getDataType().getName(), typeName, true))
+					|| nullSafeEquals(property.getType(), typeName, true);
 	}
 
 	/**
@@ -207,14 +207,21 @@ public interface PropertyDefinition
 	DataTypeDefinition getDataType();
 
 	/**
-	 * Checks if is override.
+	 * Checks if is override. This could return a default value if it is <code>null</code>
 	 *
-	 * @return true, if is override
+	 * @return <code>true</code> if is override or <code>false</code> if it is not
 	 */
 	Boolean isOverride();
 
 	/**
-	 * Checks if is multi valued.
+	 * Checks if is override. This respects if the value is <code>null</code>
+	 *
+	 * @return <code>true</code> if is override, <code>false</code> if it is not or <code>null</code> if there is no defined value
+	 */
+	Boolean getOverride();
+
+	/**
+	 * Checks if is multi valued. This could return a default value if it is <code>null</code>
 	 *
 	 * @return true =&gt; multi-valued, false =&gt; single-valued
 	 */
@@ -222,11 +229,25 @@ public interface PropertyDefinition
 	Boolean isMultiValued();
 
 	/**
-	 * Checks if is mandatory.
+	 * Returns if this property is multivalued. This respects if the value is <code>null</code>
+	 *
+	 * @return <code>true</code> if the property is multivalued, <code>false</code> if it is not or <code>null</code> if there is no defined value
+	 */
+	Boolean getMultiValued();
+
+	/**
+	 * Checks if is mandatory. This could return a default value if it is <code>null</code>
 	 *
 	 * @return true =&gt; mandatory, false =&gt; optional
 	 */
 	Boolean isMandatory();
+
+	/**
+	 * Returns if this property is mandatory. This respects if the value is <code>null</code>
+	 *
+	 * @return <code>true</code> if the property is mandatory, <code>false</code> if it is not or <code>null</code> if there is no defined value
+	 */
+	Boolean getMandatory();
 
 	/**
 	 * Checks if is mandatory enforced.
@@ -264,6 +285,13 @@ public interface PropertyDefinition
 	 * @return Whether the field should be rendered if is empty.
 	 */
 	Boolean isPreviewEnabled();
+
+	/**
+	 * Returns if this property should be displayed if it is empty. This respects if the value is <code>null</code>
+	 *
+	 * @return <code>true</code> if the property should be displayed if empty, <code>false</code> if not or <code>null</code> if there is no defined value
+	 */
+	Boolean getPreviewEmpty();
 
 	/**
 	 * Gets the property revision.

@@ -2,6 +2,7 @@ import {View, Component, Inject, NgElement, NgTimeout} from 'app/app';
 import {FormControl} from 'form-builder/form-control';
 import {DEFAULT_VALUE_PATTERN} from 'form-builder/validation/calculation/calculation';
 import {IdocEditorChangeListener} from 'idoc/editor/idoc-editor-change-listener';
+import {IdocEditorContentProcessor} from 'idoc/editor/content/idoc-editor-content-processor';
 import {TranslateService} from 'services/i18n/translate-service';
 import {ModelUtils} from 'models/model-utils';
 import uuid from 'common/uuid';
@@ -10,6 +11,7 @@ import './rich-text.css!css';
 import template from './rich-text.html!text';
 
 const EDITOR_TOOLBAR = 'richtext-field-editor-toolbar';
+const EDITOR_TEXT_STYLE_CONFIG = 'richtext-field-text-style-config';
 
 @Component({
   selector: 'seip-rich-text',
@@ -21,10 +23,10 @@ const EDITOR_TOOLBAR = 'richtext-field-editor-toolbar';
 @View({
   template
 })
-@Inject(TranslateService, NgTimeout, NgElement)
+@Inject(TranslateService, NgTimeout, NgElement, IdocEditorContentProcessor)
 export class RichText extends FormControl {
 
-  constructor(translateService, $timeout, $element) {
+  constructor(translateService, $timeout, $element, idocEditorContentProcessor) {
     super();
     this.$element = $element;
     this.$timeout = $timeout;
@@ -32,6 +34,7 @@ export class RichText extends FormControl {
     this.fieldIdentifier = uuid();
     this.compositeFieldId = this.objectId + this.identifier;
     this.idocEditorChangeListener = new IdocEditorChangeListener({});
+    this.idocEditorContentProcessor = idocEditorContentProcessor;
   }
 
   ngOnInit() {
@@ -39,78 +42,91 @@ export class RichText extends FormControl {
   }
 
   ngAfterViewInit() {
-
-    // configure ckeditor to wrap lines in paragraphs
-    CKEDITOR.dtd.$cdata.p = 1;
-
     CKEDITOR.disableAutoInline = true;
 
-    this.editor = CKEDITOR.inline(this.fieldIdentifier, {
-      language: this.translateService.getCurrentLanguage(),
-      colorButton_foreStyle: {
-        element: 'span',
-        styles: {'color': '#(color)', '-webkit-text-fill-color': '#(color)'},
-        overrides: [{element: 'font', attributes: {'color': null}}]
-      },
-      colorButton_backStyle: {
-        element: 'span',
-        styles: {'background-color': '#(color) !important'},
-        overrides: {element: 'span'}
-      },
-      toolbar: RichText.getEditorConfig(),
-      extraPlugins: 'undo',
-      allowedContent: true,
-      title: false
-    });
-
-    this.editor.on('instanceReady', () => {
-      this.editor.container.addClass(this.getCompositeFieldId());
-
-      if (this.isPreviewField() || this.isPrintField()) {
-        this.makeReadonly(true);
-      }
-
-      let valueToSet = this.validationModel[this.identifier].value;
-      if (this.getRichtextValue()) {
-        valueToSet = this.getRichtextValue();
-      }
-      // Set as updating when initializing the field to prevent to be marked as editedByUser. The updating
-      // flag is later properly switched as needed.
-      this.updating = true;
-      this.editor.setData(valueToSet, {
-        callback: () => {
-          this.updating = false;
+    if ($(`#${this.fieldIdentifier}`).length) {
+      this.editor = CKEDITOR.inline(this.fieldIdentifier, {
+        language: this.translateService.getCurrentLanguage(),
+        colorButton_foreStyle: {
+          element: 'span',
+          styles: {'color': '#(color)', '-webkit-text-fill-color': '#(color)'},
+          overrides: [{element: 'font', attributes: {'color': null}}]
+        },
+        colorButton_backStyle: {
+          element: 'span',
+          styles: {'background-color': '#(color) !important'},
+          overrides: {element: 'span'}
+        },
+        toolbar: RichText.getEditorConfig(),
+        extraPlugins: 'undo,dropdownmenumanager',
+        allowedContent: true,
+        title: false,
+        dropdownmenumanager: {
+          'TextStyle': this.getTextStylePluginConfig()
         }
       });
 
-      // Store the original value in separate attribute to have it when object is going to be saved, where the stored
-      // richtext value is extracted from it and put in the changeset if the field's actually changed.
-      if (!this.getRichtextValue()) {
-        this.setRichtextValue(this.validationModel[this.identifier].value);
-      }
+      this.editor.on('instanceReady', () => {
+        this.editor.container.addClass(this.getCompositeFieldId());
 
-      let parentEditorId = this.$element.closest('.idoc-editor').attr('id');
-      if (parentEditorId) {
-        this.editor.on('focus', () => {
-          CKEDITOR.instances[parentEditorId].setReadOnly(true);
-        });
-
-        this.editor.on('blur', () => {
-          CKEDITOR.instances[parentEditorId].setReadOnly(false);
-        });
-
-        if (CKEDITOR.env.chrome || CKEDITOR.env.safari) {
-          this.attachToolbarListeners();
+        if (this.isPreviewField() || this.isPrintField()) {
+          this.makeReadonly(true);
+          this.hideToolbar();
         }
 
-        if (CKEDITOR.env.chrome) {
-          // Get range when selection is made using keyboard only
-          this.editor.on('selectionChange', () => {
-            this.ranges = this.editor.getSelection().getRanges();
+        let valueToSet = this.validationModel[this.identifier].value;
+        if (this.getRichtextValue()) {
+          valueToSet = this.getRichtextValue();
+        }
+        valueToSet = this.idocEditorContentProcessor.preprocessContent(this.editor, valueToSet);
+
+        // Set as updating when initializing the field to prevent to be marked as editedByUser. The updating
+        // flag is later properly switched as needed.
+        this.updating = true;
+        this.editor.setData(valueToSet, {
+          callback: () => {
+            this.updating = false;
+          }
+        });
+
+        // Store the original value in separate attribute to have it when object is going to be saved, where the stored
+        // richtext value is extracted from it and put in the changeset if the field's actually changed.
+        if (!this.getRichtextValue()) {
+          this.setRichtextValue(this.validationModel[this.identifier].value);
+        }
+
+        // After changes in undo plugin, afterCommandExecute is not fired anymore, so and
+        // the editor change event. That's why I need to listen for more reliable event
+        // in order to reflect editor data changes in the model.
+        if (!this.isPreviewField()) {
+          this.editor.on('selectionChange', (evt) => {
+            this.editorDataChangeHandler(evt);
           });
         }
-      }
-    });
+
+        let parentEditorId = this.$element.closest('.idoc-editor').attr('id');
+        if (parentEditorId) {
+          this.editor.on('focus', () => {
+            CKEDITOR.instances[parentEditorId].setReadOnly(true);
+          });
+
+          this.editor.on('blur', () => {
+            CKEDITOR.instances[parentEditorId].setReadOnly(false);
+          });
+
+          if (CKEDITOR.env.chrome || CKEDITOR.env.safari) {
+            this.attachToolbarListeners();
+          }
+
+          if (CKEDITOR.env.chrome) {
+            // Get range when selection is made using keyboard only
+            this.editor.on('selectionChange', () => {
+              this.ranges = this.editor.getSelection().getRanges();
+            });
+          }
+        }
+      });
+    }
 
     if (this.isEditField()) {
       this.initForEdit();
@@ -132,18 +148,30 @@ export class RichText extends FormControl {
   }
 
   attachToolbarListeners() {
-    $('.' + this.editor.id).find('.cke_button, .cke_combo_button').on('click', () => {
-      let dropdownElement = $('.' + this.editor.id + ' iframe').contents();
-      dropdownElement && dropdownElement.find('.cke_colorblock, .cke_panel_container, .cke_ltr, .cke_panel_list').each((index, elem) => {
-        $(elem).one('mouseup', () => {
-          this.editor.getSelection().selectRanges(this.ranges);
+    let editorToolbarButtons = this.getEditorToolbarButtons();
+    if(editorToolbarButtons) {
+      editorToolbarButtons.on('click', () => {
+        let dropdownElement = $('.' + this.editor.id + ' iframe').contents();
+        dropdownElement && dropdownElement.find('.cke_colorblock, .cke_panel_container, .cke_ltr, .cke_panel_list').each((index, elem) => {
+          $(elem).one('mouseup', () => {
+            this.editor.getSelection().selectRanges(this.ranges);
+          });
         });
       });
-    });
+    }
+
     // Get range when selection is made using mouse
-    $('.' + this.editor.id).on('mouseup', () => {
-      this.ranges = this.editor.getSelection().getRanges();
-    });
+    if (this.isEditorPresent()) {
+      this.getEditorById().on('mouseup', () => {
+        this.ranges = this.editor.getSelection().getRanges();
+      });
+    }
+  }
+
+  getEditorToolbarButtons() {
+    if (this.isEditorPresent()) {
+      return this.getEditorById().find('.cke_button, .cke_combo_button');
+    }
   }
 
   initForEdit() {
@@ -163,7 +191,7 @@ export class RichText extends FormControl {
 
     if (CKEDITOR.env.ie) {
       this.editor.on('key', (evt) => {
-        if (evt.editor.getData().length === 0) {
+        if (this.stripFormatting(evt.editor.getData()).length === 0) {
           this.validationModel[this.identifier].value = '';
           this.setRichtextValue(evt.editor.getData());
         }
@@ -224,6 +252,10 @@ export class RichText extends FormControl {
     this.editor.setReadOnly(isPreview);
   }
 
+  hideToolbar() {
+    $('.cke_editor_' + this.editor.name).css('z-index', '0');
+  }
+
   stripFormatting(data) {
     return ModelUtils.stripHTML(data);
   }
@@ -236,21 +268,49 @@ export class RichText extends FormControl {
     return this.validationModel[this.identifier].richtextValue;
   }
 
+  getCompositeFieldId() {
+    return this.compositeFieldId;
+  }
+
   static getEditorConfig() {
     return PluginRegistry.get(EDITOR_TOOLBAR)[0].data;
   }
 
-  getCompositeFieldId() {
-    return this.compositeFieldId;
+  getTextStylePluginConfig() {
+    let textStyleMenu = PluginRegistry.get(EDITOR_TEXT_STYLE_CONFIG)[0].data;
+    this.translatePlugin(textStyleMenu);
+    return textStyleMenu;
+  }
+
+  translatePlugin(plugin) {
+    plugin.items.forEach((item) => {
+      item.label = this.translateService.translateInstant(item.label);
+    });
+    plugin.label.text = this.translateService.translateInstant(plugin.label.text);
   }
 
   notifyWhenReady() {
     return true;
   }
 
-  ngOnDestroy() {
-    this.editor && this.editor.destroy(true);
+  getEditorById() {
+    return this.editor && $('.' + this.editor.id);
+  }
 
+  isEditorPresent() {
+    let editorById = this.getEditorById();
+    return editorById && editorById.length;
+  }
+
+  ngOnDestroy() {
+    if (this.isEditorPresent()) {
+      this.getEditorById().off('mouseup');
+    }
+    let editorToolbarButtons = this.getEditorToolbarButtons();
+    if(editorToolbarButtons) {
+      this.getEditorToolbarButtons().off('click');
+    }
+    this.editor && this.editor.destroy(true);
     super.ngOnDestroy();
   }
 }

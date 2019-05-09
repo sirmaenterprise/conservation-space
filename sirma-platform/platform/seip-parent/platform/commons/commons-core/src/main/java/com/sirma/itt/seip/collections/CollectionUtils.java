@@ -56,18 +56,14 @@ public class CollectionUtils {
 	/** The load factor for maps and sets. */
 	private static final float LOAD_FACTOR = 0.95f;
 
-	public static final Object[] EMPTY_ARRAY = new Object[] {};
-
-	public static final String[] EMPTY_STRING_ARRAY = new String[] {};
+	@SuppressWarnings("rawtypes")
+	private static final Map EMPTY_MAP = new SealedMap<>(null, true);
 
 	@SuppressWarnings("rawtypes")
-	public static final Map EMPTY_MAP = new SealedMap<>(null, true);
+	private static final Set EMPTY_SET = new SealedSet<>(null, true);
 
 	@SuppressWarnings("rawtypes")
-	public static final Set EMPTY_SET = new SealedSet<>(null, true);
-
-	@SuppressWarnings("rawtypes")
-	public static final List EMPTY_LIST = new SealedList<>(null, true);
+	private static final List EMPTY_LIST = new SealedList<>(null, true);
 
 	private static final Consumer<?> EMPTY_CONSUMER = e -> {
 		return;

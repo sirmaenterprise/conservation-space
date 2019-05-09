@@ -152,6 +152,15 @@ public interface ContentStore extends Named {
 		return new StoreItemInfo().setProviderType(getName());
 	}
 
+	/**
+	 * Shows whether the the store supports removal on tenant delete or not.<br>
+	 * By default is set to false.
+	 *
+	 * @return {@code true} if the removal is supported on tenant delete, {@code false} otherwise
+	 */
+	default boolean isCleanSupportedOnTenantDelete() {
+		return false;
+	}
 
 	/**
 	 * Gets the name of this store. This name will be used later to identify the source of a {@link StoreItemInfo}

@@ -103,6 +103,11 @@ public class DefaultPropertiesAccessor extends BasePropertyStorageAccessor {
 	}
 
 	@Override
+	protected String getDeleteValuesQuery() {
+		return PropertyEntity.DELETE_PROPERTIES_VALUES_KEY;
+	}
+
+	@Override
 	protected String getBatchLoadQuery() {
 		return PropertyEntity.QUERY_PROPERTIES_KEY;
 	}

@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +21,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +29,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -47,6 +48,7 @@ import com.sirma.itt.seip.rest.client.URIBuilderWrapper;
 import com.sirma.itt.seip.rest.utils.Versions;
 import com.sirma.sep.export.ContentExportException;
 import com.sirma.sep.export.ExportService;
+import com.sirma.sep.export.ExportURIBuilder;
 import com.sirma.sep.export.FileExporter;
 import com.sirma.sep.export.SupportedExportFormats;
 
@@ -78,6 +80,9 @@ public class ElectronPDFExporter implements FileExporter<PDFExportRequest> {
 	private TempFileProvider tempFileProvider;
 
 	@Inject
+	private ExportURIBuilder uriBuilder;
+
+	@Inject
 	@Configuration
 	@ConfigurationPropertyDefinition(name = "export.server.url", shared = false, label = "Base address of the export service <scheme>://<host>:<port>.")
 	private ConfigurationProperty<String> exportServerURL;
@@ -102,6 +107,8 @@ public class ElectronPDFExporter implements FileExporter<PDFExportRequest> {
 		}
 
 		URI exportServiceAddress = getExportAddress();
+		URI uri = UriBuilder.fromUri(request.getInstanceURI()).queryParam("jwt", uriBuilder.getCurrentJwtToken())
+				.build();
 
 		Integer configuredTimeout = timeout.get();
 		// TODO: A temporary timeout restriction which is necessary because of the fact that the export service which
@@ -113,14 +120,14 @@ public class ElectronPDFExporter implements FileExporter<PDFExportRequest> {
 		}
 		Integer exportPdfTimeout = configuredTimeout;
 
-		return timedCall(() -> executeRequest(exportServiceAddress, request, file(), exportPdfTimeout), exportPdfTimeout, TimeUnit.SECONDS);
+		return timedCall(() -> executeRequest(exportServiceAddress, uri, request, file(), exportPdfTimeout), exportPdfTimeout, TimeUnit.SECONDS);
 	}
 
-	private <T> Optional<T> executeRequest(URI exportUrl, final PDFExportRequest request, BiFunction<Integer, HttpResponse, T> reader, Integer exportPdfTimeout)
-			throws ContentExportException {
+	private <T> Optional<T> executeRequest(URI exportUrl, URI uri, final PDFExportRequest request,
+			ResponseHandler<T> reader, Integer exportPdfTimeout) throws ContentExportException {
 		HttpEntityEnclosingRequestBase post = new HttpPost(exportUrl);
 
-		String payload = requestToJson(request, TimeUnit.SECONDS.toMillis(exportPdfTimeout));
+		String payload = requestToJson(uri, request, TimeUnit.SECONDS.toMillis(exportPdfTimeout));
 		post.setEntity(new StringEntity(payload, REQUEST_CONTENT_TYPE));
 		HttpHost httpHost = new HttpHost(exportUrl.getHost(), exportUrl.getPort(), exportUrl.getScheme());
 		try {
@@ -150,9 +157,9 @@ public class ElectronPDFExporter implements FileExporter<PDFExportRequest> {
 	 *         <li>file-name - the file name to export pdf as (optional)</li>
 	 *         </ul>
 	 */
-	private static String requestToJson(PDFExportRequest request, long timeoutMillis) {
+	private static String requestToJson(URI uri, PDFExportRequest request, long timeoutMillis) {
 		JsonObjectBuilder builder = Json.createObjectBuilder()
-				.add("url", request.getInstanceURI().toASCIIString())
+				.add("url", uri.toASCIIString())
 				.add("timeout", timeoutMillis);
 
 		String fileName = request.getFileName();
@@ -165,22 +172,21 @@ public class ElectronPDFExporter implements FileExporter<PDFExportRequest> {
 
 	private static <T> Function<IOException, T> logError(final URI targetURI) {
 		return error -> {
-			LOGGER.debug("Could not complete pdf export to {}!", targetURI, error);
-			throw new EmfRuntimeException("Could not complete pdf export. See log for more details!");
+			throw new EmfRuntimeException("Could not complete pdf export. See log for more details!", error);
 		};
 	}
 
-	private static HttpEntity readResponse(Integer code, HttpResponse response) {
-		if (code.intValue() == HttpStatus.SC_OK) {
+	private static HttpEntity readResponse(HttpResponse response) {
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			return response.getEntity();
 		}
 		throw new EmfRuntimeException(
 				"Pdf export encountered error - remote server reported " + response.getStatusLine());
 	}
 
-	private BiFunction<Integer, HttpResponse, File> file() {
-		return (code, response) -> {
-			HttpEntity responseStream = readResponse(code, response);
+	private ResponseHandler<File> file() {
+		return response -> {
+			HttpEntity responseStream = readResponse(response);
 			File createdTempFile = getWorkingFileById();
 			try (FileOutputStream output = new FileOutputStream(createdTempFile)) {
 				IOUtils.copy(responseStream.getContent(), output);

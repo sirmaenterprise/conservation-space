@@ -1,5 +1,7 @@
 package com.sirma.sep.instance.actions.group;
 
+import javax.json.JsonObjectBuilder;
+
 /**
  * Interface for action menu objects. Implements adapter design pattern.
  *
@@ -12,27 +14,26 @@ public interface ActionMenuMember {
 	 *
 	 * @return parent
 	 */
-	public String getParent();
+	String getParent();
 
 	/**
 	 * Getter for identifier.
 	 *
 	 * @return identifier
 	 */
-	public String getIdentifier();
+	String getIdentifier();
 
 	/**
 	 * Order getter.
 	 *
 	 * @return order
 	 */
-	public Integer getOrder();
+	Integer getOrder();
 
 	/**
-	 * Getter for helper object used to build {@JsonObject}. Action instance returns builded immutable JsonObject.
-	 * TransitionGroupDefinition object returns a Map of properties to build one.
+	 * Getter for helper object used to build {@JsonObject}.
 	 *
 	 * @return helper object
 	 */
-	public Object toJsonHelper();
+	JsonObjectBuilder toJsonHelper();
 }

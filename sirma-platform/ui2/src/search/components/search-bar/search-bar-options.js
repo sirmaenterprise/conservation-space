@@ -25,13 +25,11 @@ import template from './search-bar-options.html!text';
 @Component({
   selector: 'search-bar-options',
   properties: {
-    'config': 'config',
+    'config': 'config'
   },
   events: ['onSearchSelected', 'onModeSelected']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(SearchService, Configuration)
 export class SearchBarOptions {
 

@@ -1,5 +1,6 @@
 'use strict';
 
+let remote = require('selenium-webdriver/remote');
 let CodeListsSandbox = require('./code-lists.js').CodeListsSandbox;
 
 const TEST_FILE = 'test.xls';
@@ -8,6 +9,11 @@ describe('Controlled vocabularies upload', () => {
 
   let sandbox;
   let codeListsUpload;
+
+  before(() => {
+    browser.setFileDetector(new remote.FileDetector());
+  })
+
   beforeEach(() => {
     sandbox = new CodeListsSandbox();
     sandbox.open();
@@ -55,6 +61,7 @@ describe('Controlled vocabularies upload', () => {
       dialog.ok();
       expect(codeListsUpload.isUploadSuccessful()).to.eventually.be.true;
 
+      codeListsUpload.selectFile(TEST_FILE);
       dialog = codeListsUpload.updateCodeLists();
       dialog.ok();
       expect(codeListsUpload.isUploadSuccessful()).to.eventually.be.true;
@@ -64,12 +71,13 @@ describe('Controlled vocabularies upload', () => {
       // Reopening the page with fail flag
       sandbox.open(true);
       codeListsUpload = sandbox.getCodeListsUpload();
-      codeListsUpload.selectFile(TEST_FILE);
 
+      codeListsUpload.selectFile(TEST_FILE);
       let dialog = codeListsUpload.overwriteCodeLists();
       dialog.ok();
       expect(codeListsUpload.isUploadSuccessful()).to.eventually.be.false;
 
+      codeListsUpload.selectFile(TEST_FILE);
       dialog = codeListsUpload.updateCodeLists();
       dialog.ok();
       expect(codeListsUpload.isUploadSuccessful()).to.eventually.be.false;

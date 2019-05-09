@@ -1,22 +1,19 @@
-import {View, Inject, NgElement, NgScope, NgCompile} from "app/app";
+import {View, Inject, NgElement, NgScope, NgCompile} from 'app/app';
 import {HEADER_COMPACT} from 'instance-header/header-constants';
 import {StatusCodes} from 'services/rest/status-codes';
-import {Widget} from "idoc/widget/widget";
-import {InstanceRestService} from "services/rest/instance-service";
-import {StaticInstanceHeader} from 'instance-header/static-instance-header/static-instance-header';
+import {Widget} from 'idoc/widget/widget';
+import {InstanceRestService} from 'services/rest/instance-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {WidgetReadyEvent} from 'idoc/widget/widget-ready-event';
 import 'idoc/widget/object-link-widget/object-link-widget.css!';
-import template from "./object-link-widget.html!text";
+import template from './object-link-widget.html!text';
 
 const PROPERTY_IS_DELETE = 'emf:isDeleted';
 const NO_PERMISSIONS = 'error.object.forbidden';
 
 @Widget
-@View({
-  template
-})
+@View({template})
 @Inject(InstanceRestService, TranslateService, Eventbus, NgElement, NgScope, NgCompile)
 export class ObjectLinkWidget {
 

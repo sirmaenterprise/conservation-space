@@ -4,6 +4,7 @@ import static com.sirma.itt.seip.collections.CollectionUtils.emptyList;
 import static com.sirma.itt.seip.collections.CollectionUtils.emptySet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -19,8 +20,10 @@ import static org.mockito.Mockito.when;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
@@ -40,6 +43,7 @@ import com.sirma.itt.seip.db.DbDao;
 import com.sirma.itt.seip.testutil.CustomMatcher;
 import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
 import com.sirma.itt.seip.tx.TransactionSupport;
+import com.sirma.sep.content.batch.ContentInfoMatcher;
 import com.sirma.sep.content.type.MimeTypeResolver;
 
 /**
@@ -81,7 +85,8 @@ public class ContentEntityDaoTest {
 			return entity;
 		});
 
-		dao = new ContentEntityDao(databaseIdManager, mimeTypeResolver, dbDao, idResolver, contentDigestProvider, transactionSupport);
+		dao = new ContentEntityDao(databaseIdManager, mimeTypeResolver, dbDao, idResolver, contentDigestProvider,
+				transactionSupport);
 	}
 
 	@Test
@@ -184,9 +189,9 @@ public class ContentEntityDaoTest {
 		String fileName = "test-content.ext";
 		Content content = Content
 				.createEmpty()
-					.setName(fileName)
-					.setContent("content".getBytes())
-					.setDetectedMimeTypeFromContent(true);
+				.setName(fileName)
+				.setContent("content".getBytes())
+				.setDetectedMimeTypeFromContent(true);
 		when(mimeTypeResolver.resolveFromName(fileName)).thenReturn(MediaType.TEXT_PLAIN);
 		when(mimeTypeResolver.getMimeType(any(InputStream.class), Matchers.eq(fileName)))
 				.thenReturn(MediaType.TEXT_PLAIN);
@@ -219,6 +224,34 @@ public class ContentEntityDaoTest {
 		ContentEntity result = dao.getOrCreateEntity("instance-id", content);
 		assertNotNull(result);
 		assertEquals("content-id", result.getId());
+		assertEquals(1, result.getVersion());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void getOrCreateEntity_versionalbleEntity_ShouldPreserveContentStore() {
+		ContentEntity contentEntity = new ContentEntity();
+		contentEntity.setRemoteSourceName("localStore");
+		when(dbDao.fetchWithNamed(eq(ContentEntity.QUERY_CONTENT_BY_INSTANCE_AND_PURPOSE_KEY), anyList()))
+				.thenReturn(Collections.singletonList(contentEntity));
+		Content content = Content.createEmpty().setContentId("content-id").setVersionable(true).setName("file-name");
+		ContentEntity result = dao.getOrCreateEntity("instance-id", content);
+		assertNotNull(result);
+		assertEquals("localStore", result.getRemoteSourceName());
+		assertEquals(1, result.getVersion());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void getOrCreateEntity_versionalbleEntity_ShouldBeAbleToDisablePreserveContentStore() {
+		ContentEntity contentEntity = new ContentEntity();
+		contentEntity.setRemoteSourceName("localStore");
+		when(dbDao.fetchWithNamed(eq(ContentEntity.QUERY_CONTENT_BY_INSTANCE_AND_PURPOSE_KEY), anyList()))
+				.thenReturn(Collections.singletonList(contentEntity));
+		Content content = Content.createEmpty().setContentId("content-id").setVersionable(true).setName("file-name").disableContentStoreEnforcingOnVersionUpdate();
+		ContentEntity result = dao.getOrCreateEntity("instance-id", content);
+		assertNotNull(result);
+		assertNull(result.getRemoteSourceName());
 		assertEquals(1, result.getVersion());
 	}
 
@@ -257,4 +290,64 @@ public class ContentEntityDaoTest {
 		assertNotNull(result);
 	}
 
+	@Test
+	public void getContentBy_ShouldBuildQueryThatSelectsEverything() {
+		dao.getContentIdBy(new ContentInfoMatcher());
+		verify(dbDao).fetch("select id from ContentEntity", Collections.emptyList());
+	}
+
+	@Test
+	public void getContentBy_ShouldBuildQueryThatSelectsByPurpose() {
+		dao.getContentIdBy(new ContentInfoMatcher().setPurpose(Content.PRIMARY_VIEW));
+		verify(dbDao).fetch("select id from ContentEntity where purpose = :purpose",
+				Collections.singletonList(new Pair<>("purpose", Content.PRIMARY_VIEW)));
+
+		dao.getContentIdBy(new ContentInfoMatcher().setPurpose("ocr%"));
+		verify(dbDao).fetch("select id from ContentEntity where purpose like :purpose",
+				Collections.singletonList(new Pair<>("purpose", "ocr%")));
+	}
+
+	@Test
+	public void getContentBy_ShouldBuildQueryThatSelectsByStoreName() {
+		dao.getContentIdBy(new ContentInfoMatcher().setStoreName("localStore"));
+		verify(dbDao).fetch("select id from ContentEntity where remoteSourceName = :remoteSourceName",
+				Collections.singletonList(new Pair<>("remoteSourceName", "localStore")));
+
+		dao.getContentIdBy(new ContentInfoMatcher().setStoreName("local%"));
+		verify(dbDao).fetch("select id from ContentEntity where remoteSourceName like :remoteSourceName",
+				Collections.singletonList(new Pair<>("remoteSourceName", "local%")));
+	}
+
+	@Test
+	public void getContentBy_ShouldBuildQueryThatSelectsByInstanceIdPattern() {
+		dao.getContentIdBy(new ContentInfoMatcher().setInstanceIdPattern("emf:instance%"));
+		verify(dbDao).fetch("select id from ContentEntity where instanceId like :instanceId",
+				Collections.singletonList(new Pair<>("instanceId", "emf:instance%")));
+	}
+
+	@Test
+	public void getContentBy_ShouldBuildQueryThatSelectsByInstanceIds() {
+		Set<String> ids = new LinkedHashSet<>(Arrays.asList("emf:instance-1", "emf:instance-2"));
+		dao.getContentIdBy(new ContentInfoMatcher().matchInstances(ids));
+		verify(dbDao).fetch("select id from ContentEntity where instanceId in (:instanceId)",
+				Collections.singletonList(new Pair<>("instanceId", ids)));
+	}
+
+	@Test
+	public void getContentBy_ShouldBuildQueryThatSelectsByContentIds() {
+		Set<String> ids = new LinkedHashSet<>(Arrays.asList("emf:content-id-1", "emf:content-id-2"));
+		dao.getContentIdBy(new ContentInfoMatcher().matchContents(ids));
+		verify(dbDao).fetch("select id from ContentEntity where id in (:id)",
+				Collections.singletonList(new Pair<>("id", ids)));
+	}
+
+	@Test
+	public void getContentBy_ShouldBuildComplexQuery() {
+		dao.getContentIdBy(new ContentInfoMatcher().setInstanceIdPattern("emf:instance%")
+				.setPurpose(Content.PRIMARY_VIEW)
+				.setStoreName("localStore"));
+		verify(dbDao).fetch(
+				"select id from ContentEntity where purpose = :purpose and remoteSourceName = :remoteSourceName and instanceId like :instanceId",
+				Arrays.asList(new Pair<>("purpose", Content.PRIMARY_VIEW), new Pair<>("remoteSourceName", "localStore"), new Pair<>("instanceId", "emf:instance%")));
+	}
 }

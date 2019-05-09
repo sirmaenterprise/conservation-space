@@ -1,6 +1,9 @@
 import {View, Inject} from 'app/app';
 import {WidgetConfig} from 'idoc/widget/widget';
-import {ObjectSelector, SELECT_OBJECT_CURRENT, SELECT_OBJECT_MANUALLY, SELECT_OBJECT_AUTOMATICALLY} from 'idoc/widget/object-selector/object-selector';
+import {
+  SELECT_OBJECT_MANUALLY,
+  SELECT_OBJECT_AUTOMATICALLY
+} from 'idoc/widget/object-selector/object-selector';
 import {SINGLE_SELECTION} from 'search/search-selection-modes';
 import {ObjectSelectorHelper} from 'idoc/widget/object-selector/object-selector-helper';
 import template from './business-process-diagram-widget-config.html!text';
@@ -9,9 +12,7 @@ import './business-process-diagram-widget-config.css!';
 export const TYPES = 'emf:BusinessProcess';
 
 @WidgetConfig
-@View({
-  template: template
-})
+@View({template})
 @Inject(ObjectSelectorHelper)
 export class BusinessProcessDiagramWidgetConfig {
 
@@ -28,7 +29,7 @@ export class BusinessProcessDiagramWidgetConfig {
       selection: SINGLE_SELECTION,
       criteria: this.config.criteria,
       selectObjectMode: this.config.selectObjectMode,
-      triggerSearch: triggerSearch,
+      triggerSearch,
       // This callback is called when selectObjectMode is changed, when a search is performed or when selectedItems are changed
       onObjectSelectorChanged: (onSelectorChangedPayload) => {
         let selectObjectMode = onSelectorChangedPayload.selectObjectMode;

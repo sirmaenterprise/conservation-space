@@ -14,12 +14,17 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import javax.batch.operations.JobExecutionAlreadyCompleteException;
+import javax.batch.operations.JobExecutionNotMostRecentException;
+import javax.batch.operations.JobRestartException;
+import javax.batch.operations.NoSuchJobExecutionException;
 import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +43,7 @@ class BatchServiceImpl implements BatchService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final int JOB_ID_SIZE = 16;
 	private static final int BATCH_SAVE_SIZE = 1024;
+	private static final String CANNOT_RESTART_COMPLETED_JOB = "Cannot restart completed job";
 
 	@Inject
 	private TransactionSupport transactionSupport;
@@ -47,15 +53,21 @@ class BatchServiceImpl implements BatchService {
 	private BatchDataService batchDataService;
 	@Inject
 	private JobRunner jobRunner;
+	@Inject
+	private BatchDao batchDao;
 
 	@Override
 	public long execute(BatchRequest request) {
 		if (request instanceof StreamBatchRequest) {
 			return execute((StreamBatchRequest) request);
 		}
-
+		String jobId = buildJobId();
 		String jobName = Objects.requireNonNull(request.getBatchName(), "Batch name is required");
-		LOGGER.info("Starting batch job {}", jobName);
+		LOGGER.info("Starting batch job {} with job id {}", jobName, jobId);
+
+		Properties properties = request.getProperties();
+		properties.put(BatchProperties.JOB_ID, jobId);
+
 		return startJob(jobName, request);
 	}
 
@@ -115,6 +127,56 @@ class BatchServiceImpl implements BatchService {
 		jobRunner.stopJobExecutions(jobName);
 	}
 
+	@Override
+	public Collection<JobInfo> getJobs() {
+		return batchDao.getJobs();
+	}
+
+	@Override
+	public Optional<JobExecution> resumeJob(String jobId) {
+		if (StringUtils.isBlank(jobId)) {
+			return Optional.empty();
+		}
+		Optional<JobInfo> jobData = batchDao.findJobData(jobId);
+		if (!jobData.isPresent()) {
+			LOGGER.info("No information about job with id {}", jobId);
+			return Optional.empty();
+		}
+		JobInfo jobInfo = jobData.get();
+
+		// check if we have any data at all
+		List<String> batchData = batchDataService.getBatchData(jobInfo.getExecutionId(), 0, 1);
+		if (batchData.isEmpty()) {
+			LOGGER.warn(CANNOT_RESTART_COMPLETED_JOB);
+			return Optional.empty();
+		}
+
+		Properties properties = new Properties();
+		jobInfo.getProperties().forEach(properties::setProperty);
+
+		// update security info
+		fillSecurityInfo(properties);
+
+		// try to restart the job or start new one
+		long executionId;
+		try {
+			executionId = jobRunner.restartJob(jobInfo.getExecutionId(), properties);
+		} catch (JobExecutionAlreadyCompleteException e) {
+			LOGGER.warn(CANNOT_RESTART_COMPLETED_JOB);
+			LOGGER.trace(CANNOT_RESTART_COMPLETED_JOB, e);
+			return Optional.empty();
+		} catch (JobExecutionNotMostRecentException | NoSuchJobExecutionException | JobRestartException e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Could not resume job {} due to {}", jobId, e.getMessage(), e);
+			} else {
+				LOGGER.info("Could not resume job {} due to {}", jobId, e.getMessage());
+			}
+			executionId = jobRunner.startJob(jobInfo.getName(), properties);
+		}
+		batchDao.persistJobData(executionId, jobInfo.getName(), jobInfo.getAlias(), properties);
+		return jobRunner.getJobExecution(executionId);
+	}
+
 	@SuppressWarnings("unchecked")
 	private int writeStreamingData(String jobName, String jobId, Stream<Serializable> dataStream) {
 		// we cannot benefit from parallel streams so make sure it's sequential
@@ -165,7 +227,11 @@ class BatchServiceImpl implements BatchService {
 		// the chunk size should be a String otherwise the batch implementation does not read it properly
 		properties.putIfAbsent(BatchProperties.CHUNK_SIZE, String.valueOf(chunk));
 		properties.putIfAbsent(BatchProperties.PARTITIONS_COUNT, String.valueOf(request.getPartitionsCount()));
-		return jobRunner.startJob(jobName, properties);
+		return transactionSupport.invokeInTx(() -> {
+			long executionId = jobRunner.startJob(jobName, properties);
+			batchDao.persistJobData(executionId, jobName, request.getJobAlias(), properties);
+			return executionId;
+		});
 	}
 
 	private void fillSecurityInfo(Properties properties) {

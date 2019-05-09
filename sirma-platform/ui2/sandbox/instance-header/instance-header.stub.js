@@ -112,12 +112,11 @@ export class InstanceHeaderStub {
           disabled: false,
           displayType: 'EDITABLE',
           codelist: 555,
+          dataType: 'ANY',
           tooltip: 'Test tooltip',
           validators: [],
-          dataType: 'text',
           label: 'Country',
-          isMandatory: false,
-          maxLength: 50
+          isMandatory: false
         }, {
           identifier: 'owner',
           isDataProperty: false,

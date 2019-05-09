@@ -1,5 +1,4 @@
 import {SearchComponent} from 'search/components/common/search-component';
-import {QueryBuilder} from 'search/utils/query-builder';
 import {SearchMediator, EVENT_SEARCH, EVENT_CLEAR} from 'search/search-mediator';
 
 export const CRITERIA_READY_EVENT = 'criteria-ready';

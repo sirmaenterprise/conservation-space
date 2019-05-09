@@ -20,6 +20,9 @@ import com.sirma.itt.seip.concurrent.SimpleFuture;
 import com.sirma.itt.seip.event.EmfEvent;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
+import com.sirma.itt.seip.security.User;
+import com.sirma.itt.seip.security.UserStore;
+import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tx.TransactionSupport;
 
 /**
@@ -40,6 +43,12 @@ public class SchedulerExecuterImpl implements SchedulerExecuter {
 
 	@Inject
 	private Instance<SchedulerService> schedulerServiceInstance;
+
+	@Inject
+	private SecurityContextManager securityContextManager;
+
+	@Inject
+	private UserStore userStore;
 
 	@Override
 	public Future<SchedulerEntryStatus> execute(SchedulerEntry schedulerEntry, boolean allowAsync,
@@ -99,9 +108,23 @@ public class SchedulerExecuterImpl implements SchedulerExecuter {
 		}
 		ExecuteAsBinding filter = getFilter(schedulerEntry);
 		Response response = new Response();
-		if(schedulerEntry.getConfiguration().getRunAs().equals(RunAs.SYSTEM)){
+		RunAs runAs = schedulerEntry.getConfiguration().getRunAs();
+		String runUserId = schedulerEntry.getConfiguration().getRunUserId();
+		if (runAs == RunAs.SYSTEM) {
 			SchedulerExecuterEvent event = new SchedulerExecuterEvent(toExecute, response);
 			fireEvent(event, filter);
+		} else if (runAs == RunAs.USER && runUserId != null) {
+			SchedulerExecuterEvent event = new SchedulerExecuterEvent(toExecute, response);
+			User user = userStore.loadBySystemId(runUserId);
+			if (user == null) {
+				LOGGER.warn("Requested custom user execution but user {} was not found. Executing as default", runUserId);
+				fireEvent(event, filter);
+			} else {
+				LOGGER.debug("Performing custom execution for user {}({}) of action {} with id {}",
+						user.getDisplayName(), runUserId, schedulerEntry.getActionName(),
+						schedulerEntry.getIdentifier());
+				securityContextManager.executeAsUser(user).biConsumer(this::fireEvent, event, filter);
+			}
 		} else {
 			SchedulerAllTenantsExecuterEvent event = new SchedulerAllTenantsExecuterEvent(toExecute, response);
 			fireEvent(event, filter);

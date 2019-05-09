@@ -892,6 +892,16 @@ class ContentPersistProvider {
 		public Content setContentId(String id) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public boolean isContentStoreEnforcedOnVersionUpdate() {
+			return true;
+		}
+
+		@Override
+		public Content disableContentStoreEnforcingOnVersionUpdate() {
+			return this;
+		}
 	}
 
 	/**

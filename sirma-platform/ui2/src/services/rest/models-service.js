@@ -17,6 +17,7 @@ export class ModelsService {
 
   /**
    * Provides list of ontologies represented as objects with id and title properties.
+   *
    * @returns a promise resolving to an array containing the existing ontologies.
    */
   getOntologies() {
@@ -25,7 +26,19 @@ export class ModelsService {
     });
   }
 
-  getModels(purpose, contextId, mimetype, fileExtension, classFilter, definitionFilter) {
+  /**
+   * Extracts a collection of types from the system. Types can be either an object
+   * or data / primitive property.
+   *
+   * @param type - optional parameter which determines the types to be fetched
+   */
+  getTypes(type) {
+    return this.restClient.get(`${SERVICE_URL}/types/${type}`).then((response) => {
+      return response.data;
+    });
+  }
+
+  getModels(purpose, contextId, mimetype, fileExtension, classFilter, definitionFilter, instanceId) {
     let config = {
       params: {
         purpose,
@@ -33,10 +46,10 @@ export class ModelsService {
         mimetype,
         extension: fileExtension,
         classFilter,
-        definitionFilter
+        definitionFilter,
+        instanceId
       }
     };
-
 
     return this.requestsCacheService.cache(SERVICE_URL, [config], this.requestsMap, () => {
       return this.restClient.get(SERVICE_URL, config).then(response => {
@@ -84,20 +97,31 @@ export class ModelsService {
    * @return models as binary sequence.
    */
   download(downloadRequest) {
-    let config = {
+    return this.restClient.post(`${SERVICE_URL}/download`, downloadRequest, this.getDownloadFileConfig())
+      .then(response => this.convertResponseToResult(response));
+  }
+
+  downloadOntology() {
+    let data = {};
+    return this.restClient.post(`${SERVICE_URL}/downloadOntology`, data, this.getDownloadFileConfig())
+      .then(response => this.convertResponseToResult(response));
+  }
+
+  getDownloadFileConfig() {
+    return {
       responseType: 'arraybuffer',
       headers: {
         'Accept': 'application/octet-stream',
         'Content-Type': HEADER_V2_JSON
       }
     };
+  }
 
-    return this.restClient.post(`${SERVICE_URL}/download`, downloadRequest, config).then(response => {
-      return {
-        data: response.data,
-        fileName: response.headers('x-file-name')
-      };
-    });
+  convertResponseToResult(response) {
+    return {
+      data: response.data,
+      fileName: response.headers('x-file-name')
+    };
   }
 
   /**

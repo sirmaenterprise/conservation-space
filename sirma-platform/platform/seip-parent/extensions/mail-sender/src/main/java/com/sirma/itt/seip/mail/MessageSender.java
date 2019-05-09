@@ -1,6 +1,7 @@
 package com.sirma.itt.seip.mail;
 
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -69,6 +70,8 @@ public class MessageSender {
 		// Create new mail sender and set the authenticator if needed.
 		MailSender sender = new MailSender(configuration, attachmentService);
 		if (StringUtils.isNotBlank(username)) {
+			configuration.setProperty(MailConfiguration.USERNAME, username);
+			configuration.setProperty(MailConfiguration.PASSWORD, password);
 			sender.setAuthenticator(new SMTPAuthenticator(username, password));
 		}
 		return sender;
@@ -241,4 +244,23 @@ public class MessageSender {
 		mailMessage.setMailGroupId(mailGroupId);
 		return mailMessage;
 	}
+
+	/**
+	 * Adds change listener which invokes the given consumer when mail configuration change.
+	 *
+	 * @param consumer to be invoked on mail configuration change
+	 */
+	public void addMailConfigurationChangeListener(Consumer<MailConfiguration> consumer) {
+		mailSender.addConfigurationChangeListener(config -> consumer.accept(config.get().getConfiguration()));
+	}
+
+	/**
+	 * Returns {@link MailConfiguration} object which contains all available mail configurations.
+	 *
+	 * @return {@link MailConfiguration} object which contains all available mail configurations
+	 */
+	public MailConfiguration getConfiguration() {
+		return mailSender.get().getConfiguration();
+	}
+
 }

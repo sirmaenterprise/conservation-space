@@ -2,19 +2,31 @@
 
   <seip-model-tree class="model-tree"
                    ng-if="::modelManagement.treeConfig"
+                   emitter="::modelManagement.emitter"
                    model="::modelManagement.treeModel"
                    config="::modelManagement.treeConfig"
                    on-selected-node="modelManagement.onSelectedNode(node)"></seip-model-tree>
 
   <div class="model-data">
-    <seip-tabs class="model-sections"
-               config="modelManagement.modelSectionsConfig"></seip-tabs>
+    <div class="model-data-header">
+      <seip-tabs class="model-sections"
+                 config="modelManagement.modelSectionsConfig"
+                 on-tab-changed="modelManagement.onSectionChange(newTab)"></seip-tabs>
+
+      <div class="model-deployment">
+        <model-deploy class="model-deploy"
+                      on-deploy-requested="modelManagement.onModelDeployRequested()"
+                      on-deploy-confirmed="modelManagement.onModelDeployConfirmed(deploymentRequest)"
+                      enabled="!modelManagement.isModelLoading()"></model-deploy>
+      </div>
+    </div>
 
     <div ng-show="!modelManagement.isModelSelected()" class="select-message alert alert-info">
       {{ ::'administration.models.management.select' | translate}}
     </div>
 
-    <div ng-show="modelManagement.isModelLoading()" class="loading-message alert alert-info">
+    <div ng-show="modelManagement.isModelLoading() && !modelManagement.isModelMissing()"
+         class="loading-message alert alert-info">
       <i class="fa fa-spinner fa-spin"></i>{{ ::'administration.models.management.loading' | translate}}
     </div>
 
@@ -22,13 +34,54 @@
       {{ ::'administration.models.management.missing.model' | translate: {model: modelManagement.getCurrentModel()} }}
     </div>
 
-    <seip-model-general ng-if="!modelManagement.isModelPresent()"
+    <seip-model-general class="section"
+                        ng-if="!modelManagement.isModelPresent()"
                         ng-show="modelManagement.isSectionVisible('general')"
-                        model="modelManagement.model" emitter="modelManagement.emitter"></seip-model-general>
+                        on-model-save="modelManagement.onModelSave(actions)"
+                        on-model-state-change="modelManagement.onModelStateChange(model, isDirty)"
+                        on-section-state-change="modelManagement.onSectionStateChange(isDirty, 'general')"
+                        on-model-action-revert-request="modelManagement.onModelActionRevertRequested(actions)"
+                        on-model-action-execute-request="modelManagement.onModelActionExecuteRequested(actions)"
+                        on-model-action-create-request="modelManagement.onModelActionCreateRequested(type, args)"
+                        model="modelManagement.model" emitter="::modelManagement.emitter">
+    </seip-model-general>
 
-    <seip-model-fields ng-if="!modelManagement.isModelPresent()"
+    <seip-model-fields class="section"
+                       ng-if="!modelManagement.isModelPresent()"
                        ng-show="modelManagement.isSectionVisible('fields')"
-                       model="modelManagement.model" emitter="modelManagement.emitter"></seip-model-fields>
+                       on-model-save="modelManagement.onModelSave(actions)"
+                       on-model-load="modelManagement.onModelLoad(model, navigate)"
+                       on-model-state-change="modelManagement.onModelStateChange(model, isDirty)"
+                       on-section-state-change="modelManagement.onSectionStateChange(isDirty, 'fields')"
+                       on-model-action-revert-request="modelManagement.onModelActionRevertRequested(actions)"
+                       on-model-action-execute-request="modelManagement.onModelActionExecuteRequested(actions)"
+                       on-model-action-create-request="modelManagement.onModelActionCreateRequested(type, args)"
+                       model="modelManagement.model" emitter="::modelManagement.emitter" meta="modelManagement.metaData">
+    </seip-model-fields>
+
+    <seip-model-actions class="section"
+                        ng-if="!modelManagement.isModelPresent()"
+                        ng-show="modelManagement.isSectionVisible('actions')"
+                        on-model-save="modelManagement.onModelSave(actions)"
+                        on-model-state-change="modelManagement.onModelStateChange(model, isDirty)"
+                        on-section-state-change="modelManagement.onSectionStateChange(isDirty, 'actions')"
+                        on-model-action-revert-request="modelManagement.onModelActionRevertRequested(actions)"
+                        on-model-action-execute-request="modelManagement.onModelActionExecuteRequested(actions)"
+                        on-model-action-create-request="modelManagement.onModelActionCreateRequested(type, args)"
+                        model="modelManagement.model" emitter="::modelManagement.emitter">
+    </seip-model-actions>
+
+    <seip-model-headers class="section"
+                        ng-if="!modelManagement.isModelPresent()"
+                        ng-show="modelManagement.isSectionVisible('headers')"
+                        on-model-save="modelManagement.onModelSave(actions)"
+                        on-model-state-change="modelManagement.onModelStateChange(model, isDirty)"
+                        on-section-state-change="modelManagement.onSectionStateChange(isDirty, 'headers')"
+                        on-model-action-revert-request="modelManagement.onModelActionRevertRequested(actions)"
+                        on-model-action-execute-request="modelManagement.onModelActionExecuteRequested(actions)"
+                        on-model-action-create-request="modelManagement.onModelActionCreateRequested(type, args)"
+                        model="modelManagement.model" emitter="::modelManagement.emitter">
+    </seip-model-headers>
   </div>
 
 </div>

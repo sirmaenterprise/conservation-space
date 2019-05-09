@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.VariableMap;
@@ -35,7 +34,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.DomainInstanceService;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.event.AfterInstancePersistEvent;
 import com.sirma.itt.seip.instance.lock.LockService;
@@ -52,15 +50,16 @@ import com.sirmaenterprise.sep.bpm.camunda.transitions.states.SequenceFlowModelT
 import com.sirmaenterprise.sep.bpm.model.ProcessConstants;
 
 /**
+ * Test for {@link BPMTransitionAction}.
+ * 
  * @author bbanchev
  */
+@SuppressWarnings("static-method")
 @RunWith(MockitoJUnitRunner.class)
 public class BPMTransitionActionTest {
 
 	@Mock
 	private ProcessService processService;
-	@Mock
-	private InstanceTypeResolver instanceResolver;
 	@Mock
 	private InstanceService instanceService;
 	@Mock
@@ -124,7 +123,7 @@ public class BPMTransitionActionTest {
 		when(instance.getString(eq(ProcessConstants.ACTIVITY_ID))).thenReturn("taskId");
 		when(instance.get(eq(DomainProcessConstants.TRANSITIONS))).thenReturn(null);
 		when(instance.getAsString(eq(DomainProcessConstants.TRANSITIONS))).thenReturn(null);
-		when(instanceResolver.resolveReference(eq(targetId))).thenReturn(Optional.of(instanceRef));
+		when(domainInstanceService.loadInstance(eq(targetId))).thenReturn(instance);
 		request.getTransitionData().put(targetId, instance);
 		request.setUserOperation("id1");
 		when(transitionModelService.createTransitionConditionFilter(instance)).thenReturn(flow -> true);
@@ -157,7 +156,7 @@ public class BPMTransitionActionTest {
 				.thenReturn(SequenceFlowModelTest.SERIALIZED_MODEL_FULL);
 		when(instance.getAsString(eq(DomainProcessConstants.TRANSITIONS)))
 				.thenReturn(SequenceFlowModelTest.SERIALIZED_MODEL_FULL);
-		when(instanceResolver.resolveReference(eq(targetId))).thenReturn(Optional.of(instanceRef));
+		when(domainInstanceService.loadInstance(eq(targetId))).thenReturn(instance);
 		request.getTransitionData().put(targetId, instance);
 		request.setUserOperation("id1");
 		when(transitionModelService.createTransitionConditionFilter(instance)).thenReturn(flow -> true);
@@ -185,7 +184,7 @@ public class BPMTransitionActionTest {
 				.thenReturn(SequenceFlowModelTest.SERIALIZED_MODEL_FULL);
 		when(instance.getAsString(eq(DomainProcessConstants.TRANSITIONS)))
 				.thenReturn(SequenceFlowModelTest.SERIALIZED_MODEL_FULL);
-		when(instanceResolver.resolveReference(eq(targetId))).thenReturn(Optional.of(instanceRef));
+		when(domainInstanceService.loadInstance(eq(targetId))).thenReturn(instance);
 		request.getTransitionData().put(targetId, instance);
 		request.setUserOperation("id1");
 		when(transitionModelService.createTransitionConditionFilter(instance)).thenReturn(flow -> true);
@@ -297,7 +296,7 @@ public class BPMTransitionActionTest {
 				.thenReturn(SequenceFlowModelTest.SERIALIZED_MODEL_FULL);
 		when(instance.getAsString(eq(DomainProcessConstants.TRANSITIONS)))
 				.thenReturn(SequenceFlowModelTest.SERIALIZED_MODEL_FULL);
-		when(instanceResolver.resolveReference(eq(targetId))).thenReturn(Optional.of(instanceRef));
+		when(domainInstanceService.loadInstance(eq(targetId))).thenReturn(instance);
 		return instance;
 	}
 
@@ -368,9 +367,11 @@ public class BPMTransitionActionTest {
 		Assert.assertEquals(0, generated.get().size());
 	}
 
+	@SuppressWarnings("unchecked")
 	private ThreadLocal<Collection> getProcessedActivities() throws NoSuchFieldException {
 		Field processedActivities = bPMTransitionAction.getClass().getDeclaredField("processedActivities");
 		processedActivities.setAccessible(true);
+
 		ThreadLocal<Collection> generated = (ThreadLocal<Collection>) ReflectionUtils.getFieldValue(processedActivities, bPMTransitionAction);
 		return generated;
 	}

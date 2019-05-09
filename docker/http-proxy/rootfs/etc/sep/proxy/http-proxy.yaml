@@ -1,0 +1,18 @@
+---
+log_level: {{Env "PROXY_LOG_LEVEL"}}
+
+stacks:
+  {{- range $idx, $stack := StrList (Env "PROXY_STACKS")}}
+  - {{$stack}}
+  {{- end}}
+
+dest_config: /etc/nginx/conf.d/default.conf
+
+servers:
+  - internal
+  - secure
+  - plain-secure-redirect
+
+templates:
+  servers: /etc/sep/proxy/servers
+  locations: /etc/sep/proxy/locations

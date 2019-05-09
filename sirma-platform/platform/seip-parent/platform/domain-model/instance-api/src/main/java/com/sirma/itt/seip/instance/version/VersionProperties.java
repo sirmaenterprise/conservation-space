@@ -1,9 +1,13 @@
 package com.sirma.itt.seip.instance.version;
 
+import static com.sirma.itt.seip.collections.CollectionUtils.isEmpty;
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -71,12 +75,6 @@ public final class VersionProperties {
 	public static final String MANUALLY_SELECTED = "manuallySelected";
 
 	/**
-	 * Key for the {@link java.util.Date}, when the version is created, used in handlers context for Idoc content node
-	 * handlers.
-	 */
-	public static final String HANDLERS_CONTEXT_VERSION_DATE_KEY = VERSION_CREATION_DATE;
-
-	/**
 	 * Key for the property that shows what definition is mapped to the given version instance. Primary used when
 	 * reverting versions because the loaded versions does not contain this property and when the version properties
 	 * replace the properties from the original one this property is removed from the model, which causes problems
@@ -95,11 +93,12 @@ public final class VersionProperties {
 	/**
 	 * Contains all of the declared version properties in this class. Uses reflection to collect them.
 	 */
-	static final Set<String> ALL = Stream.of(VersionProperties.class.getDeclaredFields())
+	private static final Set<String> ALL = Stream
+			.of(VersionProperties.class.getDeclaredFields())
 			.filter(field -> !"ALL".equalsIgnoreCase(field.getName()) && !field.isSynthetic())
-			.map(field -> ReflectionUtils.getFieldValue(field, (Object) null))
+			.map(field -> ReflectionUtils.getFieldValue(field, Object.class.cast(null)))
 			.map(String.class::cast)
-			.collect(toSet());
+			.collect(collectingAndThen(toSet(), Collections::unmodifiableSet));
 
 	private VersionProperties() {
 	}
@@ -107,21 +106,46 @@ public final class VersionProperties {
 	/**
 	 * Collect all of the declared version properties in this class.
 	 *
-	 * @return the collected version properties in this class.
+	 * @return unmodifiable set of the collected version properties in this class
 	 */
 	public static Set<String> getAll() {
 		return ALL;
 	}
 
 	/**
-	 * Collect all of the declared version properties in this class without <code>skipProperties</code>.
+	 * Retrieves the values of the properties declared in this class. Provides option to skip some of them.
 	 *
-	 * @param skipProperties - collection with properties which have to be skipped.
-	 * @return the collected version properties.
+	 * @param toSkip are the properties that should not present in the result
+	 * @return unmodifiable set of the values of the properties declared in the class
 	 */
-	public static Set<String> getVersionProperties(Collection<String> skipProperties) {
-		Set<String> versionProperties = new HashSet<>(ALL);
-		versionProperties.removeAll(skipProperties);
-		return versionProperties;
+	public static Set<String> get(Collection<String> toSkip) {
+		if (isEmpty(toSkip)) {
+			return ALL;
+		}
+		Set<String> copy = new HashSet<>(ALL);
+		copy.removeAll(toSkip);
+		return Collections.unmodifiableSet(copy);
+	}
+
+	/**
+	 * Provides constants used in context when the widgets are processed.
+	 *
+	 * @author A. Kunchev
+	 */
+	public static final class WidgetsHandlerContextProperties {
+
+		/**
+		 * Key for the {@link java.util.Date}, when the version is created, used in handlers context for Idoc content
+		 * node handlers.
+		 */
+		public static final String VERSION_DATE_KEY = VERSION_CREATION_DATE;
+
+		/**
+		 * Key for the {@link Map} that is used as local cache to store instances that are already versioned.
+		 */
+		public static final String VERSIONED_INSTANCES_CACHE_KEY = "versionedInstancesCache";
+
+		private WidgetsHandlerContextProperties() {
+		}
 	}
 }

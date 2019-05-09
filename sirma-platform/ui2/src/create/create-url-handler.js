@@ -18,7 +18,7 @@ export class CreateUrlHandler {
     var parentId = UrlUtils.getParameter(url, 'parentId');
 
     var params = {
-      parentId: parentId,
+      parentId,
       returnUrl: UrlUtils.getParameter(url, 'return-url'),
       operation: UrlUtils.getParameter(url, 'operation'),
       scope: $scope

@@ -28,6 +28,7 @@ import com.sirma.itt.seip.exception.RollbackedException;
 import com.sirma.itt.seip.resources.EmfUser;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
@@ -193,7 +194,7 @@ public class TenantEmailIntegrationStepTest {
 		TenantInitializationContext context = new TenantInitializationContext();
 		TenantInfo info = new TenantInfo("test.id");
 		context.setTenantInfo(info);
-		step.delete(data, info, true);
+		step.delete(data, new TenantDeletionContext(info, true));
 		verify(configurationManagement, times(1))
 		.removeConfiguration("subsystem.emailintegration.email.tenant.domain.address");
 		verify(domainAdministartionService).deleteDomain(captor.capture());
@@ -221,7 +222,7 @@ public class TenantEmailIntegrationStepTest {
 		TenantInitializationContext context = new TenantInitializationContext();
 		TenantInfo info = new TenantInfo("test.id");
 		context.setTenantInfo(info);
-		step.delete(data, info, true);
+		step.delete(data, new TenantDeletionContext(info, true));
 		verify(configurationManagement, times(1))
 		.removeConfiguration("subsystem.emailintegration.email.tenant.domain.address");
 		verify(domainAdministartionService, times(0)).deleteDomain(any(DomainInformation.class));
@@ -263,7 +264,7 @@ public class TenantEmailIntegrationStepTest {
 		TenantInfo info = new TenantInfo("test.id");
 		context.setTenantInfo(info);
 
-		step.delete(data, info, true);
+		step.delete(data, new TenantDeletionContext(info, true));
 		verify(accountAdministrationService, times(3)).deleteAccount(accountAdministrationCaptor.capture());
 		verify(emailAddressResolver, times(3)).deleteEmailAddress(emailResolverCaptor.capture());
 		List<String> administrationServiceCaptures = accountAdministrationCaptor.getAllValues();
@@ -296,7 +297,7 @@ public class TenantEmailIntegrationStepTest {
 		TenantInfo info = new TenantInfo("test.id");
 		context.setTenantInfo(info);
 
-		step.delete(data, info, true);
+		step.delete(data, new TenantDeletionContext(info, true));
 		verify(configurationManagement, times(1))
 		.removeConfiguration("subsystem.emailintegration.email.tenant.domain.address");
 		verify(domainAdministartionService).deleteDomain(captor.capture());

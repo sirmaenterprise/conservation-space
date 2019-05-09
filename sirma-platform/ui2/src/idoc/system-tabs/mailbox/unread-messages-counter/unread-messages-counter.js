@@ -12,9 +12,7 @@ import template from 'idoc/system-tabs/mailbox/unread-messages-counter/unread-me
 @Component({
   selector: 'seip-mailbox-unread-messages-counter'
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(Eventbus, IdocContextFactory, MailboxInfoService, NgElement, PollingUtils, Configuration)
 export class UnreadMessagesCounter {
 

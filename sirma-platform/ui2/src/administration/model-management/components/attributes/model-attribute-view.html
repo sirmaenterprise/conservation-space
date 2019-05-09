@@ -1,0 +1,18 @@
+<div class="model-attribute-view form-group row"
+     ng-class="{'has-error': modelAttributeView.isInvalid(), 'dirty-model': modelAttributeView.isDirty()}">
+  <label class="col-sm-3 control-label"
+         label-hint hint-visible="true"
+         hint-text="::modelAttributeView.getTooltipValue()">
+    <span class="control-description">{{ ::modelAttributeView.attribute.getMetaData().getDescription().getValue() }}
+    </span>
+  </label>
+  <div class="col-sm-9 control-data">
+    <div class="attribute-extension">
+      <!--Attribute extension will be appended here-->
+    </div>
+    <model-validation-messages ng-if="modelAttributeView.isInvalid()"
+                               validation="modelAttributeView.attribute.getValidation()">
+    </model-validation-messages>
+  </div>
+  <ng-transclude class="pull-right controls"></ng-transclude>
+</div>

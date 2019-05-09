@@ -20,6 +20,7 @@ import com.sirma.itt.seip.tenant.context.TenantManager;
 import com.sirma.itt.seip.tenant.context.TenantStatus;
 import com.sirma.itt.seip.tenant.exception.TenantValidationException;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -64,7 +65,11 @@ public class TenantInitializationStep extends AbstractTenantStep {
 						+ "' has been deleted and that id will be available for reuse on next server restart!");
 			}
 		}
-		TenantInfo infoBean = new TenantInfo(tenantId);
+
+		String tenantDescription = data.getPropertyValue("tenantdescription", false);
+		String tenantDisplayName = data.getPropertyValue("tenantname", true);
+
+		TenantInfo infoBean = new TenantInfo(tenantId, tenantDisplayName, tenantDescription);
 		context.setTenantInfo(infoBean);
 		if (SecurityContext.isDefaultTenant(tenantId)) {
 			context.setAdminUser(TENANTADMIN_USERNAME);
@@ -76,8 +81,8 @@ public class TenantInitializationStep extends AbstractTenantStep {
 			tenant.setTenantId(tenantId);
 			tenant.setStatus(TenantStatus.ACTIVE);
 			tenant.setTenantAdmin(context.getAdminUser());
-			tenant.setDisplayName(data.getPropertyValue("tenantname", false));
-			tenant.setDescription(data.getPropertyValue("tenantdescription", false));
+			tenant.setDisplayName(tenantDisplayName);
+			tenant.setDescription(tenantDescription);
 			addOrActivateTenant(existingTenant.orElse(null), tenant);
 		} catch (TenantValidationException e) {
 			throw new TenantCreationException("Tenant initialization failed!", e);
@@ -104,7 +109,8 @@ public class TenantInitializationStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
+		TenantInfo tenantInfo = context.getTenantInfo();
 		if (tenantInfo == null) {
 			return true;
 		}

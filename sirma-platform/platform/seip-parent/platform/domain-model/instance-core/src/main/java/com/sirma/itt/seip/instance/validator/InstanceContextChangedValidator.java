@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.sirma.itt.seip.MessageType;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.Instance;
@@ -61,12 +60,11 @@ public class InstanceContextChangedValidator implements Validator {
 
 		Instance newParent = domainInstanceService.loadInstance(newParentId);
 		if (!newParent.isWriteAllowed()) {
-			validationContext.addMessage(MessageType.ERROR,
-					labelProvider.getValue(DESTINATION_PERMISSION_RESTRICTION_ERROR));
+			validationContext.addErrorMessage(labelProvider.getValue(DESTINATION_PERMISSION_RESTRICTION_ERROR));
 		}
 
 		if (!isChildAllowed(instance.getIdentifier(), newParent)) {
-			validationContext.addMessage(MessageType.ERROR, labelProvider.getValue(ALLOW_CHILDREN_ERROR));
+			validationContext.addErrorMessage(labelProvider.getValue(ALLOW_CHILDREN_ERROR));
 		}
 	}
 
@@ -78,8 +76,7 @@ public class InstanceContextChangedValidator implements Validator {
 	 */
 	private boolean isChildAllowed(String childType, Instance destination) {
 		Collection<List<DefinitionModel>> allowedChildrenModels = instanceService
-				.getAllowedChildren(destination)
-					.values();
+				.getAllowedChildren(destination).values();
 
 		// if in definition of destination have not tag allowedChildren instanceService#getAllowedChildren will return
 		// empty list, which means there is not constraint for children type.
@@ -87,8 +84,7 @@ public class InstanceContextChangedValidator implements Validator {
 			return true;
 		}
 
-		return allowedChildrenModels
-				.stream()
+		return allowedChildrenModels.stream()
 					.flatMap(List::stream)
 					.anyMatch(model -> model.getIdentifier().equals(childType));
 	}

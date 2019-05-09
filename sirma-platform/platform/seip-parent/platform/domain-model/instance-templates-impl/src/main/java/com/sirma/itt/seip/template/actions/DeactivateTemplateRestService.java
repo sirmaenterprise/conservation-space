@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.template.actions;
 
+import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -27,12 +29,12 @@ public class DeactivateTemplateRestService {
 	/**
 	 * Deactivates the template. Its status becomes Inactive and it is not available to be applied to its group anymore.
 	 *
-	 * @param request
-	 *            is the request for template deactivation
+	 * @param request is the request for template deactivation
+	 * @return the id of the deactivated template instance
 	 */
 	@POST
 	@Path("{id}/actions/deactivate-template")
-	public void deactivate(DeactivateTemplateActionRequest request) {
-		actions.callAction(request);
+	public String deactivate(DeactivateTemplateActionRequest request) {
+		return Objects.toString(actions.callAction(request));
 	}
 }

@@ -10,6 +10,8 @@ import com.sirma.itt.seip.db.PersistenceUnits;
 import com.sirma.itt.seip.db.discovery.PersistenceUnitBinding;
 import com.sirma.itt.seip.model.BaseEntity;
 
+import java.util.Objects;
+
 /**
  * Entity that represents a database table with information about instanceId, propertyId and richtext value. The table
  * is used to store values containing html.
@@ -77,16 +79,19 @@ public class RichtextPropertyEntity extends BaseEntity {
 	}
 
 	@Override
-	public int hashCode() {
-		return super.hashCode() * 37;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+		RichtextPropertyEntity that = (RichtextPropertyEntity) o;
+		return Objects.equals(content, that.content) &&
+				Objects.equals(instanceId, that.instanceId) &&
+				Objects.equals(propertyId, that.propertyId);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof RichtextPropertyEntity) {
-			return super.equals(obj);
-		}
-		return false;
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), content, instanceId, propertyId);
 	}
 
 	public String getInstanceId() {

@@ -16,7 +16,7 @@ import browserTemplate from './browser.html!text';
   template: browserTemplate
 })
 @Inject(NgScope, ObjectBrowserRestService)
-class Browser {
+export class Browser {
   constructor($scope, objectBrowserRestService) {
     this.config = {};
     this.objectBrowserRestService = objectBrowserRestService;

@@ -1,7 +1,7 @@
 import {View, Component, Inject, NgScope} from 'app/app';
 import {ConfigurationRestService} from 'services/rest/configurations-service';
 import {Eventbus} from 'services/eventbus/eventbus';
-import {ConfigurationsUpdateEvent} from 'common/application-config';
+import {ConfigurationsUpdateEvent} from 'common/configuration-events';
 import {StatusCodes} from 'services/rest/status-codes';
 import {DialogService} from 'components/dialog/dialog-service';
 import {TranslateService} from 'services/i18n/translate-service';
@@ -41,9 +41,7 @@ import template from './tenant-configuration.html!text';
 @Component({
   selector: 'seip-tenant-configuration'
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, Eventbus, ConfigurationRestService, DialogService, NotificationService, TranslateService)
 export class TenantConfiguration {
 
@@ -337,7 +335,7 @@ export class TenantConfiguration {
       tooltip: configuration.label,
       dataType: constraint.type,
       label: configuration.key,
-      isMandatory: isMandatory,
+      isMandatory,
       validators: [{
         id: 'regex',
         context: {
@@ -377,42 +375,42 @@ export class TenantConfiguration {
     let extracted = configuration.javaType.replace(/(\.?\w+\.)+/, '');
 
     switch (extracted) {
-      case "Long":
-      case "Integer":
-        return {
-          type: 'text',
-          regexp: '-?[0-9]+'
-        };
-      case "Float":
-        return {
-          type: 'text',
-          regexp: '-?[0-9]+\.?[0-9]+'
-        };
-      case "Boolean":
-        return {
-          type: 'boolean',
-          regexp: 'true|false'
-        };
-      case "Date":
-        return {
-          type: 'date',
-          regexp: '.+'
-        };
-      case "DateTime":
-        return {
-          type: 'datetime',
-          regexp: '.+'
-        };
-      case "URI":
-        return {
-          type: 'text',
-          regexp: "(https?|ftp|file|jdbc:[a-zA-Z0-9.]+)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
-        };
-      default:
-        return {
-          type: 'text',
-          regexp: '.+'
-        };
+    case 'Long':
+    case 'Integer':
+      return {
+        type: 'text',
+        regexp: '-?[0-9]+'
+      };
+    case 'Float':
+      return {
+        type: 'text',
+        regexp: '-?[0-9]+\.?[0-9]+'
+      };
+    case 'Boolean':
+      return {
+        type: 'boolean',
+        regexp: 'true|false'
+      };
+    case 'Date':
+      return {
+        type: 'date',
+        regexp: '.+'
+      };
+    case 'DateTime':
+      return {
+        type: 'datetime',
+        regexp: '.+'
+      };
+    case 'URI':
+      return {
+        type: 'text',
+        regexp: '(https?|ftp|file|jdbc:[a-zA-Z0-9.]+)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]'
+      };
+    default:
+      return {
+        type: 'text',
+        regexp: '.+'
+      };
     }
   }
 
@@ -458,7 +456,7 @@ export class TenantConfiguration {
 
   sortRegionFieldsAlphabetically(regionMapping) {
     for (let region in regionMapping) {
-      if (regionMapping[region].hasOwnProperty("fields")) {
+      if (regionMapping[region].hasOwnProperty('fields')) {
         this.sortAlphabeticallyByIdentifier(regionMapping[region].fields);
       }
     }

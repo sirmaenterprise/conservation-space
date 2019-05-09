@@ -23,6 +23,7 @@ import com.sirma.sep.content.InstanceContentService;
  */
 public class AlfrescoThumbnailProviderTest {
 
+	private static final String INSTANCE_ID = "emf:123";
 	@Mock
 	private InstanceContentService instanceContentService;
 
@@ -39,11 +40,10 @@ public class AlfrescoThumbnailProviderTest {
 	 */
 	@Test
 	public void testCreatingThumbnailEndpointWithPrimaryContent() {
-		Instance instance = getTestInstance();
 		ContentInfo info = getContentInfo(true, "remoteId", Alfresco4ContentStore.STORE_NAME);
-		mockInstanceContentService("emf:123", info);
+		mockInstanceContentService(INSTANCE_ID, info);
 
-		String endPoint = alfrescoThumbnailProvider.createThumbnailEndPoint(instance);
+		String endPoint = alfrescoThumbnailProvider.createThumbnailEndPoint(INSTANCE_ID);
 		Assert.assertEquals("remoteId", endPoint);
 	}
 
@@ -52,11 +52,10 @@ public class AlfrescoThumbnailProviderTest {
 	 */
 	@Test
 	public void testCreatingThumbnailEndpointWithoutExsistingContentInfo() {
-		Instance instance = getTestInstance();
 		ContentInfo info = getContentInfo(false, null, null);
-		mockInstanceContentService("emf:123", info);
+		mockInstanceContentService(INSTANCE_ID, info);
 
-		String endPoint = alfrescoThumbnailProvider.createThumbnailEndPoint(instance);
+		String endPoint = alfrescoThumbnailProvider.createThumbnailEndPoint(INSTANCE_ID);
 		Assert.assertNull(endPoint);
 	}
 
@@ -65,10 +64,9 @@ public class AlfrescoThumbnailProviderTest {
 	 */
 	@Test
 	public void testCreatingThumbnailEndpointWithoutContentInfo() {
-		Instance instance = getTestInstance();
-		mockInstanceContentService("emf:123", null);
+		mockInstanceContentService(INSTANCE_ID, null);
 
-		String endPoint = alfrescoThumbnailProvider.createThumbnailEndPoint(instance);
+		String endPoint = alfrescoThumbnailProvider.createThumbnailEndPoint(INSTANCE_ID);
 		Assert.assertNull(endPoint);
 	}
 
@@ -86,12 +84,6 @@ public class AlfrescoThumbnailProviderTest {
 	private void mockInstanceContentService(String instanceId, ContentInfo info) {
 		Mockito.when(instanceContentService.getContent(Matchers.eq(instanceId), Matchers.eq(Content.PRIMARY_CONTENT)))
 				.thenReturn(info);
-	}
-
-	private static Instance getTestInstance() {
-		Instance instance = new EmfInstance();
-		instance.setId("emf:123");
-		return instance;
 	}
 
 	private static ContentInfo getContentInfo(boolean exists, String remoteId, String remoteSystem) {

@@ -9,11 +9,9 @@ import template from './input-text.html!text';
     'identifier': 'identifier'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement)
-class InputText extends TextField {
+export class InputText extends TextField {
   constructor($element) {
     super($element);
     this.element = $element;
@@ -22,5 +20,10 @@ class InputText extends TextField {
         e.preventDefault();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.element.off('keydown');
+    super.ngOnDestroy();
   }
 }

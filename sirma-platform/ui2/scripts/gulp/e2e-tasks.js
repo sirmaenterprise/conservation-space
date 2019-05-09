@@ -7,6 +7,7 @@ let fs = require('fs');
 let remap = require('remap-istanbul/lib/gulpRemapIstanbul');
 let browserSync = require('browser-sync');
 let spawn = require('child_process').spawn;
+let path = require('path');
 
 module.exports = function (gulp, paths) {
 
@@ -92,7 +93,9 @@ module.exports = function (gulp, paths) {
     }
 
     if (gutil.env['seleniumAddress']) {
-      protArgs.push('--seleniumAddress ' + gutil.env['seleniumAddress']);
+      protArgs.push('--seleniumAddress=' + gutil.env['seleniumAddress']);
+    } else {
+      protArgs.push('--directConnect');
     }
 
     let executedCount = 0;
@@ -139,10 +142,10 @@ module.exports = function (gulp, paths) {
   });
 
   gulp.task('remap-e2e-reports', function () {
+    var remappedDir = path.join(path.normalize(paths.workDir), 'src/');
     return gulp.src(paths.reports.e2e + '/coverage-report/*.json')
-      .pipe(remap({
-        basePath: paths.workDir + '/' + paths.src
-      })).pipe(replace(/(..\/)+source/gmi, paths.workDir + '/src'))
+      .pipe(remap({}))
+      .pipe(replace(/(..\/|..\\\\)+source[\/\\\\]/gmi, remappedDir))
       .pipe(gulp.dest(paths.reports.e2e + '/coverage-remapped'));
   });
 

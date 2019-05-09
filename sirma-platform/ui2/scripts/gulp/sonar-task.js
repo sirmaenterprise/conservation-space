@@ -65,8 +65,7 @@ module.exports = function (gulp, paths) {
         sourceEncoding: 'UTF-8',
         javascript: {
           lcov: {
-            reportPath: paths.reports.overall + 'lcov.info',
-            itReportPath: paths.reports.e2e + '/coverage-remapped/lcov.info'
+            reportPaths: paths.reports.overall + 'lcov.info' + ',' + paths.reports.e2e + '/coverage-remapped/lcov.info'
           }
         },
         scm: {

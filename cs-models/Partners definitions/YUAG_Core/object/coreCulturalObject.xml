@@ -1,0 +1,611 @@
+<?xml version="1.0"?>
+<definition id="coreCulturalObject" parentId="baseObject" isAbstract="true" type="object">
+	<fields>
+		<field name="default_header" type="ANY" label="CO_DEFAULT_HEADER_CORE" />
+		<field name="compact_header" type="ANY" label="CO_COMPACT_HEADER_CORE" />
+		<field name="breadcrumb_header" type="ANY" label="CO_BREADCRUMB_HEADER_CORE" />
+		<field name="tooltip_header" type="ANY" label="CO_OBJECT_TOOLTIP_HEADER_CORE" />
+
+		<field name="rdf:type" >
+			<value>http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#CulturalObject</value>
+		</field>
+		<field name="outcome" displayType="system" />
+		<field name="completedOn" displayType="system" />
+		<field name="uri" displayType="system" />
+	</fields>
+
+	<regions>	
+		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
+			<fields>
+				<field name="title" type="an..1000" order="105" tooltip="core.title.tooltip" />
+				<field name="chcart:culturalObjectNumber" type="an..50" mandatory="true" displayType="editable" order="110" uri="chcart:culturalObjectNumber" unique="true" />
+				<field name="yuag:alternativeNumbers" type="an..10000" displayType="editable" order="111" uri="yuag:alternativeNumbers" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="description" type="an..20000" order="115" tooltip="core.description.tooltip" />
+				<field name="subType" type="ANY" displayType="editable" codelist="CL247" order="120" uri="chcart:subClassification" >
+					<control id="RELATED_FIELDS">							
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">type</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
+				<field name="chcart:artistNames" type="an..10000" displayType="editable" order="125" uri="chcart:artistNames" />
+				<field name="chcart:creationDates" type="an..255" label="yuag.creationDates.label" displayType="editable" order="130" uri="chcart:creationDates" />
+				<field name="chcart:physicalDimensions" type="an..10000" displayType="editable" order="135" uri="chcart:physicalDimensions" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:medium" type="an..10000" displayType="editable" label="yuag.medium.label" order="140" uri="chcart:medium" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:supportDescription" type="an..1024" displayType="editable" order="141" uri="chcart:supportDescription" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:curatorialRemarks" type="an..10000" displayType="editable" order="145" uri="chcart:curatorialRemarks" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:curatorialDepartment" type="ANY" displayType="editable" codelist="CL310" order="150" uri="chcart:curatorialDepartment" />
+				<field name="yuag:culture" type="an..512" displayType="editable" order="151" uri="yuag:culture" />
+				<field name="chcart:countryName" type="an..1024" displayType="editable" order="155" uri="chcart:countryName" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:inscriptions" type="an..10000" displayType="editable" order="165" uri="chcart:inscriptions" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="yuag:signContent" type="an..10000" displayType="editable" order="168" uri="yuag:signContent" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:distinguishingMarks" type="an..10000" displayType="editable" label="yuag.distinguishingMarks.label" order="170" uri="chcart:distinguishingMarks" >
+					<control id="RICHTEXT"/>
+				</field>	
+				<field name="chcart:creditLine" type="an..10000" displayType="editable" order="175" uri="chcart:creditLine" >
+					<control id="RICHTEXT"/>
+				</field>	
+				<field name="chcart:provenance" type="an..10000" displayType="editable" order="180" uri="chcart:provenance" >
+					<control id="RICHTEXT"/>
+				</field>				
+				<!-- <field name="chcart:ownerNames" type="an..180" displayType="editable" order="195" uri="chcart:ownerNames" /> -->
+				<field name="ownedBy" type="uri" displayType="editable" order="195" label="core.ownerNames.label" tooltip="core.ownerNames.tooltip" multiValued="true" uri="emf:ownedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">ptop:Organization,chc:Person</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
+					</control>
+				</field>	
+				<field name="yuag:previousLocation" type="an..10000" displayType="editable" order="199" uri="yuag:previousLocation" >
+					<control id="RICHTEXT"/>
+				</field>	
+				<field name="chcart:currentLocation" type="an..10000" displayType="editable" order="200" uri="chcart:currentLocation" >
+					<control id="RICHTEXT"/>
+				</field>	
+				<field name="chc:overallConditionAppraisal" type="ANY" displayType="editable" codelist="CL125" order="205" uri="chc:overallConditionAppraisal"/>
+				<field name="chcart:treatmentPriority" type="ANY" displayType="editable" order="206" codelist="CL134" uri="chcart:treatmentPriority" />
+			</fields> 
+		</region>
+		<region id="systemData" displayType="editable" order="30" label="core.systemData.region.label">
+			<fields>
+				<field name="type" tooltip="core.type.tooltip" >
+					<value>FC236006</value>
+				</field>
+				<field name="identifier" tooltip="core.identifier.tooltip" rnc="${eval(CO${seq({+coSequence})})}" />
+				<field name="status" codelist="CL300" tooltip="core.status.tooltip" />
+				<field name="emf:version" tooltip="core.version.tooltip" /> 
+				<field name="integrated" type="boolean" displayType="hidden" label="emf.integrated.label" uri="emf:integrated"/>
+				<field name="createdOn" tooltip="core.createdOn.tooltip" />
+				<field name="createdBy" tooltip="core.createdBy.tooltip" />
+				<field name="modifiedOn" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="core.lockedBy.tooltip" />
+				
+				<field name="hasPrimaryImage" type="uri" displayType="editable" label="core.hasPrimaryImage.label" tooltip="core.hasPrimaryImage.tooltip" multiValued="true" uri="emf:hasPrimaryImage" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+				</field>
+				<field name="chc:hasDepiction" type="uri" displayType="editable" label="core.hasDepiction.label" tooltip="core.hasDepiction.tooltip" multiValued="true" uri="chc:hasDepiction" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Image</control-param>
+					</control>
+				</field>
+				<field name="chc:exhibitedAt" type="uri" displayType="readOnly" label="core.exhibitedAt.label" tooltip="core.exhibitedAt.tooltip" uri="chc:exhibitedAt" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:Exhibition</control-param>
+					</control>
+				</field>
+				<field name="associatedWith" type="uri" displayType="editable" label="core.associatedWith.label" tooltip="core.associatedWith.tooltip" multiValued="true" uri="emf:associatedWith" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}</control-param>
+					</control>
+				</field>
+				<field name="hasAttachment" type="uri" displayType="editable" label="core.hasAttachment.label" tooltip="core.hasAttachment.tooltip" multiValued="true" uri="emf:hasAttachment" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,chc:Exhibition,emf:Task,emf:Issue,emf:Image,emf:Audio,emf:Video,ptop:Organization,chc:Person</control-param>
+					</control>
+				</field>
+				<field name="isAttachedTo" type="uri" displayType="readOnly" label="core.attachmentOf.label" tooltip="core.attachmentOf.tooltip" multiValued="true" uri="emf:isAttachedTo" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,chc:Exhibition,ptop:Organization,chc:Person</control-param>
+					</control>
+				</field>
+				<field name="hasThumbnail" label="hasThumbnail" tooltip="core.hasThumbnail.tooltip" />
+				<field name="chc:hasSample" type="uri" displayType="editable" label="core.hasSample.label" tooltip="core.hasSample.tooltip" multiValued="true" uri="chc:hasSample" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:Sample</control-param>
+					</control>
+				</field>
+				<field name="chc:isDocumentedIn" type="uri" displayType="editable" label="core.isDocumentedIn.label" tooltip="core.isDocumentedIn.tooltip" multiValued="true" uri="chc:isDocumentedIn" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Document</control-param>
+					</control>
+				</field>
+				<field name="processedBy" type="uri"  displayType="readOnly" order="355" label="core.processedBy.label" tooltip="core.processedBy.tooltip" multiValued="true" uri="emf:processedBy" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:Activity</control-param>
+					</control>
+				</field>
+				<field name="hasWatcher" label="core.hasWatcher.label" tooltip="core.hasWatcher.tooltip" />
+				<field name="parentOf" tooltip="core.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasParent" tooltip="core.hasParent.tooltip" />
+				<field name="partOf" tooltip="core.partOf.tooltip" />
+				<field name="hasChild" tooltip="core.hasChild.tooltip" />
+				<field name="emf:hasTemplate" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" />
+			</fields>
+		</region>
+		<region id="archivedRevisions" order="40" displayType="editable" label="core.revisions.region.label">
+			<fields>
+				<field name="hasRevision" label="core.hasRevision.label" tooltip="core.hasRevision.tooltip" />
+				<field name="isRevisionOf" label="core.isRevisionOf.label" tooltip="core.isRevisionOf.tooltip" />
+				<field name="lastPublishedRevision" tooltip="core.lastPublishedRevision.tooltip" />
+				<field name="lastRevision" tooltip="core.lastRevision.tooltip" />
+				<field name="nextRevision" tooltip="core.nextRevision.tooltip" />
+				<field name="previousRevision" tooltip="core.previousRevision.tooltip" />
+			</fields>
+		</region>	
+	</regions>
+
+	<transitions>
+		<transition id="editDetails" order="10" actionPath="/actions" />
+		
+		<group id="create" order="15" label="create.group.label" type="menu" />
+		<transition id="createDocument" label="core.createDocument.action.label" tooltip="core.createDocument.action.tooltip"  purpose="createInstance" actionPath="/" group="create">
+      		<fields>
+				<field name="createDocumentConfig" type="json">
+					<value>
+   						{ 
+							"predefinedTypes" : ["emf:Document"],  
+							"contextSelectorDisabled": true
+    					}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="uploadImage" label="core.uploadImage.action.label" tooltip="core.uploadImage.action.tooltip"  purpose="createInstance" actionPath="/" group="create" >
+      		<fields>
+				<field name="uploadImageConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["emf:Image"],
+							"contextSelectorDisabled": true
+						}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="createWorkflow" label="core.createWorkflow.action.label" tooltip="core.createWorkflow.action.tooltip"  purpose="createInstance" group="create">
+      		<fields>
+				<field name="createWorkflowConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["emf:BusinessProcess"],
+							"predefinedSubTypes" : ["moveCOWF","photographCOWF","takeMaterialSampleFromCOWF"],
+							"contextSelectorDisabled": true
+						}
+  			 	  </value>
+ 		      	  <control id="configuration" />
+ 		   		</field>
+ 		   </fields>
+		</transition>
+		<transition id="achive" label="core.achive.action.label" tooltip="core.achive.action.tooltip"  purpose="publishAsPdf" confirmation="achive.confirm" group="create" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+                    <value>
+						<![CDATA[	
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Archived revision created) ' + type +': ' + title;
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}
+							recipients.push(createdBy.toString());
+							
+							var targetID = root.get('lastPublishedRevision');
+							context.put('archivedInstance', instance.load(targetID));
+							
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_publish_object_core", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                    </control>
+                </field>
+			</fields>
+		</transition>
+		<transition id="createConservationActivity" label="core.createConservationActivity.action.label" tooltip="core.createConservationActivity.action.tooltip"  purpose="createInstance" actionPath="/" group="create">
+			<fields>
+				<field name="addCAConfig" type="json">
+					<value>
+						{ 
+							"predefinedTypes" : ["chc:ConservationActivity"],
+							"contextSelectorDisabled": true
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		
+		<group id="add" order="20" label="add.group.label" type="menu" />
+		<transition id="addPrimaryImage" label="core.addPrimaryImage.action.label" tooltip="core.addPrimaryImage.action.tooltip"  purpose="addRelation" actionPath="/" group="add" >
+			<fields>
+				<field name="addPrimaryImageConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["emf:Image"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasPrimaryImage","chc:hasDepiction","emf:hasThumbnail"]
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addDepiction" label="core.addDepiction.action.label" tooltip="core.addDepiction.action.tooltip"  purpose="addRelation" group="add">
+			<fields>
+				<field name="addDepictionConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["emf:Image"],
+								"selection" : "multiple",
+								"relation" : ["chc:hasDepiction"]
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addCulturalObject" label="core.addCulturalObject.action.label" tooltip="core.addCulturalObject.action.tooltip"  purpose="addRelation" actionPath="/" group="add">
+			<fields>
+				<field name="addCOConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["chc:CulturalObject"],
+								"selection" : "multiple",
+								"relation" : ["emf:associatedWith"],
+								"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addAttachment" label="core.addAttachment.action.label" tooltip="core.addAttachment.action.tooltip"  purpose="addRelation" group="add">
+			<fields>
+				<field name="addAttachmentConfig" type="json">
+					<value>
+							{
+								"predefinedTypes" : ["emf:Project","chc:ConservationActivity","chc:Exhibition","emf:Task","emf:Issue","emf:Image","emf:Audio","emf:Video","ptop:Organization","chc:Person"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasAttachment"]
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addThumbnail" group="add"/>
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip"  purpose="addRelation" group="add">
+			<fields>
+				<field name="addWatcherConfig" type="json">
+					<value>						
+							{
+								"predefinedTypes" : ["emf:User"],
+								"selection" : "multiple",
+								"relation" : ["emf:hasWatcher"],
+								"restrictions" : {"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
+								}
+							}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+
+		<transition id="download" order="25" label="download.label"  purpose="download" tooltip="download.tooltip" actionPath="/" />
+		
+		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
+		<transition id="exportTabPDF" group="exportAs"/>
+		<transition id="exportTabWord" group="exportAs"/>
+		
+		<group id="print" order="35" label="print.group.label" type="menu" />
+		<transition id="printTab" group="print" />	
+		
+		<group id="template" order="40" label="template.group.label" type="menu" />
+		<transition id="saveAsTemplate" group="template"/>		
+		<transition id="updateTemplate" tooltip="core.updateTemplate.action.tooltip" group="template"/>	
+		<transition id="changeTemplate" tooltip="core.changeTemplate.action.tooltip" group="template"/>	
+		
+		<group id="more" order="45" label="more.group.label" type="menu" />
+		<transition id="changeType" group="more" >
+			<fields>
+				<field name="onChangeType" type="an..200" displayType="system" >
+					<value>
+						<![CDATA[
+							var title = root.get('title');
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var subject = '(Changed type) ' + type + ': ' + title;
+							
+							//extract watchers
+							var recipients = [];
+							var watchers = root.get('hasWatcher');
+							if(watchers != null){
+								for(var i = 0; i < watchers.length; i++){
+								recipients.push(watchers[i].toString());
+								}
+							}
+							//extract createdBy
+							recipients.push(root.get('createdBy').toString());
+							
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_change_object_type_core", recipients, context, null);
+						]]>
+					</value>
+					<control id="SCRIPT">
+						<control-param id="phase" name="phase">after</control-param>
+						<control-param id="async" name="async">true</control-param>
+					</control>
+				</field>
+			</fields>
+		</transition>
+		<transition id="clone" confirmation="clone.confirm" group="more"/>	
+		<transition id="lock" group="more"/>	
+		<transition id="unlock" actionPath="/" group="more"/>	
+		<transition id="managePermissions" group="more"/>	
+		
+		<transition id="revertVersion" order="50" />
+		<transition id="delete" order="100" tooltip="core.delete.tooltip" >
+			<fields>
+				<field name="sendMail" type="an..200" displayType="system" >
+                    <value>
+						<![CDATA[	
+							var type = codelist.getDescription(7, root.get('type'), 'en');
+							var title = root.get('title');
+							var subject = '(Deleted) ' + type +': ' + title;
+							
+							//extract warchers and crearedBy users
+							var watchers = root.get('hasWatcher');
+							var createdBy = root.get('createdBy');
+							var recipients = [];
+							var i = 0;
+							if (watchers != null){
+								for(i = 0; i < watchers.length; i++) {
+									recipients.push(watchers[i].toString());
+								}
+							}
+							recipients.push(createdBy.toString());
+							mail.sendNotifications(root, security.getCurrentLoggedUser(), subject, "email_delete_object_core", recipients, context);
+						]]>
+                    </value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">false</control-param>
+                    </control>
+                </field>
+			</fields>
+		</transition>
+	</transitions>
+
+	<stateTransitions>
+		<stateTransition from="INIT" transition="create" to="CURRENT" />
+		<stateTransition from="INIT" transition="clone" to="CURRENT"/>
+		
+		<stateTransition from="INIT" transition="changeType" to="CURRENT" />
+
+		<stateTransition from="CURRENT" transition="editDetails" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="createDocument" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="uploadImage" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="createWorkflow" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="achive" to="ARCHIVED">
+			<condition renderAs="PROPERTY" id="emf:revisionType">emf:revision</condition>
+		</stateTransition>
+		<stateTransition from="CURRENT" transition="createConservationActivity" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="achive" to="CURRENT"/>
+		<stateTransition from="CURRENT" transition="addPrimaryImage" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addDepiction" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addCulturalObject" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addAttachment" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addThumbnail" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="addWatchers" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="exportTabPDF" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="exportTabWord" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="printTab" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="saveAsTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="updateTemplate" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="changeType" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="clone" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="lock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="unlock" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="revertVersion" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="managePermissions" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="delete" to="CURRENT" />
+		<stateTransition from="CURRENT" transition="createInContext" to="CURRENT"/>
+		
+		<stateTransition from="OBSOLETE" transition="exportTabPDF" to="OBSOLETE" />	
+		<stateTransition from="OBSOLETE" transition="exportTabWord" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="printTab" to="OBSOLETE" />	
+		<stateTransition from="OBSOLETE" transition="clone" to="OBSOLETE" />
+		<stateTransition from="OBSOLETE" transition="managePermissions" to="OBSOLETE" />
+		
+		<stateTransition from="ARCHIVED" transition="createDocument" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="uploadImage" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="download" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="exportTabPDF" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="exportTabWord" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="printTab" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="managePermissions" to="ARCHIVED" />
+		<stateTransition from="ARCHIVED" transition="createInContext" to="ARCHIVED" />
+		
+	</stateTransitions>
+	
+	<allowedChildren>
+		<child type="document" id="all"/>
+		<child type="object" id="Sample"/>
+		<child type="object" id="coreCulturalObject"/>
+		<child type="object" id="coreAudio"/>
+		<child type="object" id="coreVideo"/>
+		<child type="object" id="coreImage"/>
+		<child type="task" id="all"/>
+		<child type="project" id="all"/>
+		<child type="object" id="coreConservationActivity"/>
+		<child type="workflow" id="moveCOWF"/>
+		<child type="workflow" id="photographCOWF"/>
+		<child type="workflow" id="takeMaterialSampleFromCOWF"/>
+		<child type="object" id="DataImportSource"/>
+	</allowedChildren>
+	
+	<labels>
+		<label id="CO_OBJECT_TOOLTIP_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(#{eval(
+				<span class="thumbnail-content">
+					<img class="thumbnail" src="${thumbnailUri(64)}" />
+				</span>
+				<span class="tooltip-data">
+					<span class="tooltip-header">
+						<a href="${link(currentInstance)}" class="instance-link" data-status="${get([status])}" data-id="${id.db}" data-uid="${id.uid}">
+							<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>&nbsp;
+							<span data-title="${get([title])}">${get([title])}</span>
+						</a>
+					</span>
+					<span class="tooltip-row">
+						<label>Type: </label>
+						<span data-property="type">${CL([type])}</span>
+					</span>
+					${if(${get([subType])}<>null).then(
+						<span class="tooltip-row">
+							<label>Sub-classification: </label>
+							<span data-property="subType">${CL([subType])}</span>
+						</span>
+					)}
+					${if(${get([chcart:artistNames])}<>null).then(
+						<span class="tooltip-row">
+							<label>Artist(s): </label>
+							<span data-property="chcart:artistNames">${get([chcart:artistNames])}</span>
+						</span>
+					)}
+					${if(${get([chcart:creationDates])}<>null).then(
+						<span class="tooltip-row">
+							<label>Create date(s): </label>
+							<span data-property="chcart:creationDates">${get([chcart:creationDates])}</span>
+						</span>
+					)}
+					${if(${get([chcart:medium])}<>null).then(
+						<span class="tooltip-row">
+							<label>Medium: </label>
+							<span data-property="chcart:medium">${get([chcart:medium])}</span>
+						</span>
+					)}
+					<span class="tooltip-row">
+						<label>Version: </label>
+						<span data-property="emf:version">${get([emf:version])}</span>
+					</span>
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
+						</span>
+					)}	
+			</span>)})}]]></value>
+		</label>
+		<label id="CO_DEFAULT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<span data-property="type">${CL([type])}</span>
+					${if(${var.isVersion}).then(
+						&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+					)}
+					<br />
+					<b>
+						<a ${var.href} class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+							${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+								(Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+							)}
+							<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>&nbsp;
+							<span data-property="title">${get([title])}</span>
+						</a>&nbsp;
+					</b>	
+					${if(${get([chcart:artistNames])}<>null).then(<span data-property="chcart:artistNames">${get([chcart:artistNames])}</span>)}
+					${if(${get([isRevisionOf])}<>null).then(<br />Revision of:<span data-property="isRevisionOf">${objectProperty(${get([isRevisionOf])})}</span>)}
+				</span>
+			)}]]></value>
+		</label>
+
+		<label id="CO_COMPACT_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span class="truncate-element">
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+					(Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+				)}
+				<span data-property="type">${CL([type])}</span>&nbsp;
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>&nbsp;
+					<span data-property="title">${get([title])}</span>
+				</a>
+				${if(${var.isVersion}).then(
+					&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
+				)}
+			</span>
+		)}]]></value>
+		</label>		
+		<label id="CO_BREADCRUMB_HEADER_CORE">
+			<value lang="en"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")}}
+			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
+			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
+			<span><img src="${thumbnailUri(16)}"/></span>
+			<span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+					${if(${or(${var.isLatest} or ${var.isRevision})}).then(
+						(Archived revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>)&nbsp;
+					)}
+					<span data-property="chcart:culturalObjectNumber">${get([chcart:culturalObjectNumber])}</span>
+				</a>
+			</span>		
+            )}]]></value>
+		</label>
+	</labels>
+</definition>

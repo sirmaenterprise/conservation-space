@@ -18,6 +18,7 @@ import javax.inject.Singleton;
 
 import org.camunda.bpm.application.impl.ProcessApplicationLogger;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.impl.ProcessEngineLogger;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
@@ -25,13 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirmaenterprise.sep.bpm.camunda.exception.CamundaIntegrationRuntimeException;
 
 /**
  * Default implementation of {@link BPMDefinitionImportService}.
- * 
+ *
  * @author Vilizar Tsonev
  */
 @Singleton
@@ -44,13 +43,9 @@ public class BPMDefinitionImportServiceImpl implements BPMDefinitionImportServic
 	@Inject
 	private Instance<ProcessEngine> processEngineInstance;
 
-	@Inject
-	private Statistics statistics;
-
 	@Override
 	public void importDefinitions(String directoryPath) {
 		ProcessEngine processEngine = null;
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "importBPMDefinitions").begin();
 		try {
 			processEngine = processEngineInstance.get();
 
@@ -68,11 +63,12 @@ public class BPMDefinitionImportServiceImpl implements BPMDefinitionImportServic
 				LOGGER.info("Successfully deployed {} BPM models with deployment ID {}",
 						Long.valueOf(deploymentBuilder.getResourceNames().size()), deployment.getId());
 			}
+		} catch (ProcessEngineException e) {
+			String message = e.getCause() != null ? e.getMessage() + " " + e.getCause().getMessage() : e.getMessage();
+			throw new IllegalArgumentException(message, e);
 		} finally {
 			processEngineInstance.destroy(processEngine);
 		}
-
-		LOGGER.info("BPM definitions import finished for {} ms", Long.valueOf(tracker.stop()));
 	}
 
 	private static DeploymentBuilder prepareDeploymentBuilder(ProcessEngine processEngine, List<File> definitionFiles) {

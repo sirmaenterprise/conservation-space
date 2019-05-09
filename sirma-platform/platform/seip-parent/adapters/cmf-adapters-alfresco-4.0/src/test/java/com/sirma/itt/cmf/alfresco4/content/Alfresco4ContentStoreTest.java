@@ -140,11 +140,6 @@ public class Alfresco4ContentStoreTest {
 	@Test
 	public void addContent_InvalidArgs() throws Exception {
 		assertNull(alfresco4ContentStore.add(null, null));
-		Content descriptor = Content.createEmpty().setContent("test", "utf-8");
-		assertNull(alfresco4ContentStore.add(null, descriptor));
-		Instance instance = new EmfInstance();
-		instance.setId("emf:instance");
-		assertNull(alfresco4ContentStore.add(instance, null));
 	}
 
 	@Test
@@ -264,11 +259,6 @@ public class Alfresco4ContentStoreTest {
 		StoreItemInfo info = alfresco4ContentStore.update(instance, content, createItemInfo());
 		assertNotNull(info);
 		assertEquals("dmsId", info.getRemoteId());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void update_ShouldFailForInstance() {
-		alfresco4ContentStore.update(null, Content.createEmpty(), null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

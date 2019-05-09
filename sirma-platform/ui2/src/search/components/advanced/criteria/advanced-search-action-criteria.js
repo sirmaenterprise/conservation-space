@@ -1,7 +1,7 @@
 import {Component, View, Inject, NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
-import {Select} from 'components/select/select';
+import 'components/select/select';
 import {RoleManagementService} from 'services/rest/role-management-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import _ from 'lodash';
@@ -28,9 +28,7 @@ import template from './advanced-search-action-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, RoleManagementService, PromiseAdapter, TranslateService)
 export class AdvancedSearchActionCriteria extends Configurable {
   constructor($scope, roleManagementService, promiseAdapter, translateService) {

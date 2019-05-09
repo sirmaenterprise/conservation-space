@@ -1,91 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="yulWorkflow" parentId="workflowBase" isAbstract="true" type="workflow">
+<definition id="yulWorkflow" parentId="baseWorkflow" isAbstract="true" type="workflow">
 	<fields>
 		<!-- headers and tooltip -->
 		<field name="default_header" type="ANY" label="WORKFLOW_DEFAULT_HEADER_YUL" />
-		<field name="compact_header" type="an..4096" label="WORKFLOW_COMPACT_HEADER_YUL" />
-		<field name="breadcrumb_header" type="an..4096" label="WORKFLOW_BREADCRUMB_HEADER_YUL" />
+		<field name="compact_header" type="ANY" label="WORKFLOW_COMPACT_HEADER_YUL" />
+		<field name="breadcrumb_header" type="ANY" label="WORKFLOW_BREADCRUMB_HEADER_YUL" />
 		<field name="tooltip_header" type="ANY" label="WORKFLOW_TOOLTIP_HEADER_YUL" />
 
-		<field name="identifier" displayType="system" />
-		<field name="type" displayType="system" />
 		<field name="title" type="an..1024" mandatory="false" displayType="system" >
 			<control id="DEFAULT_VALUE_PATTERN">
 				<control-param type="default_value_pattern" id="template" name="template">$[emf:type]</control-param>
 			</control>
 		</field>
-		<field name="status" displayType="system" />
-		<field name="description" displayType="system" />
-		<field name="createdOn" displayType="system" />
-		<field name="createdBy" displayType="system" />
-		<field name="modifiedOn" displayType="system" />
-		<field name="modifiedBy" displayType="system" />
-		<field name="emf:version" displayType="system" />
-		<field name="emf:revisionNumber" displayType="system" />
-		<field name="assignee" type="uri" displayType="system" />
-		<field name="hasParent" type="uri" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="hasThumbnail" type="uri" displayType="system" />
-		<field name="plannedEndDate" type="date" displayType="system" />
-		<field name="plannedStartDate" type="date" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system"/>
-		<field name="hasChild" type="uri" displayType="system"/>
-		<!-- workflow fields -->
-		<field name="priority" displayType="system" />
-		<field name="stopReason" displayType="system" />
 	</fields>
 	<regions>
 		<region id="generalWorkflowInformation" order="10" displayType="editable" label="yulWorkflow.generalWorkflowInformation.region.label">
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="yul.type.label" tooltip="yul.type.tooltip" dmsType="emf:type" >
-					<value>yulWF</value>
+				<field name="type" codelist="CL7" tooltip="yul.type.tooltip" >
+					<value>FC236004</value>
 				</field>
-				<field name="department" type="an..50" mandatory="true" displayType="editable" codelist="CL245" label="yul.department.label" tooltip="yul.department.tooltip" multiValued="true" uri="emf:departmentName" >
+				<field name="department" type="ANY" mandatory="true" displayType="editable" codelist="CL245" label="yul.department.label" tooltip="yul.department.tooltip" multiValued="true" uri="emf:departmentName" >
 					<control id="DEFAULT_VALUE_PATTERN">
 						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.department]</control-param>
 					</control>
 				</field>
-				<field name="description" type="an..1000" displayType="editable" label="yul.description.label" tooltip="yul.description.tooltip" dmsType="cm:description" uri="dcterms:description" />
-				<field name="priority" type="an..20" mandatory="false" displayType="editable" codelist="CL29" label="priority.label" tooltip="yul.priority.tooltip" dmsType="bpm:priority" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority">
+				<field name="description" type="an..1000" tooltip="yul.description.tooltip" />
+				<field name="priority" tooltip="yul.priority.tooltip" >
 					<value>0006-000084</value>
 				</field>
-				<field name="plannedStartDate" type="date" displayType="editable" label="yul.plannedStartDate.label" tooltip="yul.plannedStartDate.tooltip" dmsType="FORBIDDEN" uri="emf:plannedStartDate">
+				<field name="plannedStartDate" label="yul.plannedStartDate.label" tooltip="yul.plannedStartDate.tooltip" >
 					<condition id="readonlyField" renderAs="READONLY">[status] NOTIN ('NOT_YET_STARTED')</condition>
 					<value>${today}</value>
 				</field>
-				<field name="plannedEndDate" type="date" displayType="editable" label="yul.plannedEndDate.label" tooltip="yul.plannedEndDate.tooltip" dmsType="bpm:dueDate" uri="emf:plannedEndDate">
+				<field name="plannedEndDate" type="date" label="yul.plannedEndDate.label" tooltip="yul.plannedEndDate.tooltip" >
 					<condition id="readonlyField" renderAs="READONLY">[status] NOTIN ('NOT_YET_STARTED')</condition>
 				</field>
-				<field name="stopReason" type="an..250" displayType="hidden" label="yul.stopReason.label" tooltip="yul.stopReason.tooltip" previewEmpty="false" uri="emf:stopReason" />
+				<field name="stopReason" displayType="hidden" label="yul.stopReason.label" tooltip="yul.stopReason.tooltip" previewEmpty="false" />
 			</fields>
 		</region>
 		<region id="systemInformation" order="30" label="yul.systemData.region.label">
 			<fields>
-				<field name="identifier" type="an..50" displayType="readOnly" label="yul.identifier.label" tooltip="yul.identifier.tooltip" dmsType="emf:identifier" rnc="${eval(WF${seq({+wfSequence})})}" uri="dcterms:identifier">
-					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NEW')</condition>
-				</field>
-				<field name="status" type="an..50" displayType="readOnly" codelist="CL9" label="yul.status.label" tooltip="yul.status.tooltip" dmsType="emf:status" uri="emf:status" />
-				<field name="emf:version" type="an..10" displayType="readOnly" label="object.version" tooltip="yul.version.tooltip" dmsType="FORBIDDEN" uri="emf:version"/>
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="yul.createdOn.label" tooltip="yul.createdOn.tooltip" dmsType="-cm:created" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" label="yul.createdBy.label" tooltip="yul.createdBy.tooltip" dmsType="-cm:creator" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" dmsType="-cm:modified" uri="emf:modifiedOn" />
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" dmsType="-cm:modifier" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readOnly" label="yul.lockedBy.label" tooltip="yul.lockedBy.tooltip" dmsType="FORBIDDEN" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="identifier" tooltip="yul.identifier.tooltip" rnc="${eval(WF${seq({+wfSequence})})}" />
+				<field name="status" codelist="CL9" tooltip="yul.status.tooltip" />
+				<field name="emf:version" tooltip="yul.version.tooltip" />
+				<field name="createdOn" tooltip="yul.createdOn.tooltip" />
+				<field name="createdBy" tooltip="yul.createdBy.tooltip" />
+				<field name="modifiedOn" label="yul.modifiedOn.label" tooltip="yul.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="yul.modifiedBy.label" tooltip="yul.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="yul.lockedBy.tooltip" />
 			</fields>
 		</region>
 		<region id="yulActivityDefinitionRelationships" order="40" displayType="editable" label="yul.relationships.region.label">
@@ -100,44 +62,13 @@
 						<control-param id="range" name="range">emf:Project,yul:Activity,emf:Document,emf:Task,chc:CulturalObject,emf:Image,emf:Audio,emf:Video,chc:Sample,emf:BusinessProcess</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" label="yul.hasWatcher.label" tooltip="yul.hasWatcher.tooltip" multiValued="true" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="hasThumbnail" type="uri" displayType="readOnly" label="yul.hasThumbnail.label" tooltip="yul.hasThumbnail.tooltip" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readOnly" label="yul.parentOf.label" tooltip="yul.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="hasParent" type="uri" displayType="readOnly" label="yul.hasParent.label" tooltip="yul.hasParent.tooltip" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range" />
-					</control>
-				</field>
-				<field name="emf:hasTemplate" displayType="readOnly" type="uri" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" label="yul.partOf.label" tooltip="yul.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" label="yul.hasChild.label" tooltip="yul.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"/>
-					</control>
-				</field>
+				<field name="hasWatcher" label="yul.hasWatcher.label" tooltip="yul.hasWatcher.tooltip" />
+				<field name="hasThumbnail" label="yul.hasThumbnail.label" tooltip="yul.hasThumbnail.tooltip" />
+				<field name="parentOf" tooltip="yul.parentOf.tooltip" />
+				<field name="hasParent" tooltip="yul.hasParent.tooltip" previewEmpty="true" />
+				<field name="partOf" displayType="readOnly" tooltip="yul.partOf.tooltip" previewEmpty="true" />
+				<field name="hasChild" tooltip="yul.hasChild.tooltip" />
+				<field name="emf:hasTemplate" label="yul.hasTemplate.label" tooltip="yul.hasTemplate.tooltip" />
 			</fields>
 		</region>
 	</regions>
@@ -205,7 +136,7 @@
 		</transition>
 		
 		<group id="add" order="25" label="add.group.label" type="menu" />
-		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="yul.addAttachment.action.label" tooltip="yul.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="attachToConfig" type="an10">
 					<value>
@@ -239,8 +170,8 @@
 		<group id="exportAs" order="30" label="exportAs.group.label" type="menu" />
 		<transition id="exportTabPDF" group="exportAs" />
 		<transition id="exportPDF" group="exportAs" />
-		<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" group="exportAs" />
-		<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" group="exportAs" />
+		<transition id="exportTabWord" label="exportTabWord.label" purpose="exportTabWord" tooltip="exportTabWord.tooltip" group="exportAs" />
+		<transition id="exportWord" label="exportWord.label" purpose="exportWord" tooltip="exportWord.tooltip" group="exportAs" />
 
 		<group id="print" order="35" label="print.group.label" type="menu" />
 		<transition id="printTab" group="print" />
@@ -248,8 +179,8 @@
 		
 		<group id="template" order="40" label="template.group.label" type="menu" />
 		<transition id="saveAsTemplate" group="template" />
-		<transition id="updateTemplate" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" tooltip="updateTemplate.tooltip" confirmation="confirmation.update_template" group="template" />
-		<transition id="changeTemplate" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" tooltip="changeTemplate.tooltip" group="template" />
+		<transition id="updateTemplate" label="updateTemplate.label" purpose="updateTemplate" tooltip="updateTemplate.tooltip" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" label="changeTemplate.label" purpose="changeTemplate" tooltip="changeTemplate.tooltip" group="template" />
 		
 		<group id="more" order="60" label="more.group.label" type="menu" />
 		<transition id="move" group="more" >
@@ -427,13 +358,19 @@
                     ${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>Planned end date: </label>
-							<span data-property="plannedEndDate">${date([plannedEndDate]).format(dd.MM.yyyy)}</span>
+							<span data-property="plannedEndDate">${date([plannedEndDate])}</span>
 						</span>
 					)}
 					${if(${get([stopReason])}<>null).then(
 						<span class="tooltip-row">
 							<label>Stop reason: </label>
 							<span data-property="stopReason">${get([stopReason])}</span>
+						</span>
+					)}
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
 						</span>
 					)}
                 </span>
@@ -446,21 +383,23 @@
 			<span><img src="${thumbnailUri(64)}"/></span>
 			<span>
 				<span class="truncate-element">
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					Priority:&nbsp;<span data-property="priority">${CL([priority])}</span>&nbsp;
 					${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
 				</span>
 				<br />
 				<span class="truncate-element">
-					<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-							<span data-property="type">${CL([type])}</span>
-					</a>
-					${if(${get([plannedEndDate])} <> null).then(,&nbsp;Planned end date: <span>${date([plannedEndDate]).format(dd.MM.yyyy)}</span>)}
+					<b>
+						<a class="${get([status])} instance-link task-state-${get([status])} ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+								<span data-property="type">${CL([type])}</span>
+						</a>
+					</b>	
+					${if(${get([plannedEndDate])} <> null).then(,&nbsp;Planned end date: <span>${date([plannedEndDate])}</span>)}
 					${if(${var.isVersion}).then(
 						&nbsp;<span class="document-version version badge">${get([emf:version])}</span>
 					)}
-				</span>	
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+				</span>
 			</span>)}]]></value>
 		</label>		
 		<label id="WORKFLOW_COMPACT_HEADER_YUL">	
@@ -468,7 +407,7 @@
 			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span class="truncate-element">
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>&nbsp;
@@ -482,7 +421,7 @@
             ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
 			<span><img src="${thumbnailUri(16)}"/></span>
 			<span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
 					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 					<span data-property="type">${CL([type])}</span>

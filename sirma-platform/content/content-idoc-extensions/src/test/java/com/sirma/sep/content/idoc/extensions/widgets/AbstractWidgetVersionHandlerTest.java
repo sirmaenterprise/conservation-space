@@ -39,6 +39,7 @@ import com.google.gson.JsonPrimitive;
 import com.sirma.itt.seip.instance.dao.InstanceExistResult;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.version.VersionDao;
+import com.sirma.itt.seip.instance.version.VersionIdsCache;
 import com.sirma.sep.content.idoc.WidgetConfiguration;
 import com.sirma.sep.content.idoc.WidgetResults;
 import com.sirma.sep.content.idoc.WidgetSelectionMode;
@@ -197,9 +198,11 @@ public class AbstractWidgetVersionHandlerTest {
 		return widget;
 	}
 
-	private static HandlerContext prepareHandlerContext() {
+	private HandlerContext prepareHandlerContext() {
 		HandlerContext context = new HandlerContext();
-		context.put("versionCreationDate", new Date());
+		Date date = new Date();
+		context.put("versionCreationDate", date);
+		context.put("versionedInstancesCache", new VersionIdsCache(date, versionDao::findVersionIdsByTargetIdAndDate));
 		return context;
 	}
 

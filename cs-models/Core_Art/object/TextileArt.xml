@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <definition id="CulturalObj019" parentId="coreCulturalObject" type="object"> <!-- Textile Art -->
     <fields>
-        <field name="rdf:type" type="URI" displayType="system" uri="rdf:type" >
+        <field name="rdf:type" >
             <value>http://www.sirma.com/ontologies/2018/05/culturalHeritageConservationArtMuseums#TextileArt</value>
         </field>				
     </fields>
@@ -9,31 +9,34 @@
 	<regions>	
 		<region id="generalData">
 			<fields>
-				<field name="chcart:fabricationDescription" type="an..20" displayType="editable" codelist="CL304" label="core.fabricationDescription.label" tooltip="core.fabricationDescription.tooltip" uri="chcart:fabricationDescription" />
-				<field name="chcart:surfaceDescription" type="an..20" displayType="editable" codelist="CL303" label="core.surfaceDescription.label" tooltip="core.surfaceDescription.tooltip" filters="textileArtSurfaceDesc" uri="chcart:surfaceDescription" />
-				<field name="chcart:weaveDescription" type="an..20" displayType="editable" codelist="CL305" label="core.weaveDescription.label" tooltip="core.weaveDescription.tooltip" uri="chcart:weaveDescription" />
-				<field name="chcart:baseDescription" type="an..1800" displayType="editable" label="core.baseDescription.label" tooltip="core.baseDescription.tooltip" uri="chcart:baseDescription" />
-				<field name="chcart:structureDescription" type="an..1800" displayType="editable" label="core.structureDescription.label" tooltip="core.structureDescription.tooltip" uri="chcart:structureDescription" />
-				<field name="chcart:supportDescription" type="an..20" displayType="editable" codelist="CL302" label="core.supportDescription.label" tooltip="core.supportDescription.tooltip" uri="chcart:supportDescription" />
+				<field name="chcart:fabricationDescription" type="ANY" displayType="editable" codelist="CL304" uri="chcart:fabricationDescription" />
+				<field name="chcart:surfaceDescription" type="ANY" displayType="editable" codelist="CL303" filters="textileArtSurfaceDesc" uri="chcart:surfaceDescription" >
+					<control id="RELATED_FIELDS">							
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">type</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
+				<field name="chcart:weaveDescription" type="ANY" displayType="editable" codelist="CL305" uri="chcart:weaveDescription" />
+				<field name="chcart:baseDescription" type="an..1800" displayType="editable" uri="chcart:baseDescription" >
+					<control id="RICHTEXT"/>
+				</field>	
+				<field name="chcart:structureDescription" type="an..1800" displayType="editable" uri="chcart:structureDescription" >
+					<control id="RICHTEXT"/>
+				</field>
+				<field name="chcart:supportDescription" type="ANY" displayType="editable" codelist="CL302" uri="chcart:supportDescription" override="true" >
+					<control id="RELATED_FIELDS">							
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">type</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>
 			</fields>	
 		</region>
 		<region id="systemData">
 			<fields>
-				<field name="type" type="an..20" displayType="readonly" codelist="CL7" label="type.label" tooltip="core.type.tooltip" override="true" uri="emf:type">
+				<field name="type" >
 					<value>CulturalObj019</value>
-					<control id="RELATED_FIELDS">
-						<control-param type="subType" id="fieldsToRerender" name="RERENDER">subType</control-param>
-						<control-param type="subType" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param type="subType" id="filterInclusive" name="INCLUSIVE">true</control-param>
-						
-						<control-param type="chcart:surfaceDescription" id="fieldsToRerender" name="RERENDER">chcart:surfaceDescription</control-param>
-						<control-param type="chcart:surfaceDescription" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param type="chcart:surfaceDescription" id="filterInclusive" name="INCLUSIVE">true</control-param>
-						
-						<control-param type="chcart:supportDescription" id="fieldsToRerender" name="RERENDER">chcart:supportDescription</control-param>
-						<control-param type="chcart:supportDescription" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param type="chcart:supportDescription" id="filterInclusive" name="INCLUSIVE">true</control-param>
-					</control>
 				</field>
 			</fields>
 		</region>		

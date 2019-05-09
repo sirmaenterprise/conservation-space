@@ -227,7 +227,7 @@ public interface Properties extends PropertiesReader {
 	 * Add value to a property without replacing the current value. Applicable for multi value fields.
 	 * <ul>
 	 *     <li>if the given value is null then the method does nothing</li>
-	 *     <li>if the given property does not have any value then the property value will be the given value</li>
+	 *     <li>if the given property does not have any value then the property value will be the given value placed in a collection</li>
 	 *     <li>if the current value is a single value then it will be placed in a collection with the given value, only if the values are different</li>
 	 *     <li>if the current value is a collection of values then the given value will be added to the collection if it's not already in the collection</li>
 	 * </ul>
@@ -243,22 +243,17 @@ public interface Properties extends PropertiesReader {
 		}
 
 		Serializable currentValue = get(name);
-		boolean changed = false;
-		if (currentValue == null) {
-			add(name, value);
-			changed = true;
-		} else if (currentValue instanceof Collection) {
+
+		if (currentValue instanceof Collection) {
 			if (!((Collection) currentValue).contains(value)) {
-				changed = ((Collection<Serializable>) currentValue).add(value);
-				add(name, currentValue);
+				return ((Collection<Serializable>) currentValue).add(value);
 			}
-		} else if (!value.equals(currentValue)) {
-			LinkedList<Serializable> list = new LinkedList<>();
-			list.add(currentValue);
-			changed = list.add(value);
-			add(name, list);
+			return false;
+		} else {
+			add(name, new LinkedList<>());
+			append(name, currentValue);
 		}
-		return changed;
+		return append(name, value);
 	}
 
 	/**

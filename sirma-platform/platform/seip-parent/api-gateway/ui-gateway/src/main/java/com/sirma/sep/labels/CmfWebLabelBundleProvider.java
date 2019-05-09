@@ -1,7 +1,7 @@
 package com.sirma.sep.labels;
 
 import com.sirma.itt.seip.definition.label.ClasspathLabelBundleProvider;
-import com.sirma.itt.seip.domain.definition.label.LabelBundleProvider;
+import com.sirma.itt.seip.domain.definition.label.LabelResolverProvider;
 import com.sirma.itt.seip.plugin.Extension;
 
 /**
@@ -11,7 +11,7 @@ import com.sirma.itt.seip.plugin.Extension;
  * @author Adrian Mitev
  */
 @Deprecated
-@Extension(target = LabelBundleProvider.TARGET_NAME, order = 1)
+@Extension(target = LabelResolverProvider.TARGET_NAME, order = 1)
 public class CmfWebLabelBundleProvider extends ClasspathLabelBundleProvider {
 
 	@Override

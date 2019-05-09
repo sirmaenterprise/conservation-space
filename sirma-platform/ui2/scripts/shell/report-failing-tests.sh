@@ -11,10 +11,10 @@ set -o pipefail
 
 jenkins_build_url="$1"
 jira_credentials="$2"
+branch_name="$(echo $3 | sed -E 's~^refs/(heads|tags)/~~')"
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 repo_root="$(cd $script_dir/../../ && pwd)"
-branch_name="$(git rev-parse --abbrev-ref HEAD)"
 build_log="$script_dir/build-$(date --utc +%Y-%m-%d_%H-%M-%S).log"
 jira_rest_api_url="http://jira.vpn.ittbg.com:8080/jira/rest/api/2"
 

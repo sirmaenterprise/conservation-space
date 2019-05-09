@@ -230,6 +230,12 @@ class IdocPage extends SandboxPage {
     propertiesSelector.selectProperties(propertyNames);
   }
 
+  insertLayout(layoutNum) {
+    $('.cke_button__addlayout').click();
+    browser.wait(EC.visibilityOf($('.cke_dialog_contents_body')), DEFAULT_TIMEOUT);
+    $$('div.container-fluid').get(layoutNum - 1).click();
+    browser.wait(EC.visibilityOf($('.layoutmanager')), DEFAULT_TIMEOUT);
+  }
 }
 
 class ActionsToolbar {
@@ -265,9 +271,11 @@ class ActionsToolbar {
     return this.toolbar.all(by.css('.btn'));
   }
 
-  editIdoc() {
+  editIdoc(draft) {
     this.editButton.click();
-    browser.wait(EC.presenceOf(element(by.css('.idoc-mode-edit'))), DEFAULT_TIMEOUT);
+    if (!draft) {
+      browser.wait(EC.presenceOf(element(by.css('.idoc-mode-edit'))), DEFAULT_TIMEOUT);
+    }
   }
 
   cancelSave() {
@@ -307,12 +315,24 @@ class EditorToolbar {
     return new FontNameMenu(this.tabNumber, this.toolbarElement, 'Font Name');
   }
 
+  getHeadingMenu() {
+    return new HeadingMenu(this.tabNumber, this.toolbarElement, 'Paragraph Format');
+  }
+
+  getUndoRedoToolbar() {
+    return new UndoRedoActionsMenu(this.toolbarElement);
+  }
+
   getWidgetMenu() {
     return new WidgetMenu(this.tabNumber, this.toolbarElement, 'Widgets');
   }
 
   getPasteMenu() {
     return new PasteMenu(this.tabNumber, this.toolbarElement, 'Clipboard');
+  }
+
+  getTextOptionsToolbar() {
+    return new EditorToolbarOptions(this.toolbarElement);
   }
 
   insertInfoWidget() {
@@ -332,9 +352,10 @@ class EditorToolbar {
 }
 
 class EditorToolbarMenu {
+
   constructor(tabNumber, toolbarElement, menuName) {
     this.menuElement = toolbarElement.element(by.css(`[title='${menuName}']`));
-    browser.wait(EC.elementToBeClickable(this.menuElement), DEFAULT_TIMEOUT);
+    browser.wait(EC.elementToBeClickable(this.menuElement), DEFAULT_TIMEOUT, `Editor's toolbar ${menuName} menu should be clickable!`);
     this.tabNumber = tabNumber;
   }
 
@@ -345,7 +366,7 @@ class EditorToolbarMenu {
 
   select(menuName) {
     this.open();
-    browser.wait(EC.visibilityOf($('iframe')), DEFAULT_TIMEOUT);
+    browser.wait(EC.visibilityOf($('iframe')), DEFAULT_TIMEOUT, 'Menu iframe wrapper should be visible!');
     browser.switchTo().frame(0);
     this.activate(menuName);
     browser.switchTo().defaultContent();
@@ -409,6 +430,17 @@ FontNameMenu.FN_TIMES_NEW_ROMAN = 'Times New Roman';
 FontNameMenu.FN_TREBUCHET_MS = 'Trebuchet MS';
 FontNameMenu.FN_VERDANA = 'Verdana';
 
+class HeadingMenu extends EditorToolbarMenu {
+  constructor(tabNumber, toolbarElement, menuName) {
+    super(tabNumber, toolbarElement, menuName);
+  }
+
+  activate(menuName) {
+    browser.driver.findElement(by.css(`[title='${menuName}']`)).click();
+  }
+}
+HeadingMenu.HEADING1 = 'Heading 1';
+
 class PasteMenu extends EditorToolbarMenu {
   constructor(tabNumber, toolbarElement, menuName) {
     super(tabNumber, toolbarElement, menuName);
@@ -430,6 +462,92 @@ class WidgetMenu extends EditorToolbarMenu {
   }
 }
 
+class EditorToolbarOptions {
+  constructor(toolbarElement) {
+    this.replaceMenuButton = toolbarElement.element(by.css('.cke_button__replace'));
+    this.boldMenuButton = toolbarElement.element(by.css('.cke_button__bold'));
+    this.italicMenuButton = toolbarElement.element(by.css('.cke_button__italic'));
+    this.strikeTextButton = new ListEditorMenu(toolbarElement.element(by.css('.cke_button__strike_icon')), '[title="Options"]');
+    this.insertNumberedListButton = toolbarElement.element(by.css('.cke_button__numberedlist'));
+    this.bulletedListButton = toolbarElement.element(by.css('.cke_button__bulletedlist'));
+    this.horizontalRuleButton = toolbarElement.element(by.css('.cke_button__horizontalrule'));
+    this.blockquoteButton = toolbarElement.element(by.css('.cke_button__blockquote'));
+    this.justifyMenu = toolbarElement.element(by.css('.cke_button__justify'));
+    this.pageBreakButton = toolbarElement.element(by.css('.cke_button__pagebreak'));
+  }
+
+  boldText() {
+    this.boldMenuButton.click();
+  }
+
+  italicText() {
+    this.italicMenuButton.click();
+  }
+
+  strikeText(listTitle) {
+    this.strikeTextButton.selectFromMenu(listTitle);
+  }
+
+  insertNumberedList() {
+    this.insertNumberedListButton.click();
+  }
+
+  insertbulletedList() {
+    this.bulletedListButton.click();
+  }
+
+  insertHorizontalRule() {
+    this.horizontalRuleButton.click();
+  }
+
+  insertBlockQuote() {
+    this.blockquoteButton.click();
+  }
+
+  insertPageBreak() {
+    this.pageBreakButton.click();
+  }
+}
+
+class ListEditorMenu {
+  constructor(menuButton, menuSelector) {
+    this.menuButton = menuButton;
+    this.menuSelector = menuSelector;
+  }
+
+  selectFromMenu(menuItemName) {
+    this.menuButton.click();
+    browser.wait(EC.visibilityOf(element(by.css('iframe'))), DEFAULT_TIMEOUT);
+    browser.driver.switchTo().frame(element(by.tagName('iframe')).getWebElement());
+    browser.driver.findElement(by.css(`[title="${menuItemName}"]`)).click();
+    browser.switchTo().defaultContent();
+  }
+}
+
+class UndoRedoActionsMenu {
+  constructor(toolbar) {
+    this.undoBtn = toolbar.element(by.css('.cke_button.cke_button__undo'));
+    this.redoBtn = toolbar.element(by.css('.cke_button.cke_button__redo'));
+  }
+
+  getUndoButton() {
+    return this.undoBtn;
+  }
+
+  getRedoButton() {
+    return this.redoBtn;
+  }
+
+  undo(contentElement) {
+    browser.executeScript(`CKEDITOR.instances[arguments[0].id].execCommand('undo')`, contentElement.getWebElement());
+  }
+
+  redo(contentElement) {
+    return browser.executeScript(`CKEDITOR.instances[arguments[0].id].execCommand('redo')`, contentElement.getWebElement());
+  }
+}
+
+
 class ContentArea {
   constructor(tabNumber) {
     this.contentSelector = `.tab-content > :nth-child(${tabNumber}) .idoc-editor-area-wrapper > .ck-editor-area`;
@@ -437,11 +555,11 @@ class ContentArea {
   }
 
   waitUntilLoaded() {
-    browser.wait(EC.presenceOf($(this.contentSelector)), DEFAULT_TIMEOUT);
+    browser.wait(EC.presenceOf($(this.contentSelector)), DEFAULT_TIMEOUT, 'Content area should be present!');
     browser.wait(() => {
       // CKEDITOR may change the dom element while it initializes and the reference might be lost
       return TestUtils.hasClass($(this.contentSelector), 'initialized');
-    }, DEFAULT_TIMEOUT);
+    }, DEFAULT_TIMEOUT, 'CKEditor should be initialized!');
     this.contentElement = $(this.contentSelector);
   }
 
@@ -450,10 +568,17 @@ class ContentArea {
   }
 
   insertWidget(name) {
+    // dismiss any previous opened dialogs
+    $('body').sendKeys(protractor.Key.ESCAPE);
+
     this.executeWidgetCommand(name);
     let widgetElement = this.getWidget(name);
     browser.wait(EC.presenceOf(widgetElement), DEFAULT_TIMEOUT);
     return widgetElement;
+  }
+
+  widgetsCount() {
+    return element.all(by.css(this.contentSelector + ' [widget]')).count();
   }
 
   executeWidgetCommand(widgetName) {
@@ -462,6 +587,8 @@ class ContentArea {
 
   setContent(content) {
     browser.executeScript('CKEDITOR.instances[arguments[0].id].setData(arguments[1])', this.contentElement.getWebElement(), content);
+    // undo plugin must be updated manually
+    browser.executeScript('CKEDITOR.instances[arguments[0].id].fire("saveSnapshot")', this.contentElement.getWebElement());
   }
 
   isFocused() {
@@ -470,11 +597,15 @@ class ContentArea {
 
   type(text) {
     this.contentElement.sendKeys(text);
+    browser.executeScript('CKEDITOR.instances[arguments[0].id].fire("saveSnapshot")', this.contentElement.getWebElement());
+
     return this;
   }
 
   newLine() {
     this.contentElement.sendKeys(protractor.Key.ENTER);
+    browser.executeScript('CKEDITOR.instances[arguments[0].id].fire("saveSnapshot")', this.contentElement.getWebElement());
+
     return this;
   }
 
@@ -499,6 +630,10 @@ class ContentArea {
 
   getWidgetByNameAndOrder(name, order) {
     return this.contentElement.$$('.' + name).get(order);
+  }
+
+  getContentElement() {
+    return this.contentElement;
   }
 
   getAsText() {
@@ -580,7 +715,24 @@ class Paragraph {
 
 IdocPage.VIEW_MODE = VIEW_MODE;
 IdocPage.CSS = CSS;
+ListEditorMenu.TEXT_STYLE = {
+  STRIKE: "Strike",
+  UNDERLINE: "Underline (Ctrl+U)",
+  SUBSCRIPT: "Subscript",
+  SUPERSCRIPT: "Superscript",
+  REMOVE_FORMAT: "Remove format"
+};
+
+ListEditorMenu.JUSTIFY = {
+  OUTDENT: "Outdent",
+  JUSTIFY_LEFT: "Justify left",
+  JUSTIFY_RIGHT: "Justify right",
+  JUSTIFY_CENTER: "Justify"
+};
+
 module.exports.IdocPage = IdocPage;
 module.exports.ActionsToolbar = ActionsToolbar;
 module.exports.FontSizeMenu = FontSizeMenu;
 module.exports.FontNameMenu = FontNameMenu;
+module.exports.HeadingMenu = HeadingMenu;
+module.exports.ListEditorMenu = ListEditorMenu;

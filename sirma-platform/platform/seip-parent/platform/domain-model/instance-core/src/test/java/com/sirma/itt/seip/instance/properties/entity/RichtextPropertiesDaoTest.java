@@ -39,6 +39,8 @@ public class RichtextPropertiesDaoTest {
 	private static final Long PROPERTY_ID = Long.valueOf(56);
 	private static final String PROPERTY_NAME = "description";
 	private static final String CONTENT = "<b> This </b> <i> is </i> test";
+	private static final String SANITIZED_CONTENT = "This is test";
+
 
 	@InjectMocks
 	private RichtextPropertiesDao richtextPropertiesDao;
@@ -60,33 +62,24 @@ public class RichtextPropertiesDaoTest {
 
 	@Test
 	public void should_Update_Property() {
-
-		RichtextPropertyEntity expected = new RichtextPropertyEntity();
-		expected.setId(Long.valueOf(12));
-		expected.setInstanceId(INSTANCE_ID);
-		expected.setPropertyId(PROPERTY_ID);
-		expected.setContent("<b>Old value</b>");
-
-		when(dbDao.fetchWithNamed(anyString(), any(List.class))).thenReturn(Collections.singletonList(expected));
-		when(sanitizer.sanitize(CONTENT)).thenReturn(CONTENT);
+		RichtextPropertyEntity oldValue = createRichtextProperty(12l, INSTANCE_ID, PROPERTY_ID, "<b>Old actualValue</b>");
+		when(dbDao.fetchWithNamed(anyString(), any(List.class))).thenReturn(Collections.singletonList(oldValue));
+		when(sanitizer.sanitize(CONTENT)).thenReturn(SANITIZED_CONTENT);
 
 		richtextPropertiesDao.saveOrUpdate(INSTANCE_ID, PROPERTY_ID, CONTENT);
 
 		ArgumentCaptor<RichtextPropertyEntity> captor = ArgumentCaptor.forClass(RichtextPropertyEntity.class);
 		verify(dbDao).saveOrUpdate(captor.capture());
 
-		assertEquals(expected, captor.getValue());
-		assertEquals(CONTENT, captor.getValue().getContent());
+		RichtextPropertyEntity expected = createRichtextProperty(12l, INSTANCE_ID, PROPERTY_ID, SANITIZED_CONTENT);
+		RichtextPropertyEntity actualValue = captor.getValue();
+		assertEquals(expected, actualValue);
+		assertEquals(SANITIZED_CONTENT, actualValue.getContent());
 	}
 
 	@Test
 	public void should_Save_Property() {
-
-		RichtextPropertyEntity expected = new RichtextPropertyEntity();
-		expected.setInstanceId(INSTANCE_ID);
-		expected.setPropertyId(PROPERTY_ID);
-		expected.setContent(CONTENT);
-
+		when(sanitizer.sanitize(CONTENT)).thenReturn(SANITIZED_CONTENT);
 		when(dbDao.fetchWithNamed(anyString(), any(List.class))).thenReturn(Collections.emptyList());
 
 		richtextPropertiesDao.saveOrUpdate(INSTANCE_ID, PROPERTY_ID, CONTENT);
@@ -94,6 +87,23 @@ public class RichtextPropertiesDaoTest {
 		ArgumentCaptor<RichtextPropertyEntity> captor = ArgumentCaptor.forClass(RichtextPropertyEntity.class);
 		verify(dbDao).saveOrUpdate(captor.capture());
 
+		// its new entity so it has no dbid
+		RichtextPropertyEntity expected = createRichtextProperty(null, INSTANCE_ID, PROPERTY_ID, SANITIZED_CONTENT);
+		assertEquals(expected, captor.getValue());
+	}
+
+	@Test
+	public void should_Save_Property_with_empty_content() {
+		when(sanitizer.sanitize(null)).thenThrow(IllegalArgumentException.class);
+		when(dbDao.fetchWithNamed(anyString(), any(List.class))).thenReturn(Collections.emptyList());
+
+		richtextPropertiesDao.saveOrUpdate(INSTANCE_ID, PROPERTY_ID, null);
+
+		ArgumentCaptor<RichtextPropertyEntity> captor = ArgumentCaptor.forClass(RichtextPropertyEntity.class);
+		verify(dbDao).saveOrUpdate(captor.capture());
+
+		// its new entity so it has no dbid
+		RichtextPropertyEntity expected = createRichtextProperty(null, INSTANCE_ID, PROPERTY_ID, null);
 		assertEquals(expected, captor.getValue());
 	}
 
@@ -109,8 +119,7 @@ public class RichtextPropertiesDaoTest {
 
 	@Test
 	public void should_Fetch_By_Id() {
-
-		RichtextPropertyEntity richtextProperty = createRichtextProperty();
+		RichtextPropertyEntity richtextProperty = createRichtextProperty(12l, INSTANCE_ID, PROPERTY_ID, CONTENT);
 
 		when(dbDao.fetchWithNamed(anyString(), any(List.class)))
 				.thenReturn(Collections.singletonList(richtextProperty));
@@ -126,8 +135,7 @@ public class RichtextPropertiesDaoTest {
 
 	@Test
 	public void should_Fetch_By_Ids() {
-
-		RichtextPropertyEntity richtextProperty = createRichtextProperty();
+		RichtextPropertyEntity richtextProperty = createRichtextProperty(12l, INSTANCE_ID, PROPERTY_ID, CONTENT);
 
 		when(dbDao.fetchWithNamed(anyString(), any(List.class)))
 				.thenReturn(Collections.singletonList(richtextProperty));
@@ -147,12 +155,12 @@ public class RichtextPropertiesDaoTest {
 		assertEquals(expected, properties);
 	}
 
-	private static RichtextPropertyEntity createRichtextProperty() {
+	private static RichtextPropertyEntity createRichtextProperty(Long dbid, String instanceId, Long propertyId, String content) {
 		RichtextPropertyEntity richtextProperty = new RichtextPropertyEntity();
-		richtextProperty.setId(Long.valueOf(12));
-		richtextProperty.setInstanceId(INSTANCE_ID);
-		richtextProperty.setPropertyId(PROPERTY_ID);
-		richtextProperty.setContent(CONTENT);
+		richtextProperty.setId(dbid);
+		richtextProperty.setInstanceId(instanceId);
+		richtextProperty.setPropertyId(propertyId);
+		richtextProperty.setContent(content);
 		return richtextProperty;
 	}
 

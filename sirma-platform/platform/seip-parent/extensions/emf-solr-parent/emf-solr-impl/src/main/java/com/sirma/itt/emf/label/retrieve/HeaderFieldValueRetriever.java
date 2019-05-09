@@ -172,7 +172,7 @@ public class HeaderFieldValueRetriever extends ObjectFieldValueRetriever {
 
 	private Collection<SolrDocument> doSolrSearchInternal(SolrQuery query) {
 		try {
-			QueryResponse queryResponse = solrConnector.queryWithPost(query);
+			QueryResponse queryResponse = solrConnector.query(query);
 			if (queryResponse != null) {
 				return queryResponse.getResults();
 			}

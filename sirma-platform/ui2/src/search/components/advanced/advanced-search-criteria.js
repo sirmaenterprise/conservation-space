@@ -44,9 +44,7 @@ import template from './advanced-search-criteria.html!text';
     'criteriaLevel': 'criteria-level'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 export class AdvancedSearchCriteria extends Configurable {
 
   constructor() {

@@ -36,9 +36,7 @@ const INSTANCE_SERVICE_CONFIG = {params: {properties: [HEADER_BREADCRUMB]}};
   },
   events: ['onContextChange']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(Eventbus, RecentObjectsService, InstanceRestService, PromiseAdapter, ContextualObjectsFactory)
 export class SearchContextMenu extends Configurable {
 

@@ -490,7 +490,20 @@ export class DatatableWidget {
   static getRelatedPropertiesByType(sharedObject, relatedProperties) {
     let type = sharedObject.getModels().definitionId;
     if (!relatedProperties[type]) {
-      type = sharedObject.getSemanticClass();
+      // The type of the object should be always last in the semantic hierarchy, so we need to start traversing the
+      // hierarchy backwards. We do the traversing and not just picking the class of the current object, because during
+      // the widget configuration might have been selected a type which is not leaf and we need to find the first one
+      // that match in the related properties mapping. For example: widget configured with auto selection and type
+      // http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#CulturalObject, but result of type
+      // http://www.sirma.com/ontologies/2013/10/culturalHeritageDomain#Drawing. Obviously using the later would not
+      // match in the mapping, so we find if the object hierarchy contains type that match and use it instead.
+      let semanticHierarchy = sharedObject.getSemanticHierarchy().reverse();
+      semanticHierarchy.some(clazz => {
+        if (relatedProperties[clazz]) {
+          type = clazz;
+          return true;
+        }
+      });
     }
     return relatedProperties[type] || [];
   }

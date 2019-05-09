@@ -1,0 +1,22 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+DELETE {
+   rdf:type rdfs:label ?o1.
+   rdf:type dcterms:title ?o2.
+}
+INSERT {
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        rdf:type rdfs:label "Тип"@bg, "Type"@en, "Art"@de, "Tyyppi"@fi, "Type"@da .
+        rdf:type dcterms:title "Тип"@bg, "Type"@en, "Art"@de, "Tyyppi"@fi, "Type"@da .
+        rdf:type skos:definition "System type of the item"@en .
+        rdf:type dcterms:description "System type of the item"@en .
+    }
+} WHERE {
+     rdf:type rdfs:label ?o1.
+     optional {
+        rdf:type dcterms:title ?o2.
+     }
+}

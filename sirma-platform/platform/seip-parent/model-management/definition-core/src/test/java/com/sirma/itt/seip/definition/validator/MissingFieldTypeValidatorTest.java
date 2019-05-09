@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.definition.validator;
 
+import static com.sirma.itt.seip.definition.ValidationMessageUtils.hasError;
+import static com.sirma.itt.seip.definition.validator.MissingFieldTypeValidator.MissingFieldTypeMessageBuilder.MISSING_FIELD_TYPE;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -10,6 +12,7 @@ import org.junit.Test;
 import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.definition.model.PropertyDefinitionProxy;
 import com.sirma.itt.seip.definition.model.RegionDefinitionImpl;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 import com.sirma.itt.seip.model.DataType;
 
 public class MissingFieldTypeValidatorTest {
@@ -17,7 +20,7 @@ public class MissingFieldTypeValidatorTest {
 	private MissingFieldTypeValidator validator = new MissingFieldTypeValidator();
 
 	@Test
-	public void should_NotAllowFieldWsithoutType() {
+	public void should_NotAllowFieldWithoutType() {
 		GenericDefinitionImpl definition = new GenericDefinitionImpl();
 		definition.setIdentifier("d1");
 
@@ -25,16 +28,14 @@ public class MissingFieldTypeValidatorTest {
 		field1.setIdentifier("f1");
 		definition.getFields().add(field1);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-
-		assertTrue(errors.get(0).contains("(missing types):"));
+		assertTrue(hasError(errors, MISSING_FIELD_TYPE, "d1", "f1"));
 	}
 
-
 	@Test
-	public void should_NotAllowFieldWsithoutType_LocatedInRegion() {
+	public void should_NotAllowFieldWithoutType_LocatedInRegion() {
 		GenericDefinitionImpl definition = new GenericDefinitionImpl();
 		definition.setIdentifier("d1");
 
@@ -47,15 +48,14 @@ public class MissingFieldTypeValidatorTest {
 
 		definition.getRegions().add(region);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-
-		assertTrue(errors.get(0).contains("(missing types):"));
+		assertTrue(hasError(errors, MISSING_FIELD_TYPE, "d1", "f1"));
 	}
 
 	@Test
-	public void should_NotAllowFieldWsithoutDataType() {
+	public void should_NotAllowFieldWithoutDataType() {
 		GenericDefinitionImpl definition = new GenericDefinitionImpl();
 		definition.setIdentifier("d1");
 
@@ -64,11 +64,10 @@ public class MissingFieldTypeValidatorTest {
 		field1.setType("1");
 		definition.getFields().add(field1);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-
-		assertTrue(errors.get(0).contains("(missing types):"));
+		assertTrue(hasError(errors, MISSING_FIELD_TYPE, "d1", "f1"));
 	}
 
 	@Test
@@ -82,8 +81,7 @@ public class MissingFieldTypeValidatorTest {
 		field1.setDataType(new DataType());
 		definition.getFields().add(field1);
 
-		List<String> errors = validator.validate(definition);
-
+		List<ValidationMessage> errors = validator.validate(definition);
 		assertTrue(errors.isEmpty());
 	}
 

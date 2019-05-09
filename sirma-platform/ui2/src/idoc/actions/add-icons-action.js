@@ -40,7 +40,7 @@ export class AddIconsAction extends InstanceAction {
       var uploadConfig = {
         config: {
           maxFileSize: this.configuration.get(Configuration.UPLOAD_MAX_FILE_SIZE),
-          buttons: buttons
+          buttons
         }
       };
 
@@ -48,7 +48,7 @@ export class AddIconsAction extends InstanceAction {
         modalCls: 'file-upload-dialog',
         header: action.label,
         largeModal: true,
-        buttons: buttons,
+        buttons,
         onButtonClick: (buttonId, componentScope, dialogConfig) => {
           this.handleButtonClickedEvent(buttonId, componentScope, dialogConfig, resolve);
         }

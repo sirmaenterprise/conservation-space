@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.sirma.itt.emf.semantic.queries.SPARQLQueryHelper;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.annotation.Configuration;
@@ -27,6 +28,7 @@ import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.domain.search.SearchArguments;
 import com.sirma.itt.seip.domain.search.SearchRequest;
+import com.sirma.itt.seip.domain.search.Sorter;
 import com.sirma.itt.seip.domain.search.tree.Condition;
 import com.sirma.itt.seip.domain.search.tree.ConditionBuilder;
 import com.sirma.itt.seip.domain.search.tree.Rule;
@@ -75,12 +77,19 @@ public class InstanceSuggestRestService {
 	 */
 	@POST
 	public SearchArguments<Instance> suggestRelation(InstanceSuggestRelationsRequest instanceSuggestRelationsRequest) {
+		String keywords = instanceSuggestRelationsRequest.getKeywords();
 		SearchRequest request = createSearchRequest(instanceSuggestRelationsRequest.getDefinitionId(),
 													instanceSuggestRelationsRequest.getPropertyName(),
-													instanceSuggestRelationsRequest.getKeywords());
+													keywords);
 		SearchArguments<Instance> searchArguments = searchService.parseRequest(request);
 		// Remove sorters if any.
 		searchArguments.getSorters().clear();
+		// If we do not have keywords for searching we must not add sorter by
+		// relevant because search will have not solr query. If we add sorter
+		// empty result will be returned instead real one.
+		if (!keywords.isEmpty()) {
+			searchArguments.addSorter(new Sorter(SPARQLQueryHelper.RANKING_SORTER_FIELD, false));
+		}
 		searchArguments.setMaxSize(instanceSuggestResultsCount.get());
 		searchArguments.setPageSize(instanceSuggestResultsCount.get());
 		try {
@@ -144,6 +153,7 @@ public class InstanceSuggestRestService {
 		return Optional.ofNullable(propertyDefinition.getControlDefinition())
 				.flatMap(controlDefinition -> controlDefinition.getParam("restrictions"))
 				.map(ControlParam::getValue)
+				.filter(StringUtils::isNotBlank)
 				.map(restriction -> JSON.readObject(restriction, jsonToConditionConverter::parseCondition));
 	}
 

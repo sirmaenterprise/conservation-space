@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -37,25 +38,25 @@ public class TemplateRuleTranslator {
 	 * Translates the rule to a human-readable form, swapping the codes with their labels from the definition and
 	 * codelists.
 	 *
-	 * @param rule
-	 *            is the template rule
-	 * @param forType
-	 *            is the forType of the template (definition ID)
-	 * @return
+	 * @param rule is the template rule
+	 * @param forType is the forType of the template (definition ID)
+	 * @return the translated rule
 	 */
 	public String translate(String rule, String forType) {
 		if (StringUtils.isBlank(rule) || StringUtils.isBlank(forType)) {
 			return rule;
 		}
+
 		DefinitionModel definition = definitionService.find(forType);
 
 		Map<String, Serializable> parsed = TemplateRuleUtils.parseRule(rule);
 
 		StringBuilder translated = new StringBuilder();
 		for (Map.Entry<String, Serializable> entry : parsed.entrySet()) {
-			if(translated.length() > 0) {
+			if (translated.length() > 0) {
 				translated.append(" AND ");
 			}
+
 			String criteriaString = ruleCriteriaToString(entry.getKey(), entry.getValue(), definition);
 			translated.append(criteriaString);
 		}
@@ -64,13 +65,14 @@ public class TemplateRuleTranslator {
 	}
 
 	private String ruleCriteriaToString(String field, Serializable value, DefinitionModel definition) {
-		if (!definition.getField(field).isPresent()) {
+		Optional<PropertyDefinition> propertyDefinition = definition.getField(field);
+		if (!propertyDefinition.isPresent()) {
 			throw new EmfApplicationException(
 					"Template rule field [" + field + "] was not found in definition " + definition.getIdentifier());
 		}
-		PropertyDefinition definitionField = definition.getField(field).get();
+		PropertyDefinition definitionField = propertyDefinition.get();
 		String keyTranslated = definitionField.getLabel();
-		String valueTranslated = "";
+		String valueTranslated;
 
 		if (isCodeListField(definitionField)) {
 			valueTranslated = retrieveFromCodeList(definitionField.getCodelist(), value);

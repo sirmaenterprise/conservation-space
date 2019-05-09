@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.convert.TypeConverter;
+import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.tasks.SchedulerActionAdapter;
 import com.sirma.itt.seip.tasks.SchedulerContext;
@@ -55,7 +56,11 @@ public class ScriptSchedulerExecutor extends SchedulerActionAdapter {
 		String language = context.getIfSameType(PARAM_LANGUAGE, String.class, ScriptEvaluator.DEFAULT_LANGUAGE);
 		Map<String, Object> bindings = context.getIfSameType(PARAM_BINDINGS, Map.class);
 		if (bindings != null) {
+			int originalBindingsCount = bindings.size();
 			bindings = materializeInstanceReferences(bindings);
+			if (bindings.size() != originalBindingsCount) {
+				LOGGER.warn("Could not materialize all instance bindings. The script may fail:\n{}", script);
+			}
 		}
 		TimeTracker timeTracker = TimeTracker.createAndStart();
 		try {
@@ -77,7 +82,18 @@ public class ScriptSchedulerExecutor extends SchedulerActionAdapter {
 		for (Entry<String, Object> entry : bindings.entrySet()) {
 			Object value = entry.getValue();
 			if (value instanceof InstanceReference) {
-				value = typeConverter.convert(ScriptInstance.class, ((InstanceReference) value).toInstance());
+				Instance instance;
+				try {
+					instance = ((InstanceReference) value).toInstance();
+					// the NPE is thrown by the InitializedInstance constructor if the instance could not be loaded
+				} catch (NullPointerException e) {
+					LOGGER.warn("Could not load materialize instance for script binding {}={}.", entry.getKey(),
+							entry.getValue());
+					LOGGER.trace("Could not load materialize instance for script binding {}={}", entry.getKey(),
+							entry.getValue(), e);
+					continue;
+				}
+				value = typeConverter.convert(ScriptInstance.class, instance);
 			}
 			copy.put(entry.getKey(), value);
 		}

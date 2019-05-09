@@ -17,6 +17,6 @@ public abstract class AbstractMessageBodyWriter<T> implements MessageBodyWriter<
 	@Override
 	public long getSize(T t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
 		// Deprecated by JAX-RS 2.0
-		return 0;
+		return -1;
 	}
 }

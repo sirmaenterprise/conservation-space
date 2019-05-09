@@ -28,12 +28,14 @@ describe('LabelRestService', function () {
         'label4': ''
       }
     };
-    labelRestService.prepareTranslationLabels(languages);
-    expect(languages['en'].label1).to.exist;
-    expect(languages['en'].label2).to.not.exist;
 
-    expect(languages['bg'].label3).to.exist;
-    expect(languages['bg'].label4).to.not.exist;
+    labelRestService.clearEmptyTranslationLabels(languages.en);
+    expect(languages.en.label1).to.exist;
+    expect(languages.en.label2).to.not.exist;
+
+    labelRestService.clearEmptyTranslationLabels(languages.bg);
+    expect(languages.bg.label3).to.exist;
+    expect(languages.bg.label4).to.not.exist;
   });
 
   it('should perform request for multiple labels with proper arguments ', () => {

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.emf.rule.InstanceRule;
 import com.sirma.itt.emf.rule.RuleContext;
-import com.sirma.itt.seip.monitor.StatCounter;
 import com.sirma.itt.seip.time.TimeTracker;
 
 /**
@@ -22,7 +21,6 @@ class RuleCallable implements Callable<Boolean> {
 	private final InstanceRule ruleToCall;
 	private final RuleContext context;
 	private final TimeTracker ruleTimeTracker;
-	private final StatCounter activeCounter;
 
 	/**
 	 * Instantiates a new rule callable.
@@ -36,17 +34,15 @@ class RuleCallable implements Callable<Boolean> {
 	 * @param activeCounter
 	 *            the active counter
 	 */
-	public RuleCallable(InstanceRule ruleToCall, RuleContext context, TimeTracker ruleTimeTracker,
-			StatCounter activeCounter) {
+	public RuleCallable(InstanceRule ruleToCall, RuleContext context, TimeTracker ruleTimeTracker) {
 		this.ruleToCall = ruleToCall;
 		this.context = context;
 		this.ruleTimeTracker = ruleTimeTracker;
-		this.activeCounter = activeCounter;
 	}
 
 	@Override
 	public Boolean call() throws Exception {
-		return executeRule(ruleToCall, context, ruleTimeTracker, activeCounter);
+		return executeRule(ruleToCall, context, ruleTimeTracker);
 	}
 
 	/**
@@ -62,18 +58,15 @@ class RuleCallable implements Callable<Boolean> {
 	 *            the active rules counter
 	 * @return true, if successful
 	 */
-	private static Boolean executeRule(InstanceRule rule, RuleContext context, TimeTracker ruleTimeTracker,
-			StatCounter activeRulesCounter) {
+	private static Boolean executeRule(InstanceRule rule, RuleContext context, TimeTracker ruleTimeTracker) {
 		ruleTimeTracker.begin();
 		try {
-			activeRulesCounter.increment();
 			rule.execute(context);
 			return Boolean.TRUE;
 		} catch (Exception e) {
 			LOGGER.error("Error while processing Rule: {} with: {}", rule.getRuleInstanceName(), e.getMessage(), e);
 			return Boolean.FALSE;
 		} finally {
-			activeRulesCounter.decrement();
 			LOGGER.trace("Processed Rule: {} in {} ms", rule.getRuleInstanceName(), ruleTimeTracker.stop());
 		}
 	}

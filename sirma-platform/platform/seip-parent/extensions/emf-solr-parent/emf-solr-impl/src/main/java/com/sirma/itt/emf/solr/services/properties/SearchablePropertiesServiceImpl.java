@@ -24,16 +24,12 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.event.Reception;
 import javax.inject.Inject;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.CommonParams;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.emf.solr.constants.SolrQueryConstants;
-import com.sirma.itt.emf.solr.exception.SolrClientException;
 import com.sirma.itt.emf.solr.services.SolrConnector;
 import com.sirma.itt.seip.Uri;
 import com.sirma.itt.seip.collections.CollectionUtils;
@@ -265,25 +261,8 @@ public class SearchablePropertiesServiceImpl implements SearchablePropertiesServ
 	 *
 	 * @return the solr schema from solr
 	 */
-	@SuppressWarnings("unchecked")
 	private LinkedHashMap<String, Object> getSolrSchema() {
-		TimeTracker timeTracker = TimeTracker.createAndStart();
-		SolrQuery parameters = new SolrQuery();
-		parameters.setParam(CommonParams.QT, "/schema");
-		parameters.setParam(CommonParams.WT, "json");
-
-		try {
-			QueryResponse queryResponse = solrConnector.queryWithGet(parameters);
-			if (queryResponse == null || queryResponse.getResponse() == null) {
-				LOGGER.error("Could not load solr response was null");
-				return null;
-			}
-			LOGGER.debug("Solr schema reloaded in {} ms", timeTracker.stop());
-			return new LinkedHashMap<>((Map<String, Object>) queryResponse.getResponse().get("schema"));
-		} catch (SolrClientException e) {
-			LOGGER.error("Solr schema was NOT reloaded: " + e.getMessage(), e);
-		}
-		return null;
+		return new LinkedHashMap<>(solrConnector.retrieveSchema());
 	}
 
 	/**

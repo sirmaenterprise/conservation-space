@@ -142,7 +142,7 @@ public class DefinitionUtil {
 	 *            the sortables
 	 */
 	public static void sort(List<? extends Ordinal> sortables) {
-		Collections.sort(sortables, BASE_SORTABLE_COMPARATOR);
+		sortables.sort(BASE_SORTABLE_COMPARATOR);
 	}
 
 	/**

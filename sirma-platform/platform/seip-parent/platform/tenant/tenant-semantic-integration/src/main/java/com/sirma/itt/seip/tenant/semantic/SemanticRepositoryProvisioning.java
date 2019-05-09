@@ -29,7 +29,7 @@ import com.sirma.itt.seip.configuration.build.RawConfigurationAccessor;
 import com.sirma.itt.seip.configuration.convert.ConverterContext;
 import com.sirma.itt.seip.configuration.db.Configuration;
 import com.sirma.itt.seip.configuration.db.ConfigurationManagement;
-import com.sirma.itt.seip.event.EventService;
+import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.exception.RollbackedException;
 import com.sirma.itt.seip.patch.exception.PatchFailureException;
 import com.sirma.itt.seip.security.context.SecurityContext;
@@ -91,7 +91,7 @@ public class SemanticRepositoryProvisioning {
 	@Inject
 	private TransactionSupport transactionSupport;
 	@Inject
-	private EventService eventService;
+	private SemanticDefinitionService semanticDefinitionService;
 
 	/**
 	 * Lookup bean.
@@ -289,7 +289,7 @@ public class SemanticRepositoryProvisioning {
 			for (File model : models) {
 				patchUtilService.runPatchAndBackup(model, tenantInfo.getTenantId());
 			}
-			eventService.fire(new SemanticModelUpdatedEvent());
+			semanticDefinitionService.modelUpdated();
 		} catch (RollbackedException | PatchFailureException e) {
 			throw new TenantCreationException("Cound not patch database due to ", e);
 		} finally {

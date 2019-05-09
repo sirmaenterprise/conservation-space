@@ -3,23 +3,20 @@ package com.sirma.itt.seip.definition.validator;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.collections.CollectionUtils;
-import com.sirma.itt.seip.definition.RegionDefinitionModel;
 import com.sirma.itt.seip.definition.TransitionGroupDefinition;
-import com.sirma.itt.seip.definition.ValidationLoggingUtil;
-import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 
 /**
  * Validates transition and transition groups for consistency.
@@ -28,99 +25,72 @@ import com.sirma.itt.seip.domain.definition.GenericDefinition;
  */
 public class TransitionGroupValidator implements DefinitionValidator {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransitionGroupValidator.class);
-
 	@Override
-	public List<String> validate(RegionDefinitionModel model) {
-		return this.validate((DefinitionModel) model);
-	}
+	public List<ValidationMessage> validate(GenericDefinition definition) {
+		TransitionValidatorMessageBuilder messageBuilder = new TransitionValidatorMessageBuilder(definition);
 
-	@Override
-	public List<String> validate(DefinitionModel model) {
-		List<String> errors = new ArrayList<>();
+		validateGroupProperties(definition, messageBuilder);
 
-		if (model instanceof GenericDefinition) {
-			GenericDefinition genericDefinition = (GenericDefinition) model;
-
-			List<TransitionGroupDefinition> transitionGroups = genericDefinition.getTransitionGroups();
-			validateGroupProperties(transitionGroups, errors);
-
-			if (ensureParentsExist(genericDefinition, errors)) {
-				ensureNoCyclesInTheGroupHierarhy(transitionGroups, errors);
-			}
-
-			printErrors(genericDefinition, errors);
+		if (ensureParentsExist(definition, messageBuilder)) {
+			ensureNoCyclesInTheGroupHierarchy(definition, messageBuilder);
 		}
 
-
-		return errors;
+		return messageBuilder.getMessages();
 	}
 
-	private static void validateGroupProperties(List<TransitionGroupDefinition> groups, List<String> errors) {
-		for (TransitionGroupDefinition group : groups) {
-			if (isBlank(group.getLabelId())) {
-				errors.add("Group " + group.getIdentifier() + " has no label set");
+	private static void validateGroupProperties(GenericDefinition definition, TransitionValidatorMessageBuilder messageBuilder) {
+		definition.getTransitionGroups().forEach(transitionGroup -> {
+			if (isBlank(transitionGroup.getLabelId())) {
+				messageBuilder.missingTransitionGroupLabel(transitionGroup.getIdentifier());
 			}
 
-			if (isBlank(group.getType())) {
-				errors.add("Group " + group.getIdentifier() + " has no type set");
+			if (isBlank(transitionGroup.getType())) {
+				messageBuilder.missingTransitionGroupType(transitionGroup.getIdentifier());
 			}
-		}
+		});
 	}
 
-	private static boolean ensureParentsExist(GenericDefinition model, List<String> errors) {
-		List<String> missingParentErrors = new ArrayList<>();
+	private static boolean ensureParentsExist(GenericDefinition model, TransitionValidatorMessageBuilder messageBuilder) {
+		int initialMessageCount = messageBuilder.getMessages().size();
 
-		Set<String> groups = new HashSet<>();
+		Set<String> existingGroups = model.getTransitionGroups()
+				.stream()
+				.map(TransitionGroupDefinition::getIdentifier)
+				.collect(Collectors.toSet());
 
-		model.getTransitionGroups().forEach(group -> groups.add(group.getIdentifier()));
+		model.getTransitions().stream()
+				.filter(transition -> isNotBlank(transition.getGroup()))
+				.filter(transition -> !existingGroups.contains(transition.getGroup()))
+				.forEach(transition -> messageBuilder.missingTransitionGroup(transition.getIdentifier(), transition.getGroup()));
 
-		model
-				.getTransitions()
-					.stream()
-					.filter(transition -> isNotBlank(transition.getGroup()))
-					.filter(transition -> !groups.contains(transition.getGroup()))
-					.map(transition -> "Transition '" + transition.getIdentifier() + "' has a non-existing group '"
-							+ transition.getGroup() + "'")
-					.forEach(missingParentErrors::add);
+		model.getTransitionGroups().stream()
+				.filter(group -> isNotBlank(group.getParent()))
+				.filter(group -> !existingGroups.contains(group.getParent()))
+				.forEach(group -> messageBuilder.missingTransitionGroupParent(group.getIdentifier(), group.getParent()));
 
-		model
-				.getTransitionGroups()
-					.stream()
-					.filter(group -> isNotBlank(group.getParent()))
-					.filter(group -> !groups.contains(group.getParent()))
-					.map(group -> "Group '" + group.getIdentifier() + "' has a non-existing parent group '"
-							+ group.getParent() + "'")
-					.forEach(missingParentErrors::add);
-
-		errors.addAll(missingParentErrors);
-
-		return missingParentErrors.isEmpty();
+		return messageBuilder.getMessages().size() == initialMessageCount;
 	}
 
-	private Map<String, Set<String>> ensureNoCyclesInTheGroupHierarhy(List<TransitionGroupDefinition> groups,
-			List<String> errors) {
+	private void ensureNoCyclesInTheGroupHierarchy(GenericDefinition definition, TransitionValidatorMessageBuilder messageBuilder) {
+
+		Map<String, TransitionGroupDefinition> groupsMapping = definition.getTransitionGroups().stream()
+				.collect(Collectors.toMap(TransitionGroupDefinition::getIdentifier, Function.identity()));
+
 		Map<String, Set<String>> parents = new HashMap<>();
 
-		for (TransitionGroupDefinition group : groups) {
-			parents.putIfAbsent(group.getIdentifier(), getGroupParents(group.getIdentifier(), parents, groups, errors));
+		for (TransitionGroupDefinition group : definition.getTransitionGroups()) {
+			parents.putIfAbsent(group.getIdentifier(), getGroupParents(group.getIdentifier(), parents, groupsMapping, messageBuilder));
 		}
-
-		return parents;
 	}
 
 	private Set<String> getGroupParents(String group, Map<String, Set<String>> parents,
-			List<TransitionGroupDefinition> groups, List<String> errors) {
+			Map<String, TransitionGroupDefinition> groups, TransitionValidatorMessageBuilder messageBuilder) {
 
 		if (parents.containsKey(group)) {
 			return parents.get(group);
 		}
 
-		TransitionGroupDefinition currentGroup = groups
-				.stream()
-					.filter(current -> current.getIdentifier().equals(group))
-					.findFirst()
-					.get();
+		TransitionGroupDefinition currentGroup = groups.get(group);
 
 		if (StringUtils.isBlank(currentGroup.getParent())) {
 			return CollectionUtils.emptySet();
@@ -130,9 +100,10 @@ public class TransitionGroupValidator implements DefinitionValidator {
 
 		parents.put(currentGroup.getIdentifier(), parentIds);
 
-		Set<String> parentsOfParent = getGroupParents(currentGroup.getParent(), parents, groups, errors);
+		Set<String> parentsOfParent = getGroupParents(currentGroup.getParent(), parents, groups, messageBuilder);
+
 		if (parentsOfParent.contains(currentGroup.getIdentifier())) {
-			errors.add("Cycle detected in the hierarchy of group '" + currentGroup.getIdentifier() + "'");
+			messageBuilder.transitionGroupCycle(currentGroup.getIdentifier());
 		} else {
 			parentIds.add(currentGroup.getParent());
 			parentIds.addAll(parentsOfParent);
@@ -141,21 +112,36 @@ public class TransitionGroupValidator implements DefinitionValidator {
 		return parentIds;
 	}
 
-	private static void printErrors(GenericDefinition model, List<String> errors) {
-		if (!errors.isEmpty()) {
-			StringBuilder builder = new StringBuilder(errors.size() * 60);
-			builder
-					.append("\n=====================================================================\nFound errors in definition: ")
-						.append(model.getIdentifier())
-						.append("\n");
-			for (String error : errors) {
-				builder.append(error).append("\n");
-			}
-			builder.append("=====================================================================");
+	public class TransitionValidatorMessageBuilder extends DefinitionValidationMessageBuilder {
 
-			String errorMessage = builder.toString();
-			LOGGER.error(errorMessage);
-			ValidationLoggingUtil.addErrorMessage(errorMessage);
+		public static final String MISSING_TRANSITION_GROUP_LABEL = "definition.validation.transition.group.missing.label";
+		public static final String MISSING_TRANSITION_GROUP_TYPE = "definition.validation.transition.group.missing.type";
+		public static final String MISSING_TRANSITION_GROUP = "definition.validation.transition.group.missing";
+		public static final String MISSING_TRANSITION_GROUP_PARENT = "definition.validation.transition.group.missing.parent";
+		public static final String TRANSITION_GROUP_CYCLE = "definition.validation.transition.group.cycle";
+
+		public TransitionValidatorMessageBuilder(GenericDefinition genericDefinition) {
+			super(genericDefinition);
+		}
+
+		private void missingTransitionGroupLabel(String group) {
+			error(getId(), MISSING_TRANSITION_GROUP_LABEL, getId(), group);
+		}
+
+		private void missingTransitionGroupType(String group) {
+			error(getId(), MISSING_TRANSITION_GROUP_TYPE, getId(), group);
+		}
+
+		private void missingTransitionGroup(String transition, String group) {
+			error(getId(), MISSING_TRANSITION_GROUP, getId(), transition, group);
+		}
+
+		private void missingTransitionGroupParent(String groupId, String parent) {
+			error(getId(), MISSING_TRANSITION_GROUP_PARENT, getId(), groupId, parent);
+		}
+
+		private void transitionGroupCycle(String group) {
+			error(getId(), TRANSITION_GROUP_CYCLE, getId(), group);
 		}
 	}
 

@@ -1,17 +1,24 @@
-import _ from 'lodash';
-import {View, Component, Inject, NgElement, NgScope} from 'app/app';
+import {View, Component, Inject, NgElement, NgScope, NgCompile} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {UrlDecorator} from 'layout/url-decorator/url-decorator';
 import {InstanceCreatedEvent} from 'idoc/events/instance-created-event';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {ActionExecutedEvent} from 'services/actions/events';
+import _ from 'lodash';
+
 import 'vakata/jstree';
 import 'font-awesome/css/font-awesome.css!';
+
 import template from './object-browser.html!text';
 import './object-browser.css!';
 
-const HIDE_CHECKBOX_STYLE = 'hide-checkbox';
+export const NODE_SELECT_EVENT = 'NODE_SELECT_EVENT';
+export const NODE_SET_TEXT_EVENT = 'NODE_SET_TEXT_EVENT';
+export const NODE_ADD_CLASS_EVENT = 'NODE_ADD_CLASS_EVENT';
+export const NODE_REMOVE_CLASS_EVENT = 'NODE_REMOVE_CLASS_EVENT';
 
+const SELECT_NODE_STYLE = 'jstree-selected';
+const HIDE_CHECKBOX_STYLE = 'hide-checkbox';
 const JSTREE_ROOT_NODE_ID = '#';
 
 /**
@@ -32,17 +39,16 @@ const JSTREE_ROOT_NODE_ID = '#';
   properties: {
     'loader': 'loader',
     'config': 'config',
-    'context': 'context'
+    'context': 'context',
+    'emitter': 'emitter'
   },
   events: ['onNodeSelected']
 })
-@View({
-  template: template
-})
-@Inject(UrlDecorator, Eventbus, NgElement, NgScope)
+@View({template})
+@Inject(UrlDecorator, Eventbus, NgElement, NgScope, NgCompile)
 export class ObjectBrowser extends Configurable {
 
-  constructor(urlDecorator, eventbus, element, $scope) {
+  constructor(urlDecorator, eventbus, $element, $scope, $compile) {
     super({
       selectable: false,
       enableSearch: false,
@@ -53,8 +59,10 @@ export class ObjectBrowser extends Configurable {
 
     this.urlDecorator = urlDecorator;
     this.eventbus = eventbus;
-    this.element = element;
+    this.$element = $element;
     this.$scope = $scope;
+    this.$compile = $compile;
+    this.eventHandlers = [];
   }
 
   ngOnInit() {
@@ -75,9 +83,10 @@ export class ObjectBrowser extends Configurable {
   }
 
   init() {
+    this.unSubscribeToNodeEvents();
     //copy & then reverse the current nodePath
     this.path = this.config.nodePath.slice().reverse();
-    this.treeElement = this.element.find('.tree-browser');
+    this.treeElement = this.$element.find('.tree-browser');
     this.treeElement.jstree('destroy');
     this.treeElement.jstree(this.createJsTreeConfig());
 
@@ -85,17 +94,104 @@ export class ObjectBrowser extends Configurable {
     this.preventDefaultJstreeAnchors(this.treeElement);
     this.enableSingleSelection(this.treeElement);
     this.enableAutoExpansion(this.treeElement);
-    this.enableHighlightOfEntityNode(this.treeElement, this.config.id);
+    this.compileNodesBeforeOpen(this.treeElement);
+    this.enableActionsAfterLoaded(this.treeElement);
+  }
+
+  subscribeToNodeEvents() {
+    this.eventHandlers.push(this.emitter.subscribe(NODE_SELECT_EVENT, data => this.selectNode(data.id, data.text)));
+    this.eventHandlers.push(this.emitter.subscribe(NODE_SET_TEXT_EVENT, data => this.renameNode(data.id, data.text)));
+    this.eventHandlers.push(this.emitter.subscribe(NODE_ADD_CLASS_EVENT, data => this.addClassToNode(data.id, data.clazz)));
+    this.eventHandlers.push(this.emitter.subscribe(NODE_REMOVE_CLASS_EVENT, data => this.removeClassFromNode(data.id, data.clazz)));
+  }
+
+  unSubscribeToNodeEvents() {
+    this.eventHandlers.forEach((handler) => {
+      handler && handler.unsubscribe();
+    });
+    this.eventHandlers = [];
+  }
+
+  getNode(id) {
+    // chances are same node will be accessed sequentially
+    if (!this.nodeCache || this.nodeCache.id !== id) {
+      let jsNode = this.treeElement.jstree(true).get_node(id);
+      let domNode = $(document.getElementById(jsNode.a_attr.id));
+      this.nodeCache = {id, jsNode, domNode};
+    }
+    // fetch the js tree node
+    return this.nodeCache.jsNode;
+  }
+
+  isDirty(node) {
+    return 'dirty' === node.type;
   }
 
   search() {
-    this.treeElement.jstree('close_all');
-    this.treeElement.jstree(true).search(this.searchQuery);
+    let query = this.searchQuery;
+    let jstree = this.treeElement.jstree(true);
+    jstree.close_all();
+
+    if (!query.length) {
+      let root = this.config.nodePath[0];
+      let node = this.getNode(root);
+      jstree.show_all();
+      jstree.open_node(node.id);
+    } else {
+      jstree.search(query);
+    }
+  }
+
+  redraw() {
+    this.treeElement.jstree(true).redraw(true);
+  }
+
+  addClassToNode(id, clazz, redraw = true) {
+    let node = this.getNode(id);
+    node.a_attr.class += ` ${clazz}`;
+    redraw && this.redraw();
+    return node;
+  }
+
+  removeClassFromNode(id, clazz, redraw = true) {
+    let node = this.getNode(id);
+    let regex = new RegExp(`\\b${clazz}\\b`);
+    node.a_attr.class = node.a_attr.class.replace(regex, '');
+    redraw && this.redraw();
+    return node;
+  }
+
+  renameNode(id, text, redraw = true) {
+    let node = this.getNode(id);
+    node.text = text;
+    redraw && this.redraw();
+    return node;
+  }
+
+  selectNode(id, redraw = true) {
+    // make sure not to select the same tree node again
+    if (this.selectedNode && this.selectedNode.id === id) {
+      return this.selectedNode;
+    }
+
+    // deselect previous node
+    if (this.selectedNode) {
+      let current = this.selectedNode.id;
+      // remove the selection styling from the selected tree node
+      this.removeClassFromNode(current, SELECT_NODE_STYLE, false);
+    }
+
+    // select the new tree node by adding a the selection styling to it
+    this.selectedNode = this.addClassToNode(id, SELECT_NODE_STYLE, false);
+    this.treeElement.jstree(true)._open_to(this.selectedNode, false);
+    redraw && this.redraw();
+    return this.selectedNode;
   }
 
   createJsTreeConfig() {
     return {
       core: {
+        check_callback: true,
         dblclick_toggle: false,
         themes: {
           icons: false
@@ -119,22 +215,22 @@ export class ObjectBrowser extends Configurable {
   }
 
   loadNodes(node, callback) {
-    var initialLoad = node.id === JSTREE_ROOT_NODE_ID;
-    var nodePath = initialLoad ? this.config.rootId : node.data;
+    let initialLoad = node.id === JSTREE_ROOT_NODE_ID;
+    let nodePath = initialLoad ? this.config.rootId : node.data;
     this.loader.getNodes(nodePath, this.config).then((data) => {
       // If the element is destroyed before it's full initialization, we have to stop the loading of nodes
       // manually. Otherwise the element will have a reference to the jstree and this may cause a memory leak.
       // So we check if the element is detached from the DOM.
-      if (!$.contains(document, this.element[0])) {
+      if (!$.contains(document, this.$element[0])) {
         return;
       }
 
-      var treeData;
+      let treeData;
 
       if (initialLoad && this.config.rootId && this.config.rootText) {
-        var foundElement = this.findElement(data, this.config.id);
+        let foundElement = this.findElement(data, this.config.id);
 
-        if (foundElement != null) {
+        if (foundElement !== null) {
           this.nodeContextPath = foundElement.id;
         } else {
           //usually means that the opened entity is the root of the context
@@ -163,7 +259,7 @@ export class ObjectBrowser extends Configurable {
    */
   adaptModel(entries) {
     return entries.map((entry) => {
-      var result = {
+      let result = {
         id: entry.dbId,
         data: entry.id,
         text: entry.text,
@@ -176,7 +272,7 @@ export class ObjectBrowser extends Configurable {
         result.children = !entry.leaf;
       }
 
-      var style = 'instance-link';
+      let style = 'instance-link';
 
       if (_.isUndefined(entry.checked)) {
         style = style + ' ' + HIDE_CHECKBOX_STYLE;
@@ -197,8 +293,8 @@ export class ObjectBrowser extends Configurable {
       }
 
       if (element.children) {
-        var result = this.findElement(element.children, id);
-        if (result != null) {
+        let result = this.findElement(element.children, id);
+        if (result !== null) {
           return result;
         }
       }
@@ -207,17 +303,41 @@ export class ObjectBrowser extends Configurable {
   }
 
   onNodeSelection(element) {
-    if (this.onNodeSelected) {
-      element.on('select_node.jstree', (event, data) => {
-        this.onNodeSelected({node: data.node});
-      });
-    }
+    element.on('select_node.jstree', (event, data) => {
+      this.selectNode(data.node.id);
+      this.onNodeSelected && this.onNodeSelected({node: data.node});
+    });
+  }
+
+  enableActionsAfterLoaded(element) {
+    element.bind('ready.jstree', () => {
+      this.emitter && this.subscribeToNodeEvents();
+      this.config && this.config.id && this.selectNode(this.config.id);
+
+      this.compileNodes();
+    });
+  }
+
+  compileNodesBeforeOpen(element) {
+    element.on('before_open.jstree', () => {
+      this.compileNodes();
+    });
+  }
+
+  compileNodes() {
+    // Tree nodes may contain instance links which are expected to trigger tooltip header loading,
+    // but in order to do that, they need to be compiled first. The tooltip directive is bound
+    // to instance-link css class. We only compile links which are not compiled already.
+    this.$element.find('.instance-link.has-tooltip:not(.ng-scope)').each((index, elem) => {
+      let link = this.$compile(elem)(this.$scope.$new());
+      $(elem).replaceWith(link);
+    });
   }
 
   enableSingleSelection(element) {
     if (this.config.selectable) {
       element.on('check_node.jstree', (event, data) => {
-        var selectedNode = data.node;
+        let selectedNode = data.node;
 
         data.selected.forEach(function (current) {
           if (current !== selectedNode.id) {
@@ -237,6 +357,8 @@ export class ObjectBrowser extends Configurable {
 
   enableAutoExpansion(element) {
     element.on('load_node.jstree', (event, data) => {
+      this.compileNodes();
+
       if (data.node.id === this.config.id && !this.expanded) {
         this.expanded = true;
 
@@ -247,8 +369,8 @@ export class ObjectBrowser extends Configurable {
       }
 
       if (!this.expanded) {
-        this.path.some(function (element) {
-          var node = data.instance.get_node(element.id || element);
+        this.path.some(element => {
+          let node = data.instance.get_node(element.id || element);
           if (node) {
             data.instance._open_to(node, false);
             data.instance.open_node(node, false);
@@ -257,13 +379,6 @@ export class ObjectBrowser extends Configurable {
           return false;
         });
       }
-    });
-  }
-
-  enableHighlightOfEntityNode(element, id) {
-    // redraw.jstree is also used because jstree sometimes redraws the nodes causing them to loose existing highlight
-    element.on('after_open.jstree redraw.jstree', function () {
-      $(document.getElementById(id)).find('.instance-link:first').addClass('highlighted');
     });
   }
 
@@ -290,8 +405,9 @@ export class ObjectBrowser extends Configurable {
   }
 
   ngOnDestroy() {
+    this.unSubscribeToNodeEvents();
     this.treeElement.jstree('destroy');
-    this.element.remove();
+    this.$element.remove();
     if (this.actionExecutedHandler) {
       this.actionExecutedHandler.unsubscribe();
     }

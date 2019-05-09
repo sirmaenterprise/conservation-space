@@ -3,6 +3,7 @@ package com.sirma.sep.tenant;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
@@ -50,6 +53,9 @@ public class ModelsImportStepTest {
 	@Spy
 	private TransactionSupport transactionSupport = new TransactionSupportFake();
 
+	@Mock
+	private LabelProvider labelProvider;
+
 	@Captor
 	private ArgumentCaptor<Map<String, InputStream>> captor;
 
@@ -62,7 +68,7 @@ public class ModelsImportStepTest {
 
 	@Test
 	public void should_ImportModelsProvidedByTenantConfiguration() {
-		when(modelImportService.importModel(anyMap())).thenReturn(new ArrayList<>());
+		when(modelImportService.importModel(anyMap())).thenReturn(new ValidationReport());
 
 		executeStep("models");
 
@@ -73,7 +79,7 @@ public class ModelsImportStepTest {
 
 	@Test
 	public void should_ImportModelsProvidedAsZipFile() {
-		when(modelImportService.importModel(anyMap())).thenReturn(new ArrayList<>());
+		when(modelImportService.importModel(anyMap())).thenReturn(new ValidationReport());
 
 		executeStep("1.zip");
 
@@ -82,9 +88,16 @@ public class ModelsImportStepTest {
 
 	@Test(expected = TenantCreationException.class)
 	public void should_ThrowExceptionIfThereAreModelValidationErrors() {
-		when(modelImportService.importModel(anyMap())).thenReturn(Arrays.asList("Invalid data"));
+		when(modelImportService.importModel(anyMap())).thenReturn(new ValidationReport().addError("Invalid data"));
 
 		executeStep("models");
+	}
+
+	@Test
+	public void should_SkipImport_When_NoModelsProvidedAndTenantUpdateIsPerformed() {
+		executeUpdateStep();
+
+		verify(modelImportService, never()).importModel(anyMap());
 	}
 
 	private void executeStep(String modelsPath) {
@@ -94,6 +107,21 @@ public class ModelsImportStepTest {
 		data.getModels().add(modelsDirectory);
 
 		TenantInitializationContext context = new TenantInitializationContext();
+		context.setMode(TenantInitializationContext.Mode.CREATE);
+
+		TenantInfo info = new TenantInfo("test");
+
+		context.setTenantInfo(info);
+
+		step.execute(data, context);
+	}
+
+	private void executeUpdateStep() {
+		TenantStepData data = new TenantStepData(null, null);
+
+		TenantInitializationContext context = new TenantInitializationContext();
+		context.setMode(TenantInitializationContext.Mode.UPDATE);
+
 		TenantInfo info = new TenantInfo("test");
 
 		context.setTenantInfo(info);

@@ -410,19 +410,17 @@ public class SemanticQueryVisitor extends AbstractQueryVistor {
 	 *            the value
 	 * @param clause
 	 *            the clause
-	 * @return the string builder
 	 */
 	@SuppressWarnings("unchecked")
-	private StringBuilder buildRelationsClause(String subject, Serializable value, StringBuilder clause) {
-		StringBuilder filterClause = clause;
+	private void addRelationsClause(String subject, Serializable value, StringBuilder clause) {
 		String predicate;
 
-		if (filterClause.length() == 0) {
+		if (clause.length() == 0) {
 			// append relation rdf block
-			filterClause.append(BLOCK_START);
-			filterClause.append(RELATION_RDF_TYPE_BLOCK);
-			filterClause.append("?relation emf:source ").append(subject);
-			filterClause.append(BLOCK_END);
+			clause.append(BLOCK_START);
+			clause.append(RELATION_RDF_TYPE_BLOCK);
+			clause.append("?relation emf:source ").append(subject);
+			clause.append(BLOCK_END);
 		}
 
 		predicate = "emf:relationType";
@@ -430,10 +428,9 @@ public class SemanticQueryVisitor extends AbstractQueryVistor {
 		StringBuilder relationTypeFilter = new StringBuilder();
 		buildListFilter(VARIABLE + "relation", predicate, (List<Serializable>) value, relationTypeFilter);
 
-		int relationIndexOf = filterClause.indexOf(RELATION_RDF_TYPE_BLOCK);
+		int relationIndexOf = clause.indexOf(RELATION_RDF_TYPE_BLOCK);
 
-		filterClause.insert(relationIndexOf + RELATION_RDF_TYPE_BLOCK.length(), relationTypeFilter);
-		return filterClause;
+		clause.insert(relationIndexOf + RELATION_RDF_TYPE_BLOCK.length(), relationTypeFilter);
 	}
 
 	/**
@@ -603,14 +600,14 @@ public class SemanticQueryVisitor extends AbstractQueryVistor {
 			for (int counter = 0; counter < valueList.size(); counter++) {
 				Serializable value = valueList.get(counter);
 				String valueVariable = createVariableName(predicate, "");
-	
+
 				if (value instanceof DateRange) {
 					buildDateRangeClause(predicate, value, filterClause);
 				} else {
 					filterClause.append(filterValueVariable).append(" = ").append(VARIABLE).append(valueVariable);
 					bindings.put(valueVariable, value);
 				}
-	
+
 				if (counter < valueList.size() - 1) {
 					filterClause.append(" || ");
 				}
@@ -791,7 +788,7 @@ public class SemanticQueryVisitor extends AbstractQueryVistor {
 
 				pair = pendingPredicates.remove(RELATIONS_PREDICATE);
 				value = pair.getSecond();
-				filterClause = buildRelationsClause(subject, value, filterClause);
+				addRelationsClause(subject, value, filterClause);
 			}
 		} else if (relations && !context) {
 			Pair<QueryBoost, Serializable> pair = pendingPredicates.remove(RELATIONS_PREDICATE);
@@ -800,7 +797,7 @@ public class SemanticQueryVisitor extends AbstractQueryVistor {
 			if (isUseSimpleRelationSearch()) {
 				filterClause = buildSimpleRelationsClause(subject, value, filterClause);
 			} else {
-				filterClause = buildRelationsClause(subject, value, filterClause);
+				addRelationsClause(subject, value, filterClause);
 			}
 		} else if (context && !relations) {
 			Pair<QueryBoost, Serializable> pair = pendingPredicates.remove(CONTEXT_PREDICATE);

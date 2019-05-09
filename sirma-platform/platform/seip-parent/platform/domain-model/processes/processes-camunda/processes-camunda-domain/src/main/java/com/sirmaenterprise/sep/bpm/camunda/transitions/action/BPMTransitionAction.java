@@ -40,7 +40,6 @@ import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.actions.Action;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.event.AfterInstancePersistEvent;
@@ -57,7 +56,6 @@ import com.sirmaenterprise.sep.bpm.camunda.service.BPMPropertiesConverter;
 import com.sirmaenterprise.sep.bpm.camunda.transitions.model.TransitionModelService;
 import com.sirmaenterprise.sep.bpm.camunda.transitions.states.BPMStateTransitionProvider;
 import com.sirmaenterprise.sep.bpm.camunda.transitions.states.SequenceFlowEntry;
-import com.sirmaenterprise.sep.bpm.camunda.util.BPMInstanceUtil;
 import com.sirmaenterprise.sep.bpm.exception.BPMException;
 
 /**
@@ -78,8 +76,6 @@ public class BPMTransitionAction extends BPMOperationAction<BPMTransitionRequest
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	protected ThreadLocal<List<Instance>> processedActivities = new ThreadLocal<>();
 
-	@Inject
-	protected InstanceTypeResolver instanceResolver;
 	@Inject
 	protected DomainInstanceService domainInstanceService;
 	@Inject
@@ -105,7 +101,7 @@ public class BPMTransitionAction extends BPMOperationAction<BPMTransitionRequest
 	@Override
 	protected void preProcessBPMAction(BPMTransitionRequest request) {
 		processedActivities.set(new LinkedList<>());
-		Instance process = BPMInstanceUtil.resolveInstance((String) request.getTargetId(), instanceResolver);
+		Instance process = domainInstanceService.loadInstance(request.getTargetId().toString());
 		InstanceReference reference = process.toReference();
 		request.setTargetReference(reference);
 		if (!isTransitionRequestValid(request)) {
@@ -155,11 +151,12 @@ public class BPMTransitionAction extends BPMOperationAction<BPMTransitionRequest
 
 	private void loadAndTransferProcessProperties(ProcessInstance camundaProcess) {
 		// process instance would not be null at this location
-		Instance sepProcess = BPMInstanceUtil.resolveInstance(camundaProcess.getBusinessKey(), instanceResolver);
+		Instance sepProcess = domainInstanceService.loadInstance(camundaProcess.getBusinessKey());
 		sepProcess = loadAndTransferProcessProperties(camundaProcess, sepProcess);
 		// if modified - now save it
 		if (sepProcess != null) {
 			// save the updated process - don't update version by specification
+			// TODO we support another way of doing that..
 			instanceService.save(sepProcess, new Operation(EDIT_DETAILS));
 		}
 	}

@@ -1,15 +1,23 @@
 import {ImportFileAction} from 'idoc/actions/import-file-action';
-import {PromiseStub} from 'test/promise-stub';
 import {InstanceObject} from 'models/instance-object';
-import {IdocMocks} from '../idoc-mocks';
 import {DialogService} from 'components/dialog/dialog-service';
+import {AuthenticationService} from 'security/authentication-service';
+
+import {IdocMocks} from '../idoc-mocks';
+import {stub} from 'test/test-utils';
+import {PromiseStub} from 'test/promise-stub';
+
 
 describe('ImportFileAction', () => {
+  let authenticationService;
+
   var action;
   var currentObject;
   beforeEach(() => {
+    authenticationService = mockAuthenticationService();
+
     action = new ImportFileAction(translateService, notificationService, dialogService, importService, instanceRestService, configurationService, authenticationService);
-    currentObject = new InstanceObject("emf:123456", IdocMocks.generateModels(), IdocMocks.generateIntialContent());
+    currentObject = new InstanceObject('emf:123456', IdocMocks.generateModels(), IdocMocks.generateIntialContent());
   });
 
 
@@ -92,13 +100,16 @@ describe('ImportFileAction', () => {
     importFile: sinon.spy(() => {
       return PromiseStub.resolve({});
     })
-  }
+  };
 
   let configurationService = {
     get: sinon.spy()
-  }
-  let authenticationService = {
-    getToken: sinon.spy()
+  };
+
+  function mockAuthenticationService() {
+    let service = stub(AuthenticationService);
+    service.getToken.returns(PromiseStub.resolve('token'));
+    return service;
   }
 
 });

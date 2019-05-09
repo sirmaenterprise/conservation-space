@@ -59,9 +59,7 @@ export const SEARCH_BAR_FIELDS = [SearchCriteriaUtils.CRITERIA_TYPES_RULE_FIELD,
     context: 'context'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(PromiseAdapter, InstanceRestService, ContextualObjectsFactory)
 export class MixedSearchCriteria extends SearchCriteriaComponent {
 
@@ -206,7 +204,7 @@ export class MixedSearchCriteria extends SearchCriteriaComponent {
     // Map the rules for the search bar
     this.searchBarModel = {
       objectType: typeRule,
-      freeText: freeTextRule,
+      freeText: freeTextRule
     };
 
     if (anyRelationRule.value.length > 0 && anyRelationRule.value.indexOf(CURRENT_OBJECT) > -1) {
@@ -352,7 +350,7 @@ export class MixedSearchCriteria extends SearchCriteriaComponent {
     return SearchCriteriaUtils.getSearchTree({
       objectType: this.config.predefinedTypes,
       restrictions: this.config.restrictions,
-      context: context,
+      context,
       freeText: ''
     });
   }

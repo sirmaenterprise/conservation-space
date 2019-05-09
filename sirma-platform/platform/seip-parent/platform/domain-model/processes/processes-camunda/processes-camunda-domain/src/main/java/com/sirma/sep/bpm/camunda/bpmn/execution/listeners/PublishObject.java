@@ -1,5 +1,6 @@
 package com.sirma.sep.bpm.camunda.bpmn.execution.listeners;
 
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.camunda.bpm.engine.impl.el.FixedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.security.ActionTypeConstants;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
@@ -45,6 +47,8 @@ public class PublishObject implements CDIJavaDelegate<PublishObject> {
 	private FixedValue relations;
 
 	@Inject
+	private TypeConverter typeConverter;
+	@Inject
 	private InstanceTypeResolver instanceTypeResolver;
 	@Inject
 	private InstanceService instanceService;
@@ -65,11 +69,22 @@ public class PublishObject implements CDIJavaDelegate<PublishObject> {
 		Instance sourceInstance = BPMInstanceUtil.resolveInstance(businessId, instanceTypeResolver);
 		List<String> properties = Arrays
 				.asList(sourceListener.relations.getExpressionText().replaceAll("\\s+", "").split(","));
-		List<String> idsList = properties.stream().map(sourceInstance::getAsString)
-				.filter(StringUtils::isNotBlank).flatMap(splitPropertyValues()).collect(Collectors.toList());
+		List<String> idsList = properties.stream()
+				.map(propertyName -> sourceInstance.getAs(propertyName, this::asStringRepresentation))
+				.filter(StringUtils::isNotBlank)
+				.flatMap(splitPropertyValues())
+				.collect(Collectors.toList());
 
 		instanceTypeResolver.resolveInstances(idsList)
 				.forEach(instance -> instanceService.publish(instance, new Operation(ActionTypeConstants.PUBLISH)));
+	}
+
+	private String asStringRepresentation(Serializable value) {
+		String converted = typeConverter.tryConvert(String.class, value);
+		if (converted == null) {
+			converted = Objects.toString(value, null);
+		}
+		return converted;
 	}
 
 	public Expression getSource() {

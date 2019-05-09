@@ -2,7 +2,6 @@ package com.sirmaenterprise.sep.jms.impl.receiver;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -25,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirmaenterprise.sep.jms.api.MessageConsumer;
 import com.sirmaenterprise.sep.jms.api.MessageReceiver;
@@ -48,7 +48,7 @@ public class BlockingMessageReceiverChannelTest {
 	@Mock
 	private MessageConsumer messageConsumer;
 	@Spy
-	private Statistics statistics = Statistics.NO_OP;
+	private Statistics statistics = NoOpStatistics.INSTANCE;
 
 	@Before
 	public void setUp() throws Exception {
@@ -95,9 +95,9 @@ public class BlockingMessageReceiverChannelTest {
 
 		channel.run();
 
-		verify(statistics).updateMeter(any(), eq("testqueue"));
+		verify(statistics).track(any());
 	}
-	
+
 	@Test
 	public void shutdown_ShouldStopProcessing() throws Exception {
 

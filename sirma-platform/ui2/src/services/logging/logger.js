@@ -4,7 +4,7 @@ import {LoggerAdapter} from 'adapters/angular/logger-adapter';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {LoggingRestService} from 'services/rest/logging-service';
 import {Configuration} from 'common/application-config';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 
 const LOGGING_DEBOUNCE_DELAY = 300;
 const LEVELS = {
@@ -76,8 +76,8 @@ export class Logger {
     if (shouldLogOnServer && this.authenticationService.isAuthenticated()) {
       this.loggingRestService.logMessage(JSON.stringify({
         url: this.windowAdapter.location.href,
-        message: message,
-        type: type
+        message,
+        type
       }));
     }
   }

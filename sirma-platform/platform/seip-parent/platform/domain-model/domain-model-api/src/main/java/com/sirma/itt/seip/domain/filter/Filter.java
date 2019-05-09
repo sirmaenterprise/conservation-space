@@ -27,4 +27,10 @@ public interface Filter extends Entity<Long>, Identity {
 	 */
 	Set<String> getFilterValues();
 
+	/**
+	 * Set of identifiers where the current filter definition could be found in.
+	 *
+	 * @return the set of definition identifiers where the current filter is defined in.
+	 */
+	Set<String> getDefinedIn();
 }

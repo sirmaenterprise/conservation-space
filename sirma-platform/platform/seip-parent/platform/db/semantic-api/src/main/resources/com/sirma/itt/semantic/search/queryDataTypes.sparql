@@ -1,0 +1,12 @@
+SELECT distinct ?instance (emf:ClassDescription as ?instanceType) ?title ?description
+(if(lang(?title)= "", "en", lang(?title)) as ?titleLanguage)
+(if (lang(?description)= "", "en", lang(?description)) as ?descriptionLanguage)
+WHERE {
+    ?instance rdf:type emf:Primitive.
+    OPTIONAL {
+        ?instance rdfs:label ?title.
+    }
+    OPTIONAL {
+        ?instance rdfs:comment ?description.
+    }
+}

@@ -12,6 +12,7 @@ public class PropertyValidationErrorTypes {
 	public static final String INVALID_CODELIST = "INVALID_CODELIST";
 	public static final String INVALID_TEXT_FORMAT = "INVALID_TEXT_FORMAT";
 	public static final String MISSING_MANDATORY_PROPERTY = "MISSING_MANDATORY_PROPERTY";
+	public static final String MISSING_MANDATORY_CONTROL_PARAM = "MISSING_MANDATORY_CONTROL_PARAM";
 	public static final String INVALID_NUMBER = "INVALID_NUMBER";
 	public static final String INVALID_URI = "INVALID_URI";
 	public static final String INVALID_DATE = "INVALID_DATE";

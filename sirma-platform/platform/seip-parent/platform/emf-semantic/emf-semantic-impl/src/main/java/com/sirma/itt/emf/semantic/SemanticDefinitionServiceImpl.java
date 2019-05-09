@@ -7,7 +7,6 @@ import static com.sirma.itt.seip.collections.CollectionUtils.isEmpty;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,9 +17,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -29,11 +30,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.emf.semantic.info.SemanticOperationLogger;
 import com.sirma.itt.emf.semantic.queries.SPARQLQueryHelper;
 import com.sirma.itt.seip.CachingSupplier;
@@ -56,7 +58,6 @@ import com.sirma.itt.seip.domain.search.SearchArguments.QueryResultPermissionFil
 import com.sirma.itt.seip.domain.search.SearchDialects;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.instance.CommonInstance;
-import com.sirma.itt.seip.instance.HeadersService;
 import com.sirma.itt.seip.instance.library.LibraryProvider;
 import com.sirma.itt.seip.instance.state.PrimaryStates;
 import com.sirma.itt.seip.runtime.boot.Startup;
@@ -66,11 +67,13 @@ import com.sirma.itt.seip.security.annotation.OnTenantAdd;
 import com.sirma.itt.seip.security.annotation.RunAsAllTenantAdmins;
 import com.sirma.itt.seip.security.annotation.SecureObserver;
 import com.sirma.itt.seip.time.TimeTracker;
+import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.itt.seip.util.EqualsHelper;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.configuration.SemanticConfiguration;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
 import com.sirma.itt.semantic.search.SemanticQueries;
+import com.sirma.seip.semantic.events.SemanticModelUpdatedEvent;
 
 /**
  * Implementation of SemanticDefinitionsService interface
@@ -89,6 +92,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 	private static final String DEFINITIONS = "definitions";
 	private static final String DEFINITION_ID = "definitionId";
 	private static final String ONTOLOGY = "ontology";
+	private static final String PROPERTY_TYPE = "propertyType";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -102,20 +106,20 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 	private Contextual<SemanticDefinitionCache> cache;
 
 	@Inject
-	private HeadersService headersService;
-
-	@Inject
 	private DefinitionService definitionService;
 
 	@Inject
 	private SemanticConfiguration semanticConfiguration;
 
 	@Inject
+	private TransactionSupport transactionSupport;
+
+	@Inject
 	private EventService eventService;
 
 	@PostConstruct
 	protected void initialize() {
-		cache.initializeWith(() -> new SemanticDefinitionCache(searchService, headersService, definitionService,
+		cache.initializeWith(() -> new SemanticDefinitionCache(searchService, definitionService,
 				namespaceRegistryService));
 	}
 
@@ -137,6 +141,11 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 	@Override
 	public List<ClassInstance> getClasses() {
 		return getCache().getAllClasses();
+	}
+
+	@Override
+	public List<ClassInstance> getDataTypes() {
+		return getCache().getAllDataTypes();
 	}
 
 	@Override
@@ -167,6 +176,17 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		Set<ClassInstance> subclasses = new LinkedHashSet<>();
 		SemanticDefinitionServiceImpl.collectSubclasses(classInstance, subclasses);
 		return subclasses;
+	}
+
+	@Override
+	@Transactional
+	public void modelUpdated() {
+		// uses 2 events to reload the model as the operations from the first event should be executed and completed
+		// before the second event is fired
+		// triggers class metadata generation before updating the internal cache
+		transactionSupport.invokeInNewTx(() -> eventService.fire(new SemanticModelUpdatedEvent()));
+		// reloads the internal cache
+		eventService.fire(new LoadSemanticDefinitions());
 	}
 
 	private static void collectSubclasses(ClassInstance clazz, Set<ClassInstance> all) {
@@ -264,18 +284,18 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 
 		Serializable serializable = getCache().getRelationsCache().get(propertyUri).get(
 				EMF.IS_SYSTEM_PROPERTY.getLocalName());
-		return Boolean.valueOf(Boolean.TRUE.equals(serializable));
+		return Boolean.TRUE.equals(serializable);
 	}
 
 	@Override
 	public List<PropertyInstance> getRelations(String fromClass, String toClass) {
 		List<String> fromClassList = CollectionUtils.emptyList();
 		if (StringUtils.isNotBlank(fromClass)) {
-			fromClassList = Arrays.asList(fromClass);
+			fromClassList = Collections.singletonList(fromClass);
 		}
 		List<String> toClasslist = CollectionUtils.emptyList();
 		if (StringUtils.isNotBlank(toClass)) {
-			toClasslist = Arrays.asList(toClass);
+			toClasslist = Collections.singletonList(toClass);
 		}
 		return getRelations(fromClassList, toClasslist);
 	}
@@ -350,6 +370,16 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 	}
 
 	@Override
+	public ClassInstance getDataType(String identifier) {
+		LOGGER.trace("Loading data type [{}]", identifier);
+		if (StringUtils.isBlank(identifier)) {
+			return null;
+		}
+		String fullUri = namespaceRegistryService.buildFullUri(identifier);
+		return getCache().getDataTypesCache().get(fullUri);
+	}
+
+	@Override
 	public List<PropertyInstance> getOwnProperties(String classType) {
 		ClassInstance classInstance = getCache().getClassesCache().get(classType);
 		return new ArrayList<>(classInstance.getFields().values());
@@ -358,7 +388,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 	@Override
 	public List<ClassInstance> getLibrary(String libraryId) {
 		if (!getCache().getLibraries().containsKey(libraryId)) {
-			return CollectionUtils.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 		return getCache().getLibraries().get(libraryId);
 	}
@@ -378,8 +408,8 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 
 	@Override
 	public PropertyInstance getProperty(String uri) {
-		String fullUri = namespaceRegistryService.buildFullUri(uri);
-		return getCache().getAllPropertiesMap().get(fullUri);
+		String shortUri = namespaceRegistryService.getShortUri(uri);
+		return getCache().getAllPropertiesMap().get(shortUri);
 	}
 
 	@Override
@@ -451,12 +481,20 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 	 */
 	private static class SemanticDefinitionCache {
 
+		private static final String PROPERTY_DESCRIPTION = "definition";
+		private static final String PROPERTY_DESCRIPTION_LANG = "definitionLanguage";
+		private static final String CLASS_DESCRIPTION = "description";
+		private static final String CLASS_DESCRIPTION_LANG = "descriptionLanguage";
+		private static final String CREATOR = "creator";
+		private static final String CREATOR_LANG = "creatorLanguage";
 		private final SearchService searchService;
-		private final HeadersService headersService;
 		private final DefinitionService definitionService;
 
 		private Map<String, ClassInstance> classesCache;
 		private List<ClassInstance> allClasses;
+
+		private Map<String, ClassInstance> dataTypesCache;
+		private List<ClassInstance> allDataTypes;
 
 		private List<PropertyInstance> allProperties;
 		private Map<String, PropertyInstance> allPropertiesMap;
@@ -480,17 +518,14 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @param searchService
 		 *            the search service
-		 * @param headersService
-		 *            the headers service
 		 * @param definitionService
 		 *            the definition service
 		 * @param namespaceRegistryService
 		 *            the namespace registry service
 		 */
-		public SemanticDefinitionCache(SearchService searchService, HeadersService headersService,
-				DefinitionService definitionService, NamespaceRegistryService namespaceRegistryService) {
+		public SemanticDefinitionCache(SearchService searchService, DefinitionService definitionService,
+				NamespaceRegistryService namespaceRegistryService) {
 			this.searchService = searchService;
-			this.headersService = headersService;
 			this.definitionService = definitionService;
 			this.namespaceRegistryService = namespaceRegistryService;
 		}
@@ -539,16 +574,24 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 
 			sortClasses(tempClassesCache);
 
+			// fetch data types
+			Map<String, ClassInstance> tempDataTypesCache = new HashMap<>(16);
+			initializeDataTypesCache(tempDataTypesCache);
+			dataTypesCache = Collections.unmodifiableMap(tempDataTypesCache);
+			allDataTypes = Collections.unmodifiableList(new ArrayList<>(tempDataTypesCache.values()));
+			allDataTypes.forEach(ClassInstance::preventModifications);
+
 			// fetch properties
 			Map<String, PropertyInstance> tempPropertiesCache = new HashMap<>(250);
-			populatePropertiesCache(tempClassesCache, tempPropertiesCache);
+			initializeDataPropertiesCache(tempClassesCache, tempPropertiesCache);
+			initializeAnnotationPropertiesCache(tempClassesCache, tempPropertiesCache);
 			allProperties = Collections.unmodifiableList(new ArrayList<>(tempPropertiesCache.values()));
 			allProperties.forEach(PropertyInstance::preventModifications);
 			allPropertiesMap = Collections.unmodifiableMap(tempPropertiesCache);
 
 			// fetch relations
 			Map<String, PropertyInstance> tempRelationsCache = new HashMap<>(250);
-			initializeRelationsCache(tempClassesCache, tempRelationsCache);
+			initializeRelationPropertiesCache(tempClassesCache, tempRelationsCache);
 			allSearchableRelations = Collections.unmodifiableList(
 					tempRelationsCache.values().stream().filter(PropertyInstance::isSearchable).collect(
 							Collectors.toList()));
@@ -591,32 +634,90 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 						.collect(Collectors.toSet());
 		}
 
-		private void initializeRelationsCache(Map<String, ClassInstance> tempClassesCache,
+		/*
+		 * used for relation properties to merge skos:definition metainfo
+		 */
+		private static BiConsumer<Instance, Instance> mergePropertyDescriptions() {
+			return (propertyInstance, source) -> mergeLangProperty(propertyInstance, source, PROPERTY_DESCRIPTION,
+					PROPERTY_DESCRIPTION_LANG, PROPERTY_DESCRIPTION);
+		}
+
+		/*
+		 * used for classes description field
+		 */
+		private static BiConsumer<Instance, Instance> mergeClassDescriptions() {
+			return (propertyInstance, source) -> mergeLangProperty(propertyInstance, source, CLASS_DESCRIPTION,
+					CLASS_DESCRIPTION_LANG, CLASS_DESCRIPTION);
+		}
+
+		private static BiConsumer<Instance, Instance> mergeTitles() {
+			return (instance, source) -> {
+				if (instance instanceof PropertyInstance) {
+					((PropertyInstance) instance).setLabel(source.getAsString(TITLE_LANGUAGE), source.getAsString(TITLE));
+				} else if (instance instanceof ClassInstance) {
+					((ClassInstance) instance).setLabel(source.getAsString(TITLE_LANGUAGE), source.getAsString(TITLE));
+				}
+				mergeLangProperty(instance, source, TITLE, TITLE_LANGUAGE, TITLE);
+			};
+		}
+
+		private static BiConsumer<Instance, Instance> mergeCreators() {
+			return (propertyInstance, source) -> mergeLangProperty(propertyInstance, source, CREATOR, CREATOR_LANG,
+					CREATOR);
+		}
+
+		@SuppressWarnings("unchecked")
+		private static void mergeLangProperty(Instance propertyInstance, Instance source, String propertyName, String langKey, String valueKey) {
+			if (!(source.getProperties().containsKey(langKey) && source.getProperties().containsKey(valueKey))) {
+				return;
+			}
+			propertyInstance.getProperties().computeIfPresent(propertyName, (key, current) -> {
+				Map<String, String> value = Collections.emptyMap();
+				if (current instanceof Map) {
+					value = (Map<String, String>) current;
+				} else if (current instanceof String) {
+					value = new HashMap<>();
+					CollectionUtils.addNonNullValue(value, Objects.toString(propertyInstance.remove(langKey), null), StringUtils.trimToNull((String) current));
+				}
+				value.put(source.getString(langKey), StringUtils.trimToNull(source.getString(valueKey)));
+				return (Serializable) value;
+			});
+			propertyInstance.getProperties().computeIfAbsent(propertyName, key -> {
+				Map<String, String> value = new HashMap<>();
+				value.put(source.getString(langKey), source.getString(valueKey));
+				return (Serializable) value;
+			});
+		}
+		private static BiConsumer<Instance, Instance> mergePropertyTypes() {
+			return (propertyInstance, source) -> {
+				String currentValue = propertyInstance.getString(PROPERTY_TYPE);
+				String newValue = source.getString(PROPERTY_TYPE);
+				propertyInstance.addIfNotNull(PROPERTY_TYPE, StringUtils.trimToNull(currentValue));
+				propertyInstance.addIfNotNull(PROPERTY_TYPE, StringUtils.trimToNull(newValue));
+			};
+		}
+
+		private void initializeRelationPropertiesCache(Map<String, ClassInstance> tempClassesCache,
 				Map<String, PropertyInstance> tempRelationsCache) {
-			SearchArguments<CommonInstance> filter = searchService
-					.getFilter(SemanticQueries.QUERY_RELATION_PROPERTIES.getName(), CommonInstance.class, null);
-			filter.setDialect(SearchDialects.SPARQL);
-			filter.getQueryConfigurations().put(SPARQLQueryHelper.INCLUDE_INFERRED_CONFIGURATION, Boolean.TRUE);
-			filter.setPageSize(0);
-			filter.setMaxSize(0);
-			filter.setPermissionsType(QueryResultPermissionFilter.NONE);
-			searchService.search(CommonInstance.class, filter);
-			List<CommonInstance> result = filter.getResult();
+
+			List<CommonInstance> result = performSemanticSearch(SemanticQueries.QUERY_RELATION_PROPERTIES);
 
 			for (Instance instance : result) {
 				Map<String, Serializable> properties = instance.getProperties();
 
-				if (tempRelationsCache.containsKey(instance.getId().toString())) {
-					PropertyInstance relationInstance = tempRelationsCache.get(instance.getId().toString());
-					relationInstance.setLabel(properties.get(TITLE_LANGUAGE).toString(),
-							properties.get(TITLE).toString());
-
+				String id = instance.getId().toString();
+				if (tempRelationsCache.containsKey(id)) {
+					PropertyInstance relationInstance = tempRelationsCache.get(id);
+					mergeTitles()
+							.andThen(mergePropertyDescriptions())
+							.andThen(mergeCreators())
+							.andThen(mergePropertyTypes())
+							.accept(relationInstance, instance);
 				} else {
 					PropertyInstance relationInstance = new PropertyInstance();
-					relationInstance.setId(instance.getId());
-					relationInstance.setProperties(Collections.unmodifiableMap(properties));
-					relationInstance.setLabel(properties.get(TITLE_LANGUAGE).toString(),
-							properties.get(TITLE).toString());
+					relationInstance.setId(id);
+					relationInstance.addAllProperties(properties);
+					mergeTitles().accept(relationInstance, instance);
 
 					Serializable domainClass = properties.get(DOMAIN_CLASS);
 					if (domainClass != null) {
@@ -629,39 +730,95 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 
 					ClassInstance domainClassInstance = tempClassesCache.get(domainClass);
 					if (domainClassInstance != null) {
-						domainClassInstance.getRelations().put(relationInstance.getId().toString(), relationInstance);
+						domainClassInstance.getRelations().put(id, relationInstance);
 					}
 
-					tempRelationsCache.put(relationInstance.getId().toString(), relationInstance);
+					tempRelationsCache.put(id, relationInstance);
 				}
 			}
 		}
 
-		private void populatePropertiesCache(Map<String, ClassInstance> tempClassesCache,
+		private void initializeDataTypesCache(Map<String, ClassInstance> tempDataTypesCache) {
+			populateDataTypesCache(tempDataTypesCache, SemanticQueries.QUERY_DATA_TYPES);
+		}
+
+		private void initializeDataPropertiesCache(Map<String, ClassInstance> tempClassesCache,
 				Map<String, PropertyInstance> tempPropertiesCache) {
-			SearchArguments<CommonInstance> filter = searchService
-					.getFilter(SemanticQueries.QUERY_DATA_PROPERTIES.getName(), CommonInstance.class, null);
-			filter.getQueryConfigurations().put(SPARQLQueryHelper.INCLUDE_INFERRED_CONFIGURATION, Boolean.FALSE);
+			populatePropertiesCache(tempClassesCache, tempPropertiesCache, SemanticQueries.QUERY_DATA_PROPERTIES);
+		}
+
+		private void initializeAnnotationPropertiesCache(Map<String, ClassInstance> tempClassesCache,
+				Map<String, PropertyInstance> tempPropertiesCache) {
+			populatePropertiesCache(tempClassesCache, tempPropertiesCache, SemanticQueries.QUERY_ANNOTATION_PROPERTIES);
+		}
+
+		private void populatePropertiesCache(Map<String, ClassInstance> tempClassesCache,
+				Map<String, PropertyInstance> tempPropertiesCache, SemanticQueries query) {
+			List<CommonInstance> result = performSemanticSearch(query);
+
+			for (Instance instance : result) {
+				String instanceId = instance.getId().toString();
+				tempPropertiesCache.computeIfPresent(instanceId,
+						(key, existingProperty) -> updateExistingProperty(instance, existingProperty));
+				tempPropertiesCache.computeIfAbsent(instanceId, key -> createPropertyFrom(tempClassesCache, instance));
+			}
+			tempPropertiesCache.values().forEach(this::removeSingleValueCollectionProperties);
+		}
+
+		private void populateDataTypesCache(Map<String, ClassInstance> tempDataTypesCache, SemanticQueries query) {
+			List<CommonInstance> result = performSemanticSearch(query);
+
+			for (Instance instance : result) {
+				String instanceId = instance.getId().toString();
+				tempDataTypesCache.computeIfAbsent(instanceId, key -> {
+					ClassInstance classInstance = new ClassInstance();
+					classInstance.setId(toFullUri(instance.getId()));
+					classInstance.addAllProperties(instance.getProperties());
+					return classInstance;
+				});
+				tempDataTypesCache.computeIfPresent(instanceId,
+						(key, existingClass) -> updateExistingClass(instance, existingClass));
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private void removeSingleValueCollectionProperties(PropertyInstance propertyInstance) {
+			propertyInstance.getProperties().replaceAll((k, v) -> {
+				if (v instanceof Collection && ((Collection) v).size() == 1) {
+					return ((Collection<Serializable>) v).iterator().next();
+				}
+				return v;
+			});
+
+		}
+
+		private List<CommonInstance> performSemanticSearch(SemanticQueries query) {
+			SearchArguments<CommonInstance> filter = searchService.getFilter(query.getName(), CommonInstance.class,
+					null);
+			filter.getQueryConfigurations().put(SPARQLQueryHelper.INCLUDE_INFERRED_CONFIGURATION, Boolean.TRUE);
 			filter.setDialect(SearchDialects.SPARQL);
 			filter.setPageSize(0);
 			filter.setMaxSize(0);
 			filter.setPermissionsType(QueryResultPermissionFilter.NONE);
 			searchService.search(CommonInstance.class, filter);
-			List<CommonInstance> result = filter.getResult();
-
-			for (Instance instance : result) {
-				String instanceId = instance.getId().toString();
-
-				tempPropertiesCache.computeIfPresent(instanceId,
-						(key, existingProperty) -> updateExistingProperty(instance, existingProperty));
-
-				tempPropertiesCache.computeIfAbsent(instanceId, key -> createPropertyFrom(tempClassesCache, instance));
-			}
+			return filter.getResult();
 		}
 
 		private static PropertyInstance updateExistingProperty(Instance source, PropertyInstance existingProperty) {
-			existingProperty.setLabel(source.getAsString(TITLE_LANGUAGE), source.getAsString(TITLE));
+			mergeTitles()
+					.andThen(mergePropertyDescriptions())
+					.andThen(mergeCreators())
+					.andThen(mergePropertyTypes())
+					.accept(existingProperty, source);
 			return existingProperty;
+		}
+
+		private ClassInstance updateExistingClass(Instance source, ClassInstance existingClass) {
+			mergeTitles()
+					.andThen(mergeClassDescriptions())
+					.andThen(mergeCreators())
+					.accept(existingClass, source);
+			return existingClass;
 		}
 
 		private PropertyInstance createPropertyFrom(Map<String, ClassInstance> tempClassesCache, Instance instance) {
@@ -669,9 +826,9 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 
 			PropertyInstance propertyInstance = new PropertyInstance();
 			propertyInstance.setId(instance.getId());
-			propertyInstance.setProperties(Collections.unmodifiableMap(properties));
+			propertyInstance.addAllProperties(properties);
 
-			String domainClass = properties.get(DOMAIN_CLASS).toString();
+			String domainClass = instance.getAsString(DOMAIN_CLASS);
 			propertyInstance.setDomainClass(domainClass);
 
 			Serializable rangeClass = properties.get(RANGE_CLASS);
@@ -688,11 +845,12 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 				domainClassInstance.getFields().put(propertyInstance.getId().toString(), propertyInstance);
 			}
 
-			propertyInstance.setLabel(instance.getAsString(TITLE_LANGUAGE), instance.getAsString(TITLE));
+			mergeTitles().accept(propertyInstance, instance);
 
 			return propertyInstance;
 		}
 
+		@SuppressWarnings("unchecked")
 		private static void mapSuperClasses(Map<String, ClassInstance> tempClassesCache) {
 			for (Entry<String, ClassInstance> key : tempClassesCache.entrySet()) {
 				ClassInstance classInstance = key.getValue();
@@ -725,7 +883,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 			Map<String, ClassInstance> tempClassesCache = createLinkedHashMap(classResult.size());
 
 			// convert all ids to full uries
-			classResult.forEach(instance -> instance.setId(toFullUri(instance.getId().toString())));
+			classResult.forEach(instance -> instance.setId(toFullUri(instance.getId())));
 
 			// iterate over classes
 			for (ClassInstance instance : classResult) {
@@ -748,7 +906,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 			classInstance.setId(instance.getId());
 			classInstance.addAllProperties(instance.getProperties());
 
-			classInstance.setLabel(instance.getAsString(TITLE_LANGUAGE), instance.getAsString(TITLE));
+			mergeTitles().accept(classInstance, instance);
 
 			Set<Serializable> superClasses = new HashSet<>();
 			classInstance.add(SUPER_CLASSES, (Serializable) superClasses);
@@ -764,7 +922,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 
 		@SuppressWarnings("unchecked")
 		private ClassInstance updateExisting(ClassInstance copyFrom, ClassInstance classInstance) {
-			classInstance.setLabel(copyFrom.getAsString(TITLE_LANGUAGE), copyFrom.getAsString(TITLE));
+			updateExistingClass(copyFrom, classInstance);
 
 			Set<Serializable> superClasses = (Set<Serializable>) classInstance.get(SUPER_CLASSES);
 			if (copyFrom.transform(SUPER_CLASS, this::toFullUri)) {
@@ -813,21 +971,12 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 			}
 		}
 
-		private ClassInstance initializeHeaders(ClassInstance classInstance) {
-			DefinitionModel definition = definitionService.getInstanceDefinition(classInstance);
-			if (definition != null) {
-				classInstance.setIdentifier(definition.getIdentifier());
-				headersService.generateInstanceHeaders(classInstance, false);
-			}
-			return classInstance;
-		}
-
 		private Map<String, List<ClassInstance>> getLibraries(Map<String, ClassInstance> all) {
 			List<ClassInstance> tempObjectLibrary = all
 					.values()
 						.stream()
 						.filter(classInstance -> classInstance.type().isPartOflibrary())
-						.map(this::initializeHeaders)
+						.peek(this::setDefinitionId)
 						.peek(instance -> {
 							instance.setLibrary(LibraryProvider.OBJECT_LIBRARY);
 							// status will be used for permission evaluation
@@ -838,6 +987,13 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 			Map<String, List<ClassInstance>> tempLibraries = createLinkedHashMap(1);
 			tempLibraries.put(LibraryProvider.OBJECT_LIBRARY, Collections.unmodifiableList(tempObjectLibrary));
 			return tempLibraries;
+		}
+
+		private void setDefinitionId(ClassInstance classInstance) {
+			DefinitionModel definition = definitionService.getInstanceDefinition(classInstance);
+			if (definition != null) {
+				classInstance.setIdentifier(definition.getIdentifier());
+			}
 		}
 
 		private static void sortClasses(Map<String, ClassInstance> classes) {
@@ -883,7 +1039,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the all classes
 		 */
-		public List<ClassInstance> getAllClasses() {
+		List<ClassInstance> getAllClasses() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -895,7 +1051,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the classesCache
 		 */
-		public Map<String, ClassInstance> getClassesCache() {
+		Map<String, ClassInstance> getClassesCache() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -903,11 +1059,35 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		}
 
 		/**
+		 * Gets the classes cache.
+		 *
+		 * @return the classesCache
+		 */
+		Map<String, ClassInstance> getDataTypesCache() {
+			if (!isLoaded) {
+				reload();
+			}
+			return dataTypesCache;
+		}
+
+		/**
+		 * Gets the all data types.
+		 *
+		 * @return the all data types
+		 */
+		List<ClassInstance> getAllDataTypes() {
+			if (!isLoaded) {
+				reload();
+			}
+			return allDataTypes;
+		}
+
+		/**
 		 * Gets the all properties.
 		 *
 		 * @return the allProperties
 		 */
-		public List<PropertyInstance> getAllProperties() {
+		List<PropertyInstance> getAllProperties() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -919,7 +1099,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the allPropertiesMap
 		 */
-		public Map<String, PropertyInstance> getAllPropertiesMap() {
+		Map<String, PropertyInstance> getAllPropertiesMap() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -931,7 +1111,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the relationsCache
 		 */
-		public Map<String, PropertyInstance> getRelationsCache() {
+		Map<String, PropertyInstance> getRelationsCache() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -943,7 +1123,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the all searchable relations
 		 */
-		public List<PropertyInstance> getAllSearchableRelations() {
+		List<PropertyInstance> getAllSearchableRelations() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -955,7 +1135,7 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the allRelations
 		 */
-		public List<PropertyInstance> getAllRelations() {
+		List<PropertyInstance> getAllRelations() {
 			if (!isLoaded) {
 				reload();
 			}
@@ -967,21 +1147,21 @@ public class SemanticDefinitionServiceImpl implements SemanticDefinitionService 
 		 *
 		 * @return the searchableTypes
 		 */
-		public List<ClassInstance> getSearchableTypes() {
+		List<ClassInstance> getSearchableTypes() {
 			if (!isLoaded) {
 				reload();
 			}
 			return searchableTypes;
 		}
 
-		public Supplier<Collection<String>> getTopLevelTypes() {
+		Supplier<Collection<String>> getTopLevelTypes() {
 			if (!isLoaded) {
 				reload();
 			}
 			return topLevelTypes;
 		}
 
-		public Map<String, List<ClassInstance>> getLibraries() {
+		Map<String, List<ClassInstance>> getLibraries() {
 			if (!isLoaded) {
 				reload();
 			}

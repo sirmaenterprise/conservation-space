@@ -24,13 +24,11 @@ import com.sirma.itt.seip.domain.search.SearchRequest;
 import com.sirma.itt.seip.domain.search.tree.Condition;
 import com.sirma.itt.seip.domain.search.tree.Rule;
 import com.sirma.itt.seip.domain.search.tree.SearchCriteriaBuilder;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.search.SearchService;
-import com.sirma.itt.seip.time.TimeTracker;
 
 /**
  * Default implementation of {@link ConceptService}.
- * 
+ *
  * @author Vilizar Tsonev
  */
 @Singleton
@@ -38,9 +36,6 @@ public class ConceptServiceImpl implements ConceptService {
 
 	@Inject
 	private SearchService searchService;
-
-	@Inject
-	private Statistics statistics;
 
 	private static final String SET_TO_OPERATION = "set_to";
 
@@ -51,7 +46,6 @@ public class ConceptServiceImpl implements ConceptService {
 		if (StringUtils.isBlank(schemeId)) {
 			throw new IllegalArgumentException("Unable to fetch concept hierarchy if schemeId is not provided");
 		}
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "getSkosConceptsByScheme").begin();
 
 		Rule searchRule = SearchCriteriaBuilder.createRuleBuilder()
 				.setType(SKOS.CONCEPT.toString())
@@ -59,13 +53,8 @@ public class ConceptServiceImpl implements ConceptService {
 				.setField(SKOS.PREFIX + ":" + SKOS.IN_SCHEME.getLocalName())
 				.setValues(Arrays.asList(schemeId))
 				.build();
-		List<Instance> conceptInstances = findConcepts(searchRule);
 
-		List<Concept> hierarchy = restoreConceptHierarchy(conceptInstances);
-
-		LOGGER.debug("Retrieval of {} concept tree(s) for scheme [{}] took {} ms", Integer.valueOf(hierarchy.size()),
-				schemeId, Long.valueOf(timeTracker.stop()));
-		return hierarchy;
+		return restoreConceptHierarchy(findConcepts(searchRule));
 	}
 
 	@Override
@@ -73,7 +62,6 @@ public class ConceptServiceImpl implements ConceptService {
 		if (StringUtils.isBlank(broaderId)) {
 			throw new IllegalArgumentException("Unable to fetch concept hierarchy if broaderId is not provided");
 		}
-		TimeTracker timeTracker = statistics.createTimeStatistics(getClass(), "getSkosConceptsByBroader").begin();
 
 		Rule searchRule = SearchCriteriaBuilder.createRuleBuilder()
 				.setType(SKOS.CONCEPT.toString())
@@ -81,13 +69,8 @@ public class ConceptServiceImpl implements ConceptService {
 				.setField(SKOS.PREFIX + ":" + SKOS.BROADER_TRANSITIVE.getLocalName())
 				.setValues(Arrays.asList(broaderId))
 				.build();
-		List<Instance> conceptInstances = findConcepts(searchRule);
 
-		List<Concept> hierarchy = restoreConceptHierarchy(conceptInstances);
-
-		LOGGER.debug("Retrieval of {} concept tree(s) for broader [{}] took {} ms", Integer.valueOf(hierarchy.size()),
-				broaderId, Long.valueOf(timeTracker.stop()));
-		return hierarchy;
+		return restoreConceptHierarchy(findConcepts(searchRule));
 	}
 
 	private static Concept toConcept(Instance instance) {

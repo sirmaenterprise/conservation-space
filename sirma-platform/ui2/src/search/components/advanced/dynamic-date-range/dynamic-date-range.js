@@ -1,8 +1,7 @@
 import {View, Component, Inject, NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
-import {Select} from 'components/select/select';
+import 'components/select/select';
 import {TranslateService} from 'services/i18n/translate-service';
-import _ from 'lodash';
 import 'moment';
 import template from './dynamic-date-range.html!text';
 import './dynamic-date-range.css!css';
@@ -53,9 +52,7 @@ export const YEARS_OFFSET = 'years';
     'dateOffsetType': 'date-offset-type'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, TranslateService)
 export class DynamicDateRange extends Configurable {
 
@@ -167,26 +164,26 @@ export class DynamicDateRange extends Configurable {
     var end;
 
     switch (dateOffset.dateStep) {
-      case 'today':
-        start = moment().startOf('day');
-        end = start.clone().add(1, 'day');
-        break;
-      case 'next':
-        start = moment();
-        end = start.clone().add(dateOffset.offset, dateOffset.offsetType);
-        break;
-      case 'last':
-        end = moment();
-        start = end.clone().subtract(dateOffset.offset, dateOffset.offsetType);
-        break;
-      case 'after':
-        start = moment().add(dateOffset.offset, dateOffset.offsetType);
-        break;
-      case 'before':
-        end = moment().subtract(dateOffset.offset, dateOffset.offsetType);
-        break;
-      default:
-        break;
+    case 'today':
+      start = moment().startOf('day');
+      end = start.clone().add(1, 'day');
+      break;
+    case 'next':
+      start = moment();
+      end = start.clone().add(dateOffset.offset, dateOffset.offsetType);
+      break;
+    case 'last':
+      end = moment();
+      start = end.clone().subtract(dateOffset.offset, dateOffset.offsetType);
+      break;
+    case 'after':
+      start = moment().add(dateOffset.offset, dateOffset.offsetType);
+      break;
+    case 'before':
+      end = moment().subtract(dateOffset.offset, dateOffset.offsetType);
+      break;
+    default:
+      break;
     }
     return [start && start.toISOString() || '', end && end.toISOString() || ''];
   }

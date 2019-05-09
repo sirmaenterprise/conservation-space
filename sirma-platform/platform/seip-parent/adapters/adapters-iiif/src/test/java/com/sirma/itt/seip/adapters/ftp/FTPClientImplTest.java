@@ -43,6 +43,7 @@ import com.sirma.itt.emf.adapter.DMSException;
 import com.sirma.itt.seip.adapters.remote.FTPConfiguration;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.io.FileDescriptor;
+import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentStore;
@@ -79,10 +80,10 @@ public class FTPClientImplTest {
 
 	@Mock
 	private ContentStoreProvider storeProvider;
-	
+
 	@Spy
-	private Statistics statistics = Statistics.NO_OP;
-	
+	private Statistics statistics = NoOpStatistics.INSTANCE;
+
 	@BeforeClass
 	public static void init() {
 		ftpServer = new FakeFtpServer();
@@ -304,7 +305,7 @@ public class FTPClientImplTest {
 		verify(clientBuilder, never()).buildClient(any(FTPConfiguration.class));
 		verify(contentStore, never()).delete(any(StoreItemInfo.class));
 	}
-	
+
 	@AfterClass
 	public static void cleanUp() {
 		ftpServer.stop();

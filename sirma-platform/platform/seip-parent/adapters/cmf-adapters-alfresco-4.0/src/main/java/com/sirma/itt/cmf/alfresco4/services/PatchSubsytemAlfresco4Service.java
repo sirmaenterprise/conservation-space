@@ -27,21 +27,19 @@ import com.sirma.itt.seip.time.ISO8601DateFormat;
 import com.sirma.sep.content.descriptor.LocalFileDescriptor;
 
 /**
- * Implementation of DMS integration for patch subsystem
+ * Implementation of DMS integration for patch subsystem.
  */
 @ApplicationScoped
 public class PatchSubsytemAlfresco4Service implements PatchSubsytemAdapterService, AlfrescoCommunicationConstants {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private static final long serialVersionUID = 8656657709178204961L;
-
 	@Inject
 	private AlfrescoUploader alfrescoUploader;
 
 	@Override
 	public boolean backupPatch(File zipFile, String name) throws DMSException {
-		Map<String, Serializable> props = new HashMap<>();
+		Map<String, Serializable> props = new HashMap<>(1);
 		String title = name == null ? ISO8601DateFormat.format(Calendar.getInstance()) : name;
 		props.put(KEY_DMS_TITLE, title);
 		try {
@@ -65,5 +63,4 @@ public class PatchSubsytemAlfresco4Service implements PatchSubsytemAdapterServic
 					.setOverwrite(Boolean.FALSE)
 					.setMajorVersion(Boolean.TRUE);
 	}
-
 }

@@ -110,4 +110,22 @@ public interface EntityLookupCallbackDAO<K extends Serializable, V extends Objec
 	 * @return Returns the row deletion count.
 	 */
 	int deleteByValue(V value);
+
+	/**
+	 * Checks if the secondary key handling is enabled or disabled. By default it's disabled.
+	 *
+	 * @return if secondary key management is enabled or not
+	 */
+	default boolean isSecondaryKeyEnabled() {
+		return false;
+	}
+
+	/**
+	 * Enables secondary key management
+	 *
+	 * @return the current instance for chaining
+	 */
+	default EntityLookupCallbackDAO<K, V, S> enableSecondaryKeyManagement() {
+		throw new UnsupportedOperationException();
+	}
 }

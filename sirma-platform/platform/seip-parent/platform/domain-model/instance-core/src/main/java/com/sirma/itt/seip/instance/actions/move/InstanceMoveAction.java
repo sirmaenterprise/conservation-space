@@ -5,9 +5,7 @@ import java.io.Serializable;
 import javax.inject.Inject;
 
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.domain.instance.InstanceReference;
-import com.sirma.itt.seip.exceptions.InstanceNotFoundException;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.instance.actions.Action;
 import com.sirma.itt.seip.instance.actions.InstanceOperations;
 import com.sirma.itt.seip.instance.state.Operation;
@@ -26,7 +24,7 @@ public class InstanceMoveAction implements Action<MoveActionRequest> {
 	private InstanceOperations operationInvoker;
 
 	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
+	private DomainInstanceService domainInstanceService;
 
 	@Override
 	public String getName() {
@@ -35,16 +33,10 @@ public class InstanceMoveAction implements Action<MoveActionRequest> {
 
 	@Override
 	public Instance perform(MoveActionRequest request) {
-		Instance target = getInstance(request.getTargetId());
 		Serializable newParentId = request.getDestinationId();
-		Instance destination = newParentId != null ? getInstance(newParentId) : null;
-		Operation operation = new Operation(request.getUserOperation(), true);
-		operationInvoker.invokeMove(destination, operation, target);
+		Instance destination = newParentId != null ? domainInstanceService.loadInstance(newParentId.toString()) : null;
+		Instance target = request.getTargetReference().toInstance();
+		operationInvoker.invokeMove(destination, new Operation(request.getUserOperation(), true), target);
 		return target;
-	}
-
-	private Instance getInstance(Serializable id) {
-		return instanceTypeResolver.resolveReference(id).map(InstanceReference::toInstance).orElseThrow(
-				() -> new InstanceNotFoundException(id));
 	}
 }

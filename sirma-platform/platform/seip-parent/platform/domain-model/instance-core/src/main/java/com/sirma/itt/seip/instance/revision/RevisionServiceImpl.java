@@ -403,7 +403,7 @@ public class RevisionServiceImpl implements RevisionService {
 
 	private void linkCurrentWithNewRevision(Instance current, Instance newRevision) {
 		current.append(LinkConstants.HAS_REVISION, newRevision.getId(), fieldConverter);
-		newRevision.append(LinkConstants.IS_REVISION_OF, current.getId(), fieldConverter);
+		newRevision.add(LinkConstants.IS_REVISION_OF, current.getId(), fieldConverter);
 	}
 
 	private void setAsLastRevisionTo(Instance instanceToPublish, Instance revision) {

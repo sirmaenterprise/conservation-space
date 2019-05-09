@@ -4,7 +4,6 @@ import {TemplateConfigDialogService} from 'idoc/template/template-config-dialog-
 import {TemplateService} from 'services/rest/template-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {NotificationService} from 'services/notification/notification-service';
-import {StatusCodes} from 'services/rest/status-codes';
 import {UrlUtils} from 'common/url-utils';
 
 /**

@@ -44,7 +44,7 @@ public class GenericDefinitionCompilerCallback {
 		definition.setCreationDate(new Date());
 		definition.setLastModifiedDate(new Date());
 		// initialize the revision
-		if (definition.getRevision() == null || definition.getRevision().longValue() == 0) {
+		if (definition.getRevision() == null || definition.getRevision() == 0) {
 			definition.setRevision(1L);
 		}
 

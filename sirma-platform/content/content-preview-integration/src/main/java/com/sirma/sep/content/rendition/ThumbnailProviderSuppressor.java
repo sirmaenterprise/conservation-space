@@ -1,6 +1,7 @@
 package com.sirma.sep.content.rendition;
 
-import com.sirma.itt.seip.domain.instance.Instance;
+import java.io.Serializable;
+
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.sep.content.preview.ContentPreviewConfigurations;
 
@@ -27,7 +28,7 @@ public class ThumbnailProviderSuppressor implements ThumbnailProvider {
 	private ContentPreviewConfigurations previewConfigurations;
 
 	@Override
-	public String createThumbnailEndPoint(Instance source) {
+	public String createThumbnailEndPoint(Serializable source) {
 		if (previewConfigurations.isIntegrationEnabled().get()) {
 			return null;
 		}

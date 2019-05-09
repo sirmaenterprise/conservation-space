@@ -1,0 +1,40 @@
+<div class="model-actions" ng-switch="modelActions.isModelDefinition()">
+    <div ng-switch-when="false" class="selected-message alert alert-info">
+        {{ ::'administration.models.management.fields.model.message' | translate}}
+    </div>
+    <div class="model-action-page" ng-switch-when="true">
+        <div class="model-actions-list container-fluid form-horizontal col-md-4">
+            <div class="model-actions-tree panel panel-default">
+                <div class="panel-body">
+                    <seip-model-actions-tree
+                            model="modelActions.model"
+                            emitter="::modelActions.actionEmitter"
+                            on-model-navigate="modelActions.onModelNavigated(model)"
+                            config="modelActions.config"></seip-model-actions-tree>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <seip-model-action-view ng-if="modelActions.isActionModelSelected()"
+                                    on-attribute-change="modelActions.notifyForModelAttributeChange(attribute, modelActions.model)"
+                                    context="modelActions.model" model="modelActions.selectedModel"
+                                    emitter="::modelActions.actionEmitter"></seip-model-action-view>
+
+            <seip-model-action-group-view ng-if="modelActions.isActionGroupModelSelected()"
+                                          on-attribute-change="modelActions.notifyForModelAttributeChange(attribute, modelActions.model)"
+                                          model="modelActions.selectedModel"
+                                          emitter="::modelActions.actionEmitter"></seip-model-action-group-view>
+        </div>
+    </div>
+    <div class="management-section" ng-switch-when="true">
+        <model-controls>
+            <model-save loading="modelActions.isSectionSaving()"
+                        enabled="modelActions.isSaveAllowed()"
+                        on-save="modelActions.saveAllChanges()"></model-save>
+
+            <model-cancel loading="modelActions.isSectionSaving()"
+                          enabled="modelActions.isSectionDirty()"
+                          on-cancel="modelActions.revertAllChanges()"></model-cancel>
+        </model-controls>
+    </div>
+</div>

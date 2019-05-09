@@ -65,7 +65,7 @@ export class PasteBase64 {
 
       let notification = {
         instance: editor.showNotification(this.notificationLabel, 'progress', 0),
-        updateProgress: function () {
+        updateProgress() {
           this.progress += 1 / images.length;
         },
         progress: 0

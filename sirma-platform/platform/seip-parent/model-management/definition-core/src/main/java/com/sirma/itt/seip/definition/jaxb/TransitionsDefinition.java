@@ -81,4 +81,11 @@ public class TransitionsDefinition {
 		return group;
 	}
 
+	public void setTransition(List<TransitionDefinition> transition) {
+		this.transition = transition;
+	}
+
+	public void setGroup(List<TransitionGroupDefinition> group) {
+		this.group = group;
+	}
 }

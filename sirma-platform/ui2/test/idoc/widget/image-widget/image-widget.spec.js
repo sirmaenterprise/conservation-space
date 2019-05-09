@@ -311,6 +311,13 @@ describe('ImageWidget', () => {
     widget.miradorViewer = {
       destroy: miradorViewerDestroy
     };
+    widget.control = {
+      getBaseWidget: () => {
+        return {
+          ngOnDestroy: sinon.stub()
+        };
+      }
+    };
     widget.ngOnDestroy();
     expect(miradorViewerDestroy.called).to.be.true;
     for (let event of widget.events) {
@@ -817,7 +824,7 @@ describe('ImageWidget', () => {
             unsubscribe: () => {
 
             }
-          }
+          };
         }
       };
     }

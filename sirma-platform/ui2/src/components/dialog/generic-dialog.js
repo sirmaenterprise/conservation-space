@@ -10,7 +10,7 @@ import './generic-dialog.css!';
   }
 })
 @View({
-  template: '<div ng-bind-html="genericDialog.content | translate | toTrustedHtml"></div>',
+  template: '<div ng-bind-html="genericDialog.content | translate | toTrustedHtml"></div>'
 })
 /**
  * Generic dialog controller.

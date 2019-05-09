@@ -218,5 +218,5 @@ public interface InstanceVersionService {
 	 * @param <S> the version id type
 	 * @return a mapping of version ids and if they exist or not
 	 */
-	<S extends Serializable> Map<S, Boolean> exits(Collection<S> ids);
+	<S extends Serializable> Map<S, Boolean> exist(Collection<S> ids);
 }

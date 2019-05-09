@@ -3,7 +3,13 @@
 	<regions>
 		<region id="generalData" >
 			<fields>
-				<field name="purpose" type="an..20" mandatory="true" displayType="editable" order="2" codelist="CL264" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="yul:purpose" />
+				<field name="purpose" type="ANY" mandatory="true" displayType="editable" order="2" codelist="CL264" label="yul.purpose.label" tooltip="yul.purpose.tooltip" uri="yul:purpose" >
+					<control id="RELATED_FIELDS">							
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">type</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>	
 				<field name="objectCount" type="an..4" displayType="editable" label="yul.objectCount.label" tooltip="yul.objectCount.tooltip" uri="yul:objectCount" />
 				<field name="dateIn" type="date" displayType="editable" label="yul.dateIn.label" tooltip="yul.dateIn.tooltip" uri="yul:dateIn" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264001')</condition>
@@ -17,18 +23,14 @@
 				<field name="packedBy" type="uri" displayType="editable" label="yul.packedBy.label" tooltip="yul.packedBy.tooltip" uri="yul:packedBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264003')</condition>
 				</field>
 				<field name="checkedBy" type="uri" displayType="editable" label="yul.checkedBy.label" tooltip="yul.checkedBy.tooltip" uri="yul:checkedBy" >
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 					<condition id="hiddenFields" renderAs="HIDDEN">[purpose] NOTIN ('YUL264003')</condition>
 				</field>	
@@ -44,11 +46,6 @@
 			<fields>
 				<field name="type" codelist="CL6">
 					<value>YULDT210001</value>
-					<control id="RELATED_FIELDS">
-						<control-param id="fieldsToRerender" name="RERENDER">purpose</control-param>
-						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
-						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
-					</control>
 				</field>
 			</fields>
 		</region>

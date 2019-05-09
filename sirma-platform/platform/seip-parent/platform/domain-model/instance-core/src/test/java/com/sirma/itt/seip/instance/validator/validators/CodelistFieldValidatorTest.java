@@ -3,7 +3,6 @@ package com.sirma.itt.seip.instance.validator.validators;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +20,7 @@ import com.sirma.itt.seip.instance.validation.DynamicCodeListFilter;
 import com.sirma.itt.seip.instance.validation.FieldValidationContext;
 import com.sirma.itt.seip.instance.validator.errors.CodelistFieldValidationError;
 import com.sirma.itt.seip.instance.validator.errors.FieldValidationErrorBuilder;
+import com.sirmaenterprise.sep.instance.validator.exceptions.InstanceValidationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,8 +70,8 @@ public class CodelistFieldValidatorTest {
 
 		when(codelistService.getFilteredCodeValues(any(Integer.class), any(String[].class))).thenReturn(map);
 		when(codelistService.getFilteredCodeValues(any(Integer.class))).thenReturn(map);
-		when(codelistService.filterCodeValues(any(Integer.class),
-				any(Boolean.class), any(String.class), any())).thenReturn(map);
+		when(codelistService.filterCodeValues(any(Integer.class), any(Boolean.class), any(String.class), any())).thenReturn(map);
+		when(codelistService.filterCodeValues(any(Integer.class), any(Boolean.class), any())).thenReturn(map);
 	}
 
 	@Test
@@ -108,6 +108,26 @@ public class CodelistFieldValidatorTest {
 		assertFalse(cut.validate(context).findFirst().isPresent());
 		verify(errorBuilder, times(0)).buildCodelistFieldError(any(), any(), any());
 	}
+	
+	@Test
+	public void validate_success_customFilter() {
+		when(context.getValue()).thenReturn("CL");
+		when(property.getCodelist()).thenReturn(200);
+		when(property.getName()).thenReturn("field");
+
+		Map<String, DynamicCodeListFilter> dynamicFilters = new HashMap<>();
+		DynamicCodeListFilter clFilter = new DynamicCodeListFilter();
+		clFilter.setFilterSource("val1, val2");
+		clFilter.setReRenderFieldName("field");
+		clFilter.setSourceFilterFieldName("field");
+		clFilter.setValues(Collections.singletonList("CL3"));
+		clFilter.setInclusive(Boolean.TRUE);
+		dynamicFilters.put("field", clFilter);
+		when(context.getDynamicClFilters()).thenReturn(dynamicFilters);
+
+		assertFalse(cut.validate(context).findFirst().isPresent());
+		verify(errorBuilder, times(0)).buildCodelistFieldError(any(), any(), any());
+	}
 
 	@Test
 	public void validate_error() {
@@ -125,6 +145,21 @@ public class CodelistFieldValidatorTest {
 
 		assertTrue(cut.validate(context).findFirst().isPresent());
 		verify(errorBuilder, times(1)).buildCodelistFieldError(any(), any(), any());
+	}
+	
+	@Test(expected = InstanceValidationException.class)
+	public void validate_missing_mandatory_param() {
+		Map<String, DynamicCodeListFilter> dynamicFilters = new HashMap<>();
+		DynamicCodeListFilter clFilter = new DynamicCodeListFilter();
+		clFilter.setFilterSource("src");
+		clFilter.setValues(Collections.singletonList("CL3"));
+		clFilter.setInclusive(Boolean.TRUE);
+		dynamicFilters.put("field", clFilter);
+		when(property.getName()).thenReturn("field");
+		when(context.getDynamicClFilters()).thenReturn(dynamicFilters);
+		when(errorBuilder.buildMandatoryControlParamError(any())).thenReturn(error);
+		
+		cut.validate(context);
 	}
 
 	@Test

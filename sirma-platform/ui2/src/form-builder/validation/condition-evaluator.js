@@ -14,8 +14,6 @@ const OUTCOME = {
   'OPTIONAL': 'OPTIONAL'
 };
 
-const MANDATORY = 'mandatory';
-
 const COMPLEX_EXPRESSION = {
   'IN': 'IN',
   'NOTIN': 'NOTIN',

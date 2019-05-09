@@ -2,7 +2,6 @@ import {Component,Inject,NgElement,NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {Eventbus} from 'services/eventbus/eventbus';
-import _ from 'lodash';
 import {MODE_PRINT} from 'idoc/idoc-constants';
 import Split from 'nathancahill/Split.js';
 import './splitter.css!css';
@@ -55,18 +54,18 @@ export class Splitter extends Configurable {
   }
 
   registerInitWatch() {
-    let initWatcher = this.$scope.$watch(()=> {
-        return this.config.commands.init();
-      },
-      (newValue)=> {
-        if (newValue) {
-          this.init();
-          if (this.config.commands.destroy) {
-            this.registerDestroyWatch();
-          }
-          initWatcher();
+    let initWatcher = this.$scope.$watch(() => {
+      return this.config.commands.init();
+    },
+    (newValue)=> {
+      if (newValue) {
+        this.init();
+        if (this.config.commands.destroy) {
+          this.registerDestroyWatch();
         }
-      });
+        initWatcher();
+      }
+    });
   }
 
   destroy() {

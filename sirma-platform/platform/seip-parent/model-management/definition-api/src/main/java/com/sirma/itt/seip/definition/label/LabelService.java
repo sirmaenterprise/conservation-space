@@ -19,6 +19,14 @@ public interface LabelService {
 	LabelDefinition getLabel(String name);
 
 	/**
+	 * Returns all available label definitions defined in the given identifier.
+	 *
+	 * @param identifier an identifier for object where label definitions are defined in
+	 * @return list of the available label definitions
+	 */
+	List<LabelDefinition> getLabelsDefinedIn(String identifier);
+
+	/**
 	 * Save label definition.
 	 *
 	 * @param labelDefinition

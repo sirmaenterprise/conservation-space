@@ -2,6 +2,8 @@ import {View, Component, Inject, NgElement, NgScope} from 'app/app';
 import {Configurable} from 'components/configurable';
 import {ModelsService} from 'services/rest/models-service';
 import {RestClient} from 'services/rest-client';
+import {AuthenticationService} from 'security/authentication-service';
+import {AUTHORIZATION} from 'services/rest/http-headers';
 import {NotificationService} from 'services/notification/notification-service';
 import {DialogService} from 'components/dialog/dialog-service';
 import {TranslateService} from 'services/i18n/translate-service';
@@ -11,6 +13,7 @@ import {FileUploadIntegration} from 'file-upload/file-upload-integration';
 import 'jquery-file-upload/js/vendor/jquery.ui.widget';
 import 'jquery-file-upload';
 import 'components/select/select';
+import 'components/collapsible/collapsible-panel';
 
 import _ from 'lodash';
 import fileSaver from 'file-saver';
@@ -27,10 +30,10 @@ import template from './model-import.html!text';
 @View({
   template
 })
-@Inject(ModelsService, RestClient, FileUploadIntegration, NotificationService, DialogService, TranslateService, NgElement, NgScope, MomentAdapter, Configuration)
+@Inject(ModelsService, RestClient, FileUploadIntegration, NotificationService, DialogService, TranslateService, NgElement, NgScope, MomentAdapter, Configuration, AuthenticationService)
 export class ModelImport extends Configurable {
 
-  constructor(modelsService, restClient, fileUploadIntegration, notificationService, dialogService, translateService, $element, $scope, momentAdapter, configuration) {
+  constructor(modelsService, restClient, fileUploadIntegration, notificationService, dialogService, translateService, $element, $scope, momentAdapter, configuration, authenticationService) {
     super({});
     this.$scope = $scope;
     this.element = $element;
@@ -45,6 +48,7 @@ export class ModelImport extends Configurable {
     this.dialogService = dialogService;
     this.translateService = translateService;
     this.notificationService = notificationService;
+    this.authenticationService = authenticationService;
   }
 
   ngOnInit() {
@@ -162,20 +166,30 @@ export class ModelImport extends Configurable {
   executeImport() {
     this.uploading = true;
 
-    this.fileUploadIntegration.submit(this.uploadComponent).done(() => {
-      this.$scope.$apply(() => {
-        this.clearUploadState();
-        this.notificationService.success(this.getNotificationConfig('administration.models.import.successful'));
-      });
-    }).fail(error => {
-      this.$scope.$apply(() => {
-        // resolve the different response message contents based on the response type content.
-        let messages = error.responseJSON ? error.responseJSON.messages : [error.responseText];
-        let errorMessage = messages ? messages.reduce((result, current) => result + current + '<br/>', '') : '';
+    this.addAuthHeader().then(() => {
+      this.fileUploadIntegration.submit(this.uploadComponent).done(() => {
+        this.$scope.$apply(() => {
+          this.clearUploadState();
+          this.notificationService.success(this.getNotificationConfig('administration.models.import.successful'));
+        });
+      }).fail(error => {
+        this.$scope.$apply(() => {
+          // resolve the different response message contents based on the response type content.
+          let messages = error.responseJSON ? error.responseJSON.messages : [error.responseText];
+          let errorMessage = messages ? messages.reduce((result, current) => result + current + '<br/>', '') : '';
 
-        this.clearUploadState();
-        this.dialogService.error(errorMessage, this.translateService.translateInstant('administration.models.import.failed'));
+          this.clearUploadState();
+          this.dialogService.error(errorMessage, this.translateService.translateInstant('administration.models.import.failed'));
+        });
       });
+    });
+  }
+
+  addAuthHeader() {
+    return this.authenticationService.buildAuthHeader().then(authHeaderValue => {
+      this.uploadComponent.headers = this.uploadComponent.headers || {};
+      this.uploadComponent.headers[AUTHORIZATION] = authHeaderValue;
+      return true;
     });
   }
 
@@ -196,12 +210,18 @@ export class ModelImport extends Configurable {
         .map(definition => definition.id);
     }
 
-    this.modelsService.download(downloadRequest).then(result => {
-      let blob = new Blob([result.data], {
-        type: 'application/octet-stream'
-      });
-      fileSaver.saveAs(blob, result.fileName);
+    this.modelsService.download(downloadRequest).then(result => this.saveFile(result));
+  }
+
+  downloadOntology() {
+    this.modelsService.downloadOntology().then(result => this.saveFile(result));
+  }
+
+  saveFile(result) {
+    let blob = new Blob([result.data], {
+      type: 'application/octet-stream'
     });
+    fileSaver.saveAs(blob, decodeURIComponent(result.fileName));
   }
 
   updateAll(modelsArray, value) {
@@ -313,7 +333,7 @@ export class ModelImport extends Configurable {
         hideOnHover: false
       },
       message: this.translateService.translateInstant(label)
-    }
+    };
   }
 
   getFileInputElement() {

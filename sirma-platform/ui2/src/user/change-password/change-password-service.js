@@ -2,7 +2,7 @@ import {Injectable, Inject} from 'app/app';
 import {DialogService} from 'components/dialog/dialog-service';
 import {NotificationService} from 'services/notification/notification-service';
 import {TranslateService} from 'services/i18n/translate-service';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {ChangePasswordDialog} from 'user/change-password/change-password-dialog';
 import {StatusCodes} from 'services/rest/status-codes';
 

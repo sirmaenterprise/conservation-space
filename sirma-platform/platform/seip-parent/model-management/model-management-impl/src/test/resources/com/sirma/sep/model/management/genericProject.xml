@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definition id="genericProject" parentId="entity" isAbstract="true" type="project">
     <fields>
+        <field name="state" codelist="CL27"/>
         <!-- HEADERS AND TOOLTIP -->
         <field name="default_header" type="ANY" label="PROJECT_DEFAULT_HEADER" displayType="system"/>
         <field name="compact_header" type="an..4096" label="PROJECT_COMPACT_HEADER" displayType="system"/>
@@ -16,7 +17,7 @@
 
         <!-- GENERAL DATA FIELDS FOR PROJECT -->
         <field name="type" type="an..180" codelist="CL2"/>
-        <field name="status" type="an..50" codelist="CL1">
+        <field name="status" codelist="CL1">
             <condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
         </field>
         <field name="identifier" type="an..50" label="uniqueIdentifier.label" displayType="readOnly"
@@ -51,12 +52,22 @@
         <field name="estimatedEffortHours" type="n..10" label="estimatedEffortHours.label" displayType="editable" previewEmpty="false"
                uri="emf:estimatedEffort"/>
         <field name="actualEffortHours" type="n..10" label="actualEffortHours.label" displayType="editable" previewEmpty="false"
-               uri="emf:actualEffort"/>
+               uri="emf:actualEffort">
+            <control id="DEFAULT_VALUE_PATTERN">
+                <control-param type="default_value_pattern" id="template" name="template">$[emf:dependsOn.actualEffortHours]</control-param>
+            </control>
+        </field>
         <field name="accumulatedEstimatedEffortHours" type="n..10" label="accumulatedEstimatedEffortHours.label" displayType="editable"
                previewEmpty="false" uri="emf:accumulatedEstimatedEffort"/>
         <field name="accumulatedActualEffortHours" type="n..10" label="accumulatedActualEffortHours.label" displayType="editable"
-               previewEmpty="false" uri="emf:accumulatedActualEffort"/>
-        <field name="duration" type="n..10" label="duration.label" displayType="editable" previewEmpty="false" uri="emf:duration"/>
+               previewEmpty="false" uri="emf:accumulatedActualEffort" >
+               <control id="RICHTEXT" />
+        </field>
+        <field name="duration" type="n..10" label="duration.label" displayType="editable" previewEmpty="false" uri="emf:duration">
+            <control id="DEFAULT_VALUE_PATTERN">
+                <control-param type="default_value_pattern" id="template" name="template">$[emf:dependsOn.duration]</control-param>
+            </control>
+        </field>
 
         <!-- project fields -->
         <field name="ownedBy" type="uri" label="ownedBy" displayType="editable" previewEmpty="false" uri="emf:ownedBy">
@@ -315,99 +326,9 @@
             )}]]></value>
         </label>
         <label id="PROJECT_DEFAULT_HEADER">
-            <value lang="en"><![CDATA[${eval(
-			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
-			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
-			<span><img src="${thumbnailUri(64)}"/></span>
-			<span>
-				<span class="truncate-element">
-					<a class="instance-link" ${var.href} uid="${id.uid}">
-						<b>
-							${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span> )}
-							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
-							(<span data-property="type">${CL([type])}</span>)&nbsp;
-							<span data-property="title">${get([title])}</span>&nbsp;
-							(<span data-property="status">${CL([status])}</span>)&nbsp;
-							${if(${var.isVersion}).then(
-								<span data-property="emf:version">${get([emf:version])}</span>
-							)}
-						</b>
-					</a>
-				</span>
-				<br />
-				${if(${get([owner])} <> null).then(
-					<span>
-						Owner:&nbsp;<a href="${userLink(${get([owner])})}">${user(${get([owner])})},</a>&nbsp;
-					</span>
-				)}
-				<span>
-					Created on:&nbsp;<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
-				</span>
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
-			</span>)}]]></value>
-            <value lang="de"><![CDATA[${eval(
-			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
-			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
-			<span><img src="${thumbnailUri(64)}"/></span>
-			<span>
-				<span class="truncate-element">
-					<a class="instance-link" ${var.href} uid="${id.uid}">
-						<b>
-							${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
-							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
-							(<span data-property="type">${CL([type])}</span>)&nbsp;
-							<span data-property="title">${get([title])}</span>&nbsp;
-							(<span data-property="status">${CL([status])}</span>)&nbsp;
-							${if(${var.isVersion}).then(
-								<span data-property="emf:version">${get([emf:version])}</span>
-							)}
-						</b>
-					</a>
-				</span>
-				<br />
-				${if(${get([owner])} <> null).then(
-					<span>
-						Inhaber:&nbsp;<a href="${userLink(${get([owner])})}">${user(${get([owner])})},</a>&nbsp;
-					</span>
-				)}
-				<span>
-					Erstellt am:&nbsp;<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
-				</span>
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
-			</span>)}]]></value>
-            <value lang="bg"><![CDATA[${eval(
-			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
-			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
-			<span ><img src="${thumbnailUri(64)}"/></span>
-			<span>
-				<span class="truncate-element">
-					<a class="instance-link" ${var.href} uid="${id.uid}">
-						<b>
-							${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span> )}
-							${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
-							(<span data-property="type">${CL([type])}</span>)&nbsp;
-							<span data-property="title">${get([title])}</span>&nbsp;
-							(<span data-property="status">${CL([status])}</span>)&nbsp;
-							${if(${var.isVersion}).then(
-								<span data-property="emf:version">${get([emf:version])}</span>
-							)}
-						</b>
-					</a>
-				</span>
-				<br />
-				${if(${get([owner])} <> null).then(
-					<span>
-						Собственик:&nbsp;<a href="${userLink(${get([owner])})}">${user(${get([owner])})}, </a>
-					</span>
-				)}
-				<span>
-					Създаден на:&nbsp;<span data-property="createdOn">${date([createdOn]).format(dd.MM.yyyy, HH:mm)}</span>
-				</span>
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
-			</span>)}]]></value>
+            <value lang="en"><![CDATA[default header in English]]></value>
+            <value lang="de"><![CDATA[default header in German]]></value>
+            <value lang="bg"><![CDATA[дефолтен хедър на Български]]></value>
         </label>
         <label id="PROJECT_COMPACT_HEADER">
             <value lang="en"><![CDATA[${eval(
@@ -469,36 +390,9 @@
 			)}]]></value>
         </label>
         <label id="PROJECT_BREADCRUMB_HEADER">
-            <value lang="bg"><![CDATA[${eval(
-			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-			<span>
-				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
-					<span data-property="title">${get([title])}</span>
-				</a>
-			</span>)}]]></value>
-            <value lang="en"><![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-            <span ><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-            <span>
-				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
-					<span data-property="title">${get([title])}</span>
-				</a>
-			</span>)}]]></value>
-            <value lang="de"><![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-            <span ><img src="${thumbnailUri(16)}"/></span>
-            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-            <span>
-				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
-					<span data-property="title">${get([title])}</span>
-				</a>
-			</span>)}]]></value>
+            <value lang="en"><![CDATA[breadcrumb header in English]]></value>
+            <value lang="de"><![CDATA[breadcrumb header in German]]></value>
+            <value lang="bg"><![CDATA[бредкръмб хедър на Български]]></value>
         </label>
     </labels>
 </definition>

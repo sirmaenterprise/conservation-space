@@ -1,5 +1,6 @@
 import {Router} from 'adapters/router/router';
 import {Eventbus} from 'services/eventbus/eventbus';
+import {PluginsService} from 'services/plugin/plugins-service';
 import {RouterStateChangeStartEvent} from 'common/router/router-state-change-start-event';
 import {RouterStateChangeSuccessEvent} from 'common/router/router-state-change-success-event';
 import {stub} from 'test/test-utils';
@@ -8,113 +9,95 @@ import {stubConfirmationDialogService} from 'test/components/dialog/confirmation
 
 describe('Router', () => {
 
-  let state = {
-    href: sinon.stub()
-  };
+  let state;
+  let rootScope;
+  let pluginsService;
+  let eventbus;
+  let router;
 
-  let rootScope = {
-    subscriptions: [],
-    $on(event, callback) {
-      this.subscriptions[event] = callback;
-    },
-    $emit(event, toState, toParams, fromState, fromParams) {
-      this.subscriptions[event](event, toState, toParams, fromState, fromParams);
-    },
-    reset() {
-      this.subscriptions.splice(0, this.subscriptions.length);
-    }
-  };
-  let modules = {};
-  let pluginService = {
-    loadPluginServiceModules: sinon.spy(() => {
-      return Promise.resolve(modules);
-    })
-  };
+  beforeEach(() => {
+    state = {
+      href: sinon.stub()
+    };
+    let subscriptions = [];
+    rootScope = {
+      $on: sinon.spy((event, callback) => {
+        subscriptions[event] = callback;
+      }),
+      $emit(event, toState, toParams, fromState, fromParams) {
+        subscriptions[event](event, toState, toParams, fromState, fromParams);
+      },
+      reset() {
+        subscriptions.splice(0, subscriptions.length);
+      }
+    };
+    pluginsService = stub(PluginsService);
+    pluginsService.loadPluginServiceModules.returns(Promise.resolve({}));
+    eventbus = stub(Eventbus);
 
-  describe('on init', () => {
-    it('should register $stateChangeStart event handler on init', () => {
-      let rootScope = {
-        $on: sinon.stub()
-      };
-      new Router(state, rootScope, new Eventbus(), pluginService, stubConfirmationDialogService(), PromiseStub);
-      expect(rootScope.$on.getCall(0).args[0]).to.equal('$stateChangeStart');
-    });
-
-    it('should register $stateChangeSuccess event handler on init', () => {
-      let rootScope = {
-        $on: sinon.stub()
-      };
-      new Router(state, rootScope, new Eventbus(), pluginService, stubConfirmationDialogService(), PromiseStub);
-      expect(rootScope.$on.getCall(1).args[0]).to.equal('$stateChangeSuccess');
-    });
+    // Initialize service
+    router = new Router(state, rootScope, eventbus, pluginsService, stubConfirmationDialogService(), PromiseStub);
   });
 
-  it('should publish RouterStateChangeStartEvent event on $stateChangeStart event if skipRouteInterrupt is true', (done) => {
-    let eventbus = {
-      publish: sinon.spy()
-    };
-    new Router(state, rootScope, eventbus, pluginService, stubConfirmationDialogService(), PromiseStub);
+  function hasFiredStateChangeStartEvent() {
+    // expect(eventbus.publish.calledOnce).to.be.true;
+    expect(eventbus.publish.getCall(0).args[0] instanceof RouterStateChangeStartEvent).to.be.true;
+  }
+
+  function hasFiredStateChangeSuccessEvent() {
+    // expect(eventbus.publish.calledOnce).to.be.true;
+    expect(eventbus.publish.getCall(0).args[0] instanceof RouterStateChangeSuccessEvent).to.be.true;
+  }
+
+  function hasNotFiredStateChangeStartEvent() {
+    expect(eventbus.publish.called).to.be.false;
+  }
+
+  it('should register $stateChangeStart event handler on init', () => {
+    expect(rootScope.$on.getCall(0).args[0]).to.equal('$stateChangeStart');
+  });
+
+  it('should register $stateChangeSuccess event handler on init', () => {
+    expect(rootScope.$on.getCall(1).args[0]).to.equal('$stateChangeSuccess');
+  });
+
+  it('should publish RouterStateChangeStartEvent event on $stateChangeStart event if skipRouteInterrupt is true', () => {
     let toState = {};
     rootScope.$emit('$stateChangeStart', toState, undefined, undefined, {skipRouteInterrupt: true});
-    toState.resolve.pauseStateChange().then(() => {
-      expect(eventbus.publish.getCall(0).args[0] instanceof RouterStateChangeStartEvent).to.be.true;
-      done();
-    }).catch(done);
+    toState.resolve.pauseStateChange();
+    hasFiredStateChangeStartEvent();
   });
 
-  it('should publish RouterStateChangeStartEvent event on $stateChangeStart event if Leave button is pressed in confirmation dialog', (done) => {
-    let eventbus = {
-      publish: sinon.spy()
-    };
-    let router = new Router(state, rootScope, eventbus, pluginService, stubConfirmationDialogService(), PromiseStub);
-    router.shouldInterrupt = () => {
-      return true;
-    };
+  it('should publish RouterStateChangeStartEvent event on $stateChangeStart event if Leave button is pressed in confirmation dialog', () => {
+    router.shouldInterrupt = () => true;
     let toState = {};
     rootScope.$emit('$stateChangeStart', toState, undefined, undefined, {});
-    toState.resolve.pauseStateChange().then(() => {
-      expect(eventbus.publish.getCall(0).args[0] instanceof RouterStateChangeStartEvent).to.be.true;
-      done();
-    }).catch(done);
+    toState.resolve.pauseStateChange();
+    hasFiredStateChangeStartEvent();
   });
 
-  it('should not publish RouterStateChangeStartEvent event on $stateChangeStart event if Stay button is pressed in confirmation dialog', (done) => {
-    let eventbus = {
-      publish: sinon.spy()
-    };
-    let router = new Router(state, rootScope, eventbus, pluginService, stubConfirmationDialogService(false), PromiseStub);
-    router.shouldInterrupt = () => {
-      return true;
-    };
+  it('should not publish RouterStateChangeStartEvent event on $stateChangeStart event if Stay button is pressed in confirmation dialog', () => {
+    router.shouldInterrupt = () => true;
+    router.confirmationDialogService = stubConfirmationDialogService(false);
     let toState = {};
     rootScope.$emit('$stateChangeStart', toState, undefined, undefined, {});
-    toState.resolve.pauseStateChange().catch(() => {
-      expect(eventbus.publish).to.have.not.been.called;
-      done();
-    }).catch(done);
+    toState.resolve.pauseStateChange();
+    hasNotFiredStateChangeStartEvent();
   });
 
   it('should publish RouterStateChangeSuccessEvent event on $stateChangeSuccess event', () => {
-    let eventbus = {
-      publish: sinon.spy()
-    };
-    new Router(state, rootScope, eventbus, pluginService, stubConfirmationDialogService(), PromiseStub);
     rootScope.$emit('$stateChangeSuccess');
-    expect(eventbus.publish.getCall(0).args[0] instanceof RouterStateChangeSuccessEvent).to.be.true;
+    hasFiredStateChangeSuccessEvent();
   });
 
   it('should provide the state url using $state', () => {
     const STATE_NAME = 'testState';
     const URL = '#/test';
     state.href.withArgs(STATE_NAME).returns(URL);
-
-    let router = new Router(state, rootScope, null, pluginService, stubConfirmationDialogService(), PromiseStub);
-
     expect(router.getStateUrl(STATE_NAME)).to.equal(URL);
   });
 
   it('should properly navigate with options when reload is false', () => {
-    let router = new Router(state, rootScope, stub(Eventbus), pluginService, stubConfirmationDialogService(), PromiseStub);
     router.$state = {
       params: {},
       go: sinon.spy(),
@@ -137,7 +120,6 @@ describe('Router', () => {
   });
 
   it('should properly navigate with options when reload is true', () => {
-    let router = new Router(state, rootScope, stub(Eventbus), pluginService, stubConfirmationDialogService(), PromiseStub);
     router.$state.params = {};
     router.$state.go = sinon.spy();
     router.onStateChangeSuccess = sinon.spy();

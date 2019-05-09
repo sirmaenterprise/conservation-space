@@ -1,20 +1,20 @@
 package com.sirma.sep.model.management.hierarchy;
 
+import com.sirma.sep.model.management.ModelDefinition;
+
 /**
- * Model hierarchy node representing a definition model and information about it.
+ * Model hierarchy node proxying {@link ModelDefinition}.
  *
  * @author Mihail Radkov
  */
-public class ModelHierarchyDefinition extends ModelHierarchyNode {
+public class ModelHierarchyDefinition extends ModelHierarchyNode<ModelDefinition> {
 
-	private boolean isAbstract;
-
-	public boolean isAbstract() {
-		return isAbstract;
+	public ModelHierarchyDefinition(ModelDefinition modelDefinition) {
+		super(modelDefinition);
 	}
 
-	public void setAbstract(boolean anAbstract) {
-		isAbstract = anAbstract;
+	public boolean isAbstract() {
+		return modelNode.isAbstract();
 	}
 
 }

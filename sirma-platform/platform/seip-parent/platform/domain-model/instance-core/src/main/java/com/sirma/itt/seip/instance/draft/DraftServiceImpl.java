@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.db.DbDao;
-import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.sep.content.Content;
@@ -101,10 +100,11 @@ public class DraftServiceImpl implements DraftService {
 					.setContent(contentAsString, StandardCharsets.UTF_8)
 					.setMimeType(MediaType.TEXT_HTML)
 					.setName(UUID.randomUUID() + "-instanceDraft.html")
-					.setPurpose(DRAFT_PURPOSE_PREFIX + createdEntity.getId().getUserId());
+					.setPurpose(DRAFT_PURPOSE_PREFIX + createdEntity.getId().getUserId())
+					.setView(true); // enables sanitizing
 
-		// using dummy instance just to avoid instance loading
-		ContentInfo contentInfo = instanceContentService.saveContent(new EmfInstance(instanceId), content);
+		// passed just id to force storing in localStore instead of alfresco
+		ContentInfo contentInfo = instanceContentService.saveContent(instanceId, content);
 		if (!contentInfo.exists()) {
 			throw new EmfRuntimeException("Failed to save the content for instance with id: " + instanceId);
 		}

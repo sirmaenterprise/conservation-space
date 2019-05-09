@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +39,11 @@ import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.domain.instance.event.ObjectPropertyAddEvent;
-import com.sirma.itt.seip.exception.EmfRuntimeException;
+import com.sirma.itt.seip.exceptions.InstanceNotFoundException;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.ObjectInstance;
+import com.sirma.itt.seip.instance.dao.InstanceExistResult;
+import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.permissions.InstancePermissionsHierarchyResolver;
 import com.sirma.itt.seip.permissions.PermissionService;
 import com.sirma.itt.seip.permissions.SecurityModel;
@@ -104,6 +108,9 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 
 	@Spy
 	private InstanceContextServiceMock contextService;
+
+	@Mock
+	private InstanceService instanceService;
 
 	@Before
 	public void beforeMethod() throws Exception {
@@ -201,7 +208,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 	public void shouldAssignPermissionsIfConfigured() throws Exception {
 
 		mockValidInstanceData();
-		mockRelation("emf:references", CONSUMER, Boolean.TRUE, null, EMF.USER.toString());
+		mockRelation("emf:references", CONSUMER, true, null, EMF.USER.toString());
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
 		permissionChanges.beforeCompletion();
@@ -210,10 +217,25 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 	}
 
 	@Test
+	public void shouldNotAssignPermissionsIfReferencesUserVersionThatAlreadyHasAssignedPermissions() throws Exception {
+
+		Map<String, ResourceRole> assignments = new HashMap<>();
+		assignments.put(USER_ID, buildRole(COLLABORATOR, USER_ID));
+		when(permissionService.getPermissionAssignments(INSTANCE_ID)).thenReturn(assignments);
+
+		mockValidInstanceData();
+		mockRelation("emf:references", CONSUMER, false, null, EMF.USER.toString());
+		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID + "-v1.2"));
+		// trigger actual changes
+		permissionChanges.beforeCompletion();
+
+		verify(permissionService, never()).setPermissions(any(), any());
+	}
+
+	@Test
 	public void shouldNotAssignPermissionsIfCurrentIsUser() throws Exception {
 
-		when(instanceTypeResolver.resolveReferences(anyCollection()))
-				.thenReturn(Arrays.asList(createUser(INSTANCE_ID), createUser(USER_ID)));
+		mockInstanceData(createUser(INSTANCE_ID), createUser(USER_ID));
 		mockRelation("emf:references", CONSUMER, Boolean.TRUE, null, EMF.USER.toString());
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
@@ -225,8 +247,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 	@Test
 	public void shouldNotAssignPermissionsIfCurrentIsGroup() throws Exception {
 
-		when(instanceTypeResolver.resolveReferences(anyCollection()))
-				.thenReturn(Arrays.asList(createGroup(INSTANCE_ID), createUser(USER_ID)));
+		mockInstanceData(createGroup(INSTANCE_ID), createUser(USER_ID));
 		mockRelation("emf:references", CONSUMER, Boolean.TRUE, null, EMF.USER.toString());
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
@@ -238,8 +259,33 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 	@Test
 	public void shouldNotAssignPermissionsIfCurrentIsClass() throws Exception {
 
-		when(instanceTypeResolver.resolveReferences(anyCollection()))
-				.thenReturn(Arrays.asList(createClass(INSTANCE_ID), createUser(USER_ID)));
+		mockInstanceData(createClass(INSTANCE_ID), createUser(USER_ID));
+		mockRelation("emf:references", CONSUMER, Boolean.TRUE, null, EMF.USER.toString());
+		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
+		// trigger actual changes
+		permissionChanges.beforeCompletion();
+
+		verify(permissionService, never()).setPermissions(any(), any());
+	}
+
+	@Test
+	public void shouldNotAssignPermissionsIfCurrentIsDeleted() throws Exception {
+
+		mockInstanceData(createClass("someThingElse"), createUser(USER_ID));
+		mockAsDeleted(INSTANCE_ID);
+		mockRelation("emf:references", CONSUMER, Boolean.TRUE, null, EMF.USER.toString());
+		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
+		// trigger actual changes
+		permissionChanges.beforeCompletion();
+
+		verify(permissionService, never()).setPermissions(any(), any());
+	}
+
+	@Test
+	public void shouldNotAssignPermissionsIfReferencedIsDeleted() throws Exception {
+
+		mockInstanceData(createClass(INSTANCE_ID), createUser("somethingElse"));
+		mockAsDeleted(USER_ID);
 		mockRelation("emf:references", CONSUMER, Boolean.TRUE, null, EMF.USER.toString());
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
@@ -269,7 +315,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		mockValidInstanceData();
 		mockRelation("emf:references", CONSUMER, Boolean.TRUE, COLLABORATOR, EMF.USER.toString());
 
-		when(permissionService.getPermissionAssignment(any(InstanceReference.class), any()))
+		when(permissionService.getPermissionAssignment(any(Serializable.class), any()))
 				.thenReturn(buildRole(CONSUMER, USER_ID));
 
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
@@ -320,7 +366,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 
 		mockInstanceData(createGroup(USER_ID));
 		mockRelation("emf:references", COLLABORATOR, Boolean.FALSE, null, EMF.USER.toString());
-		when(permissionService.getPermissionAssignment(any(InstanceReference.class), any()))
+		when(permissionService.getPermissionAssignment(any(Serializable.class), any()))
 				.thenReturn(buildRole(CONSUMER, USER_ID));
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
@@ -334,7 +380,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 
 		mockInstanceData(createGroup(USER_ID));
 		mockRelation("emf:references", COLLABORATOR, Boolean.TRUE, null, EMF.USER.toString());
-		when(permissionService.getPermissionAssignment(any(InstanceReference.class), any()))
+		when(permissionService.getPermissionAssignment(any(Serializable.class), any()))
 				.thenReturn(buildRole(CONSUMER, USER_ID));
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
@@ -358,7 +404,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		assignments.put("GROUP_AS_CONSUMER_2", buildRole(CONSUMER, "GROUP_AS_CONSUMER_2"));
 		assignments.put("GROUP_AS_COLLABORATOR", buildRole(COLLABORATOR, "GROUP_AS_COLLABORATOR"));
 
-		when(permissionService.getPermissionAssignments(any())).thenReturn(assignments);
+		when(permissionService.getPermissionAssignments(any(Serializable.class))).thenReturn(assignments);
 
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
 		// trigger actual changes
@@ -383,8 +429,9 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		verify(permissionService, never()).setPermissions(any(), any());
 	}
 
-	@Test(expected = EmfRuntimeException.class)
+	@Test(expected = InstanceNotFoundException.class)
 	public void shouldFailIfCannotLoadAllReferencedInstances() throws Exception {
+		mockInValidInstanceData();
 		mockRelation("emf:references", CONSUMER, Boolean.FALSE, null, EMF.USER.toString());
 
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:references", USER_ID));
@@ -418,7 +465,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		permissionChanges.beforeCompletion();
 
 		verify(permissionService).setPermissions(eq(createInstance(INSTANCE_ID)),
-				argThat(CustomMatcher.of((Collection<PermissionsChange> list) -> !list.isEmpty()
+				argThat(CustomMatcher.ofPredicate((Collection<PermissionsChange> list) -> !list.isEmpty()
 						&& USER_ID.equals(((PermissionsChange.ParentChange) list.iterator().next()).getValue()))));
 	}
 
@@ -427,7 +474,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		mockInstanceData(createUser(USER_ID));
 		mockRelation("emf:hasAssignee", COLLABORATOR, Boolean.FALSE, COLLABORATOR, EMF.USER.toString());
 
-		when(permissionService.getPermissionAssignment(any(InstanceReference.class), any()))
+		when(permissionService.getPermissionAssignment(any(Serializable.class), any()))
 				.thenReturn(buildRole(CONSUMER, ALL_OTHER_USERS_ID));
 
 		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:hasAssignee", USER_ID));
@@ -459,10 +506,10 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		mockInstanceData(createGroup(ALL_OTHER_USERS_ID));
 		mockRelation("emf:hasAssignee", COLLABORATOR, Boolean.FALSE, COLLABORATOR, EMF.USER.toString());
 
-		when(permissionService.getPermissionAssignment(any(InstanceReference.class), any()))
+		when(permissionService.getPermissionAssignment(any(Serializable.class), any()))
 				.thenReturn(buildRole(CONSUMER, ALL_OTHER_USERS_ID));
 
-		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:hasAssignee", USER_ID));
+		observer.onRelationCreated(createEvent(INSTANCE_ID, "emf:hasAssignee", ALL_OTHER_USERS_ID));
 		// trigger actual changes
 		permissionChanges.beforeCompletion();
 
@@ -482,7 +529,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 
 		Map<String, ResourceRole> assignments = new HashMap<>();
 		assignments.put(ALL_OTHER_USERS_ID, buildRole(CONSUMER, ALL_OTHER_USERS_ID));
-		when(permissionService.getPermissionAssignments(any(InstanceReference.class))).thenReturn(assignments);
+		when(permissionService.getPermissionAssignments(any(Serializable.class))).thenReturn(assignments);
 
 		when(resourceService.getContainingResources(USER_ID))
 				.thenReturn(Arrays.asList(InstanceReferenceMock.createGeneric(ALL_OTHER_USERS_ID).toInstance()));
@@ -529,13 +576,41 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		mockInstanceData(createUser(USER_ID));
 	}
 
+	private void mockInValidInstanceData() {
+		mockInstanceData(createInstance("invalid"), createInstance("invalid"));
+		when(instanceService.exist(anyCollection(), eq(true))).then(a -> {
+			Collection ids = a.getArgumentAt(0, Collection.class);
+			Map<String, Boolean> data = (Map<String, Boolean>) ids.stream()
+					.collect(Collectors.toMap(Function.identity(), b -> Boolean.FALSE));
+			return new InstanceExistResult<>(data);
+		});
+	}
+
+	private void mockAsDeleted(String instanceId) {
+		when(instanceService.exist(anyCollection(), eq(true))).then(a -> {
+			Collection ids = a.getArgumentAt(0, Collection.class);
+			Map<String, Boolean> data = (Map<String, Boolean>) ids.stream()
+					.collect(Collectors.toMap(Function.identity(), b -> b.equals(instanceId)));
+			return new InstanceExistResult<>(data);
+		});
+	}
+
 	private void mockInstanceData(InstanceReference referencedInstance) {
 		mockInstanceData(createInstance(INSTANCE_ID), referencedInstance);
 	}
 
 	private void mockInstanceData(InstanceReference instanceReference, InstanceReference referencedInstance) {
-		when(instanceTypeResolver.resolveReferences(anyCollection()))
-				.thenReturn(Arrays.asList(instanceReference, referencedInstance));
+		when(instanceTypeResolver.resolveReference(anyString())).then(a -> {
+			String id = a.getArgumentAt(0, String.class);
+			if (id.equals(instanceReference.getId())) {
+				return Optional.of(instanceReference);
+			} else if (id.equals(referencedInstance.getId())) {
+				return Optional.of(referencedInstance);
+			}
+			return Optional.empty();
+		});
+		when(instanceTypeResolver.resolveReferences(anyCollection())).thenReturn(
+				Arrays.asList(instanceReference, referencedInstance));
 	}
 
 	private static InstanceReference createInstance(Serializable id) {
@@ -573,7 +648,7 @@ public class AutoPermissionAssignOnRelationCreatedTest {
 		return InstanceReferenceMock.createGeneric(instance);
 	}
 
-	private void mockRelation(String id, String role, Boolean allowOverride, String parentRole, String range) {
+	private void mockRelation(String id, String role, boolean allowOverride, String parentRole, String range) {
 		when(semanticDefinitionService.getRelation(id))
 				.then(a -> createRelation(id, role, allowOverride, parentRole, range));
 	}

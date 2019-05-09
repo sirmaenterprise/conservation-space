@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="PR00012" parentId="PR0001" saveCondition="+[title]" type="project">
+    <transitions>
+        <!-- overrides parent order -->
+        <transition id="lock" order="2"/>
+
+        <!-- overrides parent order and add group -->
+        <transition id="addAttachments" order="3" group="objectManagementAddRelation"/>
+
+        <!-- overrides the script -->
+        <transition id="complete" order="6" label="complete.label" eventId="complete" purpose="transition" immediate="true"
+                    tooltip="complete.tooltip" group="objectManagementChangeStatus">
+            <fields>
+                <field name="sendMail" type="an..200" displayType="system">
+                    <value><![CDATA[var script;]]></value>
+                    <control id="SCRIPT">
+                        <control-param id="phase" name="phase">after</control-param>
+                        <control-param id="async" name="async">true</control-param>
+                        <control-param id="persistent" name="persistent">false</control-param>
+                    </control>
+                </field>
+            </fields>
+        </transition>
+    </transitions>
+</definition>

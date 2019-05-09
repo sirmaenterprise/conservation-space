@@ -2,7 +2,6 @@ package com.sirma.sep.content.idoc.extensions.widgets.recentactivities;
 
 import static com.sirma.sep.content.idoc.extensions.widgets.recentactivities.RecentActivitiesWidgetSearchHandler.INSTANCE_IDS_KEY;
 
-import java.util.Date;
 import java.util.Map;
 
 import com.sirma.sep.content.idoc.ContentNode;
@@ -30,7 +29,7 @@ public class RecentActivitiesWidgetVersionHandler extends AbstractWidgetVersionH
 
 	@Override
 	protected HandlerResult processResults(RecentActivitiesWidget widget, WidgetResults searchResults,
-			Date versionDate) {
+			HandlerContext context) {
 		Map<String, Object> resultMap = searchResults.getResultsAsMap();
 		RecentActivitiesWidgetConfiguration configuration = widget.getConfiguration();
 		configuration.setSelectionMode(WidgetSelectionMode.MANUALLY);

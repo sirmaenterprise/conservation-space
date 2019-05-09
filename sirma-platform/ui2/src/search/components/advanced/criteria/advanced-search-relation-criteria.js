@@ -33,9 +33,7 @@ const EMPTY_MODE = AdvancedSearchCriteriaOperators.EMPTY.id;
     'property': 'property'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, DialogService, InstanceRestService, PromiseAdapter, PickerService, ContextualObjectsFactory)
 export class AdvancedSearchRelationCriteria extends Configurable {
 
@@ -117,11 +115,11 @@ export class AdvancedSearchRelationCriteria extends Configurable {
     };
 
     var searchTree = this.isManualSelection() ? {} : this.criteria.value;
-    var currentLevel = this.config.level || 1;
+    var currentLevel = (this.config.level || 1) + 1;
     var selectionMode = this.getSelectionMode();
 
     this.searchConfig = {
-      level: ++currentLevel,
+      level: currentLevel,
       criteria: searchTree,
       results: {
         config: {
@@ -174,7 +172,7 @@ export class AdvancedSearchRelationCriteria extends Configurable {
     return {
       buttons: [{
         // specify explicit label
-        label: 'dialog.button.save',
+        label: 'dialog.button.save'
       }],
       onButtonClick: (buttonId, componentScope, dialogConfig) => {
         if (buttonId === DialogService.OK) {
@@ -209,7 +207,7 @@ export class AdvancedSearchRelationCriteria extends Configurable {
     // Temporarily storing the criteria from the object picker so it could be restored if the picker is opened again
     this.previousManualSelection = {
       criteria: criteriaTree,
-      searchMode: searchMode
+      searchMode
     };
   }
 

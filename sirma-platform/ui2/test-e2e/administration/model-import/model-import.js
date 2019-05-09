@@ -109,12 +109,20 @@ class ModelImportPanel extends PageObject {
     browser.wait(EC.visibilityOf($('.model-upload')), DEFAULT_TIMEOUT);
   }
 
+  getDownloadOntologiesButton() {
+    return new DownloadOntologyButton(this.downloadOntologiesElement);
+  }
+
   get importTypeElement() {
     return this.element.$('.import-types');
   }
 
   get modelDownloadElement() {
     return this.element.$('.model-download');
+  }
+
+  get downloadOntologiesElement() {
+    return this.element.$('.download-ontology');
   }
 }
 
@@ -169,6 +177,22 @@ class ModelDownloadPanel {
 
   filter(term) {
     this.element.$('.filter-field').clear().sendKeys(term);
+  }
+}
+
+class DownloadOntologyButton {
+
+  constructor(element) {
+    this.element = element;
+    browser.wait(EC.visibilityOf(element), DEFAULT_TIMEOUT);
+  }
+
+  isDownloadAllowed() {
+    return this.element.isEnabled();
+  }
+
+  download() {
+    this.element.click();
   }
 }
 

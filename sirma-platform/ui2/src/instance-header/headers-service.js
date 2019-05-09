@@ -28,7 +28,8 @@ export class HeadersService {
    * @returns An object with loaded headers in format:
    *  { instanceId: { id: 'instanceId', compact_header: 'loaded-header', default_header: 'loaded-default-header' }, ... }
    */
-  loadHeaders(ids = [], headerType, headers) {
+  loadHeaders(ids, headerType, headers) {
+    ids = ids || [];
     if (ids.length === 0) {
       return this.promiseAdapter.resolve(headers || {});
     }

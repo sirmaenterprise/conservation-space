@@ -32,6 +32,7 @@ import com.sirma.itt.seip.instance.properties.PropertyModelValue;
 @NamedQueries({
 		@NamedQuery(name = PropertyEntity.QUERY_PROPERTIES_BY_ENTITY_ID_KEY, query = PropertyEntity.QUERY_PROPERTIES_BY_ENTITY_ID),
 		@NamedQuery(name = PropertyEntity.QUERY_PROPERTIES_KEY, query = PropertyEntity.QUERY_PROPERTIES),
+		@NamedQuery(name = PropertyEntity.DELETE_PROPERTIES_VALUES_KEY, query = PropertyEntity.DELETE_PROPERTIES_VALUES),
 		@NamedQuery(name = PropertyEntity.DELETE_PROPERTIES_KEY, query = PropertyEntity.DELETE_PROPERTIES),
 		@NamedQuery(name = PropertyEntity.DELETE_ALL_PROPERTIES_FOR_BEAN_KEY, query = PropertyEntity.DELETE_ALL_PROPERTIES_FOR_BEAN) })
 public class PropertyEntity extends BasePropertyEntity implements Serializable {
@@ -46,7 +47,10 @@ public class PropertyEntity extends BasePropertyEntity implements Serializable {
 	public static final String DELETE_PROPERTIES_KEY = "DELETE_PROPERTIES";
 	static final String DELETE_PROPERTIES = "delete from PropertyEntity p where p.key.propertyId in (:id) and p.entityId.beanId=:beanId and p.entityId.beanType=:beanType";
 
-	/** Delete instance properties by <code>beanId</code> and <code>beanType</code> */
+	/** Delete {@link PropertyValue}s by <code>id</code>s, <code>beanType</code> and <code>beanId</code> */
+	public static final String DELETE_PROPERTIES_VALUES_KEY = "DELETE_PROPERTIES_VALUES";
+	static final String DELETE_PROPERTIES_VALUES = "delete from PropertyValue pv where pv.id in (select p.value.id from PropertyEntity p where p.key.propertyId in (:id) and p.entityId.beanId=:beanId and p.entityId.beanType=:beanType)";
+
 	public static final String DELETE_ALL_PROPERTIES_FOR_BEAN_KEY = "DELETE_ALL_PROPERTIES_FOR_BEAN";
 	static final String DELETE_ALL_PROPERTIES_FOR_BEAN = "delete from PropertyEntity p where p.entityId.beanId=:beanId and p.entityId.beanType=:beanType";
 

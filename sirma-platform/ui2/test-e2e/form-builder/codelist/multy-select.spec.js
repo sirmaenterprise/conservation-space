@@ -5,7 +5,6 @@ let FormWrapper = require('../form-wrapper').FormWrapper;
 let SandboxPage = require('../../page-object').SandboxPage;
 
 const EDITABLE_SELECT = '#multiSelectEdit';
-const EDITABLE_SELECT_EDIT_FIELD = EDITABLE_SELECT + '.edit-field';
 const EDITABLE_SELECT_PREVIEW_FIELD = EDITABLE_SELECT + '.preview-field';
 const EDITABLE_SELECT_WRAPPER = '#multiSelectEdit-wrapper';
 const PREVIEW_SELECT = '#multiSelectPreview';
@@ -18,7 +17,6 @@ const HIDDEN_SELECT = '#multiSelectHidden';
 const HIDDEN_SELECT_PREVIEW_FIELD = HIDDEN_SELECT + '.preview-field';
 const HIDDEN_SELECT_WRAPPER = '#multiSelectHidden-wrapper';
 const SYSTEM_SELECT = '#multiSelectSystem';
-const SYSTEM_SELECT_PREVIEW_FIELD = SYSTEM_SELECT + '.preview-field';
 const SYSTEM_SELECT_WRAPPER = '#multiSelectSystem-wrapper';
 
 const LINKED_SELECT_1_WRAPPER = '#linkedSelectMultipleFields1-wrapper';

@@ -1,6 +1,3 @@
-import {UrlUtils} from 'common/url-utils';
-
-import {MODE_PRINT} from 'idoc/idoc-constants';
 import 'jquery';
 import angular from 'angular';
 import _ from 'lodash';
@@ -84,7 +81,7 @@ export function HttpInterceptor(target) {
   if (!application.$httpProvider) {
     application.interceptors.push(className);
   } else {
-    throw new Error("Cannot add interceptor after application startup!");
+    throw new Error('Cannot add interceptor after application startup');
   }
   return target;
 }
@@ -142,7 +139,7 @@ export function Component(config) {
         controller: target,
         restrict: restriction,
         transclude: config.transclude,
-        link: function (scope, element, attrs, controller) {
+        link(scope, element, attrs, controller) {
           if (controller.ngAfterViewInit) {
             // the view gets compiled in the current event loop turn and is available on the next
             application.$timeout(function () {
@@ -194,7 +191,7 @@ export function Event() {
       context = parts[0];
     }
     event = argument.replace(':', '.');
-  } else if (argsCount === 1 && typeof argument !== 'function' && typeof argument !== 'string') {
+  } else if (argsCount === 1 && typeof argument !== 'string') {
     throw new TypeError('Unsupported Event argument: expected "string" or "function" but found [' + typeof argument + ']');
   }
 
@@ -252,7 +249,7 @@ application.run(['$rootScope', '$compile', '$timeout', function ($rootScope, $co
 application.directive('extensionPoint', ['$compile', '$q', function ($compile, $q) {
   return {
     restrict: 'A',
-    link: function (scope, element, attributes) {
+    link(scope, element, attributes) {
       var extensions = PluginRegistry.get(attributes.extensionPoint);
       var components = PluginRegistry.get('components');
 

@@ -1,0 +1,30 @@
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+DELETE {   
+   skos:definition rdfs:label ?o1.
+   skos:definition dcterms:title ?o2.
+   skos:definition skos:definition ?o3.
+   skos:definition dcterms:description ?o4.
+}
+INSERT {
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+        skos:definition rdfs:label "Описание"@bg, "Description"@en, "Beschreibung"@de, "Kuvaus"@fi, "Beskrivelse"@da .
+        skos:definition dcterms:title "Описание"@bg, "Description"@en, "Beschreibung"@de, "Kuvaus"@fi, "Beskrivelse"@da .
+        skos:definition skos:definition "Description of the item"@en .
+        skos:definition dcterms:description "Description of the item"@en .
+    }
+} WHERE {
+     skos:definition rdfs:label ?o1.
+	 skos:definition skos:definition ?o3.
+	 
+     optional {
+        skos:definition dcterms:title ?o2.
+     }
+     optional {
+        skos:definition dcterms:description ?o4.
+     }
+
+}

@@ -69,6 +69,8 @@ public final class Security {
 	 */
 	public static final IRI AUTO_ASSIGN_PARENT_PERMISSION_ROLE;
 
+	public static final IRI ALLOW_INHERIT_LIBRARY_PERMISSIONS;
+
 	// /////////////////////////////////////////
 	// Instances
 	// /////////////////////////////////////////
@@ -95,6 +97,8 @@ public final class Security {
 		AUTO_ASSIGN_PERMISSION_ROLE = factory.createIRI(NAMESPACE, "autoAssignPermissionRole");
 		ALLOW_PERMISSION_OVERRIDE = factory.createIRI(NAMESPACE, "allowPermissionOverride");
 		AUTO_ASSIGN_PARENT_PERMISSION_ROLE = factory.createIRI(NAMESPACE, "autoAssignParentPermissionRole");
+
+		ALLOW_INHERIT_LIBRARY_PERMISSIONS = factory.createIRI(NAMESPACE, "allowInheritLibraryPermissions");
 
 		// init instances
 		SYSTEM_ALL_OTHER_USERS = factory.createIRI(NAMESPACE, "SYSTEM_ALL_OTHER_USERS");

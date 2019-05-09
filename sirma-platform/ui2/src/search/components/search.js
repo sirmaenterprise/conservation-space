@@ -68,9 +68,7 @@ export const FTS_CHANGE_EVENT = 'fts-changed-event';
     'context': 'context'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(Configuration, SearchService, PromiseAdapter, NamespaceService)
 export class Search extends Configurable {
 
@@ -218,7 +216,7 @@ export class Search extends Configurable {
       this.config.paginationConfig = {
         showFirstLastButtons: true,
         page: 1,
-        pageSize: pageSize,
+        pageSize,
         pageRotationStep: this.getPageRotationStep()
       };
     }

@@ -25,7 +25,7 @@ public class VirtualDbDaoProducer {
 
 	@Inject
 	@VirtualDb
-	private Instance<DbDao> virtualDao;
+	private Instance<ChainingDbDao> virtualDao;
 
 	/**
 	 * Produce semantic and virtual dao as secondary

@@ -1,46 +1,21 @@
 <?xml version="1.0" ?>
-<definition id="coreTask" parentId="standaloneCommonTask" type="task">
+<definition id="coreTask" parentId="baseTask" type="task">
 	<fields>
 		<field name="default_header" type="ANY" label="TASK_DEFAULT_HEADER_CORE" />
-		<field name="compact_header" type="an..4096" label="TASK_COMPACT_HEADER_CORE" />
-		<field name="breadcrumb_header" type="an..4096" label="TASK_BREADCRUMB_HEADER_CORE" />
+		<field name="compact_header" type="ANY" label="TASK_COMPACT_HEADER_CORE" />
+		<field name="breadcrumb_header" type="ANY" label="TASK_BREADCRUMB_HEADER_CORE" />
 		<field name="tooltip_header" type="ANY" label="TASK_TOOLTIP_HEADER_CORE" />
 
-		<field name="identifier" type="an..50" displayType="system" />
-		<field name="type" 	type="an..20" displayType="system" />
 		<field name="title" type="an..1024" displayType="system" mandatory="false" >
 			<value>Task</value>
 		</field>	
-		<field name="status" type="an..20" displayType="system"/>
-		<field name="description" type="an..1000" displayType="system"/>
-		<field name="createdOn" type="datetime" displayType="system" />
-		<field name="createdBy"	type="uri" displayType="system" />
-		<field name="modifiedOn" type="datetime" displayType="system"/>
-		<field name="modifiedBy" type="uri" displayType="system"/>
-		<field name="assignee" type="uri" displayType="system"/>		
-		<field name="priority" type="an..20" displayType="system"/>
-		<field name="plannedStartDate" type="dateTime" displayType="system"/>
-		<field name="plannedEndDate" type="dateTime" displayType="system"/>
-		<field name="hasParent" type="uri" displayType="system"/>
-		<field name="hasThumbnail" type="uri" displayType="system"/>
-		<field name="completedOn" type="datetime" displayType="system" />
-		<field name="outcome" type="an..50" displayType="system" />
-		<field name="integrated" type="boolean" displayType="system" />
-		<field name="uri" type="an..50" displayType="system" />
-		<field name="partOf" type="uri" displayType="system" />
-		<field name="emf:hasTemplate" type="uri" displayType="system" />
-		<field name="poolAssignees" type="uri" displayType="system" />
-		<field name="assignees" type="uri" displayType="system" />
-		<field name="lockedBy" type="uri" displayType="system" />
-		<field name="emf:version" type="an..10" displayType="system" />
-		<field name="parentOf" type="uri" displayType="system" />
-		<field name="hasChild" type="uri" displayType="system" />
-		<field name="hasWatcher" type="uri" displayType="system" override="true" />
+		<field name="uri" displayType="system" />
+		<field name="poolAssignees" displayType="system" />
 	</fields>
 	<regions>	
 		<region id="generalData" displayType="editable" order="10" label="core.generalData.region.label">
 			<fields>
-				<field name="subType" type="an..180" displayType="editable" mandatory="true" codelist="CL28" label="core.subClassification.label" tooltip="core.subType.tooltip" uri="chcart:subClassification" >
+				<field name="subType" type="ANY" displayType="editable" mandatory="true" codelist="CL28" uri="chcart:subClassification" >
 					<condition id="readonlyFields" renderAs="READONLY">+[activityId]</condition>
 				</field>
 				<field name="departmentName" type="an..50" label="core.departmentName.label" tooltip="core.department.tooltip" displayType="editable" uri="emf:departmentName" >
@@ -48,26 +23,18 @@
 						<control-param type="default_value_pattern" id="template" name="template">$[emf:createdBy.departmentName]</control-param>
 					</control>
 				</field>
-				<field name="assignee" type="uri" displayType="editable" label="core.assignee.label" tooltip="core.assignee.tooltip" uri="emf:hasAssignee">
+				<field name="assignee" label="core.assignee.label" tooltip="core.assignee.tooltip" >
 					<condition id="readonlyFields" renderAs="READONLY">+[assignee] AND [status] NOTIN ('NEW')</condition>
 					<condition id="hideAssigneesPicker" renderAs="HIDDEN">[multiInstanceActivity] IN ('true')</condition> 
 					<condition id="mandatoryAssigneesPicker" renderAs="MANDATORY">[status] IN ('NEW') AND [multiInstanceActivity] IN ('false')</condition>
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
 					<value>${currentUser.id}</value>
 				</field>
-				<field name="assignees" type="uri" displayType="editable" label="core.assignees.label" tooltip="core.assignees.tooltip" multiValued="true" override="true" >
+				<field name="assignees" type="uri" displayType="editable" label="core.assignees.label" tooltip="core.assignees.tooltip" multiValued="true" previewEmpty="false" override="true" >
 					<condition id="hideAssigneesPicker" renderAs="HIDDEN">[status] NOTIN ('NEW') OR [multiInstanceActivity] IN ('false')</condition>
 					<condition id="mandatoryAssigneesPicker" renderAs="MANDATORY">[status] IN ('NEW') AND [multiInstanceActivity] IN ('true')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 					</control>
 				</field>
 				<field name="chc:documents" type="uri" mandatory="true" displayType="editable" label="core.documents.label" tooltip="core.documentsTask.tooltip" multiValued="true" uri="chc:documents" >
@@ -75,58 +42,42 @@
 					<condition id="hiddenField" renderAs="HIDDEN">([subType] IN ('CORE28011','CORE28012','CORE28999')) OR +[activityId]</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}</control-param>
 					</control>
 				</field>
-				<field name="description" type="an..1024" displayType="editable" label="core.description.label" tooltip="core.description.tooltip" uri="dcterms:description" />
-				<field name="priority" type="an..20" displayType="editable" codelist="CL29" label="core.priority.label" tooltip="core.priority.tooltip" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" uri="emf:priority">
+				<field name="description" tooltip="core.description.tooltip" uri="dcterms:description" />	
+				<field name="priority" tooltip="core.priority.tooltip" rnc="${to.dmsConvert(CL29,value,extra1)}|${from.dmsConvert(CL29,extra1,value)}" >
 					<value>0006-000084</value>
 				</field>
-				<field name="plannedStartDate" type="date"  displayType="editable" label="core.plannedStartDate.label" tooltip="core.plannedStartDate.tooltip" uri="emf:plannedStartDate">
+				<field name="plannedStartDate" type="date" label="core.plannedStartDate.label" tooltip="core.plannedStartDate.tooltip" >
 					<value>${today}</value>
 				</field>
-				<field name="plannedEndDate" type="date" displayType="editable" label="core.plannedEndDate.label" tooltip="core.plannedEndDate.tooltip" uri="emf:plannedEndDate"/>
+				<field name="plannedEndDate" type="date" label="core.plannedEndDate.label" tooltip="core.plannedEndDate.tooltip" />
 			</fields>
 		</region>
 		<region id="systemData" displayType="editable" order="20" label="core.systemData.region.label">
 			<fields>
-				<field name="type" type="an..50" displayType="readonly" codelist="CL7" label="core.type.label" tooltip="core.type.tooltip" uri="emf:type" >
+				<field name="type" codelist="CL7" tooltip="core.type.tooltip" >
 					<value>FC236003</value>
 				</field>		
-				<field name="identifier" type="an..50" displayType="readOnly" label="core.identifier.label" tooltip="core.identifier.tooltip" rnc="${eval(TS${seq({+tsSequence})})}" uri="dcterms:identifier">
+				<field name="identifier" tooltip="core.identifier.tooltip" rnc="${eval(TS${seq({+tsSequence})})}" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[status] IN ('NEW')</condition>
 				</field>
-				<field name="completedOn" type="date" displayType="readOnly" label="completedOn.label" tooltip="core.completedOn.tooltip" uri="emf:completedOn" >
+				<field name="completedOn" type="date" tooltip="core.completedOn.tooltip" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[status] NOTIN ('COMPLETED')</condition>
 				</field>
-				<field name="outcome" type="an..50" codelist="CL22" displayType="readOnly" label="outcome.label" tooltip="core.outcome.tooltip" uri="emf:outcome" >
+				<field name="outcome" tooltip="core.outcome.tooltip" >
 					<condition id="hiddenFields" renderAs="HIDDEN">[status] NOTIN ('COMPLETED')</condition>
 				</field>
-				<field name="status" type="an..50" displayType="readOnly" codelist="CL27" label="core.status.label" tooltip="core.status.tooltip" uri="emf:status" >
-					<condition id="hiddenFieldStatus" renderAs="HIDDEN">[status] IN ('NEW')</condition>
-				</field>
-				<field name="emf:version" type="an..10" displayType="readOnly" label="core.version.label" tooltip="core.version.tooltip" uri="emf:version"/> 
+				<field name="status" tooltip="core.status.tooltip" />
+				<field name="emf:version" tooltip="core.version.tooltip" /> 
 				<field name="integrated" type="boolean" displayType="hidden" label="emf.integrated.label" uri="emf:integrated"/>
 				<!-- object properties (relationships) -->
-				<field name="createdOn" type="dateTime" displayType="readOnly" label="core.createdOn.label" tooltip="core.createdOn.tooltip" uri="emf:createdOn" />
-				<field name="createdBy" type="uri" displayType="readOnly" label="core.createdBy.label" tooltip="core.createdBy.tooltip" uri="emf:createdBy" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="modifiedOn" type="datetime" displayType="readOnly" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" uri="emf:modifiedOn"/>
-				<field name="modifiedBy" type="uri" displayType="readOnly" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" uri="emf:modifiedBy">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
-				<field name="lockedBy" type="uri" displayType="readonly" label="core.lockedBy.label" tooltip="core.lockedBy.tooltip" previewEmpty="false">
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-					</control>
-				</field>
+				<field name="createdOn" tooltip="core.createdOn.tooltip" />
+				<field name="createdBy" tooltip="core.createdBy.tooltip" />
+				<field name="modifiedOn" label="core.modifiedOn.label" tooltip="core.modifiedOn.tooltip" />
+				<field name="modifiedBy" label="core.modifiedBy.label" tooltip="core.modifiedBy.tooltip" />
+				<field name="lockedBy" tooltip="core.lockedBy.tooltip" />
 				<field name="processes" type="uri" displayType="editable" label="core.processes.label" tooltip="core.processes.tooltip" multiValued="true" previewEmpty="false" uri="emf:processes" >
 					<condition id="readonlyFields" renderAs="READONLY">+[activityId]</condition>
 					<control id="PICKER">
@@ -135,57 +86,26 @@
 				</field>
 				<field name="hasAttachment" type="uri" displayType="editable" label="core.hasAttachment.label" tooltip="core.hasAttachment.tooltip" multiValued="true" uri="emf:hasAttachment" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:Sample</control-param>
+						<control-param id="range" name="range">emf:Document,emf:Image,emf:Audio,emf:Video,chc:Sample,ptop:Organization,chc:Person</control-param>
 					</control>
 				</field>
 				<field name="attachmentOf" type="uri" displayType="editable" label="core.attachmentOf.label" tooltip="core.attachmentOf.tooltip" multiValued="true" uri="emf:isAttachedTo" >
 					<control id="PICKER">
-						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,chc:Exhibition,emf:Task,emf:BusinessProcess,chc:CulturalObject,chc:Sample,emf:Document,emf:Image,emf:Audio,emf:Video,emf:Issue</control-param>
+						<control-param id="range" name="range">emf:Project,chc:ConservationActivity,chc:Exhibition,emf:Task,emf:BusinessProcess,chc:CulturalObject,chc:Sample,emf:Document,emf:Image,emf:Audio,emf:Video,emf:Issue,ptop:Organization,chc:Person</control-param>
 					</control>
 				</field>
-				<field name="hasWatcher" type="uri" displayType="editable" label="core.hasWatcher.label" tooltip="core.hasWatcher.tooltip" multiValued="true" uri="emf:hasWatcher" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:User</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["ACTIVE"]}
-						</control-param>
-					</control>
-				</field>
-				<field name="hasThumbnail" type="uri" displayType="readOnly" label="core.hasThumbnail.label" tooltip="core.hasThumbnail.tooltip" uri="emf:hasThumbnail" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Image</control-param>
-					</control>
-				</field>
-				<field name="parentOf" type="uri" displayType="readonly" label="core.parentOf.label" tooltip="core.parentOf.tooltip" multiValued="true" uri="emf:parentOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasParent" type="uri"  displayType="readonly" label="core.hasParent.label" tooltip="core.hasParent.tooltip" uri="emf:hasParent" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="partOf" type="uri" displayType="readOnly" label="core.partOf.label" tooltip="core.partOf.tooltip" multiValued="true" uri="ptop:partOf" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="hasChild" type="uri" displayType="readOnly" label="core.hasChild.label" tooltip="core.hasChild.tooltip" multiValued="true" uri="emf:hasChild" >
-					<control id="PICKER">
-						<control-param id="range" name="range"></control-param>
-					</control>
-				</field>
-				<field name="emf:hasTemplate" type="uri" displayType="readOnly" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" uri="emf:hasTemplate" >
-					<control id="PICKER">
-						<control-param id="range" name="range">emf:Template</control-param>
-					</control>
-				</field>
+				<field name="hasWatcher" label="core.hasWatcher.label" tooltip="core.hasWatcher.tooltip" />
+				<field name="hasThumbnail" label="core.hasThumbnail.label" tooltip="core.hasThumbnail.tooltip" />
+				<field name="parentOf" tooltip="core.parentOf.tooltip" previewEmpty="false" />
+				<field name="hasParent" tooltip="core.hasParent.tooltip" />
+				<field name="partOf" displayType="readOnly" tooltip="core.partOf.tooltip" />
+				<field name="hasChild" tooltip="core.hasChild.tooltip" previewEmpty="false" />
+				<field name="emf:hasTemplate" label="core.hasTemplate.label" tooltip="core.hasTemplate.tooltip" />
 			</fields>
 		</region>
 	</regions>
 	<transitions>
-		<transition id="create" eventId="create" purpose="create">
+		<transition id="create" label="create" purpose="create">
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -398,7 +318,7 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="createSubTask" order="45" label="core.createSubTask.action.label" tooltip="core.createTask.action.tooltip" eventId="createSubTask" purpose="createInstance">
+		<transition id="createSubTask" order="45" label="core.createSubTask.action.label" tooltip="core.createTask.action.tooltip" purpose="createInstance">
       		<fields>
 				<field name="createSubTaskConfig" type="json">
 					<value>
@@ -413,16 +333,16 @@
 		</transition>
 	
 		<!-- workflow transitions -->
-		<transition id="finish" order="46" label="core.finish.action.label" tooltip="core.finish.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="finish" purpose="bpmTransition" />
-		<transition id="rejectMovement" order="47" label="core.rejectMovement.action.label" tooltip="core.rejectMovement.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="rejectMovement" purpose="bpmTransition" />
-		<transition id="amendPhotos" order="48" label="core.amendPhotos.action.label" tooltip="core.amendPhotos.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="amendPhotos" purpose="bpmTransition" />
-		<transition id="rejectTask" order="49" label="core.rejectTask.action.label" tooltip="core.rejectTask.action.wf.tooltip" confirmation="complete.wf.task.confirm"  eventId="rejectTask" purpose="bpmTransition" />
-		<transition id="takeMoreSamples" order="50" label="core.takeMoreSamples.action.label" tooltip="core.takeMoreSamples.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="amendPhotos" purpose="bpmTransition" />
-		<transition id="approveAndPublish" order="51" label="core.approveAndPublish.action.label" tooltip="core.approveAndPublish.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="approveAndPublish" purpose="bpmTransition" />
-		<transition id="implementRecommendations" order="65" label="core.implementRecommendations.action.label" tooltip="core.implementRecommendations.action.wf.tooltip" confirmation="complete.wf.task.confirm" eventId="implementRecommendations" purpose="bpmTransition" />
+		<transition id="finish" order="46" label="core.finish.action.label" tooltip="core.finish.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="rejectMovement" order="47" label="core.rejectMovement.action.label" tooltip="core.rejectMovement.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="amendPhotos" order="48" label="core.amendPhotos.action.label" tooltip="core.amendPhotos.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="rejectTask" order="49" label="core.rejectTask.action.label" tooltip="core.rejectTask.action.wf.tooltip" confirmation="complete.wf.task.confirm"  purpose="bpmTransition" />
+		<transition id="takeMoreSamples" order="50" label="core.takeMoreSamples.action.label" tooltip="core.takeMoreSamples.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="approveAndPublish" order="51" label="core.approveAndPublish.action.label" tooltip="core.approveAndPublish.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
+		<transition id="implementRecommendations" order="65" label="core.implementRecommendations.action.label" tooltip="core.implementRecommendations.action.wf.tooltip" confirmation="complete.wf.task.confirm" purpose="bpmTransition" />
 
 		<group id="add" order="100" label="add.group.label" type="menu" />	
-		<transition id="addCulturalObject" label="core.addCulturalObject.action.label" tooltip="core.addCulturalObject.action.tooltip" eventId="addCulturalObject" purpose="addRelation" actionPath="/" group="add">
+		<transition id="addCulturalObject" label="core.addCulturalObject.action.label" tooltip="core.addCulturalObject.action.tooltip"  purpose="addRelation" actionPath="/" group="add">
 			<fields>
 				<field name="addCOConfig" type="json">
 					<value>
@@ -437,12 +357,12 @@
 				</field>
 			</fields>
 		</transition>
-		<transition id="addAttachment" label="core.addAttachment.action.label" tooltip="core.addAttachment.action.tooltip" eventId="addAttachment" purpose="addRelation" group="add" >
+		<transition id="addAttachment" label="core.addAttachment.action.label" tooltip="core.addAttachment.action.tooltip" purpose="addRelation" group="add" >
 			<fields>
 				<field name="addAttachmentConfig" type="json">
 					<value>
 							{
-								"predefinedTypes" : ["emf:Document","emf:Image","emf:Audio","emf:Video","chc:Sample"],
+								"predefinedTypes" : ["emf:Document","emf:Image","emf:Audio","emf:Video","chc:Sample","ptop:Organization","chc:Person"],
 								"selection" : "multiple",
 								"relation" : ["emf:hasAttachment"]
 							}
@@ -452,7 +372,7 @@
 			</fields>
 		</transition>
 		<transition id="addThumbnail" group="add" />	
-		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip" eventId="addWatchers" purpose="addRelation" group="add" >
+		<transition id="addWatchers" label="addWatchers.label" tooltip="addWatchers.tooltip"  purpose="addRelation" group="add" >
 			<fields>
 				<field name="addWatcherConfig" type="json">
 					<value>						
@@ -477,8 +397,8 @@
 		
 		<group id="template" order="111" label="template.group.label" type="menu" />
 		<transition id="saveAsTemplate" group="template" />
-		<transition id="updateTemplate" tooltip="core.updateTemplate.action.tooltip" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
-		<transition id="changeTemplate" tooltip="core.changeTemplate.action.tooltip" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" group="template" />
+		<transition id="updateTemplate" tooltip="core.updateTemplate.action.tooltip" label="updateTemplate.label"  purpose="updateTemplate" confirmation="confirmation.update_template" group="template" />
+		<transition id="changeTemplate" tooltip="core.changeTemplate.action.tooltip" label="changeTemplate.label"  purpose="changeTemplate" group="template" />
 		
 		<group id="more" order="115" label="more.group.label" type="menu" />
 		<transition id="move" confirmation="move.confirm" group="more" >
@@ -510,12 +430,12 @@
                 </field>
 			</fields>
 		</transition>
-		<transition id="clone" eventId="clone" purpose="clone" tooltip="clone.tooltip" confirmation="clone.confirm" group="more" />		
+		<transition id="clone" purpose="clone" tooltip="clone.tooltip" confirmation="clone.confirm" group="more" />		
 		<transition id="lock" group="more" />
 		<transition id="unlock" actionPath="/" group="more" />
 		<transition id="managePermissions" group="more" />
 
-		<transition id="delete" order="120" label="delete.label" tooltip="core.delete.tooltip" eventId="delete" purpose="delete" confirmation="project_delete.confirm" >
+		<transition id="delete" order="120" label="delete.label" tooltip="core.delete.tooltip"  purpose="delete" confirmation="project_delete.confirm" >
 			<fields>
 				<field name="sendMail" type="an..200" displayType="system" >
                     <value>
@@ -663,10 +583,12 @@
                         <label>Sub-classification: </label>
                         <span data-property="subType">${CL([subType])}</span>
                     </span>
-					<span class="tooltip-row">
-                        <label>Department: </label>
-                        <span data-property="departmentName">${CL([departmentName])}</span>
-                    </span>
+					${if(${get([departmentName])}<>null).then(
+						<span class="tooltip-row">
+							<label>Department: </label>
+							<span data-property="departmentName">${CL([departmentName])}</span>
+						</span>
+					)}
 					<span class="tooltip-row">
                         <label>Status: </label>
                         <span data-property="status">${CL([status])}</span>
@@ -678,13 +600,19 @@
 					${if(${get([plannedStartDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>Start date: </label>
-							<span data-property="plannedStartDate">${date([plannedStartDate]).format(YYYY-MM-dd)}</span>
+							<span data-property="plannedStartDate">${date([plannedStartDate])}</span>
 						</span>
 					)}	
 					${if(${get([plannedEndDate])}<>null).then(
 						<span class="tooltip-row">
 							<label>End date: </label>
-							<span data-property="plannedEndDate">${date([plannedEndDate]).format(YYYY-MM-dd)}</span>
+							<span data-property="plannedEndDate">${date([plannedEndDate])}</span>
+						</span>
+					)}
+					${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>                      
 						</span>
 					)}	
                 </span>
@@ -697,21 +625,23 @@
 				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 				<span><img src="${thumbnailUri(64)}"/></span>
 				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					Priority:&nbsp;<span>${CL([priority])}</span>&nbsp;
 					${if(${get([status])} <> NEW).then((<span data-property="status">${CL([status])}</span>))}
 					<br>
 					<span class="truncate-element">
-						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-							<span data-property="subType">${CL([subType])}</span>
-						</a>
-						${if(${get([plannedEndDate])} <> null).then(,&nbsp;Due date:&nbsp;<span>${date([plannedEndDate]).format(YYYY-MM-dd)}</span>)}
+						<b>
+							<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+								${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+								<span data-property="subType">${CL([subType])}</span>
+							</a>
+						</b>	
+						${if(${get([plannedEndDate])} <> null).then(,&nbsp;Due date:&nbsp;<span>${date([plannedEndDate])}</span>)}
 						<br>
 						Assigned&nbsp;to:&nbsp;<span data-property="assignee">${if(${get([assignee])} == null).then(Unclaimed).else(${objectProperty(${get([assignee])})})}</span>
 						${if(${var.isVersion}).then(
 							&nbsp;<span data-property="emf:version" class="object-version version badge">${get([emf:version])}</span>
-						)}
-						${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}		
+						)}	
 					</span>
 				</span>
 			)}]]></value>
@@ -724,7 +654,7 @@
 				<span><img src="${thumbnailUri(16)}"/></span>
 				<span>
 					<span class="truncate-element">
-						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+						${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 						<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}" style="vertical-align:baseline;">
 							${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
 							<span data-property="subType">${CL([subType])}</span>
@@ -740,15 +670,15 @@
 		<label id="TASK_BREADCRUMB_HEADER_CORE">
 			<value lang="en">
 				<![CDATA[${eval(
-            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
-			<span><img src="${thumbnailUri(16)}"/></span>
-			<span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
-				<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
-					${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
-					<span data-property="subType">${CL([subType])}</span>
-				</a>
-			</span>		
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(16)}"/></span>
+				<span>
+					${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+					<a class="${get([status])} instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span>(Deleted)</span>&nbsp;)}
+						<span data-property="subType">${CL([subType])}</span>
+					</a>
+				</span>		
             )}]]></value>
 		</label>		
 	</labels>		

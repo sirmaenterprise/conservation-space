@@ -3,58 +3,40 @@ package com.sirma.itt.seip.instance.actions.evaluation;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import com.sirma.itt.seip.instance.actions.Actions;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 
 /**
  * Tests for {@link ActionsRestService}.
  *
  * @author A. Kunchev
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ActionsRestServiceTest {
 
 	@InjectMocks
 	private ActionsRestService service;
 
 	@Mock
-	private Actions actionsList;
+	private InstanceActionsEvaluatior actionsEvaluatior;
 
-	@Before
-	public void setup() {
-		service = new ActionsRestService();
-		MockitoAnnotations.initMocks(this);
+	@Mock
+	private DomainInstanceService domainInstanceService;
+
+	@Test
+	public void getFlatActions_internalServiceCalled() {
+		service.getFlatActions("targetId", "placeholder");
+		verify(actionsEvaluatior).evaluate(any(InstanceActionsRequest.class));
 	}
 
 	@Test
-	public void getActions_emptyPath() {
-		service.getActions("targetId", "contextId", "placeholder", new ArrayList<>());
-		verify(actionsList).callAction(any(ActionsListRequest.class));
+	public void getActions_internalServiceCalled() {
+		service.getActions("targetId", "placeholder");
+		verify(actionsEvaluatior).evaluateAndBuildMenu(any(InstanceActionsRequest.class));
 	}
-
-	@Test
-	public void getActions_emptyContextId() {
-		service.getActions("targetId", "", "placeholder", Arrays.asList("path"));
-		verify(actionsList).callAction(any(ActionsListRequest.class));
-	}
-
-	@Test
-	public void getActions_nullContextId() {
-		service.getActions("targetId", null, "placeholder", Arrays.asList("path"));
-		verify(actionsList).callAction(any(ActionsListRequest.class));
-	}
-
-	@Test
-	public void getActions_all_helperCalled() {
-		service.getActions("targetId", "contextId", "placeholder", Arrays.asList("path", "path1"));
-		verify(actionsList).callAction(any(ActionsListRequest.class));
-	}
-
 }

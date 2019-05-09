@@ -87,10 +87,6 @@ export class DropdownMenuStub {
   }
 
   loadItemsAsync() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(this.loadItems());
-      }, 1000);
-    });
+    return new Promise();
   }
 }

@@ -110,4 +110,33 @@ class LiteralProxy extends ValueProxy<Literal>implements Literal {
 	public XMLGregorianCalendar calendarValue() {
 		return getValue().calendarValue();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (obj instanceof Literal) {
+			Optional<String> language = getLanguage();
+			Optional<String> otherLanguage = ((Literal) obj).getLanguage();
+			if (language.isPresent() && otherLanguage.isPresent()) {
+				return language.get().equalsIgnoreCase(otherLanguage.get());
+			}
+			// If only one has a language, then return false
+			else if (language.isPresent() || otherLanguage.isPresent()) {
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = prime * super.hashCode();
+		Optional<String> language = getLanguage();
+		result = prime * result + (language.map(String::hashCode).orElse(0));
+		return result;
+	}
 }

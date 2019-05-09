@@ -3,68 +3,75 @@
 <definition id="entity" isAbstract="true" type="object">
 	<configuration>
 		<fields>
-			<field name="existingInContext" type="an..50" codelist="CL26">
+			<field name="existingInContext" type="ANY" codelist="CL26">
 				<value>BOTH</value>
 			</field>
 		</fields>
 	</configuration>
 	<fields>
+		<!-- HEADERS AND TOOLTIP -->
+		<field name="default_header" type="ANY" label="ENTITY_DEFAULT_HEADER" displayType="system"/>
+		<field name="compact_header" type="ANY" label="ENTITY_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="ANY" label="ENTITY_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="tooltip_header" type="ANY" label="ENTITY_TOOLTIP_HEADER" displayType="system"/>
+
 		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
 			<value>http://www.ontotext.com/proton/protontop#Entity</value>
 		</field>
-		<field name="type" type="an..180" codelist="CL7" label="type.label" displayType="readonly" uri="emf:type">
-			<value>entity</value>
+		<field name="mimetype" type="ANY" codelist="CL30" displayType="system" uri="emf:mimetype" />
+		<field name="type" type="ANY" codelist="CL7" displayType="readonly" uri="emf:type">
+			<value>baseEntity</value>
 		</field>
-		<field name="status" type="an..35"  label="status.label" displayType="readonly" uri="emf:status"/>
-		<field name="description" type="an..1024" label="description.label" displayType="editable" uri="dcterms:description" />
-		<field name="title" type="an..50" label="title.label" displayType="editable" mandatory="true" uri="dcterms:title" />
-		<field name="createdBy" type="uri" label="createdBy.label" displayType="readOnly" uri="emf:createdBy">
+		<field name="status" type="ANY" displayType="readonly" uri="emf:status"/>
+		<field name="description" type="an..5000" displayType="editable" uri="dcterms:description">
+			<control id="RICHTEXT" />
+		</field>
+		<field name="title" type="an..50" displayType="editable" mandatory="true" uri="dcterms:title" />
+		<field name="createdBy" type="uri" displayType="readOnly" uri="emf:createdBy">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:User</control-param>
 			</control>
 		</field>
-		<field name="createdOn" type="dateTime" label="createdOn.label" displayType="readOnly" uri="emf:createdOn" />
-		<field name="modifiedBy" type="uri" label="modifiedBy.label" displayType="readOnly" uri="emf:modifiedBy">
+		<field name="createdOn" type="dateTime" displayType="readOnly" uri="emf:createdOn" />
+		<field name="modifiedBy" type="uri" displayType="readOnly" uri="emf:modifiedBy">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:User</control-param>
 			</control>
 		</field>
-		<field name="modifiedOn" type="dateTime" displayType="readOnly" label="modifiedOn.label" uri="emf:modifiedOn" />
+		<field name="modifiedOn" type="dateTime" displayType="readOnly" uri="emf:modifiedOn" />
 		<!-- Non transitive relation displaying direct children of the object -->
-		<field name="parentOf" type="uri" label="parentOf" displayType="readOnly" multiValued="true" uri="emf:parentOf">
+		<field name="parentOf" type="uri" displayType="readOnly" multiValued="true" uri="emf:parentOf">
 			<control id="PICKER">
 				<control-param id="range" name="range"></control-param>
 			</control>
 		</field>
 		<!-- Non transitive relation displaying direct parent of the object -->
-		<field name="hasParent" type="uri" label="hasParent" displayType="readOnly" previewEmpty="false" uri="emf:hasParent">
+		<field name="hasParent" type="uri" displayType="readOnly" previewEmpty="false" uri="emf:hasParent">
 			<control id="PICKER">
 				<control-param id="range" name="range"/>
 			</control>
 		</field>
 		<!-- Transitive relation displaying all parents of the object -->
-		<field name="partOf" type="uri" label="partOf.label" displayType="system" multiValued="true" previewEmpty="false" uri="ptop:partOf">
+		<field name="partOf" type="uri" displayType="system" multiValued="true" previewEmpty="false" uri="ptop:partOf">
 			<control id="PICKER">
 				<control-param id="range" name="range" />
 			</control>
 		</field>
 		<!-- Transitive relation displaying all children in the tree -->
-		<field name="hasChild" type="uri" label="hasChild.label" displayType="readOnly" multiValued="true" uri="emf:hasChild">
+		<field name="hasChild" type="uri" displayType="readOnly" multiValued="true" uri="emf:hasChild">
 			<control id="PICKER">
 				<control-param id="range" name="range" />
 			</control>
 		</field>
-   		<field name="hasThumbnail" type="uri" label="hasThumbnail" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail">
+   		<field name="hasThumbnail" type="uri" displayType="readOnly" previewEmpty="false" uri="emf:hasThumbnail">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:Image</control-param>
 			</control>
 		</field>
-   		<field name="hasWatcher" type="uri" label="issue.hasWatcher" displayType="editable" multiValued="true" uri="emf:hasWatcher">
+   		<field name="hasWatcher" type="uri" displayType="editable" multiValued="true" uri="emf:hasWatcher">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:User</control-param>
-				<control-param id="restrictions" name="restrictions">
-					{"field":"emf:status", "operator":"in", "type": "codeList", "value": ["ACTIVE"]}
-				</control-param>
+				<control-param id="restrictions" name="restrictions">{"field":"emf:status", "operator":"in", "type": "codeList", "value": ["ACTIVE"]}</control-param>
 			</control>
 		</field>
 		<field name="lockedBy" type="uri" label="lockedBy" displayType="readonly" previewEmpty="false">
@@ -72,29 +79,42 @@
 				<control-param id="range" name="range">emf:User</control-param>
 			</control>
 		</field>
-		<field name="emf:hasTemplate" type="uri" label="hasTemplate" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate">
+		<field name="emf:hasTemplate" type="uri" displayType="readOnly" previewEmpty="true" uri="emf:hasTemplate">
 			<control id="PICKER">
     			<control-param id="range" name="range">emf:Template</control-param>
     		</control>
    		</field>
-		<field name="emf:templateVersion" type="an..10" label="templateVersion" displayType="system" uri="emf:templateVersion"/>
+		<field name="emf:templateVersion" type="an..10" displayType="system" uri="emf:templateVersion"/>
 		<field name="emf:isDeleted" type="boolean" displayType="system" uri="emf:isDeleted"><value>false</value></field>
-		<field name="emf:version" type="an..10" label="object.version" displayType="readonly" uri="emf:version"/>
+		<field name="emf:version" type="an..10" displayType="readonly" uri="emf:version"/>
 		<field name="altTitle" type="ANY" displayType="system" uri="emf:altTitle" />
 		<field name="thumbnailImage" type="ANY" displayType="system" uri="emf:thumbnailImage" /> <!-- System field used for thumnbnail generation -->
 	</fields>
 	<transitions>
-		<transition id="editDetails" label="editDetails.label" eventId="editDetails" purpose="editDetails" tooltip="editDetails.tooltip" actionPath="/" />
+		<transition id="editDetails" label="editDetails.label" purpose="editDetails" tooltip="editDetails.tooltip" actionPath="/" />
 
 		<group id="tools" label="tools.group.label" type="menu" />
-		<transition id="clone" label="clone.label" eventId="clone" purpose="clone" tooltip="clone.tooltip" group="tools"/>
-		<transition id="move" label="move.label" eventId="move" purpose="move" tooltip="move.tooltip" group="tools"/>
-		<transition id="lock" label="lock.label" eventId="lock" purpose="lock" tooltip="lock.tooltip" group="tools"/>
-		<transition id="unlock" label="unlock.label" eventId="unlock" purpose="unlock" tooltip="unlock.tooltip" group="tools"/>
+		<transition id="clone" label="clone.label" purpose="clone" tooltip="clone.tooltip" group="tools"/>
+		<transition id="move" label="move.label" purpose="move" tooltip="move.tooltip" group="tools"/>
+		<transition id="lock" label="lock.label" purpose="lock" tooltip="lock.tooltip" group="tools"/>
+		<transition id="unlock" label="unlock.label" purpose="unlock" tooltip="unlock.tooltip" group="tools"/>
 
 		<group id="manageRelations" label="manageRelations.group.label" type="menu" />
-		<transition id="addThumbnail" label="addThumbnail.label" eventId="addThumbnail" purpose="addThumbnail" tooltip="addThumbnail.tooltip" group="manageRelations"/>
-		<transition id="addWatchers" label="addWatchers.label" eventId="addWatchers" purpose="addRelation" tooltip="addWatchers.tooltip" group="manageRelations">
+		<transition id="addThumbnail" label="addThumbnail.label" purpose="addRelation" tooltip="addThumbnail.tooltip" group="manageRelations" >
+			<fields>
+				<field name="addAutoDepictConfig" type="json">
+					<value>
+						{
+							"predefinedTypes" : ["emf:Image"],
+							"selection" : "single",
+							"relation" : ["emf:hasThumbnail"]
+						}
+					</value>
+					<control id="configuration" />
+				</field>
+			</fields>
+		</transition>
+		<transition id="addWatchers" label="addWatchers.label" purpose="addRelation" tooltip="addWatchers.tooltip" group="manageRelations">
 		<fields>
 			<field name="addAttachmentConfig" type="json">
 				<value>
@@ -111,22 +131,268 @@
 		</transition>
 
 		<group id="printAndExport" label="printAndExport.group.label" type="menu" />
-		<transition id="print" label="print.label" eventId="print" purpose="print" tooltip="print.tooltip" group="printAndExport"/>
-		<transition id="printTab" label="printTab.label" eventId="printTab" purpose="printTab" tooltip="printTab.tooltip" group="printAndExport"/>
-		<transition id="exportTabPDF" label="exportTabPDF.label" eventId="exportTabPDF" purpose="exportTabPDF" tooltip="exportTabPDF.tooltip" group="printAndExport"/>
-		<transition id="exportPDF" label="exportPDF.label" eventId="exportPDF" purpose="exportPDF" tooltip="exportPDF.tooltip" group="printAndExport"/>
-		<transition id="exportWord" label="exportWord.label" eventId="exportWord" purpose="exportWord" tooltip="exportWord.tooltip" group="printAndExport"/>
-		<transition id="exportTabWord" label="exportTabWord.label" eventId="exportTabWord" purpose="exportTabWord" tooltip="exportTabWord.tooltip" group="printAndExport"/>
+		<transition id="print" label="print.label" purpose="print" tooltip="print.tooltip" group="printAndExport"/>
+		<transition id="printTab" label="printTab.label" purpose="printTab" tooltip="printTab.tooltip" group="printAndExport"/>
+		<transition id="exportTabPDF" label="exportTabPDF.label" purpose="exportTabPDF" tooltip="exportTabPDF.tooltip" group="printAndExport"/>
+		<transition id="exportPDF" label="exportPDF.label" purpose="exportPDF" tooltip="exportPDF.tooltip" group="printAndExport"/>
+		<transition id="exportWord" label="exportWord.label" purpose="exportWord" tooltip="exportWord.tooltip" group="printAndExport"/>
+		<transition id="exportTabWord" label="exportTabWord.label" purpose="exportTabWord" tooltip="exportTabWord.tooltip" group="printAndExport"/>
 
 		<group id="templates" label="templates.group.label" type="menu" />
-		<transition id="saveAsTemplate" label="saveAsTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" group="templates"/>
-		<transition id="changeTemplate" label="changeTemplate.label" eventId="changeTemplate" purpose="changeTemplate" tooltip="changeTemplate.tooltip" group="templates"/>
-		<transition id="updateTemplate" label="updateTemplate.label" eventId="updateTemplate" purpose="updateTemplate" tooltip="updateTemplate.tooltip" confirmation="confirmation.update_template" group="templates"/>
-		<transition id="saveAsUserTemplate" label="saveAsUserTemplate.label" eventId="saveAsTemplate" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" group="templates"/>
+		<transition id="saveAsTemplate" label="saveAsTemplate.label" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" group="templates"/>
+		<transition id="changeTemplate" label="changeTemplate.label" purpose="changeTemplate" tooltip="changeTemplate.tooltip" group="templates"/>
+		<transition id="updateTemplate" label="updateTemplate.label" purpose="updateTemplate" tooltip="updateTemplate.tooltip" confirmation="confirmation.update_template" group="templates"/>
+		<transition id="saveAsUserTemplate" label="saveAsUserTemplate.label" purpose="saveAsTemplate" tooltip="saveAsTemplate.tooltip" group="templates"/>
 
-		<transition id="delete" label="delete.label" eventId="delete" purpose="delete" confirmation="confirmation.action" tooltip="delete.tooltip" />
-		<transition id="managePermissions" label="managePermissions.label" eventId="managePermissions" purpose="managePermissions" tooltip="managePermissions.tooltip" />
-		<transition id="revertVersion" label="revertVersion.label" eventId="revertVersion" purpose="revertVersion" confirmation="revert.confirmation.action" tooltip="revertVersion.tooltip" actionPath="/" />
-    	<transition id="createInContext" eventId="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
+		<transition id="delete" label="delete.label" purpose="delete" confirmation="confirmation.action" tooltip="delete.tooltip" />
+		<transition id="managePermissions" label="managePermissions.label" purpose="managePermissions" tooltip="managePermissions.tooltip" />
+		<transition id="revertVersion" label="revertVersion.label" purpose="revertVersion" confirmation="revert.confirmation.action" tooltip="revertVersion.tooltip" actionPath="/" />
+    	<transition id="createInContext" purpose="createInContext" label="createInContext.label" displayType="hidden" />
 	</transitions>
+	<labels>
+		<label id="ENTITY_TOOLTIP_HEADER">
+			<value lang="en"><![CDATA[${eval(
+                ${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-id="${id}" data-uid="${id.uid}">
+                            <span data-title="${get([title])}">${get([title])}</span>&nbsp;
+                            ${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+                        </a>
+                    </span>
+                </span>
+                ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
+            )}]]></value>
+            <value lang="de"><![CDATA[${eval(
+            	${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-id="${id}" data-uid="${id.uid}">
+                            <span data-title="${get([title])}">${get([title])}</span>&nbsp;
+                            ${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+                        </a>
+                    </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
+                </span>
+            )}]]></value>
+            <value lang="bg"><![CDATA[${eval(
+            	${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-id="${id}" data-uid="${id.uid}">
+                            <span data-title="${get([title])}">${get([title])}</span>&nbsp;
+                            ${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+                        </a>
+                    </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
+                </span>
+            )}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+                <span class="thumbnail-content">
+                    <img class="thumbnail" src="${thumbnailUri(64)}" />
+                </span>
+                <span class="tooltip-data">
+                    <span class="tooltip-header">
+                        <a href="${link(currentInstance)}" class="instance-link" data-id="${id}" data-uid="${id.uid}">
+                            <span data-title="${get([title])}">${get([title])}</span>&nbsp;
+                            ${if(${var.isVersion}).then(
+								<span data-property="emf:version">${get([emf:version])}</span>
+							)}
+                        </a>
+                    </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
+                </span>
+            )}]]></value>
+		</label>
+		<label id="ENTITY_DEFAULT_HEADER">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="instance-link" ${var.href} uid="${id.uid}">
+							<b>
+								${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span> )}
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+								<span data-property="title">${get([title])}</span>&nbsp;
+							</b>
+						</a>
+					</span>
+				</span>
+			)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="instance-link" ${var.href} uid="${id.uid}">
+							<b>
+								${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+								<span data-property="title">${get([title])}</span>&nbsp;
+							</b>
+						</a>
+					</span>
+				</span>
+			)}]]></value>
+			<value lang="bg"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="instance-link" ${var.href} uid="${id.uid}">
+							<b>
+								${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span> )}
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+								<span data-property="title">${get([title])}</span>&nbsp;
+							</b>
+						</a>
+					</span>
+				</span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span><img src="${thumbnailUri(64)}"/></span>
+				<span>
+					<span class="truncate-element">
+						<a class="instance-link" ${var.href} uid="${id.uid}">
+							<b>
+								${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span> )}
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+								<span data-property="title">${get([title])}</span>&nbsp;
+							</b>
+						</a>
+					</span>
+				</span>
+			)}]]></value>
+		</label>
+		<label id="ENTITY_COMPACT_HEADER">
+			<value lang="en"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span class="truncate-element">
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span> )}
+						<span data-property="title">${get([title])}</span>&nbsp;
+					</a>
+				</span>
+			)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span class="truncate-element">
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
+						<span data-property="title">${get([title])}</span>&nbsp;
+					</a>
+				</span>
+			)}]]></value>
+			<value lang="bg"><![CDATA[${eval(
+	            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span class="truncate-element">
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span> )}
+						<span data-property="title">${get([title])}</span>&nbsp;
+					</a>
+				</span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span class="truncate-element">
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span> )}
+						<span data-property="title">${get([title])}</span>&nbsp;
+					</a>
+				</span>
+			)}]]></value>
+		</label>
+		<label id="ENTITY_BREADCRUMB_HEADER">
+			<value lang="en"><![CDATA[${eval(
+	            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+	            <span ><img src="${thumbnailUri(16)}"/></span>
+	            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+	            <span>
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>
+			)}]]></value>
+			<value lang="de"><![CDATA[${eval(
+	            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+	            <span ><img src="${thumbnailUri(16)}"/></span>
+	            ${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+	            <span>
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>
+			)}]]></value>
+			<value lang="bg"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span>
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>
+			)}]]></value>
+			<value lang="da"><![CDATA[${eval(
+				${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+				<span ><img src="${thumbnailUri(16)}"/></span>
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
+				<span>
+					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
+						<span data-property="title">${get([title])}</span>
+					</a>
+				</span>
+			)}]]></value>
+		</label>
+	</labels>
 </definition>

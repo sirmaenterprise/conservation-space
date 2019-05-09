@@ -9,6 +9,7 @@ import com.sirma.sep.cls.model.Code;
 import com.sirma.sep.cls.model.CodeDescription;
 import com.sirma.sep.cls.model.CodeList;
 import com.sirma.sep.cls.model.CodeValue;
+
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.Assert;
@@ -19,7 +20,9 @@ import org.mockito.Mock;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+
 import java.util.List;
+import java.util.Optional;
 
 import static com.sirma.sep.cls.db.CodeEntityTestUtils.getListEntity;
 import static com.sirma.sep.cls.db.CodeEntityTestUtils.getValueEntity;
@@ -55,6 +58,41 @@ public class CodeListServiceTest {
 		CodeValueEntity valueEntity3 = getValueEntity("2", "V2-1", "FR");
 		valueEntity3.setActive(false);
 		dbDaoStub.withValueEntityForList(valueEntity, valueEntity2, valueEntity3);
+	}
+
+	@Test
+	public void shouldFetchSingleCodeListsWithoutValues() {
+		CodeList codeList = codeListService.getCodeList("1").get();
+
+		Assert.assertEquals("1", codeList.getValue());
+		assertExtras(codeList, "1_extra1", "1_extra2", "1_extra3");
+		Assert.assertEquals(2, codeList.getDescriptions().size());
+		assertDescription(codeList.getDescriptions().get(0), "lang_EN", "descr_EN", "comment_EN");
+		assertDescription(codeList.getDescriptions().get(1), "lang_BG", "descr_BG", "comment_BG");
+		Assert.assertTrue(codeList.getValues().isEmpty());
+	}
+
+	@Test
+	public void shouldFetchSingleCodeListsWithValues() {
+		CodeList codeList = codeListService.getCodeList("1", true).get();
+
+		Assert.assertEquals("1", codeList.getValue());
+		Assert.assertEquals(2, codeList.getValues().size());
+
+		CodeValue codeList1CodeValue = codeList.getValues().get(0);
+		Assert.assertEquals("V1-1", codeList1CodeValue.getValue());
+		assertExtras(codeList1CodeValue, "V1-1_extra1", "V1-1_extra2", "V1-1_extra3");
+		Assert.assertEquals(2, codeList1CodeValue.getDescriptions().size());
+		assertDescription(codeList1CodeValue.getDescriptions().get(0), "lang_EN", "descr_EN", "comment_EN");
+		assertDescription(codeList1CodeValue.getDescriptions().get(1), "lang_BG", "descr_BG", "comment_BG");
+		Assert.assertEquals("1", codeList1CodeValue.getCodeListValue());
+		Assert.assertTrue(codeList1CodeValue.isActive());
+	}
+
+	@Test
+	public void shouldNotFetchCodeListWhenNoneIsFound() {
+		Optional<CodeList> codeList = codeListService.getCodeList("999");
+		Assert.assertFalse(codeList.isPresent());
 	}
 
 	@Test
@@ -141,6 +179,19 @@ public class CodeListServiceTest {
 		// Missing cl
 		List<CodeValue> codeList4Values = codeListService.getCodeValues("4");
 		Assert.assertTrue(codeList4Values.isEmpty());
+	}
+
+	@Test
+	public void shouldFetchSingleCodeValue() {
+		Optional<CodeValue> codeValue = codeListService.getCodeValue("1", "V1-1");
+		Assert.assertTrue(codeValue.isPresent());
+		Assert.assertEquals("V1-1", codeValue.get().getValue());
+	}
+
+	@Test
+	public void shouldHandleMissingCodeValue() {
+		Optional<CodeValue> codeValue = codeListService.getCodeValue("1", "misssing");
+		Assert.assertFalse(codeValue.isPresent());
 	}
 
 	private static void assertExtras(Code code, String extra1, String extra2, String extra3) {

@@ -26,14 +26,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.testutil.rest.RandomPortGenerator;
 import com.sirma.sep.export.ContentExportException;
+import com.sirma.sep.export.ExportURIBuilder;
 import com.sirma.sep.export.pdf.PDFExportRequest.PDFExportRequestBuilder;
+
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 
 /**
  * Test for {@link ElectronPDFExporter}.
@@ -55,6 +57,9 @@ public class ElectronPDFExporterTest {
 	private TempFileProvider tempFileProvider;
 
 	@Mock
+	private ExportURIBuilder uriBuilder;
+
+	@Mock
 	private ConfigurationProperty<String> exportServerURL;
 
 	@Mock
@@ -64,6 +69,7 @@ public class ElectronPDFExporterTest {
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		when(timeout.get()).thenReturn(1000);
+		when(uriBuilder.getCurrentJwtToken()).thenReturn("token");
 	}
 
 	@Test
@@ -104,7 +110,7 @@ public class ElectronPDFExporterTest {
 
 		JsonObjectBuilder createObjectBuilder = Json
 				.createObjectBuilder()
-				.add("url", URI.create("http://local/ui2/emf:id").toASCIIString())
+				.add("url", URI.create("http://local/ui2/emf:id?jwt=token").toASCIIString())
 				.add("timeout", 50000L)
 				.add("file-name", "myfile.txt");
 		exporter.initialize();

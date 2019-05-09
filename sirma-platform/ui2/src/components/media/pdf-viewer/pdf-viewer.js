@@ -1,9 +1,8 @@
 import {View, Component, Inject, NgElement, NgScope} from 'app/app';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {MODE_PRINT} from 'idoc/idoc-constants';
 import Paths from 'common/paths';
-import {UrlUtils} from 'common/url-utils';
 
 import template from './pdf-viewer.html!text';
 import './pdf-viewer.css!';
@@ -47,8 +46,9 @@ export class PdfViewer {
     let pdfViewerSrc = this.createPdfViewerSrc();
     let iframe = $(`<iframe name="pdf-viewer" allowfullscreen="true" src="${pdfViewerSrc}"></iframe>`);
     let onLoad = () => {
-      let container = iframe.contents().find('#mainContainer');
-      this.open(iframe[0], this.getPdfConfig()).then(() => {
+      this.getPdfConfig().then(config => {
+        return this.open(iframe[0], config);
+      }).then(() => {
         iframe.parent().removeClass('hidden');
         iframe.contents().on(PAGES_LOADED_EVENT, () => {
           this.prepareForPrint(iframe.contents());
@@ -96,23 +96,25 @@ export class PdfViewer {
     if (this.mode === MODE_PRINT) {
       let visiblePage = iframeContents.find('.page[data-loaded="true"]').eq(0);
       let canvasDataUrl = visiblePage.find('canvas')[0].toDataURL();
-      let image = $("<img>", {src: canvasDataUrl});
+      let image = $('<img>', {src: canvasDataUrl});
       let viewerBody = this.$element.find('.pdf-viewer-body');
 
       viewerBody.find('iframe').remove();
-      viewerBody.append(image)
+      viewerBody.append(image);
     }
   }
 
   getPdfConfig() {
-    return {
-      url: this.src,
-      params: {
-        httpHeaders: {
-          jwt: this.authenticationService.getToken()
-        },
-        rangeChunkSize: PDF_CHUNK_SIZE
-      }
-    };
+    return this.authenticationService.getToken().then(token => {
+      return {
+        url: this.src,
+        params: {
+          httpHeaders: {
+            jwt: token
+          },
+          rangeChunkSize: PDF_CHUNK_SIZE
+        }
+      };
+    });
   }
 }

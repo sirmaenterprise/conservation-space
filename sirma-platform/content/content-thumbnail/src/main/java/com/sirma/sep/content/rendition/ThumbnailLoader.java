@@ -1,5 +1,6 @@
 package com.sirma.sep.content.rendition;
 
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
 
@@ -9,7 +10,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.plugin.ExtensionPoint;
 import com.sirma.itt.seip.plugin.Plugins;
 
@@ -121,7 +121,7 @@ class ThumbnailLoader {
 	private static class NoOpProvider implements ThumbnailProvider {
 
 		@Override
-		public String createThumbnailEndPoint(Instance source) {
+		public String createThumbnailEndPoint(Serializable source) {
 			return null;
 		}
 

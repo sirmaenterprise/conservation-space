@@ -2,6 +2,8 @@ package com.sirma.sep.instance.batch;
 
 import javax.batch.runtime.BatchStatus;
 import javax.batch.runtime.JobExecution;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,4 +97,19 @@ public interface BatchService {
 	 *         - job name which executions have to be stopped.
 	 */
 	void stopJobExecutions(String jobName);
+
+	/**
+	 * Return information about all known jobs in the database.
+	 *
+	 * @return info for all jobs.
+	 */
+	Collection<JobInfo> getJobs();
+
+	/**
+	 * Resume a batch job that was stopped or starts new job if the previous job is no longer available.
+	 *
+	 * @param jobId the job id to restart
+	 * @return the job execution of the new job
+	 */
+	Optional<JobExecution> resumeJob(String jobId);
 }

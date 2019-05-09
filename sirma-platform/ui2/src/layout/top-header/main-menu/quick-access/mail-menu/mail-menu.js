@@ -1,5 +1,5 @@
 import {View, Component, Inject, NgElement} from 'app/app';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {Router} from 'adapters/router/router';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {PersonalMailboxUpdatedEvent} from 'idoc/system-tabs/mailbox/events/personal-mailbox-updated-event';
@@ -11,9 +11,7 @@ import template from './mail-menu.html!text';
 @Component({
   selector: 'seip-mail-menu'
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(UserService, Router, Eventbus, MailboxInfoService, NgElement)
 export class MailMenu {
 

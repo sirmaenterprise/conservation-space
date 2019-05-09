@@ -22,9 +22,7 @@ import template from './role-actions-table.html!text';
 @Component({
   selector: 'seip-role-actions-table'
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(RoleManagementService, PromiseAdapter, TranslateService)
 export class RoleActionsTable {
 

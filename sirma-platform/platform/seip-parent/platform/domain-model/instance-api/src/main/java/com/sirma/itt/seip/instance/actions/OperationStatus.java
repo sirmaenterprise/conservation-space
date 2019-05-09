@@ -2,6 +2,8 @@ package com.sirma.itt.seip.instance.actions;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Defines the possible {@code com.sirma.itt.seip.tasks.entity.SchedulerEntity} status.
@@ -28,9 +30,9 @@ public enum OperationStatus {
 	ROLLBACKED, /** The rollback failed. */
 	ROLLBACK_FAILED;
 
-	public static final Collection<OperationStatus> ACTIVE_STATES = Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR,
-			RUNNING);
+	public static final Collection<OperationStatus> ACTIVE_STATES = Collections
+			.unmodifiableSet(new HashSet<>(Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR, RUNNING)));
 
-	public static final Collection<OperationStatus> ALL_STATES = Arrays.asList(NOT_RUN, PENDING, RUN_WITH_ERROR,
-			RUNNING, CANCELED, COMPLETED, FAILED, ROLLBACK_FAILED, ROLLBACKED, SKIPPED);
+	public static final Collection<OperationStatus> ALL_STATES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(NOT_RUN,
+			PENDING, RUN_WITH_ERROR, RUNNING, CANCELED, COMPLETED, FAILED, ROLLBACK_FAILED, ROLLBACKED, SKIPPED)));
 }

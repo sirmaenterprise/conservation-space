@@ -2,6 +2,7 @@ package com.sirma.itt.seip.testutil.fakes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.io.TempFileProvider;
@@ -12,10 +13,16 @@ import com.sirma.itt.seip.io.TempFileProvider;
  */
 public class TempFileProviderFake implements TempFileProvider {
 
-	private final File tempDir;
+	private File tempDir;
+
+	public TempFileProviderFake() {
+	}
 
 	public TempFileProviderFake(File tempDir) {
-		super();
+		this.tempDir = tempDir;
+	}
+
+	public void setTempDir(File tempDir) {
 		this.tempDir = tempDir;
 	}
 
@@ -63,6 +70,21 @@ public class TempFileProviderFake implements TempFileProvider {
 	@Override
 	public File createTempDir(String dirName) {
 		File file = new File(getTempDir(), dirName);
+		return makeDirs(file);
+	}
+
+	@Override
+	public File createUniqueTempDir(String prefix) {
+		return createTempDir(prefix + UUID.randomUUID());
+	}
+
+	@Override
+	public File createSubDir(File parent, String dirName) {
+		File file = new File(parent, dirName);
+		return makeDirs(file);
+	}
+
+	private File makeDirs(File file) {
 		if (file.mkdirs()) {
 			return file;
 		}

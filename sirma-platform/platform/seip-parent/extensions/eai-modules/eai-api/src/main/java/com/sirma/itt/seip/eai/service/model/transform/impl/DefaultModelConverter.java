@@ -145,7 +145,12 @@ public abstract class DefaultModelConverter implements EAIModelConverter {
 	@Override
 	public Map<String, Serializable> convertExternaltoSEIPProperties(Map<String, Object> properties, Instance consumer)
 			throws EAIModelException {
-		return convertExternaltoSEIPProperties(properties, definitionService.getInstanceDefinition(consumer), null);
+		return convertExternaltoSEIPProperties(properties, getInstanceDefinition(consumer), null);
+	}
+
+	protected DefinitionModel getInstanceDefinition(Instance instance) {
+		String externalType = instance.getString("externalType", instance.getIdentifier());
+		return definitionService.find(externalType);
 	}
 
 	/**

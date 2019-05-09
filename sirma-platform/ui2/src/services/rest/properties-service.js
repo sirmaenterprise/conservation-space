@@ -57,7 +57,7 @@ export class PropertiesRestService {
   getSearchableProperties(types) {
     return this.definitionService.getFields(types).then((response) => {
       let convertedProperties = this.convertProperties(response);
-      convertedProperties.unshift(this.getFreeTextCriteria(), this.getAnyFieldCriteria(), this.getAnyRelationCriteria());
+      convertedProperties.unshift(this.getFreeTextCriteria(), this.getAnyFieldCriteria(), this.getAnyRelationCriteria(), this.getAnyObjectCriteria());
       return convertedProperties;
     });
   }
@@ -211,6 +211,14 @@ export class PropertiesRestService {
       id: CRITERIA_FTS_RULE_FIELD,
       text: this.translateService.translateInstant('search.advanced.property.freeText'),
       type: 'fts'
+    };
+  }
+
+  getAnyObjectCriteria() {
+    return {
+      id: 'types',
+      text: this.translateService.translateInstant('search.advanced.property.type'),
+      type: ''
     };
   }
 

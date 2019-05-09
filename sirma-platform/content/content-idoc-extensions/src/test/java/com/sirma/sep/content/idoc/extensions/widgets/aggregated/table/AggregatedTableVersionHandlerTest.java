@@ -28,6 +28,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.google.gson.JsonObject;
 import com.sirma.itt.seip.instance.version.VersionDao;
+import com.sirma.itt.seip.instance.version.VersionIdsCache;
 import com.sirma.sep.content.idoc.WidgetConfiguration;
 import com.sirma.sep.content.idoc.WidgetResults;
 import com.sirma.sep.content.idoc.extensions.widgets.utils.WidgetMock;
@@ -109,7 +110,9 @@ public class AggregatedTableVersionHandlerTest {
 		when(versionDao.findVersionIdsByTargetIdAndDate(anyCollection(), any(Date.class)))
 				.thenReturn(buildDaoResults(searchIds));
 		HandlerContext context = new HandlerContext();
-		context.put("versionCreationDate", new Date());
+		Date date = new Date();
+		context.put("versionCreationDate", date);
+		context.put("versionedInstancesCache", new VersionIdsCache(date, versionDao::findVersionIdsByTargetIdAndDate));
 
 		handler.handle(widget, context);
 

@@ -91,4 +91,29 @@ export class UrlUtils {
     let querySeparator = UrlUtils.getParamSeparator(url);
     return `${url}${querySeparator}${param}=${value}`;
   }
+
+  /**
+   * Removes query param from url along with its value, if the param is available.
+   *
+   * @param window the window object, could be the global window or an adapter
+   * @param paramName name of the query param that will be removed
+   */
+  static removeQueryParam(window, paramName) {
+    let url = window.location.href;
+    if (url.indexOf(paramName + '=') !== -1) {
+      let regex = new RegExp('[?&]{0,1}' + paramName + '=[^&#]+');
+      let replaced = url.replace(regex, '');
+      UrlUtils.replaceUrl(window, replaced);
+    }
+  }
+
+  /**
+   * Replaces the current url with given one without making redirect.
+   *
+   * @param window the window object, could be the global window or an adapter
+   * @param url that will be set
+   */
+  static replaceUrl(window, url) {
+    window.history.replaceState({}, '', url);
+  }
 }

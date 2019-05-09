@@ -254,9 +254,7 @@ class CodeList extends PageObject {
 
   getValues() {
     return this.element.$$(CodeValue.COMPONENT_SELECTOR).then((valueElements) => {
-      return Promise.all(valueElements.map((valueElement) => {
-        return new CodeValue(valueElement);
-      }));
+      return valueElements.map((valueElement) => new CodeValue(valueElement));
     });
   }
 

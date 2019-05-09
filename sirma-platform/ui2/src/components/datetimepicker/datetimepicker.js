@@ -19,9 +19,7 @@ const DP_TODAY_ACTION = 'today';
   },
   events: ['onChanged']
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgTimeout, NgElement)
 export class DatetimePicker extends ReusableComponent {
   constructor($scope, $timeout, $element) {
@@ -96,7 +94,7 @@ export class DatetimePicker extends ReusableComponent {
     this.actualConfig = _.pick(this.config, 'showTodayButton', 'showClear', 'useCurrent', 'widgetParent');
     this.actualConfig['format'] = format;
     this.actualConfig['keyBinds'] = {
-      enter: function () {
+      enter() {
         let inputValue = _this.inputElement.val();
         let newDate = inputValue === '' ? null : inputValue;
         this.date(newDate).hide();

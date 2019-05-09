@@ -6,17 +6,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -24,12 +27,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import com.sirma.itt.emf.adapter.DMSException;
-import com.sirma.itt.seip.adapters.remote.RESTClient;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
+import com.sirma.itt.seip.exception.EmfRuntimeException;
+import com.sirma.itt.seip.rest.client.HTTPClient;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
 import com.sirma.sep.content.InstanceContentService;
+
 import com.srima.itt.seip.adapters.mock.ImageServerConfigurationsMock;
 
 /**
@@ -46,7 +50,7 @@ public class IiifThumbnailProviderTest {
 	@Mock
 	private InstanceContentService contentService;
 	@Mock
-	private RESTClient restClient;
+	private HTTPClient httpClient;
 
 	@Before
 	public void beforeMethod() {
@@ -102,10 +106,7 @@ public class IiifThumbnailProviderTest {
 	public void getThumbnail() throws Exception {
 		imageServerConfigurations.setIiifServerAddress("http://localhost/");
 
-		HttpMethod httpMethod = mock(HttpMethod.class);
-		when(httpMethod.getResponseBodyAsStream())
-				.thenReturn(new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8)));
-		when(restClient.rawRequest(any(GetMethod.class), any(URI.class))).thenReturn(httpMethod);
+		mockHttpClientResponse();
 
 		String thumbnail = provider.getThumbnail("testImageName");
 		assertNotNull(thumbnail);
@@ -119,10 +120,6 @@ public class IiifThumbnailProviderTest {
 	public void getThumbnail_noData() throws Exception {
 		imageServerConfigurations.setIiifServerAddress("http://localhost/");
 
-		HttpMethod httpMethod = mock(HttpMethod.class);
-		when(httpMethod.getResponseBodyAsStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
-		when(restClient.rawRequest(any(GetMethod.class), any(URI.class))).thenReturn(httpMethod);
-
 		String thumbnail = provider.getThumbnail("testImageName");
 		assertNull(thumbnail);
 	}
@@ -131,7 +128,7 @@ public class IiifThumbnailProviderTest {
 	public void getThumbnail_couldNotReadFromRemoteService() throws Exception {
 		imageServerConfigurations.setIiifServerAddress("http://localhost/");
 
-		when(restClient.rawRequest(any(GetMethod.class), any(URI.class))).thenThrow(DMSException.class);
+		when(httpClient.execute(any(URI.class), any(ResponseHandler.class))).thenThrow(EmfRuntimeException.class);
 
 		String thumbnail = provider.getThumbnail("testImageName");
 		assertNull(thumbnail);
@@ -141,9 +138,7 @@ public class IiifThumbnailProviderTest {
 	public void getThumbnail_couldNotReadResponse() throws Exception {
 		imageServerConfigurations.setIiifServerAddress("http://localhost/");
 
-		HttpMethod httpMethod = mock(HttpMethod.class);
-		when(httpMethod.getResponseBodyAsStream()).thenThrow(IOException.class);
-		when(restClient.rawRequest(any(GetMethod.class), any(URI.class))).thenReturn(httpMethod);
+		when(httpClient.execute(any(URI.class), any(ResponseHandler.class))).thenThrow(IOException.class);
 
 		String thumbnail = provider.getThumbnail("testImageName");
 		assertNull(thumbnail);
@@ -153,10 +148,22 @@ public class IiifThumbnailProviderTest {
 	public void getThumbnail_noResponse() throws Exception {
 		imageServerConfigurations.setIiifServerAddress("http://localhost/");
 
-		HttpMethod httpMethod = mock(HttpMethod.class);
-		when(restClient.rawRequest(any(GetMethod.class), any(URI.class))).thenReturn(httpMethod);
-
 		String thumbnail = provider.getThumbnail("testImageName");
 		assertNull(thumbnail);
 	}
+
+	private void mockHttpClientResponse() {
+		doAnswer(invocation -> {
+			ResponseHandler responseReader = invocation.getArgumentAt(1, ResponseHandler.class);
+			HttpResponse httpResponse = mock(HttpResponse.class);
+			HttpEntity httpEntity = mock(HttpEntity.class);
+			StatusLine statusLine = mock(StatusLine.class);
+			when(statusLine.getStatusCode()).thenReturn(200);
+			when(httpResponse.getStatusLine()).thenReturn(statusLine);
+			when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8)));
+			when(httpResponse.getEntity()).thenReturn(httpEntity);
+			return responseReader.handleResponse(httpResponse);
+		}).when(httpClient).execute(any(URI.class), any(ResponseHandler.class));
+	}
+
 }

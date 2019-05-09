@@ -1,6 +1,6 @@
 import {Component, View, Inject, NgElement, NgTimeout} from 'app/app';
 import {ActionExecutor} from 'services/actions/action-executor';
-import {ToTrustedHtml} from 'filters/to-trusted-html';
+import 'filters/to-trusted-html';
 import {Configurable} from 'components/configurable';
 import {Logger} from 'services/logging/logger';
 import './submenu';
@@ -38,9 +38,7 @@ import './dropdownmenu.css!';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement, Logger, ActionExecutor, NgTimeout)
 export class DropdownMenu extends Configurable {
 

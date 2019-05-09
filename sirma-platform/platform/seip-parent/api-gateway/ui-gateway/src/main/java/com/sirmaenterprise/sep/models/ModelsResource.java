@@ -8,17 +8,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +47,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -65,15 +67,20 @@ import com.sirma.itt.seip.domain.codelist.CodelistService;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
+import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
 import com.sirma.itt.seip.domain.search.SearchArguments;
 import com.sirma.itt.seip.domain.search.SearchArguments.QueryResultPermissionFilter;
 import com.sirma.itt.seip.domain.security.ActionTypeConstants;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
+import com.sirma.itt.seip.domain.validation.ValidationReportTranslator;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.actions.change.type.InstanceTypeMigrationCoordinator;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.validation.InstanceValidationService;
 import com.sirma.itt.seip.instance.validator.ExistingInContext;
@@ -95,6 +102,7 @@ import com.sirma.sep.model.ModelExportRequest;
 import com.sirma.sep.model.ModelImportService;
 import com.sirma.sep.model.ModelService;
 import com.sirma.sep.model.Ontology;
+import com.sirma.sep.model.TypeInfo;
 
 /**
  * Service end point to provide access to the data model structure and meads to modify it
@@ -145,6 +153,10 @@ public class ModelsResource {
 	private DefinitionImportService definitionImportService;
 	@Inject
 	private ResourceService resourceService;
+	@Inject
+	private LabelProvider labelProvider;
+	@Inject
+	private InstanceTypeMigrationCoordinator migrationCoordinator;
 
 	/**
 	 * Gets the available models basic information. The returned models could be filtered by different selectors like:
@@ -155,6 +167,7 @@ public class ModelsResource {
 	 * <li>custom class filter
 	 * <li>context instance
 	 * <li>context instance type
+	 * <li>instance used as type scope, applicable when used for purpose (create, upload)
 	 * </ul>
 	 * Format of the response:
 	 *
@@ -185,13 +198,20 @@ public class ModelsResource {
 	 *            (applicable for create and upload purposes).
 	 * @param definitionFilter
 	 *            optional parameter specifying a ids of definitions  to be used when filtering allowed definitions.
+	 * @param instanceId
+	 *            optional parameter specifying the base instance used for type selection. This will restrict the
+	 *            returned types only to types related to the current instance type as:<ul>
+	 *                <li>sub classes of the current instance type</li>
+	 *                <li>sibling classes and their sub classes of the current instance type</li>
+	 *                <li>definitions that are only non abstract sub definitions of the current definition sub type</li>
+	 *            </ul>
 	 * @return the collected models information
 	 */
 	@GET
 	public ModelsInfo getModelsInfo(@QueryParam("classFilter") Set<String> classFilter,
 			@QueryParam("purpose") Set<String> purposes, @QueryParam("mimetype") String mimetypeFilter,
 			@QueryParam("extension") String fileExtensionFilter, @QueryParam("contextId") String contextIdFilter,
-			@QueryParam("definitionFilter") Set<String> definitionFilter) {
+			@QueryParam("definitionFilter") Set<String> definitionFilter, @QueryParam("instanceId") String instanceId) {
 
 		EnumSet<Purpose> parsedPurposes = EnumSet.noneOf(Purpose.class);
 		if (CollectionUtils.isNotEmpty(purposes)) {
@@ -200,6 +220,10 @@ public class ModelsResource {
 					.forEach(parsedPurposes::add);
 		}
 		Set<String> accessibleLibrariesIds = getAccessibleLibrariesIds(parsedPurposes);
+
+		// if instance id is present then classes filter is overridden and it is filled with only the classes related to
+		// the type of the given instance
+		classFilter = getRelatedInstanceClasses(instanceId, classFilter);
 
 		//classFilter and definitionFilter are aggregated with OR. If definition's class is present in classFilter then definition is ignored.
 		if(!isEmpty(classFilter) && !isEmpty(definitionFilter)) {
@@ -255,7 +279,44 @@ public class ModelsResource {
 		}
 		return modelsInfo.validateAndCleanUp();
 	}
-    private Optional<String> canCreateOrUpload(EnumSet<Purpose> parsedPurposes, String contextIdFilter) {
+
+	private Set<String> getRelatedInstanceClasses(String instanceId, Set<String> classFilter) {
+		Instance instance = fetchInstance(instanceId);
+		if (instance != null) {
+			return getRelatedClasses(instance.type().getId().toString()).orElse(classFilter);
+		}
+		return classFilter;
+	}
+
+	private Optional<Set<String>> getRelatedClasses(String baseType) {
+		ClassInstance baseTypeInstance = semanticDefinitionService.getClassInstance(baseType);
+		if (baseTypeInstance == null) {
+			// unknown type
+			return Optional.empty();
+		}
+		Set<InstanceType> allowedTypes = new LinkedHashSet<>();
+		for (InstanceType parent : migrationCoordinator.getAllowedSuperTypes(baseTypeInstance)) {
+			iterateSubTypes(parent, allowedTypes::add);
+		}
+		return Optional.of(
+				allowedTypes.stream().map(InstanceType::getId).map(Object::toString).collect(Collectors.toSet()));
+	}
+
+	private static void iterateSubTypes(InstanceType type, Consumer<InstanceType> typeConsumer) {
+		if (type == null) {
+			return;
+		}
+		Set<InstanceType> subClasses = type.getSubTypes();
+		if (subClasses.isEmpty()) {
+			return;
+		}
+		for (InstanceType subType : subClasses) {
+			typeConsumer.accept(subType);
+			iterateSubTypes(subType, typeConsumer);
+		}
+	}
+
+	private Optional<String> canCreateOrUpload(EnumSet<Purpose> parsedPurposes, String contextIdFilter) {
 	    return Optional.of(parsedPurposes.stream()
                             .filter(purpose -> Purpose.SEARCH != purpose)
                             .map(purpose -> contextValidationHelper.canCreateOrUploadIn(contextIdFilter, purpose.toString()))
@@ -343,11 +404,42 @@ public class ModelsResource {
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response exportModels(ModelExportRequest request) {
 		File file = modelImportService.exportModel(request);
+		return buildFileResponse(file);
+	}
 
+	/**
+	 * Downloads (exports) the ontologies.
+	 *
+	 * NOTE: in further development, we may refactor so that a parameter is passed via the POST method (list of
+	 * id`s of ontologies to be exported).
+	 *
+	 * @return a response containing the zipped ontologies as application/octet-stream and a header for the file name
+	 */
+	@POST
+	@Path("/downloadOntology")
+	@Consumes(Versions.V2_JSON)
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response exportOntology() {
+		File file = modelService.exportOntologies(modelService.getOntologies());
+		return buildFileResponse(file);
+	}
+
+	private static Response buildFileResponse(File file) {
+		// Non latin characters will not be handled correctly if not encoded.
+		String encodedFilename = encodeFilename(file);
 		return Response
-					.ok(file, MediaType.APPLICATION_OCTET_STREAM)
-					.header("X-File-Name", file.getName())
-					.build();
+				.ok(file, MediaType.APPLICATION_OCTET_STREAM)
+				.header("X-File-Name", encodedFilename)
+				.build();
+	}
+
+	private static String encodeFilename(File file) {
+		String filename = file.getName();
+		try {
+			return URLEncoder.encode(filename, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException("Could not encode model file with name: " + filename, e);
+		}
 	}
 
 	/**
@@ -492,7 +584,7 @@ public class ModelsResource {
 			List<FileItem> fileItems = extractUploadedFiles(request, servletUpload);
 
 			if (fileItems.isEmpty()) {
-				throw new ModelImportException(Arrays.asList("No files are provided"));
+				throw new ModelImportException(Collections.singletonList("No files are provided"));
 			}
 
 			List<String> errors = new ArrayList<>();
@@ -509,10 +601,11 @@ public class ModelsResource {
 				throw new ModelImportException(errors);
 			}
 
-			errors = modelImportService.importModel(fileStreams);
+			ValidationReport validationReport = modelImportService.importModel(fileStreams);
 
-			if (!errors.isEmpty()) {
-				throw new ModelImportException(errors);
+			if (!validationReport.isValid()) {
+				ValidationReportTranslator reportTranslator = new ValidationReportTranslator(labelProvider, validationReport);
+				throw new ModelImportException(reportTranslator.getErrors());
 			}
 		} catch (IOException | FileUploadException e) {
 			throw new IllegalStateException(e);
@@ -549,6 +642,34 @@ public class ModelsResource {
 	@Path("ontology/{id}/classes")
 	public List<ClassInfo> getClasses(@PathParam(value = "id") String id) {
 		return modelService.getClassesForOntology(id);
+	}
+
+	/**
+	 * Gets all types from the system that includes all object and primitive data types The object types are represented
+	 * by all object type classes in the system and primitive data types are those defined as an emf:primitive type in
+	 * the system.
+	 * 
+	 * @param type
+	 *            - type is optional and can be either object or data property. See {@link TypeInfo}
+	 * @return the list of requested types fetched from the system
+	 */
+	@GET
+	@Path("/types/{type}")
+	public List<TypeInfo> getTypes(@PathParam(value = "type") String type) {
+		List<ClassInstance> result;
+
+		if (TypeInfo.DATA_TYPE.equals(type)) {
+			result = semanticDefinitionService.getDataTypes();
+		} else if (TypeInfo.OBJECT_TYPE.equals(type)) {
+			result = semanticDefinitionService.getClasses();
+		} else {
+			result = ListUtils.union(
+						semanticDefinitionService.getClasses(), 
+						semanticDefinitionService.getDataTypes());
+		}
+		return result.stream()
+				.map(c -> new TypeInfo().setId(c.getId()).setLabels(c.getLabels()))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -917,9 +1038,7 @@ public class ModelsResource {
 		 */
 		static Stream<DefinitionEntry> buildEntries(DefinitionModel model,
 				Function<String, ClassInstance> instanceProvider) {
-			List<DefinitionEntry> entries = new LinkedList<>();
 			DefinitionEntry base = new DefinitionEntry(model, instanceProvider);
-			entries.add(base);
 			Stream<DefinitionEntry> superClasses = Stream.empty();
 			if (base.semanticInstance != null) {
 				// return that super classes that are at least searchable/createable or uploadable

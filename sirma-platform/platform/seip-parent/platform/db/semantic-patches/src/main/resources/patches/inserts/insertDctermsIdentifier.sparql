@@ -1,0 +1,34 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+    ?property skos:definition ?definition.
+    ?property rdfs:comment ?definition.
+    ?property dcterms:description ?description.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+	###  http://purl.org/dc/terms/identifier
+	dcterms:identifier rdf:type emf:DefinitionDataProperty ;
+                 rdfs:label "Номер"@bg ,
+							"Identifier"@en ,
+							"Identifikator"@de ,
+							"Tunniste"@fi ,
+							"ID"@da ;
+				 skos:definition "Unique ID for item"@en .
+
+    }
+} where {
+        ?property rdfs:label ?label.
+        ?property skos:definition|rdfs:comment ?definition.
+        optional {
+            ?property dcterms:description ?description.
+        }
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (dcterms:identifier))
+}

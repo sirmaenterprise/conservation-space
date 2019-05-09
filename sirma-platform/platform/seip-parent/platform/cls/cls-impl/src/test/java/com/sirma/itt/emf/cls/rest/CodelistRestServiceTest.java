@@ -3,6 +3,8 @@ package com.sirma.itt.emf.cls.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -44,7 +46,7 @@ public class CodelistRestServiceTest {
 
 	@Test
 	public void should_Return_Null_When_No_CL_Provided() {
-		List<CodeValueInfo> retrievedCodeValues = service.retrieveCodeValues(null, null, null, false, null, "en",
+		List<CodeValueInfo> retrievedCodeValues = service.retrieveCodeValues(null, null, null, null, false, null, "en",
 				"eng");
 		assertTrue(retrievedCodeValues.isEmpty());
 	}
@@ -55,7 +57,8 @@ public class CodelistRestServiceTest {
 		CodeValue managementDepartment = createCodevalue(100, "MNG", "en", "Management department");
 		withExistingCodeValues(engineeringDepartment, managementDepartment);
 
-		List<CodeValueInfo> retrievedCodeValues = service.retrieveCodeValues(100, null, null, false, null, "en", "eng");
+		List<CodeValueInfo> retrievedCodeValues = service.retrieveCodeValues(100, null, null, null, false, null, "en",
+				"eng");
 
 		Map<String, Serializable> descriptions = new HashMap<String, Serializable>(1);
 		descriptions.put("en", "Engineering Department");
@@ -72,7 +75,8 @@ public class CodelistRestServiceTest {
 		CodeValue qaDepartment = createCodevalue(100, "QA", "en", "QA department");
 		withExistingCodeValues(engineeringDepartment, engTestDepartment, managementDepartment, qaDepartment);
 
-		List<CodeValueInfo> retrievedCodeValues = service.retrieveCodeValues(100, null, null, false, null, "en", "eng");
+		List<CodeValueInfo> retrievedCodeValues = service.retrieveCodeValues(100, null, null, null, false, null, "en",
+				"eng");
 
 		Map<String, Serializable> descriptions1 = new HashMap<String, Serializable>(1);
 		descriptions1.put("en", "Engineering Department");
@@ -83,6 +87,18 @@ public class CodelistRestServiceTest {
 		CodeValueInfo testVal = new CodeValueInfo("ENGTST", "Test containseng", 100, descriptions2);
 
 		assertEquals(Arrays.asList(testVal, engineeringVal), retrievedCodeValues);
+	}
+
+	@Test
+	public void should_Filter_CodeValues_By_Predefined_Filter() {
+		service.retrieveCodeValues(100, "ENG", "extra1", null, false, null, "en", null);
+		verify(codelistService, times(1)).filterCodeValues(100, false, "extra1", "ENG");
+	}
+
+	@Test
+	public void should_Filter_CodeValues_By_Custom_Filter() {
+		service.retrieveCodeValues(100, null, null, Arrays.asList("ENG"), false, null, "en", null);
+		verify(codelistService, times(1)).filterCodeValues(100, false, Arrays.asList("ENG"));
 	}
 
 	private static CodeValue createCodevalue(int codelist, String key, String language, String label) {

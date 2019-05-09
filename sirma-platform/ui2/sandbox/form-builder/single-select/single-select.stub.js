@@ -11,7 +11,7 @@ import template from 'form-widget-template!text';
   }
 })
 @View({
-  template: template
+  template
 })
 export class FormWidget extends FormWidgetStub {
 
@@ -22,45 +22,33 @@ export class FormWidget extends FormWidgetStub {
       definitionId: 'ET123121',
       'validationModel': new InstanceModel({
         'singleSelectEdit': {
-          'dataType': 'text',
           'value': 'CH210001',
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': 'CH210001',
           'messages': []
         },
         'singleSelectPreview': {
-          'dataType': 'text',
           'value': 'CH210001',
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': 'CH210001',
           'messages': []
         },
         'singleSelectDisabled': {
-          'dataType': 'text',
           'value': 'CH210001',
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': 'CH210001',
           'messages': []
         },
         'singleSelectHidden': {
-          'dataType': 'text',
           'value': 'CH210001',
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': 'CH210001',
           'messages': []
         },
         'singleSelectSystem': {
-          'dataType': 'text',
           'value': 'CH210001',
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': 'CH210001',
           'messages': []
         },
         'editableField1': {
-          'dataType': 'text',
           'value': 'CH210001',
           'valueLabel': 'Препоръки за внедряване',
-          'defaultValue': 'CH210001',
           'messages': []
         }
       }),
@@ -70,33 +58,25 @@ export class FormWidget extends FormWidgetStub {
             'identifier': 'selectSingleFields',
             'label': 'Select single fields',
             'displayType': 'EDITABLE',
-            'fields': [{
-              'previewEmpty': true,
-              'identifier': 'singleSelectEdit',
-              'disabled': false,
-              'displayType': 'EDITABLE',
-              'codelist': 210,
-              'tooltip': 'Test tooltip',
-              'validators': [
-                {
-                  id: 'regex',
-                  context: {
-                    pattern: '[\\s\\S]{1,50}'
-                  },
-                  message: 'Invalid value',
-                  level: 'error'
-                },
-                {
-                  id: 'mandatory',
-                  message: 'The field is mandatory',
-                  level: 'error'
-                }
-              ],
-              'dataType': 'text',
-              'label': 'Editable single select',
-              'isMandatory': true,
-              'maxLength': 50
-            },
+            'fields': [
+              {
+                'previewEmpty': true,
+                'identifier': 'singleSelectEdit',
+                'disabled': false,
+                'displayType': 'EDITABLE',
+                'codelist': 210,
+                'tooltip': 'Test tooltip',
+                'dataType': 'ANY',
+                'label': 'Editable single select',
+                'isMandatory': true,
+                'validators': [
+                  {
+                    id: 'mandatory',
+                    message: 'The field is mandatory',
+                    level: 'error'
+                  }
+                ]
+              },
               {
                 'previewEmpty': true,
                 'identifier': 'singleSelectPreview',
@@ -104,20 +84,10 @@ export class FormWidget extends FormWidgetStub {
                 'displayType': 'READ_ONLY',
                 'codelist': 210,
                 'tooltip': 'Test tooltip',
-                'validators': [
-                  {
-                    id: 'regex',
-                    context: {
-                      pattern: '[\\s\\S]{1,50}'
-                    },
-                    message: 'Invalid value',
-                    level: 'error'
-                  }
-                ],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'Preview single select',
                 'isMandatory': false,
-                'maxLength': 50
+                'validators': []
               },
               {
                 'previewEmpty': true,
@@ -126,20 +96,10 @@ export class FormWidget extends FormWidgetStub {
                 'displayType': 'EDITABLE',
                 'codelist': 210,
                 'tooltip': 'Test tooltip',
-                'validators': [
-                  {
-                    id: 'regex',
-                    context: {
-                      pattern: '[\\s\\S]{1,50}'
-                    },
-                    message: 'Invalid value',
-                    level: 'error'
-                  }
-                ],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'Disabled single select',
                 'isMandatory': false,
-                'maxLength': 50
+                'validators': [],
               },
               {
                 'previewEmpty': true,
@@ -147,20 +107,10 @@ export class FormWidget extends FormWidgetStub {
                 'disabled': false,
                 'displayType': 'HIDDEN',
                 'codelist': 210,
-                'validators': [
-                  {
-                    id: 'regex',
-                    context: {
-                      pattern: '[\\s\\S]{1,50}'
-                    },
-                    message: 'Invalid value',
-                    level: 'error'
-                  }
-                ],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'Hidden single select',
                 'isMandatory': false,
-                'maxLength': 50
+                'validators': []
               },
               {
                 'previewEmpty': true,
@@ -168,20 +118,10 @@ export class FormWidget extends FormWidgetStub {
                 'disabled': false,
                 'displayType': 'SYSTEM',
                 'codelist': 210,
-                'validators': [
-                  {
-                    id: 'regex',
-                    context: {
-                      pattern: '[\\s\\S]{1,50}'
-                    },
-                    message: 'Invalid value',
-                    level: 'error'
-                  }
-                ],
-                'dataType': 'text',
+                'dataType': 'ANY',
                 'label': 'System single select',
                 'isMandatory': false,
-                'maxLength': 50
+                'validators': []
               }
             ]
           },
@@ -196,25 +136,16 @@ export class FormWidget extends FormWidgetStub {
                 'disabled': false,
                 'displayType': 'EDITABLE',
                 'codelist': 210,
+                'dataType': 'ANY',
+                'label': 'Editable field 1',
+                'isMandatory': true,
                 'validators': [
-                  {
-                    id: 'regex',
-                    context: {
-                      pattern: '[\\s\\S]{1,50}'
-                    },
-                    message: 'Invalid value',
-                    level: 'error'
-                  },
                   {
                     id: 'mandatory',
                     message: 'The field is mandatory',
                     level: 'error'
                   }
-                ],
-                'dataType': 'text',
-                'label': 'Editable field 1',
-                'isMandatory': true,
-                'maxLength': 50
+                ]
               }
             ]
           },
@@ -229,25 +160,16 @@ export class FormWidget extends FormWidgetStub {
                 'disabled': false,
                 'displayType': 'EDITABLE',
                 'codelist': 210,
+                'dataType': 'ANY',
+                'label': 'Editable field 1',
+                'isMandatory': true,
                 'validators': [
-                  {
-                    id: 'regex',
-                    context: {
-                      pattern: '[\\s\\S]{1,50}'
-                    },
-                    message: 'Invalid value',
-                    level: 'error'
-                  },
                   {
                     id: 'mandatory',
                     message: 'The field is mandatory',
                     level: 'error'
                   }
-                ],
-                'dataType': 'text',
-                'label': 'Editable field 1',
-                'isMandatory': true,
-                'maxLength': 50
+                ]
               }
             ]
           }

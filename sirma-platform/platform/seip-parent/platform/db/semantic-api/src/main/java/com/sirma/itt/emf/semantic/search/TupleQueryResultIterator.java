@@ -1,9 +1,5 @@
-/**
- *
- */
 package com.sirma.itt.emf.semantic.search;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -14,13 +10,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.concurrent.collections.FixedBatchSpliteratorBase;
-import com.sirma.itt.seip.exception.EmfRuntimeException;
 
 /**
  * Acts as a proxy for the {@link TupleQueryResult} that implements a {@link Spliterator} of fixed batch size
@@ -32,9 +24,9 @@ public class TupleQueryResultIterator extends FixedBatchSpliteratorBase<BindingS
 		implements Iterator<BindingSet>, TupleQueryResult, Iterable<BindingSet>, AutoCloseable {
 
 	private static final int CHARACTERISTICS = Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE;
-	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final TupleQueryResult source;
 	private int count;
+	private Boolean hasNext;
 	
 	/**
 	 * Instantiates a new tuple query result iterator.
@@ -61,21 +53,20 @@ public class TupleQueryResultIterator extends FixedBatchSpliteratorBase<BindingS
 
 	@Override
 	public boolean hasNext() {
-		try {
-			return source.hasNext();
-		} catch (QueryEvaluationException e) {
-			LOGGER.warn("", e);
-			return false;
-		}
+		hasNext = source.hasNext();
+		return hasNext;
+		// THIS SHOULD NOT CATCH ANY EXCEPTION
+		// Catching exception here may causes partial data received from the repository
 	}
 
 	@Override
 	public BindingSet next() {
-		try {
+		if (hasNext == null) {
+			hasNext = hasNext();
+		}
+		if (hasNext) {
 			count++;
 			return source.next();
-		} catch (QueryEvaluationException e) {
-			LOGGER.warn("", e);
 		}
 		throw new NoSuchElementException("No more results in the TupleQueryResult");
 	}
@@ -93,24 +84,16 @@ public class TupleQueryResultIterator extends FixedBatchSpliteratorBase<BindingS
 
 	@Override
 	public void close() {
-		try {
-			source.close();
-		} catch (QueryEvaluationException e) {
-			throw new EmfRuntimeException(e);
-		}
+		source.close();
 	}
 
 	@Override
 	public void remove() {
-		try {
-			source.remove();
-		} catch (QueryEvaluationException e) {
-			LOGGER.warn("", e);
-		}
+		source.remove();
 	}
 
 	@Override
-	public List<String> getBindingNames() throws QueryEvaluationException {
+	public List<String> getBindingNames() {
 		return source.getBindingNames();
 	}
 

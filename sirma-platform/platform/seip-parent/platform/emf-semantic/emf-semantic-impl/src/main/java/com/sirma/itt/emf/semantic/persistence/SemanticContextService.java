@@ -57,8 +57,9 @@ import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.context.InstanceContextService;
 import com.sirma.itt.seip.instance.version.InstanceVersionService;
+import com.sirma.itt.seip.monitor.Metric;
+import com.sirma.itt.seip.monitor.Metric.Builder;
 import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.itt.seip.util.EqualsHelper;
 import com.sirma.itt.semantic.NamespaceRegistryService;
 import com.sirma.itt.semantic.ReadOnly;
@@ -81,6 +82,11 @@ public class SemanticContextService implements InstanceContextService {
 	@CacheConfiguration(eviction = @Eviction(strategy = "LRU"), expiration = @Expiration(maxIdle = 600000, interval = 60000, lifespan = 600000), transaction = @Transaction(mode = CacheTransactionMode.NON_XA), doc = @Documentation(""
 			+ "Contains retrieved contexts keyed by instance id. Size of cache should be about the count of instances in the tenant."))
 	private static final String INSTANCE_CONTEXT_STORE_CACHE = "INSTANCE_CONTEXT_STORE_CACHE";
+
+	private static final Metric SEMANTIC_RESOLVE_HIERARCHY_DURATION_SEC = Builder
+			.timer("semantic_resolve_hierarchy_duration_seconds",
+					"Semantic hierarchy resolution duration in seconds.")
+			.build();
 
 	@Inject
 	@ReadOnly
@@ -177,15 +183,17 @@ public class SemanticContextService implements InstanceContextService {
 
 	@SuppressWarnings("boxing")
 	private Map<Value, Set<Value>> getHierarchy(String startInstanceId) {
+		try {
+			statistics.track(SEMANTIC_RESOLVE_HIERARCHY_DURATION_SEC);
 
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "resolveHierarchy").begin();
-		IRI initial = namespaceRegistryService.buildUri(startInstanceId);
-		TupleQuery tupleQuery = SPARQLQueryHelper.prepareTupleQuery(repositoryConnection,
-				SemanticQueries.QUERY_INSTANCE_HIERARCHY.getQuery(), Collections.singletonMap("initial", initial),
-				true);
-		Map<Value, Set<Value>> hierarchyMapping = executeHierarchyQuery(tupleQuery);
-		LOGGER.trace("Hierarchy resolution for instance {} took {} ms", startInstanceId, tracker.stop());
-		return hierarchyMapping;
+			IRI initial = namespaceRegistryService.buildUri(startInstanceId);
+			TupleQuery tupleQuery = SPARQLQueryHelper.prepareTupleQuery(repositoryConnection,
+					SemanticQueries.QUERY_INSTANCE_HIERARCHY.getQuery(), Collections.singletonMap("initial", initial),
+					true);
+			return executeHierarchyQuery(tupleQuery);
+		} finally {
+			statistics.end(SEMANTIC_RESOLVE_HIERARCHY_DURATION_SEC);
+		}
 	}
 
 	private static Map<Value, Set<Value>> executeHierarchyQuery(TupleQuery tupleQuery) {
@@ -286,9 +294,10 @@ public class SemanticContextService implements InstanceContextService {
 	}
 
 	private String getContextInternal(ContextCacheKey cacheKey) {
-		if (!cacheKey.isValid()) {
+		if (!cacheKey.isValid() || InstanceVersionService.isVersion(cacheKey.getId())) {
 			return null;
 		}
+
 		Pair<Serializable, String> retrieved = retrieveAndValidateContext(cacheKey);
 		String contextId = retrieved.getSecond();
 		LOGGER.trace("Context of {} = {}", cacheKey.getId(), contextId);

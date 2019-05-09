@@ -16,7 +16,6 @@ import com.sirma.itt.seip.domain.codelist.CodelistService;
 import com.sirma.itt.seip.domain.search.tree.Condition;
 import com.sirma.itt.seip.domain.util.DateConverter;
 import com.sirma.itt.seip.domain.util.DateConverterImpl;
-import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.permissions.action.AuthorityService;
 import com.sirma.itt.seip.resources.EmfUser;
 import com.sirma.itt.seip.resources.User;
@@ -48,7 +47,6 @@ public class SemanticSearchEngineMock extends SemanticSearchEngine {
 		ReflectionUtils.setFieldValue(this, "definitionService", new DefinitionServiceMock());
 		ReflectionUtils.setFieldValue(this, "configurations", new SemanticSearchConfigurationsMock());
 		ReflectionUtils.setFieldValue(this, "semanticConfiguration", new SemanticConfigurationMock());
-		ReflectionUtils.setFieldValue(this, "statistics", new NoOpStatistics());
 
 		FTSQueryParser parser = Mockito.mock(FTSQueryParser.class);
 		Mockito.when(parser.prepare(Matchers.anyString())).then(
@@ -82,7 +80,7 @@ public class SemanticSearchEngineMock extends SemanticSearchEngine {
 		SecurityContextManager securityContextManager = new SecurityContextManagerMock();
 		ReflectionUtils.setFieldValue(this, "securityContextManager", securityContextManager);
 		ReflectionUtils.setFieldValue(this, "semanticDefinitionService", context.get("semanticDefinitionService"));
-		
+
 		CodelistService codelistService = Mockito.mock(CodelistService.class);
 		ReflectionUtils.setFieldValue(this, "codelistService", codelistService);
 

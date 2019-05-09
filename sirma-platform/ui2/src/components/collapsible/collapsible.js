@@ -1,5 +1,5 @@
 import {View, Component, Inject, NgElement, NgScope} from 'app/app';
-import {ToTrustedHtml} from 'filters/to-trusted-html';
+import 'filters/to-trusted-html';
 import 'components/collapsible/collapsible.css!';
 import 'font-awesome/css/font-awesome.css!';
 
@@ -23,7 +23,7 @@ export class Collapsible {
   constructor($scope, $element, $timeout) {
     this.$element = $element;
     if (!this.target) {
-      throw new TypeError("Must provide target property.");
+      throw new TypeError('Must provide target property.');
     } else {
       // added timeout because if collapsible and its target are resolved by the same directive the watcher doesn't trigger until next digest
       $timeout(()=> {

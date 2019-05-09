@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition id="genericProject" parentId="entity" isAbstract="true" type="project">
+    <fields>
+        <field name="state" codelist="CL27"/>
+        <!--
+            TEST: tooltip_header & breadcrumb_header should be restored
+        -->
+        <!--<field name="tooltip_header" type="ANY" label="PROJECT_TOOLTIP_HEADER" displayType="system"/>-->
+        <!--<field name="breadcrumb_header" type="an..4096" label="PROJECT_BREADCRUMB_HEADER" displayType="system"/>-->
+
+        <field name="default_header" type="any" label="PROJECT_DEFAULT_HEADER" displayType="system"/>
+        <field name="compact_header" type="any" label="PROJECT_COMPACT_HEADER" displayType="system"/>
+
+        <!-- SYSTEM FIELDS -->
+        <field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+            <value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project</value>
+        </field>
+        <field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId"/>
+        <field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix"/>
+
+        <!-- GENERAL DATA FIELDS FOR PROJECT -->
+        <field name="type" type="an..180" codelist="CL2"/>
+        <field name="status" codelist="CL1">
+            <condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+        </field>
+        <field name="identifier" type="an..50" label="uniqueIdentifier.label" displayType="readonly"
+               rnc="${eval(${today.format(dd_MM_yyyy)}_${seq({+projectSequence})})}" uri="dcterms:identifier">
+            <condition id="hiddenFieldId" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
+        </field>
+        <field name="description" type="an..1024" label="description.label" displayType="editable" previewEmpty="false"
+               uri="dcterms:description"/>
+        <field name="priority" type="an..20" codelist="CL29" label="priority.label" displayType="editable" previewEmpty="false"
+               uri="emf:priority"/>
+        <field name="plannedStartDate" type="date" label="plannedStartDate.label" displayType="editable" previewEmpty="false"
+               uri="emf:plannedStartDate"/>
+        <field name="plannedEndDate" type="date" label="plannedEndDate.label" displayType="editable" previewEmpty="false"
+               uri="emf:plannedEndDate"/>
+        <field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readonly" previewEmpty="false"
+               uri="emf:outcome"/>
+        <field name="integrated" type="boolean" label="integrated.label" displayType="readonly" uri="emf:integrated">
+            <value>false</value>
+        </field>
+        <field name="uri" type="an..50" label="uri.label" displayType="readonly" tooltip="uri.tooltip" uri="emf:uri"/>
+        <field name="emailAddress" type="an..255" label="email.integration.emailAddress" displayType="readonly"
+               rnc="${eval(${CL([type])}-${get([identifier])})}" uri="emf:mailboxAddress">
+            <control id="EMAIL"/>
+        </field>
+        <field name="completedOn" type="datetime" label="completedOn.label" displayType="readonly" previewEmpty="false"
+               uri="emf:completedOn"/>
+        <!-- project fields -->
+        <field name="actualStartDate" type="date" label="actualStartDate.label" displayType="editable" previewEmpty="false"
+               uri="emf:actualStartDate"/>
+        <field name="actualEndDate" type="date" label="actualEndDate.label" displayType="editable" previewEmpty="false"
+               uri="emf:actualEndDate"/>
+        <field name="estimatedEffortHours" type="n..10" label="estimatedEffortHours.label" displayType="editable" previewEmpty="false"
+               uri="emf:estimatedEffort"/>
+        <field name="actualEffortHours" type="n..10" label="actualEffortHours.label" displayType="editable" previewEmpty="false"
+               uri="emf:actualEffort">
+            <control id="DEFAULT_VALUE_PATTERN">
+                <control-param type="default_value_pattern" id="template" name="template">$[emf:dependsOn.actualEffortHours]</control-param>
+            </control>
+        </field>
+        <field name="accumulatedEstimatedEffortHours" type="n..10" label="accumulatedEstimatedEffortHours.label" displayType="editable"
+               previewEmpty="false" uri="emf:accumulatedEstimatedEffort"/>
+        <field name="accumulatedActualEffortHours" type="n..10" label="accumulatedActualEffortHours.label" displayType="editable"
+               previewEmpty="false" uri="emf:accumulatedActualEffort">
+               <control id="RICHTEXT" />
+        </field>
+        <field name="duration" type="n..10" label="duration.label" displayType="editable" previewEmpty="false" uri="emf:duration">
+            <control id="DEFAULT_VALUE_PATTERN">
+                <control-param type="default_value_pattern" id="template" name="template">$[emf:dependsOn.duration]</control-param>
+            </control>
+        </field>
+
+        <!-- project fields -->
+        <field name="ownedBy" type="uri" label="ownedBy" displayType="editable" previewEmpty="false" uri="emf:ownedBy">
+            <control id="PICKER">
+                <control-param id="range" name="range" type="picker">emf:User</control-param>
+                <control-param id="restrictions" name="restrictions" type="picker">
+                    {"field":"emf:status", "operator":"in", "type": "codeList", "value": ["ACTIVE"]}
+                </control-param>
+            </control>
+        </field>
+    </fields>
+
+    <transitions>
+        <transition id="start" label="start.label" eventId="start" purpose="transition" immediate="true"
+                    tooltip="start.tooltip"/> <!--immediate="false"-->
+        <transition id="approve" label="approve.label" eventId="approve" purpose="transition" immediate="true"
+                    tooltip="approve.tooltip"/> <!--immediate="false"-->
+        <transition id="stop" label="stop.label" eventId="stop" purpose="transition" immediate="true"
+                    tooltip="stop.tooltip"/> <!--immediate="false"-->
+        <transition id="suspend" label="suspend.label" eventId="suspend" purpose="transition" immediate="true" tooltip="suspend.tooltip"/>
+        <transition id="restart" label="restart.label" eventId="restart" purpose="transition" immediate="true" tooltip="restart.tooltip"/>
+        <transition id="complete" label="complete.label" eventId="complete" purpose="transition" immediate="true"
+                    tooltip="complete.tooltip"/> <!--immediate="false"-->
+        <transition id="composeEmail" label="composeEmail.label" eventId="composeEmail" purpose="composeEmail"/>
+    </transitions>
+
+    <stateTransitions>
+        <stateTransition from="INIT" transition="create" to="SUBMITTED"/>
+        <stateTransition from="INIT" transition="clone" to="SUBMITTED"/>
+
+        <stateTransition from="SUBMITTED" transition="editDetails" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="start" to="IN_PROGRESS"/>
+        <stateTransition from="SUBMITTED" transition="approve" to="APPROVED"/>
+        <stateTransition from="SUBMITTED" transition="delete" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="move" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="lock" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="unlock" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="managePermissions" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="addThumbnail" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="saveAsTemplate" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="print" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="printTab" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportTabPDF" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportPDF" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportWord" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="exportTabWord" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="clone" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="createInContext" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="revertVersion" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="changeTemplate" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="updateTemplate" to="SUBMITTED"/>
+        <stateTransition from="SUBMITTED" transition="addWatchers" to="SUBMITTED"/>
+
+        <stateTransition from="APPROVED" transition="editDetails" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="start" to="IN_PROGRESS"/>
+        <stateTransition from="APPROVED" transition="stop" to="STOPPED"/>
+        <stateTransition from="APPROVED" transition="move" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="lock" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="unlock" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="managePermissions" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addThumbnail" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="saveAsTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="print" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="printTab" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportPDF" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="exportTabWord" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="clone" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="createInContext" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="revertVersion" to="SUBMITTED"/>
+        <stateTransition from="APPROVED" transition="changeTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="updateTemplate" to="APPROVED"/>
+        <stateTransition from="APPROVED" transition="addWatchers" to="APPROVED"/>
+
+        <stateTransition from="IN_PROGRESS" transition="editDetails" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="suspend" to="ON_HOLD"/>
+        <stateTransition from="IN_PROGRESS" transition="stop" to="STOPPED"/>
+        <stateTransition from="IN_PROGRESS" transition="complete" to="COMPLETED"/>
+        <stateTransition from="IN_PROGRESS" transition="move" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="lock" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="unlock" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="managePermissions" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addThumbnail" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="saveAsTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="print" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="printTab" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportTabPDF" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportPDF" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportWord" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="exportTabWord" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="clone" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="createInContext" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="revertVersion" to="SUBMITTED"/>
+        <stateTransition from="IN_PROGRESS" transition="changeTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="updateTemplate" to="IN_PROGRESS"/>
+        <stateTransition from="IN_PROGRESS" transition="addWatchers" to="IN_PROGRESS"/>
+
+        <stateTransition from="ON_HOLD" transition="restart" to="IN_PROGRESS"/>
+        <stateTransition from="ON_HOLD" transition="editDetails" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="stop" to="STOPPED"/>
+        <stateTransition from="ON_HOLD" transition="move" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="lock" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="unlock" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="managePermissions" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addThumbnail" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="saveAsTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="print" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="printTab" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportTabPDF" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportPDF" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportWord" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="exportTabWord" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="clone" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="changeTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="updateTemplate" to="ON_HOLD"/>
+        <stateTransition from="ON_HOLD" transition="addWatchers" to="ON_HOLD"/>
+
+        <stateTransition from="STOPPED" transition="managePermissions" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="print" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="printTab" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportTabPDF" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportPDF" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportWord" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="exportTabWord" to="STOPPED"/>
+        <stateTransition from="STOPPED" transition="clone" to="STOPPED"/>
+
+        <stateTransition from="COMPLETED" transition="managePermissions" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="print" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="printTab" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportTabPDF" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportPDF" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportWord" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="exportTabWord" to="COMPLETED"/>
+        <stateTransition from="COMPLETED" transition="clone" to="COMPLETED"/>
+    </stateTransitions>
+
+    <labels>
+        <!--
+            TEST: PROJECT_DEFAULT_HEADER & PROJECT_DEFAULT_HEADER should be missing cause they are restored
+        -->
+        <label id="PROJECT_DEFAULT_HEADER">
+            <value lang="en"><![CDATA[default header in English]]></value>
+            <value lang="de"><![CDATA[default header in German]]></value>
+            <value lang="bg"><![CDATA[дефолтен хедър на Български]]></value>
+        </label>
+        <label id="PROJECT_COMPACT_HEADER">
+            <value lang="en"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span> )}
+						${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+						(<span data-property="status">${CL([status])}</span>)&nbsp;
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+				</a>
+			</span>
+			)}]]></value>
+            <value lang="de"><![CDATA[${eval(
+			${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span> )}
+						${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+						(<span data-property="status">${CL([status])}</span>)&nbsp;
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+				</a>
+			</span>
+			)}]]></value>
+            <value lang="bg"><![CDATA[${eval(
+            ${var.href= ${if(${get([emf:isDeleted])} == false).then(href="${link(currentInstance)}")} }
+			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
+			${var.isEmpty=${if((${get([identifier])}).matches(null)).then(true).else(false)}}
+			<span ><img src="${thumbnailUri(16)}"/></span>
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			<span class="truncate-element">
+				<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href} uid="${id.uid}">
+						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span> )}
+						${if(${var.isEmpty}).then().else(<span data-property="identifier">${get([identifier])}</span>&nbsp;)}
+						(<span data-property="type">${CL([type])}</span>)&nbsp;
+						<span data-property="title">${get([title])}</span>&nbsp;
+						(<span data-property="status">${CL([status])}</span>)&nbsp;
+						${if(${var.isVersion}).then(
+							<span data-property="emf:version">${get([emf:version])}</span>
+						)}
+				</a>
+			</span>
+			)}]]></value>
+        </label>
+    </labels>
+</definition>

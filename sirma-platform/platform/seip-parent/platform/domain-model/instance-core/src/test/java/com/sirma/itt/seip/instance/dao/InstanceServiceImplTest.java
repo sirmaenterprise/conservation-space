@@ -1,20 +1,18 @@
 package com.sirma.itt.seip.instance.dao;
 
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.NAME;
+import static com.sirma.itt.seip.domain.instance.DefaultProperties.SEMANTIC_TYPE;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.TITLE;
 import static com.sirma.itt.seip.domain.instance.DefaultProperties.TYPE;
 import static com.sirma.itt.seip.domain.security.ActionTypeConstants.APPROVE;
 import static com.sirma.itt.seip.domain.security.ActionTypeConstants.CREATE;
 import static com.sirma.itt.seip.domain.security.ActionTypeConstants.DELETE;
 import static com.sirma.itt.seip.domain.security.ActionTypeConstants.EDIT_DETAILS;
-import static com.sirma.itt.seip.testutil.CustomMatcher.of;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,14 +42,12 @@ import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
+import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.instance.archive.ArchiveService;
 import com.sirma.itt.seip.instance.event.EmptyInstanceEventProvider;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.instance.state.StateService;
-import com.sirma.itt.seip.instance.validation.ValidationContext;
-import com.sirma.itt.seip.instance.validation.Validator;
-import com.sirma.itt.seip.testutil.CustomMatcher;
 import com.sirma.itt.seip.testutil.mocks.DataTypeDefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceContextServiceMock;
@@ -70,9 +66,6 @@ public class InstanceServiceImplTest {
 
 	@Mock
 	private InstanceLoadDecorator instanceLoadDecorator;
-
-	@Mock
-	private Validator validatorService;
 
 	@Mock
 	private ServiceRegistry serviceRegistry;
@@ -114,7 +107,6 @@ public class InstanceServiceImplTest {
 
 		service.save(instance, operation);
 
-		verify(validatorService).validate(argThat(validationContextMatcher(instance, operation)));
 		verify(eventService, times(3)).fire(any());
 		verify(eventService, times(1)).fireNextPhase(any());
 		verify(stateService).changeState(instance, operation);
@@ -129,7 +121,6 @@ public class InstanceServiceImplTest {
 
 		verify(eventService, times(3)).fire(any());
 		verify(eventService, times(1)).fireNextPhase(any());
-		verify(validatorService).validate(argThat(validationContextMatcher(instance, operation)));
 	}
 
 	@Test
@@ -139,16 +130,8 @@ public class InstanceServiceImplTest {
 
 		service.save(instance, operation);
 
-		verify(validatorService).validate(argThat(validationContextMatcher(instance, operation)));
 		verify(eventService, times(3)).fire(any());
 		verify(eventService, times(1)).fireNextPhase(any());
-	}
-
-	private static CustomMatcher<ValidationContext> validationContextMatcher(Instance instance, Operation operation) {
-		return of((ValidationContext context) -> {
-			assertSame(instance, context.getInstance());
-			assertSame(operation, context.getOperation());
-		});
 	}
 
 	@Test
@@ -205,17 +188,20 @@ public class InstanceServiceImplTest {
 		definition.setFields(Arrays.asList(buildUriField(NAME), buildUriField(TYPE)));
 		when(definitionService.getInstanceDefinition(any(Instance.class))).thenReturn(definition);
 		when(instanceDao.createInstance(any(DefinitionModel.class), eq(true))).thenReturn(new EmfInstance());
-		when(semanticDefinitionService.getRelationsMap()).thenReturn(new HashMap<>(0));
+		when(semanticDefinitionService.getRelationsMap())
+				.thenReturn(Collections.singletonMap(SEMANTIC_TYPE, new PropertyInstance()));
 
 		Instance instanceToClone = new EmfInstance();
 		instanceToClone.add(TYPE, "instance-type");
 		instanceToClone.add(NAME, "Darkness");
 		instanceToClone.add(TITLE, "Bane");
+		instanceToClone.add(SEMANTIC_TYPE, "Evil");
 		Operation operation = new Operation();
 		Instance clone = service.clone(instanceToClone, operation);
 
-		assertEquals(1, clone.getProperties().size());
+		assertEquals(2, clone.getProperties().size());
 		assertEquals("Bane", clone.getString(TITLE));
+		assertEquals("Evil", clone.getString(SEMANTIC_TYPE));
 		verify(stateService, times(2)).changeState(instanceToClone, operation);
 	}
 

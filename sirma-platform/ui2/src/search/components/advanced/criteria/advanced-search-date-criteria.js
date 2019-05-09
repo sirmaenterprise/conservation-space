@@ -29,9 +29,7 @@ import template from './advanced-search-date-criteria.html!text';
     'criteria': 'criteria'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, NgElement, Configuration)
 export class AdvancedSearchDateCriteria extends Configurable {
 
@@ -129,8 +127,8 @@ export class AdvancedSearchDateCriteria extends Configurable {
       listeners: {
         'dp.change': [onChange]
       },
-      placeholder: placeholder,
-      defaultValue: defaultValue
+      placeholder,
+      defaultValue
     };
   }
 

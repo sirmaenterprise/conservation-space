@@ -36,35 +36,53 @@ describe('InstanceHeader', function () {
     expect(header.getCountry()).to.eventually.equal('Австралия');
   });
 
-  it.skip('should apply object property changes in header', function () {
+  it('should apply object property changes in header', function () {
     // Given I have instance with header where references object property is bound.
     // And There are 6 instances referenced.
     // And The initial objects count configuration is set to 3.
     // When I open the instance.
     let header = instanceHeaderPage.getIconHeader();
     let headerReferencesField = header.getReferences();
+
     // Then I expect in the header, references field to be visible.
     // And There are should be 3 visible and 3 hidden selected items.
     expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(3);
     expect(headerReferencesField.getHiddenObjectsCount()).to.eventually.equal('2');
+
     // When I remove 1 item from the references object property.
     let referencesField = instanceHeaderPage.getReferencesField();
-    referencesField.removeInstance(0);
+    referencesField.removeFromSelectionByIndex(0);
+
     // Then I expect items in bound references field to become 5: 3 visible and 2 hidden.
     expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(3);
     expect(headerReferencesField.getHiddenObjectsCount()).to.eventually.equal('1');
+
     // When I select 2 more items in references object property.
-    toggleObjectSelection(referencesField, [0, 5]);
+    toggleObjectSelection(referencesField, [2, 5]);
+
     // Then I expect items in bound references field to become 6: 3 visible and 6 hidden.
     expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(3);
     expect(headerReferencesField.getHiddenObjectsCount()).to.eventually.equal('3');
+
     // When I remove all selected items from the references object property.
-    referencesField.removeInstance(0);
-    referencesField.removeInstance(0);
-    referencesField.removeInstance(0);
-    referencesField.removeInstance(0);
-    referencesField.removeInstance(0);
-    referencesField.removeInstance(0);
+    referencesField.removeFromSelectionByIndex(0);
+    expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(3);
+    expect(headerReferencesField.getHiddenObjectsCount()).to.eventually.equal('2');
+
+    referencesField.removeFromSelectionByIndex(0);
+    expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(3);
+    expect(headerReferencesField.getHiddenObjectsCount()).to.eventually.equal('1');
+
+    referencesField.removeFromSelectionByIndex(0);
+    expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(3);
+
+    referencesField.removeFromSelectionByIndex(0);
+    expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(2);
+
+    referencesField.removeFromSelectionByIndex(0);
+    expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(1);
+
+    referencesField.removeFromSelectionByIndex(0);
     // Then I expect references field in the header to become empty.
     expect(headerReferencesField.getSelectedObjectsCount()).to.eventually.equal(0);
   });

@@ -6,13 +6,50 @@
 
 // preprocess the scss files first in order to be used by the js later
 
+const gutil = require('gulp-util');
+
 module.exports = function (config) {
+  let buildPath = 'build';
+  let preprocessors = {
+    'test/**/*.html': ['html2js']
+  };
+  let reporters = ['mocha'];
+  let coverageReporter = null;
+
+  if (gutil.env.coverage) {
+    buildPath = 'build-instrumented';
+
+    preprocessors[buildPath] = ['sourcemap', 'coverage'];
+    reporters.push('coverage');
+    coverageReporter = {
+      instrumenterOptions: {
+        istanbul: {noCompact: true}
+      },
+      reporters: [{
+        type: 'json',
+        dir: 'reports',
+        subdir: 'unit-coverage'
+      }, {
+        type: 'lcov',
+        dir: 'reports',
+        subdir: 'unit-coverage'
+      }]
+    };
+  }
+
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
-    browserNoActivityTimeout: 100000,
+    // The maximum boot-up time allowed for a browser to start and connect to Karma; Default is 60000
+    captureTimeout: 120000,
+    // How long does Karma wait for a browser to reconnect; Default is 2000
+    browserDisconnectTimeout: 10000,
+    // The maximum number of tries a browser will attempt in the case of a disconnection; Default is 0
+    browserDisconnectTolerance: 1,
+    // How long will Karma wait for a message from a browser before disconnecting from; Default is 10000
+    browserNoActivityTimeout: 180000,
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -24,9 +61,9 @@ module.exports = function (config) {
     frameworks: ['jspm', 'mocha', 'chai-as-promised', 'sinon-chai', 'fixture'],
 
     customLaunchers: {
-      Chrome_without_sandbox: {
-        base: 'Chrome',
-        flags: ['--no-sandbox', '--headless'] // with sandbox it fails under Docker
+      ChromeDocker: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox'] // with sandbox it fails under Docker
       }
     },
 
@@ -34,7 +71,7 @@ module.exports = function (config) {
     jspm: {
       config: 'config.js',
       loadFiles: ['test/**/*.js', 'test/**/*.html', 'test/dummy.css'],
-      serveFiles: ['src/**/*'],
+      serveFiles: [`${buildPath}/**/*`],
       paths: {
         '*.css': '/base/test/dummy.css',
         'promise-stub': '/base/test/promise-stub.js',
@@ -45,7 +82,7 @@ module.exports = function (config) {
     proxies: {
       '/jspm_packages': '/base/jspm_packages',
       '/base/test': '/base/test',
-      '/base': '/base/src',
+      '/base': `/base/${buildPath}`,
       '/base/app/': '/base/test/app/'
     },
 
@@ -53,57 +90,33 @@ module.exports = function (config) {
     exclude: [],
 
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      // (these files will be instrumented by Istanbul)
-      'src/!(common)/**/*.js': ['babel'],
-      'src/common/!(lib)/*.js': ['babel'],
-      'src/common/*.js': ['babel'],
-      'test/**/*.html': ['html2js']
-    },
-    babelPreprocessor: {
-      options: {
-        sourceMap: 'inline',
-        blacklist: ['useStrict'],
-        modules: 'system',
-        moduleIds: false,
-        comments: true,
-        compact: false,
-        externalHelpers: true,
-        loose: 'all',
-        optional: [
-          'es7.decorators',
-          'es7.classProperties'
-        ],
-        auxiliaryCommentBefore: 'istanbul ignore next' // not working
-      },
-      sourceFileName: function (file) {
-        return file.originalPath;
-      }
-    },
+    preprocessors: preprocessors,
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['mocha'],
+    reporters: reporters,
     // web server port
-    port: 9876,
+    port: process.env.TESTS_PORT || 9876,
 
     // enable / disable colors in the output (reporters and logs)
-    colors: true,
+    colors: !gutil.env.coverage,
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    autoWatch: !(gutil.env.coverage || gutil.env.once),
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: gutil.env.head ? ['Chrome'] : ['ChromeDocker'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: (gutil.env.coverage || gutil.env.once),
+
+    coverageReporter: coverageReporter
   });
 };

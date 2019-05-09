@@ -4,7 +4,7 @@ import {ExportHandler} from 'idoc/actions/export-handler';
 import {ActionsService} from 'services/rest/actions-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {NotificationService} from 'services/notification/notification-service';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 

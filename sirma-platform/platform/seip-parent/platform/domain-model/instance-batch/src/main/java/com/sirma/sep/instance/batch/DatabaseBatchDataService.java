@@ -3,6 +3,7 @@ package com.sirma.sep.instance.batch;
 import static com.sirma.itt.seip.collections.CollectionUtils.isEmpty;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,18 @@ class DatabaseBatchDataService implements BatchDataService {
 	private BatchProperties batchProperties;
 
 	@Override
+	public int getJobProgress(String jobId) {
+		List<Pair<String, Object>> args = new ArrayList<>(2);
+		args.add(new Pair<>("processed", Boolean.TRUE));
+		args.add(new Pair<>(BatchProperties.JOB_ID, jobId));
+		List<Number> count = dbDao.fetchWithNamed(BatchEntity.QUERY_JOB_INFO_KEY, args);
+		if (count.isEmpty()) {
+			return 0;
+		}
+		return count.get(0).intValue();
+	}
+
+	@Override
 	public void addData(String jobName, String jobId, String data) {
 		dbDao.saveOrUpdate(new BatchEntity(jobName, jobId, data));
 	}
@@ -46,7 +59,7 @@ class DatabaseBatchDataService implements BatchDataService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public void markJobDataAsProcessed(long jobExecutionId, List<String> processedIds) {
 		if (isEmpty(processedIds)) {
 			return;

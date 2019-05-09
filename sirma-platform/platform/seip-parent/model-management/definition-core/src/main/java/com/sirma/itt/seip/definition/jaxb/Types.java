@@ -66,4 +66,7 @@ public class Types {
 		return type;
 	}
 
+	public void setType(List<TypeDefinition> type) {
+		this.type = type;
+	}
 }

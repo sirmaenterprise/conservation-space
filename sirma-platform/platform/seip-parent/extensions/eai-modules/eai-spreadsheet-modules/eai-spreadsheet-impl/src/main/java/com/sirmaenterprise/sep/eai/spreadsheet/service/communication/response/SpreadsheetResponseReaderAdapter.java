@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.Pair;
-import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.concurrent.FragmentedWork;
 import com.sirma.itt.seip.concurrent.TaskExecutor;
 import com.sirma.itt.seip.definition.DefinitionService;
@@ -146,7 +144,7 @@ public class SpreadsheetResponseReaderAdapter implements EAIResponseReaderAdapte
 		Instance context = request.getContext() != null ? request.getContext().toInstance() : null;
 		ModelConfiguration modelConfiguration = getModelConfiguration();
 		int fragments = FragmentedWork.computeBatchForNFragments(entries.size(),
-				eaiConfiguration.getParallelismCount().get().intValue());
+				eaiConfiguration.getParallelismCount().get());
 		EntryBasedValidationReport errorBuilder = new EntryBasedValidationReport();
 		Collection<Future<?>> futures = FragmentedWork.doWorkAndReduce(entries, fragments, data -> taskExecutor.submit(
 				() -> processBatchEntries(data, modelConfiguration, context, existing, parsedInstances, errorBuilder)));
@@ -349,7 +347,7 @@ public class SpreadsheetResponseReaderAdapter implements EAIResponseReaderAdapte
 		try {
 			setRelations(integrated, convertExternaltoSEIPProperties);
 			if (convertExternaltoSEIPProperties != null) {
-				instance.getProperties().putAll(convertExternaltoSEIPProperties);
+				instance.addAllProperties(convertExternaltoSEIPProperties);
 			}
 		} catch (Exception e) {// NOSONAR
 			errorBuilder.separator().append(e.getMessage());
@@ -461,22 +459,18 @@ public class SpreadsheetResponseReaderAdapter implements EAIResponseReaderAdapte
 	private static void mergeData(IntegrationData data, PropertyDefinition propertyDefinition, Serializable value)
 			throws EAIReportableException {
 		mergeData(data.getIntegrated(), getFieldIdByDefinition(propertyDefinition),
-				propertyDefinition.isMultiValued().booleanValue(), value);
+				propertyDefinition.isMultiValued(), value);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static void mergeData(Instance instance, String fieldId, boolean multivalue, Serializable newValue)
 			throws EAIReportableException {
-		Serializable currentValue = instance.get(fieldId);
-
 		if (multivalue) {
 			// override multi value field
-			Collection<Serializable> updated = new LinkedHashSet<>();
-			if (currentValue instanceof Collection) {
-				updated = CollectionUtils.addValue(updated, newValue, true);
-			} else {
-				updated = CollectionUtils.addValue(new LinkedHashSet<>(new ArrayList<>(1)), newValue, true);
-			}
-			instance.add(fieldId, new ArrayList<>(updated));
+			if (newValue instanceof Collection) {
+				instance.appendAll(fieldId, (Collection<? extends Serializable>) newValue);
+			} else
+				instance.append(fieldId, newValue);
 		} else {
 			if (newValue instanceof Collection) {
 				throw new EAIReportableException("Provided multivalue for single property: " + fieldId);

@@ -6,6 +6,7 @@ import {ModelUtils} from 'models/model-utils';
 import {TranslateService} from 'services/i18n/translate-service';
 import {DefinitionService} from 'services/rest/definition-service';
 import {InstanceRestService} from 'services/rest/instance-service';
+import {ActionsService} from 'services/rest/actions-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {InstanceObject} from 'models/instance-object';
 import {ModelsService} from 'services/rest/models-service';
@@ -21,6 +22,8 @@ import 'idoc/template/idoc-template-selector';
 import _ from 'lodash';
 import template from './instance-create-configuration.html!text';
 import './instance-create-configuration.css!';
+
+export const TEMPLATE_LOADED = 'template-loaded';
 
 @Component({
   selector: 'instance-create-configuration',
@@ -40,13 +43,14 @@ import './instance-create-configuration.css!';
  *  The component is configured to listening for {@link CONTEXT_CHANGED_EVENT} when event occurred component will reload
  *  models available for selected context.
  */
-@Inject(DefinitionService, InstanceRestService, PromiseAdapter, TranslateService, ModelsService, NgTimeout, Eventbus, PropertiesRestService)
+@Inject(DefinitionService, InstanceRestService, PromiseAdapter, TranslateService, ModelsService, NgTimeout, Eventbus, PropertiesRestService, ActionsService)
 export class InstanceCreateConfiguration extends Configurable {
 
-  constructor(definitionService, instanceRestService, promiseAdapter, translateService, modelsService, $timeout, eventbus, propertiesService) {
+  constructor(definitionService, instanceRestService, promiseAdapter, translateService, modelsService, $timeout, eventbus, propertiesService, actionsService) {
     super({});
     this.definitionService = definitionService;
     this.instanceRestService = instanceRestService;
+    this.actionsService = actionsService;
     this.promiseAdapter = promiseAdapter;
     this.translateService = translateService;
     this.modelsService = modelsService;
@@ -140,7 +144,7 @@ export class InstanceCreateConfiguration extends Configurable {
   }
 
   onContextSelected(contextId) {
-    return this.modelsService.getModels(this.config.purpose, contextId, this.config.mimetype, this.config.fileExtension, this.config.classFilter, this.config.definitionFilter).then((data) => {
+    return this.modelsService.getModels(this.config.purpose, contextId, this.config.mimetype, this.config.fileExtension, this.config.classFilter, this.config.definitionFilter, this.config.instanceId).then((data) => {
       this.config.eventEmitter.publish(CONTEXT_VALIDATED, data);
       if (data.errorMessage) {
         this.config.eventEmitter.publish(ADD_CONTEXT_ERROR_MESSAGE_COMMAND, data.errorMessage);
@@ -171,7 +175,7 @@ export class InstanceCreateConfiguration extends Configurable {
         width: '100%',
         placeholder: this.translateService.translateInstant('select.newobjecttype.placeholder'),
         data: options,
-        disabled: !!this.config.instanceType
+        disabled: !!this.config.instanceType && !this.config.allowTypeChange
       };
 
       // timeout is added because instance-select recreates the element after the data is loaded so setting default value must be done on the next digest cycle
@@ -229,8 +233,13 @@ export class InstanceCreateConfiguration extends Configurable {
     }
 
     let requests = [];
-    requests.push(this.instanceRestService.loadDefaults(definitionId, this.config.formConfig.models.parentId));
+    if (this.config.instanceLoader) {
+      requests.push(this.config.instanceLoader(definitionId));
+    } else {
+      requests.push(this.instanceRestService.loadDefaults(definitionId, this.config.formConfig.models.parentId));
+    }
     requests.push(this.definitionService.getDefinitions(definitionId));
+
     this.promiseAdapter.all(requests).then((responses) => {
       // Timeout is needed to queue method execution to let the rendering threads catch up.
       // This help some browsers (FF, IE) to show more than one form correct.
@@ -294,6 +303,7 @@ export class InstanceCreateConfiguration extends Configurable {
     } else {
       ModelUtils.updateObjectPropertyValue(this.config.formConfig.models.validationModel[TEMPLATE_ID], true, [event.template.id]);
     }
+    this.config.eventEmitter.publish(TEMPLATE_LOADED);
   }
 
   populateMandatoryObjectsValues([data], parentId) {

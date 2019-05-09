@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.collections.CollectionUtils;
@@ -30,22 +29,17 @@ import com.sirma.itt.seip.domain.search.SearchRequest;
 import com.sirma.itt.seip.domain.search.tree.Condition;
 import com.sirma.itt.seip.domain.search.tree.Rule;
 import com.sirma.itt.seip.domain.search.tree.SearchCriteriaBuilder;
-import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.search.SearchService;
-import com.sirma.itt.seip.time.TimeTracker;
 
 /**
  * Tests {@link ConceptServiceImpl}.
- * 
+ *
  * @author Vilizar Tsonev
  */
 public class ConceptServiceImplTest {
 
 	@Mock
 	private SearchService searchService;
-	
-	@Mock
-	private Statistics statistics;
 
 	@InjectMocks
 	private ConceptServiceImpl conceptService;
@@ -53,8 +47,6 @@ public class ConceptServiceImplTest {
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		when(statistics.createTimeStatistics(Mockito.any(), Mockito.anyString()))
-				.thenReturn(TimeTracker.createAndStart());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

@@ -1,6 +1,7 @@
 import {ResourcesTable} from 'administration/resources-management/resources-table/resources-table';
 import {DialogService} from 'components/dialog/dialog-service';
 import {PropertiesSelectorHelper} from 'idoc/widget/properties-selector/properties-selector-helper';
+import {ViewModelBuilder} from 'test/form-builder/view-model-builder';
 import {ConfigurationRestService} from 'services/rest/configurations-service';
 import {Configuration} from 'common/application-config';
 import {Eventbus} from 'services/eventbus/eventbus';
@@ -170,20 +171,9 @@ describe('ResourcesTable', () => {
   describe('getPropertyType', () => {
     it('should determine correct property types', () => {
       let flatViewModel = new Map();
-      flatViewModel.set('firstName', {
-        identifier: 'firstName',
-        dataType: 'text'
-      });
-      flatViewModel.set('language', {
-        identifier: 'language',
-        dataType: 'text',
-        codelist: 13
-      });
-      flatViewModel.set('isMemberOf', {
-        identifier: 'isMemberOf',
-        dataType: 'any',
-        controlId: 'picker'
-      });
+      flatViewModel.set('firstName', ViewModelBuilder.createField('firstName', 'EDITABLE', 'text', 'First name', true, true, [], null));
+      flatViewModel.set('language', ViewModelBuilder.createField('language', 'EDITABLE', 'ANY', 'Language', true, true, [], null, 13));
+      flatViewModel.set('isMemberOf', ViewModelBuilder.createField('isMemberOf', 'EDITABLE', 'ANY', 'Is Member of', true, true, [], 'picker'));
       resourcesTable.flatViewModel = flatViewModel;
 
       expect(resourcesTable.getPropertyType('language')).to.equal('codelist');
@@ -196,14 +186,8 @@ describe('ResourcesTable', () => {
   describe('getPropertyLabel', () => {
     it('should retrieve property label', () => {
       let flatViewModel = new Map();
-      flatViewModel.set('firstName', {
-        identifier: 'firstName',
-        label: 'First Name'
-      });
-      flatViewModel.set('language', {
-        identifier: 'language',
-        label: 'Language'
-      });
+      flatViewModel.set('firstName', ViewModelBuilder.createField('firstName', 'EDITABLE', 'text', 'First Name', true, true, [], null));
+      flatViewModel.set('language', ViewModelBuilder.createField('language', 'EDITABLE', 'ANY', 'Language', true, true, [], null, 13));
       resourcesTable.flatViewModel = flatViewModel;
 
       expect(resourcesTable.getPropertyLabel('language')).to.equal('Language');

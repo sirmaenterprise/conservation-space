@@ -42,7 +42,7 @@ export class DialogService {
       headerCls: 'error',
       showClose: true,
       buttons: [this.createButton(DialogService.CLOSE, 'dialog.button.close', true)],
-      onButtonClick: function (buttonId, componentScope, dialogConfig) {
+      onButtonClick(buttonId, componentScope, dialogConfig) {
         dialogConfig.dismiss();
       }
     };
@@ -64,7 +64,7 @@ export class DialogService {
       headerCls: 'notification',
       showClose: true,
       buttons: [this.createButton(DialogService.OK, 'dialog.button.ok', true)],
-      onButtonClick: function (buttonId, componentScope, dialogConfig) {
+      onButtonClick(buttonId, componentScope, dialogConfig) {
         dialogConfig.dismiss();
       }
     };
@@ -84,13 +84,14 @@ export class DialogService {
     let config = {
       header: '<i class="fa fa-question-circle"> ' + (header || this.translateService.translateInstant('dialog.header.confirm')) + '</i>',
       headerCls: 'confirmation',
+      modalCls: opts.modalCls,
       showClose: true,
       buttons: [
         this.createButton(DialogService.YES, 'dialog.button.yes', true),
         this.createButton(DialogService.NO, 'dialog.button.no'),
         this.createButton(DialogService.CANCEL, 'dialog.button.cancel')
       ],
-      onButtonClick: function (buttonId, componentScope, dialogConfig) {
+      onButtonClick(buttonId, componentScope, dialogConfig) {
         dialogConfig.dismiss();
       }
     };
@@ -154,7 +155,7 @@ export class DialogService {
       // Ctrl+A events should not propagate away from the modal
       $(evt.currentTarget).on('keydown', (e) => {
         if (e.ctrlKey && e.keyCode === 65) {
-          e.stopPropagation()
+          e.stopPropagation();
         }
       });
 
@@ -245,13 +246,13 @@ export class DialogService {
       handle: '.modal-header',
       cursor: 'move',
       containment: 'document body',
-      start: function () {
+      start() {
         // prevent the transition because it lags the movement
         $(this).css('transition', 'none');
         //When clicked on the draggable element, the opened ckeditor's dropdowns aren't closed. Focusing something else closes them.
         $(window).focus();
       },
-      stop: function (event, ui) {
+      stop(event, ui) {
         DialogService.dragStop(modalDialogElement, ui.offset);
       },
       scroll: false
@@ -338,7 +339,7 @@ export class DialogService {
 
   createButton(id, labelId, primary) {
     var btn = {
-      id: id,
+      id,
       label: this.translateService.translateInstant(labelId)
     };
 

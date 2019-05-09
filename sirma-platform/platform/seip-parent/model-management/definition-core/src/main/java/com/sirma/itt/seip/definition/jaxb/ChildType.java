@@ -125,4 +125,7 @@ public class ChildType {
 		defaultChild = value;
 	}
 
+	public Boolean getDefaultChild() {
+		return defaultChild;
+	}
 }

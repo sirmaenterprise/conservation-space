@@ -83,7 +83,7 @@ export class DynamicElementsRegistry {
   }
 
   handleEditorReadyEvent(event){
-    this.handleDynamicElementReadyEvent({id: event.editorName })
+    this.handleDynamicElementReadyEvent({id: event.editorName });
   }
 
   handleDynamicElementReadyEvent(event) {

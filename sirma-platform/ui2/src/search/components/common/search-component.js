@@ -1,4 +1,4 @@
-import {Configurable} from "components/configurable";
+import {Configurable} from 'components/configurable';
 
 /**
  * Abstract class for search components containing common logic.

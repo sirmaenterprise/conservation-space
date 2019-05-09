@@ -4,11 +4,12 @@ import static com.sirma.itt.seip.collections.CollectionUtils.addNonNullValue;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -278,9 +279,10 @@ public class SemanticPropertiesReadConverter extends BasePropertiesConverter {
 				values = values.stream().filter(value -> getLanguage(value) != null).collect(Collectors.toSet());
 				MultiLanguageValue mValue = new MultiLanguageValue();
 				for (Value value : values) {
-					mValue.addValue(getLanguage(value), convertValue(value));
+					// the value should be a string but just in case
+					mValue.addValue(getLanguage(value), Objects.toString(convertValue(value), null));
 				}
-				list = Arrays.asList(mValue);
+				list = Collections.singletonList(mValue);
 			} else {
 				list = convertValues(values);
 			}
@@ -299,15 +301,10 @@ public class SemanticPropertiesReadConverter extends BasePropertiesConverter {
 	 * @return true if its multilanguage
 	 */
 	private static boolean isMultiLanguage(Set<Value> values) {
-		String firstFoundLanguage = null;
 		for (Value value : values) {
 			String valueLanguage = getLanguage(value);
 			if (valueLanguage != null) {
-				if (firstFoundLanguage == null) {
-					firstFoundLanguage = valueLanguage;
-				} else if (!firstFoundLanguage.equals(valueLanguage)) {
-					return true;
-				}
+				return true;
 			}
 		}
 		return false;

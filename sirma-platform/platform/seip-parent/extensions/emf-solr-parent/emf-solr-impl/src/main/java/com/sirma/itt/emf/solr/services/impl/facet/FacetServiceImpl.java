@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -25,7 +26,6 @@ import org.apache.solr.common.params.FacetParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.StringUtils;
 import com.sirma.itt.emf.label.retrieve.FieldId;
 import com.sirma.itt.emf.label.retrieve.FieldValueRetrieverService;
 import com.sirma.itt.emf.solr.constants.SolrQueryConstants;
@@ -192,7 +192,7 @@ public class FacetServiceImpl implements FacetService {
 
 		parameters.set(CommonParams.TZ, "UTC");
 		try {
-			QueryResponse queryResponse = solrConnector.queryWithPost(parameters);
+			QueryResponse queryResponse = solrConnector.query(parameters);
 
 			facetResultTransformer.extractFacetsFromResponse(arguments, queryResponse);
 
@@ -310,7 +310,7 @@ public class FacetServiceImpl implements FacetService {
 
 			QueryResponse queryResponse;
 			try {
-				queryResponse = solrConnector.queryWithPost(parameters);
+				queryResponse = solrConnector.query(parameters);
 				SolrDocumentList solrDocument = queryResponse.getResults();
 				allSolrDocuments.addAll(solrDocument);
 			} catch (SolrClientException e) {

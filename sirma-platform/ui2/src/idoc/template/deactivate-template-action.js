@@ -6,8 +6,6 @@ import {NotificationService} from 'services/notification/notification-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 
-const OPERATION = 'deactivateTemplate';
-
 @Injectable()
 @Inject(Logger, TemplateService, NotificationService, TranslateService, PromiseAdapter)
 export class DeactivateTemplateAction extends InstanceAction {

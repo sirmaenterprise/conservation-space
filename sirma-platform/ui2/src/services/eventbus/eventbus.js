@@ -1,6 +1,5 @@
 import postal from 'postaljs/postal.js';
 import {Injectable} from 'app/app';
-import _ from 'lodash';
 
 /**
  * Service wrapper for the postal event emitter library.
@@ -56,9 +55,10 @@ export class Eventbus {
       } else {
         topic = arguments[0].EVENT_NAME;
       }
+
       envelope = {
-          topic: topic,
-          callback: callback
+        topic,
+        callback
       };
     }
     return postal.subscribe(envelope);

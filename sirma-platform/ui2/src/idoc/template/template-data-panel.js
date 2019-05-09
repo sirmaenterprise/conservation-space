@@ -15,9 +15,7 @@ import template from './template-data-panel.html!text';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgScope, ModelsService, NamespaceService, PropertiesRestService)
 export class TemplateDataPanel extends Configurable {
 

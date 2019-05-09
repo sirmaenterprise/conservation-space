@@ -196,8 +196,14 @@
 										<tr>
 										  <td valign="top" class="textContent">
 											<h3 style="color:#5F5F5F;line-height:125%;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;">
-												<#assign rdfType = target.properties['rdf:type']>
-												${codelists.getCodeValue(7, target.properties['type']).properties['da']} er blevet flyttet
+												<#assign rdfType = target.properties['rdf:type']>												
+												<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													Document er blevet flyttet
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
+													Workflow er blevet flyttet
+												<#else>
+													${codelists.getCodeValue(7, target.properties['type']).properties['da']} er blevet flyttet
+												</#if>
 											</h3>
 											<br>
 											<div style="text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;">
@@ -225,7 +231,7 @@
 													<#else>
 														(${codelists.getCodeValue(7, target.properties['type']).properties['da']})
 														 ${target.properties['title']}
-													</#if>
+													</#if>													
 												</strong>
 												er flyttet til 
 												<#if parentRDF == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Project'> 
@@ -264,7 +270,7 @@
 													<a href="${notifications.buildFullURI(parent)}">
 														(${codelists.getCodeValue(7, parent.properties['type']).properties['da']})
 														 ${parent.properties['title']}
-													</a>
+													</a>												
 												</#if>
 												 af ${notifications.getDisplayName(target.properties['modifiedBy'])}.<br/></br>
 											</div>

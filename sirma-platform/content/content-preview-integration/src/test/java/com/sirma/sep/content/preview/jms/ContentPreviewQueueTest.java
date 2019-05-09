@@ -131,10 +131,8 @@ public class ContentPreviewQueueTest {
 		stubRemotePreviewService(APP_JSON, true, false, false);
 		contentPreviewQueue.onContentAssigned(stubMessage());
 
-		Mockito.verify(thumbnailService)
-				.removeThumbnail(Matchers.eq("emf:123"), Matchers.eq(RenditionService.DEFAULT_PURPOSE));
-		Mockito.verify(thumbnailService)
-				.removeThumbnail(Matchers.eq("emf:123-v1.0"), Matchers.eq(RenditionService.DEFAULT_PURPOSE));
+		Mockito.verify(thumbnailService).removeSelfThumbnail("emf:123");
+		Mockito.verify(thumbnailService).removeSelfThumbnail("emf:123-v1.0");
 	}
 
 	@Test

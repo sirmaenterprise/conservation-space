@@ -1,6 +1,8 @@
 import {Component, Inject, NgElement, NgScope, View} from 'app/app';
 import {CodelistRestService} from 'services/rest/codelist-service';
 import {RestClient} from 'services/rest-client';
+import {AuthenticationService} from 'security/authentication-service';
+import {AUTHORIZATION} from 'services/rest/http-headers';
 import {DialogService} from 'components/dialog/dialog-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {FileUploadIntegration} from 'file-upload/file-upload-integration';
@@ -24,10 +26,10 @@ import template from './code-lists-upload.html!text';
 @View({
   template
 })
-@Inject(NgScope, NgElement, DialogService, TranslateService, CodelistRestService, RestClient, FileUploadIntegration)
+@Inject(NgScope, NgElement, DialogService, TranslateService, CodelistRestService, RestClient, FileUploadIntegration, AuthenticationService)
 export class CodeListsUpload {
 
-  constructor($scope, $element, dialogService, translateService, codelistRestService, restClient, fileUploadIntegration) {
+  constructor($scope, $element, dialogService, translateService, codelistRestService, restClient, fileUploadIntegration, authenticationService) {
     this.$scope = $scope;
     this.$element = $element;
     this.dialogService = dialogService;
@@ -35,6 +37,7 @@ export class CodeListsUpload {
     this.codelistRestService = codelistRestService;
     this.restClient = restClient;
     this.fileUploadIntegration = fileUploadIntegration;
+    this.authenticationService = authenticationService;
   }
 
   ngOnInit() {
@@ -92,22 +95,39 @@ export class CodeListsUpload {
     });
   }
 
+  clearUploadState() {
+    this.uploading = false;
+    if (this.uploadControl) {
+      this.uploadControl.files = [];
+    }
+  }
+
   startUpload() {
     this.uploading = true;
     delete this.uploadMessage;
 
-    this.fileUploadIntegration.submit(this.uploadControl).done(() => {
-      this.error = false;
-      this.uploadMessage = this.messages.success;
-      this.notifyOnUpload();
-    }).fail((error) => {
-      this.error = true;
-      let message = error.responseJSON.message;
-      this.uploadMessage = Array.isArray(message) ? message : [message];
-    }).always(() => {
-      this.uploading = false;
-      // Fileupload is not within angular's scope so we need to call the digest explicitly
-      this.$scope.$digest();
+    this.addAuthHeader().then(() => {
+      this.fileUploadIntegration.submit(this.uploadControl).done(() => {
+        this.error = false;
+        this.uploadMessage = this.messages.success;
+        this.notifyOnUpload();
+      }).fail((error) => {
+        this.error = true;
+        let message = error.responseJSON.message;
+        this.uploadMessage = Array.isArray(message) ? message : [message];
+      }).always(() => {
+        this.clearUploadState();
+        // Fileupload is not within angular's scope so we need to call the digest explicitly
+        this.$scope.$digest();
+      });
+    });
+  }
+
+  addAuthHeader() {
+    return this.authenticationService.buildAuthHeader().then(authHeaderValue => {
+      this.uploadControl.headers = this.uploadControl.headers || {};
+      this.uploadControl.headers[AUTHORIZATION] = authHeaderValue;
+      return true;
     });
   }
 
@@ -119,6 +139,14 @@ export class CodeListsUpload {
 
   setUploadUrl(url) {
     this.$element.fileupload('option', 'url', url);
+  }
+
+  hasSelectedFiles() {
+    return !!this.uploadControl && this.uploadControl.files.length > 0;
+  }
+
+  getSelectedFile() {
+    return this.uploadControl.files[0].name;
   }
 
   ngOnDestroy() {

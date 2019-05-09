@@ -25,7 +25,9 @@ import com.sirma.itt.seip.IntegerPair;
 import com.sirma.itt.seip.adapters.remote.FTPConfiguration;
 import com.sirma.itt.seip.adapters.remote.FtpClient;
 import com.sirma.itt.seip.io.FileDescriptor;
-import com.sirma.itt.seip.monitor.Statistics;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.tasks.SchedulerService;
 import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.sep.content.Content;
@@ -57,16 +59,13 @@ public class FTPClientImpl implements FtpClient {
 
 	@DestinationDef("java:/jms.queue.ImageQueue")
 	public static final String IMAGE_QUEUE = "java:/jms.queue.ImageQueue";
-	
+
 	@Inject
 	private SenderService senderService;
-	
+
 	@Inject
 	private ContentStoreProvider storeProvider;
 
-	@Inject
-	private Statistics statistics;
-	
 	/**
 	 * Instantiates a new FTP client instance using the given actual client builder.
 	 *
@@ -90,7 +89,7 @@ public class FTPClientImpl implements FtpClient {
 	public FTPClientImpl() {
 		// Empty constructor required for the queue listener.
 	}
-	
+
 	@Override
 	public void transfer(InputStream stream, String fileName, FTPConfiguration config) throws DMSException {
 		FTPClient ftpClient = ftpClientBuilder.buildClient(config);
@@ -179,10 +178,10 @@ public class FTPClientImpl implements FtpClient {
 
 		return requestId;
 	}
-	
+
 	/**
 	 * Upload the temporary file to the ftp server.
-	 * 
+	 *
 	 * @param fileName
 	 *            the new name of the file
 	 * @param ftpConfig
@@ -193,6 +192,7 @@ public class FTPClientImpl implements FtpClient {
 	 *             if an error in the ftp connection occurs
 	 */
 	@SuppressWarnings("boxing")
+	@Monitored(@MetricDefinition(name = "ftp_upload_duration_seconds", type = Type.TIMER, descr = "Delayed ftp upload duration in seconds."))
 	public void uploadTemporaryFile(String fileName, FTPConfiguration ftpConfig, StoreItemInfo tempLocation)
 			throws DMSException {
 
@@ -203,7 +203,6 @@ public class FTPClientImpl implements FtpClient {
 		// if null then the file is probably synchronized and removed from the store
 		// we cannot do anything
 		if (descriptor != null) {
-			TimeTracker tracker = statistics.createTimeStatistics(getClass(), "delayedFtpUpload").begin();
 			LOGGER.debug("Begining transfer of delayed file upload of {}", fileName);
 			try (InputStream stream = descriptor.getInputStream()) {
 				// send the file synchronously
@@ -213,19 +212,17 @@ public class FTPClientImpl implements FtpClient {
 			} catch (IOException e) {
 				throw new DMSException("Error loading temporary file!", e);
 
-			} finally {
-				LOGGER.debug("End of file transfer for {}. It took {} ms", fileName, tracker.stop());
 			}
 		} else {
 			LOGGER.warn("Temp file {} from {} for transfer was not found!", tempLocation.getRemoteId(),
 					tempLocation.getProviderType());
 		}
 	}
-	
+
 	/**
 	 * Image queue message observer. Responsible for uploading the temporary files to the ftp
 	 * server.
-	 * 
+	 *
 	 * @param msg
 	 *            the image queue message
 	 */

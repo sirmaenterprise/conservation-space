@@ -183,9 +183,9 @@ export class PickerService {
   assignDefaultDialogConfigurations(dialogConfig) {
     dialogConfig = _.defaultsDeep(dialogConfig, {
       buttons: [{
-        label: 'dialog.button.select',
+        label: 'dialog.button.select'
       }, {
-        label: 'dialog.button.cancel',
+        label: 'dialog.button.cancel'
       }]
     });
     return dialogConfig;

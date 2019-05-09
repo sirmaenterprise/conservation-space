@@ -1,10 +1,11 @@
-FROM docker-reg.sirmaplatform.com/wildfly:9.0.2-u3
+FROM docker-reg.sirmaplatform.com/wildfly:9.0.2-u5
 
 ARG wildfly_home=/opt/wildfly
 ARG wildfly_pg_module_path=${wildfly_home}/modules/system/layers/base/org/postgresql/main/
 ARG pg_jdbc4_driver_url=https://jdbc.postgresql.org/download/postgresql-9.4-1206-jdbc4.jar
 
-ENV IDP_PORT="9443" \
+ENV \
+	IDP_PORT="9443" \
 	MAIL_HOST="mail" \
 	MAIL_PORT="1025" \
 	MAIL_SENDER="no-reply@sirma.bg" \
@@ -28,7 +29,7 @@ RUN \
 	for file in bin/sep*.cli; do ./bin/jboss-cli.sh --file=$file; done && \
 	rm -rf standalone/configuration/standalone_xml_history && \
 	mkdir -p /etc/sep/assets /var/lib/sep/content /var/lib/sep/tmp && \
-    chown -R $DOCKER_USER:$DOCKER_USER $wildfly_home /etc/sep/assets /var/lib/sep && \
+	chown -R $DOCKER_USER:$DOCKER_USER $wildfly_home /etc/sep/assets /var/lib/sep && \
 	chmod +x /docker-init.d/*.sh /usr/local/bin/*.sh
 
 VOLUME ["/etc/sep/assets", "/var/lib/sep"]

@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="help" parentId="baseObject" isAbstract="true" type="object">
+<definition id="baseHelp" parentId="baseObject" isAbstract="true" type="object">
 	<fields>
 		<!-- SYSTEM FIELDS -->
-		<field name="rdf:type" type="URI" label="type.label" displayType="system" uri="rdf:type">
+		<field name="rdf:type">
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Help</value>
 		</field>
-		<field name="type" type="an..50" codelist="CL7">
-			<value>HELP</value>
+		<field name="type" codelist="CL7">
+			<value>baseHelp</value>
 		</field>
 		
 		<field name="emf:contentId" type="an..40" displayType="system" uri="emf:contentId"/>
 		<field name="documentLocation" type="an..500" label="location.label" displayType="system"/> <!-- attachmentLocation-->
 		<field name="workingCopyLocation" type="an..500" displayType="system" previewEmpty="false"/>
-		<field name="content" type="any" label="document.content" displayType="system" uri="emf:content"/>
+		<field name="content" type="any" displayType="system" uri="emf:content"/>
 		<field name="fileSize" type="an..10" label="size.label" displayType="system" previewEmpty="false"/> <!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
 		
     	<!-- GENERAL DATA FIELDS FOR HELP -->
-		<field name="helpTarget" type="an..1024" codelist="CL16" label="helpTarget.label" displayType="editable" multiValued="true" uri="emf:helpTarget" />
-		<field name="name" type="an..180" label="name.label" displayType="readonly" previewEmpty="false" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" uri="emf:fileName" />
-		<field name="size" type="n..10" label="size.label" displayType="readonly" previewEmpty="false" uri="emf:size"> 
+		<field name="helpTarget" type="ANY" codelist="CL16" displayType="editable" multiValued="true" uri="emf:helpTarget" />
+		<field name="name" type="an..180" displayType="readonly" previewEmpty="false" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" uri="emf:fileName" />
+		<field name="size" type="n..10" displayType="readonly" previewEmpty="false" uri="emf:size"> 
 			<control id="BYTE_FORMAT" />
 		</field>
-		<field name="mimetype" type="an..20" codelist="CL30" label="mimetype.label" displayType="readonly" previewEmpty="false" uri="emf:mimetype" />
+		<field name="mimetype" displayType="readonly" previewEmpty="false"/>
 	</fields>
 	<transitions>		
-		<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" />
+		<transition id="uploadNewVersion" label="uploadNewVersion.label" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" />
 	</transitions>
 	
 	<stateTransitions>

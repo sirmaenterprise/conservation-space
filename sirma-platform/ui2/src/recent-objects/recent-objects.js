@@ -7,9 +7,7 @@ import './recent-objects.css!css';
 @Component({
   selector: 'seip-recent-objects'
 })
-@View({
-  template: template
-})
+@View({template})
 export class RecentObjects {
 
   constructor() {

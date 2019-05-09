@@ -2,6 +2,8 @@ package com.sirma.itt.seip.security;
 
 import java.util.TimeZone;
 
+import com.sirma.itt.seip.configuration.ConfigurationProperty;
+
 /**
  * The UserPreferences gives/updates the custom configuration for any user
  *
@@ -19,8 +21,7 @@ public interface UserPreferences {
 	/**
 	 * Gets the language.
 	 *
-	 * @param user
-	 *            the user
+	 * @param user the user
 	 * @return the languange
 	 */
 	String getLanguage(User user);
@@ -40,16 +41,17 @@ public interface UserPreferences {
 	Integer getSessionTimeout();
 
 	/**
-	 * Should the user be redirected to login page when session times out.
-	 *
-	 * @return {@code true} if user should be redirected.
-	 */
-	Boolean shouldRedirectOnSessionTimeout();
-
-	/**
 	 * Maximum number of recently used objects to store.
 	 *
 	 * @return Configured maximum of recently objects to store (25 by default).
 	 */
 	Integer getRecentObjectsSize();
+
+	/**
+	 * Returns the session timeout period {@link ConfigurationProperty}.
+	 *
+	 * @return the session timeout period {@link ConfigurationProperty}
+	 */
+	ConfigurationProperty<Integer> getSessionTimeoutPeriodConfig();
+
 }

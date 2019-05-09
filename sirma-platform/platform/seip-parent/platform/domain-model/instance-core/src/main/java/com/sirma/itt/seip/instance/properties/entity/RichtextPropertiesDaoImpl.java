@@ -17,6 +17,7 @@ import com.sirma.itt.seip.definition.DefinitionService;
 import com.sirma.itt.seip.domain.definition.PrototypeDefinition;
 import com.sirma.itt.seip.instance.properties.RichtextPropertiesDao;
 import com.sirma.sep.content.idoc.sanitizer.IdocSanitizer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides functionality to retrieve, persist and manage richtext properties in the relational DB.
@@ -40,7 +41,11 @@ public class RichtextPropertiesDaoImpl implements RichtextPropertiesDao {
 
 	@Override
 	public void saveOrUpdate(String instanceId, Long propertyId, String value) {
-		RichtextPropertyEntity entity = new RichtextPropertyEntity(instanceId, propertyId, sanitizer.sanitize(value));
+		String sanitized = value;
+		if(!StringUtils.isBlank(value)) {
+			sanitized = sanitizer.sanitize(value);
+		}
+		RichtextPropertyEntity entity = new RichtextPropertyEntity(instanceId, propertyId, sanitized);
 		Optional<RichtextPropertyEntity> existingEntity = fetchRichtextProperty(instanceId, propertyId);
 		existingEntity.ifPresent(existing -> entity.setId(existing.getId()));
 		dbDao.saveOrUpdate(entity);

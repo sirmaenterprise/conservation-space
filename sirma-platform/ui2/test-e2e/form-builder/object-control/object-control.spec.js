@@ -5,7 +5,6 @@ let ObjectControlItem = require('../form-control.js').ObjectControlItem;
 let FormWrapper = require('../form-wrapper').FormWrapper;
 let SandboxPage = require('../../page-object').SandboxPage;
 let Search = require('../../search/components/search.js').Search;
-let SEARCH_EXTENSION = require('../../picker/object-picker').SEARCH_EXTENSION;
 let ObjectPickerDialog = require('../../picker/object-picker').ObjectPickerDialog;
 
 const TOOLTIP = 'seip-hint';
@@ -26,7 +25,7 @@ describe('Object control', () => {
     // should be valid initially as it has value
     expect(objectControl.hasError()).to.eventually.be.false;
     // should be invalid when there is no value selected
-    objectControl.removeInstance(0);
+    objectControl.removeFromSelectionByIndex(0);
     expect(objectControl.hasError()).to.eventually.be.true;
   });
 
@@ -59,12 +58,7 @@ describe('Object control', () => {
 
   describe('remove instance button', () => {
     it('should be visible in edit mode', () => {
-      let objectControl =  new ObjectControl($('#singleObjectProperty-wrapper'));
-
-      objectControl.getInstance(0).then((instance) => {
-        browser.actions().mouseMove(instance).perform();
-        objectControl.isRemoveInstanceButtonVisible();
-      });
+      new ObjectControl($('#singleObjectProperty-wrapper')).isRemoveButtonVisible(0);
     });
 
     it('should be hidden in preview mode', () => {
@@ -86,11 +80,11 @@ describe('Object control', () => {
     it('should be visible in edit mode when the visible objects are removed and total is greater than result count', () => {
       let objectControl = new ObjectControl($('#multiObjectProperty-wrapper'));
       objectControl.isShowAllButtonVisible();
-      objectControl.removeInstance(2);
+      objectControl.removeFromSelectionByIndex(2);
       objectControl.isShowAllButtonVisible();
-      objectControl.removeInstance(1);
+      objectControl.removeFromSelectionByIndex(1);
       objectControl.isShowAllButtonHidden();
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
       objectControl.isShowAllButtonHidden();
     });
 
@@ -124,15 +118,15 @@ describe('Object control', () => {
     it('should be hidden in edit mode when result count is less than or equal to config', () => {
       let objectControl = new ObjectControl($('#multiObjectProperty3-wrapper'));
       objectControl.showAll();
-      objectControl.removeInstance(4);
+      objectControl.removeFromSelectionByIndex(0);
       objectControl.isShowLessButtonVisible();
-      objectControl.removeInstance(3);
+      objectControl.removeFromSelectionByIndex(1);
       objectControl.isShowLessButtonHidden();
-      objectControl.removeInstance(2);
+      objectControl.removeFromSelectionByIndex(1);
       objectControl.isShowLessButtonHidden();
-      objectControl.removeInstance(1);
+      objectControl.removeFromSelectionByIndex(1);
       objectControl.isShowLessButtonHidden();
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
       objectControl.isShowLessButtonHidden();
     });
 
@@ -189,97 +183,96 @@ describe('Object control', () => {
       objectControl.isShowLessButtonHidden();
       // When I select show more button.
       objectControl.showAll();
-      // Then I expect all five selected objects (1, 2, 3, 4, 5) to be visible.
+      // Then I expect all five selected objects (3, 4, 5, 1, 2) to be visible.
       // And I expect show less button to be visible.
+      objectControl.isElementSelectedByTitle('Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #5');
       checkObjectHeader(objectControl, 0, 'Object compact header #1');
       checkObjectHeader(objectControl, 1, 'Object compact header #2');
-      checkObjectHeader(objectControl, 2, 'Object compact header #3');
-      checkObjectHeader(objectControl, 3, 'Object compact header #4');
-      checkObjectHeader(objectControl, 4, 'Object compact header #5');
       // When I select show less button.
       objectControl.showLess();
       // Then I expect show more button to be visible.
-      // And I expect only three objects (1, 2, 3) to be visible.
+      // And I expect only three objects (3, 4, 5) to be visible.
       objectControl.isShowAllButtonVisible();
-      checkObjectHeader(objectControl, 0, 'Object compact header #1');
-      checkObjectHeader(objectControl, 1, 'Object compact header #2');
-      checkObjectHeader(objectControl, 2, 'Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #5');
       // When I remove object 1.
-      objectControl.removeInstance(0);
-      // Then I expect objects 2, 3, 4 to be visible.
+      objectControl.removeFromSelectionByIndex(0);
+      // Then I expect objects 2, 4, 5 to be visible.
       // And I expect show more button to be visible.
       // And I expect show less button to be hidden.
-      checkObjectHeader(objectControl, 0, 'Object compact header #2');
-      checkObjectHeader(objectControl, 1, 'Object compact header #3');
-      checkObjectHeader(objectControl, 2, 'Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #2');
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #5');
       objectControl.isShowAllButtonVisible();
       objectControl.isShowLessButtonHidden();
       // When I remove object 2.
-      objectControl.removeInstance(0);
-      // Then I expect objects 3, 4, 5 to be visible.
+      objectControl.removeFromSelectionByIndex(0);
+      // Then I expect objects 1, 4, 5 to be visible.
       // And I expect show more button to be hidden.
       // And I expect show less button to be hidden.
-      checkObjectHeader(objectControl, 0, 'Object compact header #3');
-      checkObjectHeader(objectControl, 1, 'Object compact header #4');
-      checkObjectHeader(objectControl, 2, 'Object compact header #5');
+      objectControl.isElementSelectedByTitle('Object compact header #1');
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #5');
       objectControl.isShowAllButtonHidden();
       objectControl.isShowLessButtonHidden();
 
       // When I have 6 objects selected (more than the configured initial count).
-      toggleObjectSelection(objectControl, [0, 1, 5]);
+      toggleObjectSelection(objectControl, [1, 2, 5]);
       // And I select show more button.
       objectControl.showAll();
 
       // And I remove object 1.
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
 
       // TODO: Picker should somehow return objects sorted by mod.date
-
-      // Then I expect objects 4, 5, 1, 2, 6 to be visible.
-      checkObjectHeader(objectControl, 0, 'Object compact header #4');
-      checkObjectHeader(objectControl, 1, 'Object compact header #5');
-      checkObjectHeader(objectControl, 2, 'Object compact header #1');
-      checkObjectHeader(objectControl, 3, 'Object compact header #2');
-      checkObjectHeader(objectControl, 4, 'Object compact header #6');
+      // Then I expect objects 5, 3, 6, 1, 4 to be visible.
+      objectControl.isElementSelectedByTitle('Object compact header #5');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #6');
+      checkObjectHeader(objectControl, 0, 'Object compact header #1');
+      checkObjectHeader(objectControl, 1, 'Object compact header #4');
       // And I expect show less button to be visible.
       objectControl.isShowLessButtonVisible();
 
       // When I remove object 2.
-      objectControl.removeInstance(0);
-      // Then I expect objects 5, 1, 2, 6 to be visible.
-      checkObjectHeader(objectControl, 0, 'Object compact header #5');
-      checkObjectHeader(objectControl, 1, 'Object compact header #1');
-      checkObjectHeader(objectControl, 2, 'Object compact header #2');
-      checkObjectHeader(objectControl, 3, 'Object compact header #6');
+      objectControl.removeFromSelectionByIndex(0);
+      // Then I expect objects 4, 3, 6, 1 to be visible.
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #6');
+      checkObjectHeader(objectControl, 0, 'Object compact header #1');
       // And I expect show less button to be visible.
       objectControl.isShowLessButtonVisible();
 
-      // When I remove object 3.
-      objectControl.removeInstance(0);
-      // Then I expect objects 1, 2, 6 to be visible.
-      checkObjectHeader(objectControl, 0, 'Object compact header #1');
-      checkObjectHeader(objectControl, 1, 'Object compact header #2');
-      checkObjectHeader(objectControl, 2, 'Object compact header #6');
+      // When I remove object 3 at index 2.
+      objectControl.removeFromSelectionByIndex(2);
+      // Then I expect objects 1, 4, 3 to be visible.
+      objectControl.isElementSelectedByTitle('Object compact header #1');
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // And I expect show less button to be hidden.
       objectControl.isShowLessButtonHidden();
 
       // When I remove object 4.
-      objectControl.removeInstance(0);
-      // Then I expect objects 2, 6 to be visible.
-      checkObjectHeader(objectControl, 0, 'Object compact header #2');
-      checkObjectHeader(objectControl, 1, 'Object compact header #6');
+      objectControl.removeFromSelectionByIndex(0);
+      // Then I expect objects 4, 3 to be visible.
+      objectControl.isElementSelectedByTitle('Object compact header #4');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // And I expect show less button to be hidden.
       objectControl.isShowLessButtonHidden();
 
       // When I remove object 5.
-      objectControl.removeInstance(0);
-      // Then I expect objects 6 to be visible.
-      checkObjectHeader(objectControl, 0, 'Object compact header #6');
+      objectControl.removeFromSelectionByIndex(0);
+      // Then I expect objects 3 to be visible.
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // And I expect show less button to be hidden.
       objectControl.isShowLessButtonHidden();
 
       // When I remove object 6.
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
       // Then I expect object control to be empty.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(0);
       // And I expect show less button to be hidden.
@@ -298,18 +291,18 @@ describe('Object control', () => {
       toggleObjectSelection(objectControl, [0]);
       // Then I expect object header to be visible in the control.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(1);
-      checkObjectHeader(objectControl, 0, 'Object compact header #1');
+      objectControl.isElementSelectedByTitle('Object compact header #1');
       // When I select two more objects from the picker.
       toggleObjectSelection(objectControl, [1, 2]);
       // Then I expect three objects to be visible in the control.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
-      checkObjectHeader(objectControl, 1, 'Object compact header #2');
-      checkObjectHeader(objectControl, 2, 'Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #2');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // When I deselect first object from the picker.
       toggleObjectSelection(objectControl, [0]);
       // Then I expect object 2 and 3 to be visible in control.
-      checkObjectHeader(objectControl, 0, 'Object compact header #2');
-      checkObjectHeader(objectControl, 1, 'Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #2');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // When I deselect all objects from the picker.
       toggleObjectSelection(objectControl, [1, 2]);
       // Then I expect control to be empty.
@@ -317,9 +310,9 @@ describe('Object control', () => {
       // When I select three objects from the picker.
       toggleObjectSelection(objectControl, [0, 1, 2]);
       // And I deselect all three objects from the control using their remove button.
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
+      objectControl.removeFromSelectionByIndex(0);
+      objectControl.removeFromSelectionByIndex(0);
       // Then I expect control to be empty.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(0);
     });
@@ -329,32 +322,32 @@ describe('Object control', () => {
       let objectControl = new ObjectControl($('#multiObjectProperty4-wrapper'));
       // When There are 2 objects selected initially.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(2);
-      checkObjectHeader(objectControl, 0, 'Header-1');
-      checkObjectHeader(objectControl, 1, 'Header-2');
+      objectControl.isElementSelectedByTitle('Header-1');
+      objectControl.isElementSelectedByTitle('Header-2');
       // When I select 3 object from the picker.
       toggleObjectSelection(objectControl, [2]);
       // Then I expect 3 objects to be selected
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
-      checkObjectHeader(objectControl, 0, 'Header-1');
-      checkObjectHeader(objectControl, 1, 'Header-2');
-      checkObjectHeader(objectControl, 2, 'Object compact header #3');
+      objectControl.isElementSelectedByTitle('Header-1');
+      objectControl.isElementSelectedByTitle('Header-2');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // When I remove 2, 3 from the picker
       toggleObjectSelection(objectControl, [1, 2]);
       // Then I expect 1 object to be selected
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(1);
-      checkObjectHeader(objectControl, 0, 'Header-1');
+      objectControl.isElementSelectedByTitle('Header-1');
       // When I select 2, 3 from the picker
       toggleObjectSelection(objectControl, [1, 2]);
       // Then I expect 3 objects to be selected
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(3);
-      checkObjectHeader(objectControl, 0, 'Header-1');
-      checkObjectHeader(objectControl, 1, 'Header-2');
-      checkObjectHeader(objectControl, 2, 'Object compact header #3');
+      objectControl.isElementSelectedByTitle('Header-1');
+      objectControl.isElementSelectedByTitle('Header-2');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // When I deselect 2, 3 from the picker again
       toggleObjectSelection(objectControl, [1, 2]);
       // Then I expect 1 object to be selected
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(1);
-      checkObjectHeader(objectControl, 0, 'Header-1');
+      objectControl.isElementSelectedByTitle('Header-1');
     });
 
     // Test following scenario: When object gets loaded initially, the model is populated with default values which
@@ -367,20 +360,20 @@ describe('Object control', () => {
       // And The initial count is set to 3
       let objectControl = new ObjectControl($('#multiObjectProperty-wrapper'));
       // When I remove all 5 selected objects
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
+      objectControl.removeFromSelectionByIndex(0);
+      objectControl.removeFromSelectionByIndex(0);
+      objectControl.removeFromSelectionByIndex(0);
+      objectControl.removeFromSelectionByIndex(0);
       // Then I expect property model value to be empty and changeset to contains all removed objects
       formWrapper.getPropertyValue('multiObjectProperty').then(value => {
-        expect(value).to.equal('{"total":0,"offset":0,"limit":5,"results":[],"add":[],"remove":["1","2","3","4","5"],"headers":{"1":{"id":"1","compact_header":"<a href=\'#\'>Header-1</a>","breadcrumb_header":"<a href=\'#\'>Header-1</a>"},"2":{"id":"2","compact_header":"<a href=\'#\'>Header-2</a>","breadcrumb_header":"<a href=\'#\'>Header-2</a>"},"3":{"id":"3","compact_header":"<a href=\'#\'>Header-3</a>","breadcrumb_header":"<a href=\'#\'>Header-3</a>"},"4":{"id":"4","compact_header":"<a href=\'#\'>Header-4</a>","breadcrumb_header":"<a href=\'#\'>Header-4</a>"},"5":{"id":"5","compact_header":"<a href=\'#\'>Header-5</a>","breadcrumb_header":"<a href=\'#\'>Header-5</a>"}}}');
+        expect(value).to.equal('{"total":0,"offset":0,"limit":5,"results":[],"add":[],"remove":["3","2","1","4","5"],"headers":{"1":{"id":"1","compact_header":"<a href=\'#\'>Header-1</a>","breadcrumb_header":"<a href=\'#\'>Header-1</a>"},"2":{"id":"2","compact_header":"<a href=\'#\'>Header-2</a>","breadcrumb_header":"<a href=\'#\'>Header-2</a>"},"3":{"id":"3","compact_header":"<a href=\'#\'>Header-3</a>","breadcrumb_header":"<a href=\'#\'>Header-3</a>"},"4":{"id":"4","compact_header":"<a href=\'#\'>Header-4</a>","breadcrumb_header":"<a href=\'#\'>Header-4</a>"},"5":{"id":"5","compact_header":"<a href=\'#\'>Header-5</a>","breadcrumb_header":"<a href=\'#\'>Header-5</a>"}}}');
       });
       // When I add a new relation
       toggleObjectSelection(objectControl, [5]);
       // Then I expect the value to contain the new related object and the changeset to contain all removed and the added objects
       formWrapper.getPropertyValue('multiObjectProperty').then(value => {
-        expect(value).to.equal('{"total":1,"offset":0,"limit":5,"results":["6"],"add":["6"],"remove":["1","2","3","4","5"],"headers":{"1":{"id":"1","compact_header":"<a href=\'#\'>Header-1</a>","breadcrumb_header":"<a href=\'#\'>Header-1</a>"},"2":{"id":"2","compact_header":"<a href=\'#\'>Header-2</a>","breadcrumb_header":"<a href=\'#\'>Header-2</a>"},"3":{"id":"3","compact_header":"<a href=\'#\'>Header-3</a>","breadcrumb_header":"<a href=\'#\'>Header-3</a>"},"4":{"id":"4","compact_header":"<a href=\'#\'>Header-4</a>","breadcrumb_header":"<a href=\'#\'>Header-4</a>"},"5":{"id":"5","compact_header":"<a href=\'#\'>Header-5</a>","breadcrumb_header":"<a href=\'#\'>Header-5</a>"},"6":{"id":"6","compact_header":"<span>Object compact header #6</span>"}}}');
+        expect(value).to.equal('{"total":1,"offset":0,"limit":5,"results":["6"],"add":["6"],"remove":["3","2","1","4","5"],"headers":{"1":{"id":"1","compact_header":"<a href=\'#\'>Header-1</a>","breadcrumb_header":"<a href=\'#\'>Header-1</a>"},"2":{"id":"2","compact_header":"<a href=\'#\'>Header-2</a>","breadcrumb_header":"<a href=\'#\'>Header-2</a>"},"3":{"id":"3","compact_header":"<a href=\'#\'>Header-3</a>","breadcrumb_header":"<a href=\'#\'>Header-3</a>"},"4":{"id":"4","compact_header":"<a href=\'#\'>Header-4</a>","breadcrumb_header":"<a href=\'#\'>Header-4</a>"},"5":{"id":"5","compact_header":"<a href=\'#\'>Header-5</a>","breadcrumb_header":"<a href=\'#\'>Header-5</a>"},"6":{"id":"6","compact_header":"<span>Object compact header #6</span>"}}}');
       });
     });
   });
@@ -393,7 +386,7 @@ describe('Object control', () => {
       // Then I expect selected object header to be visible in the control.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(1);
       // When I remove the selected instance.
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
       // Then I expect the control should be empty
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(0);
       // When I select the third object from the picker.
@@ -401,13 +394,13 @@ describe('Object control', () => {
       // Then I expect the selected object to be visible in the control.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(1);
       // And I expect the selected object to be the one I chose from the picker.
-      checkObjectHeader(objectControl, 0, 'Object compact header #3');
+      objectControl.isElementSelectedByTitle('Object compact header #3');
       // When I select the first object from the picker.
       toggleObjectSelection(objectControl, [0]);
       // Then I expect the selected object to be visible in the control.
       expect(objectControl.getSelectedObjectsCount()).to.eventually.equal(1);
       // And I expect the selected object to be the one I chose from the picker.
-      checkObjectHeader(objectControl, 0, 'Header-1');
+      objectControl.isElementSelectedByTitle('Header-1');
     });
 
     it('should keep its default value as "remove" property for a consistent changeset', () => {
@@ -420,7 +413,7 @@ describe('Object control', () => {
       formWrapper.getPropertyValue('singleObjectProperty').then(value => {
         expect(value).to.equal(`{"total":1,"offset":0,"limit":5,"results":["3"],"add":["3"],"remove":["1"],"headers":{"1":{"id":"1","compact_header":"<a href='#'>Header-1</a>","breadcrumb_header":"<a href='#'>Header-1</a>"},"2":{"id":"2","compact_header":"<span>Object compact header #2</span>"},"3":{"id":"3","compact_header":"<span>Object compact header #3</span>"}}}`);
       });
-      objectControl.removeInstance(0);
+      objectControl.removeFromSelectionByIndex(0);
       formWrapper.getPropertyValue('singleObjectProperty').then(value => {
         expect(value).to.equal(`{"total":0,"offset":0,"limit":5,"results":[],"add":[],"remove":["1"],"headers":{"1":{"id":"1","compact_header":"<a href='#'>Header-1</a>","breadcrumb_header":"<a href='#'>Header-1</a>"},"2":{"id":"2","compact_header":"<span>Object compact header #2</span>"},"3":{"id":"3","compact_header":"<span>Object compact header #3</span>"}}}`);
       });
@@ -446,7 +439,6 @@ describe('Object control', () => {
     objectControl.selectInstance();
     let objectPickerDialog = new ObjectPickerDialog();
     let search = new Search($(Search.COMPONENT_SELECTOR));
-    search.getCriteria().getSearchBar().search();
     let results = search.getResults();
     // zero based, so item 2 is the third element in result list
     indexes.forEach((ind) => {

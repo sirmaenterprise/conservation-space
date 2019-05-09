@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +43,9 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.sirma.itt.seip.instance.actions.change.type.InstanceTypeMigrationCoordinator;
+import com.sirma.sep.model.ModelService;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.junit.Assert;
@@ -52,6 +58,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 import com.sirma.itt.seip.Uri;
 import com.sirma.itt.seip.convert.TypeConverter;
@@ -60,11 +67,15 @@ import com.sirma.itt.seip.definition.SemanticDefinitionService;
 import com.sirma.itt.seip.definition.model.PropertyDefinitionProxy;
 import com.sirma.itt.seip.domain.codelist.CodelistService;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
+import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
+import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 import com.sirma.itt.seip.instance.InstanceTypeResolver;
 import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.instance.dao.InstanceService;
@@ -81,11 +92,13 @@ import com.sirma.itt.seip.testutil.mocks.DefinitionMock;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.testutil.mocks.PropertyDefinitionMock;
 import com.sirma.itt.semantic.model.vocabulary.EMF;
+import com.sirma.itt.semantic.model.vocabulary.Proton;
 import com.sirma.sep.content.type.MimeTypeResolver;
 import com.sirma.sep.definition.DefinitionImportService;
 import com.sirma.sep.definition.DefinitionInfo;
 import com.sirma.sep.model.ModelExportRequest;
 import com.sirma.sep.model.ModelImportService;
+import com.sirma.sep.model.TypeInfo;
 
 /**
  * Test class for {@link ModelsResource}
@@ -106,6 +119,8 @@ public class ModelsResourceTest {
 	private ModelsResource modelsResource;
 	@Mock
 	private ModelImportService modelImportService;
+	@Mock
+	private ModelService modelService;
 	@Mock
 	private InstanceService instanceService;
 	@Mock
@@ -134,6 +149,10 @@ public class ModelsResourceTest {
 	private DefinitionImportService definitionImportService;
 	@Mock
 	private ResourceService resourceService;
+	@Mock
+	private LabelProvider labelProvider;
+	@Mock
+	private InstanceTypeMigrationCoordinator migrationCoordinator;
 
 	@Before
 	public void init() {
@@ -169,11 +188,16 @@ public class ModelsResourceTest {
 		});
 
 		when(definitionImportService.getImportedDefinitions()).thenReturn(existingDefinitions);
+		when(migrationCoordinator.getAllowedSuperTypes(any())).then(a -> {
+			InstanceType type = a.getArgumentAt(0, InstanceType.class);
+			return type.getSuperTypes();
+		});
 	}
 
 	@Test
 	public void should_ValueOfExistingInContextBeBOTH_When_ValueIsInvalid() {
-		DefinitionModel model = createDefinitionModelWithExistingInContextConfiguration(DefaultProperties.EXISTING_IN_CONTEXT, "NOT_SUPPORTED_VALUE");
+		DefinitionModel model = createDefinitionModelWithExistingInContextConfiguration(DefaultProperties.EXISTING_IN_CONTEXT,
+				"NOT_SUPPORTED_VALUE");
 		Mockito.when(definitionService.find("definition-with-not-supported-value")).thenReturn(model);
 
 		Assert.assertEquals(ExistingInContext.BOTH.toString(), modelsResource.getExistingInContext("definition-with-not-supported-value"));
@@ -181,7 +205,8 @@ public class ModelsResourceTest {
 
 	@Test
 	public void should_ReturnValueOfExistingInContext_When_FieldInDefinitionIsSet() {
-		DefinitionModel model = createDefinitionModelWithExistingInContextConfiguration(DefaultProperties.EXISTING_IN_CONTEXT, ExistingInContext.WITHOUT_CONTEXT.toString());
+		DefinitionModel model = createDefinitionModelWithExistingInContextConfiguration(DefaultProperties.EXISTING_IN_CONTEXT,
+				ExistingInContext.WITHOUT_CONTEXT.toString());
 		Mockito.when(definitionService.find("definition-with-filed")).thenReturn(model);
 
 		Assert.assertEquals(ExistingInContext.WITHOUT_CONTEXT.toString(), modelsResource.getExistingInContext("definition-with-filed"));
@@ -203,12 +228,85 @@ public class ModelsResourceTest {
 	@Test
 	public void should_Build_Response_Containing_Exported_File_And_Name() {
 		File exportedFile = withExportedModelFile("models.zip");
-
 		Response response = modelsResource.exportModels(new ModelExportRequest());
 
 		assertEquals(exportedFile, response.getEntity());
 		assertEquals("models.zip", response.getHeaders().get("X-File-Name").get(0));
 		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getMediaType().toString());
+	}
+
+	@Test
+	public void should_Build_Response_Containing_Exported_Ontologies() {
+		File exportedFile = Mockito.mock(File.class);
+		when(exportedFile.getName()).thenReturn("ontologies.zip");
+		when(modelService.exportOntologies(any(List.class))).thenReturn(exportedFile);
+		
+		Response response = modelsResource.exportOntology();
+		assertEquals(exportedFile, response.getEntity());
+		assertEquals("ontologies.zip", response.getHeaders().get("X-File-Name").get(0));
+		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getMediaType().toString());
+	}
+
+	@Test
+	public void shouldEncodeFilenameHeaderWhenExporting() throws Exception {
+		String filename = "модели.zip";
+		String encodedFilename = URLEncoder.encode("модели.zip", StandardCharsets.UTF_8.toString());
+
+		File exportedFile = withExportedModelFile(filename);
+		Response response = modelsResource.exportModels(new ModelExportRequest());
+
+		assertEquals(exportedFile, response.getEntity());
+		assertEquals(encodedFilename, response.getHeaders().get("X-File-Name").get(0));
+		assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getMediaType().toString());
+	}
+
+	@Test
+	public void should_Return_Proper_Data_Types() {
+		withExistingDataTypes();
+
+		TypeInfo string = new TypeInfo().setId(XMLSchema.STRING)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "String" }));
+
+		TypeInfo integer = new TypeInfo().setId(XMLSchema.INTEGER)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "Integer" }));
+
+		List<TypeInfo> dataTypes = modelsResource.getTypes(TypeInfo.DATA_TYPE);
+		assertEquals(Arrays.asList(string, integer), dataTypes);
+	}
+
+	@Test
+	public void should_Return_Proper_Object_Types() {
+		withExistingObjectTypes();
+
+		TypeInfo entity = new TypeInfo().setId(Proton.ENTITY)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "Entity" }));
+
+		TypeInfo object = new TypeInfo().setId(Proton.OBJECT)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "Object" }));
+
+		List<TypeInfo> objectTypes = modelsResource.getTypes(TypeInfo.OBJECT_TYPE);
+		assertEquals(Arrays.asList(entity, object), objectTypes);
+	}
+
+	@Test
+	public void should_Return_All_Types() {
+		withExistingDataTypes();
+		withExistingObjectTypes();
+
+		TypeInfo string = new TypeInfo().setId(XMLSchema.STRING)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "String" }));
+
+		TypeInfo integer = new TypeInfo().setId(XMLSchema.INTEGER)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "Integer" }));
+
+		TypeInfo entity = new TypeInfo().setId(Proton.ENTITY)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "Entity" }));
+
+		TypeInfo object = new TypeInfo().setId(Proton.OBJECT)
+				.setLabels(MapUtils.putAll(new HashMap<String, String>(), new String[] { "en", "Object" }));
+
+		List<TypeInfo> allTypes = modelsResource.getTypes(null);
+		assertEquals(Arrays.asList(entity, object, string, integer), allTypes);
 	}
 
 	@Test
@@ -317,7 +415,7 @@ public class ModelsResourceTest {
 		expectedMailTmpl.setTitle("rawTitle");
 		expectedMailTmpl.setForObjectType("emailTemplate");
 		expectedMailTmpl.setModifiedBy("User 1 Header");
-		List<ImportedTemplate> expectedTemplates = Arrays.asList(expectedMailTmpl);
+		List<ImportedTemplate> expectedTemplates = Collections.singletonList(expectedMailTmpl);
 
 		assertEquals(expectedTemplates, result.getTemplates());
 	}
@@ -342,11 +440,10 @@ public class ModelsResourceTest {
 		expectedTmpl.setTitle("rawTitle");
 		expectedTmpl.setForObjectType("rawForType");
 		expectedTmpl.setModifiedBy("user1");
-		List<ImportedTemplate> expectedTemplates = Arrays.asList(expectedTmpl);
+		List<ImportedTemplate> expectedTemplates = Collections.singletonList(expectedTmpl);
 
 		assertEquals(expectedTemplates, result.getTemplates());
 	}
-
 
 	@Test(expected = EmfApplicationException.class)
 	public void should_Throw_Exception_If_User_ModifiedBy_User_NotFound() {
@@ -369,7 +466,7 @@ public class ModelsResourceTest {
 		Set<String> purpose = new HashSet<>(1);
 		purpose.add("search");
 
-		modelsResource.getModelsInfo(null, purpose, null, null, CONTEXT_ID_FILTER, null);
+		modelsResource.getModelsInfo(null, purpose, null, null, CONTEXT_ID_FILTER, null, null);
 
 		Mockito.verify(contextValidationHelper, never()).canExistInContext(Matchers.any());
 		Mockito.verify(contextValidationHelper, never()).canExistWithoutContext(Matchers.any());
@@ -380,7 +477,7 @@ public class ModelsResourceTest {
 		setUpExistingInContextTest(false, true);
 		Mockito.when(instanceResolver.resolveReference(CONTEXT_ID_FILTER)).thenReturn(Optional.empty());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null, null);
 
 		assertContainsDefinitionId(info, "def1");
 		assertContainsDefinitionId(info, "def2");
@@ -391,7 +488,7 @@ public class ModelsResourceTest {
 		setUpExistingInContextTest(true, true);
 		Mockito.when(instanceResolver.resolveReference(CONTEXT_ID_FILTER)).thenReturn(Optional.empty());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null, null);
 
 		assertContainsDefinitionId(info, "def1");
 		assertContainsDefinitionId(info, "def2");
@@ -402,7 +499,7 @@ public class ModelsResourceTest {
 		setUpExistingInContextTest(true, false);
 		Mockito.when(instanceResolver.resolveReference(CONTEXT_ID_FILTER)).thenReturn(Optional.empty());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null, null);
 
 		assertContainsDefinitionId(info, "def1");
 		assertNotContainsDefinitionId(info, "def2");
@@ -420,7 +517,7 @@ public class ModelsResourceTest {
 		mockLibraryFilter(instanceIds);
 		Mockito.when(instanceResolver.resolveReference(CONTEXT_ID_FILTER)).thenReturn(Optional.empty());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, CONTEXT_ID_FILTER, null, null);
 
 		assertContainsDefinitionId(info, "emf:def1");
 		assertContainsDefinitionId(info, "emf:def2");
@@ -430,7 +527,7 @@ public class ModelsResourceTest {
 	public void should_NotFilterDefinitionWithPropertyWithoutContext_When_ParameterContextIdIsNull() {
 		setUpExistingInContextTest(true, false);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null, null);
 
 		assertContainsDefinitionId(info, "def1");
 		assertContainsDefinitionId(info, "def2");
@@ -440,7 +537,7 @@ public class ModelsResourceTest {
 	public void should_NotFilterDefinitionWithPropertyBoth_When_ParameterContextIdIsNull() {
 		setUpExistingInContextTest(true, true);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null, null);
 
 		assertContainsDefinitionId(info, "def1");
 		assertContainsDefinitionId(info, "def2");
@@ -450,7 +547,7 @@ public class ModelsResourceTest {
 	public void should_FilterDefinitionWithPropertyInContext_When_ParameterContextIdIsNull() {
 		setUpExistingInContextTest(false, true);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null, null);
 
 		assertContainsDefinitionId(info, "def1");
 		assertNotContainsDefinitionId(info, "def2");
@@ -467,12 +564,11 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def2");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null, null);
 
 		assertContainsDefinitionId(info, "emf:def1");
 		assertContainsDefinitionId(info, "emf:def2");
 	}
-
 
 	@Test
 	public void should_ParseFilesFromHttpRequestAndCallImportService() throws IOException, FileUploadException {
@@ -480,7 +576,9 @@ public class ModelsResourceTest {
 		when(item.getName()).thenReturn("f1.zip");
 		when(item.getInputStream()).thenReturn(new ByteArrayInputStream("test".getBytes()));
 
-		doReturn(Arrays.asList(item)).when(modelsResource).extractUploadedFiles(any(), any());
+		doReturn(Collections.singletonList(item)).when(modelsResource).extractUploadedFiles(any(), any());
+
+		when(modelImportService.importModel(anyMap())).thenReturn(ValidationReport.valid());
 
 		modelsResource.importModels(null);
 
@@ -493,9 +591,9 @@ public class ModelsResourceTest {
 
 	@Test(expected = ModelImportException.class)
 	public void should_ThrowAnErrorWhenThereAreNoFilesProvided() throws IOException, FileUploadException {
-		doReturn(Arrays.asList()).when(modelsResource).extractUploadedFiles(any(), any());
+		doReturn(Collections.emptyList()).when(modelsResource).extractUploadedFiles(any(), any());
 
-		when(modelImportService.importModel(anyMap())).thenReturn(Arrays.asList("Error occured"));
+		when(modelImportService.importModel(anyMap())).thenReturn(new ValidationReport().addError("Error occurred"));
 
 		modelsResource.importModels(null);
 	}
@@ -506,9 +604,9 @@ public class ModelsResourceTest {
 		when(item.getName()).thenReturn("f1.zip");
 		when(item.getInputStream()).thenReturn(new ByteArrayInputStream("test".getBytes()));
 
-		doReturn(Arrays.asList(item)).when(modelsResource).extractUploadedFiles(any(), any());
+		doReturn(Collections.singletonList(item)).when(modelsResource).extractUploadedFiles(any(), any());
 
-		when(modelImportService.importModel(anyMap())).thenReturn(Arrays.asList("Error occured"));
+		when(modelImportService.importModel(anyMap())).thenReturn(new ValidationReport().addError("Error occurred"));
 
 		modelsResource.importModels(null);
 	}
@@ -540,7 +638,7 @@ public class ModelsResourceTest {
 	}
 
 	@Test
-	public void getAllDefinitions_filterByDefinition() throws Exception {
+	public void getAllDefinitions_filterByDefinition() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -552,7 +650,7 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, new HashSet<>(Arrays.asList("def1")));
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, new HashSet<>(Collections.singletonList("def1")), null);
 
 		// 1x class, 1x def
 		assertEquals(2, info.size());
@@ -574,7 +672,7 @@ public class ModelsResourceTest {
 	}
 
 	@Test
-	public void getAllDefinitionsWithOutFiltering() throws Exception {
+	public void getAllDefinitionsWithOutFiltering() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -586,7 +684,7 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
@@ -610,8 +708,8 @@ public class ModelsResourceTest {
 		Mockito.when(contextValidationHelper.canCreateOrUploadIn(CONTEXT_ID_FILTER, PURPOSE_CREATE))
 				.thenReturn(Optional.of(ERROR_MESSAGE_CREATE));
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList(PURPOSE_CREATE.toLowerCase())), null, null,
-													   CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList(PURPOSE_CREATE.toLowerCase())), null,
+				null, CONTEXT_ID_FILTER, null, null);
 		assertEquals(6, info.size());
 		verify(contextValidationHelper, atLeastOnce()).canCreateOrUploadIn(CONTEXT_ID_FILTER, PURPOSE_CREATE);
 		assertEquals(ERROR_MESSAGE_CREATE, info.getErrorMessage());
@@ -633,8 +731,8 @@ public class ModelsResourceTest {
 		Mockito.when(contextValidationHelper.canCreateOrUploadIn(CONTEXT_ID_FILTER, PURPOSE_UPLOAD))
 				.thenReturn(Optional.of(ERROR_MESSAGE_UPLOAD));
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList(PURPOSE_UPLOAD.toLowerCase())), null, null,
-													   CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList(PURPOSE_UPLOAD.toLowerCase())), null,
+				null, CONTEXT_ID_FILTER, null, null);
 
 		verify(contextValidationHelper, atLeastOnce()).canCreateOrUploadIn(CONTEXT_ID_FILTER, PURPOSE_UPLOAD);
 		assertEquals(ERROR_MESSAGE_UPLOAD, info.getErrorMessage());
@@ -658,8 +756,9 @@ public class ModelsResourceTest {
 		Mockito.when(contextValidationHelper.canCreateOrUploadIn(CONTEXT_ID_FILTER, PURPOSE_UPLOAD))
 				.thenReturn(Optional.of(ERROR_MESSAGE_UPLOAD));
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList(PURPOSE_CREATE.toLowerCase(), PURPOSE_UPLOAD.toLowerCase())), null, null,
-											CONTEXT_ID_FILTER, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null,
+				new HashSet<>(Arrays.asList(PURPOSE_CREATE.toLowerCase(), PURPOSE_UPLOAD.toLowerCase())), null, null,
+				CONTEXT_ID_FILTER, null, null);
 		assertEquals(6, info.size());
 		verify(contextValidationHelper, atLeastOnce()).canCreateOrUploadIn(CONTEXT_ID_FILTER, PURPOSE_CREATE);
 		assertEquals(ERROR_MESSAGE_CREATE + System.lineSeparator() + ERROR_MESSAGE_UPLOAD, info.getErrorMessage());
@@ -682,14 +781,13 @@ public class ModelsResourceTest {
 				.thenReturn(Optional.empty());
 		Mockito.when(instanceResolver.resolveReference(CONTEXT_ID_FILTER)).thenReturn(Optional.empty());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList(PURPOSE_CREATE.toLowerCase())), null, null,
-													   CONTEXT_ID_FILTER, null);
-		String errorMessage = info.getErrorMessage();
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList(PURPOSE_CREATE.toLowerCase())), null,
+				null, CONTEXT_ID_FILTER, null, null);
 		assertEquals(6, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByClass() throws Exception {
+	public void getAllDefinitions_filterByClass() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -702,14 +800,14 @@ public class ModelsResourceTest {
 		mockLibraryFilter(instanceIds);
 
 		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Arrays.asList("emf:def1", "emf:def2")), null, null,
-				null, null, null);
+				null, null, null, null);
 
 		// 2x class, 2x def
 		assertEquals(4, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByClass_forSearch() throws Exception {
+	public void getAllDefinitions_filterByClass_forSearch() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", true, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -723,15 +821,15 @@ public class ModelsResourceTest {
 
 		ModelsInfo info = modelsResource.getModelsInfo(
 				new HashSet<>(Arrays.asList("emf:def1", PARENT_PREFIX + "emf:def2")),
-				new HashSet<>(Arrays.asList("search")), null, null, null, null);
+				new HashSet<>(Collections.singletonList("search")), null, null, null, null, null);
 
 		// 1x class, 1x def, 1 parent class of other class
 		assertEquals(3, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByClassWithSubclasses() throws Exception {
-		mockDefinitions("def1", "def1-subclass");
+	public void getAllDefinitions_filterByClassWithSubclasses() {
+		mockDefinitions("def1", "def1-subclass-1");
 		mockClassInstance("emf:def1", false, false, false);
 
 		List<String> instanceIds = new ArrayList<>();
@@ -740,14 +838,14 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Arrays.asList("emf:def1")), null, null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Collections.singletonList("emf:def1")), null, null, null, null, null, null);
 
 		// 2x class, 2x def
 		assertEquals(4, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forNotFoundContext() throws Exception {
+	public void getAllDefinitions_forNotFoundContext() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -759,7 +857,7 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:notFound", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:notFound", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
@@ -780,20 +878,20 @@ public class ModelsResourceTest {
 
 		when(instanceService.getAllowedChildren(any(Instance.class))).thenReturn(new HashMap<>());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forValidContext() throws Exception {
+	public void getAllDefinitions_forValidContext() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
 		mockClassInstance("emf:def3", false, false, false);
 		Map<String, List<DefinitionModel>> models = new HashMap<>();
-		models.put("case", Arrays.asList(createDefinition("def1")));
+		models.put("case", Collections.singletonList(createDefinition("def1")));
 		models.put("document", Arrays.asList(createDefinition("def2"), createDefinition("def3")));
 
 		List<String> instanceIds = new ArrayList<>();
@@ -804,14 +902,14 @@ public class ModelsResourceTest {
 
 		when(instanceService.getAllowedChildren(any(Instance.class))).thenReturn(models);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forValidContextWithModels_shouldNotReturnUserDefinition() throws Exception {
+	public void getAllDefinitions_forValidContextWithModels_shouldNotReturnUserDefinition() {
 		mockDefinitions("def1", "def2", "def3", "userDefinition|" + EMF.USER.toString());
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -828,22 +926,22 @@ public class ModelsResourceTest {
 		Map<String, List<DefinitionModel>> models = new HashMap<>();
 		when(instanceService.getAllowedChildren(any(Instance.class))).thenReturn(models);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forValidContext_shouldSkipUserDefinition() throws Exception {
+	public void getAllDefinitions_forValidContext_shouldSkipUserDefinition() {
 		mockDefinitions("def1", "def2", "def3", "userDefinition|" + EMF.USER.toString());
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
 		mockClassInstance("emf:def3", false, false, false);
 		mockClassInstance(EMF.USER.toString(), true, true, false);
 		Map<String, List<DefinitionModel>> models = new HashMap<>();
-		models.put("case", Arrays.asList(createDefinition("def1")));
-		models.put("user", Arrays.asList(createDefinition("userDefinition", EMF.USER.toString())));
+		models.put("case", Collections.singletonList(createDefinition("def1")));
+		models.put("user", Collections.singletonList(createDefinition("userDefinition", EMF.USER.toString())));
 		models.put("document", Arrays.asList(createDefinition("def2"), createDefinition("def3")));
 
 		List<String> instanceIds = new ArrayList<>();
@@ -855,14 +953,14 @@ public class ModelsResourceTest {
 
 		when(instanceService.getAllowedChildren(any(Instance.class))).thenReturn(models);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forMissingContext_shouldNotSkipUserDefinition() throws Exception {
+	public void getAllDefinitions_forMissingContext_shouldNotSkipUserDefinition() {
 		mockDefinitions("def1", "def2", "def3", "userDefinition|" + EMF.USER.toString());
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -876,23 +974,23 @@ public class ModelsResourceTest {
 		instanceIds.add(EMF.USER.toString());
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:notFound", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:notFound", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(12, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forValidContext_shouldSkipGroupDefinition() throws Exception {
+	public void getAllDefinitions_forValidContext_shouldSkipGroupDefinition() {
 		mockDefinitions("def1", "def2", "def3", "userDefinition|" + EMF.USER.toString(), "groupDefinition|" + EMF.GROUP.toString());
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
 		mockClassInstance("emf:def3", false, false, false);
 		mockClassInstance(EMF.USER.toString(), true, true, false);
 		Map<String, List<DefinitionModel>> models = new HashMap<>();
-		models.put("case", Arrays.asList(createDefinition("def1")));
-		models.put("user", Arrays.asList(createDefinition("userDefinition", EMF.USER.toString())));
-		models.put("group", Arrays.asList(createDefinition("groupDefinition", EMF.GROUP.toString())));
+		models.put("case", Collections.singletonList(createDefinition("def1")));
+		models.put("user", Collections.singletonList(createDefinition("userDefinition", EMF.USER.toString())));
+		models.put("group", Collections.singletonList(createDefinition("groupDefinition", EMF.GROUP.toString())));
 		models.put("document", Arrays.asList(createDefinition("def2"), createDefinition("def3")));
 
 		List<String> instanceIds = new ArrayList<>();
@@ -905,14 +1003,14 @@ public class ModelsResourceTest {
 
 		when(instanceService.getAllowedChildren(any(Instance.class))).thenReturn(models);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:instance", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(9, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_forMissingContext_shouldNotSkipGroupDefinition() throws Exception {
+	public void getAllDefinitions_forMissingContext_shouldNotSkipGroupDefinition() {
 		mockDefinitions("def1", "def2", "def3", "groupDefinition|" + EMF.GROUP.toString());
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -926,14 +1024,14 @@ public class ModelsResourceTest {
 		instanceIds.add(EMF.GROUP.toString());
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:notFound", null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, "emf:notFound", null, null);
 
 		// 3x parent class, 3x class, 3x def
 		assertEquals(12, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByPurpose_create() throws Exception {
+	public void getAllDefinitions_filterByPurpose_create() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, true, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -945,13 +1043,13 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList("create")), null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList("create")), null, null, null, null, null);
 
 		assertEquals(2, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByPurpose_upload() throws Exception {
+	public void getAllDefinitions_filterByPurpose_upload() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, true);
 		mockClassInstance("emf:def2", false, false, false);
@@ -963,14 +1061,14 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList("upload")), null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList("upload")), null, null, null, null, null);
 
 		// 1 class, 1 def
 		assertEquals(2, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByPurpose_search() throws Exception {
+	public void getAllDefinitions_filterByPurpose_search() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", true, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -982,14 +1080,14 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList("search")), null, null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList("search")), null, null, null, null, null);
 
 		// parent class, class and definition
 		assertEquals(3, info.size());
 	}
 
 	@Test
-	public void getAllDefinitions_filterByMimetype() throws Exception {
+	public void getAllDefinitions_filterByMimetype() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false, "text/plain");
 		mockClassInstance("emf:def2", false, false, false, "image/jpg");
@@ -1001,7 +1099,7 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, "text/plain", null, null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, "text/plain", null, null, null, null);
 
 		assertEquals(9, info.size());
 
@@ -1020,7 +1118,7 @@ public class ModelsResourceTest {
 	}
 
 	@Test
-	public void getAllDefinitions_filterByExtension() throws Exception {
+	public void getAllDefinitions_filterByExtension() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false, "text/plain");
 		mockClassInstance("emf:def2", false, false, false, "image/jpg");
@@ -1032,7 +1130,7 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, "txt", null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, "txt", null, null, null);
 
 		assertEquals(9, info.size());
 
@@ -1040,7 +1138,7 @@ public class ModelsResourceTest {
 	}
 
 	@Test
-	public void getAllDefinitions_filterByMimeTypeAndExtension() throws Exception {
+	public void getAllDefinitions_filterByMimeTypeAndExtension() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false, "text/plain");
 		mockClassInstance("emf:def2", false, false, false, "image/jpg");
@@ -1052,7 +1150,7 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, MediaType.APPLICATION_OCTET_STREAM, "txt", null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, MediaType.APPLICATION_OCTET_STREAM, "txt", null, null, null);
 
 		// 2x parent class, 2x class, 2x def
 		assertEquals(9, info.size());
@@ -1061,7 +1159,7 @@ public class ModelsResourceTest {
 	}
 
 	@Test
-	public void getAllDefinitions_filterByNonAccessibleLibraries() throws Exception {
+	public void getAllDefinitions_filterByNonAccessibleLibraries() {
 		mockDefinitions("def1", "def2", "def3");
 		mockClassInstance("emf:def1", false, false, false, "text/plain");
 		mockClassInstance("emf:def2", false, false, false, "image/jpg");
@@ -1069,7 +1167,7 @@ public class ModelsResourceTest {
 
 		searchService.setFilter(Collections.emptyList());
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, MediaType.APPLICATION_OCTET_STREAM, "txt", null, null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, MediaType.APPLICATION_OCTET_STREAM, "txt", null, null, null);
 
 		// 3x parent class, 3x class, 3x def, 0 accesible libraries
 		assertEquals(0, info.size());
@@ -1086,8 +1184,8 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:Project");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList("create")), null, null, null,
-				null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList("create")), null, null, null,
+				null, null);
 
 		assertEquals(2, info.size());
 	}
@@ -1103,8 +1201,8 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:Project");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Arrays.asList("search")), null, null, null,
-				null);
+		ModelsInfo info = modelsResource.getModelsInfo(null, new HashSet<>(Collections.singletonList("search")), null, null, null,
+				null, null);
 
 		// 2x class, 1 project def, case should be filtered out
 		assertEquals(3, info.size());
@@ -1113,10 +1211,9 @@ public class ModelsResourceTest {
 	/**
 	 * If class filter is added and a definition filter is added with definition from the same class,
 	 * the definition filter is ignored. Both filters (class and definition) are aggregated with OR (similar to searching).
-	 * @throws Exception
 	 */
 	@Test
-	public void getModelsInfo_filterByClass_and_definitionFromSameClass() throws Exception {
+	public void getModelsInfo_filterByClass_and_definitionFromSameClass() {
 		mockDefinitions("def1", "def2", "def3", "def4|emf:def1");
 
 		mockClassInstance("emf:def1", false, false, false);
@@ -1130,7 +1227,7 @@ public class ModelsResourceTest {
 		mockLibraryFilter(instanceIds);
 
 		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Arrays.asList("emf:def1", "emf:def2")), null, null,
-				null, null, new HashSet<>(Arrays.asList("def1")));
+				null, null, new HashSet<>(Collections.singletonList("def1")), null);
 
 		// 2x class, 3x def, definition filter is ignored, def4 is not filtered out
 		assertEquals(5, info.size());
@@ -1139,10 +1236,9 @@ public class ModelsResourceTest {
 	/**
 	 * If definition filter is added with definition which class is not amongst class filter,
 	 * then its class is returned but only with defininitions included in definition filter.
-	 * @throws Exception
 	 */
 	@Test
-	public void getModelsInfo_filterByClass_and_definitionFromDifferentClass() throws Exception {
+	public void getModelsInfo_filterByClass_and_definitionFromDifferentClass() {
 		mockDefinitions("def1", "def2", "def3", "def4|emf:def1");
 
 		mockClassInstance("emf:def1", false, false, false);
@@ -1155,15 +1251,15 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Arrays.asList("emf:def2")), null, null,
-				null, null, new HashSet<>(Arrays.asList("def1")));
+		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Collections.singletonList("emf:def2")), null, null,
+				null, null, new HashSet<>(Collections.singletonList("def1")), null);
 
 		// 2x class, 2x def, emf:def2 definitions are not filtered, def4 is filtered out
 		assertEquals(4, info.size());
 	}
 
 	@Test
-	public void getModelsInfo_filterByDefinitionFromParentClass() throws Exception {
+	public void getModelsInfo_filterByDefinitionFromParentClass() {
 		mockDefinitions("def1", "def2", "def3", "def4|parentOf-emf:def1");
 
 		mockClassInstance("emf:def1", false, false, false);
@@ -1176,15 +1272,15 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, new HashSet<>(Arrays.asList("def1")));
+		ModelsInfo info = modelsResource.getModelsInfo(null, null, null, null, null, new HashSet<>(Collections.singletonList("def1")), null);
 
 		// 1x class, 1x def, def4 is filtered out
 		assertEquals(2, info.size());
 	}
 
 	@Test
-	public void getModelsInfo_filterByDefinitionAndSubClass() throws Exception {
-		mockDefinitions("def1", "def2", "def3", "def4|emf:def1-subclass");
+	public void getModelsInfo_filterByDefinitionAndSubClass() {
+		mockDefinitions("def1", "def2", "def3", "def4|emf:def1-subclass-1");
 
 		mockClassInstance("emf:def1", false, false, false);
 		mockClassInstance("emf:def2", false, false, false);
@@ -1196,11 +1292,35 @@ public class ModelsResourceTest {
 		instanceIds.add("emf:def3");
 		mockLibraryFilter(instanceIds);
 
-		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Arrays.asList("emf:def1-subclass")), null, null,
-				null, null, new HashSet<>(Arrays.asList("def1")));
+		ModelsInfo info = modelsResource.getModelsInfo(new HashSet<>(Collections.singletonList("emf:def1-subclass-1")), null, null,
+				null, null, new HashSet<>(Collections.singletonList("def1")), null);
 
 		// 2x class, 2x def
 		assertEquals(4, info.size());
+	}
+
+	@Test
+	public void getModelsInfo_referenceInstanceShouldBeTakenIntoAccountWhenFilteringClasses() {
+		mockDefinitions("def1", "def2", "def3", "def4|emf:def1-subclass-1", "def5|emf:def1-subclass-2",
+				"def6|emf:def1-subclass-3", "def7|emf:def2-subclass-1", "def8|emf:def2-subclass-2");
+
+		mockClassInstance("emf:def1", false, true, false, null, 3);
+		mockClassInstance("emf:def2", false, true, false, null, 2);
+
+		List<String> instanceIds = new ArrayList<>();
+		instanceIds.add("emf:def1");
+		instanceIds.add("emf:def2");
+		mockLibraryFilter(instanceIds);
+
+		EmfInstance instance = new EmfInstance();
+		instance.setId("emf:someInstance");
+		instance.setType(InstanceType.create("emf:def1-subclass-1"));
+		when(instanceResolver.resolveReference("emf:someInstance")).thenReturn(Optional.of(InstanceReferenceMock.createGeneric(instance)));
+
+		ModelsInfo info = modelsResource.getModelsInfo(null, Collections.singleton("create"), null,
+				null, null, null, "emf:someInstance");
+		// 3x class, 3x def (sibling classes and their definitions
+		assertEquals(6, info.size());
 	}
 
 	private File withExportedModelFile(String fileName) {
@@ -1236,6 +1356,30 @@ public class ModelsResourceTest {
 		when(instanceResolver.resolveReference(eq(id))).thenReturn(Optional.of(reference));
 	}
 
+	private void withExistingDataTypes() {
+		ClassInstance string = new ClassInstance();
+		string.setId(XMLSchema.STRING);
+		string.setLabel("en", "String");
+
+		ClassInstance integer = new ClassInstance();
+		integer.setId(XMLSchema.INTEGER);
+		integer.setLabel("en", "Integer");
+
+		when(semanticDefinitionService.getDataTypes()).thenReturn(Arrays.asList(string, integer));
+	}
+
+	private void withExistingObjectTypes() {
+		ClassInstance entity = new ClassInstance();
+		entity.setId(Proton.ENTITY);
+		entity.setLabel("en", "Entity");
+
+		ClassInstance object = new ClassInstance();
+		object.setId(Proton.OBJECT);
+		object.setLabel("en", "Object");
+
+		when(semanticDefinitionService.getClasses()).thenReturn(Arrays.asList(entity, object));
+	}
+
 	private void mockDefinitions(String... definitionIds) {
 		DefinitionModel[] models = new DefinitionModel[definitionIds.length];
 		for (int i = 0; i < definitionIds.length; i++) {
@@ -1269,7 +1413,7 @@ public class ModelsResourceTest {
 		PropertyDefinitionMock typeField = new PropertyDefinitionMock();
 		typeField.setName(TYPE);
 		typeField.setValue(defId);
-		typeField.setCodelist(Integer.valueOf(1));
+		typeField.setCodelist(1);
 		definitionMock.getFields().add(typeField);
 
 		PropertyDefinitionMock semanticTypeField = new PropertyDefinitionMock();
@@ -1284,6 +1428,11 @@ public class ModelsResourceTest {
 	@SuppressWarnings("boxing")
 	private void mockClassInstance(String id, boolean searchable, boolean createable, boolean uploadable,
 			String pattern) {
+		mockClassInstance(id, searchable, createable, uploadable, pattern, 1);
+	}
+
+	private void mockClassInstance(String id, boolean searchable, boolean createable, boolean uploadable,
+			String pattern, int subClassCount) {
 		String parentId = PARENT_PREFIX + id;
 		ClassInstance parentInstance = new ClassInstance();
 		parentInstance.setId(parentId);
@@ -1292,7 +1441,7 @@ public class ModelsResourceTest {
 		parentInstance.add("createable", false);
 		parentInstance.addIfNotNull("acceptDataTypePattern", pattern);
 		parentInstance.setLabel("en", parentId);
-		parentInstance.preventModifications();
+		// parentInstance.preventModifications();
 
 		ClassInstance classInstance = new ClassInstance();
 		classInstance.setId(id);
@@ -1302,31 +1451,35 @@ public class ModelsResourceTest {
 		classInstance.addIfNotNull("acceptDataTypePattern", pattern);
 		classInstance.setLabel("en", id);
 		classInstance.getSuperClasses().add(parentInstance);
-
-		String subclassId = id + "-subclass";
-		ClassInstance subclass = new ClassInstance();
-		subclass.setId(subclassId);
-		subclass.add("searchable", searchable);
-		subclass.add("uploadable", uploadable);
-		subclass.add("createable", createable);
-		subclass.addIfNotNull("acceptDataTypePattern", pattern);
-		subclass.setLabel("en", subclassId);
-		subclass.getSuperClasses().add(classInstance);
-
-		classInstance.getSubClasses().put(subclassId, subclass);
-		classInstance.preventModifications();
-		subclass.preventModifications();
+		parentInstance.getSubClasses().put(id, classInstance);
 
 		when(semanticDefinitionService.getClassInstance(parentId)).thenReturn(parentInstance);
 		when(semanticDefinitionService.getClassInstance(id)).thenReturn(classInstance);
-		when(semanticDefinitionService.getClassInstance(subclassId)).thenReturn(subclass);
+
+		List<ClassInstance> subClasses = new LinkedList<>();
+		for (int i = 0; i < subClassCount; i++) {
+			String subclassId = id + "-subclass-" + (i + 1);
+			ClassInstance subclass = new ClassInstance();
+			subclass.setId(subclassId);
+			subclass.add("searchable", searchable);
+			subclass.add("uploadable", uploadable);
+			subclass.add("createable", createable);
+			subclass.addIfNotNull("acceptDataTypePattern", pattern);
+			subclass.setLabel("en", subclassId);
+			subclass.getSuperClasses().add(classInstance);
+			classInstance.getSubClasses().put(subclassId, subclass);
+			subClasses.add(subclass);
+
+			// classInstance.preventModifications();
+			// subclass.preventModifications();
+			when(semanticDefinitionService.getClassInstance(subclassId)).thenReturn(subclass);
+			when(semanticDefinitionService.collectSubclasses(subclassId)).thenReturn(Collections.singleton(subclass));
+		}
 
 		when(semanticDefinitionService.collectSubclasses(parentId))
 				.thenReturn(new LinkedHashSet<>(Arrays.asList(parentInstance, classInstance)));
-		when(semanticDefinitionService.collectSubclasses(id))
-				.thenReturn(new LinkedHashSet<>(Arrays.asList(classInstance, subclass)));
-		when(semanticDefinitionService.collectSubclasses(subclassId))
-				.thenReturn(new LinkedHashSet<>(Arrays.asList(subclass)));
+		subClasses.add(0, classInstance);
+		when(semanticDefinitionService.collectSubclasses(id)).thenReturn(new LinkedHashSet<>(subClasses));
 	}
 
 	private void mockClassInstance(String id, boolean searchable, boolean createable, boolean uploadable) {
@@ -1350,9 +1503,7 @@ public class ModelsResourceTest {
 	}
 
 	private void assertContainsDefinitionId(ModelsInfo info, String definitionId) {
-		Iterator<ModelInfo> iterator = info.iterator();
-		while(iterator.hasNext()) {
-			ModelInfo next = iterator.next();
+		for (ModelInfo next : info) {
 			if (next.getId().equals(definitionId)) {
 				return;
 			}
@@ -1361,9 +1512,7 @@ public class ModelsResourceTest {
 	}
 
 	private void assertNotContainsDefinitionId(ModelsInfo info, String definitionId) {
-		Iterator<ModelInfo> iterator = info.iterator();
-		while(iterator.hasNext()) {
-			ModelInfo next = iterator.next();
+		for (ModelInfo next : info) {
 			if (next.getId().equals(definitionId)) {
 				Assert.fail();
 			}
@@ -1375,7 +1524,6 @@ public class ModelsResourceTest {
 	 * <pre>
 	 *   1.  First will can exist in context and without context.
 	 *   2.  Second will can exist in context and without context depends of <code>canExistWithoutContext</code> <code>canExistInContext</code>.
-	 *
 	 * </pre>
 	 */
 	private void setUpExistingInContextTest(boolean canExistWithoutContext, boolean canExistInContext) {

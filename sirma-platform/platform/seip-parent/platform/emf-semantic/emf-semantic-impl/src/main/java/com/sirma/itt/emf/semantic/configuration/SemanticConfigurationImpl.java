@@ -1,5 +1,6 @@
 package com.sirma.itt.emf.semantic.configuration;
 
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +17,9 @@ import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.emf.semantic.debug.ConnectionMonitor;
 import com.sirma.itt.emf.semantic.debug.DebugRepository;
+import com.sirma.itt.emf.semantic.debug.MonitoredRepository;
 import com.sirma.itt.emf.semantic.info.SemanticOperationLogger;
 import com.sirma.itt.seip.DestroyObservable;
 import com.sirma.itt.seip.Destroyable;
@@ -76,11 +79,23 @@ public class SemanticConfigurationImpl implements SemanticConfiguration, Destroy
 	private static final String SEMANTIC_OPERATION_DEBUG_LOG_ENABLED = "semantic.debug.log.enabled";
 
 	/**
+	 * Semantic statistics collection enabled flag - activates or deactivates the collection of semantic statistics.
+	 */
+	@ConfigurationPropertyDefinition(sensitive = true, type = Boolean.class, defaultValue = "true", label = "Semantic statistics collection enabled flag - activates or deactivates the collection of semantic statistics.")
+	private static final String SEMANTIC_STATISTICS_ENABLED = "semantic.debug.statistics.enabled";
+
+	/**
 	 * Semantic Operation debug log flush on count - count of operations on which to flush the
 	 * operations log
 	 */
 	@ConfigurationPropertyDefinition(sensitive = true, type = Integer.class, defaultValue = "10000", label = "Semantic Operation debug log flush on count - count of operations on which to flush the operations log")
 	private static final String SEMANTIC_OPERATION_DEBUG_LOG_FLUSH_ON_COUNT = "semantic.debug.log.flush.count";
+
+	/**
+	 * Semantic Operation debug log location - where debug logs should be stored. Defaults to application temporary dir
+	 */
+	@ConfigurationPropertyDefinition(sensitive = true, type = File.class, converter = "directory", label = "Semantic Operation debug log location - where debug logs should be stored. Defaults to application temporary dir")
+	private static final String SEMANTIC_OPERATION_DEBUG_SAVE_DIR = "semantic.debug.log.location";
 
 	/**
 	 * Repository instance
@@ -90,7 +105,7 @@ public class SemanticConfigurationImpl implements SemanticConfiguration, Destroy
 	@ConfigurationGroupDefinition(name = "semantic.repository", properties = { SEMANTIC_DB_URL,
 			SEMANTIC_DB_CONNECTION_USER_NAME, SEMANTIC_DB_CONNECTION_PASSWORD, SEMANTIC_OPERATION_DEBUG_LOG_ENABLED,
 			REPOSITORY_NAME, SEMANTIC_DB_MAX_CONNECTION_COUNT, SEMANTIC_OPERATION_DEBUG_LOG_FLUSH_ON_COUNT,
-			SEMANTIC_SOCKET_TIMEOUT }, type = Repository.class, label = "Semantic repository")
+			SEMANTIC_OPERATION_DEBUG_SAVE_DIR, SEMANTIC_SOCKET_TIMEOUT, SEMANTIC_STATISTICS_ENABLED }, type = Repository.class, label = "Semantic repository")
 	private ConfigurationProperty<Repository> repository;
 
 	@Inject
@@ -140,7 +155,7 @@ public class SemanticConfigurationImpl implements SemanticConfiguration, Destroy
 	 */
 	@ConfigurationConverter
 	static Repository buildRepository(GroupConverterContext context, TempFileProvider tempFileProvider,
-			SecurityContext securityContext) {
+			SecurityContext securityContext, ConnectionMonitor connectionMonitor) {
 		try {
 			ConfigurationProperty<String> repositoryAddress = context.getValue(SEMANTIC_DB_URL);
 			if (repositoryAddress.isNotSet()) {
@@ -164,9 +179,17 @@ public class SemanticConfigurationImpl implements SemanticConfiguration, Destroy
 					maxConnections, soTimeout);
 
 			Boolean debug = context.get(SEMANTIC_OPERATION_DEBUG_LOG_ENABLED);
-			Integer flushOnCount = context.get(SEMANTIC_OPERATION_DEBUG_LOG_FLUSH_ON_COUNT);
 			if (debug) {
-				repository = enableRepositoryDebugging(repository, tempFileProvider, flushOnCount);
+				Integer flushOnCount = context.get(SEMANTIC_OPERATION_DEBUG_LOG_FLUSH_ON_COUNT);
+				File outputDir = context.get(SEMANTIC_OPERATION_DEBUG_SAVE_DIR);
+				repository = enableRepositoryDebugging(repository, outputDir, flushOnCount, securityContext.getCurrentTenantId(), tempFileProvider);
+			} else {
+				// disable debugging explicitly otherwise once enabled cannot be disabled until server restart
+				SemanticOperationLogger.setIsEnabled(false);
+			}
+			Boolean statisticsEnabled = context.get(SEMANTIC_STATISTICS_ENABLED);
+			if (statisticsEnabled) {
+				repository = new MonitoredRepository(repository, connectionMonitor);
 			}
 			return repository;
 		} catch (Exception e) {
@@ -193,12 +216,17 @@ public class SemanticConfigurationImpl implements SemanticConfiguration, Destroy
 		return repo;
 	}
 
-	private static Repository enableRepositoryDebugging(Repository repository, TempFileProvider tempFileProvider,
-			Integer flushOnCount) {
-		LOGGER.debug("Enabling semantic debug mode!");
+	private static Repository enableRepositoryDebugging(Repository repository, File outputDir,
+			Integer flushOnCount, String currentTenantId, TempFileProvider tempFileProvider) {
+		String output = tempFileProvider.getTempDir().getAbsolutePath();
+		if (outputDir != null) {
+			output = outputDir.getAbsolutePath();
+		}
+		LOGGER.debug("Enabling semantic debug mode! Threshold: {}, dump location: {}", flushOnCount, output);
 		SemanticOperationLogger.setIsEnabled(true);
 		SemanticOperationLogger.setFlushCount(flushOnCount);
-		SemanticOperationLogger.setTempDirectory(tempFileProvider.getTempDir().getAbsolutePath());
+		SemanticOperationLogger.setTempDirectory(output);
+		SemanticOperationLogger.setContext(currentTenantId);
 		return new DebugRepository(repository);
 	}
 

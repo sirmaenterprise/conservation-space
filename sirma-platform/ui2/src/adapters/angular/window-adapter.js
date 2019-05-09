@@ -1,4 +1,4 @@
-import {$window, $document} from 'angular';
+import 'angular';
 import {Inject,Injectable} from 'app/app';
 
 export const TARGET_BLANK = '_blank';

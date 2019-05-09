@@ -98,4 +98,49 @@ describe('UrlUtils', () => {
       expect(UrlUtils.getIdFromUrl('https://localhost:443/?debugger#/idoc/emf:admin#123-tabid-456')).to.equal('emf:admin');
     });
   });
+
+  describe('removeQueryParam()', () => {
+    it('should remove query param from given single param', () => {
+      let window = mockWindow('http://localhost/#/idoc/emf:instanceId?from=test');
+
+      UrlUtils.removeQueryParam(window, 'from');
+
+      expect(window.history.replaceState.calledWith({}, '', 'http://localhost/#/idoc/emf:instanceId')).to.be.true;
+    });
+
+    it('should remove last query param and keep other params', () => {
+      let window = mockWindow('http://localhost/#/idoc/emf:instanceId?tab=true&from=test');
+
+      UrlUtils.removeQueryParam(window, 'from');
+
+      expect(window.history.replaceState.calledWith({}, '', 'http://localhost/#/idoc/emf:instanceId?tab=true')).to.be.true;
+    });
+
+    it('should remove in between query param and keep other params', () => {
+      let window = mockWindow('http://localhost/#/idoc/emf:instanceId?tab=true&from=test&state=active');
+
+      UrlUtils.removeQueryParam(window, 'from');
+
+      expect(window.history.replaceState.calledWith({}, '', 'http://localhost/#/idoc/emf:instanceId?tab=true&state=active')).to.be.true;
+    });
+
+    it('should do nothing if query param is missing', () => {
+      let window = mockWindow('http://localhost/#/idoc/emf:instanceId?tab=true');
+
+      UrlUtils.removeQueryParam(window, 'from');
+
+      expect(window.history.replaceState.called).to.be.false;
+    });
+  });
+
+  function mockWindow(url) {
+    return {
+      location: {
+        href: url
+      },
+      history: {
+        replaceState: sinon.spy()
+      }
+    };
+  }
 });

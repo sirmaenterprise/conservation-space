@@ -5,11 +5,10 @@ import {PrintService} from 'services/print/print-service';
 import {ActionsService} from 'services/rest/actions-service';
 import {TranslateService} from 'services/i18n/translate-service';
 import {NotificationService} from 'services/notification/notification-service';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {UrlUtils} from 'common/url-utils';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {MODE_PRINT} from 'idoc/idoc-constants';
-import _ from 'lodash';
 
 export const NOTIFICATION_LABEL_ID = 'action.print.idoc.notification';
 export const PRINT_RESTRICT_NOTIFICATION = 'action.print.idoc.restricted.notification';

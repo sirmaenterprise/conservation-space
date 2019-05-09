@@ -491,6 +491,13 @@ describe('ModelUtils', () => {
       });
     });
 
+    it('should return type=text when called with field model that has dataType=ANY and is object property ', () => {
+      let testField = ViewModelBuilder.createField('testField', 'EDITABLE', 'any', 'test field', false, false, []);
+      testField.isDataProperty = false;
+      let type = ModelUtils.defineControlType(testField);
+      expect(type).to.equal('text');
+    });
+
     it('should return type=datetime when called with field model that has dataType=date property set', () => {
       let datetime = ViewModelBuilder.createField('createdOn', 'EDITABLE', 'date', 'field 1', true, true, []);
       expect(ModelUtils.defineControlType(datetime)).to.equal('datetime');
@@ -543,6 +550,11 @@ describe('ModelUtils', () => {
       let fieldWithControl = ViewModelBuilder.createField('generated', 'EDITABLE', 'text', 'Generated', true, true, [], DEFAULT_VALUE_PATTERN);
       expect(ModelUtils.defineControlType(fieldWithControl)).to.equal('text');
     });
+
+    it('should return codelist type', () => {
+      let fieldWithControl = ViewModelBuilder.createField('status', 'EDITABLE', 'ANY', 'Generated', true, true, [], null, 210);
+      expect(ModelUtils.defineControlType(fieldWithControl)).to.equal('codelist');
+    });
   });
 
   describe('isRegion', () => {
@@ -561,13 +573,6 @@ describe('ModelUtils', () => {
 
   describe('getTextFieldType', () => {
     let textareaMinCharsLength = 60;
-    it('should return type=codelist if current model item has codelist property', function () {
-      let type = ModelUtils.getTextFieldType({
-        'codelist': 100
-      }, textareaMinCharsLength);
-      expect(type).to.equal('codelist');
-    });
-
     it('should return type=textarea if current model item has property maxLength greater than configured minimum', function () {
       let type = ModelUtils.getTextFieldType({
         'maxLength': 61

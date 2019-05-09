@@ -26,7 +26,6 @@ import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.db.DbDao;
-import com.sirma.itt.seip.instance.dao.InstanceDao;
 import com.sirma.itt.seip.resources.User;
 import com.sirma.itt.seip.security.context.SecurityContext;
 import com.sirma.itt.seip.template.Template;
@@ -42,9 +41,6 @@ public class TemplateDaoTest {
 
 	@InjectMocks
 	private TemplateDao templateDao;
-
-	@Mock
-	private InstanceDao instanceDao;
 
 	@Mock
 	private DbDao dbDao;
@@ -200,7 +196,7 @@ public class TemplateDaoTest {
 		input.setCorrespondingInstance("emf:Instance");
 
 		TemplateEntity expected = new TemplateEntity();
-		expected.setId(Long.valueOf(7777));
+		expected.setId(7777L);
 		expected.setTemplateId("testTemplate");
 		expected.setTitle("Test Template");
 		expected.setPrimary(Boolean.TRUE);
@@ -227,13 +223,13 @@ public class TemplateDaoTest {
 	@Test
 	public void should_Get_All_Templates_When_Requested() {
 		TemplateEntity entity1 = new TemplateEntity();
-		entity1.setId(Long.valueOf(1));
+		entity1.setId(1L);
 		TemplateEntity entity2 = new TemplateEntity();
-		entity2.setId(Long.valueOf(2));
+		entity2.setId(2L);
 		TemplateEntity entity3 = new TemplateEntity();
-		entity3.setId(Long.valueOf(3));
+		entity3.setId(3L);
 		TemplateEntity entity4 = new TemplateEntity();
-		entity4.setId(Long.valueOf(4));
+		entity4.setId(4L);
 		withExistingTemplatesInRDB(Arrays.asList(entity1, entity2, entity3, entity4));
 
 		List<Template> allTemplates = templateDao.getAllTemplates();
@@ -244,7 +240,7 @@ public class TemplateDaoTest {
 	@Test
 	public void should_Delete_Template() {
 		TemplateEntity existing = new TemplateEntity();
-		existing.setId(Long.valueOf(7777));
+		existing.setId(7777L);
 		withExistingTemplatesInRDB(Collections.singletonList(existing));
 
 		templateDao.delete("test");
@@ -262,7 +258,7 @@ public class TemplateDaoTest {
 		TemplateEntity template1 = new TemplateEntity();
 		template1.setTemplateId("1");
 		template1.setTitle("First Template");
-		withExistingTemplatesInRDB(Arrays.asList(template1));
+		withExistingTemplatesInRDB(Collections.singletonList(template1));
 
 		templateDao.getTemplates("someForType", null);
 
@@ -308,6 +304,16 @@ public class TemplateDaoTest {
 		templateDao.getTemplates(null, "creatable");
 	}
 
+	@Test
+	public void shouldCheckIfTemplateExist() {
+		templateDao.hasTemplate("emf:123");
+
+		ArgumentCaptor<List<Pair<String, Object>>> captor = ArgumentCaptor.forClass(List.class);
+		verify(dbDao).fetchWithNamed(eq(TemplateEntity.QUERY_HAS_TEMPLATE_KEY), captor.capture());
+		assertEquals("id", captor.getValue().get(0).getFirst());
+		assertEquals("emf:123", captor.getValue().get(0).getSecond());
+	}
+
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
@@ -316,8 +322,8 @@ public class TemplateDaoTest {
 	private void withCurrentlyLoggedUser(String userName) {
 		when(securityContext.isActive()).thenReturn(Boolean.TRUE);
 		User user = mock(User.class);
-		when(user.getIdentityId()).thenReturn("user");
-		when(securityContext.getEffectiveAuthentication()).thenReturn(user);
+		when(user.getIdentityId()).thenReturn(userName);
+		when(securityContext.getAuthenticated()).thenReturn(user);
 	}
 
 	private void withExistingTemplatesInRDB(List<TemplateEntity> templates) {

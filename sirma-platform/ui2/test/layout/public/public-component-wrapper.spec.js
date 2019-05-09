@@ -1,5 +1,5 @@
 import {PublicComponentWrapper} from 'layout/public/public-component-wrapper';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {StateParamsAdapter} from 'adapters/router/state-params-adapter';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {PluginsService} from 'services/plugin/plugins-service';

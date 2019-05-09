@@ -1,0 +1,54 @@
+<?xml version="1.0"?> <!-- Treatment Report - added new properties - dam:tratmentStartDate, dam:doneDate, dam:tratedHours, dam:hasAssignedConservator ,chc:treatmentType -->
+<definition id="COREDT06019" type="document" parentId="document" isAbstract="false">
+	<regions>	
+		<region id="generalData">
+			<fields>
+				<field name="emf:purpose" type="ANY" displayType="editable" mandatory="true" order="10" codelist="CL123" tooltip="core.purpose.tooltip" uri="emf:purpose" >
+					<control id="RELATED_FIELDS">
+						<control-param id="fieldsToRerender" name="RERENDER">type</control-param>
+						<control-param id="filterSource" name="FILTER_SOURCE">extra1</control-param>
+						<control-param id="filterInclusive" name="INCLUSIVE">true</control-param>
+					</control>
+				</field>	
+				<field name="chc:treatedObjects" type="ANY" displayType="editable" mandatory="true" order="15" codelist="CL124" label="core.treatedObjects.label" tooltip="core.treatedObjects.tooltip" uri="chc:treatedObjects" />
+				<field name="chc:treatmentType" type="ANY" displayType="editable" mandatory="true" order="20" codelist="CL126" uri="chc:treatmentType" />
+				<field name="chcart:treatmentPriority" type="ANY" displayType="editable" order="21" codelist="CL134" uri="chcart:treatmentPriority" />
+				<field name="dam:hasAssignedConservator" type="uri" mandatory="true" displayType="editable" label="dam.hasAssignedConservator.label" order="25" uri="dam:hasAssignedConservator" >
+					<control id="PICKER">
+						<control-param id="range" name="range">emf:User</control-param>
+					</control>
+				</field>
+				<field name="chc:documents" type="uri" mandatory="true" displayType="editable" order="35" label="core.documents.label" tooltip="core.documents.tooltip" multiValued="true" uri="chc:documents" >
+					<control id="PICKER">
+						<control-param id="range" name="range">chc:CulturalObject</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codelist", "value": ["CURRENT"]}</control-param>
+					</control>
+				</field>
+				<field name="relatedCulturalObjectType" type="ANY" displayType="editable" mandatory="true" order="40" codelist="CL7" filters="culturalObjectTypes" uri="chcart:relatedCulturalObjectType" >
+					<condition id="optionalField" renderAs="OPTIONAL">+[type]</condition>
+					<control id="RELATED_FIELDS">
+						<control-param type="related_field" id="fieldsToRerender" name="RERENDER">relatedCulturalObjectType</control-param>
+						<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">CulturalObj006,CulturalObj007,CulturalObj008,CulturalObj010,CulturalObj013,CulturalObj015,CulturalObj017,CulturalObj018,CulturalObj019,CulturalObj021,CulturalObj022,CulturalObj023</control-param>
+						<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+						<control-param type="default_value_pattern" id="template" name="template">$[chc:documents.type]</control-param>
+					</control>
+				</field>
+				<field name="title" >
+					<control id="DEFAULT_VALUE_PATTERN">
+						<control-param type="default_value_pattern" id="template" name="template">$[chc:documents.chcart:culturalObjectNumber]_$[chc:documents.chcart:artistNames]_$[emf:type]_$[chc:hasAuthor]_$[emf:createdOn]</control-param>
+					</control>
+				</field>
+				<field name="dam:tratmentStartDate" type="date" displayType="editable" order="50" uri="dam:tratmentStartDate" />
+				<field name="dam:doneDate" type="date" displayType="editable" order="55" uri="dam:doneDate" />
+				<field name="dam:tratedHours" type="an..20" displayType="editable" order="60" uri="dam:tratedHours" />
+			</fields>
+		</region>
+		<region id="systemData">
+			<fields>
+				<field name="type" codelist="CL6" >
+					<value>COREDT06019</value>
+				</field>
+			</fields>
+		</region>
+	</regions>
+</definition>

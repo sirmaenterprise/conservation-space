@@ -65,9 +65,32 @@ public class Alfresco4ViewContentStoreTest {
 		when(documentAdapter.uploadContent(any(DMSInstance.class), any(UploadWrapperDescriptor.class), anySet()))
 				.thenReturn(result);
 		Content descriptor = Content.createEmpty().setContent("test", "utf-8");
-		Instance instance = new EmfInstance();
-		instance.setId("emf:instance");
+		Instance instance = createInstance();
 		StoreItemInfo itemInfo = alfresco4Store.add(instance, descriptor);
+		assertNotNull(itemInfo);
+		assertEquals("dmsId", itemInfo.getRemoteId());
+	}
+
+	@Test
+	public void addContent_noInstance() throws Exception {
+		FileAndPropertiesDescriptor result = mock(FileAndPropertiesDescriptor.class);
+		when(result.getId()).thenReturn("dmsId");
+		when(documentAdapter.uploadContent(any(DMSInstance.class), any(UploadWrapperDescriptor.class), anySet()))
+				.thenReturn(result);
+		Content descriptor = Content.createEmpty().setContent("test", "utf-8");
+		StoreItemInfo itemInfo = alfresco4Store.add(null, descriptor);
+		assertNotNull(itemInfo);
+		assertEquals("dmsId", itemInfo.getRemoteId());
+	}
+
+	@Test
+	public void addContent_InstanceIdOnly() throws Exception {
+		FileAndPropertiesDescriptor result = mock(FileAndPropertiesDescriptor.class);
+		when(result.getId()).thenReturn("dmsId");
+		when(documentAdapter.uploadContent(any(DMSInstance.class), any(UploadWrapperDescriptor.class), anySet()))
+				.thenReturn(result);
+		Content descriptor = Content.createEmpty().setContent("test", "utf-8");
+		StoreItemInfo itemInfo = alfresco4Store.add("emf:instance", descriptor);
 		assertNotNull(itemInfo);
 		assertEquals("dmsId", itemInfo.getRemoteId());
 	}
@@ -77,18 +100,20 @@ public class Alfresco4ViewContentStoreTest {
 		when(documentAdapter.uploadContent(any(DMSInstance.class), any(UploadWrapperDescriptor.class), anySet()))
 				.thenThrow(new DMSException());
 		Content descriptor = Content.createEmpty().setContent("test", "utf-8");
+		Instance instance = createInstance();
+		alfresco4Store.add(instance, descriptor);
+	}
+
+	private Instance createInstance() {
 		Instance instance = new EmfInstance();
 		instance.setId("emf:instance");
-		alfresco4Store.add(instance, descriptor);
+		return instance;
 	}
 
 	@Test
 	public void addContent_InvalidArgs() throws Exception {
 		assertNull(alfresco4Store.add(null, null));
-		Content descriptor = Content.createEmpty().setContent("test", "utf-8");
-		assertNull(alfresco4Store.add(null, descriptor));
-		Instance instance = new EmfInstance();
-		instance.setId("emf:instance");
+		Instance instance = createInstance();
 		assertNull(alfresco4Store.add(instance, null));
 	}
 
@@ -129,8 +154,7 @@ public class Alfresco4ViewContentStoreTest {
 
 	@Test
 	public void updateContent() throws Exception {
-		Instance instance = new EmfInstance();
-		instance.setId("emf:instance");
+		Instance instance = createInstance();
 
 		Content content = Content.createEmpty().setContent("test", "utf-8");
 		FileAndPropertiesDescriptor propertiesDescriptor = mock(FileAndPropertiesDescriptor.class);
@@ -146,8 +170,7 @@ public class Alfresco4ViewContentStoreTest {
 
 	@Test(expected = StoreException.class)
 	public void updateContent_error() throws Exception {
-		Instance instance = new EmfInstance();
-		instance.setId("emf:instance");
+		Instance instance = createInstance();
 
 		Content content = Content.createEmpty().setContent("test", "utf-8");
 

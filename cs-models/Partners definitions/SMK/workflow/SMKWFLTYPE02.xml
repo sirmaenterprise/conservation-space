@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definition id="SMKWFLTYPE02" parentId="smkWorkflow" type="workflow">
 	<regions>
-		<region id="generalWorkflowInformation" order="10" displayType="editable" label="smkWorkflow.generalWorkflowInformation.region.label">
+		<region id="generalWorkflowInformation" >
 			<fields>
-				<field name="type" type="an..180" order="110" codelist="CL10" label="smk.type.label" tooltip="smk.type.tooltip" displayType="readonly" >
+				<field name="type" codelist="CL10" >
 					<value>SMKWFLTYPE02</value>
 				</field>
 			</fields>
 		</region>
-		<region id="smkActivityDefinitionRelationships" order="40" displayType="editable" label="smk.relationships.region.label">
+		<region id="smkActivityDefinitionRelationships" >
 			<fields>
 				<field name="processes" type="uri" order="40" displayType="editable" label="smk.processes.label" tooltip="smk.processes.tooltip" multiValued="true" previewEmpty="false" uri="emf:processes" >
 					<condition id="readonlyField" renderAs="READONLY">[status] NOTIN ('INIT','NOT_YET_STARTED')</condition>
 					<condition id="mandatoryField" renderAs="MANDATORY">[status] IN ('NOT_YET_STARTED')</condition>
 					<control id="PICKER">
 						<control-param id="range" name="range">chc:CulturalObject</control-param>
-						<control-param id="restrictions" name="restrictions">
-							{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}
-						</control-param>
+						<control-param id="restrictions" name="restrictions">{"field": "emf:status", "operator": "in", "type": "codeList", "value": ["CURRENT"]}</control-param>
 					</control>
 				</field>
 			</fields>

@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,8 +50,7 @@ public class JAXBHelper {
 	public static boolean validateFile(File file, XmlSchemaProvider xmlType, List<Message> messages) {
 
 		try (FileInputStream xml = new FileInputStream(file)) {
-			List<String> errors = new ArrayList<>();
-			errors = XmlValidator.resolveErrors(xml, xmlType);
+			List<String> errors = XmlValidator.resolveErrors(xml, xmlType);
 
 			if (errors.isEmpty()) {
 				return true;
@@ -75,7 +73,7 @@ public class JAXBHelper {
 			msg.append(err);
 
 			msg.append(lineEnd).append("=======================================================================");
-			LOGGER.error(msg.toString());
+			LOGGER.error("{}", msg);
 		} catch (XmlValidatorError e) {
 			String message = "Error validating XML type " + xmlType;
 			LOGGER.error(message, e);

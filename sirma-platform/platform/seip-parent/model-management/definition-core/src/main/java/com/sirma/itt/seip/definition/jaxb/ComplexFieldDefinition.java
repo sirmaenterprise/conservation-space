@@ -58,6 +58,14 @@ import org.eclipse.persistence.oxm.annotations.XmlCDATA;
 @XmlType(name = "complexFieldDefinition", propOrder = { "value", "condition", "control" })
 public class ComplexFieldDefinition {
 
+	/** The name. */
+	@XmlAttribute(name = "name", required = true)
+	protected String name;
+
+	/** The type. */
+	@XmlAttribute(name = "type")
+	protected String type;
+
 	/** The value. */
 	@XmlCDATA
 	protected String value;
@@ -71,14 +79,6 @@ public class ComplexFieldDefinition {
 	/** The order. */
 	@XmlAttribute(name = "order")
 	protected BigInteger order;
-
-	/** The name. */
-	@XmlAttribute(name = "name", required = true)
-	protected String name;
-
-	/** The type. */
-	@XmlAttribute(name = "type")
-	protected String type;
 
 	/** The multi valued. */
 	@XmlAttribute(name = "multiValued")
@@ -125,9 +125,9 @@ public class ComplexFieldDefinition {
 	protected String uri;
 
 	@XmlAttribute(name = "unique")
-	protected Boolean unique = Boolean.FALSE;
+	protected Boolean unique;
 
-	@XmlAttribute(name = "override", required = false)
+	@XmlAttribute(name = "override")
 	protected Boolean override;
 
 	/**
@@ -171,6 +171,10 @@ public class ComplexFieldDefinition {
 			condition = new ArrayList<>();
 		}
 		return condition;
+	}
+
+	public void setCondition(List<ConditionDefinition> condition) {
+		this.condition = condition;
 	}
 
 	/**
@@ -492,7 +496,7 @@ public class ComplexFieldDefinition {
 	/**
 	 * Setter for override field.
 	 *
-	 * @param unique
+	 * @param override
 	 *         - the value for override field.
 	 */
 	public void setOverride(Boolean override) {

@@ -1,6 +1,6 @@
 import {PdfViewer} from 'components/media/pdf-viewer/pdf-viewer';
 import {mock$scope} from 'test/idoc/widget/object-data-widget/scope.mock';
-import {AuthenticationService} from 'services/security/authentication-service';
+import {AuthenticationService} from 'security/authentication-service';
 import {InstanceRestService} from 'services/rest/instance-service';
 import {MODE_PRINT, MODE_EDIT} from 'idoc/idoc-constants';
 import {stub} from 'test/test-utils';

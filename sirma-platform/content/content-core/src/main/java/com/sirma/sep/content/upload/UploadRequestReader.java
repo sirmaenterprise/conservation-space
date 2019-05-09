@@ -22,10 +22,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.time.TimeTracker;
 import com.sirma.sep.content.ContentConfigurations;
-import com.sirma.sep.content.upload.RepositoryFileItemFactory;
 
 /**
  * Converter for {@code multipart/form-data} to {@link UploadRequest}. The converter also checks if the file size is not
@@ -46,9 +43,6 @@ public class UploadRequestReader implements MessageBodyReader<UploadRequest> {
 	@Context
 	private HttpServletRequest request;
 
-	@Inject
-	private Statistics statistics;
-
 	@Override
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
 		return MediaType.MULTIPART_FORM_DATA_TYPE.isCompatible(mediaType) && UploadRequest.class.isAssignableFrom(type);
@@ -58,18 +52,13 @@ public class UploadRequestReader implements MessageBodyReader<UploadRequest> {
 	public UploadRequest readFrom(Class<UploadRequest> type, Type genericType, Annotation[] annotations,
 			MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 					throws IOException {
-
-		RepositoryFileItemFactory itemFactory = fileItemFactory.get();
-
-		TimeTracker tracker = statistics.createTimeStatistics(getClass(), "upload").begin();
 		try {
+			RepositoryFileItemFactory itemFactory = fileItemFactory.get();
 			// the actual file upload happens when the parseRequest method is called
 			List<FileItem> items = buildRequestParser(itemFactory).parseRequest(request);
 			return new UploadRequest(items, itemFactory);
 		} catch (FileUploadException e) {
 			throw new WebApplicationException(e.getMessage(), e, Status.BAD_REQUEST.getStatusCode());
-		} finally {
-			tracker.stop();
 		}
 	}
 

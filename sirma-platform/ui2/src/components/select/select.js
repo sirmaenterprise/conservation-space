@@ -35,7 +35,6 @@ export class Select extends ReusableComponent {
       //adding the ngmodel controller to the form controller
       this.form.$addControl(this.ngModel);
     }
-
     this.initSelect();
 
     this.enableReloadOnDataChange();
@@ -53,6 +52,16 @@ export class Select extends ReusableComponent {
         this.$element.select2('destroy');
       }
     });
+
+    // Prevent page to scroll when option is selected under Safari.
+    // This looks like problem in select2 possible related to https://github.com/select2/select2/issues/5022
+    if (NavigatorAdapter.isSafari()) {
+      this.$element.on('select2:closing', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.$timeout(() => this.$element.select2().trigger('select2:close'), 0);
+      });
+    }
 
     // Append listeners
     if (this.config.listeners) {
@@ -96,7 +105,7 @@ export class Select extends ReusableComponent {
         if (results && results.results) {
           return results;
         }
-        return {results: results};
+        return {results};
       };
 
       JsonUtil.copyProperty(ajaxConfig, 'delay', this.config);
@@ -111,16 +120,20 @@ export class Select extends ReusableComponent {
       };
     }
 
-    this.actualConfig.templateResult = (item) => {
-      return this.templateResult(item, this.config.formatResult);
-    };
+    if (this.config.templateResult) {
+      this.actualConfig.templateResult = this.config.templateResult;
+    } else {
+      this.actualConfig.templateResult = (item) => {
+        return this.templateResult(item, this.config.formatResult);
+      };
+    }
 
     if (this.config.formatSelection) {
       this.actualConfig.templateSelection = this.config.formatSelection;
     } else {
       this.actualConfig.templateSelection = (item) => {
         return HtmlUtil.escapeHtml(item.text);
-      }
+      };
     }
 
     if (this.config.hideSearchBox) {
@@ -206,6 +219,14 @@ export class Select extends ReusableComponent {
     if (ngModel) {
       this.$element.on('change', () => {
         let newValue = this.$element.val();
+        if (this.config.convertToNumber) {
+          let newValueToNumber = parseInt(newValue);
+          newValue = isNaN(newValueToNumber) ? null : newValueToNumber;
+        }
+        else if (this.config.convertToString) {
+          let newValueToString = String(newValue);
+          newValue = _.isUndefined(newValue) || _.isNull(newValue) ? '' : newValueToString;
+        }
         let currentValue = this.ngModel.$viewValue;
         if (!Select.compareValues(newValue, currentValue)) {
           this.ngModel.$setViewValue(newValue);

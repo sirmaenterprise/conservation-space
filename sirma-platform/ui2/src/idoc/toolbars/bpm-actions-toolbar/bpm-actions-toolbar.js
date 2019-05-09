@@ -22,9 +22,7 @@ const BPM_ACTIONS_TOOLBAR_SELECTOR = 'bpm-actions-toolbar';
     config: 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(BpmService, ActionsService, Configuration, ActionExecutor, Eventbus)
 export class BpmActionsToolbar extends Configurable {
 

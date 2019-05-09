@@ -1,15 +1,19 @@
 import {RelationsService} from 'services/rest/relations-service';
+import {RestClient} from 'services/rest-client';
+import {PromiseStub} from 'test/promise-stub';
+import {stub} from 'test/test-utils';
 import {HEADER_V2_JSON} from 'services/rest-client';
 
 describe('RelationsService', () => {
   let relationsService;
-  let restClient = {basePath: 'basepath'};
+  let restClient ;
   beforeEach(() => {
-    relationsService = new RelationsService(restClient);
+    restClient = stub(RestClient);
+    relationsService = new RelationsService(restClient, PromiseStub);
   });
 
   it('should use proper service url', () => {
-    restClient.post = sinon.spy();
+    restClient.post.onCall(0).returns(PromiseStub.resolve({}));
     relationsService.suggest('starId', 'Vader', 'Luke', 'father');
 
     expect(restClient.post.calledOnce);

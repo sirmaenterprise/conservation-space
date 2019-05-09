@@ -33,12 +33,12 @@ public class EmfAction implements Action, Filterable {
 	/**
 	 * If this action should be disabled in the web page.
 	 */
-	private boolean isDisabled = false;
+	private boolean disabled = false;
 
 	/**
 	 * Tooltip bundle identifier
 	 */
-	private String tooltip;
+	private String tooltipValue;
 
 	/**
 	 * If this action is disabled, then the reason may be provided and can be visualized in the web page.
@@ -119,7 +119,7 @@ public class EmfAction implements Action, Filterable {
 	 */
 	@Override
 	public boolean isDisabled() {
-		return isDisabled;
+		return disabled;
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class EmfAction implements Action, Filterable {
 	 */
 	public void setDisabled(boolean isDisabled) {
 		if (!sealed) {
-			this.isDisabled = isDisabled;
+			this.disabled = isDisabled;
 		}
 	}
 
@@ -271,9 +271,9 @@ public class EmfAction implements Action, Filterable {
 		builder.append(", label=");
 		builder.append(label);
 		builder.append(", isDisabled=");
-		builder.append(isDisabled);
+		builder.append(disabled);
 		builder.append(", tooltip=");
-		builder.append(tooltip);
+		builder.append(tooltipValue);
 		builder.append(", disabledReason=");
 		builder.append(disabledReason);
 		builder.append(", confirmationMessage=");
@@ -418,13 +418,13 @@ public class EmfAction implements Action, Filterable {
 	 */
 	public void setTooltip(String tooltip) {
 		if (!sealed) {
-			this.tooltip = tooltip;
+			this.tooltipValue = tooltip;
 		}
 	}
 
 	@Override
 	public String getTooltip() {
-		return this.tooltip;
+		return this.tooltipValue;
 	}
 
 	@Override

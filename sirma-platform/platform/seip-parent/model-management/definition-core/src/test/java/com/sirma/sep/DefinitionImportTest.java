@@ -1,8 +1,28 @@
 package com.sirma.sep;
 
+import static com.sirma.itt.seip.definition.ValidationMessageUtils.error;
+import static com.sirma.itt.seip.definition.validator.DataTypeFieldValidator.DataTypeFieldMessageBuilder.OBJECT_PROPERTY_AS_DATA;
+import static com.sirma.itt.seip.definition.validator.DataTypeFieldValidator.DataTypeFieldMessageBuilder.UNREGISTERED_PROPERTY_URI;
+import static com.sirma.itt.seip.definition.validator.DuplicateUriValidator.DuplicateUriMessageBuilder.DUPLICATED_URI;
+import static com.sirma.itt.seip.definition.validator.FieldValueValidator.FieldValueMessageBuilder.FIELD_WITH_INVALID_BOOLEAN;
+import static com.sirma.itt.seip.definition.validator.FieldValueValidator.FieldValueMessageBuilder.FIELD_WITH_INVALID_JSON;
+import static com.sirma.itt.seip.definition.validator.FilterDefinitionsValidator.FilterValidatorMessageBuilder.FIELD_WITH_NON_SUPPORTED_FILTERING;
+import static com.sirma.itt.seip.definition.validator.RangeFieldValidator.RangeValidatorMessageBuilder.MISSING_RELATION;
+import static com.sirma.itt.seip.definition.validator.RangeFieldValidator.RangeValidatorMessageBuilder.RELATION_MISMATCH;
+import static com.sirma.itt.seip.definition.validator.RangeFieldValidator.RangeValidatorMessageBuilder.UNREGISTERED_SEMANTIC_RANGE;
+import static com.sirma.itt.seip.definition.validator.RangeFieldValidator.RangeValidatorMessageBuilder.UNREGISTERED_URI;
+import static com.sirma.itt.seip.definition.validator.RangeFieldValidator.RangeValidatorMessageBuilder.USING_DATA_PROPERTY_AS_OBJECT;
+import static com.sirma.itt.seip.definition.validator.TransitionValidator.TransitionValidatorMessageBuilder.DUPLICATE_TRANSITION_FIELD;
 import static com.sirma.itt.seip.util.EqualsHelper.nullSafeEquals;
+import static com.sirma.sep.definition.DefinitionImportMessageBuilder.DUPLICATED_DEFINITIONS;
+import static com.sirma.sep.definition.DefinitionImportMessageBuilder.DUPLICATED_FIELDS;
+import static com.sirma.sep.definition.DefinitionImportMessageBuilder.DUPLICATED_LABELS;
+import static com.sirma.sep.definition.DefinitionImportMessageBuilder.HIERARCHY_CYCLE;
+import static com.sirma.sep.definition.DefinitionImportMessageBuilder.MISSING_PARENT;
+import static com.sirma.sep.definition.DefinitionImportMessageBuilder.XML_PARSING_FAILURE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,6 +48,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,15 +74,16 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import com.google.common.jimfs.Jimfs;
+
 import com.sirma.itt.seip.Entity;
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.ShortUri;
 import com.sirma.itt.seip.Uri;
 import com.sirma.itt.seip.cache.InMemoryCacheProvider;
 import com.sirma.itt.seip.cache.lookup.EntityLookupCacheContext;
+import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.concurrent.TaskExecutor;
 import com.sirma.itt.seip.convert.TypeConverter;
 import com.sirma.itt.seip.db.DbDao;
@@ -93,6 +115,7 @@ import com.sirma.itt.seip.definition.label.LabelServiceImpl;
 import com.sirma.itt.seip.definition.model.FilterDefinitionImpl;
 import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.definition.util.hash.HashCalculator;
+import com.sirma.itt.seip.definition.validator.DataTypeFieldValidator;
 import com.sirma.itt.seip.definition.validator.DefinitionValidator;
 import com.sirma.itt.seip.domain.definition.Condition;
 import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
@@ -103,6 +126,8 @@ import com.sirma.itt.seip.domain.filter.Filter;
 import com.sirma.itt.seip.domain.instance.ClassInstance;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.mapping.ObjectMapper;
@@ -150,6 +175,9 @@ public class DefinitionImportTest {
 		// Given I have a definition hierarchy
 		withNewDefinitionFromFile("base_document.xml", "base_document.xml");
 		withNewDefinitionFromFile("documents/simpleDocument.xml", "simple_document.xml");
+
+		registerDataTypeProperty("dcterms:label", mock(PropertyInstance.class));
+		registerDataTypeProperty("dcterms:description", mock(PropertyInstance.class));
 
 		// When I validate the definitions
 		expectNoValidationErrors();
@@ -204,7 +232,7 @@ public class DefinitionImportTest {
 	}
 
 	@Test
-	public void should_UpdateExistingDefinitionIncreasingItsRevisonNumber() {
+	public void should_UpdateExistingDefinitionIncreasingItsRevisionNumber() {
 		GenericDefinitionImpl existingDefinition = new GenericDefinitionImpl();
 		existingDefinition.setIdentifier("def1");
 
@@ -222,7 +250,7 @@ public class DefinitionImportTest {
 	}
 
 	@Test
-	public void should_NotSaveExistingDefinitionsThatAreNotReimported() {
+	public void should_NotSaveExistingDefinitionsThatAreNotReImported() {
 		withExistingDefinition("def").inFile("def.xml");
 
 		withExistingDefinition("defA")
@@ -267,6 +295,8 @@ public class DefinitionImportTest {
 			.havingField("f1", "an..20", null, null, "label")
 			.inFile("def2.xml");
 
+		registerDataTypeProperty("http://test", mock(PropertyInstance.class));
+
 		expectNoValidationErrors();
 
 		List<GenericDefinitionImpl> savedDefinitions = importDefinitions();
@@ -283,7 +313,6 @@ public class DefinitionImportTest {
 		Condition def1Condition = def1Field.getConditions().get(0);
 		assertEquals("mandatory", def1Condition.getIdentifier());
 		assertEquals("[f1] IN ('TEST')", def1Condition.getExpression());
-
 
 		GenericDefinitionImpl def2 = savedDefinitions.get(0);
 		assertEquals("def2", def2.getIdentifier());
@@ -321,21 +350,25 @@ public class DefinitionImportTest {
 		GenericDefinitionImpl def1 = savedDefinitions.get(1);
 
 		assertEquals(2, def1.getConfigurations().size());
+		assertTrue(def1.getConfiguration(CONFIG_NAME).isPresent());
 		PropertyDefinition config1 = def1.getConfiguration(CONFIG_NAME).get();
 		verifyField(config1, CONFIG_NAME, "boolean", DisplayType.SYSTEM, null, "true");
 
 		GenericDefinitionImpl def2 = savedDefinitions.get(0);
 
 		assertEquals(3, def2.getConfigurations().size());
-		PropertyDefinition config2 = def2.getConfiguration(CONFIG_NAME).get();
+		PropertyDefinition config2 = def2.getConfiguration(CONFIG_NAME).orElse(null);
+		assertNotNull(config2);
 		verifyField(config2, CONFIG_NAME, "boolean", DisplayType.SYSTEM, null, "false");
 
 		// also test if the functionality handles properties that don't exist in the parent
-		PropertyDefinition testConfig = def2.getConfiguration("test_config").get();
+		PropertyDefinition testConfig = def2.getConfiguration("test_config").orElse(null);
+		assertNotNull(testConfig);
 		verifyField(testConfig, "test_config", "an..20", DisplayType.EDITABLE, null, "test");
 
 		// test if non-predefined configurations also get inherited
-		PropertyDefinition parentConfig = def2.getConfiguration("parent_config").get();
+		PropertyDefinition parentConfig = def2.getConfiguration("parent_config").orElse(null);
+		assertNotNull(parentConfig);
 		verifyField(parentConfig, "parent_config", "boolean", DisplayType.SYSTEM, null, "true");
 	}
 
@@ -352,6 +385,8 @@ public class DefinitionImportTest {
 			.havingRegion("r2", "editable")
 				.havingField("f1", "an..10", "readonly", "emf:uri1", "label")
 			.inFile("def2.xml");
+
+		registerDataTypeProperty("emf:uri1", mock(PropertyInstance.class));
 
 		expectNoValidationErrors();
 
@@ -379,6 +414,91 @@ public class DefinitionImportTest {
 	}
 
 	@Test
+	public void should_ProperlyMoveFieldsInAndOutOfRegions() {
+
+		registerDataTypeProperty("emf:field1", mock(PropertyInstance.class));
+		registerDataTypeProperty("emf:field2", mock(PropertyInstance.class));
+		registerDataTypeProperty("emf:field3", mock(PropertyInstance.class));
+		registerDataTypeProperty("emf:field4", mock(PropertyInstance.class));
+
+
+		// 4 fields outside regions
+		withDefinition("def1")
+				.havingField("field1", "an..10", "editable", "emf:field1", "Field 1")
+				.havingField("field2", "an..10", "editable", "emf:field2", "Field 2")
+				.havingField("field3", "an..10", "editable", "emf:field3", "Field 3")
+				.havingField("field4", "an..10", "editable", "emf:field4", "Field 4")
+				.inFile("def1.xml");
+
+		// move 3 fields in 2 regions
+		withDefinition("def2")
+				.havingParent("def1")
+				.havingRegion("r1", "editable")
+					.havingField("field2", "an..10", "editable", "emf:field2", "Field 2")
+					.havingField("field3", "an..10", "editable", "emf:field3", "Field 3")
+				.havingRegion("r2", "editable")
+					.havingField("field4", "an..10", "editable", "emf:field4", "Field 4")
+				.inFile("def2.xml");
+
+		withDefinition("def3")
+				.havingParent("def2")
+				// Move field 2 outside region
+				.havingField("field2", "an..10", "editable", "emf:field2", "Field 2")
+				.havingRegion("r1", "editable")
+					// Move field 1 from def1 in region
+					.havingField("field1", "an..10", "editable", "emf:field1", "Field 1")
+				.havingRegion("r2", "editable")
+					// Move field 3 from r1 to r2
+					.havingField("field3", "an..10", "editable", "emf:field3", "Field 3")
+				.inFile("def3.xml");
+
+		expectNoValidationErrors();
+		List<GenericDefinitionImpl> savedDefinitions = importDefinitions();
+		assertEquals(3, savedDefinitions.size());
+
+		Map<String, GenericDefinitionImpl> definitionMap = savedDefinitions.stream()
+				.collect(CollectionUtils.toIdentityMap(GenericDefinition::getIdentifier));
+
+		// Definition 1
+		GenericDefinitionImpl def1 = definitionMap.get("def1");
+		expectFields(def1.getFields(), "field1", "field2", "field3", "field4");
+		assertTrue(def1.getRegions().isEmpty());
+
+		// Definition 2
+		GenericDefinitionImpl def2 = definitionMap.get("def2");
+		expectFields(def2.getFields(), "field1");
+
+		List<com.sirma.itt.seip.definition.RegionDefinition> def2Regions = def2.getRegions();
+		assertEquals(2, def2Regions.size());
+
+		assertEquals("r1", def2Regions.get(0).getIdentifier());
+		expectFields(def2Regions.get(0).getFields(),  "field2", "field3");
+
+		assertEquals("r2", def2Regions.get(1).getIdentifier());
+		expectFields(def2Regions.get(1).getFields(),  "field4");
+
+		// Definition 3
+		GenericDefinitionImpl def3 = definitionMap.get("def3");
+		expectFields(def3.getFields(), "field2");
+
+		List<com.sirma.itt.seip.definition.RegionDefinition> def3Regions = def3.getRegions();
+		assertEquals(2, def3Regions.size());
+
+		assertEquals("r1", def3Regions.get(0).getIdentifier());
+		expectFields(def3Regions.get(0).getFields(),  "field1");
+
+		assertEquals("r2", def3Regions.get(1).getIdentifier());
+		expectFields(def3Regions.get(1).getFields(),  "field3", "field4");
+	}
+
+	private void expectFields(List<PropertyDefinition> actual, String ...expected) {
+		Set<String> actualIds = actual.stream().map(PropertyDefinition::getName).collect(Collectors.toSet());
+		Set<String> expectedIds = new HashSet<>(Arrays.asList(expected));
+		assertEquals(expectedIds.size(), actualIds.size());
+		assertEquals(expectedIds, actualIds);
+	}
+
+	@Test
 	public void should_SupportCompleteOverridingOfParentFieldInTheChildDefinition() {
 		withDefinition("def1")
 			.havingField("f1", "an..10", "readonly", "http://test", "label")
@@ -389,6 +509,8 @@ public class DefinitionImportTest {
 			.havingParent("def1")
 			.havingField("f1", "an..20", null, null, true, "label")
 			.inFile("def2.xml");
+
+		registerDataTypeProperty("http://test", mock(PropertyInstance.class));
 
 		expectNoValidationErrors();
 
@@ -502,7 +624,7 @@ public class DefinitionImportTest {
 
 		importDefinitions();
 
-		expectLabelsToBeSaved("d1.label","d2.label");
+		expectLabelsToBeSaved("d1.label", "d2.label");
 	}
 
 	@Test
@@ -510,12 +632,12 @@ public class DefinitionImportTest {
 		withDefinition("def1").havingLabel("test.label", "a1").inFile("def1.xml");
 		withDefinition("def2").havingLabel("test.label", "v").inFile("def2.xml");
 
-		expectValidationErrors("Duplicate label");
+		expectValidationMessages(error("def1", DUPLICATED_LABELS, "def1", "<label>", "test.label", "[def1, def2]"));
 	}
 
 	@Test
 	public void should_ImportFilters() {
-		when(hashCalculator.computeHash(any())).then(invokation -> invokation.getArguments()[0].hashCode());
+		when(hashCalculator.computeHash(any())).then(invocation -> invocation.getArguments()[0].hashCode());
 
 		withDefinition("def1").havingFilter("filter1", "f1")
 							  .havingFilter("filter11", "f11")
@@ -530,7 +652,7 @@ public class DefinitionImportTest {
 
 		importDefinitions();
 
-		expectFiltersToBeSaved("filter11", "filter2");
+		expectFiltersToBeSaved("filter1", "filter11", "filter2");
 	}
 
 	@Test
@@ -538,7 +660,7 @@ public class DefinitionImportTest {
 		withDefinition("def1").havingFilter("test_filter", "a1").inFile("def1.xml");
 		withDefinition("def2").havingFilter("test_filter", "v").inFile("def2.xml");
 
-		expectValidationErrors("Duplicate filter");
+		expectValidationMessages(error("def1", DUPLICATED_LABELS, "def1", "<filter>", "test_filter", "[def1, def2]"));
 	}
 
 	@Test
@@ -546,14 +668,14 @@ public class DefinitionImportTest {
 		withDefinition("def1").inFile("def1.xml");
 		withDefinition("def1").inFile("def2.xml");
 
-		expectValidationErrors("Multiple definitions");
+		expectValidationMessages(error("def1", DUPLICATED_DEFINITIONS, "def1"));
 	}
 
 	@Test
 	public void should_NotAcceptDefinitionsWithMissingParent() {
 		withDefinition("def1").havingParent("def2").inFile("def1.xml");
 
-		expectValidationErrors("The parent definition 'def2' of definition 'def1'");
+		expectValidationMessages(error("def1", MISSING_PARENT, "def1", "def2"));
 	}
 
 	@Test
@@ -562,9 +684,10 @@ public class DefinitionImportTest {
 		withDefinition("d2").havingParent("d1").inFile("def2.xml");
 		withDefinition("d3").havingParent("d2").inFile("def3.xml");
 
-		expectValidationErrors("Definition 'd1' contains hierarchy cycle",
-				"Definition 'd2' contains hierarchy cycle",
-				"Definition 'd3' contains hierarchy cycle");
+		expectValidationMessages(
+				error("d1", HIERARCHY_CYCLE, "d1", "[d1, d3, d2, d1]"),
+				error("d2", HIERARCHY_CYCLE, "d2", "[d2, d1, d3, d2]"),
+				error("d3", HIERARCHY_CYCLE, "d3", "[d3, d2, d1, d3]"));
 	}
 
 	@Test
@@ -574,7 +697,9 @@ public class DefinitionImportTest {
 			.havingField("f2", "an..10", "editable", "emf:testUri", "label")
 			.inFile("def1.xml");
 
-		expectValidationErrors("(duplicate use of uri) : emf:testUri");
+		registerDataTypeProperty("emf:testUri", mock(PropertyInstance.class));
+
+		expectValidationMessages(error("def1", DUPLICATED_URI, "def1", "emf:testUri", "[f1, f2]"));
 	}
 
 	/**
@@ -589,12 +714,16 @@ public class DefinitionImportTest {
 			.inFile("def1.xml");
 
 		withDefinition("def2")
-			.havingParent("non_existing_parent")
-			.inFile("def2.xml");
+				.havingParent("non_existing_parent")
+				.inFile("def2.xml");
 
 		withNewDefinition("def3.xml", "non_xml");
+		registerDataTypeProperty("emf:testUri", mock(PropertyInstance.class));
 
-		expectValidationErrors("XML validation error", "The parent definition 'non_existing_parent'", "(duplicate use of uri) : emf:testUri");
+		expectValidationMessages(
+				error(null, XML_PARSING_FAILURE, "def3.xml", "[On line 1, column 1 : Content is not allowed in prolog.]"),
+				error("def1", DUPLICATED_URI, "def1", "emf:testUri", "[f1, f2]"),
+				error("def2", MISSING_PARENT, "def2", "non_existing_parent"));
 	}
 
 	/**
@@ -622,22 +751,33 @@ public class DefinitionImportTest {
 			.havingField("f2", "an..10", "editable", "emf:testUri", "label")
 			.inFile("def1.xml");
 
-		expectValidationErrors("Multiple definitions with id 'a1' are found",
-							"The parent definition 'a2' of definition 'a3' is missing",
-							"The parent definition 'a1' of definition 'a2' is missing",
-							"(duplicate use of uri) : emf:testUri");
+		registerDataTypeProperty("emf:testUri", mock(PropertyInstance.class));
+
+		expectValidationMessages(
+				error("a1", DUPLICATED_DEFINITIONS, "a1"),
+				error("a3", MISSING_PARENT, "a3", "a2"),
+				error("a2", MISSING_PARENT, "a2", "a1"),
+				error("def1", DUPLICATED_URI, "def1", "emf:testUri", "[f1, f2]"));
 	}
 
 	@Test
-	public void should_NotAllowMultipleVisibleFieldsWithSameId() {
-		withDefinition("d2")
-			.havingField("label", "an..100", "readonly", null, "label")
-			.havingRegion("info", "editable")
-				.havingField("label", "an..100", "readonly", null, "label")
-			.inFile("def2.xml");
+	public void should_NotAllowFieldsWithSameId() {
+		withDefinition("d1")
+				.havingRegion("info", "editable")
+					.havingField("field1", "an..100", "readonly", null, "Field 1")
+				.havingRegion("info2", "editable")
+					.havingField("field1", "an..100", "readonly", null, "Field 1")
+				.inFile("def1.xml");
 
-		expectValidationErrors("Found duplicate VISIBLE field [label] from [d2]",
-				"Found duplicate VISIBLE field [label] in [d2/info]");
+		withDefinition("d2")
+				.havingField("label", "an..100", "readonly", null, "label")
+				.havingRegion("info", "editable")
+					.havingField("label", "an..100", "readonly", null, "label")
+				.inFile("def2.xml");
+
+		expectValidationMessages(
+				error("d1", DUPLICATED_FIELDS, "d1", "field1"),
+				error("d2", DUPLICATED_FIELDS, "d2", "label"));
 	}
 
 	@Test
@@ -645,7 +785,7 @@ public class DefinitionImportTest {
 		withDefinition("def1").inFile("def1.xml");
 		withDefinition("def1").inFile("def2.txt");
 
-		expectValidationErrors();
+		expectNoValidationErrors();
 
 		List<GenericDefinitionImpl> savedDefinitions = importDefinitions();
 
@@ -657,62 +797,86 @@ public class DefinitionImportTest {
 		withNewDefinition("def1.xml", "test");
 		withNewDefinition("test/def1.xml", "test");
 
-		expectValidationErrors("Duplicate file names found");
+		expectValidationMessages(error(null, "Duplicate file names found: def1.xml, test/def1.xml in the provided definitions"));
 	}
 
 	@Test
-	public void should_NotAcceptDefinitionsWithXSDValidation() {
+	public void should_NotAcceptDefinitionsWithXSDValidationErrors() {
 		withNewDefinitionFromFile("def1.xml", "invalid_definition.xml");
 
-		expectValidationErrors("Cannot find the declaration of element 'notADefinition'");
+		expectValidationMessages(
+				error(null, XML_PARSING_FAILURE, "def1.xml",
+						"[On line 2, column 17 : cvc-elt.1: Cannot find the declaration of element 'notADefinition'.]"));
 	}
 
 	@Test
 	public void should_NotAllowImportDefinition_When_ThereAreInvalidValuesOfUries() {
 		withNewDefinitionFromFile("def1.xml", "definition_invalid_uri_validation.xml");
-		List<String> errorMessages = new ArrayList<>();
-		errorMessages.add("XML validation error in def1.xml: On line 8, column 107 : cvc-pattern-valid: Value 'fieldWithoutPrefix' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
-		errorMessages.add("XML validation error in def1.xml: On line 8, column 107 : cvc-attribute.3: The value 'fieldWithoutPrefix' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
-		errorMessages.add("XML validation error in def1.xml: On line 9, column 112 : cvc-pattern-valid: Value ':fieldWithEmptyPrefix' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
-		errorMessages.add("XML validation error in def1.xml: On line 9, column 112 : cvc-attribute.3: The value ':fieldWithEmptyPrefix' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
-		errorMessages.add("XML validation error in def1.xml: On line 10, column 101 : cvc-pattern-valid: Value 'prefixOnly:' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
-		errorMessages.add("XML validation error in def1.xml: On line 10, column 101 : cvc-attribute.3: The value 'prefixOnly:' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
-		errorMessages.add("XML validation error in def1.xml: On line 12, column 107 : cvc-pattern-valid: Value 'emf:fieldWithSpace1 ' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
-		errorMessages.add("XML validation error in def1.xml: On line 12, column 107 : cvc-attribute.3: The value 'emf:fieldWithSpace1 ' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
-		errorMessages.add("XML validation error in def1.xml: On line 13, column 107 : cvc-pattern-valid: Value 'emf: fieldWithSpace2' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
-		errorMessages.add("XML validation error in def1.xml: On line 13, column 107 : cvc-attribute.3: The value 'emf: fieldWithSpace2' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
-		errorMessages.add("XML validation error in def1.xml: On line 14, column 104 : cvc-pattern-valid: Value ' :fieldWithSpace3' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
-		errorMessages.add("XML validation error in def1.xml: On line 14, column 104 : cvc-attribute.3: The value ' :fieldWithSpace3' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
-		expectValidationErrors(errorMessages);
+
+		List<String> expectedErrors = new LinkedList<>();
+		expectedErrors.add("On line 8, column 107 : cvc-pattern-valid: Value 'fieldWithoutPrefix' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
+		expectedErrors.add("On line 8, column 107 : cvc-attribute.3: The value 'fieldWithoutPrefix' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
+		expectedErrors.add("On line 9, column 112 : cvc-pattern-valid: Value ':fieldWithEmptyPrefix' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
+		expectedErrors.add("On line 9, column 112 : cvc-attribute.3: The value ':fieldWithEmptyPrefix' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
+		expectedErrors.add("On line 10, column 101 : cvc-pattern-valid: Value 'prefixOnly:' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
+		expectedErrors.add("On line 10, column 101 : cvc-attribute.3: The value 'prefixOnly:' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
+		expectedErrors.add("On line 12, column 107 : cvc-pattern-valid: Value 'emf:fieldWithSpace1 ' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
+		expectedErrors.add("On line 12, column 107 : cvc-attribute.3: The value 'emf:fieldWithSpace1 ' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
+		expectedErrors.add("On line 13, column 107 : cvc-pattern-valid: Value 'emf: fieldWithSpace2' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
+		expectedErrors.add("On line 13, column 107 : cvc-attribute.3: The value 'emf: fieldWithSpace2' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
+		expectedErrors.add("On line 14, column 104 : cvc-pattern-valid: Value ' :fieldWithSpace3' is not facet-valid with respect to pattern '(\\S+:\\S+)|(FORBIDDEN)' for type '#AnonType_uricomplexFieldDefinition'.");
+		expectedErrors.add("On line 14, column 104 : cvc-attribute.3: The value ' :fieldWithSpace3' of attribute 'uri' on element 'field' is not valid with respect to its type, 'null'.");
+
+		expectValidationMessages(
+				error(null, XML_PARSING_FAILURE, "def1.xml", "[" + String.join(", ", expectedErrors) + "]")
+		);
 	}
 
 	@Test
 	public void should_NotAcceptDefinitions_HavingFields_WithMalformedBooleanValue() {
 		withNewDefinitionFromFile("def1.xml", "definition_malformed_boolean.xml");
 
-		List<String> errorMessages = new ArrayList<>();
-		// configurations
-		errorMessages.add("In configuration, Value: 'test' of field malformedBooleanField is invalid for type boolean");
-		// error messages for fields
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In fields, Value: 'TRUE' of field correctBooleanFieldTRUE is invalid for type boolean ");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In fields, Value: 'True' of field correctBooleanFieldTrue is invalid for type boolean ");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In fields, Value: 'FALSE' of field correctBooleanFieldFALSE is invalid for type boolean ");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In fields, Value: 'False' of field correctBooleanFieldFalse is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In fields, Value: 'leliya Gica' of field malformedBooleanField is invalid for type boolean ");
-		// error messages for regions
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In region 'systemData', Value: 'TRUE' of field regionMalformedBooleanFieldTRUE is invalid for type boolean ");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In region 'systemData', Value: 'True' of field regionMalformedBooleanFieldTrue is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In region 'systemData', Value: 'FALSE' of field regionMalformedBooleanFieldFALSE is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In region 'systemData', Value: 'False' of field regionMalformedBooleanFieldFalse is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In region 'systemData', Value: 'leliya Gica' of field regionMalformedBooleanField is invalid for type boolean");
-		// error messages for transitions
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In transition 'contactPerson', Value: 'TRUE' of field transitionCorrectBooleanFieldTRUE is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In transition 'contactPerson', Value: 'True' of field transitionCorrectBooleanFieldTrue is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In transition 'contactPerson', Value: 'FALSE' of field transitionCorrectBooleanFieldFALSE is invalid for type boolean");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In transition 'contactPerson', Value: 'False' of field transitionCorrectBooleanFieldFalse is invalid for type boolean ");
-		errorMessages.add("Error found in definition 'malformedBooleanDef': In transition 'contactPerson', Value: 'leliya Gica' of field transitionMalformedBooleanField is invalid for type boolean");
+		registerDataTypeProperty("dcterms:label", mock(PropertyInstance.class));
 
-		expectValidationErrors(errorMessages);
+		List<ValidationMessage> errorMessages = new LinkedList<>();
+		// configurations
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "malformedBooleanField", "test"));
+		// error messages for fields
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "correctBooleanFieldTRUE", "TRUE"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "correctBooleanFieldTrue", "True"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "correctBooleanFieldFALSE", "FALSE"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "correctBooleanFieldFalse", "False"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "malformedBooleanField", "leliya Gica"));
+		// error messages for regions
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "regionMalformedBooleanFieldTRUE", "TRUE"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "regionMalformedBooleanFieldTrue", "True"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "regionMalformedBooleanFieldFALSE", "FALSE"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "regionMalformedBooleanFieldFalse", "False"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "regionMalformedBooleanField", "leliya Gica"));
+		// error messages for transitions
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "transitionCorrectBooleanFieldTRUE", "TRUE"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "transitionCorrectBooleanFieldTrue", "True"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "transitionCorrectBooleanFieldFALSE", "FALSE"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "transitionCorrectBooleanFieldFalse", "False"));
+		errorMessages.add(error("malformedBooleanDef", FIELD_WITH_INVALID_BOOLEAN, "malformedBooleanDef", "transitionMalformedBooleanField", "leliya Gica"));
+
+		expectValidationMessages(errorMessages);
+	}
+
+	@Test
+	public void should_NotAcceptDefinition_HavingFieldsWithSameNameInTransition() {
+		// GIVEN:
+		// Definition "duplicateFieldNameInTransition" has a transition which have two fields with same name.
+
+		// WHEN
+		// Definition is imported.
+		withNewDefinitionFromFile("def1.xml", "definition_duplicated_field_name_in_transition.xml");
+
+		// THEN:
+		// error message have to be generated.
+		expectValidationMessages(
+				error("duplicateFieldNameInTransition", DUPLICATE_TRANSITION_FIELD, "duplicateFieldNameInTransition", "addWatchers",
+						"sendMail"));
 	}
 
 	@Test
@@ -725,21 +889,19 @@ public class DefinitionImportTest {
 		// A field "fieldWithEmptyRange", this field has empty range and its uri is registered.
 		PropertyInstance modifiedByRelation = new PropertyInstance();
 		modifiedByRelation.setId("emf:modifiedBy");
-		when(semanticDefinitionService.getRelation("emf:modifiedBy")).thenReturn(modifiedByRelation);
-
+		registerObjectProperty("emf:modifiedBy", modifiedByRelation);
 
 		// A field "fieldWithRange", this field has not empty range, but range is in mismatch with semantic range.
 		PropertyInstance createdByRelation = new PropertyInstance();
 		createdByRelation.setId("emf:createdBy");
 		createdByRelation.setRangeClass(AGENT_SHORT_URI);
-		when(semanticDefinitionService.getRelation("emf:createdBy")).thenReturn(createdByRelation);
+		registerObjectProperty("emf:createdBy", createdByRelation);
 
 		// A field "fieldWithNonRegisteredSemanticRange", this field has range and semantic has not range.
 		PropertyInstance nonRegisteredSemanticRange = new PropertyInstance();
 		nonRegisteredSemanticRange.setId("emf:nonRegisteredSemanticRange");
 		nonRegisteredSemanticRange.setRangeClass("emf:MissingSemanticRange");
-		when(semanticDefinitionService.getRelation("emf:nonRegisteredSemanticRange")).thenReturn(
-				nonRegisteredSemanticRange);
+		registerObjectProperty("emf:nonRegisteredSemanticRange", nonRegisteredSemanticRange);
 
 		// Semantic class "emf:Vendor".
 		ClassInstance vendor = new ClassInstance();
@@ -760,7 +922,7 @@ public class DefinitionImportTest {
 		// Semantic class "ptop:Agent" is registered as object property.
 		when(semanticDefinitionService.getClassInstance(AGENT_SHORT_URI)).thenReturn(agent);
 		// Semantic class "emf:DataProperty" is registered as data property.
-		when(semanticDefinitionService.getProperty("emf:DataProperty")).thenReturn(Mockito.mock(PropertyInstance.class));
+		registerDataTypeProperty("emf:DataProperty", mock(PropertyInstance.class));
 
 		// When:
 		// Definition is imported.
@@ -768,42 +930,74 @@ public class DefinitionImportTest {
 
 		// Then:
 		// We expect:
-		List<String> errorMessages = new ArrayList<>();
-		// A error that "emf:notRegisteredUri" is not found.
-		errorMessages.add("Error found in definition 'rangeValidationDef': Uri: emf:notRegisteredUri of property: fieldWithNotRegisteredUri is not found!");
-		// A error that "" is not sub class of range specified in semantic.
-		errorMessages.add("Error found in definition 'rangeValidationDef': There is incorrect property range emf:Document in property: fieldWithRange. It have to be: ptop:Agent or subclass of it!");
-		// A error "emf:createdBy"  is not registered in semantic.
-		errorMessages.add("Error found in definition 'rangeValidationDef': Uri: emf:createdBy of property: fieldWithRange is not registered!");
-		// A error that specified range "emf:MissingSemanticRange" is not found in semantic.
-		errorMessages.add("Error found in definition 'rangeValidationDef': Semantic range: emf:MissingSemanticRange of uri emf:nonRegisteredSemanticRange not found!");
-		// A error that object property "emf:DataProperty" is used as object property.
-		errorMessages.add("Uri emf:DataProperty of property author is defined as data property and can't be used as object property!");
-		expectValidationErrors(errorMessages);
+		expectValidationMessages(
+				// A error that "emf:notRegisteredUri" is not found.
+				error("rangeValidationDef", MISSING_RELATION, "rangeValidationDef", "fieldWithNotRegisteredUri", "emf:notRegisteredUri"),
+				// A error that "" is not sub class of range specified in semantic.
+				error("rangeValidationDef", RELATION_MISMATCH, "rangeValidationDef", "fieldWithRange", "emf:Document", AGENT_FULL_URI),
+				// A error "emf:createdBy"  is not registered in semantic.
+				error("rangeValidationDef", UNREGISTERED_URI, "rangeValidationDef", "fieldWithRange", "emf:createdBy", "emf:NotExistingUri"),
+				// A error that specified range "emf:MissingSemanticRange" is not found in semantic.
+				error("rangeValidationDef", UNREGISTERED_SEMANTIC_RANGE, "rangeValidationDef", "fieldWithNonRegisteredSemanticRange",
+						"emf:nonRegisteredSemanticRange", "emf:MissingSemanticRange"),
+				// A error that object property "emf:DataProperty" is used as object property.
+				error("rangeValidationDef", USING_DATA_PROPERTY_AS_OBJECT, "rangeValidationDef", "author", "emf:DataProperty")
+		);
+	}
+
+	@Test
+	public void should_NotAcceptDefinitions_HavingDataTypeField_WithWrongUri() {
+		// GIVEN:
+		// We have definition with id "dataTypeValidationDef" and fields:
+		// A field "fieldWithNotRegisteredUri", it is with uri not registered into semantic.
+		// A field "fieldWithObjectPropertyUri", it is with uri related to object property.
+		registerObjectProperty("emf:objectProperty", mock(PropertyInstance.class));
+		// A field "fieldWithDataTypePropertyUri", it is with uri related to data type property.
+		registerDataTypeProperty("emf:dataTypeProperty", mock(PropertyInstance.class));
+
+		// When:
+		// Definition is imported.
+		withNewDefinitionFromFile("def1.xml", "definition_data_type_field_validation.xml");
+
+		// Then:
+		// We expect:
+		expectValidationMessages(
+				error("dataTypeValidationDef", OBJECT_PROPERTY_AS_DATA, "dataTypeValidationDef", "fieldWithObjectPropertyUri",
+						"emf:objectProperty"),
+				error("dataTypeValidationDef", UNREGISTERED_PROPERTY_URI, "dataTypeValidationDef", "fieldWithNotRegisteredUri",
+						"emf:notRegisteredUri")
+		);
 	}
 
 	@Test
 	public void should_NotAcceptDefinitions_HavingFields_WithMalformedJSONValue() {
 		withNewDefinitionFromFile("def1.xml", "definition_malformed_json.xml");
 
-		String errorMessage1 = "Error found in definition 'malformedJsonDef': In fields, in the JSON value of field 'malformedJsonField' : Invalid token=EOF at (line no=1, column no=60, offset=59). Expected tokens are: [COMMA]";
-		String errorMessage2 = "Error found in definition 'malformedJsonDef': In region 'systemData', in the JSON value of field 'type' : Unexpected char 111 at (line no=1, column no=4, offset=3), expecting 'a'";
-		String errorMessage3 = "Error found in definition 'malformedJsonDef': In transition 'contactPerson', in the JSON value of field 'misspelledBooleanField' : Unexpected char 32 at (line no=1, column no=20, offset=19), expecting 'e'";
-		String errorMessage4 = "Error found in definition 'malformedJsonDef': In transition 'contactPerson', in the JSON value of field 'attachToConfig' : Invalid token=EOF at (line no=3, column no=129, offset=173). Expected tokens are: [COMMA]";
-		String errorMessage5 = "Error found in definition 'malformedJsonDef': In transition 'testTransition', in the JSON value of field 'testOne' : Invalid token=STRING at (line no=3, column no=18, offset=61). Expected tokens are: [COMMA]";
+		registerDataTypeProperty("dcterms:label", mock(PropertyInstance.class));
+		registerDataTypeProperty("emf:test", mock(PropertyInstance.class));
 
-		expectValidationErrors(errorMessage1, errorMessage2, errorMessage3, errorMessage4, errorMessage5);
+		expectValidationMessages(
+				error("malformedJsonDef", FIELD_WITH_INVALID_JSON, "malformedJsonDef", "malformedJsonField",
+						"Invalid token=EOF at (line no=1, column no=60, offset=59). Expected tokens are: [COMMA]"),
+				error("malformedJsonDef", FIELD_WITH_INVALID_JSON, "malformedJsonDef", "type",
+						"Unexpected char 111 at (line no=1, column no=4, offset=3), expecting 'a'"),
+				error("malformedJsonDef", FIELD_WITH_INVALID_JSON, "malformedJsonDef", "misspelledBooleanField",
+						"Unexpected char 32 at (line no=1, column no=20, offset=19), expecting 'e'"),
+				error("malformedJsonDef", FIELD_WITH_INVALID_JSON, "malformedJsonDef", "attachToConfig",
+						"Invalid token=EOF at (line no=3, column no=129, offset=173). Expected tokens are: [COMMA]"),
+				error("malformedJsonDef", FIELD_WITH_INVALID_JSON, "malformedJsonDef", "testOne",
+						"Invalid token=STRING at (line no=3, column no=18, offset=61). Expected tokens are: [COMMA]"));
 	}
 
 	@Test
 	public void should_NotAcceptDefinition_HavingFiltersOnFieldWithUriEmfType() {
 		withNewDefinitionFromFile("def1.xml", "definition_filter_validation.xml");
 
-		List<String> errorMessages = new ArrayList<>();
-		errorMessages.add("Field with property name: \"type\" and uri: \"emf:type\" can't be filtering!");
-		errorMessages.add("Error found in definition 'filterDefinitionsDefinition': Field with property name: \"status\" and uri: \"emf:status\" can't be filtering!");
-
-		expectValidationErrors(errorMessages);
+		expectValidationMessages(
+				error("filterDefinitionsDefinition", FIELD_WITH_NON_SUPPORTED_FILTERING, "filterDefinitionsDefinition", "type",
+						"emf:type"),
+				error("filterDefinitionsDefinition", FIELD_WITH_NON_SUPPORTED_FILTERING, "filterDefinitionsDefinition", "status",
+						"emf:status"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -851,7 +1045,7 @@ public class DefinitionImportTest {
 		withExistingDefinitionFromFile("def3.xml", "<definition>sadadsadasdasdasd</definition>");
 
 		List<File> exported = definitionImportService.exportAllDefinitions();
-		verifyDefintiionsExported(exported);
+		verifyDefinitionsExported(exported);
 	}
 
 	@Test
@@ -863,7 +1057,7 @@ public class DefinitionImportTest {
 		List<File> exported = definitionImportService.exportDefinitions(Arrays.asList("def1", "def2", "def3"));
 
 		verifyIdsRequested("def1", "def2", "def3");
-		verifyDefintiionsExported(exported);
+		verifyDefinitionsExported(exported);
 	}
 
 	@Inject
@@ -901,7 +1095,7 @@ public class DefinitionImportTest {
 	}
 
 	@Produces
-	private TempFileProvider templFileProvider = new TempFileProviderFake(tempFolder.getRoot());
+	private TempFileProvider tempFileProvider = new TempFileProviderFake(tempFolder.getRoot());
 
 	@Produces
 	private TransactionSupport transactionSupport = new TransactionSupportFake();
@@ -926,10 +1120,10 @@ public class DefinitionImportTest {
 
 		when(definitionService.getDataTypeDefinition(anyString())).thenReturn(mock(DataTypeDefinition.class));
 
-		when(dbDao.saveOrUpdate(any())).thenAnswer(invokation -> invokation.getArguments()[0]);
+		when(dbDao.saveOrUpdate(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
 		when(mutableDefinitionService.savePropertyIfChanged(any(), any())).thenAnswer(
-				invokation -> invokation.getArguments()[0]);
+				invocation -> invocation.getArguments()[0]);
 
 		when(dbDao.fetchWithNamed(eq(DefinitionContent.FETCH_CONTENT_OF_ALL_DEFINITIONS_KEY), anyList())).thenReturn(
 				existingDefinitionFiles);
@@ -968,7 +1162,6 @@ public class DefinitionImportTest {
 
 	private static Map<String, Uri> namespaces = new HashMap<>();
 
-
 	static {
 		namespaces.put(VENDOR_SHORT_URI, new ShortUri(VENDOR_FULL_URI));
 		namespaces.put(DOCUMENT_SHORT_URI, new ShortUri(DOCUMENT_FULL_URI));
@@ -994,10 +1187,14 @@ public class DefinitionImportTest {
 		Set<String> savedLabelIds = savedLabels.stream()
 											 .map(LabelDefinition::getIdentifier)
 											 .collect(Collectors.toSet());
-
 		for (String expectedLabel : expectedLabels) {
 			assertTrue("Expected label '" + expectedLabel + "' to be saved",
 					savedLabelIds.contains(expectedLabel));
+		}
+
+		for (LabelDefinition label : savedLabels) {
+			assertNotNull(label.getDefinedIn());
+			assertFalse("Should have defined in value", label.getDefinedIn().isEmpty());
 		}
 	}
 
@@ -1012,30 +1209,27 @@ public class DefinitionImportTest {
 			assertTrue("Expected filter '" + expectedLabel + "' to be saved",
 					savedFilterIds.contains(expectedLabel));
 		}
-	}
 
-	private void expectValidationErrors(String... expectedErrors) {
-		List<String> errors = new ArrayList<>(definitionImportService.validate(rootDirectory));
-
-		if (expectedErrors.length != errors.size()) {
-			String message = "Expected " + expectedErrors.length + " messages but found " + errors.size() + "\n";
-			message += errors.stream().collect(Collectors.joining("\n"));
-
-			fail(message);
-		}
-
-		for (int i = 0; i < expectedErrors.length; i++) {
-			assertTrue(errors.get(i).toLowerCase() + " should contain: " + expectedErrors[i].toLowerCase(),
-					errors.get(i).toLowerCase().contains(expectedErrors[i].toLowerCase()));
+		for (Filter filter : savedFilters) {
+			assertNotNull(filter.getDefinedIn());
+			assertFalse("Should have defined in value", filter.getDefinedIn().isEmpty());
 		}
 	}
 
-	private void expectValidationErrors(List<String> expectedErrors) {
-		expectValidationErrors(expectedErrors.stream().toArray(String[]::new));
+	private void expectValidationMessages(ValidationMessage... expectedMessages) {
+		expectValidationMessages(Arrays.asList(expectedMessages));
+	}
+
+	private void expectValidationMessages(List<ValidationMessage> expectedMessages) {
+		ValidationReport validationReport = definitionImportService.validate(rootDirectory).getValidationReport();
+		if (expectedMessages.size() != validationReport.getValidationMessages().size()) {
+			fail();
+		}
+		assertTrue(validationReport.getValidationMessages().containsAll(expectedMessages));
 	}
 
 	private void expectNoValidationErrors() {
-		expectValidationErrors();
+		expectValidationMessages();
 	}
 
 	private List<DefinitionContent> savedContentEntries = new ArrayList<>();
@@ -1150,7 +1344,7 @@ public class DefinitionImportTest {
 		assertEquals(Arrays.asList(ids), captor.getValue().get(0).getSecond());
 	}
 
-	private void verifyDefintiionsExported(List<File> exportedActual) throws IOException {
+	private void verifyDefinitionsExported(List<File> exportedActual) throws IOException {
 		assertEquals("The number of exported definition files is not as expected", existingDefinitionFiles.size(),
 				exportedActual.size());
 
@@ -1212,12 +1406,12 @@ public class DefinitionImportTest {
 			return this;
 		}
 
-		public DefinitionBuilder havingField(String name, String type, String displatType, String uri, String label) {
-			return havingField(name, type, displatType, uri, null, label);
+		public DefinitionBuilder havingField(String name, String type, String displayType, String uri, String label) {
+			return havingField(name, type, displayType, uri, null, label);
 		}
 
-		public DefinitionBuilder havingField(String name, String type, String displatType, String uri, Boolean override, String label) {
-			ComplexFieldDefinition field = constructField(name, type, displatType, uri, override, null, label);
+		public DefinitionBuilder havingField(String name, String type, String displayType, String uri, Boolean override, String label) {
+			ComplexFieldDefinition field = constructField(name, type, displayType, uri, override, null, label);
 
 			if (currentRegion != null) {
 				if (currentRegion.getFields() == null) {
@@ -1330,4 +1524,11 @@ public class DefinitionImportTest {
 		existingFilters.add(filter);
 	}
 
+	private void registerDataTypeProperty(String uri, PropertyInstance propertyInstance) {
+		when(semanticDefinitionService.getProperty(uri)).thenReturn(propertyInstance);
+	}
+
+	private void registerObjectProperty(String uri, PropertyInstance propertyInstance) {
+		when(semanticDefinitionService.getRelation(uri)).thenReturn(propertyInstance);
+	}
 }

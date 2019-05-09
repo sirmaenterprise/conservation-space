@@ -27,9 +27,7 @@ export const OPEN_SAVED_SEARCH_EVENT = 'open-saved-search';
     'config': 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject(NgElement, NgScope, NgTimeout, SearchService)
 export class SavedSearchSelect extends Configurable {
 

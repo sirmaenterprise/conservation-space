@@ -66,4 +66,7 @@ public class SubDefinitionType {
 		return definition;
 	}
 
+	public void setDefinition(List<Definition> definition) {
+		this.definition = definition;
+	}
 }

@@ -1,8 +1,7 @@
 import {Inject, Injectable} from 'app/app';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {ModelsService} from 'services/rest/models-service';
-import {INTEGRATED, DEFINITION_ID, PARENT} from 'instance/instance-properties';
-import {InstanceObject} from 'models/instance-object';
+import {DEFINITION_ID, PARENT} from 'instance/instance-properties';
 import {SELECTION_MODE_IN_CONTEXT, SELECTION_MODE_WITHOUT_CONTEXT} from 'components/contextselector/context-selector';
 import {ModelUtils} from 'models/model-utils';
 

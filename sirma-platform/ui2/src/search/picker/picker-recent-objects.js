@@ -21,9 +21,7 @@ const EMPTY_RECENT_OBJECTS_MESSAGE = 'picker.recent.none';
     config: 'config'
   }
 })
-@View({
-  template: template
-})
+@View({template})
 @Inject()
 export class PickerRecentObjects extends Configurable {
   constructor() {

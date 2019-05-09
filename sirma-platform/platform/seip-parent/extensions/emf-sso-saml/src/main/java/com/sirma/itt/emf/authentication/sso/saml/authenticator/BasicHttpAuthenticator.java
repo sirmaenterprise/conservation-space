@@ -22,7 +22,7 @@ import com.sirma.itt.seip.security.authentication.Authenticator;
  *
  * @author BBonev
  */
-@Extension(target = Authenticator.NAME, order = 9)
+@Extension(target = Authenticator.NAME, order = 12)
 public class BasicHttpAuthenticator extends SAMLUserNameAndPasswordAuthenticator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

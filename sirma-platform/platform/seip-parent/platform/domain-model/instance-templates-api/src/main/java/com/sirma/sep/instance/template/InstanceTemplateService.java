@@ -1,5 +1,7 @@
 package com.sirma.sep.instance.template;
 
+import java.io.Serializable;
+
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.template.Template;
 
@@ -60,4 +62,12 @@ public interface InstanceTemplateService {
 	 * @return version of template applied
 	 */
 	String getInstanceTemplateVersion(String instanceId);
+
+	/**
+	 * Checks if there is an existing and active template for provided instance.
+	 *
+	 * @param instance existing instance
+	 * @return <code>true</code> if the instance has an active template or <code>false</code> if not
+	 */
+	boolean hasTemplate(Serializable instance);
 }

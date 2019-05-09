@@ -2,12 +2,10 @@ package com.sirma.itt.seip.instance.validator;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import com.sirma.itt.seip.MessageType;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.context.InstanceContextService;
@@ -39,24 +37,16 @@ public class ContextStateValidator implements Validator {
 
 	@Override
 	public void validate(ValidationContext validationContext) {
-		// we do not have to validate the context rights if we already have are logged as administrator or out of create operation scope
+		// do not validate context rights, when the user is administrator or the operation does not change the context
 		if (!securityContextManager.isAuthenticatedAsAdmin() && canOperationChangeContext(validationContext)) {
 			Instance instance = validationContext.getInstance();
-			Instance context = contextService
-					.getContext(instance)
-					.map(InstanceReference::toInstance)
-					.orElse(null);
-			if (context != null) {
-				Optional<String> errorMessage = contextValidationHelper.canCreateOrUploadIn(context);
-				errorMessage.ifPresent(s -> validationContext.addMessage(MessageType.ERROR, s));
-			}
+			contextService.getContext(instance).map(InstanceReference::toInstance).ifPresent(context -> {
+				contextValidationHelper.canCreateOrUploadIn(context).ifPresent(validationContext::addErrorMessage);
+			});
 		}
 	}
 
-	private boolean canOperationChangeContext(ValidationContext validationContext) {
-		if (validationContext.getOperation() == null || validationContext.getOperation().getOperation() == null) {
-			return false;
-		}
+	private static boolean canOperationChangeContext(ValidationContext validationContext) {
 		return CHANGE_CONTEXT_OPERATIONS.stream()
 				.anyMatch(validationContext.getOperation().getOperation()::equalsIgnoreCase);
 	}

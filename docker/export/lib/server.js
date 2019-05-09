@@ -3,6 +3,7 @@ const bodyParser  = require('body-parser');
 const fs          = require('fs');
 
 const exporter  = require('./exporter');
+const logger = require('./logger');
 
 const router = express.Router()
 const app = express()
@@ -26,7 +27,7 @@ router
             .on('end', () => res.end());
         })
         .catch((err) => {
-          console.log(err)
+          logger.error(err.toString());
 
           let status = err.constructor.name === 'TimeoutError' ? 503 : 500
           res.writeHead(status, {

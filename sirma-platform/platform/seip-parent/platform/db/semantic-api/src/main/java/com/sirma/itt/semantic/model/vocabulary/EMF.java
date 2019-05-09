@@ -25,9 +25,14 @@ public final class EMF {
 	 * An immutable {@link Namespace} constant that represents the Inteligent Document namespace.
 	 */
 	public static final Namespace NS = new SimpleNamespace(PREFIX, NAMESPACE);
+
+	public static final IRI PRIMITIVE;
+
 	// /////////////////////////////////////////
 	// Context
 	// /////////////////////////////////////////
+
+	public static final IRI ONTOLOGY_CONTEXT;
 
 	public static final IRI DATA_CONTEXT;
 
@@ -440,6 +445,7 @@ public final class EMF {
 	static {
 		ValueFactory factory = SimpleValueFactory.getInstance();
 		// init context IRIs
+		ONTOLOGY_CONTEXT = factory.createIRI("http://ittruse.ittbg.com/ontology/enterpriseManagementFramework");
 		DATA_CONTEXT = factory.createIRI("http://ittruse.ittbg.com/data/enterpriseManagementFramework");
 		DEFINITIONS_CONTEXT = factory.createIRI("http://www.sirma.com/data/definitions");
 		ANNOTATIONS_CONTEXT = factory.createIRI("http://www.sirma.com/data/annotations");
@@ -448,6 +454,8 @@ public final class EMF {
 		DEFAULT_RELATION_CONTEXT = factory
 				.createIRI("http://ittruse.ittbg.com/enterpriseManagementFramework/ontology/defaultRelation");
 		REMOVE_GRAPH = factory.createIRI("http://www.sirma.com/system/removeStatements");
+
+		PRIMITIVE = factory.createIRI(NAMESPACE, "Primitive");
 
 		// init Class IRIs
 		PROJECT = factory.createIRI(NAMESPACE, "Project");

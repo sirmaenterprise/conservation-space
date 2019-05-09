@@ -59,7 +59,7 @@ export class IdocTocHeadingHighlighter {
    */
   findNearestHeading(jqElement) {
     // If there is no heading before the selected position
-    if (jqElement.is(this.contentContainer)) {
+    if (!jqElement.length || jqElement.is(this.contentContainer)) {
       return null;
     }
 

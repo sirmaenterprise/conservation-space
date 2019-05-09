@@ -40,7 +40,7 @@ public class SecurityContextWebListener implements ServletRequestListener {
 		try {
 			securityContextManager.initializeExecution(AuthenticationContext.create(request));
 		} catch (AuthenticationException e) {
-			LOGGER.trace("User not authenticated or invalid token for {}", e.getFailedIdentity(), e);
+			LOGGER.error("User not authenticated or invalid token for {}", e.getFailedIdentity(), e);
 		}
 	}
 

@@ -151,6 +151,18 @@ public class InstanceResourceParser {
 			instance = domainInstanceService.loadInstance(id);
 		}
 
+		return readInstanceData(value, instance);
+	}
+
+	/**
+	 * Read Json request for instance save/update over the given instance. The changes in the request will be applied
+	 * over the given instance.
+	 *
+	 * @param value the Json request with changes to apply to the instance
+	 * @param instance the instance target to update
+	 * @return the updated instance or null if the input instance is null
+	 */
+	public Instance readInstanceData(JsonObject value, Instance instance) {
 		if (instance == null) {
 			return null;
 		}

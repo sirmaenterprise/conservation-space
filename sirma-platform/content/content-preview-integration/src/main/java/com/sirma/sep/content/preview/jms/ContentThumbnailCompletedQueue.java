@@ -36,9 +36,6 @@ public class ContentThumbnailCompletedQueue {
 	private static final String THUMBNAIL_PREFIX = "data:image/png;base64,";
 
 	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
-
-	@Inject
 	private ThumbnailService thumbnailService;
 
 	/**
@@ -55,22 +52,14 @@ public class ContentThumbnailCompletedQueue {
 		String thumbnail = THUMBNAIL_PREFIX + new String(thumbnailBytes);
 
 		String instanceId = message.getStringProperty(InstanceCommunicationConstants.INSTANCE_ID);
-		InstanceReference instanceReference = fetchInstance(instanceId);
-		thumbnailService.addThumbnail(instanceReference, thumbnail);
+		thumbnailService.addSelfThumbnail(instanceId, thumbnail);
 		LOGGER.info("Added thumbnail for instance with id={}", instanceId);
 
 		String instanceVersionId = message.getStringProperty(InstanceCommunicationConstants.INSTANCE_VERSION_ID);
 		if (instanceVersionId != null) {
-			InstanceReference instanceVersionReference = fetchInstance(instanceVersionId);
-			thumbnailService.addThumbnail(instanceVersionReference, thumbnail);
+			thumbnailService.addSelfThumbnail(instanceVersionId, thumbnail);
 			LOGGER.debug("Added thumbnail for instance version with id={}", instanceVersionId);
 		}
-	}
-
-	private InstanceReference fetchInstance(String instanceId) {
-		return instanceTypeResolver.resolveReference(instanceId)
-				.orElseThrow(
-						() -> new EmfRuntimeException("Cannot add thumbnail, missing instance with id=" + instanceId));
 	}
 
 	private static byte[] getThumbnailBytes(Message message) throws JMSException {

@@ -8,6 +8,11 @@ module.exports = {
     output: process.env.EXPORT_OUTPUT_DIR || path.join(projectDir, 'output')
   },
 
+  logging: {
+    level: process.env.EXPORT_LOG_LEVEL || 'error',
+    file: process.env.EXPORT_LOG_FILE || path.join(projectDir, 'logs', 'export.json')
+  },
+
   server: {
     host: process.env.EXPORT_HOST || '',
     port: process.env.EXPORT_PORT || 8080

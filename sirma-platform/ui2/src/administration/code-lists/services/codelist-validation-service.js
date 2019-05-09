@@ -117,7 +117,7 @@ export class CodelistValidationService {
       let isBaseDescription = language === code.description.language;
 
       // skip non mandatory empty description when not the base
-      if (!description.name.length && !isBaseDescription) {
+      if (!description.name && !isBaseDescription) {
         return true;
       }
 

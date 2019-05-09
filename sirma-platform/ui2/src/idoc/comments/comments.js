@@ -1,6 +1,5 @@
 import {Component,View,Inject,NgScope,NgCompile,NgElement} from 'app/app';
 import 'idoc/comments/comment';
-import {CommentInstance} from 'idoc/comments/comment-instance';
 import {CommentContentDialog} from 'idoc/comments/comment-content-dialog/comment-content-dialog';
 import {DialogService} from 'components/dialog/dialog-service';
 import {Eventbus} from 'services/eventbus/eventbus';
@@ -52,7 +51,7 @@ export class Comments {
   openPostDialog() {
     this.context.getCurrentObject().then((currentObject)=> {
       let config = {
-        currentObject: currentObject,
+        currentObject,
         tabId: this.tabId
       };
       this.commentContentDialog.createDialog(config);

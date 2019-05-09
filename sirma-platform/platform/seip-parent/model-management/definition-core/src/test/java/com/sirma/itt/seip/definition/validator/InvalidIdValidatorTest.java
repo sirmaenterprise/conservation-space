@@ -1,6 +1,10 @@
 package com.sirma.itt.seip.definition.validator;
 
-
+import static com.sirma.itt.seip.definition.ValidationMessageUtils.hasError;
+import static com.sirma.itt.seip.definition.validator.InvalidIdValidator.InvalidIdMessageBuilder.NON_ASCII_DEFINITION_ID;
+import static com.sirma.itt.seip.definition.validator.InvalidIdValidator.InvalidIdMessageBuilder.NON_ASCII_ID;
+import static com.sirma.itt.seip.definition.validator.InvalidIdValidator.InvalidIdMessageBuilder.NON_WORD_CHARACTERS_DEFINITION_ID;
+import static com.sirma.itt.seip.definition.validator.InvalidIdValidator.InvalidIdMessageBuilder.NON_WORD_CHARACTERS_ID;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -15,6 +19,7 @@ import com.sirma.itt.seip.definition.model.FieldDefinitionImpl;
 import com.sirma.itt.seip.definition.model.GenericDefinitionImpl;
 import com.sirma.itt.seip.definition.model.PropertyDefinitionProxy;
 import com.sirma.itt.seip.definition.model.RegionDefinitionImpl;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 
 public class InvalidIdValidatorTest {
 
@@ -23,12 +28,12 @@ public class InvalidIdValidatorTest {
 	@Test
 	public void should_NotAllowNonWordCharactersInDefinitionId() {
 		GenericDefinitionImpl definition = new GenericDefinitionImpl();
-		definition.setIdentifier("@");
+		definition.setIdentifier("@b");
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Found non word character"));
+		assertTrue(hasError(errors, NON_WORD_CHARACTERS_DEFINITION_ID, "@b"));
 	}
 
 	@Test
@@ -41,10 +46,21 @@ public class InvalidIdValidatorTest {
 
 		definition.getFields().add(field);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Found non word character in ID='@'"));
+		assertTrue(hasError(errors, NON_WORD_CHARACTERS_ID, "test", "<field>", "@"));
+	}
+
+	@Test
+	public void should_NotAllowNonAsciiDefinitionIdentifiers() {
+		GenericDefinitionImpl definition = new GenericDefinitionImpl();
+		definition.setIdentifier("µ1");
+
+		List<ValidationMessage> errors = validator.validate(definition);
+
+		assertFalse(errors.isEmpty());
+		assertTrue(hasError(errors, NON_ASCII_DEFINITION_ID, "µ1", "µ"));
 	}
 
 	@Test
@@ -56,15 +72,15 @@ public class InvalidIdValidatorTest {
 		field.setIdentifier("f1");
 
 		ControlDefinitionImpl control = new ControlDefinitionImpl();
-		control.setIdentifier("µ");
+		control.setIdentifier("µ1");
 		field.setControlDefinition(control);
 
 		definition.getFields().add(field);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Found non ASCII character in ID='µ'"));
+		assertTrue(hasError(errors, NON_ASCII_ID, "d1", "<control>", "µ1", "µ"));
 	}
 
 	@Test
@@ -76,17 +92,17 @@ public class InvalidIdValidatorTest {
 		field.setIdentifier("f1");
 
 		ConditionDefinitionImpl condition = new ConditionDefinitionImpl();
-		condition.setIdentifier("µ");
+		condition.setIdentifier("µ1");
 
 		field.setConditions(new ArrayList<>());
 		field.getConditions().add(condition);
 
 		definition.getFields().add(field);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Found non ASCII character in ID='µ'"));
+		assertTrue(hasError(errors, NON_ASCII_ID, "d1", "<condition>", "µ1", "µ"));
 	}
 
 	@Test
@@ -95,15 +111,14 @@ public class InvalidIdValidatorTest {
 		definition.setIdentifier("d1");
 
 		RegionDefinitionImpl region = new RegionDefinitionImpl();
-		region.setIdentifier("µ");
+		region.setIdentifier("µ1");
 
-		definition.setRegions(new ArrayList<>());
 		definition.getRegions().add(region);
 
-		List<String> errors = validator.validate(definition);
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Found non ASCII character in ID='µ'"));
+		assertTrue(hasError(errors, NON_ASCII_ID, "d1", "<region>", "µ1", "µ"));
 	}
 
 	@Test
@@ -113,17 +128,15 @@ public class InvalidIdValidatorTest {
 
 		RegionDefinitionImpl region = new RegionDefinitionImpl();
 		region.setIdentifier("r1");
-
-		ControlDefinitionImpl control = new ControlDefinitionImpl();
-		control.setIdentifier("µ");
-		region.setControlDefinition(control);
-
-		definition.setRegions(new ArrayList<>());
 		definition.getRegions().add(region);
 
-		List<String> errors = validator.validate(definition);
+		ControlDefinitionImpl control = new ControlDefinitionImpl();
+		control.setIdentifier("µ1");
+		region.setControlDefinition(control);
+
+		List<ValidationMessage> errors = validator.validate(definition);
 
 		assertFalse(errors.isEmpty());
-		assertTrue(errors.get(0).contains("Found non ASCII character in ID='µ'"));
+		assertTrue(hasError(errors, NON_ASCII_ID, "d1", "<control>", "µ1", "µ"));
 	}
 }

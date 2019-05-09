@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -28,6 +27,7 @@ import org.mockito.Spy;
 
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.event.EventService;
+import com.sirma.itt.seip.monitor.NoOpStatistics;
 import com.sirma.itt.seip.monitor.Statistics;
 import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirmaenterprise.sep.jms.annotations.QueueListener;
@@ -54,7 +54,7 @@ public class JmsReceiverManagerTest {
 	@Mock
 	private MessageReceiverStore messageReceiverStore;
 	@Spy
-	private Statistics statistics = Statistics.NO_OP;
+	private Statistics statistics = NoOpStatistics.INSTANCE;
 	@Mock
 	private EventService eventService;
 	@Mock

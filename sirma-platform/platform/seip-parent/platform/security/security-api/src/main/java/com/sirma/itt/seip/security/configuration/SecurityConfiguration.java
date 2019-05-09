@@ -15,6 +15,9 @@ import com.sirma.itt.seip.security.User;
  */
 public interface SecurityConfiguration extends Serializable {
 
+	String WSO_IDP = "wso2Idp";
+	String KEYCLOAK_IDP = "keycloak";
+
 	/**
 	 * Gets the trust store.
 	 *

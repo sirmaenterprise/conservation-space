@@ -19,7 +19,7 @@ export class RestartCommentAction extends ActionHandler {
 
     let config = {
       instanceId: comment.getId(),
-      comment: comment,
+      comment,
       content: comment.getComment()
     };
     return context.config.dataProvider.updateComment(config).then(() => {

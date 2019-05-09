@@ -22,6 +22,10 @@ import template from './code-descriptions.html!text';
 })
 export class CodeDescriptions {
 
+  getDescriptions() {
+    return Object.keys(this.descriptions).sort().map(lang => this.descriptions[lang]);
+  }
+
   onModelChange(value) {
     value.isModified = true;
     this.onChange();

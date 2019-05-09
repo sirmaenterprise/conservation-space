@@ -1,12 +1,13 @@
 package com.sirma.itt.seip.rest.security;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,6 @@ import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -29,15 +29,14 @@ import org.testng.annotations.Test;
 
 import com.sirma.itt.seip.rest.secirity.JwtAuthenticator;
 import com.sirma.itt.seip.rest.secirity.SecurityTokensManager;
-import com.sirma.itt.seip.rest.session.SessionManager;
 import com.sirma.itt.seip.rest.utils.JwtConfiguration;
 import com.sirma.itt.seip.security.User;
 import com.sirma.itt.seip.security.UserStore;
 import com.sirma.itt.seip.security.authentication.AuthenticationContext;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.security.exception.AuthenticationException;
-import com.sirma.itt.seip.security.exception.SecurityException;
 import com.sirma.itt.seip.testutil.fakes.SecurityContextManagerFake;
+import com.sirma.itt.seip.testutil.mocks.ConfigurationPropertyMock;
 import com.sirma.itt.seip.util.ReflectionUtils;
 
 /**
@@ -47,19 +46,21 @@ import com.sirma.itt.seip.util.ReflectionUtils;
  */
 @Test
 public class JwtAuthenticatorTest {
-	private JwtAuthenticator authenticator = new JwtAuthenticator();
+
 	private static final String ISSUER = "test issuer";
 
-	private Key secret;
+	private JwtAuthenticator authenticator = new JwtAuthenticator();
 
-	@Mock
-	private JwtConfiguration jwtConfig;
+	private Key secret;
 
 	@Spy
 	private SecurityContextManager securityContextManager = new SecurityContextManagerFake();
 
-	@Mock
+	@Spy
 	private SecurityTokensManager securityTokensManager;
+
+	@Mock
+	private JwtConfiguration jwtConfiguration;
 
 	@Mock
 	private UserStore userStore;
@@ -70,71 +71,49 @@ public class JwtAuthenticatorTest {
 	@Mock
 	private User nonexistent;
 
-	@Mock
-	private SessionManager sessionManager;
-
-	/**
-	 * Init
-	 *
-	 * @throws NoSuchAlgorithmException
-	 *             if signing alg is nowhere to be found.
-	 */
 	@BeforeTest
 	protected void init() throws NoSuchAlgorithmException {
 		secret = KeyGenerator.getInstance("HmacSHA256").generateKey();
 
 		MockitoAnnotations.initMocks(this);
-		Mockito.when(jwtConfig.getKey()).thenReturn(secret);
-		Mockito.when(jwtConfig.getIssuer()).thenReturn(ISSUER);
 		Mockito.when(goodGuy.getIdentityId()).thenReturn("user@goodguy.org");
 		Mockito.when(nonexistent.getIdentityId()).thenReturn("user@nonexistent.org");
 		when(userStore.loadByIdentityId("user@goodguy.org", "goodguy.org")).thenReturn(goodGuy);
 
-		ReflectionUtils.setFieldValue(authenticator, "jwtConfig", jwtConfig);
 		ReflectionUtils.setFieldValue(authenticator, "securityContextManager", securityContextManager);
 		ReflectionUtils.setFieldValue(authenticator, "userStore", userStore);
 		ReflectionUtils.setFieldValue(authenticator, "securityTokensManager", securityTokensManager);
-		ReflectionUtils.setFieldValue(authenticator, "sessionManager", sessionManager);
+
+		ReflectionUtils.setFieldValue(securityTokensManager, "jwtConfig", jwtConfiguration);
+		when(jwtConfiguration.getIssuer()).thenReturn(ISSUER);
+		when(jwtConfiguration.getKey()).thenReturn(secret);
 	}
 
-	/**
-	 * Test successful authentication.
-	 *
-	 * @throws JoseException
-	 *             thrown on failed signing JWT
-	 */
-	public void testSuccessfulAuthentication() throws JoseException {
-		when(securityTokensManager.getSamlToken(Matchers.any(JwtClaims.class))).thenReturn("samlToken");
-
+	@Test
+	public void testSuccessfulAuthentication() {
+		when(jwtConfiguration.getRevocationTimeConfig()).thenReturn(new ConfigurationPropertyMock<>());
 		String jwt = generateJwt(ISSUER, goodGuy.getIdentityId(), true, true);
 		User authenticate = authenticator
-				.authenticate(createAuthContext("Bearer " + jwt));
+				.authenticate(createAuthContext(JwtAuthenticator.AUTHORIZATION_METHOD + " " + jwt));
 
 		assertEquals(authenticate, goodGuy);
-		verify(sessionManager).updateLoggedUser(jwt, goodGuy.getIdentityId());
+		verify(userStore).setUserTicket(goodGuy, jwt);
 	}
 
-	/**
-	 * Test authentication with a non-existent user.
-	 */
 	@Test(expectedExceptions = AuthenticationException.class)
 	public void testUserNotFound() {
-
-		authenticator.authenticate(
-				createAuthContext("Bearer " + generateJwt(ISSUER, nonexistent.getIdentityId(), true, true)));
+		when(jwtConfiguration.getRevocationTimeConfig()).thenReturn(new ConfigurationPropertyMock<>());
+		authenticator.authenticate(createAuthContext(
+				JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt(ISSUER, nonexistent.getIdentityId(), true,
+						true)));
 	}
 
-	/**
-	 * Tests authentication with user that has no SAML token.
-	 *
-	 * @throws JoseException
-	 *             thrown on failed signing JWT
-	 */
-	@Test(expectedExceptions = SecurityException.class)
-	public void testUserNoSamlToken() throws JoseException {
-		Mockito.when(securityTokensManager.getSamlToken(Matchers.any(JwtClaims.class))).thenReturn(null);
-		authenticator
-				.authenticate(createAuthContext("Bearer " + generateJwt(ISSUER, goodGuy.getIdentityId(), true, true)));
+	@Test(expectedExceptions = AuthenticationException.class)
+	public void should_ThrowException_When_TokenIsRevoked() {
+		when(jwtConfiguration.getRevocationTimeConfig())
+				.thenReturn(new ConfigurationPropertyMock<>(new Date(System.currentTimeMillis() + 1000)));
+		String jwt = generateJwt(ISSUER, goodGuy.getIdentityId(), true, true);
+		authenticator.authenticate(createAuthContext(JwtAuthenticator.AUTHORIZATION_METHOD + " " + jwt));
 	}
 
 	/**
@@ -150,13 +129,16 @@ public class JwtAuthenticatorTest {
 
 	/**
 	 * Test invalid JWT in auth header.
-	 *
-	 * @param header
-	 *            Invalid authorization header.
 	 */
-	@Test(expectedExceptions = AuthenticationException.class)
+	@Test
 	public void testInvalidJwtInHeader() {
-		authenticator.authenticate(createAuthContext("Bearer am9obmRvZUBkb2VpbmMub3JnOjEyMzQ1"));
+		assertNull(authenticator.authenticate(createAuthContext(JwtAuthenticator.AUTHORIZATION_METHOD + " am9obmRvZUBkb2VpbmMub3JnOjEyMzQ1")));
+	}
+
+	@Test(expectedExceptions = AuthenticationException.class)
+	public void should_FailForEmptySubject() {
+		when(jwtConfiguration.getRevocationTimeConfig()).thenReturn(new ConfigurationPropertyMock<>());
+		authenticator.authenticate(createAuthContext(JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt(ISSUER, "", true, true)));
 	}
 
 	/**
@@ -165,26 +147,24 @@ public class JwtAuthenticatorTest {
 	 * @param header
 	 *            Authorization header with invalid claims.
 	 */
-	@Test(expectedExceptions = AuthenticationException.class, dataProvider = "invalid-claims-data-provider")
+	@Test(dataProvider = "invalid-claims-data-provider")
 	public void testInvalidClaims(String header, String failMessage) {
-		authenticator.authenticate(createAuthContext(header));
-		fail(failMessage);
+		assertNull(authenticator.authenticate(createAuthContext(header)), failMessage);
 	}
 
 	@DataProvider(name = "invalid-claims-data-provider")
 	private Object[][] provideInvalidClaimsHeader() {
 		return new Object[][] {
-				{ "Bearer " + generateJwt(null, goodGuy.getIdentityId(), true, true),
+				{ JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt(null, goodGuy.getIdentityId(), true, true),
 						"Should have failed for missing issuer" },
-				{ "Bearer " + generateJwt("", goodGuy.getIdentityId(), true, true),
+				{ JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt("", goodGuy.getIdentityId(), true, true),
 						"Should have failed for empty issuer" },
-				{ "Bearer " + generateJwt("evil", goodGuy.getIdentityId(), true, true),
+				{ JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt("evil", goodGuy.getIdentityId(), true, true),
 						"Should have failed for wrong issuer" },
-				{ "Bearer " + generateJwt(ISSUER, null, true, true), "Should have failed for missing subject" },
-				{ "Bearer " + generateJwt(ISSUER, "", true, true), "Should have failed for empty subject" },
-				{ "Bearer " + generateJwt(ISSUER, goodGuy.getIdentityId(), false, true),
+				{ JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt(ISSUER, null, true, true), "Should have failed for missing subject" },
+				{ JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt(ISSUER, goodGuy.getIdentityId(), false, true),
 						"Should have failed for missing issued date" },
-				{ "Bearer " + generateJwt(ISSUER, goodGuy.getIdentityId(), true, false),
+				{ JwtAuthenticator.AUTHORIZATION_METHOD + " " + generateJwt(ISSUER, goodGuy.getIdentityId(), true, false),
 						"Should have failed for missing id" } };
 	}
 
@@ -192,8 +172,8 @@ public class JwtAuthenticatorTest {
 	private Object[][] provideHeader() {
 		return new Object[][] {
 			{ "Basic am9obmRvZUBkb2VpbmMub3JnOjEyMzQ1" },
-			{ "Bearer \t" },
-			{ "Bearer " },
+			{ JwtAuthenticator.AUTHORIZATION_METHOD + " \t" },
+			{ JwtAuthenticator.AUTHORIZATION_METHOD + " " },
 			{ " am9obmRvZUBkb2VpbmMub3JnOjEyMzQ1" }
 		};
 	}

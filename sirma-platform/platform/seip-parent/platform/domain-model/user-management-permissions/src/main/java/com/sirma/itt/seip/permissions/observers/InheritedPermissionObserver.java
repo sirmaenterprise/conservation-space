@@ -16,6 +16,7 @@ import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.context.InstanceContextService;
 import com.sirma.itt.seip.instance.event.AfterInstancePersistEvent;
 import com.sirma.itt.seip.instance.event.ParentChangedEvent;
+import com.sirma.itt.seip.instance.save.event.AfterInstanceSaveEvent;
 import com.sirma.itt.seip.permissions.EntityPermissions;
 import com.sirma.itt.seip.permissions.InstancePermissionsHierarchyResolver;
 import com.sirma.itt.seip.permissions.PermissionService;
@@ -124,6 +125,39 @@ public class InheritedPermissionObserver {
 		} else {
 			processWithoutParent(event);
 		}
+	}
+
+	/**
+	 * Listens for semantic type change for the instance. If such change is detected then the library permissions are
+	 * updated to reflect the new library.
+	 *
+	 * @param event the event carrying the modified instance
+	 */
+	@DisableAudit
+	public void onLibraryChange(@Observes AfterInstanceSaveEvent event) {
+		Instance instanceToSave = event.getInstanceToSave();
+		Instance currentInstance = event.getCurrentInstance();
+		if (currentInstance == null || instanceToSave.type().getId().equals(currentInstance.type().getId())) {
+			// it's either new instance or the same type, so we have nothing to do
+			return;
+		}
+		InstanceReference reference = instanceToSave.toReference();
+		InstanceReference newLibrary = hierarchyResolver.getLibrary(reference);
+
+		PermissionsChangeBuilder builder = permissionsChangeBuilder.builder(reference);
+		builder.libraryChange(newLibrary.getId());
+		boolean enabledLibraryInheritance = instanceToSave.type().hasTrait(INHERIT_LIBRARY_PERMISSIONS);
+		builder.inheritFromLibraryChange(enabledLibraryInheritance);
+		boolean enableParentInheritance = instanceToSave.type().hasTrait(INHERIT_PARENT_PERMISSIONS);
+		// if instance is in a context that is not applicable for permission inheritance (user/group)
+		// then we should not enable the parent inheritance
+		if (enableParentInheritance) {
+			InstanceReference inheritFrom = contextService.getContext(instanceToSave).orElse(null);
+			if (inheritFrom != null) {
+				enableParentInheritance = isEligibleForInheritance(inheritFrom);
+			}
+		}
+		builder.inheritFromParentChange(enableParentInheritance);
 	}
 
 	private void processWithParent(ParentChangedEvent event) {

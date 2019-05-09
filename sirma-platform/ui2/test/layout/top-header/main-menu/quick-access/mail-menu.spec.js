@@ -1,5 +1,5 @@
 import {MailMenu} from 'layout/top-header/main-menu/quick-access/mail-menu/mail-menu';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {PromiseStub} from 'test/promise-stub';
 import {Eventbus} from 'services/eventbus/eventbus';
 import {PersonalMailboxUpdatedEvent} from 'idoc/system-tabs/mailbox/events/personal-mailbox-updated-event';

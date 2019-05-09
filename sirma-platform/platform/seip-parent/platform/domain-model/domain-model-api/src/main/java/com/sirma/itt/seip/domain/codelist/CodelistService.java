@@ -1,6 +1,7 @@
 package com.sirma.itt.seip.domain.codelist;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 
 import com.sirma.itt.seip.domain.codelist.model.CodeValue;
@@ -110,6 +111,19 @@ public interface CodelistService {
 	Map<String, CodeValue> filterCodeValues(Integer codelist, boolean inclusive, String field, String... filterValues);
 
 	/**
+	 * Filters codelist using custom filter
+	 *
+	 * @param codelist
+	 *            the codelist number
+	 * @param inclusive
+	 *            true if inclusive operation should be executed. False otherwise
+	 * @param values
+	 *            the supplied custom filter values
+	 * @return the filtered code values
+	 */
+	Map<String, CodeValue> filterCodeValues(Integer codelist, boolean inclusive, List<String> values);
+
+	/**
 	 * Gets the description from the given {@link CodeValue}. The description is determined based on the current user
 	 * locale
 	 *
@@ -126,4 +140,8 @@ public interface CodelistService {
 	 */
 	Map<BigInteger, String> getAllCodelists();
 
+	/**
+	 * Force reload internal cache (if any).
+	 */
+	void refreshCache();
 }

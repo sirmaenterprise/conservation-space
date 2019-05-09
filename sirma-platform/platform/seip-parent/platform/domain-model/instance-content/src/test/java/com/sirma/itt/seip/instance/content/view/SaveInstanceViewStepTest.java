@@ -13,7 +13,6 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -35,11 +34,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import com.sirma.itt.seip.Trackable;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.domain.instance.InstanceType;
 import com.sirma.itt.seip.instance.InstanceSaveContext;
+import com.sirma.itt.seip.instance.ObjectInstance;
+import com.sirma.itt.seip.instance.content.view.SaveInstanceViewStep.RollbackOperation;
 import com.sirma.itt.seip.instance.relation.LinkConstants;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.tasks.SchedulerConfiguration;
@@ -92,12 +94,13 @@ public class SaveInstanceViewStepTest {
 	}
 
 	@Test
-	public void beforeSave_viewContentSendWithInstnace_newInstanceContentRollbackNotScheduled() {
-		Instance instance = new EmfInstance();
+	public void beforeSave_viewContentSendWithInstance_newInstanceContentRollbackDeleteScheduled() {
+		Instance instance = new EmfInstance("instance-id");
 		String viewContent = "instance-view-content";
 		instance.add(TEMP_CONTENT_VIEW, viewContent);
 		mockInstanceType(instance, true, true);
 		mockSaveContent("instance-view-content-id");
+		when(instanceContentService.getContent(instance, Content.PRIMARY_VIEW)).thenReturn(ContentInfo.DO_NOT_EXIST);
 		InstanceSaveContext context = InstanceSaveContext.create(instance, new Operation());
 
 		step.beforeSave(context);
@@ -106,11 +109,16 @@ public class SaveInstanceViewStepTest {
 		Optional<String> viewId = context.getViewId();
 		assertTrue(viewId.isPresent());
 		assertEquals("instance-view-content-id", viewId.get());
-		verifyZeroInteractions(schedulerService, transactionSupport);
+		verify(transactionSupport).invokeOnFailedTransactionInTx(any());
+		verify(schedulerService).schedule(anyString(), any(),
+				argThat(CustomMatcher.of((SchedulerContext schedulerContext) -> {
+					assertEquals(instance.getId(), schedulerContext.get("instanceId"));
+					assertEquals(RollbackOperation.DELETE, schedulerContext.get("operation"));
+				})));
 	}
 
 	@Test
-	public void beforeSave_viewContentSendWithInstnace_linkSetToTemplate_contentRollbackScheduled() throws IOException {
+	public void beforeSave_viewContentSendWithInstance_linkSetToTemplate_contentRollbackScheduled() throws IOException {
 		Instance instance = new EmfInstance("instance-id");
 		String viewContent = "instance-view-content";
 		instance.add(TEMP_CONTENT_VIEW, viewContent);
@@ -167,8 +175,8 @@ public class SaveInstanceViewStepTest {
 	}
 
 	@Test
-	public void beforeSave_viewContentSendWithInstnace_withDefaultTemplate_previousLinkToTemplateRemoved() {
-		Instance instance = new EmfInstance();
+	public void beforeSave_viewContentSendWithInstance_withDefaultTemplate_previousLinkToTemplateRemoved() {
+		Instance instance = new EmfInstance("instance-id");
 		String viewContent = "instance-view-content";
 		instance.add(TEMP_CONTENT_VIEW, viewContent);
 		instance.add(HAS_TEMPLATE, "emf:defaultTemplate");
@@ -186,8 +194,8 @@ public class SaveInstanceViewStepTest {
 	}
 
 	@Test
-	public void beforeSave_viewContentSendWithInstnace_linkToTemplateRemoved() {
-		Instance instance = new EmfInstance();
+	public void beforeSave_viewContentSendWithInstance_linkToTemplateRemoved() {
+		Instance instance = new EmfInstance("instance-id");
 		String viewContent = "instance-view-content";
 		instance.add(TEMP_CONTENT_VIEW, viewContent);
 		instance.add(HAS_TEMPLATE, (Serializable) Arrays.asList((String) null));
@@ -206,7 +214,7 @@ public class SaveInstanceViewStepTest {
 
 	@Test
 	public void beforeSave_withoutContent_defaultTemplateSetAsTemplate() {
-		Instance instance = new EmfInstance();
+		Instance instance = new EmfInstance("instance-id");
 		mockInstanceType(instance, false, true);
 		instance.add(HAS_TEMPLATE, "emf:defaultTemplate");
 		when(templateService.getContent("emf:defaultTemplate")).thenReturn("blank content");
@@ -234,6 +242,38 @@ public class SaveInstanceViewStepTest {
 		stubTemplates(TEMPLATE_INSTANCE_ID, TEMPLATE_CONTENT);
 
 		mockGetContent();
+		// There is a default template so return it instead of the actual template.
+		mockInstanceType(instance, false, true);
+		mockSaveContent(TEMPLATE_CONTENT);
+
+		InstanceSaveContext context = InstanceSaveContext.create(instance, new Operation());
+		step.beforeSave(context);
+
+		Optional<String> viewId = context.getViewId();
+		assertTrue(viewId.isPresent());
+		assertEquals(TEMPLATE_CONTENT, viewId.get());
+
+		assertEquals(TEMPLATE_INSTANCE_ID, instance.getString(LinkConstants.HAS_TEMPLATE));
+	}
+
+	@Test
+	public void should_setViewBasedOnHasTemplateRelationShipChange() {
+		ObjectInstance instance = new ObjectInstance();
+		instance.setId("instance-id");
+		instance.setIdentifier("definition-id");
+
+		final String TEMPLATE_INSTANCE_ID = "test_template";
+		final String TEMPLATE_CONTENT = "test content";
+		Trackable.enableTracking(instance);
+
+		instance.add(HAS_TEMPLATE, TEMPLATE_INSTANCE_ID);
+
+		stubTemplates(TEMPLATE_INSTANCE_ID, TEMPLATE_CONTENT);
+
+		ContentInfo contentInfo = mock(ContentInfo.class);
+		when(contentInfo.exists()).thenReturn(true);
+		when(instanceContentService.getContent(any(Serializable.class), anyString())).thenReturn(contentInfo);
+
 		// There is a default template so return it instead of the actual template.
 		mockInstanceType(instance, false, true);
 		mockSaveContent(TEMPLATE_CONTENT);
@@ -342,14 +382,39 @@ public class SaveInstanceViewStepTest {
 
 	@Test
 	public void execute_contentUpdateCalled() throws Exception {
-		SchedulerContext context = new SchedulerContext(2);
+		ContentInfo info = mock(ContentInfo.class);
+		when(info.exists()).thenReturn(Boolean.TRUE);
+		when(instanceContentService.getContent(anyString(), anyString())).thenReturn(info);
+
+		// just need to stub the response from exists
+		when(instanceContentService.updateContent(anyString(), any(), any())).thenReturn(info);
+
+		SchedulerContext context = new SchedulerContext(6);
 		context.put("instanceId", "instance-id");
 		context.put("contentId", "content-id");
 		context.put("name", "Arkham Files - The Riddler");
 		context.put("versionable", true);
 		context.put("oldViewContent", "Ha-Ha-Ha-!");
+		context.put("operation", RollbackOperation.UPDATE);
 		step.execute(context);
 		verify(instanceContentService).updateContent(eq("content-id"), eq(new EmfInstance("instance-id")),
 				contentMatcher(content -> assertEquals("Ha-Ha-Ha-!", content)));
+	}
+
+	@Test
+	public void execute_contentDeleteCalled() throws Exception {
+		// new instance, no initial content
+		when(instanceContentService.getContent(any(Instance.class), eq(Content.PRIMARY_VIEW)))
+				.thenReturn(ContentInfo.DO_NOT_EXIST);
+
+		// when the content was stored, but the save process fails
+		ContentInfo info = mock(ContentInfo.class);
+		when(info.exists()).thenReturn(Boolean.TRUE);
+		when(instanceContentService.getContent(anyString(), eq(Content.PRIMARY_VIEW))).thenReturn(info);
+		SchedulerContext context = new SchedulerContext(2);
+		context.put("instanceId", "instance-id");
+		context.put("operation", RollbackOperation.DELETE);
+		step.execute(context);
+		verify(instanceContentService).deleteContent(eq("instance-id"), eq(Content.PRIMARY_VIEW));
 	}
 }

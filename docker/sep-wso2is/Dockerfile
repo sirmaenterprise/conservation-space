@@ -28,18 +28,19 @@ ENV ADMIN_USERNAME="admin" \
 	NOTIFICATION_EXPIRE_TIME="1440" \
 	MAX_ROLE_LIST_LENGTH=1000 \
 	MAX_USER_LIST_LENGTH=1000 \
+	MIN_PASS_LENGTH=6 \
+	MAX_PASS_LENGTH=30 \
 	VOLUME_WSOIDP_KEYSTORE="/opt/wso2is/repository/resources/keystore"
 
 RUN \
 	apk --no-cache add unzip && \
 	mkdir /opt/wso2is/repository/data-dir-init && \
-	#wget -O - http://fs.ruse.ittbg.com/Programs/wso2/WSO2-IS-5.0.0-SP01.tar.gz | tar zx -C /opt && \
-	curl -sfL --referer "http://connect.wso2.com/wso2/getform/reg/new_product_download" http://product-dist.wso2.com/products/identity-server/5.0.0/service-pack/WSO2-IS-5.0.0-SP01.zip > /opt/wso2is-sp1.zip && \
-	(cd /opt; unzip wso2is-sp1.zip) && \
+	wget -O - http://fs.ruse.ittbg.com/Programs/wso2/WSO2-IS-5.0.0-SP01.tar.gz | tar zx -C /opt && \
 	ln -s /opt/wso2is /opt/wso2is-5.0.0 && \
 	chmod +x /opt/WSO2-IS-5.0.0-SP01/install_sp.sh && \
 	echo "y" > /opt/yes_install_wso_service_pack && \
 	(cd /opt/WSO2-IS-5.0.0-SP01; sh /opt/WSO2-IS-5.0.0-SP01/install_sp.sh < /opt/yes_install_wso_service_pack) && \
+	wget -O - http://fs.ruse.ittbg.com/Programs/wso2/patch0009.tar.gz | tar xz -C repository/components/patches && \
 	mv /opt/wso2is/repository/data/is-default-schema.zip /opt/wso2is/repository/data-dir-init/is-default-schema.zip && \
 	mkdir /opt/wso2is/repository/deployment/server/webapps/authenticationendpoint/ && \
 	unzip /opt/wso2is/repository/deployment/server/webapps/authenticationendpoint.war -d /opt/wso2is/repository/deployment/server/webapps/authenticationendpoint/ && \

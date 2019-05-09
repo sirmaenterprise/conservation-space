@@ -108,6 +108,9 @@ public class VirtualDbDaoTest {
 		assertNotNull(dao.find(Entity.class, "1"));
 		assertNotNull(dao.find(Instance.class, "1"));
 		assertNull(dao.find(CommonInstance.class, "1"));
+	}
+	@Test(expected = NullPointerException.class)
+	public void testFind_invalid() {
 		assertNull(dao.find(null, "1"));
 	}
 

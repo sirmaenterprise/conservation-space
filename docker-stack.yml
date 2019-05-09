@@ -3,7 +3,7 @@ version: '3.3'
 
 services:
   db:
-    image: docker-reg.sirmaplatform.com/sep-postgres:2.0.0
+    image: docker-reg.sirmaplatform.com/sep-postgres:2.24.0
     deploy:
       endpoint_mode: dnsrr
       placement:
@@ -28,6 +28,8 @@ services:
       placement:
           constraints:
               - node.labels.com.sirma.sep.solr.audit==yes
+    environment:
+      - PROXY_SERVICE_DEF_MAIN=internal:solr-audit:/solr/audit/:http://solr-audit:8983
     volumes:
       - solr_audit_data:/var/lib/solr
       - solr_audit_logs:/opt/solr/server/logs
@@ -40,27 +42,33 @@ services:
           - node.labels.com.sirma.sep.solr.core==yes
     environment:
       - SOLR_HEAP=4096m
+      - PROXY_SERVICE_DEF_MAIN=internal:solr-core:/solr/core/:http://solr:8983
     volumes:
       - solr_core_data:/var/lib/solr
       - solr_core_logs:/opt/solr/server/logs
 
   export:
-    image: docker-reg.sirmaplatform.com/export:2.22.0-SNAPSHOT
+    image: docker-reg.sirmaplatform.com/export:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
           - node.labels.com.sirma.sep.other==yes
+    volumes:
+      - export_data:/opt/export/output
+      - export_logs:/opt/export/logs
 
   compare:
-    image: docker-reg.sirmaplatform.com/compare-pdf:2.22.0-SNAPSHOT
+    image: docker-reg.sirmaplatform.com/compare-pdf:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
           - node.labels.com.sirma.sep.other==yes
+    volumes:
+      - compare-pdf_data:/opt/compare-pdf/output
+      - compare-pdf_logs:/opt/compare-pdf/logs
 
   idp:
-    image: docker-reg.sirmaplatform.com/cs-wso2is:2.22.0-SNAPSHOT
-
+    image: docker-reg.sirmaplatform.com/cs-wso2is:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
@@ -72,13 +80,31 @@ services:
       - LDAP_PORT=10389
       - LDAP_USERNAME=cn=Manager,dc=SIRMAITT,dc=BG
       - LDAP_PASSWORD=secret
+      - PROXY_SERVICE_DEF_MAIN=secure:idp:/sso:https://idp:9443
     volumes:
       - idp_data:/opt/wso2is/repository/data
       - idp_logs:/opt/wso2is/repository/logs
-      - /etc/sep/keystores:/opt/wso2is/repository/resources/keystore
+      - /etc/sep/certs:/opt/wso2is/repository/resources/keystore
+
+  keycloak:
+    image: docker-reg.sirmaplatform.com/cs-keycloak:2.28.0-SNAPSHOT
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.idp==yes
+    env_file: keycloak.env
+    environment:
+      PROXY_SERVICE_DEF_MAIN: secure:keycloak:/auth:http://keycloak:8080
+      MASTER_DISPLAY_NAME: "Conservation Space"
+      MASTER_DISPLAY_NAME_HTML: "Conservation Space"
+    ports:
+      - 8090:8080
+    volumes:
+      - keycloak_data:/opt/keycloak/standalone/data
+      - keycloak_logs:/opt/keycloak/standalone/log
 
   ldap:
-    image: docker-reg.sirmaplatform.com/sep-openldap:2.20.0
+    image: docker-reg.sirmaplatform.com/sep-openldap:2.25.0
     deploy:
       placement:
         constraints:
@@ -88,12 +114,13 @@ services:
       - ldap_logs:/var/log/openldap
 
   alfresco:
-    image: docker-reg.sirmaplatform.com/sep-alfresco:2.22.0-SNAPSHOT
+    image: docker-reg.sirmaplatform.com/sep-alfresco:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
           - node.labels.com.sirma.sep.dms==yes
     environment:
+      - PROXY_SERVICE_DEF_MAIN=internal:alfresco:/alfresco:http://alfresco:8080
       - LDAP_HOST=ldap
       - LDAP_PORT=10389
       - LDAP_USERNAME=cn\=Manager,dc\=SIRMAITT,dc\=BG
@@ -105,13 +132,14 @@ services:
       - alfresco_solr_data:/var/lib/alfresco-solr
 
   graphdb:
-    image: docker-reg.sirmaplatform.com/graphdb:8.3.1-u2
+    image: docker-reg.sirmaplatform.com/graphdb:8.3.1-u5
     deploy:
       placement:
         constraints:
           - node.labels.com.sirma.sep.semantic==yes
     environment:
       - GDB_HEAP_SIZE=7g
+      - PROXY_SERVICE_DEF_MAIN=internal:graphdb:/graphdb/:http://graphdb:8080
     ports:
       - 8091:8091
     volumes:
@@ -120,23 +148,24 @@ services:
       - /etc/sep/licenses/graphdb.license:/opt/graphdb/conf/graphdb.license
 
   ocr:
-    image: docker-reg.sirmaplatform.com/ocr-service:2.22.0-SNAPSHOT
+    image: docker-reg.sirmaplatform.com/ocr-service:2.28.0-SNAPSHOT
     deploy:
-      replicas: 2
       placement:
         constraints:
           - node.labels.com.sirma.sep.ocr==yes
 
   content-preview:
-    image: docker-reg.sirmaplatform.com/content-preview:2.22.0-SNAPSHOT
+    image: docker-reg.sirmaplatform.com/content-preview:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
-          - node.labels.com.sirma.sep.other==yes
+          - node.labels.com.sirma.sep.preview==yes
     volumes:
       - content_preview_logs:/var/log/preview
     environment:
       - PREVIEW_LOG_LEVEL=info
+    volumes:
+      - content-preview_logs:/var/log/preview
 
   image-processing:
     image: docker-reg.sirmaplatform.com/image-processing:1.0.2
@@ -154,8 +183,9 @@ services:
       placement:
         constraints:
           - node.labels.com.sirma.sep.iiif==yes
+    env_file: iiif.env
     environment:
-      - BASE_URL=http://iiif/fcgi-bin/iipsrv.fcgi?IIIF=
+      - PROXY_SERVICE_DEF_MAIN=secure:iiif:/iiif:http://iiif
     volumes:
       - vsftpd_data:/data
       - iiif_out:/var/www/localhost/images
@@ -180,7 +210,7 @@ services:
       - vsftpd_data:/var/www/html
 
   wildfly:
-    image: docker-reg.sirmaplatform.com/cs-wildfly:2.22.0-SNAPSHOT
+    image: docker-reg.sirmaplatform.com/cs-wildfly:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
@@ -193,19 +223,20 @@ services:
       - wildfly_logs:/opt/wildfly/standalone/log
       - /etc/sep/keystores:/opt/wildfly/standalone/configuration/sep/certs
       - /etc/sep/assets:/etc/sep/assets
+      - wildfly_content:/opt/wildfly/standalone/data
+    env_file: wildfly.env
     environment:
       - DB_NAME_AUDIT=sep
-      - ISSUER_ID=sep_issuer_id
       - IDP_HOST=idp
       - IDP_PORT=9443
-      - HOST=$NGINX_SERVER_NAME
-      - IMAGE_SERVER_BASE_URL=https://conservationspace.com/iiif
       - REMOTE_DEBUG=yes
+      - PROXY_SERVICE_DEF_MAIN=secure:sep:/remote:http://wildfly:8080
+      - PROXY_SERVICE_DEF_PROMETHEUS=internal:sep-prometheus:/emf/prometheus:http://wildfly:8080
       - JAVA_OPTS=-XX:MaxPermSize=512m -Xms4g -Xmx4g -XX:+UseG1GC -Djava.net.preferIPv4Stack=true
 
-  ui:
-    image: docker-reg.sirmaplatform.com/seip-ui:2.22.0-SNAPSHOT
 
+  ui:
+    image: docker-reg.sirmaplatform.com/sep-ui:2.28.0-SNAPSHOT
     deploy:
       placement:
         constraints:
@@ -214,18 +245,18 @@ services:
       - BACKEND_PROTOCOL=http
       - BACKEND_ADDR=wildfly:8080
       - BACKEND_CONTEXT_PATH=emf
-
+      - PROXY_SERVICE_DEF_MAIN=secure:ui:/:http://ui
   proxy:
-    image: docker-reg.sirmaplatform.com/http-proxy:2.22.0-SNAPSHOT
-
-    environment:
-      - NGINX_SERVER_NAME=$NGINX_SERVER_NAME
+    image: docker-reg.sirmaplatform.com/http-proxy:2.28.0-SNAPSHOT
+    env_file: proxy.env
     deploy:
       placement:
         constraints:
           - node.labels.com.sirma.sep.web==yes
     volumes:
-      - /etc/sep/keystores:/etc/nginx/ssl:ro
+      - proxy_logs:/var/log/nginx
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/sep/certs:/etc/nginx/ssl:ro
     ports:
       - 80:80
       - 443:443
@@ -235,6 +266,10 @@ volumes:
     pg_data:
     gdb_data:
     gdb_logs:
+    gdb_worker2_data:
+    gdb_worker2_logs:
+    gdb_worker3_data:
+    gdb_worker3_logs:
     vsftpd_data:
     iiif_out:
     solr_core_data:
@@ -250,6 +285,15 @@ volumes:
     alfresco_logs:
     vsftpd_data:
     iiif_out:
+    keycloak_data:
+    keycloak_logs:
     wildfly_logs:
+    wildfly_content:
     sep_data:
     content_preview_logs:
+    proxy_logs:
+    export_data:
+    export_logs:
+    compare-pdf_data:
+    compare-pdf_logs:
+    content-preview_logs:

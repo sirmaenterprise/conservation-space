@@ -5,8 +5,10 @@ import {TranslateService} from 'services/i18n/translate-service';
 import {UrlUtils} from 'common/url-utils';
 import {WindowAdapter} from 'adapters/angular/window-adapter';
 import {MODE_PRINT, STATE_PARAM_TAB} from 'idoc/idoc-constants';
+import {AuthenticationService} from 'security/authentication-service';
+import {InstanceResponse} from 'services/rest/response/instance-response';
+
 import _ from 'lodash';
-import {AuthenticationService} from 'services/security/authentication-service';
 
 const serviceUrl = '/instances';
 
@@ -97,8 +99,7 @@ export class ActionsService {
   }
 
   addIcons(id, icons) {
-    var data = {icons: icons};
-    return this.restClient.post(`${serviceUrl}/${id}/actions/addicons`, data, this.config);
+    return this.restClient.post(`${serviceUrl}/${id}/actions/addicons`, {icons}, this.config);
   }
 
   addThumbnail(request) {
@@ -124,6 +125,16 @@ export class ActionsService {
     return this.restClient.patch(`${serviceUrl}/${id}/actions/createOrUpdate`, data, this.config);
   }
 
+  getChangeTypeInstance(id, asType) {
+    return this.restClient.get(`${serviceUrl}/${id}/actions/changeType?asType=${asType}`).then((response) => {
+      return new InstanceResponse(response);
+    });
+  }
+
+  changeType(id, data) {
+    return this.restClient.post(`${serviceUrl}/${id}/actions/changeType`, data, this.config);
+  }
+
   exportPDF(id, tabId, data, config) {
     config = _.defaults(config || {}, this.config);
     config.responseType = 'arraybuffer';
@@ -139,8 +150,7 @@ export class ActionsService {
 
   buildURL(id, tabId, data, absoluteURL) {
     let params = {
-      'mode': MODE_PRINT,
-      [AuthenticationService.TOKEN_REQUEST_PARAM]: this.authenticationService.getToken()
+      'mode': MODE_PRINT
     };
     if (tabId) {
       params[STATE_PARAM_TAB] = tabId;
@@ -184,15 +194,12 @@ export class ActionsService {
 
   downloadForEditOffline(id) {
     let tokenParam = AuthenticationService.TOKEN_REQUEST_PARAM;
-    let token = this.authenticationService.getToken();
-    return this.restClient.getUrl(`${serviceUrl}/${id}/actions/edit-offline-check-out?${tokenParam}=${token}`);
+    return this.authenticationService.getToken().then(token => {
+      return this.restClient.getUrl(`${serviceUrl}/${id}/actions/edit-offline-check-out?${tokenParam}=${token}`);
+    });
   }
 
   delete(id, userOperation) {
-    let payload = {
-      userOperation: userOperation
-    };
-
-    return this.restClient.post(`${serviceUrl}/${id}/actions/delete`, payload, this.config);
+    return this.restClient.post(`${serviceUrl}/${id}/actions/delete`, {userOperation}, this.config);
   }
 }

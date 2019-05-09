@@ -79,7 +79,7 @@ export class IdocEditorFactory {
     widgets.forEach(function (widget, index) {
       widgetCommands.push({
         name: widget.name,
-        label: function () {
+        label() {
           return translateService.translate(widget.label);
         },
         command: widget.name,
@@ -158,7 +158,7 @@ export class IdocEditorFactory {
     $(editor.element.getElementsByTag('img').$).each(() => {
       let img = $(this);
       if (img.lazyload) {
-        img.lazyload.destroy()
+        img.lazyload.destroy();
       }
     });
 
@@ -268,20 +268,20 @@ function registerWidgets(CKEDITOR, widgets) {
     CKEDITOR.plugins.add(widget.name, {
       requires: 'basewidget',
 
-      init: function (editor) {
+      init(editor) {
         CKEDITOR.basewidget.addWidget(editor, widget.name, {
           template: '<' + wrapperType + ' widget="' + widget.name + '" class="widget ' + widget.name + '" ' + NEW_ATTRIBUTE + '="true" editor="::editor">' + '</' + wrapperType + '>',
 
-          inline: inline,
+          inline,
           draggable: !inline,
 
           // enables the editor to recognize that the element is a widget and to process and compile it
-          upcast: function (element) {
+          upcast(element) {
             return element.attributes['widget'] === widget.name;
           },
 
           extend: {
-            init: function () {
+            init() {
               var element = this.element.$;
 
               element.parentNode.classList.add('widget-wrapper');
@@ -305,7 +305,7 @@ function registerWidgets(CKEDITOR, widgets) {
             init: {
               blockEvents: true,
               configToolbar: false,
-              onDestroy: function () {
+              onDestroy() {
                 var element = $(this.element.$);
                 // onDestroy doesn't get called when the widget is removed using DOM operation (i.e. physically
                 // removing the element) but gets called later when CKEditor.checkWidgets() gets called (i.e. when
@@ -315,7 +315,6 @@ function registerWidgets(CKEDITOR, widgets) {
                 if (elementScope) {
                   elementScope.$broadcast(WidgetRemovedEvent.EVENT_NAME);
                 }
-                element.remove();
               }
             }
           }

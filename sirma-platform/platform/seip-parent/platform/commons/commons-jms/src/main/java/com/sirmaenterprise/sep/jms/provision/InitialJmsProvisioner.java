@@ -33,6 +33,9 @@ public class InitialJmsProvisioner {
 	@Inject
 	private JmsDefinitionProvider jmsProvider;
 
+	@Inject
+	private JmsSubsystemConfigurations jmsSubsystemConfigurations;
+
 	/**
 	 * Provision the jms subsystem on server startup.
 	 *
@@ -52,10 +55,19 @@ public class InitialJmsProvisioner {
 			return;
 		}
 
-		jmsProvisionerInstance.get().provisionSubsystem(new JmsSubsystemModel());
+		jmsProvisionerInstance.get().provisionSubsystem(getModel());
 		JmsProvisioner jmsProvisioner = jmsProvisionerInstance.get();
 		for (DestinationDefinition definition : destinationAddressToType.values()) {
 			jmsProvisioner.provisionDestination(definition);
 		}
+	}
+
+	private JmsSubsystemModel getModel() {
+		JmsSubsystemModel model = new JmsSubsystemModel();
+		if (jmsSubsystemConfigurations.getPersistenceLocation().isSet()) {
+			model.setPersistenceEnabled(true);
+			model.setPersistenceStoreLocation(jmsSubsystemConfigurations.getPersistenceLocation().get().getPath());
+		}
+		return model;
 	}
 }

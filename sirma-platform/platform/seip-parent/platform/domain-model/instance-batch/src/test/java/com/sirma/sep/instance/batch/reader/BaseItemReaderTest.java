@@ -32,6 +32,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sirma.itt.seip.util.ReflectionUtils;
 import com.sirma.sep.instance.batch.BatchDataService;
+import com.sirma.sep.instance.batch.BatchProperties;
 
 public class BaseItemReaderTest {
 
@@ -44,6 +45,10 @@ public class BaseItemReaderTest {
 	@Mock
 	private JobContext jobContext;
 
+	@Mock
+	private BatchProperties batchProperties;
+
+	private final static String JOB_ID = "job-uuid-id";
 	private final static long JOB_EXECUTION_ID = 1L;
 	private final static int CHUNK_SIZE = 29;
 
@@ -70,6 +75,7 @@ public class BaseItemReaderTest {
 			}
 		};
 
+
 		MockitoAnnotations.initMocks(this);
 
 		when(batchDataService.getBatchData(eq(JOB_EXECUTION_ID), anyInt(), eq(CHUNK_SIZE))).then(a -> {
@@ -89,6 +95,8 @@ public class BaseItemReaderTest {
 		}).when(batchDataService).markJobDataAsProcessed(eq(JOB_EXECUTION_ID), any());
 
 		when(jobContext.getExecutionId()).thenReturn(JOB_EXECUTION_ID);
+		when(batchProperties.getJobId(JOB_EXECUTION_ID)).thenReturn(JOB_ID);
+		when(batchDataService.getJobProgress(JOB_ID)).thenReturn(0);
 	}
 
 	private void withDataOfSize(int size) throws Exception {

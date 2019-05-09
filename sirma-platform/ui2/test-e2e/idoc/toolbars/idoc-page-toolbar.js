@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-var Toolbar = require('../../components/toolbars/toolbar');
-var BpmToolbar = require('./bpm-actions-toolbar/bpm-toolbar');
+let Toolbar = require('../../components/toolbars/toolbar');
+let BpmToolbar = require('./bpm-actions-toolbar/bpm-toolbar');
 
 class IdocPageToolbar extends Toolbar {
 
@@ -13,6 +13,11 @@ class IdocPageToolbar extends Toolbar {
     let toolbar = new BpmToolbar();
     toolbar.waitUntilOpened();
     return toolbar;
+  }
+
+  isBPMToolbarVisible() {
+    let toolbar = new BpmToolbar();
+    return toolbar.isToolbarPresent();
   }
 }
 

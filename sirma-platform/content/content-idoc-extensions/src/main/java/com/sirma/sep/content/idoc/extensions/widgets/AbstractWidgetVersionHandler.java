@@ -2,6 +2,8 @@ package com.sirma.sep.content.idoc.extensions.widgets;
 
 import static com.sirma.itt.seip.collections.CollectionUtils.emptySet;
 import static com.sirma.itt.seip.collections.CollectionUtils.isNotEmpty;
+import static com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties.VERSIONED_INSTANCES_CACHE_KEY;
+import static com.sirma.itt.seip.instance.version.VersionProperties.WidgetsHandlerContextProperties.VERSION_DATE_KEY;
 import static com.sirma.sep.content.idoc.WidgetSelectionMode.AUTOMATICALLY;
 import static com.sirma.sep.content.idoc.WidgetSelectionMode.CURRENT;
 import static com.sirma.sep.content.idoc.WidgetSelectionMode.MANUALLY;
@@ -25,7 +27,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.sirma.itt.seip.instance.dao.InstanceService;
 import com.sirma.itt.seip.instance.version.VersionDao;
-import com.sirma.itt.seip.instance.version.VersionProperties;
+import com.sirma.itt.seip.instance.version.VersionIdsCache;
 import com.sirma.sep.content.idoc.Widget;
 import com.sirma.sep.content.idoc.WidgetConfiguration;
 import com.sirma.sep.content.idoc.WidgetResults;
@@ -70,16 +72,13 @@ public abstract class AbstractWidgetVersionHandler<W extends Widget> implements 
 	}.getType();
 
 	@Inject
-	protected VersionDao versionDao;
-
-	@Inject
 	protected InstanceService instanceService;
 
 	@Override
 	public HandlerResult handle(W widget, HandlerContext context) {
 		WidgetConfiguration configuration = widget.getConfiguration();
 		WidgetResults searchResults = configuration.getSearchResults();
-		Date versionDate = context.getIfSameType(VersionProperties.HANDLERS_CONTEXT_VERSION_DATE_KEY, Date.class);
+		Date versionDate = context.getIfSameType(VERSION_DATE_KEY, Date.class);
 		if (!searchResults.areAny() || versionDate == null || CURRENT.equals(configuration.getSelectionMode())) {
 			// nothing to do
 			return new HandlerResult(widget);
@@ -87,7 +86,7 @@ public abstract class AbstractWidgetVersionHandler<W extends Widget> implements 
 
 		// copy original configuration before changing it
 		Map<String, JsonElement> configCopy = GSON.fromJson(configuration.getConfiguration(), CONFIGURATION_MAP_TYPE);
-		HandlerResult result = processResults(widget, searchResults, versionDate);
+		HandlerResult result = processResults(widget, searchResults, context);
 		storeConfigurationDiff(configCopy, configuration);
 		return result;
 	}
@@ -100,22 +99,23 @@ public abstract class AbstractWidgetVersionHandler<W extends Widget> implements 
 	 * @param widget the widget in which configuration should be stored results
 	 * @param searchResults containing search results. They are retrieved from the {@link SearchContentNodeHandler}
 	 *        processing
-	 * @param versionDate {@link Date} when the version was created. Used for ids converting
+	 * @param context {@link HandlerContext} containing properties needed for versioning process
 	 * @return {@link HandlerResult} with converted ids
 	 */
-	protected HandlerResult processResults(W widget, WidgetResults searchResults, Date versionDate) {
+	protected HandlerResult processResults(W widget, WidgetResults searchResults, HandlerContext context) {
 		if (!searchResults.areAny()) {
 			return null;
 		}
 
-		Collection<Serializable> ids = extractResults(searchResults.isFoundBySearch(),
-				() -> searchResults.getResultsAsCollection());
-		Map<Serializable, Serializable> versionIdsMap = versionDao.findVersionIdsByTargetIdAndDate(ids, versionDate);
 		WidgetConfiguration configuration = widget.getConfiguration();
 		if (AUTOMATICALLY.equals(configuration.getSelectionMode())) {
 			configuration.setSelectionMode(MANUALLY);
 		}
 
+		Collection<Serializable> ids = extractResults(searchResults.isFoundBySearch(),
+				() -> searchResults.getResultsAsCollection());
+		VersionIdsCache versionedCache = context.getIfSameType(VERSIONED_INSTANCES_CACHE_KEY, VersionIdsCache.class);
+		Map<Serializable, Serializable> versionIdsMap = versionedCache.getVersioned(ids);
 		setObjectIdsToConfiguration(versionIdsMap.values(), configuration);
 		return new HandlerResult(widget, GSON.toJsonTree(versionIdsMap));
 	}

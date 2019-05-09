@@ -1,8 +1,10 @@
 package com.sirma.itt.seip.instance.security;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -31,6 +34,7 @@ import com.sirma.itt.seip.domain.security.Action;
 import com.sirma.itt.seip.domain.security.ActionTypeConstants;
 import com.sirma.itt.seip.instance.ObjectInstance;
 import com.sirma.itt.seip.instance.dao.InstanceService;
+import com.sirma.itt.seip.instance.revision.RevisionService;
 import com.sirma.itt.seip.instance.state.PrimaryStateFactory;
 import com.sirma.itt.seip.instance.state.PrimaryStates;
 import com.sirma.itt.seip.instance.state.StateService;
@@ -52,13 +56,15 @@ import com.sirma.itt.seip.resources.ResourceService;
 import com.sirma.itt.seip.testutil.EmfTest;
 import com.sirma.itt.seip.testutil.mocks.InstanceReferenceMock;
 import com.sirma.itt.seip.util.ReflectionUtils;
+import com.sirma.sep.content.ContentInfo;
+import com.sirma.sep.content.InstanceContentService;
+import com.sirma.sep.instance.template.InstanceTemplateService;
 
 /**
  * This is test class that implements unit tests for ObjectRoleEvaluator
  *
  * @author dvladov
  */
-@SuppressWarnings({ "unchecked", "rawtypes", "boxing" })
 public class ObjectRoleEvaluatorTest extends EmfTest {
 
 	@InjectMocks
@@ -84,6 +90,12 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 	private RoleActionFilterService actionEvaluatorService;
 	@Mock
 	private InstanceVersionService instanceVersionService;
+	@Mock
+	private RevisionService revisionService;
+	@Mock
+	private InstanceContentService instanceContentService;
+	@Mock
+	private InstanceTemplateService instanceTemplateService;
 
 	/**
 	 * This method prepares & sets mocks for testing
@@ -93,12 +105,14 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		super.beforeMethod();
 		Mockito.when(stateService.getPrimaryState(Matchers.any(Instance.class))).then(invocation -> {
 			Instance instance = (Instance) invocation.getArguments()[0];
-			return (String) instance.getProperties().get(DefaultProperties.STATUS);
+			return instance.getProperties().get(DefaultProperties.STATUS);
 		});
 
 		Mockito.when(stateFactory.create(PrimaryStates.DELETED_KEY)).thenReturn(PrimaryStates.DELETED);
 		Mockito.when(stateFactory.create(PrimaryStates.COMPLETED_KEY)).thenReturn(PrimaryStates.COMPLETED);
 		Mockito.when(stateFactory.create(PrimaryStates.CANCELED_KEY)).thenReturn(PrimaryStates.STOPPED);
+		Mockito.when(instanceTemplateService.hasTemplate(anyString())).thenReturn(true);
+		Mockito.when(instanceContentService.getContent(anyString(), anyString())).thenReturn(Mockito.mock(ContentInfo.class));
 	}
 
 	/**
@@ -145,12 +159,8 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Assert.assertEquals(actual.getFirst(), role);
 	}
 	
-	/**
-	 * Unit test remove all after conditions
-	 */
 	@Test
 	public void testFilterInternal_removeAllAfterConditions() {
-
 		RoleEvaluator objectEvaluator = createEvaluator();
 		ObjectInstance objectInstance = createInstance();
 		Resource resource = createResource();
@@ -162,10 +172,8 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		objectInstance.setLockedBy("emf:user");
 
 		Set<Action> actions = getActions();
-		Set<Action> setActions = new HashSet<>(actions);
 
-		when(transitionManager.getAllowedActions(any(ObjectInstance.class), isNull(String.class), any(Set.class)))
-				.thenReturn(setActions);
+		withAllowedActions(actions);
 
 		Role role = new Role(BaseRoles.ADMINISTRATOR);
 
@@ -181,9 +189,6 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Assert.assertEquals(4, returnedActions.size());
 	}
 
-	/**
-	 * Unit test remove all after conditions
-	 */
 	@Test
 	public void testFilterInternal_InstanceIsLocked() {
 		RoleEvaluator objectEvaluator = createEvaluator();
@@ -223,7 +228,7 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Resource resource = createResource();
 		Role role = new Role(BaseRoles.CONTRIBUTOR);
 		Action revertAction = new EmfAction(InstanceVersionService.REVERT_VERSION_SERVER_OPERATION);
-		Set<Action> actionsSet = new HashSet<>(Arrays.asList(revertAction));
+		Set<Action> actionsSet = new HashSet<>(Collections.singletonList(revertAction));
 
 		when(instanceVersionService.isRevertOperationAllowed(version)).thenReturn(Boolean.TRUE);
 		when(actionEvaluatorService.filter(anySet(), any(RoleActionEvaluatorContext.class)))
@@ -243,7 +248,7 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Resource resource = createResource();
 		Role role = new Role(BaseRoles.CONTRIBUTOR);
 		Action revertAction = new EmfAction(InstanceVersionService.REVERT_VERSION_SERVER_OPERATION);
-		Set<Action> actionsSet = new HashSet<>(Arrays.asList(revertAction));
+		Set<Action> actionsSet = new HashSet<>(Collections.singletonList(revertAction));
 
 		when(instanceVersionService.isRevertOperationAllowed(version)).thenReturn(Boolean.TRUE);
 		when(transitionManager.getActions(any(Serializable.class), anySet())).thenReturn(actionsSet);
@@ -259,10 +264,9 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Resource resource = createResource();
 		Role role = new Role(BaseRoles.CONTRIBUTOR);
 		Action revertAction = new EmfAction(InstanceVersionService.REVERT_VERSION_SERVER_OPERATION);
-		Set<Action> actionsSet = new HashSet<>(Arrays.asList(revertAction));
+		Set<Action> actionsSet = new HashSet<>(Collections.singletonList(revertAction));
 
-		when(transitionManager.getAllowedActions(any(ObjectInstance.class), isNull(String.class), any(Set.class)))
-				.thenReturn(actionsSet);
+		withAllowedActions(actionsSet);
 
 		assertTrue(objectEvaluator.filterActions(version, resource, role).isEmpty());
 	}
@@ -275,7 +279,7 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Resource resource = createResource();
 		Role role = new Role(BaseRoles.CONTRIBUTOR);
 		Action revertAction = new EmfAction(InstanceVersionService.REVERT_VERSION_SERVER_OPERATION);
-		Set<Action> actionsSet = new HashSet<>(Arrays.asList(revertAction));
+		Set<Action> actionsSet = new HashSet<>(Collections.singletonList(revertAction));
 
 		when(instanceVersionService.isRevertOperationAllowed(version)).thenReturn(Boolean.TRUE);
 		when(transitionManager.getAllowedActions(any(ObjectInstance.class), isNull(String.class), any(Set.class)))
@@ -284,6 +288,53 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		Set<Action> actions = objectEvaluator.filterActions(version, resource, role);
 		assertTrue(actions.size() == 1);
 		assertEquals(revertAction, actions.iterator().next());
+	}
+
+	@Test
+	public void shouldRemoveUpdateTemplateActionIfNoTemplateExistsForTheInstance() {
+		Action updateTemplateAction = new EmfAction(ActionTypeConstants.UPDATE_SINGLE_INSTANCE_TEMPLATE);
+
+		RoleEvaluator objectEvaluator = createEvaluator();
+		ObjectInstance objectInstance = createInstance();
+		Resource resource = createResource();
+		Role role = new Role(BaseRoles.CONSUMER);
+
+		Set<Action> actions = getActions();
+		actions.add(updateTemplateAction);
+		withAllowedActions(actions);
+
+		when(instanceTemplateService.hasTemplate(any(Instance.class))).thenReturn(false);
+
+		// Action should be removed
+		Set<Action> filteredActions = objectEvaluator.filterActions(objectInstance, resource, role);
+		assertFalse(filteredActions.isEmpty());
+		assertFalse(filteredActions.contains(updateTemplateAction));
+	}
+
+	@Test
+	public void shouldNotRemoveUpdateTemplateActionIfThereIsExistingTemplate() {
+		Action updateTemplateAction = new EmfAction(ActionTypeConstants.UPDATE_SINGLE_INSTANCE_TEMPLATE);
+
+		RoleEvaluator objectEvaluator = createEvaluator();
+		ObjectInstance objectInstance = createInstance();
+		Resource resource = createResource();
+		Role role = new Role(BaseRoles.CONSUMER);
+
+		Set<Action> actions = getActions();
+		actions.add(updateTemplateAction);
+		withAllowedActions(new HashSet(actions));
+
+		when(instanceTemplateService.hasTemplate(any(Instance.class))).thenReturn(true);
+
+		// Action should not be removed
+		Set<Action> filteredActions = objectEvaluator.filterActions(objectInstance, resource, role);
+		assertFalse(filteredActions.isEmpty());
+		assertTrue(filteredActions.contains(updateTemplateAction));
+	}
+
+	private void withAllowedActions(Set<Action> allowedActions) {
+		when(transitionManager.getAllowedActions(any(ObjectInstance.class), isNull(String.class), any(Set.class)))
+				.thenReturn(allowedActions);
 	}
 
 	/**
@@ -295,7 +346,7 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 		ObjectInstance objectInstance = new ObjectInstance();
 
 		objectInstance.setId("object");
-		objectInstance.setProperties(new HashMap<String, Serializable>());
+		objectInstance.setProperties(new HashMap<>());
 		ReflectionUtils.setFieldValue(objectInstance, "reference",
 				new InstanceReferenceMock("object", mock(DataTypeDefinition.class), objectInstance));
 
@@ -330,11 +381,10 @@ public class ObjectRoleEvaluatorTest extends EmfTest {
 	 * @return List<Actions> List of type actions
 	 */
 	private static Set<Action> getActions() {
-		Set<Action> listOfActions = new LinkedHashSet<>(
+		return new LinkedHashSet<>(
 				Arrays.asList(ObjectRoleEvaluator.EDIT_DETAILS, ObjectRoleEvaluator.DELETE,
 						ObjectRoleEvaluator.CLONE, ObjectRoleEvaluator.PRINT, ObjectRoleEvaluator.EXPORT,
 						new EmfAction(ActionTypeConstants.VIEW_DETAILS)));
-		return listOfActions;
 	}
 
 }

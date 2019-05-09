@@ -30,11 +30,8 @@ export class DefinitionService {
    */
   getFields(identifiers) {
     let url = serviceUrl + '/fields';
-    let data = {
-      identifiers: identifiers
-    };
     return this.requestsCacher.cache(url, identifiers, this.requestsMap, () => {
-      return this.restClient.post(url, data);
+      return this.restClient.post(url, {identifiers});
     });
   }
 

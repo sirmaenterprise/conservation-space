@@ -26,10 +26,10 @@ export class Hint {
     this.tooltipsRegistry = new Set();
 
     this.$element.on({
-      'mouseover': () => {
+      'mouseenter': () => {
         this.tooltipsRegistry.add(tooltipAdapter.tooltip($element[0].firstElementChild,
           {
-            title: $element.tooltipText,
+            title: this.hintText,
             template: '<div class="tooltip seip-hint-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
           },
           true

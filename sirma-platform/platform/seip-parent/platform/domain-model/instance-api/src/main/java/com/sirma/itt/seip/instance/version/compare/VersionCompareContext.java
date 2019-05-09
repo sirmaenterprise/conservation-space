@@ -1,7 +1,6 @@
 package com.sirma.itt.seip.instance.version.compare;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import com.sirma.itt.seip.context.Context;
 import com.sirma.itt.seip.instance.version.InstanceVersionService;
@@ -23,10 +22,8 @@ public class VersionCompareContext extends Context<String, Object> {
 	private static final String SECOND_SOURCE = "secondSource";
 	private static final String ORIGINAL_INSTANCE_ID = "instanceId";
 
-	/**
-	 * Those are used later to get the authentication for downloading the files we need to compare.
-	 */
-	private static final String AUTHENTICATION_HEADERS = "authenticationHeaders";
+	/** Authentication used when constructing version download url */
+	private static final String AUTHENTICATION = "authentication";
 
 	private VersionCompareContext() {
 		super(INITIAL_CONTEXT_MAP_SIZE);
@@ -39,17 +36,15 @@ public class VersionCompareContext extends Context<String, Object> {
 	 *            the instance id of the first version
 	 * @param secondIdentifier
 	 *            the instance id of the second version
-	 * @param headers
-	 *            the authentication headers retrieved from the current request. Those are used later to download the
-	 *            files we need to compare
+	 * @param auth
+	 *            Authentication used when constructing version download url
 	 * @return new {@link VersionCompareContext}
 	 */
-	public static VersionCompareContext create(Serializable firstIdentifier, Serializable secondIdentifier,
-			Map<String, String> headers) {
+	public static VersionCompareContext create(Serializable firstIdentifier, Serializable secondIdentifier, String auth) {
 		VersionCompareContext context = new VersionCompareContext();
 		context.put(FIRST_SOURCE, firstIdentifier);
 		context.put(SECOND_SOURCE, secondIdentifier);
-		context.put(AUTHENTICATION_HEADERS, headers);
+		context.put(AUTHENTICATION, auth);
 		return context;
 	}
 
@@ -61,8 +56,8 @@ public class VersionCompareContext extends Context<String, Object> {
 		return getIfSameType(SECOND_SOURCE, Serializable.class);
 	}
 
-	public Map<String, String> getAuthenticationHeaders() {
-		return getIfSameType(AUTHENTICATION_HEADERS, Map.class);
+	public String getAuthentication() {
+		return getIfSameType(AUTHENTICATION, String.class);
 	}
 
 	/**

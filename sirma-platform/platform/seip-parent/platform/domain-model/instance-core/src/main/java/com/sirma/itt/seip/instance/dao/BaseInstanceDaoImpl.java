@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -341,7 +340,7 @@ public abstract class BaseInstanceDaoImpl<C extends Entity, P extends Serializab
 	 * @see #getModifiedBy(Map)
 	 * @see #getModifiedDate(Map)
 	 * @see #checkDatesForChanges(Date, Date)
-	 * @see #isLastModificationImportant(Instance, Map, Serializable)
+	 * @see #isLastModificationImportant(Serializable)
 	 */
 	protected boolean isModifiedInternal(Instance instance, boolean throwException) {
 		// get the current (old) timestamp

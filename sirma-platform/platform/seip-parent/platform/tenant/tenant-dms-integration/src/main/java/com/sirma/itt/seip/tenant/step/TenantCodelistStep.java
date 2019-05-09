@@ -15,17 +15,16 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.emf.cls.persister.CodeListPersister;
 import com.sirma.itt.emf.cls.persister.SheetParser;
-import com.sirma.itt.emf.cls.persister.SheetPersister;
-import com.sirma.itt.emf.cls.validator.CodeValidator;
 import com.sirma.itt.emf.cls.validator.SheetValidator;
 import com.sirma.itt.emf.cls.validator.exception.CodeValidatorException;
 import com.sirma.itt.emf.cls.validator.exception.SheetValidatorException;
 import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
-import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -50,10 +49,7 @@ public class TenantCodelistStep extends AbstractTenantStep {
 	private static final String WRONG_CODELIST_FORMAT_MSG = "The provided codelist file wasn't in the correct format!";
 
 	@Inject
-	private SheetPersister processor;
-
-	@Inject
-	private CodeValidator codeValidator;
+	private CodeListPersister persister;
 
 	@Inject
 	private SheetValidator sheetValidator;
@@ -74,9 +70,9 @@ public class TenantCodelistStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
 		// If the persist fails just truncate the db table.
-		securityContextManager.executeAsTenant(tenantInfo.getTenantId()).executable(processor::delete);
+		securityContextManager.executeAsTenant(context.getTenantInfo().getTenantId()).executable(persister::delete);
 		return true;
 	}
 
@@ -106,8 +102,7 @@ public class TenantCodelistStep extends AbstractTenantStep {
 	private void persistCodelists(CodeListSheet mergedSheet) {
 		transactionSupport.invokeInTx(() -> {
 			try {
-				codeValidator.validateCodeLists(mergedSheet.getCodeLists());
-				processor.persist(mergedSheet);
+				persister.override(mergedSheet);
 				return null;
 			} catch (CodeValidatorException e) {
 				LOGGER.info("Codelist validation errors:");

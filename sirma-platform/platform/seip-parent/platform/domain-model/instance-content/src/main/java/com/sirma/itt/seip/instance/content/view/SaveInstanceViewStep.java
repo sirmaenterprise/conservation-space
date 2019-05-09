@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.Trackable;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.EmfInstance;
 import com.sirma.itt.seip.domain.instance.Instance;
@@ -74,6 +76,7 @@ public class SaveInstanceViewStep implements InstanceSaveStep, SchedulerAction {
 	private static final String VERSIONABLE_KEY = "versionable";
 	private static final String NAME_KEY = "name";
 	private static final String CONTENT_ID_KEY = "contentId";
+	private static final String OPERATION_KEY = "operation";
 
 	private static final Long DELAY_BETWEEN_RETRIES = 2L;
 
@@ -110,13 +113,23 @@ public class SaveInstanceViewStep implements InstanceSaveStep, SchedulerAction {
 			} else {
 				instance.addIfNotNull(LinkConstants.HAS_TEMPLATE, templateId, nameResolver);
 			}
-		} else if (!instanceContentService.getContent(instance, Content.PRIMARY_VIEW).exists()) {
+		} else if (!instanceContentService.getContent(instance, Content.PRIMARY_VIEW).exists() || isTemplateChanged(instance)) {
 			// when the instance doesn't have a view assigned, it is retrieved based on the default template. It is
 			// executed for instances that are created without being opened in the web
 			viewId = saveContent(instance, getContentFromTemplate(saveContext));
 		}
 
 		saveContext.setViewId(Optional.ofNullable(viewId));
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean isTemplateChanged(Instance instance) {
+		if (instance instanceof Trackable) {
+			String templateProperty = nameResolver.resolve(instance, LinkConstants.HAS_TEMPLATE);
+			// look for any changes in the template property
+			return ((Trackable<Serializable>) instance).changes().anyMatch(change -> change.getProperty().equals(templateProperty));
+		}
+		return false;
 	}
 
 	private static Content buildInstanceView(String contentAsString, InstanceSaveContext context) {
@@ -186,37 +199,39 @@ public class SaveInstanceViewStep implements InstanceSaveStep, SchedulerAction {
 	}
 
 	private void rollbackViewOnProcessFailure(Instance instance) {
-		ContentInfo info = instanceContentService.getContent(instance, Content.PRIMARY_VIEW);
-		if (!info.exists()) {
-			return;
-		}
-
 		try {
+			ContentInfo info = instanceContentService.getContent(instance, Content.PRIMARY_VIEW);
+			SchedulerContext context = info.exists() ? buildForUpdate(instance, info) : buildForDelete(instance);
 			SchedulerConfiguration configuration = buildConfig(instance.getId());
-			SchedulerContext schedulerContext = buildContext(instance, info);
-			transactionSupport.invokeOnFailedTransactionInTx(
-					() -> schedulerService.schedule(NAME, configuration, schedulerContext));
+			transactionSupport
+					.invokeOnFailedTransactionInTx(() -> schedulerService.schedule(NAME, configuration, context));
 		} catch (IOException e) {
 			throw new EmfRuntimeException("Failed to prepare the old view content for rollback.", e);
 		}
 	}
 
 	private static SchedulerConfiguration buildConfig(Serializable id) {
-		String taskIdentifier = String.join("-", NAME, id.toString());
-		SchedulerConfiguration configuration = new DefaultSchedulerConfiguration()
+		return new DefaultSchedulerConfiguration(String.join("-", NAME, id.toString()))
 				.setType(SchedulerEntryType.TIMED)
+					.setScheduleTime(new Date())
 					.setRemoveOnSuccess(true)
 					.setPersistent(true)
 					.setTransactionMode(TransactionMode.REQUIRED)
 					.setMaxRetryCount(2)
 					.setRetryDelay(DELAY_BETWEEN_RETRIES)
 					.setIncrementalDelay(true);
-		configuration.setIdentifier(taskIdentifier);
-		return configuration;
 	}
 
-	private static SchedulerContext buildContext(Instance instance, ContentInfo info) throws IOException {
-		SchedulerContext context = new SchedulerContext(5);
+	private static SchedulerContext buildForDelete(Instance instance) {
+		SchedulerContext context = new SchedulerContext(2);
+		context.put(OPERATION_KEY, RollbackOperation.DELETE);
+		context.put(INSTANCE_ID_KEY, instance.getId());
+		return context;
+	}
+
+	private static SchedulerContext buildForUpdate(Instance instance, ContentInfo info) throws IOException {
+		SchedulerContext context = new SchedulerContext(6);
+		context.put(OPERATION_KEY, RollbackOperation.UPDATE);
 		context.put(CONTENT_ID_KEY, info.getContentId());
 		context.put(NAME_KEY, info.getName());
 		context.put(VERSIONABLE_KEY, instance.type().isVersionable());
@@ -232,9 +247,43 @@ public class SaveInstanceViewStep implements InstanceSaveStep, SchedulerAction {
 
 	@Override
 	public void execute(SchedulerContext context) throws Exception {
+		boolean rollbacked = false;
+		RollbackOperation operation = context.getIfSameType(OPERATION_KEY, RollbackOperation.class);
+		if (RollbackOperation.DELETE.equals(operation)) {
+			rollbacked = delete(context);
+		} else {
+			rollbacked = update(context);
+		}
+
+		if (rollbacked) {
+			LOGGER.info("Content rollback/{} for instance - {} completed successfully.", operation,
+					context.get(INSTANCE_ID_KEY));
+		}
+	}
+
+	/**
+	 * Just created instance. If the save fails, the saved content will just hang "there", so it should removed.
+	 */
+	private boolean delete(SchedulerContext context) {
+		Serializable instanceId = context.get(INSTANCE_ID_KEY);
+		if (!instanceContentService.getContent(instanceId, Content.PRIMARY_VIEW).exists()) {
+			return false;
+		}
+
+		return instanceContentService.deleteContent(instanceId, Content.PRIMARY_VIEW);
+	}
+
+	/**
+	 * Replaces with the view before the save if the save process fails.
+	 */
+	private boolean update(SchedulerContext context) {
+		String contentId = context.getIfSameType(CONTENT_ID_KEY, String.class);
+		if (!instanceContentService.getContent(contentId, "any").exists()) {
+			return false;
+		}
+
 		String content = context.getIfSameType(OLD_VIEW_CONTENT_KEY, String.class);
 		Boolean isVersionable = context.getIfSameType(VERSIONABLE_KEY, Boolean.class);
-		String contentId = context.getIfSameType(CONTENT_ID_KEY, String.class);
 		String name = context.getIfSameType(NAME_KEY, String.class);
 		Serializable instanceId = context.get(INSTANCE_ID_KEY);
 
@@ -244,7 +293,7 @@ public class SaveInstanceViewStep implements InstanceSaveStep, SchedulerAction {
 					.setDetectedMimeTypeFromContent(false);
 
 		// when updating, alfresco store requires instance instead of just id
-		instanceContentService.updateContent(contentId, new EmfInstance(instanceId), contentToUpdate);
+		return instanceContentService.updateContent(contentId, new EmfInstance(instanceId), contentToUpdate).exists();
 	}
 
 	@Override
@@ -255,5 +304,9 @@ public class SaveInstanceViewStep implements InstanceSaveStep, SchedulerAction {
 	@Override
 	public String getName() {
 		return NAME;
+	}
+
+	enum RollbackOperation {
+		DELETE, UPDATE;
 	}
 }

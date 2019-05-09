@@ -17,7 +17,12 @@ import data from 'sandbox/services/rest/object-browser-service.data.json!';
 class ObjectBrowserBootstrap {
 
   constructor(window, objectBrowserRestService) {
-    var hash = window.location.hash;
+   this.window = window;
+   this.objectBrowserRestService = objectBrowserRestService;
+  }
+
+  ngOnInit() {
+    var hash = this.window.location.hash;
     var entityId = hash.substring(hash.indexOf('=') + 1);
     var nodePath = this.constructNodePath(entityId);
 
@@ -33,7 +38,7 @@ class ObjectBrowserBootstrap {
     };
 
     this.loader = {
-      getNodes: (id, params) => objectBrowserRestService.getChildNodes(id, params)
+      getNodes: (id, params) => this.objectBrowserRestService.getChildNodes(id, params)
     };
   }
 

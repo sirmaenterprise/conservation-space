@@ -54,9 +54,9 @@ export class ContentViewer {
     this.objectSelectorHelper.getSelectedObject(this.config, this.context, undefined, selectorArguments).then((objectId) => {
       this.checkIfPresentAndDisplay(objectId);
     }).catch((rejection) => {
+      this.errorMessage = rejection.reason;
       // If no object is selected to be displayed mark widget as ready for print
       this.fireWidgetReadyEvent();
-      this.errorMessage = rejection.reason;
     });
   }
 

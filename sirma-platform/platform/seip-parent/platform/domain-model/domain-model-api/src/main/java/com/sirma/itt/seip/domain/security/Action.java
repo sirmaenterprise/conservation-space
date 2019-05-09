@@ -196,11 +196,10 @@ public interface Action extends Sealable, Identity, Serializable, Purposable, Or
 	/**
 	 * Converts the given action to {@link JsonObject}.
 	 *
-	 * @param action
-	 *            the action that will be converted
-	 * @return {@link JsonObject} with the action information
+	 * @param action the action that will be converted
+	 * @return {@link JsonObjectBuilder} with the action information
 	 */
-	static JsonObject convertAction(Action action) {
+	static JsonObjectBuilder convertAction(Action action) {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		addNotNullValue(builder, SERVER_OPERAION, action.getPurpose());
 		addNotNullValue(builder, USER_OPERATION, action.getActionId());
@@ -214,7 +213,7 @@ public interface Action extends Sealable, Identity, Serializable, Purposable, Or
 			builder.add(CONFIGURATION, configuration);
 		}
 		builder.add(DISABLED_KEY, action.isDisabled());
-		return builder.build();
+		return builder;
 	}
 
 	/**

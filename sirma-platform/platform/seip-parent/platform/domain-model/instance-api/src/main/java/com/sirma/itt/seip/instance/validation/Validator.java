@@ -16,8 +16,8 @@ public interface Validator extends Plugin {
 	/**
 	 * Validate the instance based on the operation.
 	 *
-	 * @param validationContext
-	 *            the validation context
+	 * @param validationContext the validation context
+	 * @throws InstanceValidationException when errors are detected
 	 */
 	void validate(ValidationContext validationContext);
 }

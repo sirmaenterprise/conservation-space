@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2013 09.09.2013 , Sirma ITT. /* /**
  */
 package com.sirma.itt.seip.template;
@@ -120,7 +120,7 @@ public interface TemplateService {
 
 	/**
 	 * Creates a new template instance. In order to be applicable for its forType, the template has to be activated via
-	 * {@link TemplateService#activate(Template, boolean)}
+	 * {@link #activate(String, boolean)}
 	 *
 	 * @param template
 	 *            the template to create
@@ -129,5 +129,13 @@ public interface TemplateService {
 	 * @return the ID of the newly created template instance
 	 */
 	String create(Template template, String view);
+
+	/**
+	 * Checks if a template instance exists for the provided template or corresponding instance identifier.
+	 *
+	 * @param templateInstanceId - identifier of the template or its corresponding instance
+	 * @return <code>true</code> if a template exist for the given identifier or <code>false</code> if not
+	 */
+	boolean hasTemplate(String templateInstanceId);
 
 }

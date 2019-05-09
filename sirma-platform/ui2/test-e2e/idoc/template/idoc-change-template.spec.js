@@ -1,12 +1,12 @@
 'use strict';
 
-var IdocPage = require('../idoc-page').IdocPage;
-var CSS = require('../idoc-page').IdocPage.CSS;
-var VIEW_MODE = require('../idoc-page').IdocPage.VIEW_MODE;
+let IdocPage = require('../idoc-page').IdocPage;
+let CSS = require('../idoc-page').IdocPage.CSS;
+let VIEW_MODE = require('../idoc-page').IdocPage.VIEW_MODE;
 
-var idocPage = new IdocPage('/sandbox/idoc/template/idoc-change-template');
+let idocPage = new IdocPage('/sandbox/idoc/template/idoc-change-template');
 
-describe('Test idoc change template', function () {
+describe('Test idoc change template', () => {
 
   it('should have the template selector present', () => {
     idocPage.open(true);
@@ -16,9 +16,9 @@ describe('Test idoc change template', function () {
     browser.wait(EC.visibilityOf($('.idoc-template-selector')), DEFAULT_TIMEOUT);
   });
 
-  it('default template is loaded', function () {
+  it('should load default template', () => {
     idocPage.open(true, '', '/sandbox/idoc/template/idoc-change-template');
-    var tabs = idocPage.getIdocTabs();
+    let tabs = idocPage.getIdocTabs();
 
     // check number of tabs and default (active) tab
     expect(tabs.getTabsCount()).to.eventually.equal(1);
@@ -34,7 +34,7 @@ describe('Test idoc change template', function () {
     expect(tabs.getTabByIndex(0).getContent().getCommentsSection().isPresent()).to.eventually.be.true;
   });
 
-  it('save (create) idoc and validates that all tabs are saved and template selector removed', function () {
+  it('should hide template selector and save all tabs after idoc save/create', () => {
     // Given I have created an idoc
     idocPage.open(true, '', '/sandbox/idoc/template/idoc-change-template');
     // Given I have three tabs with some content
@@ -49,9 +49,9 @@ describe('Test idoc change template', function () {
       // Then The active (selected) tab should the one that I've been before the save operation
       expect(idocPage.getActiveTabIndex()).to.eventually.equal(0);
       // Then the tabs content should be saved
-      var idocTabs = idocPage.getIdocTabs();
+      let idocTabs = idocPage.getIdocTabs();
       idocTabs.getTabs().then((tabs) => {
-        for (var i = 0; i < tabs.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
           idocTabs.getTabByIndex(i).select();
           idocPage.checkSectionContent(i, 'Some content for tab ' + i);
         }
@@ -65,9 +65,9 @@ describe('Test idoc change template', function () {
       return browser.getCurrentUrl();
     }).then(() => {
       // Then I expect the tabs content to be present
-      var idocTabs = idocPage.getIdocTabs();
+      let idocTabs = idocPage.getIdocTabs();
       idocTabs.getTabs().then((tabs) => {
-        for (var i = 0; i < tabs.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
           idocTabs.getTabByIndex(i).select();
           idocPage.checkSectionContent(i, 'Some content for tab ' + i);
         }
@@ -80,9 +80,9 @@ describe('Test idoc change template', function () {
 
   it('should hide template selector after clicking save and then edit', () => {
     idocPage.open(true);
-    var actions = idocPage.getActionsToolbar();
-    var tplSelector = actions.getTemplateSelector();
-    var actionsMenu = actions.getActionsMenu();
+    let actions = idocPage.getActionsToolbar();
+    let tplSelector = actions.getTemplateSelector();
+    let actionsMenu = actions.getActionsMenu();
     //action menu dropdown shouln't be displayed in edit
     expect(actionsMenu.isDisplayed()).to.eventually.be.false;
     actions.saveIdoc();

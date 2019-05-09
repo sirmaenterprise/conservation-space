@@ -1,24 +1,44 @@
 <?xml version="1.0" ?>
 <definition id="NGADT210013" type="document" parentId="ngaDocument"> <!-- Analysis Request -->
+	<configuration>
+		<fields>
+			<field name="revisionContextConfiguration" type="json">
+				<value>
+					{
+						"recordContextDefinitionId" : "csRecordSpace",
+						"recordContextName" : "Analysis Request Published Revisions"
+					}
+				</value>
+			</field>
+		</fields>
+	</configuration>
 	<fields>
 		<field name="type">
 			<value>NGADT210013</value>
 		</field>
-		<field name="nga:requestNumber" type="an..50" displayType="editable" label="nga.requestNumber.label" tooltip="nga.requestNumber.tooltip" mandatory="true" order="11" uri="nga:requestNumber" />
-		<field name="purpose" type="an..10" displayType="editable" codelist="CL214" label="nga.purpose.label" tooltip="ngaDocument.purpose.tooltip" mandatory="true" order="12" filters="ngaAnalysisDocPurpose" uri="nga:purpose" />
-		<field name="chc:documents" type="uri" displayType="hidden" uri="chc:documents">
+		<field name="purpose" type="ANY" displayType="editable" codelist="CL214"  tooltip="ngaDocument.purpose.tooltip" mandatory="true" order="12" uri="nga:purpose" >
+			<control id="RELATED_FIELDS">
+				<control-param type="related_field" id="fieldsToRerender" name="RERENDER">purpose</control-param>
+				<control-param type="related_field" id="filterSource" name="FILTER_SOURCE">NGA214012,NGA214013,NGA214014</control-param>
+				<control-param type="related_field" id="filterInclusive" name="INCLUSIVE">true</control-param>
+			</control>
+		</field>
+		<field name="chc:documents" displayType="hidden" >
 			<condition id="visibleFields" renderAs="VISIBLE">[purpose] IN ('NGA214012')</condition>
 			<condition id="mandatoryFields" renderAs="MANDATORY">[purpose] IN ('NGA214012')</condition>
 		</field>
 	</fields>
 	<regions>
-		<region id="generalDocumentInformation" order="70" displayType="editable" label="nga.spcificDocInformation.region.label">
+		<region id="generalDocumentInformation" label="nga.spcificDocInformation.region.label" order="70" >
 			<fields>
-				<field name="samplingReason" type="an..1024" order="700" label="ngaDocument.samplingReason.label" tooltip="ngaDocument.samplingReason.tooltip" displayType="editable" previewEmpty="false" uri="nga:samplingReason"/>	
-				<field name="samplingDateRequested" type="date" order="705" label="ngaDocument.samplingDateRequested.label" tooltip="ngaDocument.samplingDateRequested.tooltip" displayType="editable" previewEmpty="false" uri="nga:samplingDateRequested" />
+				<field name="samplingReason" type="an..1024" order="700" label="ngaDocument.samplingReason.label" tooltip="ngaDocument.samplingReason.tooltip" displayType="editable" previewEmpty="false" uri="nga:samplingReason">
+					<control id="RICHTEXT"/>
+				</field>	
+				<field name="samplingDateRequested" type="date" order="705" tooltip="ngaDocument.samplingDateRequested.tooltip" displayType="editable" previewEmpty="false" uri="nga:samplingDateRequested" />
 				
 				<!-- For Commercial Product -->
 				<field name="productDescription" type="an..1024" order="710" label="NGADT210014.productDescription.label" tooltip="NGADT210014.productDescription.tooltip" displayType="hidden" previewEmpty="false" uri="nga:productDescription">
+					<control id="RICHTEXT"/>
 					<condition id="visibleFields" renderAs="VISIBLE">[purpose] IN ('NGA214013')</condition>
 				</field>
 				<field name="tradeName" type="an..180" order="715" label="NGADT210014.tradeName.label" tooltip="NGADT210014.tradeName.tooltip" displayType="hidden" previewEmpty="false" uri="nga:tradeName">
@@ -39,7 +59,4 @@
 			</fields>
 		</region>
 	</regions>
-	<filterDefinitions>
-		<filter id="ngaAnalysisDocPurpose" mode="INCLUDE">NGA214012,NGA214013,NGA214014</filter>
-	</filterDefinitions>
 </definition>

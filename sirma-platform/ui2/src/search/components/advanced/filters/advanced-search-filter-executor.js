@@ -1,7 +1,6 @@
 import {Inject, Injectable} from 'app/app';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {PluginsService} from 'services/plugin/plugins-service';
-import _ from 'lodash';
 
 const OPERATOR_FILTER_EXTENSION_POINT = 'advanced-search-operator-filter';
 const PROPERTY_FILTER_EXTENSION_POINT = 'advanced-search-property-filter';

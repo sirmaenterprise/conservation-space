@@ -1,10 +1,8 @@
 package com.sirma.itt.emf.semantic.debug;
 
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.Dataset;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 import com.sirma.itt.emf.semantic.info.SemanticOperationLogger;
 
@@ -13,10 +11,7 @@ import com.sirma.itt.emf.semantic.info.SemanticOperationLogger;
  * 
  * @author kirq4e
  */
-public class DebugUpdateQuery implements Update {
-
-	private Update update;
-	private String updateQuery;
+public class DebugUpdateQuery extends AbstractDebugOperation<Update> implements Update {
 
 	/**
 	 * Initializes the instance and delegate
@@ -27,71 +22,18 @@ public class DebugUpdateQuery implements Update {
 	 *            String representation of the query, because it cannot be retrieved from the real query instance
 	 */
 	public DebugUpdateQuery(Update update, String updateQuery) {
-		this.update = update;
-		this.updateQuery = updateQuery;
+		super(update, updateQuery);
 	}
+
 
 	@Override
-	public void setBinding(String name, Value value) {
-		getUpdate().setBinding(name, value);
+	public void execute() {
+		SemanticOperationLogger.addLogOperation(SemanticOperationLogger.UPDATE_QUERY_OPERATION, getQueryString(), getBindings());
+		try {
+			getDelegate().execute();
+		} catch (RepositoryException | UpdateExecutionException re) {
+			DebugRepositoryConnection.onRepositoryException(re);
+			throw re;
+		}
 	}
-
-	@Override
-	public void removeBinding(String name) {
-		getUpdate().removeBinding(name);
-	}
-
-	@Override
-	public void clearBindings() {
-		getUpdate().clearBindings();
-	}
-
-	@Override
-	public BindingSet getBindings() {
-		return getUpdate().getBindings();
-	}
-
-	@Override
-	public void setDataset(Dataset dataset) {
-		getUpdate().setDataset(dataset);
-	}
-
-	@Override
-	public Dataset getDataset() {
-		return getUpdate().getDataset();
-	}
-
-	@Override
-	public void setIncludeInferred(boolean includeInferred) {
-		getUpdate().setIncludeInferred(includeInferred);
-	}
-
-	@Override
-	public boolean getIncludeInferred() {
-		return getUpdate().getIncludeInferred();
-	}
-
-	@Override
-	public void setMaxExecutionTime(int maxExecTime) {
-		getUpdate().setMaxExecutionTime(maxExecTime);
-	}
-
-	@Override
-	public int getMaxExecutionTime() {
-		return getUpdate().getMaxExecutionTime();
-	}
-
-	@Override
-	public void execute() throws UpdateExecutionException {
-		SemanticOperationLogger.addLogOperation(SemanticOperationLogger.UPDATE_QUERY_OPERATION, updateQuery, getBindings());
-		getUpdate().execute();
-	}
-
-	/**
-	 * @return the update
-	 */
-	public Update getUpdate() {
-		return update;
-	}
-
 }

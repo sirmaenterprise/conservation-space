@@ -122,6 +122,13 @@ public class DefaultSchedulerConfiguration implements SchedulerConfiguration, Js
 	@Tag(22)
 	private String timeZoneID;
 
+	public DefaultSchedulerConfiguration() {
+	}
+
+	public DefaultSchedulerConfiguration(String identifier) {
+		this.identifier = identifier;
+	}
+
 	@Override
 	public SchedulerEntryType getType() {
 		return type;

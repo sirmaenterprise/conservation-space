@@ -10,7 +10,7 @@ import {ActionsService} from 'services/rest/actions-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {IdocDraftService} from 'services/idoc/idoc-draft-service';
 import {SaveIdocAction} from 'idoc/actions/save-idoc-action';
-import {MODE_EDIT, MODE_PREVIEW} from 'idoc/idoc-constants';
+import {MODE_EDIT} from 'idoc/idoc-constants';
 import {LOCK} from 'idoc/actions/action-constants';
 
 @Injectable()
@@ -29,8 +29,8 @@ export class EditIdocAction extends InstanceAction {
   }
 
   execute(action, context) {
-    var currentObject = context.currentObject;
-    var idocPageController = context.idocPageController;
+    let currentObject = context.currentObject;
+    let idocPageController = context.idocPageController;
     idocPageController.disableEditButton = true;
     idocPageController.idocIsReady = false;
 
@@ -47,8 +47,21 @@ export class EditIdocAction extends InstanceAction {
   }
 
   afterInstanceRefreshHandler(context) {
-    var currentObject = context.currentObject;
-    var idocPageController = context.idocPageController;
+    let currentObject = context.currentObject;
+    let idocPageController = context.idocPageController;
+
+    // Some actions which ends in instance edit state call this action as here is concentrated the main flow for edit
+    // instance initialization. Such actions should say if they are using the current object view or are initializing
+    // another object in which case its appropriate to skip rendering current one.
+    if(this.skipCurrentObjectView && this.skipCurrentObjectView()) {
+      idocPageController.appendContent('');
+      idocPageController.setViewMode(MODE_EDIT);
+      this.router.navigate('idoc', this.stateParamsAdapter.getStateParams(), {notify: false});
+      this.eventbus.publish(new AfterEditActionExecutedEvent(context));
+      idocPageController.startDraftInterval();
+      idocPageController.disableEditButton = false;
+      return this.promiseAdapter.resolve();
+    }
 
     return this.promiseAdapter.all([this.idocDraftService.loadDraft(context.idocContext), this.instanceRestService.loadView(currentObject.getId())]).then((results) => {
       let content;

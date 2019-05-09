@@ -1,6 +1,7 @@
 package com.sirma.itt.cmf.alfresco4.rendition;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.Base64;
 
 import javax.inject.Inject;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.sirma.itt.cmf.alfresco4.content.Alfresco4ContentStore;
 import com.sirma.itt.emf.adapter.CMFRenditionAdapterService;
 import com.sirma.itt.emf.adapter.DMSException;
-import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.sep.content.Content;
 import com.sirma.sep.content.ContentInfo;
@@ -41,9 +41,9 @@ public class AlfrescoThumbnailProvider implements ThumbnailProvider {
 	private InstanceContentService instanceContentService;
 
 	@Override
-	public String createThumbnailEndPoint(Instance source) {
+	public String createThumbnailEndPoint(Serializable source) {
 		String dmsId = null;
-		ContentInfo contentInfo = instanceContentService.getContent(source.getId(), Content.PRIMARY_CONTENT);
+		ContentInfo contentInfo = instanceContentService.getContent(source, Content.PRIMARY_CONTENT);
 		if (contentInfo != null && contentInfo.exists() && isStoredInAlfresco(contentInfo)) {
 			dmsId = contentInfo.getRemoteId();
 			LOGGER.trace("Creating thumbnail endpoint from primary content for [{}].", dmsId);

@@ -6,6 +6,7 @@ import {UrlUtils} from 'common/url-utils';
 @Injectable()
 @Inject(StateParamsAdapter)
 export class Router {
+
   constructor(stateParamsAdapter) {
     this.params = stateParamsAdapter.$stateParams;
     this.params.mode = UrlUtils.getParameter(window.location.hash, 'mode');
@@ -18,9 +19,18 @@ export class Router {
     }
     this.options = {};
   }
+
   navigate(state, params, options) {
     _.merge(this.params, params);
     this.options = options;
     window.location.hash = `#/${this.params.id}` + (this.params.mode?`?mode=${this.params.mode}`:'') + (this.params['#']?`#${this.params['#']}`:'');
+  }
+
+  getCurrentState() {
+    return 'idoc';
+  }
+
+  getCurrentParams() {
+    return this.params;
   }
 }

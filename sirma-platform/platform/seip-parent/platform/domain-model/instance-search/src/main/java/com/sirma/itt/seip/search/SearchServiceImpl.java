@@ -32,6 +32,9 @@ import com.sirma.itt.seip.exception.EmfConfigurationException;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.instance.dao.InstanceLoadDecorator;
 import com.sirma.itt.seip.instance.properties.PropertiesService;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition;
+import com.sirma.itt.seip.monitor.annotations.Monitored;
+import com.sirma.itt.seip.monitor.annotations.MetricDefinition.Type;
 import com.sirma.itt.seip.plugin.ExtensionPoint;
 import com.sirma.itt.seip.plugin.PluginUtil;
 import com.sirma.itt.seip.search.facet.FacetService;
@@ -97,11 +100,19 @@ public class SearchServiceImpl implements SearchService {
 	}
 
 	@Override
+	@Monitored({
+		@MetricDefinition(name = "search_duration_seconds", type = Type.TIMER, descr = "Search duration in seconds."),
+		@MetricDefinition(name = "search_hit_count", type = Type.COUNTER, descr = "Hit counter on the serach service method.")
+	})
 	public <E extends Instance, S extends SearchArguments<E>> void search(Class<?> target, S arguments) {
 		searchInternal(target, arguments, false);
 	}
 
 	@Override
+	@Monitored({
+		@MetricDefinition(name = "search_load_duration_seconds", type = Type.TIMER, descr = "Search and load duration in seconds."),
+		@MetricDefinition(name = "search_load_hit_count", type = Type.COUNTER, descr = "Hit counter on the serach and load service method.")
+	})
 	public <E extends Instance, S extends SearchArguments<E>> void searchAndLoad(Class<?> target, S arguments) {
 		searchInternal(target, arguments, true);
 	}

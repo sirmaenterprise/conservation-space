@@ -1,10 +1,5 @@
 package com.sirma.itt.seip.rest.exceptions.mappers;
 
-import com.sirma.itt.seip.collections.CollectionUtils;
-import com.sirma.itt.seip.rest.models.Error;
-import com.sirma.itt.seip.rest.models.ErrorData;
-import com.sirma.itt.seip.rest.utils.JSON;
-
 import static com.sirma.itt.seip.collections.CollectionUtils.addNonNullValue;
 
 import java.util.LinkedList;
@@ -21,6 +16,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import com.sirma.itt.seip.collections.CollectionUtils;
+import com.sirma.itt.seip.rest.models.Error;
+import com.sirma.itt.seip.rest.models.ErrorData;
+import com.sirma.itt.seip.rest.utils.JSON;
+
 /**
  * Helper class for implementing {@link ExceptionMapper}s
  *
@@ -28,11 +28,11 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class ExceptionMapperUtil {
 
-	private static final String CODE = "code";
-	private static final String ERROR = "error";
-	private static final String TYPE = "type";
-	private static final String MESSAGE = "message";
-	private static final String ERRORS = "errors";
+	public static final String CODE = "code";
+	public static final String ERROR = "error";
+	public static final String TYPE = "type";
+	public static final String MESSAGE = "message";
+	public static final String ERRORS = "errors";
 
 
 	/**

@@ -1,9 +1,7 @@
 package com.sirma.itt.seip.definition.filter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +57,7 @@ public class FilterServiceImpl implements FilterService {
 	@PostConstruct
 	void init() {
 		if (!cacheContext.containsCache(FILTER_CACHE)) {
-			cacheContext.createCache(FILTER_CACHE, new FilterLookup());
+			cacheContext.createCache(FILTER_CACHE, new FilterLookup(dbDao));
 		}
 	}
 
@@ -82,7 +80,7 @@ public class FilterServiceImpl implements FilterService {
 
 	@Override
 	public void filter(Filter filter, Set<String> toFilter) {
-		if (filter == null || toFilter == null || toFilter.isEmpty()) {
+		if (filter == null || CollectionUtils.isEmpty(toFilter)) {
 			return;
 		}
 		FilterMode mode = getFilterMode(filter);
@@ -96,7 +94,7 @@ public class FilterServiceImpl implements FilterService {
 
 	@Override
 	public void filter(List<Filter> filters, Set<String> toFilter) {
-		if (filters == null || filters.isEmpty() || toFilter == null || toFilter.isEmpty()) {
+		if (CollectionUtils.isEmpty(filters) || CollectionUtils.isEmpty(toFilter)) {
 			return;
 		}
 		// if single filter, no need to execute the complex logic
@@ -135,13 +133,10 @@ public class FilterServiceImpl implements FilterService {
 	@Override
 	@Transactional
 	public boolean saveFilters(List<Filter> definitions) {
-		if (definitions == null || definitions.isEmpty()) {
+		if (CollectionUtils.isEmpty(definitions)) {
 			return true;
 		}
-		Map<String, Filter> filterIds = new LinkedHashMap<>((int) (definitions.size() * 1.1), 0.95f);
-		for (Filter filter : definitions) {
-			filterIds.put(filter.getIdentifier(), filter);
-		}
+		Map<String, Filter> filterIds = definitions.stream().collect(CollectionUtils.toIdentityMap(Filter::getIdentifier));
 
 		List<FilterDefinitionImpl> existingFilters = fetchExistingFilters(filterIds);
 
@@ -167,6 +162,10 @@ public class FilterServiceImpl implements FilterService {
 				changed = true;
 			}
 
+			if (copyDefinedIn(definition, existingFilter)) {
+				changed = true;
+			}
+
 			if (changed) {
 				dbDao.saveOrUpdate(existingFilter);
 				filterCache.setValue(existingFilter.getIdentifier(), existingFilter);
@@ -183,13 +182,16 @@ public class FilterServiceImpl implements FilterService {
 	}
 
 	private List<FilterDefinitionImpl> fetchExistingFilters(Map<String, Filter> filterIds) {
-		List<Pair<String, Object>> args = new ArrayList<>(1);
-		args.add(new Pair<>(FILTER_ID, filterIds.keySet()));
-		List<FilterDefinitionImpl> existingFilters = dbDao.fetchWithNamed(FilterDefinitionImpl.QUERY_FILTERS_BY_ID_KEY, args);
-		if (existingFilters == null) {
-			existingFilters = CollectionUtils.emptyList();
+		return dbDao.fetchWithNamed(FilterDefinitionImpl.QUERY_FILTERS_BY_ID_KEY,
+				Collections.singletonList(new Pair<>(FILTER_ID, filterIds.keySet())));
+	}
+
+	private boolean copyDefinedIn(Filter from, FilterDefinitionImpl to) {
+		Set<String> definedIn = from.getDefinedIn();
+		if (definedIn == null) {
+			definedIn = Collections.emptySet();
 		}
-		return existingFilters;
+		return definedIn.stream().peek(to::addDefinedIn).count() > 0;
 	}
 
 	private EntityLookupCache<String, Filter, Serializable> getFilterCache() {
@@ -197,10 +199,16 @@ public class FilterServiceImpl implements FilterService {
 	}
 
 	private enum FilterMode {
-		INCLUDE, EXCLUDE;
+		INCLUDE, EXCLUDE
 	}
 
-	private class FilterLookup extends EntityLookupCallbackDAOAdaptor<String, Filter, Serializable> {
+	private static class FilterLookup extends EntityLookupCallbackDAOAdaptor<String, Filter, Serializable> {
+
+		private final DbDao dbDao;
+
+		FilterLookup(DbDao dbDao) {
+			this.dbDao = dbDao;
+		}
 
 		@Override
 		public Pair<String, Filter> findByKey(String key) {

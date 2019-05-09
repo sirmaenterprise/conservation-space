@@ -8,10 +8,12 @@ import static com.sirma.itt.seip.util.EqualsHelper.getOrDefault;
 import static com.sirma.itt.seip.util.EqualsHelper.nullSafeEquals;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +24,8 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.Uri;
@@ -33,6 +37,7 @@ import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.domain.instance.PropertyInstance;
+import com.sirma.itt.seip.domain.semantic.persistence.MultiLanguageValue;
 
 import rx.functions.Func7;
 
@@ -82,9 +87,12 @@ abstract class PersistStep {
 		return EmptyPersistStep.EMPTY_INSTANCE;
 	}
 
-
 	private static boolean isMultivalue(Serializable value) {
 		return value instanceof Collection;
+	}
+
+	private static boolean isMultilangValue(Serializable value) {
+		return value instanceof MultiLanguageValue;
 	}
 
 	private static boolean isObjectPropertyValue(Serializable value) {
@@ -183,6 +191,8 @@ abstract class PersistStep {
 	 */
 	static class PersistStepFactory {
 
+		private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 		private final StatementBuilderProvider statementBuilder;
 		private final InverseRelationProvider inverseRelationProvider;
 		private final SemanticDefinitionService semanticDefinitionService;
@@ -205,11 +215,10 @@ abstract class PersistStep {
 					"Cannot initialize factory for null type converter");
 		}
 
-		PersistStepFactory setSourceData(IRI instanceId, ValueProvider newData, ValueProvider oldData) {
+		void setSourceData(IRI instanceId, ValueProvider newData, ValueProvider oldData) {
 			subject = Objects.requireNonNull(instanceId, "Cannot initialize factory for null instance id");
 			newValueProvider = newData;
 			oldValueProvider = oldData;
-			return this;
 		}
 
 		/**
@@ -224,19 +233,21 @@ abstract class PersistStep {
 		public PersistStep create(PropertyDefinition definition) {
 			Serializable newValue = newValueProvider.getValue(definition);
 			Serializable oldValue = oldValueProvider.getValue(definition);
+			LOGGER.trace("New persist step using def {} +={} -={}",  definition.getIdentifier(), newValue, oldValue);
 
 			// if both are null or they are equal no need to do anything
 			if (nullSafeEquals(newValue, oldValue)) {
 				return EmptyPersistStep.EMPTY_INSTANCE;
 			}
 
-			boolean isMultiValue = definition.isMultiValued().booleanValue() || isMultivalue(newValue)
+			boolean isMultiValue = definition.isMultiValued() || isMultivalue(newValue)
 					|| isMultivalue(oldValue);
 			boolean isObjectProperty = BasePropertiesConverter.isUriField(definition);
+			boolean isMultilangValue = isMultilangValue(newValue) || isMultilangValue(oldValue);
 
 			String uri = resolveUri().apply(definition);
 
-			return getStepImpl(isObjectProperty, isMultiValue).call(subject, uri, newValue, oldValue, statementBuilder,
+			return getStepImpl(isObjectProperty, isMultiValue, isMultilangValue).call(subject, uri, newValue, oldValue, statementBuilder,
 					inverseRelationProvider, value -> ensureProperType(definition, value));
 		}
 
@@ -261,6 +272,7 @@ abstract class PersistStep {
 		public PersistStep create(String name) {
 			Serializable newValue = newValueProvider.getValue(name);
 			Serializable oldValue = oldValueProvider.getValue(name);
+			LOGGER.trace("New persist step for {} +={} -={}",  name, newValue, oldValue);
 
 			// if both are null or they are equal no need to do anything
 			if (nullSafeEquals(newValue, oldValue)) {
@@ -269,8 +281,9 @@ abstract class PersistStep {
 			boolean isMultiValue = isMultivalue(newValue) || isMultivalue(oldValue);
 			boolean isObjectProperty = isObjectPropertyValue(newValue) || isObjectPropertyValue(oldValue)
 					|| isObjectPropertyPredicate(name);
+			boolean isMultilangValue = isMultilangValue(newValue) || isMultilangValue(oldValue);
 
-			return getStepImpl(isObjectProperty, isMultiValue).call(subject, name, newValue, oldValue, statementBuilder,
+			return getStepImpl(isObjectProperty, isMultiValue, isMultilangValue).call(subject, name, newValue, oldValue, statementBuilder,
 					inverseRelationProvider, ValueTypeConverter.noConvert());
 		}
 
@@ -303,7 +316,7 @@ abstract class PersistStep {
 		 * @return the persist step that can handle the property value identified for the given name
 		 */
 		public PersistStep create(Object uri, Serializable newValue, Serializable oldValue) {
-
+			LOGGER.trace("New explicit persist step for {} +={} -={}", uri, newValue, oldValue);
 			// if both are null or they are equal no need to do anything
 			if (nullSafeEquals(newValue, oldValue)) {
 				return EmptyPersistStep.EMPTY_INSTANCE;
@@ -311,13 +324,14 @@ abstract class PersistStep {
 			boolean isMultiValue = isMultivalue(newValue) || isMultivalue(oldValue);
 			boolean isObjectProperty = isObjectPropertyValue(newValue) || isObjectPropertyValue(oldValue)
 					|| isObjectPropertyPredicate(uri);
+			boolean isMultilangValue = isMultilangValue(newValue) || isMultilangValue(oldValue);
 
-			return getStepImpl(isObjectProperty, isMultiValue).call(subject, uri, newValue, oldValue, statementBuilder,
+			return getStepImpl(isObjectProperty, isMultiValue, isMultilangValue).call(subject, uri, newValue, oldValue, statementBuilder,
 					inverseRelationProvider, ValueTypeConverter.noConvert());
 		}
 
 		private static Func7<IRI, Object, Serializable, Serializable, StatementBuilderProvider, InverseRelationProvider, ValueTypeConverter, PersistStep> getStepImpl(
-				boolean isObjectProperty, boolean isMultiValue) {
+				boolean isObjectProperty, boolean isMultiValue, boolean isMultilangValue) {
 			if (isObjectProperty) {
 				if (isMultiValue) {
 					return (instanceId, uri, newValue, oldValue, statementBuilderProvider, inverseRelationProvider,
@@ -329,16 +343,22 @@ abstract class PersistStep {
 								statementBuilderProvider, inverseRelationProvider);
 			}
 
+			if (isMultilangValue) {
+				return (instanceId, uri, newValue, oldValue, statementBuilderProvider, inverseRelationProvider,
+						valueTypeConverter) -> new MultilangValueLiteralPersistStep(instanceId, uri, newValue, oldValue,
+						statementBuilderProvider);
+			}
+
 			if (isMultiValue) {
 				return (instanceId, uri, newValue, oldValue, statementBuilderProvider, inverseRelationProvider,
 						valueTypeConverter) -> new MultiValueLiteralPersistStep(instanceId, uri, newValue, oldValue,
 								statementBuilderProvider, valueTypeConverter);
 			}
+
 			return (instanceId, uri, newValue, oldValue, statementBuilderProvider, inverseRelationProvider,
 					valueTypeConverter) -> new LiteralPersistStep(instanceId, uri, newValue, oldValue,
 							statementBuilderProvider, valueTypeConverter);
 		}
-
 	}
 
 	/**
@@ -346,7 +366,7 @@ abstract class PersistStep {
 	 *
 	 * @author BBonev
 	 */
-	private static interface ValueTypeConverter {
+	private interface ValueTypeConverter {
 
 		/**
 		 * Converter instance that does no conversion
@@ -446,8 +466,8 @@ abstract class PersistStep {
 
 	/**
 	 * Base class for implementing multi value persist steps. Converts the value arguments to collections for easy
-	 * comparison. Note that no difference is created unless the {@link BaseMultiValuePersistStep#diffValues()} is
-	 * called.
+	 * comparison. Note that no difference is created unless the
+	 * {@link com.sirma.itt.seip.util.EqualsHelper#diffCollections(Collection, Collection)} is called.
 	 *
 	 * @author BBonev
 	 */
@@ -555,6 +575,56 @@ abstract class PersistStep {
 						.filter(Objects::nonNull)
 						.map(LocalStatement::toRemove);
 			return Stream.concat(newValuesStream, oldValuesStream);
+		}
+	}
+
+	/**
+	 * Persist step for {@link MultiLanguageValue} values. If one of the values is {@link String} it will be handled as such along with
+	 * the {@link MultiLanguageValue} one.
+	 *
+	 * @author Mihail Radkov
+	 */
+	private static class MultilangValueLiteralPersistStep extends PersistStep {
+
+		MultilangValueLiteralPersistStep(IRI instanceId, Object name, Serializable newValue, Serializable oldValue,
+				StatementBuilderProvider statementBuilder) {
+			super(instanceId, name, newValue, oldValue, statementBuilder.literalStatementBuilder());
+		}
+
+		@Override
+		public Stream<LocalStatement> getStatements() {
+			Collection<Statement> newStatements = getStatements(newValue);
+			Collection<Statement> oldStatements = getStatements(oldValue);
+
+			Pair<Set<Statement>, Set<Statement>> statementsDiff = diffCollections(newStatements, oldStatements);
+			newStatements = statementsDiff.getFirst();
+			oldStatements = statementsDiff.getSecond();
+
+			Stream<LocalStatement> newValuesStream = newStatements
+					.stream()
+					.filter(Objects::nonNull)
+					.map(LocalStatement::toAdd);
+			Stream<LocalStatement> oldValuesStream = oldStatements
+					.stream()
+					.filter(Objects::nonNull)
+					.map(LocalStatement::toRemove);
+			return Stream.concat(newValuesStream, oldValuesStream);
+		}
+
+		private Collection<Statement> getStatements(Serializable value) {
+			Collection<Statement> statements = new LinkedList<>();
+			if (PersistStep.isMultilangValue(value)) {
+				((MultiLanguageValue) value).forEach((lang, label) -> statements.add(buildStatement(label, lang)));
+			} else if (value instanceof String) {
+				statements.add(buildStatement(value.toString()));
+			} else if (value != null) {
+				throw new IllegalArgumentException("Unexpected type " + value.getClass().getSimpleName());
+			}
+			return statements;
+		}
+
+		private Statement buildStatement(String language, String value) {
+			return statementBuilder.build(currentInstance, uri, language, value);
 		}
 	}
 

@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertNotEquals;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,8 +31,6 @@ import org.mockito.MockitoAnnotations;
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.StringPair;
 import com.sirma.itt.seip.collections.ContextualMap;
-import com.sirma.itt.seip.rest.secirity.ActiveUserSession;
-import com.sirma.itt.seip.rest.secirity.SecurityTokensHolder;
 import com.sirma.itt.seip.security.UserPreferences;
 
 /**
@@ -64,24 +61,11 @@ public class SessionManagerTest {
 	@Mock
 	private UserPreferences userPreferences;
 
-	@Mock
-	private SecurityTokensHolder tokensHolder;
-
 	@Before
 	public void before() {
 		MockitoAnnotations.initMocks(this);
 
 		when(userPreferences.getSessionTimeout()).thenReturn(SESSION_TIMEOUT);
-		when(userPreferences.shouldRedirectOnSessionTimeout()).thenReturn(Boolean.FALSE);
-	}
-
-	@Test
-	public void should_InitializeLoggedUsers_When_ThereAreEntriesInDb() {
-		when(tokensHolder.getAll()).thenReturn(Arrays.asList(createTokens()));
-
-		sessionManager.init();
-
-		verifyLoggedUsers(sessionManager.getLoggedUsers());
 	}
 
 	@Test
@@ -147,7 +131,6 @@ public class SessionManagerTest {
 
 	@Test
 	public void should_UpdateLoggedUser_When_HeHasRegisteredSession() {
-		when(tokensHolder.getAll()).thenReturn(Arrays.asList(createTokens()));
 		sessionManager.init();
 
 		sessionManager.updateLoggedUser(JWT_TOKEN, USER_ID);
@@ -160,8 +143,7 @@ public class SessionManagerTest {
 
 	@Test
 	public void should_DoNothing_When_TryingToUpdateSessionWithEmptyParams() {
-		when(tokensHolder.getAll()).thenReturn(Arrays.asList(createTokens()));
-		sessionManager.init();
+		when(loggedUsers.size()).thenReturn(1);
 
 		sessionManager.updateLoggedUser(null, null);
 		verifyLoggedUsers(sessionManager.getLoggedUsers());
@@ -184,33 +166,11 @@ public class SessionManagerTest {
 
 	@Test
 	public void should_CleanUpJwtSessionForUser_When_HeWasInactiveMoreThanAllowed() {
-		when(tokensHolder.getAll()).thenReturn(Arrays.asList(createTokens(SESSION_TIMEOUT * -1)));
 		sessionManager.init();
 
 		sessionManager.logTimeout();
 
 		assertTrue(sessionManager.getLoggedUsers().isEmpty());
-	}
-
-	@Test
-	public void should_DeleteEntryFromDbForUser_When_HeWasInactiveAndConfigIsEnabled() {
-		when(userPreferences.shouldRedirectOnSessionTimeout()).thenReturn(Boolean.TRUE);
-		when(tokensHolder.getAll()).thenReturn(Arrays.asList(createTokens(SESSION_TIMEOUT * -1)));
-		sessionManager.init();
-
-		sessionManager.logTimeout();
-
-		verify(tokensHolder).removeByJwtToken(JWT_TOKEN);
-	}
-
-	@Test
-	public void should_NotDeleteEntryFromDbForUser_When_HeWasInactiveAndConfigIsDisabled() {
-		when(tokensHolder.getAll()).thenReturn(Arrays.asList(createTokens(SESSION_TIMEOUT * -1)));
-		sessionManager.init();
-
-		sessionManager.logTimeout();
-
-		verify(tokensHolder, never()).removeByJwtToken(anyString());
 	}
 
 	@Test
@@ -336,26 +296,6 @@ public class SessionManagerTest {
 
 	private static void verifyLoggedUsers(Map<String, Pair<String, Date>> loggedUsers) {
 		assertTrue(loggedUsers.size() == 1);
-		assertEquals(USER_ID, loggedUsers.get(JWT_TOKEN).getFirst());
-		assertEquals(LOGGED_IN_DATE, loggedUsers.get(JWT_TOKEN).getSecond());
-	}
-
-	private static ActiveUserSession createTokens(int minutes) {
-		ActiveUserSession tokens = createTokens();
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.MINUTE, minutes);
-
-		tokens.setLoggedInDate(calendar.getTime());
-		return tokens;
-	}
-
-	private static ActiveUserSession createTokens() {
-		ActiveUserSession securityTokens = new ActiveUserSession();
-		securityTokens.setIdentityId(USER_ID);
-		securityTokens.setJwt(JWT_TOKEN);
-		securityTokens.setLoggedInDate(LOGGED_IN_DATE);
-		return securityTokens;
 	}
 
 	private static HttpSession mockHttpSession(int minutes, boolean throwException) {

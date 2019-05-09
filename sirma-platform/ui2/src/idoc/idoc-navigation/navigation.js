@@ -50,7 +50,7 @@ export class IdocNavigation {
         channel: this.eventbusChannel,
         instance: this.eventbus
       },
-      tab: this.tab,
+      tab: this.tab
     });
   }
 

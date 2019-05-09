@@ -1,5 +1,5 @@
 import {View, Component, Inject, NgElement, NgScope, NgCompile} from 'app/app';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 
 import 'user/avatar/user-avatar';
 import './settings.css!css';
@@ -29,7 +29,7 @@ export class Settings {
   }
 
   compileAvatar() {
-    let avatar = this.$compile(`<seip-user-avatar ng-if="settings.currentUser" user="settings.currentUser" size="42"></seip-user-avatar>`)(this.$scope.$new());
+    let avatar = this.$compile('<seip-user-avatar ng-if="settings.currentUser" user="settings.currentUser" size="42"></seip-user-avatar>')(this.$scope.$new());
     this.$element.find('.icons-container').find('.user-avatar').remove().end().prepend(avatar);
   }
 

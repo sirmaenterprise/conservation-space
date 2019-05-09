@@ -10,8 +10,9 @@ import javax.jms.IllegalStateRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sirma.itt.seip.monitor.Metric;
+import com.sirma.itt.seip.monitor.Metric.Builder;
 import com.sirma.itt.seip.monitor.Statistics;
-import com.sirma.itt.seip.util.EqualsHelper;
 import com.sirmaenterprise.sep.jms.api.MessageConsumer;
 import com.sirmaenterprise.sep.jms.api.MessageReceiver;
 import com.sirmaenterprise.sep.jms.api.MessageReceiverResponse;
@@ -28,14 +29,16 @@ import com.sirmaenterprise.sep.jms.api.ReceiverDefinition;
 class BlockingMessageReceiverChannel implements Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+	private static final Metric JMS_RECEIVED_MESSAGES = Builder
+			.counter("jms_received_messages_count", "Counter for received JMS messages.").build();
+
 	static final long WAIT_TIMEOUT = 2000;
 	static final long TIMEOUT_REATTEMPT_WAIT_TIME = 30000;
-	
+
 	private final MessageReceiver messageReceiver;
 	private final ReceiverDefinition receiverDefinition;
 	private final MessageConsumer messageConsumer;
 	private final Statistics statistics;
-	private final String statisticsName;
 	private final CountDownLatch shutdownRequest = new CountDownLatch(1);
 
 	/*
@@ -58,12 +61,7 @@ class BlockingMessageReceiverChannel implements Runnable {
 		this.receiverDefinition = Objects.requireNonNull(receiverDefinition, "Receiver definition is required");
 		this.messageReceiver = Objects.requireNonNull(messageReceiver, "Message receiver is required");
 		this.messageConsumer = Objects.requireNonNull(messageConsumer, "Message consumer is required");
-		this.statistics = EqualsHelper.getOrDefault(statistics, Statistics.NO_OP);
-		this.statisticsName = escape(receiverDefinition.getDestinationJndi());
-	}
-
-	private static String escape(String name) {
-		return name.replaceAll("[:/\\\\.]+", "_").toLowerCase();
+		this.statistics = statistics;
 	}
 
 	@Override
@@ -111,7 +109,7 @@ class BlockingMessageReceiverChannel implements Runnable {
 	private MessageConsumer onMessage() {
 		return (message, context) -> {
 			status = Status.PROCESSING;
-			statistics.updateMeter(null, statisticsName);
+			statistics.track(JMS_RECEIVED_MESSAGES);
 			messageConsumer.accept(message, context);
 		};
 	}

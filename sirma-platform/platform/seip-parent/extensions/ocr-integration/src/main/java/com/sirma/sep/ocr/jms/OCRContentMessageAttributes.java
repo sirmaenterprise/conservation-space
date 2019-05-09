@@ -8,12 +8,10 @@ package com.sirma.sep.ocr.jms;
 public class OCRContentMessageAttributes {
 
 	public static final String OCRED_CONTENT_ID = "ocredContentId";
-	public static final String OCRED_VERSION_CONTENT_ID = "ocredVersionContentId";
 
 	public static final String OCR_LANGUAGE = "ocrLanguage";
 
 	private OCRContentMessageAttributes() {
 		// Disallow instantiation.
 	}
-
 }

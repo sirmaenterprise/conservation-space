@@ -5,28 +5,29 @@ import static com.sirma.itt.seip.collections.CollectionUtils.isEmpty;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.json.JsonObject;
 
-import com.sirma.itt.seip.adapters.iip.IIPServerImageProvider;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.adapters.ftp.BaseFtpContentStore;
+import com.sirma.itt.seip.adapters.iip.IIPServerImageProvider;
 import com.sirma.itt.seip.adapters.remote.FTPConfiguration;
-import com.sirma.itt.seip.adapters.remote.RESTClient;
 import com.sirma.itt.seip.exception.EmfRuntimeException;
 import com.sirma.itt.seip.io.FileDescriptor;
+import com.sirma.itt.seip.rest.client.HTTPClient;
+import com.sirma.itt.seip.rest.utils.HttpClientUtil;
 import com.sirma.itt.seip.rest.utils.JSON;
 import com.sirma.itt.seip.util.file.FileUtil;
 import com.sirma.sep.content.ContentMetadata;
@@ -53,8 +54,9 @@ public class IiifImageContentStore extends BaseFtpContentStore {
 
 	@Inject
 	private ImageServerConfigurations imageServerConfigurations;
+
 	@Inject
-	private Instance<RESTClient> restClient;
+	private HTTPClient httpClient;
 
 	@Inject
 	private IIPServerImageProvider iipServerImageProvider;
@@ -66,12 +68,12 @@ public class IiifImageContentStore extends BaseFtpContentStore {
 		}
 		URI imageAddress;
 		try {
-			imageAddress = new URI(getContentUrl(storeInfo.getRemoteId()), false);
-		} catch (URIException e) {
+			imageAddress = new URI(getContentUrl(storeInfo.getRemoteId()));
+		} catch (URISyntaxException e) {
 			throw new StoreException("Invalid store address: " + storeInfo.getRemoteId(), e);
 		}
 
-		return new ImageFileDescriptor(imageAddress, null, restClient.get());
+		return HttpClientUtil.callRemoteServiceLazily(new HttpGet(imageAddress));
 		// the proper way is to check if the file actually exists in the remote store, but the asynchronous upload may
 		// break the check
 	}
@@ -85,14 +87,36 @@ public class IiifImageContentStore extends BaseFtpContentStore {
 
 		URI imageAddress;
 		try {
-			int width = Math.min(imageServerConfigurations.getMaximumWidthForPreview().get(), Integer.parseInt(metadata.getAsString(WIDTH)));
-			Dimension<Integer> dimension = new Dimension<>(width, null);
-			imageAddress = new URI(iipServerImageProvider.getImageUrl(metadata.getAsString("id"), dimension), false);
-		} catch (URIException e) {
+			Dimension<Integer> dimension = getImageRequestDimension(metadata);
+			imageAddress = new URI(iipServerImageProvider.getImageUrl(metadata.getAsString("id"), dimension, true));
+		} catch (URISyntaxException e) {
 			throw new StoreException("Invalid store address: " + metadata.getAsString("id"), e);
 		}
 
-		return new ImageFileDescriptor(imageAddress, null, restClient.get());
+		return HttpClientUtil.callRemoteServiceLazily(new HttpGet(imageAddress));
+	}
+
+	/**
+	 * Calculate request size parameters for an image.
+	 * There are two possible scenarios for size calculation:
+	 * 1.  When real width of image is less than configured maximum width of image for preview then returned dimension
+	 * will be created with real width and height.
+	 *
+	 * 2.  When real width of image is bigger than configured maximum width of image for preview then returned dimension
+	 * will be created with width equal to configured maximum width of image for preview and height will be calculated
+	 * according IIIF Image API specification. <a href="https://iiif.io/api/image/2.1/#appendices.">@see</a>
+	 *
+	 * @param metadata - content metadata of requested image.
+	 * @return the calculated image dimension.
+	 */
+	private Dimension<Integer> getImageRequestDimension(ContentMetadata metadata) {
+		int imageWidth = Integer.parseInt(metadata.getAsString(WIDTH));
+		int imageHeight = Integer.parseInt(metadata.getAsString(HEIGHT));
+		Integer maxRequestedWidthForPreview = imageServerConfigurations.getMaximumWidthForPreview().get();
+		if (imageWidth <= maxRequestedWidthForPreview) {
+			return new Dimension<>(imageWidth, imageHeight);
+		}
+		return new Dimension<>(maxRequestedWidthForPreview, maxRequestedWidthForPreview * imageHeight / imageWidth);
 	}
 
 	@Override
@@ -157,24 +181,25 @@ public class IiifImageContentStore extends BaseFtpContentStore {
 	 * @return the image info
 	 */
 	private JsonObject getImageInfoForUri(String urlToImage) {
-		JsonObject imageInfo = null;
 		URI imageAddress;
 		try {
-			imageAddress = new URI(urlToImage, false);
-		} catch (Exception e) {
+			imageAddress = new URI(urlToImage);
+		} catch (URISyntaxException e) {
 			throw new EmfRuntimeException(e);
 		}
-		RESTClient client = restClient.get();
-		try (InputStream inputStream = client.rawRequest(new GetMethod(), imageAddress).getResponseBodyAsStream()) {
-			if (inputStream != null) {
-				imageInfo = JSON.readObject(inputStream, Function.identity());
+
+		return httpClient.execute(imageAddress, readObject(urlToImage));
+	}
+
+	private ResponseHandler<JsonObject> readObject(String urlToImage) {
+		return response -> {
+			try (InputStream inputStream = response.getEntity().getContent()) {
+				return JSON.readObject(inputStream, Function.identity());
+			} catch (Exception e) {
+				LOGGER.error("An error occurred while trying to obtain image metadata for image '{}'", urlToImage, e);
 			}
-		} catch (Exception e) {
-			LOGGER.error("An error occurred while trying to obtain image metadata for image '{}': {}", urlToImage,
-						 e.getMessage());
-			LOGGER.trace("An error occurred while trying to obtain image metadata.", e);
-		}
-		return imageInfo;
+			return null;
+		};
 	}
 
 	@Override
@@ -230,5 +255,10 @@ public class IiifImageContentStore extends BaseFtpContentStore {
 	@Override
 	protected long getAsyncThreshold() {
 		return imageServerConfigurations.getAsyncUploadThreshold().getOrFail();
+	}
+
+	@Override
+	public boolean isCleanSupportedOnTenantDelete() {
+		return true;
 	}
 }

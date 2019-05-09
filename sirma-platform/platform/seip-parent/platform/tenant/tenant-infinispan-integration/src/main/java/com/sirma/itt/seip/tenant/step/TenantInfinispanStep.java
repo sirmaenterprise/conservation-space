@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sirma.itt.seip.plugin.Extension;
-import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.infinispan.LocalInfinispanProvisioning;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -46,9 +46,9 @@ public class TenantInfinispanStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
 		try {
-			cacheProvisioning.deleteCaches(tenantInfo);
+			cacheProvisioning.deleteCaches(context.getTenantInfo());
 			return true;
 		} catch (Exception e) {
 			LOGGER.warn("Infinispan caches couldn't be deleted due to {}!", e.getMessage());

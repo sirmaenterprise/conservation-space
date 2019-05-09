@@ -89,7 +89,7 @@ public class ObjectSubTypeFieldValueRetriever extends PairFieldValueRetriever {
 	 * @param value
 	 *            the value
 	 * @param additionalParameters
-	 *            additional parameters: {@link FieldValueRetrieverParameters.OBJECT_TYPE} - object type for the given
+	 *            additional parameters: {@link FieldValueRetrieverParameters#OBJECTTYPE} - object type for the given
 	 *            subtype. <b>Required</b>
 	 * @return the label
 	 */
@@ -164,10 +164,9 @@ public class ObjectSubTypeFieldValueRetriever extends PairFieldValueRetriever {
 			if (instance != null) {
 				return instance.getLabel(getCurrentUserLanguage());
 			}
-			PropertyInstance model = semanticDefinitionService
-					.getRelation(namespaceRegistryService.buildFullUri(value));
+			PropertyInstance model = semanticDefinitionService.getRelation(value);
 			if (model != null) {
-				return model.getProperties().get("title").toString();
+				return model.getLabel(getCurrentUserLanguage());
 			}
 		} catch (Exception e) {
 			// Nothing to do here, this is normal.

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.sirma.itt.seip.definition.DefinitionService;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
+import com.sirma.itt.seip.domain.definition.label.LabelProvider;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.domain.instance.InstanceReference;
 import com.sirma.itt.seip.instance.DomainInstanceService;
@@ -49,6 +51,9 @@ public class UpdateRelationsActionTest {
 
 	@Mock
 	private DefinitionService definitionService;
+
+	@Mock
+	private LabelProvider labelProvider;
 
 	@InjectMocks
 	private UpdateRelationsAction action;
@@ -114,6 +119,39 @@ public class UpdateRelationsActionTest {
 	@Test(expected = BadRequestException.class)
 	public void should_ThrowBadRequestException_When_RequestIsNull() {
 		action.validate(null);
+	}
+
+	@Test(expected = BadRequestException.class)
+	public void validate_shouldFailIfRelationIsNotDefinedInInstance_onAdd() {
+		UpdateRelationsRequest request = new UpdateRelationsRequest("emf:id");
+		request.setTargetReference(createInstance().toReference());
+		request.setLinksToBeAdded(
+				Collections.singleton(new UpdateRelationData("emf:someUndefinedRelation",
+						new HashSet<>(Collections.singletonList("emf:destination")))));
+		action.validate(request);
+	}
+
+	@Test(expected = BadRequestException.class)
+	public void validate_shouldFailIfRelationIsNotDefinedInInstance_onRemove() {
+		UpdateRelationsRequest request = new UpdateRelationsRequest("emf:id");
+		request.setTargetReference(createInstance().toReference());
+		request.setLinksToBeRemoved(
+				Collections.singleton(new UpdateRelationData("emf:someUndefinedRelation",
+						new HashSet<>(Collections.singletonList("emf:destination")))));
+		action.validate(request);
+	}
+
+	@Test
+	public void validate_shouldNotFailIfRelationIsDefinedInInstance() {
+		UpdateRelationsRequest request = new UpdateRelationsRequest("emf:id");
+		request.setTargetReference(createInstance().toReference());
+		request.setLinksToBeAdded(
+				Collections.singleton(new UpdateRelationData(PROPERTY_URI_FOR_REMOVE,
+						new HashSet<>(Collections.singletonList("emf:destination")))));
+		request.setLinksToBeRemoved(
+				Collections.singleton(new UpdateRelationData(PROPERTY_URI_FOR_ADD,
+						new HashSet<>(Collections.singletonList("emf:destination")))));
+		action.validate(request);
 	}
 
 	private Instance createInstance() {

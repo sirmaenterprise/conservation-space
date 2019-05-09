@@ -1,6 +1,8 @@
 import {CommentsRestService} from 'services/rest/comments-service';
 import {CommentBuilder} from 'idoc/comments/comment-builder';
 
+import {PromiseStub} from 'test/promise-stub';
+
 describe('CommentsRestService', () => {
   let restClient = {};
   let authorityService = {};
@@ -13,7 +15,7 @@ describe('CommentsRestService', () => {
       delete: sinon.spy()
     };
     authorityService.getToken = sinon.stub();
-    authorityService.getToken.onFirstCall().returns('userToken');
+    authorityService.getToken.onFirstCall().returns(PromiseStub.resolve('userToken'));
     commentRestService = new CommentsRestService(restClient, authorityService);
   });
 
@@ -21,7 +23,7 @@ describe('CommentsRestService', () => {
     it('should load all the comments', ()=> {
       commentRestService.loadAllComments();
       expect(restClient.get.calledOnce).to.be.true;
-      expect(restClient.get.getCall(0).args[0]).to.contains('annotations/search/all')
+      expect(restClient.get.getCall(0).args[0]).to.contains('annotations/search/all');
     });
 
     it('should call the correct url', () => {
@@ -42,7 +44,7 @@ describe('CommentsRestService', () => {
       };
       commentRestService.loadComments('emf:123456', '147');
       expect(restClient.get.calledOnce).to.be.true;
-      expect(restClient.get.getCall(0).args[1]).to.deep.equal(data)
+      expect(restClient.get.getCall(0).args[1]).to.deep.equal(data);
     });
   });
 
@@ -50,7 +52,7 @@ describe('CommentsRestService', () => {
     it('should call the correct url', () => {
       commentRestService.loadReplies('id');
       expect(restClient.get.calledOnce).to.be.true;
-      expect(restClient.get.getCall(0).args[0]).to.contains('annotations/id')
+      expect(restClient.get.getCall(0).args[0]).to.contains('annotations/id');
     });
 
     it('should pass correct parameters', () => {
@@ -63,7 +65,7 @@ describe('CommentsRestService', () => {
       };
       commentRestService.loadReplies('emf:123456');
       expect(restClient.get.calledOnce).to.be.true;
-      expect(restClient.get.getCall(0).args[1]).to.deep.equal(data)
+      expect(restClient.get.getCall(0).args[1]).to.deep.equal(data);
     });
   });
 

@@ -1,41 +1,32 @@
-# Compare PDF service
-This repo contains a docker image that is used to start a container in which is deployed nodejs service that
-provides web services for comparing pdf files using the [diffpdf](https://github.com/taurus-forever/diffpdf-console/)
-library. This git repository contains the diffpdf code which was forked before the point where it got commercial.
+# Compare PDFs service
+Service for comparing PDF files.
+It uses [diffpdf](https://github.com/taurus-forever/diffpdf-console/) which is a fork before the point the original tool was made commercial.
+The fork also adds CLI support, although it still requires an X server or xvfb.
 
-### To build the container simply run:
-```bash
-docker build --no-cache --quiet --tag docker-reg.sirmaplatform.com/compare-pdf:<version> .
+## Configuration
+Most configurations are retrieved from environment variables, but also have default values.
+
+* `COMPARE_OUTPUT_DIR` where temporary files and logs are stored. Default `/opt/compare-pdf/output`
+* `COMPARE_HOST` the network interface the service listens on. Default `all`
+* `COMPARE_PORT` the port on which the service listens on. Default `8080`
+* `COMPARE_TIMEOUT` the maximum time in milliseconds the comparison must complete. Default 120000
+
+### Docker specific variables
+* `COMPARE_OUTPUT_CLEANER_AGE` the output directory is cleaned using a cron job. The job runs every 15 minutes and looks for files order than `COMPARE_OUTPUT_CLEANER_AGE` minutes. Default `60`
+
+## Usage
+The service accepts `POST` requests to `/compare` with the `application/vnd.seip.v2+json` content type header.
+The request payload must contain the URLs to the files that need to be compared, e.g.
+```json
+{
+	"first": "http://example.com/file-1.pdf",
+	"second": "http://example.com/file-2.pdf"
+}
 ```
 
-### To start a container use the docker run command:
-```bash
-docker run --rm -it -p 8125:8125 docker-reg.sirmaplatform.com/compare-pdf:<version>
-```
-
-### To start compare server without the docker container simply use:
-```bash
-$ npm install
-$ npm start
-```
-
-**Important** on headless linux operating systems `xvfb` must be installed and compare server must be started using `xvfb-run` command.
-
-#### Available configurations
-Compare can be configured via simple set of configuration described in `config.json`
-* `host` (default to `0.0.0.0`) - host to bind and listen to.
-* `port` (default to `8123`) - port to bind and listen to.
-* `timeout` (default to `120000`) - timeout in ms before compare process is canceled and HTTP error 503 is returned.
-* 'cleanTempInternally' - the downloaded files that are used for the compares are stored in a temp folder this option
- can be used to delete files older than 30 minutes.
-* 'tempFolder' - the location of the tmp folder. If you change this keep in mind you will have to create the new
-folder. The default configuration is created in the container by default.
-
-## Compare PDF
-Provides GET, POST and DELETE endpoints at `/compare`.
-* 'GET' expects url param called id, which contains a filename, which if exists will be streamed back to the client.
-* 'POST' expects a JSON payload with 2 parameters: 'firstURL' and 'secondURL', which has to be a downloadable emf pdf file content.
-* 'DELETE' expects url param called id, which contains a filename. The services deletes the corresponding file.
+After a successful comparison the resulting PDF file is streamed back to the client using the `application/pdf` content type and a `200` status code.
+If the comparison takes more than `COMPARE_TIMEOUT` milliseconds a `503` response is sent to the client.
+If any other error occur a `500` response is sent.
 
 ## Health check
-Simply responds with status 200 at `/health`.
+There is a `GET` endpoint at `/health` which checks the health of the service. It's used in the docker container for the health  status of the container.

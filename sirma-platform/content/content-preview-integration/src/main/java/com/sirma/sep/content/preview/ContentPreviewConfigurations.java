@@ -1,11 +1,11 @@
 package com.sirma.sep.content.preview;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.sirma.itt.seip.configuration.ConfigurationProperty;
 import com.sirma.itt.seip.configuration.annotation.Configuration;
 import com.sirma.itt.seip.configuration.annotation.ConfigurationPropertyDefinition;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Configuration properties for the content preview integration module.
@@ -18,7 +18,7 @@ public class ContentPreviewConfigurations {
 	@Inject
 	@Configuration
 	@ConfigurationPropertyDefinition(name = "content.preview.remote.enabled", subSystem = "content",
-			defaultValue = "false", type = Boolean.class,
+			defaultValue = "true", type = Boolean.class,
 			label = "Feature toggle for the remote content preview service integration, true for enabled and false for"
 					+ " disabled. By default it is false")
 	private ConfigurationProperty<Boolean> integrationEnabled;

@@ -24,7 +24,9 @@ import com.sirma.itt.seip.model.BaseEntity;
 @Table(name = "sep_batch_entity")
 @NamedQueries({ @NamedQuery(name = BatchEntity.DELETE_DATA_BY_JOB_ID_KEY, query = BatchEntity.DELETE_DATA_BY_JOB_ID),
 		@NamedQuery(name = BatchEntity.QUERY_JOB_DATA_KEY, query = BatchEntity.QUERY_JOB_DATA),
-		@NamedQuery(name = BatchEntity.UPDATE_AS_PROCESSED_KEY, query = BatchEntity.UPDATE_AS_PROCESSED) })
+		@NamedQuery(name = BatchEntity.UPDATE_AS_PROCESSED_KEY, query = BatchEntity.UPDATE_AS_PROCESSED),
+		@NamedQuery(name = BatchEntity.QUERY_JOBS_INFO_KEY, query = BatchEntity.QUERY_JOBS_INFO),
+		@NamedQuery(name = BatchEntity.QUERY_JOB_INFO_KEY, query = BatchEntity.QUERY_JOB_INFO)})
 public class BatchEntity extends BaseEntity {
 
 	/**
@@ -47,6 +49,12 @@ public class BatchEntity extends BaseEntity {
 	static final String UPDATE_AS_PROCESSED =
 			"update BatchEntity set processed = 1 where jobInstanceId=:jobId AND instanceId in "
 					+ "(:instanceIds)";
+
+	public static final String QUERY_JOBS_INFO_KEY = "QUERY_JOBS_INFO";
+	static final String QUERY_JOBS_INFO = "select jobInstanceId, count(processed) from BatchEntity where processed = :processed group by jobInstanceId";
+
+	public static final String QUERY_JOB_INFO_KEY = "QUERY_JOB_INFO";
+	static final String QUERY_JOB_INFO = "select count(processed) from BatchEntity where jobInstanceId = :jobId and processed = :processed";
 
 	@Column(name = "job_instance_id", length = 32, nullable = false)
 	private String jobInstanceId;

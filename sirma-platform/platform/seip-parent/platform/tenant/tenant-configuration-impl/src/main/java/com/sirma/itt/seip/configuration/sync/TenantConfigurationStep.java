@@ -28,6 +28,7 @@ import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.wizard.AbstractTenantStep;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStep;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
@@ -65,8 +66,8 @@ public class TenantConfigurationStep extends AbstractTenantStep {
 	}
 
 	@Override
-	public boolean delete(TenantStepData data, TenantInfo tenantInfo, boolean rollback) {
-		contextManager.executeAsTenant(tenantInfo.getTenantId())
+	public boolean delete(TenantStepData data, TenantDeletionContext context) {
+		contextManager.executeAsTenant(context.getTenantInfo().getTenantId())
 				.executable(configurationManagement::removeAllConfigurations);
 		return true;
 	}

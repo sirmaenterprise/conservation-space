@@ -205,65 +205,65 @@ export class ImageWidget {
 
       let viewContainerClass = viewContainer.attr('class').split(' ').find(clazz => clazz.indexOf('-view') > -1);
       switch (viewContainerClass) {
-        case 'image-view':
-          return this.promiseAdapter.promise((resolve) => {
-            if (this.config.lockWidget) {
-              var annToolbarBtnPoller = this.$interval(() => {
-                let annotationsButton = slot.find('.mirador-osd-annotations-layer');
-                if (annotationsButton.length > 0) {
-                  this.$interval.cancel(annToolbarBtnPoller);
-                  if (!annotationsButton.is('.selected')) {
-                    annotationsButton.find('i').click();
-                  }
-                  // after this the annotations canvas layer have to be pooled until it gets displayed
-                  var drawingCanvasPoller = this.$interval(() => {
-                    let drawingCanvas = slot.find('[id^="draw_canvas"]');
-                    if (drawingCanvas.length > 0 && drawingCanvas.css('display') !== 'none') {
-                      this.$interval.cancel(drawingCanvasPoller);
-                      this.handleCanvasViewPrintMode(miradorIframe, slotId).then(() => {
-                        resolve();
-                      }).catch((error) => {
-                        this.logger.error(error);
-                        resolve();
-                      });
-                    }
-                  }, 100);
+      case 'image-view':
+        return this.promiseAdapter.promise((resolve) => {
+          if (this.config.lockWidget) {
+            var annToolbarBtnPoller = this.$interval(() => {
+              let annotationsButton = slot.find('.mirador-osd-annotations-layer');
+              if (annotationsButton.length > 0) {
+                this.$interval.cancel(annToolbarBtnPoller);
+                if (!annotationsButton.is('.selected')) {
+                  annotationsButton.find('i').click();
                 }
-              }, 100);
-            } else {
-              this.handleCanvasViewPrintMode(miradorIframe, slotId).then(() => {
-                resolve();
-              }).catch((error) => {
-                this.logger.error(error);
-                resolve();
-              });
-            }
-          });
-        case 'book-view':
-          return this.promiseAdapter.promise((resolve) => {
+                // after this the annotations canvas layer have to be pooled until it gets displayed
+                var drawingCanvasPoller = this.$interval(() => {
+                  let drawingCanvas = slot.find('[id^="draw_canvas"]');
+                  if (drawingCanvas.length > 0 && drawingCanvas.css('display') !== 'none') {
+                    this.$interval.cancel(drawingCanvasPoller);
+                    this.handleCanvasViewPrintMode(miradorIframe, slotId).then(() => {
+                      resolve();
+                    }).catch((error) => {
+                      this.logger.error(error);
+                      resolve();
+                    });
+                  }
+                }, 100);
+              }
+            }, 100);
+          } else {
             this.handleCanvasViewPrintMode(miradorIframe, slotId).then(() => {
-              resolve();
-            })
-              .catch((error) => {
-                this.logger.error(error);
-                resolve();
-              });
-          });
-        case 'scroll-view':
-        case 'thumbnail-view':
-          return this.promiseAdapter.promise((resolve) => {
-            this.handleImageViewPrintMode(miradorIframe, slotId, viewContainerClass).then(() => {
               resolve();
             }).catch((error) => {
               this.logger.error(error);
               resolve();
             });
-          });
-        default:
-          return this.promiseAdapter.promise((resolve) => {
-            this.logger.error(`Not recognised view found: ${viewContainerClass}. Container class list: ${viewContainer.attr('class').split(' ')}`);
+          }
+        });
+      case 'book-view':
+        return this.promiseAdapter.promise((resolve) => {
+          this.handleCanvasViewPrintMode(miradorIframe, slotId).then(() => {
+            resolve();
+          })
+            .catch((error) => {
+              this.logger.error(error);
+              resolve();
+            });
+        });
+      case 'scroll-view':
+      case 'thumbnail-view':
+        return this.promiseAdapter.promise((resolve) => {
+          this.handleImageViewPrintMode(miradorIframe, slotId, viewContainerClass).then(() => {
+            resolve();
+          }).catch((error) => {
+            this.logger.error(error);
             resolve();
           });
+        });
+      default:
+        return this.promiseAdapter.promise((resolve) => {
+          this.logger.error(`Not recognised view found: ${viewContainerClass}. Container class list: ${viewContainer.attr('class').split(' ')}`);
+          resolve();
+        });
       }
     });
 
@@ -341,9 +341,7 @@ export class ImageWidget {
   }
 
   publishWidgetReadyEvent(widgetId) {
-    this.eventbus.publish(new WidgetReadyEvent({
-      widgetId: widgetId
-    }));
+    this.eventbus.publish(new WidgetReadyEvent({widgetId}));
   }
 
   handleCommentsFilteredEvent(event) {
@@ -382,7 +380,7 @@ export class ImageWidget {
         commentConfig: event[1],
         filterConfig: this.filterConfig
       };
-      let imageCommentsComponent = $(`<image-comments context="::imageWidget.context" control="::imageWidget.control" config="imageWidget.commentsConfig"></image-comments>`);
+      let imageCommentsComponent = $('<image-comments context="::imageWidget.context" control="::imageWidget.control" config="imageWidget.commentsConfig"></image-comments>');
       imageCommentsElement.append(imageCommentsComponent);
       this.$compile(imageCommentsComponent)(this.$scope);
     }
@@ -469,9 +467,7 @@ export class ImageWidget {
     if (dataValueConfig) {
       dataValueConfig.saved = saved;
     } else {
-      dataValueConfig = {
-        saved: saved
-      };
+      dataValueConfig = {saved};
     }
     this.control.setDataValue(dataValueConfig);
   }
@@ -565,16 +561,14 @@ export class ImageWidget {
 
   createConfig(manifestBlobUri, selectedObjectsCount) {
     return {
-      "id": "viewer",
-      "layout": "1x1",
-      'data': [
-        {
-          'manifestUri': manifestBlobUri
-        }
-      ],
-      'windowObjects': [{
-        'loadedManifest': manifestBlobUri,
-        'viewType': (selectedObjectsCount === 1) ? 'ImageView' : 'ThumbnailsView'
+      id: 'viewer',
+      layout: '1x1',
+      data: [{
+        manifestUri: manifestBlobUri
+      }],
+      windowObjects: [{
+        loadedManifest: manifestBlobUri,
+        viewType: (selectedObjectsCount === 1) ? 'ImageView' : 'ThumbnailsView'
       }]
     };
   }
@@ -770,7 +764,7 @@ export class MiradorViewer {
 
   createManifestBlob(manifest) {
     var blob = new Blob([JSON.stringify(manifest)], {
-      type: "application/json"
+      type: 'application/json'
     });
     return URL.createObjectURL(blob);
   }

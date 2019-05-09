@@ -2,7 +2,6 @@ package com.sirma.itt.seip.instance.validator;
 
 import javax.inject.Inject;
 
-import com.sirma.itt.seip.MessageType;
 import com.sirma.itt.seip.definition.DefinitionService;
 import com.sirma.itt.seip.domain.definition.DefinitionModel;
 import com.sirma.itt.seip.domain.definition.label.LabelProvider;
@@ -46,10 +45,11 @@ public class InstanceExistingInContextValidator implements Validator {
 	@Override
 	public void validate(ValidationContext validationContext) {
 		Instance instance = validationContext.getInstance();
-		DefinitionModel instanceDefinition = definitionService.getInstanceDefinition(instance);
 		if (revisionService.isRevision(instance)) {
 			return;
 		}
+
+		DefinitionModel instanceDefinition = definitionService.getInstanceDefinition(instance);
 		if (instance.get(InstanceContextService.HAS_PARENT, fieldConverter) != null) {
 			validateInContext(validationContext, instanceDefinition);
 		} else {
@@ -59,14 +59,13 @@ public class InstanceExistingInContextValidator implements Validator {
 
 	private void validateInContext(ValidationContext validationContext, DefinitionModel instanceDefinition) {
 		if (!instanceValidationService.canExistInContext(instanceDefinition)) {
-			validationContext.addMessage(MessageType.ERROR, labelProvider.getValue(EXISTING_IN_CONTEXT_ERROR_MESSAGE));
+			validationContext.addErrorMessage(labelProvider.getValue(EXISTING_IN_CONTEXT_ERROR_MESSAGE));
 		}
 	}
 
 	private void validateWithoutContext(ValidationContext validationContext, DefinitionModel instanceDefinition) {
 		if (!instanceValidationService.canExistWithoutContext(instanceDefinition)) {
-			validationContext.addMessage(MessageType.ERROR,
-										 labelProvider.getValue(EXISTING_WITHOUT_CONTEXT_ERROR_MESSAGE));
+			validationContext.addErrorMessage(labelProvider.getValue(EXISTING_WITHOUT_CONTEXT_ERROR_MESSAGE));
 		}
 	}
 }

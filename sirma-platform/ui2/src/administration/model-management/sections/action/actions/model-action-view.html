@@ -1,0 +1,39 @@
+<div class="model-action-view">
+    <div class="model-action-attributes panel panel-default" collapsible-panel ng-if="modelActionView.model">
+        <div class="panel-heading">
+            <i class="panel-caret fa fa-caret-down"></i>
+            <span class="model-header">
+                <strong class="model-title">"{{ modelActionView.getModelTitle() }}"</strong>
+                {{ ::'administration.models.management.field.specific' | translate }}
+            </span>
+        </div>
+        <div class="panel-body model-form container-fluid form-horizontal">
+            <model-attribute-view id="{{attribute.getId()}}"
+                                  ng-repeat="attribute in modelActionView.getModelAttributes() track by attribute.getId()"
+                                  on-attribute-change="modelActionView.onActionAttributeChanged(attribute)"
+                                  attribute="attribute"></model-attribute-view>
+        </div>
+    </div>
+
+    <div class="action-execution-attributes panel panel-default"
+         ng-if="modelActionView.hasActionExecutions()"
+         id="{{actionExecution.getId()}}"
+         ng-repeat="actionExecution in modelActionView.scriptExecutions track by actionExecution.getId()"
+         collapsible-panel>
+        <div class="panel-heading" ng-click="modelActionView.toggleView(actionExecution)">
+            <i class="panel-caret fa fa-caret-right"></i>
+            <span class="model-header">
+                <strong class="model-title">" {{ ::'administration.models.management.actions.script.title' | translate }}"</strong>
+                {{ ::'administration.models.management.field.specific' | translate }}
+            </span>
+        </div>
+        <div class="panel-body model-form container-fluid form-horizontal"
+             ng-if="modelActionView.isExecutionExpanded(actionExecution)">
+            <model-attribute-view id="{{attribute.getId()}}"
+                                  ng-repeat="attribute in actionExecution.getAttributes() track by attribute.getId()"
+                                  on-attribute-change="modelActionView.onActionAttributeChanged(attribute)"
+                                  attribute="attribute"
+                                  config="modelActionView.sourceareaConfig"></model-attribute-view>
+        </div>
+    </div>
+</div>

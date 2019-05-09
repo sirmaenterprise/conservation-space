@@ -224,7 +224,7 @@ public class DefaultEntityLookupCacheContext implements EntityLookupCacheContext
 		// clear cache on shutdown needed for integration tests
 		// NOTE: for clustered cache this will cause total cluster clear on node shutdown!
 		// so this need another approach
-		cacheContext.values().forEach(EntityLookupCache::destroy);
+		cacheContext.values().forEach(e -> Destroyable.destroy(e));
 		cacheContext.clear();
 	}
 

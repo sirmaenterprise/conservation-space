@@ -8,7 +8,7 @@ ENV RUN_AS_ROOT=yes \
 	NGINX_WORKER_PROCESSES=4 \
 	NGINX_RLIMIT_NOFILE=10000
 
-RUN apk add --no-cache nginx=1.12.2-r1 && \
+RUN apk add --no-cache nginx=1.12.2-r2 && \
 	mkdir -p /var/tmp/nginx /var/cache/nginx && \
 	chown -R $DOCKER_USER:$DOCKER_USER /var/tmp/nginx /var/cache/nginx
 

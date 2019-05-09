@@ -25,8 +25,7 @@ import com.sirma.itt.seip.domain.definition.DataTypeDefinition;
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.HeadersService;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
-import com.sirma.sep.instance.properties.expression.evaluation.ObjectPropertyToTextValueEvaluator;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 
 /**
  * Tests for {@link ObjectPropertyToTextValueEvaluator}.
@@ -52,7 +51,7 @@ public class ObjectPropertyToTextValueEvaluatorTest {
 	private DataTypeDefinition destinationTypeDefinition;
 
 	@Mock
-	private InstanceTypeResolver resolver;
+	private DomainInstanceService instanceService;
 
 	@Mock
 	private Instance instance;
@@ -70,21 +69,21 @@ public class ObjectPropertyToTextValueEvaluatorTest {
 		when(destination.getDataType()).thenReturn(destinationTypeDefinition);
 		when(destinationTypeDefinition.getName()).thenReturn(DataTypeDefinition.TEXT);
 
-		when(headersService.generateInstanceHeader(any(), any()))
-				.thenReturn("<a href=\"www.something.com\">some-text</a> ");
+		when(headersService.generateInstanceHeader(any(), any())).thenReturn(
+				"<a href=\"www.something.com\">some-text</a> ");
 	}
 
 	@Test
 	public void test_evaluate_singleValue() {
 		Instance objectProperty = mock(Instance.class);
 		List<Instance> instances = Collections.singletonList(objectProperty);
-		when(resolver.resolveInstances(any(Collection.class))).thenReturn(instances);
+		when(instanceService.loadInstances(any(Collection.class))).thenReturn(instances);
 		when(instance.get("fieldName")).thenReturn("emf:123");
 
 		Serializable fieldName = cut.evaluate(instance, "fieldName");
 		// verify called services.
 		verify(headersService).generateInstanceHeader(any(), any());
-		verify(resolver).resolveInstances(any());
+		verify(instanceService).loadInstances(any());
 		// verify the result
 		assertEquals("some-text", fieldName);
 	}
@@ -92,8 +91,8 @@ public class ObjectPropertyToTextValueEvaluatorTest {
 	@Test
 	public void test_getInstances_singleValue() {
 		when(instance.get("fieldName")).thenReturn("emf:123");
-		cut.getInstances(instance, "fieldName", resolver);
-		verify(resolver).resolveInstances(Collections.singleton("emf:123"));
+		cut.getInstances(instance, "fieldName", instanceService);
+		verify(instanceService).loadInstances(Collections.singleton("emf:123"));
 	}
 
 	@Test
@@ -101,14 +100,14 @@ public class ObjectPropertyToTextValueEvaluatorTest {
 		Instance objectPropertyOne = mock(Instance.class);
 		Instance objectPropertyTwo = mock(Instance.class);
 		List<Instance> instances = Arrays.asList(objectPropertyOne, objectPropertyTwo);
-		when(resolver.resolveInstances(any(Collection.class))).thenReturn(instances);
+		when(instanceService.loadInstances(any(Collection.class))).thenReturn(instances);
 
 		Collection ids = Arrays.asList("", "");
 		when(instance.get("fieldName")).thenReturn((Serializable) ids);
 		Serializable fieldName = cut.evaluate(instance, "fieldName");
 		// verify called services.
 		verify(headersService, times(2)).generateInstanceHeader(any(), any());
-		verify(resolver).resolveInstances(any());
+		verify(instanceService).loadInstances(any());
 		// verify the result
 		assertEquals("some-text, some-text", fieldName);
 	}
@@ -117,8 +116,8 @@ public class ObjectPropertyToTextValueEvaluatorTest {
 	public void test_getInstances_multipleValues() {
 		Collection ids = Arrays.asList("emf:123", "emf:456");
 		when(instance.get("fieldName")).thenReturn((Serializable) ids);
-		cut.getInstances(instance, "fieldName", resolver);
-		verify(resolver).resolveInstances(ids);
+		cut.getInstances(instance, "fieldName", instanceService);
+		verify(instanceService).loadInstances(ids);
 	}
 
 	@Test

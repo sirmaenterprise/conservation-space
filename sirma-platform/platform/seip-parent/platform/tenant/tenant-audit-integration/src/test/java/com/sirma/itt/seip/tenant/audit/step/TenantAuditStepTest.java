@@ -24,6 +24,7 @@ import com.sirma.itt.seip.tenant.audit.AuditSolrProvisioning;
 import com.sirma.itt.seip.tenant.context.TenantInfo;
 import com.sirma.itt.seip.tenant.db.RelationDbProvisioning;
 import com.sirma.itt.seip.tenant.db.TenantRelationalContext;
+import com.sirma.itt.seip.tenant.wizard.TenantDeletionContext;
 import com.sirma.itt.seip.tenant.wizard.TenantInitializationContext;
 import com.sirma.itt.seip.tenant.wizard.TenantStepData;
 
@@ -91,7 +92,7 @@ public class TenantAuditStepTest {
 				new JSONObject("{properties:[{id:'reuseDatabase', value:true}]}"));
 		TenantInfo info = new TenantInfo("test.id");
 
-		step.delete(data, info, true);
+		step.delete(data, new TenantDeletionContext(info, true));
 		// Verify that the db rollback is called.
 		Mockito.verify(auditDbProvisioning).rollback(Matchers.any(TenantRelationalContext.class),
 				Matchers.any(TenantRelationalContext.class), Matchers.any(TenantInfo.class),

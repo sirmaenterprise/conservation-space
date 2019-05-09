@@ -13,7 +13,7 @@ import {SearchResolverService} from 'services/resolver/search-resolver-service';
 import {PromiseAdapter} from 'adapters/angular/promise-adapter';
 import {IdocDraftService} from 'services/idoc/idoc-draft-service';
 import {SaveIdocAction} from 'idoc/actions/save-idoc-action';
-import {UserService} from 'services/identity/user-service';
+import {UserService} from 'security/user-service';
 import {Configuration} from 'common/application-config';
 import {InstanceContextService} from 'services/idoc/instance-context-service';
 

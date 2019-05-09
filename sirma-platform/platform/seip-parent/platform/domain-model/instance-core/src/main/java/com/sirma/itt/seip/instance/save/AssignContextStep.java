@@ -44,7 +44,7 @@ public class AssignContextStep implements InstanceSaveStep {
 	}
 
 	@Override
-	public void afterSave(InstanceSaveContext saveContext) {
+	public void beforeSave(InstanceSaveContext saveContext) {
 		// maybe should be configuration in saveContext
 		if (Options.DISABLE_AUTOMATIC_CONTEXT_CHILD_LINKS.isEnabled()) {
 			return;

@@ -1,21 +1,22 @@
 package com.sirma.itt.seip.domain.codelist;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import com.sirma.itt.seip.Pair;
 import com.sirma.itt.seip.cache.MemoryCache;
@@ -32,7 +33,6 @@ import com.sirma.itt.seip.domain.filter.FilterService;
  *
  * @author smustafov
  */
-@Test
 public class CodelistServiceImplTest {
 
 	@Mock
@@ -67,8 +67,9 @@ public class CodelistServiceImplTest {
 	/**
 	 * Before method.
 	 */
-	@BeforeMethod
+	@Before
 	public void beforeMethod() {
+		codelistService = new CodelistServiceImpl();
 		MockitoAnnotations.initMocks(this);
 		when(cacheContext.getCache(CodelistServiceImpl.CODELIST_CACHE)).thenReturn(lookupCache);
 		prepareData();
@@ -113,8 +114,15 @@ public class CodelistServiceImplTest {
 	 * does not exist in the codelist field.
 	 */
 	@Test
-	public void testFilterCodeValuesWithNotExistingValue() {
+	public void testFilterCodeValuesWithNotExistingValueExclusive() {
 		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, false, "extra1", "notExistingValue");
+
+		assertEquals(3, codeValues.size());
+	}
+
+	@Test
+	public void testFilterCodeValuesWithNotExistingValueInclusive() {
+		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, true, "extra1", "notExistingValue");
 
 		assertEquals(0, codeValues.size());
 	}
@@ -137,7 +145,19 @@ public class CodelistServiceImplTest {
 	public void testFilterCodeValuesWithOneFilterExclusive() {
 		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, false, "extra1", "someValue");
 
+		assertEquals(2, codeValues.size());
+		assertTrue(codeValues.containsKey("1"));
+		assertTrue(codeValues.containsKey("3"));
+		assertTrue(!codeValues.containsKey("2"));
+	}
+
+	@Test
+	public void testFilterCodeValuesWithOneFilterInclusive() {
+		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, true, "extra1", "someValue");
+
 		assertEquals(1, codeValues.size());
+		assertTrue(!codeValues.containsKey("1"));
+		assertTrue(!codeValues.containsKey("3"));
 		assertTrue(codeValues.containsKey("2"));
 	}
 
@@ -161,8 +181,9 @@ public class CodelistServiceImplTest {
 	public void testFilterCodeValuesWithTwoFiltersExclusive() {
 		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, false, "extra2", "val1", "val2");
 
-		assertEquals(2, codeValues.size());
-		assertTrue(codeValues.containsKey("2"));
+		assertEquals(1, codeValues.size());
+		assertTrue(!codeValues.containsKey("1"));
+		assertTrue(!codeValues.containsKey("2"));
 		assertTrue(codeValues.containsKey("3"));
 	}
 
@@ -177,6 +198,23 @@ public class CodelistServiceImplTest {
 		assertEquals(2, codeValues.size());
 		assertTrue(codeValues.containsKey("1"));
 		assertTrue(codeValues.containsKey("3"));
+	}
+
+	@Test
+	public void testFilterCodeValuesWithCustomFilterInclusive() {
+		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, true,
+				Arrays.asList("value1", "value2"));
+		assertTrue(codeValues.containsKey("1"));
+		assertTrue(codeValues.containsKey("2"));
+		assertEquals(2, codeValues.size());
+	}
+
+	@Test
+	public void testFilterCodeValuesWithCustomFilterExclusive() {
+		Map<String, CodeValue> codeValues = codelistService.filterCodeValues(1, false,
+				Arrays.asList("value1", "value2"));
+		assertTrue(codeValues.containsKey("3"));
+		assertEquals(1, codeValues.size());
 	}
 
 }

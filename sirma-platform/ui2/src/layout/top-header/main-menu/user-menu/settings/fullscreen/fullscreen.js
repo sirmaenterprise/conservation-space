@@ -6,5 +6,5 @@ import {View,Component} from 'app/app';
 @View({
   template: '<li><a href="#"> Full Screen</a></li>'
 })
-class SettingsFullscreen {
+export class SettingsFullscreen {
 }

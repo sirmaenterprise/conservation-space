@@ -1,7 +1,8 @@
 import {CodelistManagementService} from 'administration/code-lists/services/codelist-management-service';
 import {CodelistRestService} from 'services/rest/codelist-service';
-import {Configuration} from 'common/application-config';
 import {TranslateService} from 'services/i18n/translate-service';
+import {Configuration} from 'common/application-config';
+import {Eventbus} from 'services/eventbus/eventbus';
 import {PromiseStub} from 'test/promise-stub';
 import {stub} from 'test/test-utils';
 import _ from 'lodash';
@@ -10,7 +11,7 @@ describe('CodelistManagementService', () => {
 
   let managementService;
   beforeEach(() => {
-    managementService = new CodelistManagementService(stubCodelistRest(getCodeListsData()), stubConfiguration(), stubTranslate(), PromiseStub);
+    managementService = new CodelistManagementService(stubCodelistRest(getCodeListsData()), stubConfiguration(), stubTranslate(), stubEventBus());
   });
 
   describe('getCodeLists()', () => {
@@ -129,6 +130,7 @@ describe('CodelistManagementService', () => {
       updated.extras['3'] = 'New extra 3';
 
       managementService.saveCodeList(original, updated);
+      expect(managementService.eventbus.publish.called).to.be.true;
       expect(managementService.codelistRestService.saveCodeList.calledOnce).to.be.true;
 
       let transformed = managementService.codelistRestService.saveCodeList.getCall(0).args[0];
@@ -149,6 +151,7 @@ describe('CodelistManagementService', () => {
       updated.values[1].descriptions['BG'] = {language: 'BG', name: 'Стойност две', comment: ''};
 
       managementService.saveCodeList(original, updated);
+      expect(managementService.eventbus.publish.called).to.be.true;
       expect(managementService.codelistRestService.saveCodeList.calledOnce).to.be.true;
 
       let transformed = managementService.codelistRestService.saveCodeList.getCall(0).args[0];
@@ -170,6 +173,8 @@ describe('CodelistManagementService', () => {
 
     it('should transform all code values if the code list is new', () => {
       managementService.saveCodeList(undefined, updated);
+      expect(managementService.eventbus.publish.called).to.be.true;
+      expect(managementService.codelistRestService.saveCodeList.calledOnce).to.be.true;
 
       let transformed = managementService.codelistRestService.saveCodeList.getCall(0).args[0];
       expect(transformed.values.length).to.equal(2);
@@ -272,6 +277,10 @@ describe('CodelistManagementService', () => {
     restStub.getCodeLists.returns(PromiseStub.resolve({data: codeLists}));
     restStub.exportCodeLists.returns(PromiseStub.resolve({data: 'data', config: {}, status: 'ok', header: {}}));
     return restStub;
+  }
+
+  function stubEventBus() {
+    return stub(Eventbus);
   }
 
   function stubConfiguration() {

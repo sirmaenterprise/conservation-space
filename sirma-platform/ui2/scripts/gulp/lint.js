@@ -1,10 +1,11 @@
 var eslint = require('gulp-eslint');
 
-module.exports = function(gulp, glob) {
+module.exports = (gulp, glob) => {
 
-  gulp.task('lint', function() {
+  gulp.task('lint', () => {
     return gulp.src(glob)
       .pipe(eslint())
-      .pipe(eslint.format());
+      .pipe(eslint.format())
+      .pipe(eslint.failAfterError());
   });
 };

@@ -1,0 +1,48 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+delete {
+    ?property rdfs:label ?label.
+    ?property dcterms:title ?title.
+}insert{
+    GRAPH <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework> {
+		emf:viewDefinition rdfs:label "Дефиниция"@bg, "Definition"@da, "Definition"@de, "Definition"@en, "Määritelmä"@fi .
+    	emf:viewDefinition dcterms:title "Дефиниция"@bg, "Definition"@da, "Definition"@de, "Definition"@en, "Määritelmä"@fi .
+    	
+    	emf:isThumbnailOf rdfs:label "Е умалено изображение на"@bg, "Er thumbnail af"@da, "Ist thumbnail von"@de, "Is thumbnail of"@en, "On pienoiskuva"@fi .
+    	emf:isThumbnailOf dcterms:title "Е умалено изображение на"@bg, "Er thumbnail af"@da, "Ist thumbnail von"@de, "Is thumbnail of"@en, "On pienoiskuva"@fi .
+    	
+    	emf:issueType rdfs:label "Вид проблем"@bg, "Emnetype"@da, "Fehlertyp"@de, "Issue type"@en, "Julkaisutyyppi"@fi .
+    	emf:issueType dcterms:title "Вид проблем"@bg, "Emnetype"@da, "Fehlertyp"@de, "Issue type"@en, "Julkaisutyyppi"@fi .
+    	
+    	emf:plannedEndDate rdfs:label "Крайна дата за изпълнение"@bg, "Forfaldsdato"@da, "Geburtstermin"@de, "Due date"@en, "Eräpäivä"@fi .
+    	emf:plannedEndDate dcterms:title "Крайна дата за изпълнение"@bg, "Forfaldsdato"@da, "Geburtstermin"@de, "Due date"@en, "Eräpäivä"@fi .
+    	
+    	emf:completedReason rdfs:label "Резолюция"@bg, "Løsning/afklaring"@da, "Auflösung"@de, "Resolution"@en, "Resolution"@fi .
+    	emf:completedReason dcterms:title "Резолюция"@bg, "Løsning/afklaring"@da, "Auflösung"@de, "Resolution"@en, "Resolution"@fi .
+    	
+    	emf:isDuplicatedBy rdfs:label "Дублира"@bg, "Duplikere"@da, "Duplikate"@de, "Duplicate"@en, "Monistaa"@fi .
+    	emf:isDuplicatedBy dcterms:title "Дублира"@bg, "Duplikere"@da, "Duplikate"@de, "Duplicate"@en, "Monistaa"@fi .
+    	
+    	emf:templatePurpose rdfs:label "Предназначение на шаблона"@bg, "Formål skabelon"@da, "Template purpose"@en, "Mallin tarkoitus"@fi, "Vorlage Zweck"@de .
+    	emf:templatePurpose dcterms:title "Предназначение на шаблона"@bg, "Formål skabelon"@da, "Template purpose"@en, "Mallin tarkoitus"@fi, "Vorlage Zweck"@de .
+    	
+    	emf:templateRuleDescription rdfs:label "Правило на шаблон"@bg, "Regel skabelon"@da, "Vorlagenregel"@de, "Template rule"@en, "Mallipohja"@fi .
+    	emf:templateRuleDescription dcterms:title "Правило на шаблон"@bg, "Regel skabelon"@da, "Vorlagenregel"@de, "Template rule"@en, "Mallipohja"@fi .
+    	
+    	emf:helpTarget rdfs:label "Цел на ръководството"@bg, "Hjælp emne"@da, "Zielhilfe"@de, "Help target"@en, "Auta kohde"@fi .
+    	emf:helpTarget dcterms:title "Цел на ръководството"@bg, "Hjælp emne"@da, "Zielhilfe"@de, "Help target"@en, "Auta kohde"@fi .
+    }
+} where {
+    {
+        ## titles only
+        ?property rdfs:label ?label.
+        optional {
+            ?property dcterms:title ?title.
+        }
+        filter(?property in (emf:viewDefinition, emf:isThumbnailOf, emf:issueType, emf:plannedEndDate, emf:completedReason, emf:isDuplicatedBy, emf:templatePurpose, emf:templateRuleDescription, emf:helpTarget))
+    } 
+}

@@ -13,7 +13,7 @@ import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.DefaultProperties;
 import com.sirma.itt.seip.domain.instance.Instance;
 import com.sirma.itt.seip.instance.HeadersService;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirmaenterprise.sep.properties.expression.evaluation.PropertyValueEvaluator;
 
@@ -30,7 +30,7 @@ public class ObjectPropertyToTextValueEvaluator implements PropertyValueEvaluato
 	private HeadersService headersService;
 
 	@Inject
-	private InstanceTypeResolver instanceTypeResolver;
+	private DomainInstanceService instanceService;
 
 	@Override
 	public boolean canEvaluate(PropertyDefinition source, PropertyDefinition destination) {
@@ -42,7 +42,7 @@ public class ObjectPropertyToTextValueEvaluator implements PropertyValueEvaluato
 	@Override
 	public Serializable evaluate(Instance instance, String propertyName) {
 
-		return getInstances(instance, propertyName, instanceTypeResolver)
+		return getInstances(instance, propertyName, instanceService)
 				.map(resolvedInstance -> headersService.generateInstanceHeader(resolvedInstance,
 						DefaultProperties.HEADER_BREADCRUMB))
 				.filter(Objects::nonNull).map(header -> Jsoup.parse(header).text()).collect(Collectors.joining(", "));

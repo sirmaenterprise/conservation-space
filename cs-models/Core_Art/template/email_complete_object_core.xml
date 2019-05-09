@@ -199,6 +199,8 @@
 												<#assign rdfType = target.properties['rdf:type']>
 												<#if rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#BusinessProcess'>
 													Workflow is completed
+												<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+													Document is completed
 												<#else>	
 													${codelists.getCodeValue(7, target.properties['type']).properties['en']} is completed
 												</#if>	
@@ -215,6 +217,9 @@
 														${codelists.getCodeValue(10, target.properties['type']).properties['en']}
 													<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Issue'>
 														(Issue) ${codelists.getCodeValue(18, target.properties['issueType']).properties['en']}: 
+														${target.properties['title']}
+													<#elseif rdfType == 'http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document'>
+														(Document: ${codelists.getCodeValue(6, target.properties['type']).properties['en']}) 
 														${target.properties['title']}
 													<#else>
 														(${codelists.getCodeValue(7, target.properties['type']).properties['en']}) ${target.properties['title']}
@@ -269,7 +274,7 @@
                                   <td valign="top" bgcolor="#eeeeee">
 
                                      <div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
-                                     <div>Powered by <a href="http://www.sirmaplatform.com/" target="_blank">Sirma Enterprise Platform</a></div>
+                                     <div>This is an automatic e-mail notification. Please do not reply!</div>
                                     </div>
 
                                   </td>

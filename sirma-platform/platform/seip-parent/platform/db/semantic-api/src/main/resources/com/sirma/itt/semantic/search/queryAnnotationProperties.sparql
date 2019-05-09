@@ -1,0 +1,19 @@
+SELECT DISTINCT ?instance (owl:AnnotationProperty as ?instanceType) ?definition ?title ?creator
+(if (lang(?title)= "", "en", lang(?title)) as ?titleLanguage)
+(if (lang(?definition)= "", "en", lang(?definition)) as ?definitionLanguage)
+(if (lang(?creator)= "", "en", lang(?creator)) as ?creatorLanguage)
+((if (bound(?domainClass1), ?domainClass1, ptop:Entity)) as ?domainClass)
+((if (bound(?rangeClass1), ?rangeClass1, xsd:string)) as ?rangeClass)
+WHERE {
+    ?instance a owl:AnnotationProperty ;
+        dcterms:title ?title .
+    optional {
+        ?instance rdfs:domain ?domainClass1 .
+    } optional {
+        ?instance rdfs:range ?rangeClass1 .
+    } optional {
+        ?instance dc:creator ?creator .
+    } optional {
+    	?instance dcterms:description ?definition .
+    }
+}

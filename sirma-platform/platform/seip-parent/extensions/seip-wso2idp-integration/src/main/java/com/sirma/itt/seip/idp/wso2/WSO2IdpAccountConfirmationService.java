@@ -85,17 +85,26 @@ class WSO2IdpAccountConfirmationService implements AccountConfirmationService {
 		try {
 			CaptchaInfoBean captcha = informationRecoveryService.get().getCaptcha();
 			captchaBeans.put(confirmationCode, captcha);
-
-			String imagePath = captcha.getImagePath();
-			if (!imagePath.startsWith("/")) {
-				imagePath = "/" + imagePath;
-			}
-			URI idpUrl = URI.create(idpConfig.getIdpServerURL().getOrFail());
-
-			return new URI(idpUrl.getScheme(), null, idpUrl.getHost(), idpUrl.getPort(), imagePath, null, null).toString();
+			return buildCaptchaUrl(captcha.getImagePath());
 		} catch (RemoteException | UserInformationRecoveryServiceIdentityMgtServiceExceptionException | URISyntaxException e) {
 			throw new AccountConfirmationFailedException(UNKNOWN, "Cannot generate captcha!", e);
 		}
+	}
+
+	private String buildCaptchaUrl(String imagePath) throws URISyntaxException {
+		String idpServerUrl = idpConfig.getIdpServerURL().getOrFail();
+		if (idpServerUrl.endsWith("/samlsso")) {
+			idpServerUrl = idpServerUrl.replace("/samlsso", "");
+		}
+
+		URI uri = URI.create(idpServerUrl);
+
+		if (!imagePath.startsWith("/")) {
+			imagePath = "/" + imagePath;
+		}
+
+		return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath() + imagePath, null, null)
+				.toString();
 	}
 
 	@Override

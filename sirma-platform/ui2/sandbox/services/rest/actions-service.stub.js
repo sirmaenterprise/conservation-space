@@ -1,7 +1,9 @@
 import {Injectable, Inject} from 'app/app';
 import {RestClient} from 'services/rest-client';
 import { PromiseAdapter } from 'adapters/angular/promise-adapter';
+import {InstanceResponse} from 'services/rest/response/instance-response';
 import actions from 'sandbox/services/rest/actions-service.data.json!';
+import instanceData from 'sandbox/services/rest/instance-service.data.json!';
 
 @Injectable()
 @Inject(RestClient, PromiseAdapter)
@@ -41,6 +43,16 @@ export class ActionsService {
     });
   };
 
+  getChangeTypeInstance(id, asType) {
+    let idoc = this.getStubbedObject(id);
+    return this.promiseAdapter.resolve(new InstanceResponse({data: idoc}));
+  }
+
+  changeType(id, data) {
+    let idoc = this.getStubbedObject(id);
+    return this.promiseAdapter.resolve(new InstanceResponse({data: idoc}));
+  }
+
   getActions(id, data) {
     // this.restClient.get('/');
     return this.promiseAdapter.promise((resolve) => {
@@ -65,6 +77,16 @@ export class ActionsService {
 
   executeTransition() {
     return this.promiseAdapter.resolve({data: {}});
+  }
+
+  getStubbedObject(id) {
+    let object = JSON.parse(sessionStorage.getItem(id));
+
+    if (!object) {
+      object = _.cloneDeep(instanceData.instances[id]);
+    }
+
+    return object;
   }
 
 }

@@ -5,7 +5,7 @@ import {Injectable, Inject} from 'app/app';
 import {Logger} from 'services/logging/logger';
 import {InstanceAction} from 'idoc/actions/instance-action';
 import {InstanceRestService} from 'services/rest/instance-service';
-import {UploadDialogConfigurator} from 'idoc/actions/upload/upload-dialog-configurator'
+import {UploadDialogConfigurator} from 'idoc/actions/upload/upload-dialog-configurator';
 
 /**
  * Action handler for upload revision operation

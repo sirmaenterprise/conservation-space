@@ -1,0 +1,72 @@
+<div class="model-details">
+
+  <div class="model-general-attributes panel panel-default" collapsible-panel ng-if="modelDetails.isField()">
+    <div class="panel-heading">
+      <i class="panel-caret fa fa-caret-right"></i>
+      <span class="model-header">
+        <strong class="model-title">"{{ modelDetails.getModelTitle(modelDetails.model.getProperty()) }}"</strong>
+        {{ ::'administration.models.management.field.generic' | translate }}
+      </span>
+      <a ng-click="modelDetails.onModelPropertyNavigated($event)"
+         class="navigate-model edit-property" href="javascript:void(0)"
+         title="{{ ::'administration.models.management.field.navigate.title' | translate }}">
+        <i class="fa fa-edit"></i>
+        <span>{{ ::'administration.models.management.field.navigate' | translate }}</span>
+      </a>
+    </div>
+
+    <div class="panel-body model-form container-fluid form-horizontal collapse">
+      <model-attribute-view id="{{attribute.getId()}}" editable="false" ng-if="attribute.getRestrictions().isVisible()"
+                            ng-repeat="attribute in modelDetails.model.getProperty().getAttributes() track by attribute.getId()"
+                            on-attribute-change="modelDetails.onPropertyAttributeChanged(attribute)"
+                            config="::modelDetails.propertyAttributesConfig" attribute="attribute"
+                            context="modelDetails.model.getProperty()">
+      </model-attribute-view>
+    </div>
+  </div>
+
+  <div class="model-attributes panel panel-default" collapsible-panel>
+    <div class="panel-heading">
+      <i class="panel-caret fa fa-caret-down"></i>
+      <span class="model-header">
+        <strong class="model-title">"{{ modelDetails.getModelTitle(modelDetails.model) }}"</strong>
+        <span ng-switch on="modelDetails.isProperty()">
+          <span ng-switch-when="true">
+            {{ ::'administration.models.management.field.generic' | translate }}
+          </span>
+          <span ng-switch-default>
+            {{ ::'administration.models.management.field.specific' | translate }}
+          </span>
+        </span>
+      </span>
+      <a ng-click="modelDetails.onModelFieldNavigated($event)" ng-if="modelDetails.isInherited()"
+         class="navigate-model parent-field" href="javascript:void(0)"
+         title="{{ ::'administration.models.management.field.navigate.title' | translate }}">
+        <i class="fa fa-edit"></i>
+        <span>{{ ::'administration.models.management.field.navigate' | translate }}</span>
+      </a>
+      <button class="btn btn-default btn-xs restore-field"
+              ng-if="modelDetails.isRestoreInheritedForFieldEnabled()"
+              ng-click="modelDetails.onModelFieldRestoreInherited($event)"
+              title="{{ ::'administration.models.management.fields.restore.title' | translate }}">
+        <i class="fa fa-undo"></i>
+        <span>{{ ::'administration.models.management.fields.restore' | translate }}</span>
+      </button>
+    </div>
+
+    <div class="panel-body model-form container-fluid form-horizontal">
+      <model-attribute-view id="{{attribute.getId()}}" ng-show="attribute.getRestrictions().isVisible()"
+                            editable="modelDetails.isEditable()" config="::modelDetails.fieldAttributesConfig"
+                            ng-repeat="attribute in modelDetails.model.getAttributes() track by attribute.getId()"
+                            on-attribute-change="modelDetails.onFieldAttributeChanged(attribute)"
+                            attribute="attribute" context="modelDetails.model">
+        <button class="btn btn-default btn-xs restore-attribute"
+                ng-if="modelDetails.isRestoreInheritedForAttributeEnabled(attribute)"
+                ng-click="modelDetails.onModelAttributeRestoreInherited(attribute)"
+                title="{{ ::'administration.models.management.fields.restore.title' | translate }}">
+          <i class="fa fa-undo"></i>
+        </button>
+      </model-attribute-view>
+    </div>
+  </div>
+</div>

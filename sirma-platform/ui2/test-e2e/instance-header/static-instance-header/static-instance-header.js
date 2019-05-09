@@ -26,7 +26,7 @@ class StaticInstanceHeader {
   }
 
   getLockedLabel() {
-    return this.element.$('.label-warning');
+    return this.element.$('.lock-label');
   }
 
   isClickable() {

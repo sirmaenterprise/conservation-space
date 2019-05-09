@@ -4,7 +4,6 @@ import static com.sirma.itt.seip.rest.utils.request.params.RequestParams.KEY_ID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,7 +20,6 @@ import com.sirma.itt.seip.rest.utils.Versions;
  *
  * @author A. Kunchev
  */
-@Transactional
 @Path("/instances")
 @Produces(Versions.V2_JSON)
 @ApplicationScoped
@@ -51,5 +49,4 @@ public class InstanceVersionRestService {
 			@DefaultValue("0") @QueryParam("offset") int offset, @DefaultValue("-1") @QueryParam("limit") int limit) {
 		return instanceVersionService.getInstanceVersions(id, offset, limit);
 	}
-
 }

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -33,7 +32,6 @@ import com.sirma.itt.seip.configuration.SystemConfiguration;
 import com.sirma.itt.seip.plugin.Extension;
 import com.sirma.itt.seip.resources.EmfUser;
 import com.sirma.itt.seip.resources.User;
-import com.sirma.itt.seip.rest.secirity.SecurityTokensHolder;
 import com.sirma.itt.seip.rest.session.SessionManager;
 import com.sirma.itt.seip.rest.utils.JwtUtil;
 import com.sirma.itt.seip.security.UserStore;
@@ -70,18 +68,13 @@ public class SAMLServiceLogout extends HttpServlet {
 	private SessionManager sessionManager;
 
 	@Inject
-	private BeanManager beanManager;
-
-	@Inject
 	private UserStore userStore;
+
 	@Inject
 	private SecurityContextManager securityContextManager;
 
 	@Inject
 	private JwtUtil jwtUtil;
-
-	@Inject
-	private SecurityTokensHolder tokens;
 
 	@Inject
 	private SystemConfiguration systemConfiguration;
@@ -151,7 +144,6 @@ public class SAMLServiceLogout extends HttpServlet {
 		}
 
 		EmfUser user = new EmfUser(jwtUtil.readUser(securityContextManager, userStore, jwtToken));
-		tokens.getSamlToken(jwtToken).ifPresent(saml -> userStore.setUserTicket(user, saml));
 		// set session index in the http request for successful logout in idp
 		String sessionIndex = jwtUtil.extractSessionIndex(jwtToken);
 		request.getSession().setAttribute(SAMLMessageProcessor.SAML_KEY_SESSION, sessionIndex);

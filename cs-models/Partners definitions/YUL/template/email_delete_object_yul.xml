@@ -168,8 +168,7 @@
                               <table border="0" cellpadding="30" cellspacing="0" width="100%">
                                 <tr>
                                   <td align="center" valign="top" class="textContent">
-									<h1 style="color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">
-										Conservation Space
+									<h1 style="color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;">${notifications.getApplicationName()}
 									</h1>
                                     <h2 style="text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;">
 									
@@ -224,6 +223,8 @@
 													Sample is deleted
 												<#elseif rdfType == 'http://www.sirma.com/ontologies/2016/02/culturalHeritageConservation#Exhibition'>
 													Exhibition is deleted
+												<#elseif rdfType == 'http://www.ontotext.com/proton/protontop#Organization'>
+													Organization is deleted
 												<#else>
 													Cultural Object is deleted
 												</#if>
@@ -258,7 +259,7 @@
 												</#if>
 											</strong>
 											 is deleted by 
-											${notifications.getDisplayName(target.properties['modifiedBy'])}.<br/></br>
+											${user.getDisplayName()}.<br/></br>
 											<strong>More details on the object:</strong><br>
 											System created by: ${notifications.getDisplayName(target.properties['createdBy'])}<br>
 											System created on: ${target.properties['createdOn']?datetime}<br>

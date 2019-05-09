@@ -1,0 +1,28 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX emf: <http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sec: <http://www.sirma.com/ontologies/2014/11/security#>
+PREFIX dam: <http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM#>
+delete {
+    ?property dcterms:title ?title.
+    ?property dc:title ?title.
+    ?property rdfs:comment ?definition.
+    ?property dcterms:description ?description.
+    ?property dc:description ?description.
+} 
+where {
+    graph <http://www.sirma.com/ontologies/2018/10/culturalHeritageConservation/DAM> 
+    {
+        ## all
+        ?property rdfs:label ?label.
+        ?property skos:definition|rdfs:comment ?definition.
+    }
+    optional {
+        ?property dcterms:description|dc:description ?description.
+    }
+    optional {
+        ?property dcterms:title|dc:title ?title.
+    }
+}

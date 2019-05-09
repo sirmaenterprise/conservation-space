@@ -84,7 +84,7 @@ public class InitialRevertStepTest {
 	}
 
 	private static boolean containsVersionProperty(Instance resultInstance) {
-		return resultInstance.getProperties().keySet().stream().anyMatch(VersionProperties.getVersionProperties(
+		return resultInstance.getProperties().keySet().stream().anyMatch(VersionProperties.get(
 				Collections.singleton(VersionProperties.DEFINITION_ID))::contains);
 	}
 }

@@ -1,12 +1,16 @@
 package com.sirma.sep.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,12 +20,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,11 +45,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.sirma.itt.seip.collections.CollectionUtils;
+import com.sirma.itt.seip.concurrent.locks.ContextualLock;
+import com.sirma.itt.seip.definition.DefinitionService;
+import com.sirma.itt.seip.domain.definition.GenericDefinition;
 import com.sirma.itt.seip.domain.rest.EmfApplicationException;
+import com.sirma.itt.seip.domain.validation.ValidationMessage;
 import com.sirma.itt.seip.event.EventService;
 import com.sirma.itt.seip.io.TempFileProvider;
 import com.sirma.itt.seip.template.TemplateImportService;
@@ -51,20 +60,26 @@ import com.sirma.itt.seip.testutil.fakes.TransactionSupportFake;
 import com.sirma.itt.seip.tx.TransactionSupport;
 import com.sirma.itt.seip.util.file.ArchiveUtil;
 import com.sirma.itt.seip.util.file.FileUtil;
+import com.sirma.itt.seip.domain.validation.ValidationReport;
 import com.sirma.sep.definition.DefinitionImportService;
+import com.sirma.sep.definition.DefinitionValidationResult;
+import com.sirma.sep.threads.ThreadInterrupter;
 import com.sirmaenterprise.sep.bpm.camunda.service.BPMDefinitionImportService;
 import com.sirmaenterprise.sep.roles.PermissionsImportService;
 
 public class ModelImportServiceImplTest {
 
 	@InjectMocks
-	ModelImportServiceImpl modelImportService;
+	private ModelImportServiceImpl modelImportService;
 
 	@Rule
 	public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	@Spy
 	private TempFileProvider tempFileProvider;
+
+	@Mock
+	private DefinitionService definitionService;
 
 	@Mock
 	private DefinitionImportService definitionImportService;
@@ -81,6 +96,12 @@ public class ModelImportServiceImplTest {
 	@Mock
 	private EventService eventService;
 
+	@Mock
+	private ContextualLock importLock;
+
+	@Mock
+	private ThreadInterrupter threadInterrupter;
+
 	@Spy
 	private TransactionSupport transactionSupport = new TransactionSupportFake();
 
@@ -95,10 +116,11 @@ public class ModelImportServiceImplTest {
 	private Set<String> lastlyImportedBPMNFiles;
 	private Set<String> lastlyImportedPermissionFiles;
 
-
 	@Test
 	public void should_Import_All_Models_From_A_Valid_Archive() {
 		withFiles("correctModels.zip");
+
+		verifySuccessfulValidation(importMapping);
 
 		modelImportService.importModel(importMapping);
 
@@ -112,6 +134,8 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Import_All_Models_When_Provided_A_Valid_Archive_Plus_NotArchived_Files() {
 		withFiles("correctModels.zip", "manager.xml", "projectDefinition.xml", "testTemplate.xml", "WF2.bpmn");
+
+		verifySuccessfulValidation(importMapping);
 
 		modelImportService.importModel(importMapping);
 
@@ -127,6 +151,8 @@ public class ModelImportServiceImplTest {
 	public void should_Import_Not_Archived_Model_Files() {
 		withFiles("manager.xml", "projectDefinition.xml", "testTemplate.xml", "WF2.bpmn");
 
+		verifySuccessfulValidation(importMapping);
+
 		modelImportService.importModel(importMapping);
 
 		verifyBPMNsImported("WF2.bpmn");
@@ -139,6 +165,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Detect_Error_When_Provided_An_Archive_With_Invalid_XML_Files() {
 		withFiles("modelsInvalidRootTag.zip");
+		verifyUnsuccessfulValidation(importMapping);
 		verifyInvalid(modelImportService.importModel(importMapping));
 		verifyModelsImportCompleteEventIsNotFired();
 	}
@@ -146,6 +173,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Detect_Error_When_Provided_An_Archive_With_No_Files_In_It() {
 		withFiles("noModels.zip");
+		verifyUnsuccessfulValidation(importMapping);
 		verifyInvalid(modelImportService.importModel(importMapping));
 		verifyModelsImportCompleteEventIsNotFired();
 	}
@@ -153,6 +181,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Detect_Error_When_Provided_Invalid_Type_Of_Archive() {
 		withFiles("tarArchive.tar");
+		verifyUnsuccessfulValidation(importMapping);
 		verifyInvalid(modelImportService.importModel(importMapping));
 		verifyModelsImportCompleteEventIsNotFired();
 	}
@@ -160,6 +189,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Detect_Error_When_Provided_Not_Archived_Invalid_Files() {
 		withFiles("manager.xml", "codelists.xlsx");
+		verifyUnsuccessfulValidation(importMapping);
 		verifyInvalid(modelImportService.importModel(importMapping));
 		verifyModelsImportCompleteEventIsNotFired();
 	}
@@ -167,6 +197,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Detect_Error_When_Provided_A_Valid_Archive_But_Invalid_NotArchived_Files() {
 		withFiles("correctModels.zip", "codelists.xlsx");
+		verifyUnsuccessfulValidation(importMapping);
 		verifyInvalid(modelImportService.importModel(importMapping));
 		verifyModelsImportCompleteEventIsNotFired();
 	}
@@ -174,6 +205,45 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Detect_Error_When_Provided_An_XML_File_With_Unsupported_Root_Tag() {
 		withFiles("manager.xml", "invalidRootTag.xml");
+		verifyUnsuccessfulValidation(importMapping);
+		verifyInvalid(modelImportService.importModel(importMapping));
+		verifyModelsImportCompleteEventIsNotFired();
+	}
+
+	@Test
+	public void should_Detect_Error_When_Provided_An_Empty_XML_File() {
+		withFiles("emptyDefinition.xml");
+		verifyInvalid(modelImportService.importModel(importMapping));
+		verifyModelsImportCompleteEventIsNotFired();
+	}
+
+	@Test
+	public void should_Detect_Error_When_Provided_An_Invalid_XML_File() {
+		withFiles("invalidXmlFile.xml");
+		verifyInvalid(modelImportService.importModel(importMapping));
+		verifyModelsImportCompleteEventIsNotFired();
+	}
+
+	@Test
+	public void should_Detect_Error_When_Provided_An_Invalid_BPMN_File() {
+		withFiles("invalidBpmnFile.bpmn");
+		doThrow(IllegalArgumentException.class).when(bPMDefinitionImportService).importDefinitions(any());
+		assertFalse(modelImportService.importModel(importMapping).isValid());
+		verify(definitionImportService, never()).importDefinitions(any());
+		verify(templateImportService, never()).importTemplates(any());
+		verify(permissionsImportService, never()).importPermissions(any());
+		verifyModelsImportCompleteEventIsNotFired();
+	}
+
+	@Test
+	public void should_Validate_Definitions() {
+		withFiles("correctModels.zip");
+
+		// For some reason the validation didn't pass
+		ValidationReport invalidReport = new ValidationReport().addError("Error during definition validation");
+		DefinitionValidationResult invalid = new DefinitionValidationResult(invalidReport, Collections.emptyList());
+		when(definitionImportService.validate(any())).thenReturn(invalid);
+
 		verifyInvalid(modelImportService.importModel(importMapping));
 		verifyModelsImportCompleteEventIsNotFired();
 	}
@@ -186,8 +256,8 @@ public class ModelImportServiceImplTest {
 
 	@Test(expected = EmfApplicationException.class)
 	public void should_Throw_Exception_If_No_Models_Were_Found_For_Export() {
-		withExistingDefinitions(new String[0]);
-		withExistingTemplates(new String[0]);
+		withExistingDefinitions();
+		withExistingTemplates();
 
 		ModelExportRequest request = new ModelExportRequest();
 		request.setAllTemplates(true);
@@ -198,7 +268,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Export_Single_Definition_As_Xml() throws IOException {
 		List<File> existing = withExistingDefinitions("projectDefinition.xml");
-		List<String> requestIds = Arrays.asList("defId");
+		List<String> requestIds = Collections.singletonList("defId");
 
 		ModelExportRequest request = new ModelExportRequest();
 		request.setDefinitions(requestIds);
@@ -211,7 +281,7 @@ public class ModelImportServiceImplTest {
 	@Test
 	public void should_Export_Single_Template_As_Xml() throws IOException {
 		List<File> existing = withExistingTemplates("testTemplate.xml");
-		List<String> requestIds = Arrays.asList("templateId");
+		List<String> requestIds = Collections.singletonList("templateId");
 
 		ModelExportRequest request = new ModelExportRequest();
 		request.setTemplates(requestIds);
@@ -387,8 +457,24 @@ public class ModelImportServiceImplTest {
 		verifyDirContainsFiles(templateDir, existingTemplates);
 	}
 
+	@Test
+	public void should_Verify_Invalid_When_Another_Thread_Is_Holding_The_Lock_Too_Much() throws InterruptedException {
+		when(importLock.tryLock(anyLong(), any(TimeUnit.class))).thenReturn(false);
+		withFiles("correctModels.zip");
+		verifyInvalid(modelImportService.importModel(importMapping));
+		verifyModelsImportCompleteEventIsNotFired();
+	}
+
+	@Test
+	public void should_Handle_InterruptedException_When_TryLock() throws InterruptedException {
+		when(importLock.tryLock(anyLong(), any(TimeUnit.class))).thenThrow(InterruptedException.class);
+		withFiles("correctModels.zip");
+		verifyInvalid(modelImportService.importModel(importMapping));
+		verifyModelsImportCompleteEventIsNotFired();
+	}
+
 	@Before
-	public void init() {
+	public void init() throws InterruptedException {
 		tempFileProvider = new TempFileProviderFake(tempFolder.getRoot());
 		MockitoAnnotations.initMocks(this);
 		importMapping = new HashMap<>();
@@ -396,13 +482,33 @@ public class ModelImportServiceImplTest {
 		lastlyImportedTemplateFiles = new HashSet<>();
 		lastlyImportedBPMNFiles = new HashSet<>();
 		lastlyImportedPermissionFiles = new HashSet<>();
+
+		// By default there are no validation errors until re-stubbed
+		when(definitionImportService.validate(any())).thenReturn(
+				new DefinitionValidationResult(ValidationReport.valid(), Collections.emptyList()));
+
+		when(definitionService.getAllDefinitions(eq(GenericDefinition.class))).thenReturn(Collections.emptyList());
+		when(importLock.tryLock(anyLong(), any(TimeUnit.class))).thenReturn(true);
+		doNothing().when(threadInterrupter).interruptCurrentThread();
 	}
 
 	@After
 	public void cleanUp() {
-		importMapping.entrySet().stream().forEach(entry -> {
-			IOUtils.closeQuietly(entry.getValue());
-		});
+		importMapping.entrySet().stream().forEach(entry -> IOUtils.closeQuietly(entry.getValue()));
+	}
+
+	private void verifySuccessfulValidation(Map<String, InputStream> importMapping) {
+		// Copies the mapping because the streams will be closed
+		assertTrue(modelImportService.validateModel(copyImportMapping(importMapping)).isValid());
+	}
+
+	private void verifyUnsuccessfulValidation(Map<String, InputStream> importMapping) {
+		// Copies the mapping because the streams will be closed
+		assertFalse(modelImportService.validateModel(copyImportMapping(importMapping)).isValid());
+	}
+
+	private Map<String, InputStream> copyImportMapping(Map<String, InputStream> importMapping) {
+		return loadFiles(importMapping.keySet());
 	}
 
 	private File unzipToNewTempDir(File exported) throws IOException {
@@ -431,13 +537,8 @@ public class ModelImportServiceImplTest {
 		assertEquals(expectedFiles, lastlyImportedPermissionFiles);
 	}
 
-	private void verifyErrorsDetected(List<String> errors, int numberOfExpectedErrors) {
-		verifyInvalid(errors);
-		assertEquals(numberOfExpectedErrors, errors.size());
-	}
-
-	private void verifyInvalid(List<String> errors) {
-		assertTrue(errors.size() > 0);
+	private void verifyInvalid(ValidationReport validationReport) {
+		assertFalse(validationReport.isValid());
 		verify(definitionImportService, never()).importDefinitions(any());
 		verify(templateImportService, never()).importTemplates(any());
 		verify(bPMDefinitionImportService, never()).importDefinitions(any());
@@ -458,19 +559,19 @@ public class ModelImportServiceImplTest {
 
 	private static void verifyExactDirectoriesArePresent(File parent, String... dirNames) {
 		Set<String> existingDirs = Stream
-					.of(parent.listFiles())
-					.filter(File::isDirectory)
-					.map(File::getName)
-					.collect(Collectors.toSet());
+				.of(parent.listFiles())
+				.filter(File::isDirectory)
+				.map(File::getName)
+				.collect(Collectors.toSet());
 		assertEquals("The number of existing directories was not as expected", dirNames.length, existingDirs.size());
 		assertEquals(new HashSet<>(Arrays.asList(dirNames)), existingDirs);
 	}
 
 	private static void verifyNoDirectoriesArePresent(File parent) {
 		Set<File> existingDirs = Stream
-								.of(parent.listFiles())
-								.filter(File::isDirectory)
-								.collect(Collectors.toSet());
+				.of(parent.listFiles())
+				.filter(File::isDirectory)
+				.collect(Collectors.toSet());
 		assertTrue("Exported directories were detected. There shouldn't be.", existingDirs.isEmpty());
 	}
 
@@ -485,9 +586,9 @@ public class ModelImportServiceImplTest {
 
 	private static void verifyDirContainsFiles(File dir, List<File> files) throws IOException {
 		Map<String, File> actualFiles = Stream
-					.of(dir.listFiles())
-					.filter(File::isFile)
-					.collect(CollectionUtils.toIdentityMap(File::getName));
+				.of(dir.listFiles())
+				.filter(File::isFile)
+				.collect(CollectionUtils.toIdentityMap(File::getName));
 
 		assertEquals("The number of exported files in directory " + dir.getName() + " was not as expected.",
 				files.size(),
@@ -514,9 +615,9 @@ public class ModelImportServiceImplTest {
 		}
 
 		List<File> existingFiles = Stream
-					.of(fileNames)
-					.map(ModelImportServiceImplTest::loadFromResourceFolder)
-					.collect(Collectors.toList());
+				.of(fileNames)
+				.map(ModelImportServiceImplTest::loadFromResourceFolder)
+				.collect(Collectors.toList());
 
 		when(definitionImportService.exportAllDefinitions()).thenReturn(existingFiles);
 		when(definitionImportService.exportDefinitions(anyList())).thenReturn(existingFiles);
@@ -532,8 +633,8 @@ public class ModelImportServiceImplTest {
 
 		List<File> existingFiles = Stream
 				.of(fileNames)
-					.map(ModelImportServiceImplTest::loadFromResourceFolder)
-					.collect(Collectors.toList());
+				.map(ModelImportServiceImplTest::loadFromResourceFolder)
+				.collect(Collectors.toList());
 
 		when(templateImportService.exportAllTemplates()).thenReturn(existingFiles);
 		when(templateImportService.exportTemplates(anyList())).thenReturn(existingFiles);
@@ -543,31 +644,37 @@ public class ModelImportServiceImplTest {
 	private static File getSubDirectory(File parentDirectory, String directoryName) {
 		return Arrays
 				.asList(parentDirectory.listFiles())
-					.stream()
-					.filter(File::isDirectory)
-					.filter(directory -> directoryName.equals(directory.getName()))
-					.findFirst()
-					.orElse(null);
+				.stream()
+				.filter(File::isDirectory)
+				.filter(directory -> directoryName.equals(directory.getName()))
+				.findFirst()
+				.orElse(null);
 	}
 
 	private void withFiles(String... fileNames) {
+		importMapping.putAll(loadFiles(Arrays.asList(fileNames)));
+		captureFilesPassedForImport();
+	}
+
+	private Map<String, InputStream> loadFiles(Collection<String> fileNames) {
+		Map<String, InputStream> files = new LinkedHashMap<>(fileNames.size());
 		for (String fileName : fileNames) {
 			File file = loadFromResourceFolder(fileName);
 			try {
-				importMapping.put(fileName, FileUtils.openInputStream(file));
+				files.put(fileName, FileUtils.openInputStream(file));
 			} catch (IOException e) {
 				throw new EmfApplicationException("Failed to open stream to file " + fileName, e);
 			}
 		}
-		captureFilesPassedForImport();
+		return files;
 	}
 
 	private static File loadFromResourceFolder(String fileName) {
 		return new File(ModelImportServiceImplTest.class
 				.getClassLoader()
-					.getResource(
-							ModelImportServiceImplTest.class.getPackage().getName().replace('.', '/') + "/" + fileName)
-					.getFile());
+				.getResource(
+						ModelImportServiceImplTest.class.getPackage().getName().replace('.', '/') + "/" + fileName)
+				.getFile());
 	}
 
 	/**
@@ -577,40 +684,28 @@ public class ModelImportServiceImplTest {
 	 * class so that it is preserved and asserted later.
 	 */
 	private void captureFilesPassedForImport() {
-		doAnswer(new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) {
-				Path path = (Path) invocation.getArguments()[0];
-				lastlyImportedDefinitionFiles = readFileNamesAsSet(path.toString());
-				return null;
-			}
+		doAnswer(invocation -> {
+			Path path = (Path) invocation.getArguments()[0];
+			lastlyImportedDefinitionFiles = readFileNamesAsSet(path.toString());
+			return null;
 		}).when(definitionImportService).importDefinitions(any());
 
-		doAnswer(new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) {
-				String path = (String) invocation.getArguments()[0];
-				lastlyImportedTemplateFiles = readFileNamesAsSet(path);
-				return null;
-			}
+		doAnswer(invocation -> {
+			String path = (String) invocation.getArguments()[0];
+			lastlyImportedTemplateFiles = readFileNamesAsSet(path);
+			return null;
 		}).when(templateImportService).importTemplates(any());
 
-		doAnswer(new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) {
-				String path = (String) invocation.getArguments()[0];
-				lastlyImportedPermissionFiles = readFileNamesAsSet(path);
-				return null;
-			}
+		doAnswer(invocation -> {
+			String path = (String) invocation.getArguments()[0];
+			lastlyImportedPermissionFiles = readFileNamesAsSet(path);
+			return null;
 		}).when(permissionsImportService).importPermissions(any());
 
-		doAnswer(new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) {
-				String path = (String) invocation.getArguments()[0];
-				lastlyImportedBPMNFiles = readFileNamesAsSet(path);
-				return null;
-			}
+		doAnswer(invocation -> {
+			String path = (String) invocation.getArguments()[0];
+			lastlyImportedBPMNFiles = readFileNamesAsSet(path);
+			return null;
 		}).when(bPMDefinitionImportService).importDefinitions(any());
 	}
 

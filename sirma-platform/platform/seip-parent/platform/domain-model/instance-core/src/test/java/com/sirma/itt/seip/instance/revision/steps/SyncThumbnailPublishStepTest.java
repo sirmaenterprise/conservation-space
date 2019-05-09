@@ -2,25 +2,20 @@ package com.sirma.itt.seip.instance.revision.steps;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import com.sirma.itt.seip.collections.ContextualMap;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.domain.instance.InstancePropertyNameResolver;
 import com.sirma.itt.seip.instance.relation.LinkConstants;
-import com.sirma.itt.seip.instance.relation.LinkReference;
-import com.sirma.itt.seip.instance.relation.LinkService;
 import com.sirma.itt.seip.instance.revision.PublishInstanceRequest;
 import com.sirma.itt.seip.instance.state.Operation;
 import com.sirma.itt.seip.security.context.SecurityContextManager;
@@ -43,16 +38,14 @@ public class SyncThumbnailPublishStepTest {
 	@InjectMocks
 	private SyncThumbnailPublishStep step;
 
-	@Mock
-	private LinkService linkService;
+	@Spy
+	private InstancePropertyNameResolver nameResolver = InstancePropertyNameResolver.NO_OP_INSTANCE;
 	@Mock
 	private ThumbnailService thumbnailService;
 	@Mock
 	private RenditionService renditionService;
 	@Mock
 	private SchedulerService schedulerService;
-	@Mock
-	private InstanceTypeResolver instanceTypeResolver;
 	@Mock
 	private SecurityContextManager securityContextManager;
 
@@ -69,68 +62,45 @@ public class SyncThumbnailPublishStepTest {
 	}
 
 	@Test
-	public void shouldDoNothingIfNoThumbnailIsFound() throws Exception {
-		step.execute(buildContext());
-		verify(renditionService, never()).getThumbnail(any());
-	}
-
-	@Test
-	public void shouldAssignThumbnailToRevision() throws Exception {
+	public void shouldAssignCustomThumbnailToRevision() throws Exception {
 		PublishContext context = buildContext();
-		LinkReference response = new LinkReference();
-		response.setTo(InstanceReferenceMock.createGeneric("emf:thumbnailSource"));
-		when(linkService.getLinks(context.getRequest().getInstanceToPublish().toReference(),
-				LinkConstants.HAS_THUMBNAIL)).thenReturn(Collections.singletonList(response));
+		context.getRequest().getInstanceToPublish().add(LinkConstants.HAS_THUMBNAIL, "emf:thumbnailSource");
 
 		when(renditionService.getThumbnail("emf:thumbnailSource")).thenReturn("someThumbnail");
 
 		step.execute(context);
 
-		verify(thumbnailService).addThumbnail(context.getRevision().toReference(), "someThumbnail");
+		verify(thumbnailService).addAssignedThumbnail(context.getRevision().getId(), "someThumbnail");
+	}
+
+	@Test
+	public void shouldAssignThumbnailOfTheSourceInstance() throws Exception {
+		PublishContext context = buildContext();
+
+		when(renditionService.getThumbnail("emf:sourceInstance")).thenReturn("source instance thumbnail");
+
+		step.execute(context);
+
+		verify(thumbnailService).addAssignedThumbnail(context.getRevision().getId(), "source instance thumbnail");
 	}
 
 	@Test(expected = SchedulerRetryException.class)
 	public void shouldFailAssignThumbnailNotPresent() throws Exception {
 		PublishContext context = buildContext();
-		LinkReference response = new LinkReference();
-		response.setTo(InstanceReferenceMock.createGeneric("emf:thumbnailSource"));
-		when(linkService.getLinks(context.getRequest().getInstanceToPublish().toReference(),
-				LinkConstants.HAS_THUMBNAIL)).thenReturn(Collections.singletonList(response));
-
-		step.execute(context);
-	}
-
-	@Test(expected = SchedulerRetryException.class)
-	public void shouldFailAssignThumbnailRevisionNotFound() throws Exception {
-		PublishContext context = buildContext();
-		LinkReference response = new LinkReference();
-		response.setTo(InstanceReferenceMock.createGeneric("emf:thumbnailSource"));
-		when(linkService.getLinks(context.getRequest().getInstanceToPublish().toReference(),
-				LinkConstants.HAS_THUMBNAIL)).thenReturn(Collections.singletonList(response));
-
-		when(instanceTypeResolver.resolveReference(any())).thenReturn(Optional.empty());
-
-		when(renditionService.getThumbnail("emf:thumbnailSource")).thenReturn(null, "someThumbnail");
 
 		step.execute(context);
 	}
 
 	@Test
-	public void shouldAssignThumbnailDalayed() throws Exception {
+	public void shouldAssignThumbnailDelayed() throws Exception {
 		PublishContext context = buildContext();
-		LinkReference response = new LinkReference();
-		response.setTo(InstanceReferenceMock.createGeneric("emf:thumbnailSource"));
-		when(linkService.getLinks(context.getRequest().getInstanceToPublish().toReference(),
-				LinkConstants.HAS_THUMBNAIL)).thenReturn(Collections.singletonList(response));
-
-		when(instanceTypeResolver.resolveReference(any()))
-				.then(a -> Optional.of(InstanceReferenceMock.createGeneric(a.getArgumentAt(0, String.class))));
+		context.getRequest().getInstanceToPublish().add(LinkConstants.HAS_THUMBNAIL, "emf:thumbnailSource");
 
 		when(renditionService.getThumbnail("emf:thumbnailSource")).thenReturn(null, "someThumbnail");
 
 		step.execute(context);
 
-		verify(thumbnailService).addThumbnail(context.getRevision().toReference(), "someThumbnail");
+		verify(thumbnailService).addAssignedThumbnail(context.getRevision().getId(), "someThumbnail");
 	}
 
 	private static PublishContext buildContext() {

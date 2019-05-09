@@ -2,6 +2,7 @@ package com.sirma.itt.emf.semantic.patch;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -172,7 +173,7 @@ public class UpdateSemanticTask implements CustomTaskChange {
 	private static Set<StringPair> readNamespacesFromFile(ResourceSource resource) throws CustomChangeException {
 		Set<StringPair> namespaces = new HashSet<>();
 		try {
-			List<String> lines = IOUtils.readLines(resource.load());
+			List<String> lines = IOUtils.readLines(resource.load(), StandardCharsets.UTF_8);
 			for (String line : lines) {
 				if (StringUtils.isNotBlank(line) && !line.startsWith(COMMENT_CHARACTER)) {
 					String[] namespacePair = NAMESPACE_SEPARATOR_PATTERN.split(line, 2);

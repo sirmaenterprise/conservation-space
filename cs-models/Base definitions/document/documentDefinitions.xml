@@ -1,97 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition id="commonDocument" parentId="entity" type="document" isAbstract="true">
+<definition id="baseDocument" parentId="entity" type="document" isAbstract="true">
 	<fields>
 		<!-- HEADERS AND TOOLTIP -->
 		<field name="default_header" type="ANY" label="DOCUMENT_DEFAULT_HEADER" displayType="system"/>
-		<field name="compact_header" type="an..4096" label="DOCUMENT_COMPACT_HEADER" displayType="system"/>
-		<field name="breadcrumb_header" type="an..4096" label="DOCUMENT_BREADCRUMB_HEADER" displayType="system"/>
+		<field name="compact_header" type="ANY" label="DOCUMENT_COMPACT_HEADER" displayType="system"/>
+		<field name="breadcrumb_header" type="ANY" label="DOCUMENT_BREADCRUMB_HEADER" displayType="system"/>
 		<field name="tooltip_header" type="ANY" label="DOCUMENT_TOOLTIP_HEADER" displayType="system"/>
 
 		<!-- SYSTEM FIELDS -->
-		<field name="rdf:type" type="URI" displayType="system" uri="rdf:type">
+		<field name="rdf:type">
 			<value>http://ittruse.ittbg.com/ontology/enterpriseManagementFramework#Document</value>
 		</field>
 		<field name="emf:contentId" type="an..40" displayType="system" uri="emf:contentId"/>
 		<field name="documentLocation" type="an..500" label="location.label" displayType="system"/> <!-- attachmentLocation-->
 		<field name="workingCopyLocation" type="an..500" displayType="system" previewEmpty="false"/>
-		<field name="content" type="any" label="document.content" displayType="system" uri="emf:content"/>
+		<field name="content" type="any" displayType="system" uri="emf:content"/>
 		<field name="fileSize" type="an..10" label="size.label" displayType="system" previewEmpty="false"/> <!-- fileSize field is deprecated, user size instead CMF-18735. This is here for backward compatibility. -->
-		<field name="activityId" type="an..180" label="activityId.label" displayType="system" uri="emf:activityId" />
-		<field name="transitionMatrix" type="an..1024" label="transitionMatrix.label" displayType="system" uri="emf:transitionMatrix" />
-		<field name="emf:revisionNumber" type="an..10" label="revisionNumber.label" displayType="system" previewEmpty="false" uri="emf:revisionNumber" />
-		<field name="emf:revisionType" type="URI" label="revisionType.label" displayType="system" previewEmpty="false" uri="emf:revisionType" />
-		<field name="emf:publishedOn" type="datetime" label="publishedOn.label" displayType="system" previewEmpty="false" uri="emf:publishedOn" />
-		<field name="emf:publishedBy" type="uri" label="publishedBy.label" displayType="system" previewEmpty="false" uri="emf:publishedBy">
+		<field name="activityId" type="an..180" displayType="system" uri="emf:activityId" />
+		<field name="transitionMatrix" type="an..1024" displayType="system" uri="emf:transitionMatrix" />
+		<field name="emf:revisionNumber" type="an..10" displayType="system" previewEmpty="false" uri="emf:revisionNumber" />
+		<field name="emf:revisionType" type="URI" displayType="system" previewEmpty="false" uri="emf:revisionType" />
+		<field name="emf:publishedOn" type="datetime" displayType="system" previewEmpty="false" uri="emf:publishedOn" />
+		<field name="emf:publishedBy" type="uri" displayType="system" previewEmpty="false" uri="emf:publishedBy">
 			<control id="PICKER">
 				<control-param id="range" name="range">emf:User</control-param>
 			</control>
 		</field>
-		
+
 		<!-- GENERAL DATA FIELDS FOR DOCUMENT -->
-		<field name="type" type="an..180" codelist="CL6"> 
+		<field name="type" codelist="CL6">
 			<value>baseDocument</value>
 		</field>
-		<field name="status" type="an..35" codelist="CL5"/>
-		<field name="identifier" type="an..180" label="uniqueIdentifier.label" displayType="readonly" rnc="${seq({+documentSequence})}" uri="dcterms:identifier">
+		<field name="status" codelist="CL5"/>
+		<field name="identifier" type="an..180" displayType="readonly" rnc="${seq({+documentSequence})}" uri="dcterms:identifier">
 			<condition id="hiddenFields" renderAs="HIDDEN">[identifier] IN ('NO_ID')</condition>
 		</field>
-		<field name="outcome" type="an..50" codelist="CL22" label="outcome.label" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
-		<field name="integrated" type="boolean" label="integrated.label" displayType="readOnly" uri="emf:integrated">
+		<field name="outcome" type="ANY" codelist="CL22" displayType="readOnly" previewEmpty="false" uri="emf:outcome" />
+		<field name="integrated" type="boolean" displayType="readOnly" uri="emf:integrated">
 			<value>false</value>
 		</field>
-		<field name="uri" type="an..50" label="uri.label" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri" />
-		<field name="completedOn" type="datetime" label="completedOn.label" displayType="readOnly" previewEmpty="false" uri="emf:completedOn" />
+		<field name="uri" type="an..50" tooltip="uri.tooltip" displayType="readOnly" uri="emf:uri" />
+		<field name="completedOn" type="datetime" displayType="readOnly" previewEmpty="false" uri="emf:completedOn" />
 
 		<!-- document fields -->
-		<field name="name" type="an..180" label="name.label" displayType="readOnly" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName" /> <!-- documentName -->
-		<field name="size" type="n..10" label="size.label" displayType="readOnly" previewEmpty="false" uri="emf:size"> <!-- When you use this field the control BYTE_FORMAT is required -->
+		<field name="name" type="an..180" displayType="readOnly" rnc="[^|\\/*:&lt;&gt;\&quot;?]{1,180}$" previewEmpty="false" uri="emf:fileName" /> <!-- documentName -->
+		<field name="size" type="n..10" displayType="readOnly" previewEmpty="false" uri="emf:size"> <!-- When you use this field the control BYTE_FORMAT is required -->
 			<control id="BYTE_FORMAT" />
 		</field>
-		<field name="mimetype" type="an..20" codelist="CL30" label="mimetype.label" displayType="readOnly" previewEmpty="false" uri="emf:mimetype" />
+		<field name="mimetype" displayType="readOnly" previewEmpty="false" />
 
 		<!-- The ocr language of a document -->
-		<field name="ocrLanguage" type="an..20" codelist="CL25" label="ocrLanguage.label" displayType="readOnly" previewEmpty="false" uri="emf:ocrLanguage" >
+		<field name="ocrLanguage" type="ANY" codelist="CL25" displayType="readOnly" previewEmpty="false" uri="emf:ocrLanguage" >
 			<condition id="readOnlyFields" renderAs="READONLY">[status] IN ('DRAFT')</condition>
 		</field>
 
 		<!-- GENERAL OBJECT FIELDS FOR DOCUMENT -->
-		<field name="hasRevision" type="uri" label="hasRevision.label" displayType="readonly" multiValued="true" previewEmpty="false" uri="emf:hasRevision">
+		<field name="hasRevision" type="uri" displayType="readonly" multiValued="true" previewEmpty="false" uri="emf:hasRevision">
 			<control id="PICKER" />
 		</field>
-		<field name="isRevisionOf" type="uri" label="isRevisionOf.label" displayType="readonly" previewEmpty="false" uri="emf:isRevisionOf">
+		<field name="isRevisionOf" type="uri" displayType="readonly" previewEmpty="false" uri="emf:isRevisionOf">
 			<control id="PICKER" />
 		</field>
-		<field name="lastPublishedRevision" type="uri" label="lastPublishedRevision.label" displayType="readonly" previewEmpty="false" uri="emf:lastPublishedRevision">
+		<field name="lastPublishedRevision" type="uri" displayType="readonly" previewEmpty="false" uri="emf:lastPublishedRevision">
 			<control id="PICKER" />
 		</field>
-		<field name="lastRevision" type="uri" label="lastRevision.label" displayType="readonly" previewEmpty="false" uri="emf:lastRevision">
+		<field name="lastRevision" type="uri" displayType="readonly" previewEmpty="false" uri="emf:lastRevision">
 			<control id="PICKER" />
 		</field>
-		<field name="nextRevision" type="uri" label="nextRevision.label" displayType="readonly" previewEmpty="false" uri="emf:nextRevision">
+		<field name="nextRevision" type="uri" displayType="readonly" previewEmpty="false" uri="emf:nextRevision">
 			<control id="PICKER" />
 		</field>
-		<field name="previousRevision" type="uri" label="previousRevision.label" displayType="readonly" previewEmpty="false" uri="emf:previousRevision">
+		<field name="previousRevision" type="uri" displayType="readonly" previewEmpty="false" uri="emf:previousRevision">
 			<control id="PICKER" />
 		</field>
 	</fields>
 
 	<transitions>
-		<transition id="download" label="download.label" eventId="download" purpose="download" tooltip="download.tooltip" actionPath="/" />
-		<transition id="editOffline" label="editOffline.label" eventId="editOffline" purpose="editOffline" tooltip="editOffline.tooltip" />
-		<transition id="uploadNewVersion" label="uploadNewVersion.label" eventId="uploadNewVersion" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" actionPath="/" />
-		<transition id="approve" label="approve.label" eventId="approve" purpose="transition" immediate="true" tooltip="approve.tooltip" />
-		<transition id="reject" label="reject.label" eventId="reject" purpose="transition" immediate="true" tooltip="reject.tooltip" />
-		<transition id="clone" label="clone.label" eventId="clone" purpose="clone" tooltip="clone.tooltip" />
-		<transition id="publish" label="publish.label" eventId="publish" purpose="publish" tooltip="publish.tooltip" />
-		<transition id="publishAsPdf" label="publishAsPdf.label" eventId="publishAsPdf" purpose="publishAsPdf" tooltip="publishAsPdf.tooltip" />
-		<transition id="uploadRevision" label="uploadRevision.label" eventId="uploadRevision" purpose="uploadRevision" tooltip="uploadRevision.tooltip" />
+		<transition id="download" label="download.label" purpose="download" tooltip="download.tooltip" actionPath="/" />
+		<transition id="editOffline" label="editOffline.label" purpose="editOffline" tooltip="editOffline.tooltip" />
+		<transition id="uploadNewVersion" label="uploadNewVersion.label" purpose="uploadNewVersion" tooltip="uploadNewVersion.tooltip" actionPath="/" />
+		<transition id="approve" label="approve.label" purpose="transition" tooltip="approve.tooltip" />
+		<transition id="reject" label="reject.label" purpose="transition" tooltip="reject.tooltip" />
+		<transition id="clone" label="clone.label" purpose="clone" tooltip="clone.tooltip" />
+		<transition id="publish" label="publish.label" purpose="publish" tooltip="publish.tooltip" />
+		<transition id="publishAsPdf" label="publishAsPdf.label" purpose="publishAsPdf" tooltip="publishAsPdf.tooltip" />
+		<transition id="uploadRevision" label="uploadRevision.label" purpose="uploadRevision" tooltip="uploadRevision.tooltip" />
+		<transition id="changeType" label="changeType.label" purpose="changeType" tooltip="changeType.tooltip" group="tools" />
 	</transitions>
 
 	<stateTransitions>
 		<stateTransition from="INIT" transition="create" to="DRAFT"/>
 		<stateTransition from="NOT_CREATED" transition="create" to="DRAFT"/>
 		<stateTransition from="INIT" transition="clone" to="DRAFT" />
-		
+		<stateTransition from="INIT" transition="changeType" to="DRAFT" />
+
 		<stateTransition from="DRAFT" transition="download" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="editDetails" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="uploadNewVersion" to="DRAFT" />
@@ -113,7 +115,7 @@
 		<stateTransition from="DRAFT" transition="changeTemplate" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="updateTemplate" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="addWatchers" to="DRAFT" />
-		
+
 		<stateTransition from="DRAFT" transition="approve" to="APPROVED" />
 		<stateTransition from="DRAFT" transition="reject" to="REJECTED" />
 		<stateTransition from="DRAFT" transition="addThumbnail" to="DRAFT" />
@@ -130,7 +132,8 @@
 		</stateTransition>
 		<stateTransition from="DRAFT" transition="uploadRevision" to="DRAFT" />
 		<stateTransition from="DRAFT" transition="clone" to="DRAFT" />
-		
+		<stateTransition from="DRAFT" transition="changeType" to="DRAFT" />
+
 		<stateTransition from="PENDING_APPROVAL" transition="download" to="PENDING_APPROVAL" />
 		<stateTransition from="PENDING_APPROVAL" transition="clone" to="PENDING_APPROVAL" />
 		<stateTransition from="PENDING_APPROVAL" transition="saveAsTemplate" to="PENDING_APPROVAL" />
@@ -231,7 +234,10 @@
                             <span data-title="title">${get([title])}</span>
                         </a>
                     </span>
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Object ID: </label><span data-property="objectId">${id.uid}</span></span>)}
+					<span class="tooltip-row">
+						<label>Object ID: </label>
+						<span data-property="objectId">${id.uid}</span>
+					</span>
                     <span class="tooltip-row">
                         <label>Version: </label>
                         <span data-property-version="emf:version">${get([emf:version])}</span>
@@ -240,15 +246,20 @@
                         <label>Revision: </label>
                         <span data-property="emf:revisionNumber">${get([emf:revisionNumber])}</span>
                     </span>
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Description: </label><span data-property="description">${get([description])}</span></span>)}
                     <span class="tooltip-row">
                         <label>Modified by: </label>
                         <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Modified on: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 			<value lang="de"><![CDATA[${eval(
@@ -262,7 +273,10 @@
                             <span data-title="title">${get([title])}</span>
                         </a>
                     </span>
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Object ID: </label><span data-property="objectId">${id.uid}</span></span>)}
+					<span class="tooltip-row">
+						<label>Object ID: </label>
+						<span data-property="objectId">${id.uid}</span>
+					</span>
                     <span class="tooltip-row">
                         <label>Ausführung: </label>
                         <span data-property-version="emf:version">${get([emf:version])}</span>
@@ -271,15 +285,20 @@
                         <label>Revision: </label>
                         <span data-property="emf:revisionNumber">${get([emf:revisionNumber])}</span>
                     </span>
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Description: </label><span data-property="description">${get([description])}</span></span>)}
                     <span class="tooltip-row">
                         <label>Geändert von: </label>
                         <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Geändert am: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 			<value lang="bg"><![CDATA[${eval(
@@ -293,7 +312,10 @@
                             <span data-title="${get([title])}">${get([title])}</span>
                         </a>
                     </span>
-                    ${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Object ID: </label><span data-property="objectId">${id.uid}</span></span>)}
+                    <span class="tooltip-row">
+						<label>Object ID: </label>
+						<span data-property="objectId">${id.uid}</span>
+					</span>
                     <span class="tooltip-row">
                         <label>Версия: </label>
                         <span data-property-version="emf:version">${get([emf:version])}</span>
@@ -302,15 +324,20 @@
                         <label>Ревизия: </label>
                         <span data-property="emf:revisionNumber">${get([emf:revisionNumber])}</span>
                     </span>
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Описание: </label><span data-property="description">${get([description])}</span></span>)}
                     <span class="tooltip-row">
                         <label>Последно актуализиран от: </label>
                         <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Последно актуализиран на: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -324,7 +351,10 @@
                             <span data-title="title">${get([title])}</span>
                         </a>
                     </span>
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Object ID: </label><span data-property="objectId">${id.uid}</span></span>)}
+					<span class="tooltip-row">
+						<label>Object ID: </label>
+						<span data-property="objectId">${id.uid}</span>
+					</span>
                     <span class="tooltip-row">
                         <label>Version: </label>
                         <span data-property-version="emf:version">${get([emf:version])}</span>
@@ -335,15 +365,20 @@
 							<span data-property="emf:revisionNumber">${get([emf:revisionNumber])}</span>
 						</span>
 					)}
-					${if(${id.purpose}<>iDoc).then(<span class="tooltip-row"><label>Beskrivelse: </label><span data-property="description">${get([description])}</span></span>)}
                     <span class="tooltip-row">
                         <label>Opdateret af: </label>
                         <span data-property="modifiedBy">${user(${get([modifiedBy])})}</span>
                     </span>
                     <span class="tooltip-row">
                         <label>Opdateret: </label>
-                        <span data-property="modifiedOn">${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}</span>
+                        <span data-property="modifiedOn">${date([modifiedOn])}</span>
                     </span>
+                    ${if(${get([lockedBy])} <> null).then(
+						<span class="tooltip-row">
+							<label>${label(lockedBy)}:</label>
+							<span data-property="lockedBy">${objectProperty(${get([lockedBy])})}</span>
+						</span>
+					)}
                 </span>
             )}]]></value>
 		</label>
@@ -360,6 +395,7 @@
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
                         ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
 							<b>
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								Ревизия: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 								(<span data-property="status">${CL([status])}</span>)&nbsp;
 								(<span data-property="type">${CL([type])}</span>)&nbsp;
@@ -367,6 +403,7 @@
 							</b>
 						).else(
 							<b>
+								${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 								(<span data-property="type">${CL([type])}</span>)&nbsp;
 								<span data-property="title">${get([title])}</span>&nbsp;
 								(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -379,8 +416,7 @@
 						</b>
                     </a>
                 </span>
-                <br />актуализиран от: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+                <br />актуализиран от: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn])}
             </span>
 			)}]]></value>
 			<value lang="en"><![CDATA[${eval(
@@ -395,6 +431,7 @@
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
                         ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
 						<b>
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
 							(<span data-property="type">${CL([type])}</span>)&nbsp;
@@ -402,6 +439,7 @@
 						</b>
 						).else(
 						<b>
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							(<span data-property="type">${CL([type])}</span>)&nbsp;
 							<span data-property="title">${get([title])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -414,8 +452,7 @@
 						</b>
                     </a>
                 </span>
-                <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+                <br />Last modified by: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn])}
             </span>
 			)}]]></value>
 			<value lang="de"><![CDATA[${eval(
@@ -430,6 +467,7 @@
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
                         ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
 						<b>
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
 							(<span data-property="type">${CL([type])}</span>)&nbsp;
@@ -437,6 +475,7 @@
 						</b>
 						).else(
 						<b>
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							(<span data-property="type">${CL([type])}</span>)&nbsp;
 							<span data-property="title">${get([title])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -449,8 +488,7 @@
 						</b>
                     </a>
                 </span>
-                <br />Zuletzt geändert von: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(gesperrt von)}${user([lockedBy])}</span>)}
+                <br />Zuletzt geändert von: <a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn])}
             </span>
 			)}]]></value>
 			<value lang="da"><![CDATA[${eval(
@@ -465,6 +503,7 @@
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
                         ${if(${or(${var.isLatest} or ${var.isRevision})}).then(
 						<b>
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							Revision: <span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
 							(<span data-property="type">${CL([type])}</span>)&nbsp;
@@ -472,6 +511,7 @@
 						</b>
 						).else(
 						<b>
+							${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 							(<span data-property="type">${CL([type])}</span>)&nbsp;
 							<span data-property="title">${get([title])}</span>&nbsp;
 							(<span data-property="status">${CL([status])}</span>)&nbsp;
@@ -484,8 +524,7 @@
 						</b>
                     </a>
                 </span>
-                <br />Sidste&nbsp;opdateret&nbsp;af:&nbsp;<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn]).format(dd.MM.yyyy, HH:mm)}
-				${if(${get([lockedBy])} <> null).then(<br /><span class="banner label label-warning">${label(lockedBy)}${user([lockedBy])}</span>)}
+                <br />Sidste&nbsp;opdateret&nbsp;af:&nbsp;<a href="${userLink(${get([modifiedBy])})}">${user(${get([modifiedBy])})}</a>, ${date([modifiedOn])}
             </span>
 			)}]]></value>
 		</label>
@@ -496,7 +535,7 @@
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
             <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
             	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
@@ -520,7 +559,7 @@
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
             <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
             	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
@@ -544,7 +583,7 @@
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
             <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
             	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
@@ -568,7 +607,7 @@
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			${var.isVersion= ${if(${get([isVersion])} == true).then(true).else(false)}}
 			<span><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
             <span class="truncate-element${if(${var.isLatest}).then( latest-revision)}${if(${var.isRevision}).then( revision)}">
             	<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 					${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
@@ -588,12 +627,12 @@
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
  				<span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Изтрит) </b></span>)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span data-property="revisionNumber">Ревизия:${get([emf:revisionNumber])}&nbsp;</span>
+							Ревизия:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 							<span data-property="title">${get([title])}</span>
 						).else(
 							<span data-property="title">${get([title])}</span>
@@ -605,12 +644,12 @@
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
                 <span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Deleted) </b></span>)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>
+							Revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 							<span data-property="title">${get([title])}</span>
 						).else(
 							<span data-property="title">${get([title])}</span>
@@ -622,12 +661,12 @@
 			${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 			${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 			<span ><img src="${thumbnailUri(16)}"/></span>
-			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+			${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
                 <span>
 					<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 						${if(${get([emf:isDeleted])} == true).then(<span><b>(Gelöscht) </b></span>)}
 						${if(${or(${var.isLatest} or ${var.isRevision})}).then(
-							<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>
+							Revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;
 							<span data-property="title">${get([title])}</span>
 						).else(
 							<span data-property="title">${get([title])}</span>
@@ -639,11 +678,11 @@
 				${var.isLatest=${if((${get([emf:revisionType])}).matches(.*?latest)).then(true).else(false)}}
 				${var.isRevision=${if((${get([emf:revisionType])}).matches(.*?revision)).then(true).else(false)}}
 				<span ><img src="${thumbnailUri(16)}"/></span>
-				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>)}
+				${if(${get([lockedBy])} <> null).then(<span class="lock-label"><i class="fa fa-lock fa-lg"></i></span>&nbsp;)}
 					<span>
 						<a class="instance-link ${if(${get([emf:isDeleted])} == true).then(instance-deleted).else(has-tooltip)}" ${var.href}>
 							${if(${get([emf:isDeleted])} == true).then(<span><b>(Slettet) </b></span>)}
-							${if(${or(${var.isLatest} or ${var.isRevision})}).then(<span data-property="revisionNumber">Revision:${get([emf:revisionNumber])}&nbsp;</span>)}
+							${if(${or(${var.isLatest} or ${var.isRevision})}).then(Revision:&nbsp;<span data-property="revisionNumber">${get([emf:revisionNumber])}</span>&nbsp;)}
 							<span data-property="title">${get([title])}</span>
 						</a>
 				</span>

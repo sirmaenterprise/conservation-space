@@ -78,10 +78,6 @@ public class Definition {
 	/** The labels. */
 	protected Labels labels;
 
-	/** The type. */
-	@XmlAttribute(name = "type", required = true)
-	protected ObjectType type;
-
 	/** The id. */
 	@XmlAttribute(name = "id", required = true)
 	protected String id;
@@ -90,6 +86,14 @@ public class Definition {
 	@XmlAttribute(name = "parentId")
 	protected String parentId;
 
+	/** The type. */
+	@XmlAttribute(name = "type", required = true)
+	protected ObjectType type;
+
+	/** The is abstract. */
+	@XmlAttribute(name = "isAbstract")
+	protected Boolean isAbstract;
+
 	/** The reference id. */
 	@XmlAttribute(name = "referenceId")
 	protected String referenceId;
@@ -97,10 +101,6 @@ public class Definition {
 	/** The purpose. */
 	@XmlAttribute(name = "purpose")
 	protected String purpose;
-
-	/** The is abstract. */
-	@XmlAttribute(name = "isAbstract")
-	protected Boolean isAbstract;
 
 	/** The save condition. */
 	@XmlAttribute(name = "saveCondition")

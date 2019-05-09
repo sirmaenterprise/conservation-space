@@ -1,5 +1,7 @@
 package com.sirma.itt.seip.instance.actions.evaluation;
 
+import static com.sirma.itt.seip.collections.CollectionUtils.isNotEmpty;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
@@ -8,17 +10,17 @@ import java.util.Collection;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonObjectBuilder;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import org.jboss.resteasy.util.Types;
 
-import com.sirma.itt.seip.collections.CollectionUtils;
 import com.sirma.itt.seip.domain.security.Action;
+import com.sirma.itt.seip.rest.handlers.writers.AbstractMessageBodyWriter;
 import com.sirma.itt.seip.rest.utils.Versions;
 
 /**
@@ -29,12 +31,7 @@ import com.sirma.itt.seip.rest.utils.Versions;
  */
 @Provider
 @Produces(Versions.V2_JSON)
-public class ActionsMessageBodyWriter implements MessageBodyWriter<Collection<Action>> {
-
-	@Override
-	public long getSize(Collection<Action> arg0, Class<?> arg1, Type arg2, Annotation[] arg3, MediaType arg4) {
-		return -1;
-	}
+public class ActionsMessageBodyWriter extends AbstractMessageBodyWriter<Collection<Action>> {
 
 	@Override
 	public boolean isWriteable(Class<?> clazz, Type type, Annotation[] annotations, MediaType mediaType) {
@@ -46,12 +43,13 @@ public class ActionsMessageBodyWriter implements MessageBodyWriter<Collection<Ac
 	@Override
 	public void writeTo(Collection<Action> actions, Class<?> clazz, Type type, Annotation[] annotations,
 			MediaType mediaType, MultivaluedMap<String, Object> headers, OutputStream stream) throws IOException {
-		if (CollectionUtils.isNotEmpty(actions)) {
-			try (JsonGenerator array = Json.createGenerator(stream).writeStartArray()) {
-				actions.stream().filter(Action::isVisible).forEach(action -> array.write(Action.convertAction(action)));
-				array.writeEnd().flush();
+		if (isNotEmpty(actions)) {
+			try (JsonGenerator generator = Json.createGenerator(stream)) {
+				generator.writeStartArray();
+				actions.stream().filter(Action::isVisible).map(Action::convertAction)
+								.map(JsonObjectBuilder::build).forEach(generator::write);
+				generator.writeEnd().flush();
 			}
 		}
 	}
-
 }

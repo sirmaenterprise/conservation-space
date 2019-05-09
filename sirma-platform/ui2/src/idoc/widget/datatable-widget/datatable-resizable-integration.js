@@ -26,13 +26,13 @@ export class DatatableResizableIntegration {
     headerCells.resizable({
       handles: 'e',
       minWidth: columnMinWidth,
-      start: function (event, ui) {
+      start(event, ui) {
         DatatableResizableIntegration.onResizeStart(ui, paramsObject, tableHeader);
       },
-      stop: function () {
+      stop() {
         DatatableResizableIntegration.onResizeStop(widget, element.find('.header-cell'));
       },
-      resize: function (event, ui) {
+      resize(event, ui) {
         DatatableResizableIntegration.onResize(ui, paramsObject, element, tableHeader, tableBody, widget, this);
       }
     });

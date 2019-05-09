@@ -15,7 +15,7 @@ import java.util.List;
 
 import com.sirma.itt.seip.domain.definition.PropertyDefinition;
 import com.sirma.itt.seip.domain.instance.Instance;
-import com.sirma.itt.seip.instance.InstanceTypeResolver;
+import com.sirma.itt.seip.instance.DomainInstanceService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class PropertyValueEvaluatorTest {
 	@Mock
 	private Instance instance;
 	@Mock
-	private InstanceTypeResolver typeResolver;
+	private DomainInstanceService instanceService;
 
 	@Before
 	public void init() {
@@ -53,22 +53,22 @@ public class PropertyValueEvaluatorTest {
 	@Test
 	public void testSingleValue() {
 		ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
-		when(typeResolver.resolveInstances(captor.capture())).thenReturn(Collections.singletonList(mock(Instance
+		when(instanceService.loadInstances(captor.capture())).thenReturn(Collections.singletonList(mock(Instance
 				.class)));
-		cut.getInstances(instance, SINGLE_VALUE_PROPERTY_NAME, typeResolver);
+		cut.getInstances(instance, SINGLE_VALUE_PROPERTY_NAME, instanceService);
 		List<Object> asd = new ArrayList(captor.getValue());
 		assertEquals(1, asd.size());
-		verify(typeResolver).resolveInstances(any(Collection.class));
+		verify(instanceService).loadInstances(any(Collection.class));
 	}
 
 	@Test
 	public void testMultiValued() {
 		ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
-		when(typeResolver.resolveInstances(captor.capture())).thenReturn(Arrays.asList(mock(Instance
+		when(instanceService.loadInstances(captor.capture())).thenReturn(Arrays.asList(mock(Instance
 				.class), mock(Instance.class)));
-		cut.getInstances(instance, MULTI_VALUE_PROPERTY_NAME, typeResolver);
+		cut.getInstances(instance, MULTI_VALUE_PROPERTY_NAME, instanceService);
 		assertEquals(2, captor.getValue().size());
-		verify(typeResolver).resolveInstances(any(Collection.class));
+		verify(instanceService).loadInstances(any(Collection.class));
 	}
 
 	class PropertyValueEvaluatorMock implements PropertyValueEvaluator {
