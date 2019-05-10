@@ -46,14 +46,14 @@ To do that - on the master node execute `docker node update --label-add <label> 
 Some services require variables that specify external to the swarm host names and address - update the following services by adding the specified env vars before deploying the compose file.
 
 1. proxy
-  1.1 `NGINX_SERVER_NAME` - this is the host name of the machine service all http requests e.g. `example.com`
-  1.2. `NGINX_SERVER_NAME_INTERNAL` - some http services are proxied through port 8080 which should not be exposed to the world, usually this is paired with an internal address e.g. `internal.example.com`
-  1.3. `PROXY_INTERNAL_SERVICE_ADDR` - the full base url for acccessing internal services e.g. `http://internal.example.com:8080`
-  1.4. `PROXY_EXTERNAL_SERVICE_ADDR` - the base url for accessing public services e.g. https://example.com
+    * `NGINX_SERVER_NAME` - this is the host name of the machine service all http requests e.g. `example.com`
+    * `NGINX_SERVER_NAME_INTERNAL` - some http services are proxied through port 8080 which should not be exposed to the world, usually this is paired with an internal address e.g. `internal.example.com`
+    * `PROXY_INTERNAL_SERVICE_ADDR` - the full base url for acccessing internal services e.g. `http://internal.example.com:8080`
+    * `PROXY_EXTERNAL_SERVICE_ADDR` - the base url for accessing public services e.g. https://example.com
 2. wildfly
-  2.1. `IMAGE_SERVER_BASE_URL` - base address at where the iiif server serves images - usually this is the same as `PROXY_EXTERNAL_SERVICE_ADDR`
+    * `IMAGE_SERVER_BASE_URL` - base address at where the iiif server serves images - usually this is the same as `PROXY_EXTERNAL_SERVICE_ADDR`
 3. iiif
-  3.1. `BASE_URL` - bese url for iiif images - should be in the form <IMAGE_SERVER_BASE_URL>/iiif/fcgi-bin/iipsrv.fcgi?IIIF=
+    * `BASE_URL` - bese url for iiif images - should be in the form <IMAGE_SERVER_BASE_URL>/iiif/fcgi-bin/iipsrv.fcgi?IIIF=
 
 ## Service dependencies
 Some services require other to be up and running before they can start properly e.g. `wildfly` depends on the `db` service. This is controlled by an environment variable called `SERVICE_DEPENDENCIES`. It's value is a space separated list of `service_name:port` e.g. `SERVICE_DEPENDENCIES=db:5432 keycloak:8080`.
