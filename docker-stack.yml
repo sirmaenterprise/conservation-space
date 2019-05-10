@@ -29,8 +29,10 @@ services:
           constraints:
               - node.labels.com.sirma.sep.solr.audit==yes
     environment:
+      - SERVICE_DEPENDENCIES=db:5432
       - PROXY_SERVICE_DEF_MAIN=internal:solr-audit:/solr/audit/:http://solr-audit:8983
     volumes:
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
       - solr_audit_data:/var/lib/solr
       - solr_audit_logs:/opt/solr/server/logs
 
@@ -74,6 +76,7 @@ services:
         constraints:
           - node.labels.com.sirma.sep.idp==yes
     environment:
+      - SERVICE_DEPENDENCIES=db:5432 ldap:10389
       - HOST_NAME=idp
       - LDAP_USE_EMBEDDED=false
       - LDAP_HOST=ldap
@@ -85,6 +88,7 @@ services:
       - idp_data:/opt/wso2is/repository/data
       - idp_logs:/opt/wso2is/repository/logs
       - /etc/sep/certs:/opt/wso2is/repository/resources/keystore
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
 
   keycloak:
     image: docker-reg.sirmaplatform.com/cs-keycloak:2.28.0-SNAPSHOT
@@ -92,8 +96,8 @@ services:
       placement:
         constraints:
           - node.labels.com.sirma.sep.idp==yes
-    env_file: keycloak.env
     environment:
+      SERVICE_DEPENDENCIES: db:5432
       PROXY_SERVICE_DEF_MAIN: secure:keycloak:/auth:http://keycloak:8080
       MASTER_DISPLAY_NAME: "Conservation Space"
       MASTER_DISPLAY_NAME_HTML: "Conservation Space"
@@ -102,6 +106,7 @@ services:
     volumes:
       - keycloak_data:/opt/keycloak/standalone/data
       - keycloak_logs:/opt/keycloak/standalone/log
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
 
   ldap:
     image: docker-reg.sirmaplatform.com/sep-openldap:2.25.0
@@ -120,6 +125,7 @@ services:
         constraints:
           - node.labels.com.sirma.sep.dms==yes
     environment:
+      - SERVICE_DEPENDENCIES=db:5432 idp:9443
       - PROXY_SERVICE_DEF_MAIN=internal:alfresco:/alfresco:http://alfresco:8080
       - LDAP_HOST=ldap
       - LDAP_PORT=10389
@@ -130,6 +136,7 @@ services:
       - alfresco_logs:/opt/tomcat/logs
       - alfresco_data:/var/lib/alfresco
       - alfresco_solr_data:/var/lib/alfresco-solr
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
 
   graphdb:
     image: docker-reg.sirmaplatform.com/graphdb:8.3.1-u5
@@ -183,7 +190,6 @@ services:
       placement:
         constraints:
           - node.labels.com.sirma.sep.iiif==yes
-    env_file: iiif.env
     environment:
       - PROXY_SERVICE_DEF_MAIN=secure:iiif:/iiif:http://iiif
     volumes:
@@ -224,8 +230,9 @@ services:
       - /etc/sep/keystores:/opt/wildfly/standalone/configuration/sep/certs
       - /etc/sep/assets:/etc/sep/assets
       - wildfly_content:/opt/wildfly/standalone/data
-    env_file: wildfly.env
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
     environment:
+      - SERVICE_DEPENDENCIES=alfresco:8080 graphdb:8080 keycloak:8080
       - DB_NAME_AUDIT=sep
       - IDP_HOST=idp
       - IDP_PORT=9443
@@ -242,13 +249,16 @@ services:
         constraints:
           - node.labels.com.sirma.sep.web==yes
     environment:
+      - SERVICE_DEPENDENCIES=wildfly:8080
       - BACKEND_PROTOCOL=http
       - BACKEND_ADDR=wildfly:8080
       - BACKEND_CONTEXT_PATH=emf
       - PROXY_SERVICE_DEF_MAIN=secure:ui:/:http://ui
+    volumes:
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
+
   proxy:
     image: docker-reg.sirmaplatform.com/http-proxy:2.28.0-SNAPSHOT
-    env_file: proxy.env
     deploy:
       placement:
         constraints:
