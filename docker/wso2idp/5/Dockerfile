@@ -13,6 +13,7 @@ RUN \
 	(cd /opt; unzip wso2is.zip) && \
 	rm -f /opt/wso2is.zip && \
 	mv /opt/wso2is-5.0.0 /opt/wso2is && \
+	curl -sfL https://jdbc.postgresql.org/download/postgresql-9.0-802.jdbc4.jar > /opt/wso2is/lib/endorsed/postgresql-9.0-802.jdbc4.jar && \
 	mkdir -p $VOLUME_WSOIDP_DATA $VOLUME_WSOIDP_LOGS && \
 	chown -R $DOCKER_USER:$DOCKER_USER /opt/wso2is && \
 	apk --no-cache del unzip
