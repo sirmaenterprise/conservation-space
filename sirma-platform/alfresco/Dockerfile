@@ -27,7 +27,7 @@ RUN \
 	rm -rf webapps/* && \
 	mv alfresco.war webapps/ && \
 	mv /usr/bin/wkhtmltopdf /usr/bin/wkhtmltopdf-origin && \
-    chown -R $DOCKER_USER:$DOCKER_USER /opt/tomcat && \
+	chown -R $DOCKER_USER:$DOCKER_USER /opt/tomcat && \
 	chmod +x /docker-init.d/*.sh /usr/local/sbin/wkhtmltopdf /usr/local/sbin/healthcheck.sh && \
 	apk --no-cache del zip
 
