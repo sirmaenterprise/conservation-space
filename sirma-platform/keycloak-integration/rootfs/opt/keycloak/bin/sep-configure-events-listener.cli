@@ -1,0 +1,8 @@
+embed-server --server-config=standalone.xml
+
+batch
+
+/subsystem=keycloak-server/spi=eventsListener/:add
+/subsystem=keycloak-server/spi=eventsListener/provider=jms/:add(properties={include-events => "${JMS_INCLUDE_EVENTS}", include-clients => "${JMS_INCLUDE_CLIENTS}"}, enabled=true)
+
+run-batch

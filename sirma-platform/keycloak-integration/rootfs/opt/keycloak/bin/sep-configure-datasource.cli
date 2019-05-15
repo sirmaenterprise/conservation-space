@@ -1,0 +1,18 @@
+embed-server --server-config=standalone.xml
+
+batch
+
+/subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql, driver-module-name=org.postgresql.jdbc, driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource)
+
+/subsystem=datasources/data-source=KeycloakDS: remove()
+/subsystem=datasources/data-source=KeycloakDS: add(jndi-name=java:jboss/datasources/KeycloakDS,enabled=true,use-java-context=true,use-ccm=true,connection-url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME},driver-name=postgresql)
+/subsystem=datasources/data-source=KeycloakDS: write-attribute(name=user-name, value=${DB_USER})
+/subsystem=datasources/data-source=KeycloakDS: write-attribute(name=password, value=${DB_PASS})
+/subsystem=datasources/data-source=KeycloakDS: write-attribute(name=check-valid-connection-sql, value="SELECT 1")
+/subsystem=datasources/data-source=KeycloakDS: write-attribute(name=background-validation, value=${DB_VALIDATION})
+/subsystem=datasources/data-source=KeycloakDS: write-attribute(name=background-validation-millis, value=${DB_VALIDATION_MS})
+/subsystem=datasources/data-source=KeycloakDS: write-attribute(name=flush-strategy, value=${DB_FLUSH_STRATEGY})
+
+run-batch
+
+stop-embedded-server

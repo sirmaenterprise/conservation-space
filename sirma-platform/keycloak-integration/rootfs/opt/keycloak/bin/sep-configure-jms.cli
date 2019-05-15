@@ -1,0 +1,40 @@
+embed-server --server-config=standalone.xml
+
+/extension=org.wildfly.extension.messaging-activemq:add
+
+batch
+
+/subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+/subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="${ejb.resource-adapter-name:activemq-ra.rar}")
+
+/subsystem=messaging-activemq:add
+/subsystem=messaging-activemq/server=default:add
+/subsystem=messaging-activemq/server=default/security-setting=#:add
+/subsystem=messaging-activemq/server=default/address-setting=#:add(dead-letter-address="jms.queue.DLQ", expiry-address="jms.queue.ExpiryQueue", expiry-delay="2000", max-delivery-attempts="20", max-size-bytes="10485760", page-size-bytes="5242880", message-counter-history-day-limit="14", address-full-policy="PAGE")
+/subsystem=messaging-activemq/server=default/http-connector=http-connector:add(socket-binding="http", endpoint="http-acceptor")
+/subsystem=messaging-activemq/server=default/http-connector=http-connector-throughput:add(socket-binding="http", endpoint="http-acceptor-throughput" ,params={batch-delay="50"})
+/subsystem=messaging-activemq/server=default/in-vm-connector=in-vm:add(server-id="0")
+
+/subsystem=messaging-activemq/server=default/remote-connector=remote-jms:add(socket-binding="remote-jms")
+/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=remote-jms:add(host="${JMS_HOST}", port="${JMS_PORT}")
+
+/subsystem=messaging-activemq/server=default/http-acceptor=http-acceptor:add(http-listener="default")
+/subsystem=messaging-activemq/server=default/http-acceptor=http-acceptor-throughput:add(http-listener="default", params={batch-delay="50", direct-deliver="false"})
+/subsystem=messaging-activemq/server=default/in-vm-acceptor=in-vm:add(server-id="0")
+
+/subsystem=messaging-activemq/server=default/jms-queue=ExpiryQueue:add(entries=["java:/jms.queue.ExpiryQueue"])
+/subsystem=messaging-activemq/server=default/jms-queue=DLQ:add(entries=["java:/jms.queue.DLQ"])
+
+/subsystem=messaging-activemq/server=default/jms-queue=EventsQueue_DLQ:add(entries=["java:/jms.queue.EventsQueue_DLQ"])
+/subsystem=messaging-activemq/server=default/jms-queue=EventsQueue:add(entries=["java:/jms.queue.EventsQueue"])
+/subsystem=messaging-activemq/server=default/address-setting=jms.queue.EventsQueue:add(dead-letter-address="jms.queue.EventsQueue_DLQ", redelivery-delay="${JMS_REDELIVERY_DELAY}", max-delivery-attempts="${JMS_MAX_DELIVERY_ATTEMPTS}", max-size-bytes="10485760", page-size-bytes="5242880", message-counter-history-day-limit="14", address-full-policy="PAGE")
+
+/subsystem=messaging-activemq/server=default/jms-queue=UserEventsTopic_DLQ:add(entries=["java:/jms.queue.UserEventsTopic_DLQ"])
+/subsystem=messaging-activemq/server=default/jms-topic=UserEventsTopic:add(entries=["jms.topic.UserEventsTopic java:jboss/exported/jms.topic.UserEventsTopic"])
+/subsystem=messaging-activemq/server=default/address-setting=jms.topic.UserEventsTopic:add(dead-letter-address="jms.queue.UserEventsTopic_DLQ", redelivery-delay="${JMS_REDELIVERY_DELAY}", max-delivery-attempts="${JMS_MAX_DELIVERY_ATTEMPTS}", max-size-bytes="10485760", page-size-bytes="5242880", message-counter-history-day-limit="14", address-full-policy="PAGE")
+
+/subsystem=messaging-activemq/server=default/connection-factory=InVmConnectionFactory:add(connectors=["in-vm"], entries=["java:/ConnectionFactory"])
+/subsystem=messaging-activemq/server=default/connection-factory=remote-jms:add(connectors=["remote-jms"], entries=["java:/jms/remoteCF java:jboss/exported/jms/remoteCF"], protocol-manager-factory="org.apache.activemq.artemis.core.protocol.hornetq.client.HornetQClientProtocolManagerFactory")
+/subsystem=messaging-activemq/server=default/pooled-connection-factory=activemq-ra:add(transaction="xa", connectors=["in-vm"], entries=["java:/JmsXA java:jboss/DefaultJMSConnectionFactory"])
+
+run-batch
