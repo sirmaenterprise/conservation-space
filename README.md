@@ -51,6 +51,7 @@ Some services require variables that specify external to the swarm host names an
     * `PROXY_INTERNAL_SERVICE_ADDR` - the full base url for acccessing internal services e.g. `http://internal.example.com:8080`
     * `PROXY_EXTERNAL_SERVICE_ADDR` - the base url for accessing public services e.g. https://example.com
 2. wildfly
+    * `HOST` - an externaly resolvable hostname for the deployment, usually `NGINX_SERVER_NAME`
     * `IMAGE_SERVER_BASE_URL` - base address at where the iiif server serves images - usually this is the same as `PROXY_EXTERNAL_SERVICE_ADDR`
 3. iiif
     * `BASE_URL` - bese url for iiif images - should be in the form <IMAGE_SERVER_BASE_URL>/iiif/fcgi-bin/iipsrv.fcgi?IIIF=
