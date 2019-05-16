@@ -10,7 +10,7 @@ ENV JBOSS_HOME="$wildfly_home_dir" \
 COPY rootfs/ /
 
 RUN \
-	apk --no-cache add tar && \
+	apk --no-cache add tar nss && \
 	mkdir -p $wildfly_home_dir && \
 	curl http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz | tar -xz --strip-components=1 -C $wildfly_home_dir && \
 	rm -rf $wildfly_home_dir/README.txt \
