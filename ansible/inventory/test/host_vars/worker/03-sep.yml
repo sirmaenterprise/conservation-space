@@ -1,0 +1,91 @@
+---
+sep:
+  provision:
+    graphdb:
+      license: .editorconfig
+
+    stack_files:
+      - stack.yml
+
+    service_env_files:
+      db:
+        WORK_MEM: 48MB
+        MAX_CONNECTIONS: 500
+        MAX_PREPARED_TRANSACTIONS: 500
+        EFFECTIVE_CACHE_SIZE: 3072MB
+        SHARED_BUFFERS: 1280MB
+      solr-audit:
+        SERVICE_DEPENDENCIES: db:5432
+        PROXY_SERVICE_DEF_MAIN: internal:solr-audit:/solr/audit/:http://solr-audit:8983
+      solr:
+        SOLR_HEAP: 4096m
+        PROXY_SERVICE_DEF_MAIN: internal:solr-core:/solr/core/:http://solr:8983
+      idp:
+        MAIL_FROM: notifications@example.com
+        MAIL_USER: notifications@example.com
+        MAIL_PASS: LKAsdL@4f
+        MAIL_HOST: mail.example.com
+        MAIL_PORT: 25
+        MAIL_START_TLS: false
+        MAIL_AUTH: true
+        HOST_NAME: idp
+        LDAP_USE_EMBEDDED: false
+        LDAP_HOST: ldap
+        LDAP_PORT: 10389
+        LDAP_USERNAME: cn=Manager,dc=EXAMPLE,dc=US
+        LDAP_PASSWORD: secret
+        SERVICE_DEPENDENCIES: db:5432 ldap:10389
+        PROXY_SERVICE_DEF_MAIN: secure:idp:/sso:https://idp:9443
+      graphdb:
+        HOST_NAME: graphdb.example.com
+        GDB_HEAP_SIZE: 8g
+        PROXY_SERVICE_DEF_MAIN: internal:graphdb:/graphdb/:http://graphdb:8080
+      iiif:
+        PROXY_SERVICE_DEF_MAIN: secure:iiif:/iiif:http://iiif
+      alfresco:
+        PROXY_SERVICE_DEF_MAIN: internal:alfresco:/alfresco:http://alfresco:8080
+        SERVICE_DEPENDENCIES: db:5432 idp:9443
+        LDAP_HOST: ldap
+        LDAP_PORT: 10389
+        LDAP_USERNAME: cn\=Manager,dc\=EXAMPLE,dc\=US
+        LDAP_PASSWORD: secret
+        JAVA_OPTS: -XX:MaxPermSize=512m -Xms4g -Xmx4g -XX:+UseG1GC
+      ftp:
+        PASV_PROMISCUOUS: YES
+        FTP_USER: ftpuser
+        FTP_USER_PASS: ftpuserpass
+      keycloak:
+        SERVICE_DEPENDENCIES: db:5432
+        PROXY_SERVICE_DEF_MAIN: secure:keycloak:/auth:http://keycloak:8080
+        MASTER_DISPLAY_NAME: "Conservation Space"
+        MASTER_DISPLAY_NAME_HTML: "Conservation Space"
+      wildfly:
+        SERVICE_DEPENDENCIES: alfresco:8080 graphdb:8080 keycloak:8080
+        IDP_HOST: idp
+        IDP_PORT: 9443
+        HOST: example.com
+        REMOTE_DEBUG: yes
+        PROXY_SERVICE_DEF_MAIN: secure:sep:/remote:http://wildfly:8080
+        PROXY_SERVICE_DEF_PROMETHEUS: internal:sep-prometheus:/emf/prometheus:http://wildfly:8080
+        JAVA_OPTS: -XX:MaxPermSize=512m -Xms6g -Xmx6g -XX:+UseG1GC -Djava.net.preferIPv4Stack=true
+      ui:
+        SERVICE_DEPENDENCIES: wildfly:8080
+        BACKEND_PROTOCOL: http
+        BACKEND_ADDR: wildfly:8080
+        BACKEND_CONTEXT_PATH: emf
+        PROXY_SERVICE_DEF_MAIN: secure:ui:/:http://ui
+      proxy:
+        NGINX_SERVER_NAME: example.com
+        NGINX_SERVER_NAME_INTERNAL: internal.example.com
+        PROXY_INTERNAL_SERVICE_ADDR: http://internal.example.com:8080
+        PROXY_EXTERNAL_SERVICE_ADDR: https://example.com
+
+    etc_hosts:
+      - host: public.example.com
+        ip: 192.168.0.100
+
+  deploy:
+    stacks:
+      sep:
+        name: test
+        file: /etc/sep/stacks/stack.yml

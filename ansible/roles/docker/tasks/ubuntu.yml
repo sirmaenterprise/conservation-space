@@ -1,0 +1,13 @@
+---
+- name: load ubuntu vars
+  include_vars: ubuntu-vars.yml
+
+- name: add docker apt keys
+  apt_key:
+    url: 'https://download.docker.com/linux/ubuntu/gpg'
+    state: present
+
+- name: add docker apt stable repo
+  apt_repository:
+    repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu    {{ansible_distribution_release}}    stable'
+    state: present

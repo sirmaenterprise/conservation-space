@@ -1,0 +1,70 @@
+# A separate OpenLDAP service was introduced in version 2.21.0-SNAPSHOT.
+# The tasks here migrate the data from the embedded wso2is ldap to OpenLDAP.
+# To do so we deploy a stack containing only the database, wso2is, openldap and the migration services.
+# The migration service waits until wso2is and openldap are up, connects to them and performs the migration.
+# For more info: https://ses.sirmaplatform.com/#/idoc/emf:cae72a6b-8cf3-4497-8eca-d88cb5dbe391 (first variant)
+
+- name: 'openldap migration: list sep volumes'
+  shell: |
+    docker volume ls --format='{{ "{{.Name}}" }}'
+  register: sep_volumes
+
+- name: 'openldap migration: create openldap_migration_idp_hosts'
+  add_host:
+    hostname: '{{ item }}'
+    group: 'openldap_migration_idp_hosts'
+  with_items: '{{ play_hosts }}'
+  when: "'com.sirma.sep.idp=yes' in hostvars[item].docker_labels"
+
+# Set a new fact indicating whether or not the migration should be performed.
+# The migration should be performed if there is a data volume for wso2is and there is no data volume for openldap.
+- name: 'openldap migration: determine if migration should be performed'
+  vars:
+    openldap_volume_name: '{{ sep.deploy.stacks.sep.name }}_ldap_data'
+    idp_volume_name: '{{ sep.deploy.stacks.sep.name }}_idp_data'
+    has_idp_data_volume: "{{ idp_volume_name in hostvars[groups['openldap_migration_idp_hosts'][0]].sep_volumes.stdout_lines }}"
+    has_openldap_data_volume: "{{ openldap_volume_name in hostvars[groups['openldap_migration_idp_hosts'][0]].sep_volumes.stdout_lines }}"
+  set_fact:
+    perform_openldap_migration: "{{ has_idp_data_volume and not has_openldap_data_volume }}"
+
+- name: 'openldap migration: provision migration stack'
+  get_url:
+    url: '{{nexus_url}}/repository/cold-storage/sep/docker/stacks/ldap-migration.yml'
+    dest: /etc/sep/stacks/ldap-migration.yml
+  run_once: yes
+  delegate_to: "{{groups['swarm-managers'][0]}}"
+  when: 'perform_openldap_migration'
+
+- name: 'openldap migration: stop sep stack'
+  shell: |
+    docker stack rm {{ sep.deploy.stacks.sep.name }}
+  run_once: yes
+  delegate_to: "{{groups['swarm-managers'][0]}}"
+  when: 'perform_openldap_migration'
+
+- name: 'openldap migration: deploy migration stack'
+  shell: |
+    docker stack deploy --compose-file /etc/sep/stacks/ldap-migration.yml {{ sep.deploy.stacks.sep.name }}
+  register: deploy_result
+  until: deploy_result.rc == 0
+  retries: 10
+  run_once: yes
+  delegate_to: "{{groups['swarm-managers'][0]}}"
+  when: 'perform_openldap_migration'
+
+- name: 'openldap migration: wait for the migration to complete'
+  shell: |
+    docker service logs --tail 1000 {{ sep.deploy.stacks.sep.name }}_migrator | grep 'Successful migration'
+  delegate_to: "{{groups['swarm-managers'][0]}}"
+  register: openldap_migration_result
+  until: openldap_migration_result.rc == 0
+  retries: 30
+  delay: 10
+  when: 'perform_openldap_migration'
+
+- name: 'openldap migration: stop migration stack'
+  shell: |
+    docker stack rm {{ sep.deploy.stacks.sep.name }}
+  run_once: yes
+  delegate_to: "{{groups['swarm-managers'][0]}}"
+  when: 'perform_openldap_migration'

@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/openjdk-jdk:8-u1
+ARG docker_registry=
+FROM $docker_registry/openjdk-jdk:8
 
 ARG keycloak_version=4.3.0.Final
 ARG keycloak_dl_url=https://downloads.jboss.org/keycloak/$keycloak_version/keycloak-$keycloak_version.tar.gz

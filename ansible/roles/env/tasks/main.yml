@@ -1,0 +1,63 @@
+---
+# needed by elasticsearch
+- name: Increase vm.max_map_count
+  sysctl:
+    name: vm.max_map_count
+    value: 262144
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+# detect dead/idle connections more accurately - CMF-27603 https://serverfault.com/a/885878
+- name: Set tcp keep alive time
+  sysctl:
+    name: net.ipv4.tcp_keepalive_time
+    value: 600
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Set tcp keep alive interval
+  sysctl:
+    name: net.ipv4.tcp_keepalive_intvl
+    value: 60
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+# 001
+# turn off IPv6
+# TODO: see if enabling IPv6 in docker daemon config will not require these anymore https://docs.docker.com/config/daemon/ipv6/ 
+- name: turn off net.bridge.bridge-nf-call-ip6tables
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: turn off net.ipv6.conf.all.disable_ipv6
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: turn off net.ipv6.conf.default.disable_ipv6
+  sysctl:
+    name: net.ipv6.conf.default.disable_ipv6
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+# end 001
+
+- name: Set tcp keep alive probes
+  sysctl:
+    name: net.ipv4.tcp_keepalive_probes
+    value: 3
+    sysctl_set: yes
+    state: present
+    reload: yes

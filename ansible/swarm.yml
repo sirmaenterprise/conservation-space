@@ -1,0 +1,120 @@
+---
+- hosts: swarm-managers
+  become: true
+  tasks:
+    - name: determine swarm status
+      shell: docker info --format="{{ '{{' }} .Swarm.LocalNodeState {{ '}}' }}"
+      register: swarm_status
+
+    - name: create swarm_manager_operational group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_manager_operational
+      with_items: "{{ play_hosts }}"
+      when: "'active' in hostvars[item]['swarm_status'].stdout_lines"
+
+    - name: create swarm_manager_bootstrap group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_manager_bootstrap
+      with_items: "{{ play_hosts }}"
+      when: "'active' not in hostvars[item]['swarm_status'].stdout_lines"
+
+- hosts: swarm-workers
+  become: true
+  tasks:
+    - name: determine swarm status
+      shell: docker info --format="{{ '{{' }} .Swarm.LocalNodeState {{ '}}' }}"
+      register: swarm_status
+
+    - name: create swarm_worker_operational group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_worker_operational
+      with_items: "{{ play_hosts }}"
+      when: "'active' in hostvars[item]['swarm_status'].stdout_lines"
+
+    - name: create swarm_worker_bootstrap group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_worker_bootstrap
+      with_items: "{{ play_hosts }}"
+      when: "'active' not in hostvars[item]['swarm_status'].stdout_lines"
+
+- hosts: swarm_manager_bootstrap[0]
+  become: true
+  tasks:
+    - name: initialize swarm cluster
+      shell: docker swarm init --advertise-addr={{ swarm_iface }}
+      when: "(groups.swarm_manager_operational | default([])) | length == 0"
+      register: bootstrap_first_node
+
+    - name: add initialized host to swarm_manager_operational group
+      add_host:
+        hostname: "{{ play_hosts[0] }}"
+        groups: swarm_manager_operational
+      when: bootstrap_first_node is changed
+
+- hosts: swarm_manager_operational[0]
+  become: true
+  tasks:
+    - name: retrieve swarm manager token
+      shell: docker swarm join-token -q manager
+      register: swarm_manager_token
+
+    - name: retrieve swarm worker token
+      shell: docker swarm join-token -q worker
+      register: swarm_worker_token
+
+    - name: retrieve swarm join address
+      shell: docker info --format="{{ '{{' }} .Swarm.NodeAddr {{ '}}' }}"
+      register: swarm_join_addr
+
+    - name: save join address
+      set_fact:
+        join_addr: "{{swarm_join_addr.stdout}}"
+        join_manager_token: "{{swarm_manager_token.stdout}}"
+        join_worker_token: "{{swarm_worker_token.stdout}}"
+
+- hosts: swarm_manager_bootstrap:!swarm_manager_operational
+  become: true
+  vars:
+    join_manager_addr: "{{ hostvars[groups['swarm_manager_operational'][0]]['join_addr'] }}"
+    token: "{{ hostvars[groups['swarm_manager_operational'][0]]['join_manager_token'] }}"
+  tasks:
+    - name: join manager nodes to cluster
+      shell: docker swarm join --advertise-addr={{ swarm_iface }} --token={{ token }} {{ join_manager_addr }}
+
+- hosts: swarm_worker_bootstrap
+  become: true
+  vars:
+    join_manager_addr: "{{ hostvars[groups['swarm_manager_operational'][0]]['join_addr'] }}"
+    token: "{{ hostvars[groups['swarm_manager_operational'][0]]['join_worker_token'] }}"
+  tasks:
+    - name: join manager nodes to cluster
+      shell: docker swarm join --token={{ token }} {{ join_manager_addr }}
+
+- hosts: swarm-nodes
+  become: true
+  tasks:
+    - name: get docker node id
+      shell: docker info --format="{{ '{{' }} .Swarm.NodeID {{ '}}' }}"
+      register: node_id
+
+    - name: set docker node labels
+      shell: 'docker node update --label-add {{item}} {{node_id.stdout}}'
+      delegate_to: "{{ groups['swarm-managers'][0] }}"
+      with_items: '{{docker_labels}}'
+
+- hosts: swarm_manager_operational
+  become: true
+  tasks:
+    - name: list all docker networks
+      command: docker network ls --format {{'{{'}}.Name{{'}}'}}
+      register: docker_networks
+
+    - name: create sep-monitoring overlay network
+      command: docker network create --driver overlay sep-monitoring
+      delegate_to: "{{ groups['swarm-managers'][0] }}"
+      run_once: yes
+      when: "'sep-monitoring' not in docker_networks.stdout_lines"

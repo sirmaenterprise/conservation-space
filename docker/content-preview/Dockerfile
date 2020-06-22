@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/libreoffice:6.1-u1
+ARG docker_registry=
+FROM $docker_registry/libreoffice:6.1-u1
 
 ARG DEBIAN_FRONTEND=noninteractive
 

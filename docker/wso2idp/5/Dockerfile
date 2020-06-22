@@ -1,4 +1,13 @@
-FROM docker-reg.sirmaplatform.com/openjdk-jre:7-base-1
+ARG docker_registry=
+FROM $docker_registry/openjdk-jre:7-base-1
+
+RUN \
+	apk --no-cache add unzip && \
+	curl -f 'https://product-dist.wso2.com/products/identity-server/5.0.0/wso2is-5.0.0.zip' -H 'Referer: https://wso2.com/identity-and-access-management/previous-releases/' --compressed > /opt/wso2is-5.0.0.zip && \
+	unzip /opt/wso2is-5.0.0.zip -d /opt && \
+	mv /opt/wso2is-5.0.0 /opt/wso2is && \
+	rm -f /opt/wso2is-5.0.0.zip && \
+	apk --no-cache del unzip
 
 ENV SERVICE_DIR_WSO2IS_HOME="/opt/wso2is" \
 	VOLUME_WSOIDP_LOGS="/opt/wso2is/repository/logs" \
@@ -7,16 +16,9 @@ ENV SERVICE_DIR_WSO2IS_HOME="/opt/wso2is" \
 COPY rootfs/ /
 
 RUN \
-	apk --no-cache add unzip && \
 	chmod +x /usr/sbin/healthcheck.sh && \
-	curl -sfL --referer "http://connect.wso2.com/wso2/getform/reg/new_product_download" http://dist.wso2.org/products/identity-server/5.0.0/wso2is-5.0.0.zip > /opt/wso2is.zip && \
-	(cd /opt; unzip wso2is.zip) && \
-	rm -f /opt/wso2is.zip && \
-	mv /opt/wso2is-5.0.0 /opt/wso2is && \
-	curl -sfL https://jdbc.postgresql.org/download/postgresql-9.0-802.jdbc4.jar > /opt/wso2is/lib/endorsed/postgresql-9.0-802.jdbc4.jar && \
 	mkdir -p $VOLUME_WSOIDP_DATA $VOLUME_WSOIDP_LOGS && \
-	chown -R $DOCKER_USER:$DOCKER_USER /opt/wso2is && \
-	apk --no-cache del unzip
+	chown -R $DOCKER_USER:$DOCKER_USER /opt/wso2is
 
 WORKDIR /opt/wso2is
 

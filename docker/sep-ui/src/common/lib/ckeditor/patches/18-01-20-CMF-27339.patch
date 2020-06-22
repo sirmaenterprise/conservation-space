@@ -1,0 +1,292 @@
+Index: src/common/lib/ckeditor/plugins/basewidget/plugin.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/plugins/basewidget/plugin.js	(revision d6e9327116b9c54bbb368545b65aa3af1b685191)
++++ src/common/lib/ckeditor/plugins/basewidget/plugin.js	(revision )
+@@ -84,7 +84,7 @@
+         var icon = document.createElement('span');
+         icon.className = "glyphicon" + definition.icon;
+         button.appendChild(icon);
+-        var textNode = document.createTextNode(definition.label);
++        var textNode = document.createTextNode(configuration.defaultButtons[definition.label].buttonLabel || definition.label);
+         button.appendChild(textNode);
+ 
+         return button;
+@@ -314,4 +314,4 @@
+ // Adds @method addWidget to the global namespace.
+ CKEDITOR.tools.extend(CKEDITOR.basewidget, {
+   addWidget: addWidget
+-});
+\ No newline at end of file
++});
+Index: src/common/lib/ckeditor/plugins/bootstrapalerts/plugin.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/plugins/bootstrapalerts/plugin.js	(revision d6e9327116b9c54bbb368545b65aa3af1b685191)
++++ src/common/lib/ckeditor/plugins/bootstrapalerts/plugin.js	(revision )
+@@ -34,9 +34,10 @@
+               onClick: function () {
+                 bootstapAlerts.editor.bootstrapalerts.selectedWidget = this;
+                 bootstapAlerts.editor.execCommand('bootstrapalertsEditDialog');
++              },
++              buttonLabel: CKEDITOR.lang[editor.langCode].edit
+-              }
+-            }
++            }
++          }
+-          }
+         },
+         onDestroy: function () {
+ 
+@@ -54,9 +55,8 @@
+   CKEDITOR.basewidget.addWidget(editor, name, def);
+ 
+   editor.ui.addButton('Info', {
+-    //TODO internalisation
+     icon: 'bootstrapalerts',
+-    title: 'Info widget',
++    title: CKEDITOR.lang[editor.langCode].infoWidget,
+     command: 'bootstrapalertsAddDialog'
+   });
+ 
+@@ -122,8 +122,7 @@
+   var id = 'editDialog';
+   CKEDITOR.dialog.add(id, function (editor) {
+     return {
+-      //TODO internalisation
+-      title: 'Edit type of info-box',
++      title: CKEDITOR.lang[editor.langCode].infoWidgetEdit,
+       id: id,
+       buttons: [CKEDITOR.dialog.cancelButton],
+       width: '100',
+@@ -167,8 +166,7 @@
+   var id = 'addDialog';
+   CKEDITOR.dialog.add(id, function (editor) {
+     return {
+-      //TODO internalisation
+-      title: 'Choose type of info-box',
++      title: CKEDITOR.lang[editor.langCode].infoWidgetSelect,
+       id: id,
+       buttons: [CKEDITOR.dialog.cancelButton],
+       width: '100',
+@@ -184,4 +182,4 @@
+     };
+   });
+   return id;
+-};
+\ No newline at end of file
++};
+Index: src/common/lib/ckeditor/lang/bg.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/lang/bg.js	(revision d6e9327116b9c54bbb368545b65aa3af1b685191)
++++ src/common/lib/ckeditor/lang/bg.js	(revision )
+@@ -33,13 +33,13 @@
+       "deleteCell": "Изтриване на клетки",
+       "merge": "Сливане на клетки",
+       "mergeRight": "Сливане в дясно",
+-      "mergeDown": "Merge Down",
+-      "splitHorizontal": "Split Cell Horizontally",
+-      "splitVertical": "Split Cell Vertically",
++      "mergeDown": "Сливане надолу",
++      "splitHorizontal": "Раздели клетката хоризонтално",
++      "splitVertical": "Раздели клетката вертикално",
+       "title": "Настройки на клетката",
+       "cellType": "Тип на клетката",
+-      "rowSpan": "Rows Span",
+-      "colSpan": "Columns Span",
++      "rowSpan": "Брой редове",
++      "colSpan": "Брой колони",
+       "wordWrap": "Авто. пренос",
+       "hAlign": "Хоризонтално подравняване",
+       "vAlign": "Вертикално подравняване",
+@@ -50,10 +50,10 @@
+       "header": "Хедър",
+       "yes": "Да",
+       "no": "Не",
+-      "invalidWidth": "Cell width must be a number.",
+-      "invalidHeight": "Cell height must be a number.",
+-      "invalidRowSpan": "Rows span must be a whole number.",
+-      "invalidColSpan": "Columns span must be a whole number.",
++      "invalidWidth": "Широчината на клетката трябва да е число.",
++      "invalidHeight": "Височината на клетката трябва да е число.",
++      "invalidRowSpan": "Броя редове трябва да е цяло число.",
++      "invalidColSpan": "Броя колони трябва да е цяло число.",
+       "chooseColor": "Изберете"
+     },
+     "cellPad": "Отделяне на клетките",
+@@ -97,21 +97,21 @@
+   "quicktable": {"more": "Още..."},
+   "pastetext": {
+     "button": "Вмъкни като чист текст",
+-    "pasteNotification": "Your browser does not allow you to paste plain text this way. Press %1 to paste."
++    "pasteNotification": "Вашият браузър не позволява да вмъквате чист текст по този начин. Натиснете %1 за да вмъкнете."
+   },
+   "pastefromword": {
+-    "confirmCleanup": "The text you want to paste seems to be copied from Word. Do you want to clean it before pasting?",
+-    "error": "It was not possible to clean up the pasted data due to an internal error",
++    "confirmCleanup": "Текста който искате да вмъкнете изглежда копиран от Word. Желаете ли да се изчисти преди вмъкването?",
++    "error": "Изчистването на вмъкнатата информация беше невъзможно поради интернет грешка.",
+     "title": "Вмъкни от MS Word",
+     "toolbar": "Вмъкни от MS Word"
+   },
+   "pagebreak": {"alt": "Разделяне на страници", "toolbar": "Вмъкване на нова страница при печат"},
+-  "notification": {"closed": "Notification closed."},
++  "notification": {"closed": "Съобщението е затворено."},
+   "maximize": {"maximize": "Максимизиране", "minimize": "Минимизиране"},
+   "magicline": {"title": "Вмъкнете параграф тук"},
+   "liststyle": {
+     "armenian": "Арменско номериране",
+-    "bulletedTitle": "Bulleted List Properties",
++    "bulletedTitle": "Настройки за неподреден списък",
+     "circle": "Кръг",
+     "decimal": "Числа (1, 2, 3 и др.)",
+     "decimalLeadingZero": "Числа с водеща нула (01, 02, 03 и т.н.)",
+@@ -122,17 +122,17 @@
+     "lowerRoman": "Малки римски числа (i, ii, iii, iv, v и т.н.)",
+     "none": "Няма",
+     "notset": "<не е указано>",
+-    "numberedTitle": "Numbered List Properties",
++    "numberedTitle": "Настройки за подреден списък",
+     "square": "Квадрат",
+     "start": "Старт",
+     "type": "Тип",
+     "upperAlpha": "Големи букви (А, Б, В, Г, Д и т.н.)",
+     "upperRoman": "Големи римски числа (I, II, III, IV, V и т.н.)",
+-    "validateStartNumber": "List start number must be a whole number."
++    "validateStartNumber": "Началното число на списъка трябва да бъде цяло."
+   },
+   "list": {
+-    "bulletedlist": "Вмъкване/Премахване на точков списък",
+-    "numberedlist": "Вмъкване/Премахване на номериран списък"
++    "bulletedlist": "Вмъкване/Премахване на неподреден списък",
++    "numberedlist": "Вмъкване/Премахване на подреден списък"
+   },
+   "link": {
+     "acccessKey": "Ключ за достъп",
+@@ -151,8 +151,8 @@
+     "anchorName": "По име на котва",
+     "charset": "Тип на свързания ресурс",
+     "cssClasses": "Класове за CSS",
+-    "download": "Force Download",
+-    "displayText": "Display Text",
++    "download": "Изтегляне",
++    "displayText": "Покажи текст",
+     "emailAddress": "E-mail aдрес",
+     "emailBody": "Съдържание",
+     "emailSubject": "Тема",
+@@ -242,7 +242,7 @@
+   },
+   "find": {
+     "find": "Търсене",
+-    "findOptions": "Find Options",
++    "findOptions": "Опции за търсене",
+     "findWhat": "Търси за:",
+     "matchCase": "Съвпадение",
+     "matchCyclic": "Циклично съвпадение",
+@@ -250,7 +250,7 @@
+     "notFoundMsg": "Указаният текст не е намерен.",
+     "replace": "Препокриване",
+     "replaceAll": "Препокрий всички",
+-    "replaceSuccessMsg": "%1 occurrence(s) replaced.",
++    "replaceSuccessMsg": "%1 съвпадения са заменени.",
+     "replaceWith": "Препокрива с:",
+     "title": "Търсене и препокриване"
+   },
+@@ -346,7 +346,7 @@
+     "cut": "Отрежи",
+     "cutError": "Настройките за сигурност на Вашия браузър не позволяват на редактора автоматично да изъплни действията за отрязване. Моля ползвайте клавиатурните команди за целта (ctrl+x).",
+     "paste": "Вмъкни",
+-    "pasteNotification": "Your browser doesn't allow you to paste this way. Press %1 to paste."
++    "pasteNotification": "Вашият браузър не разрешава да вмъквате по този начин. Натиснете %1 за да вмъкнете."
+   },
+   "button": {"selectedLabel": "%1 (Избрано)"},
+   "blockquote": {"toolbar": "Блок за цитат"},
+@@ -440,6 +440,10 @@
+       "46": "Delete",
+       "224": "Command"
+     },
+-    "keyboardShortcut": "Keyboard shortcut"
+-  }
++    "keyboardShortcut": "Клавишни комбинации"
++  },
++  "infoWidget": "Информационнен уиджет",
++  "infoWidgetSelect": "Избери типа на уиджета",
++  "infoWidgetEdit": "Редактирай типа на уиджета",
++  "edit": "Редактирай"
+ };
+\ No newline at end of file
+Index: src/common/lib/ckeditor/plugins/liststyle/lang/bg.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/plugins/liststyle/lang/bg.js	(revision d6e9327116b9c54bbb368545b65aa3af1b685191)
++++ src/common/lib/ckeditor/plugins/liststyle/lang/bg.js	(revision )
+@@ -4,7 +4,7 @@
+ */
+ CKEDITOR.plugins.setLang( 'liststyle', 'bg', {
+ 	armenian: 'Арменско номериране',
+-	bulletedTitle: 'Bulleted List Properties',
++	bulletedTitle: 'Настройки за неподреден списък',
+ 	circle: 'Кръг',
+ 	decimal: 'Числа (1, 2, 3 и др.)',
+ 	decimalLeadingZero: 'Числа с водеща нула (01, 02, 03 и т.н.)',
+@@ -15,11 +15,11 @@
+ 	lowerRoman: 'Малки римски числа (i, ii, iii, iv, v и т.н.)',
+ 	none: 'Няма',
+ 	notset: '<не е указано>',
+-	numberedTitle: 'Numbered List Properties',
++	numberedTitle: 'Настройки за подреден списък',
+ 	square: 'Квадрат',
+ 	start: 'Старт',
+ 	type: 'Тип',
+ 	upperAlpha: 'Големи букви (А, Б, В, Г, Д и т.н.)',
+ 	upperRoman: 'Големи римски числа (I, II, III, IV, V и т.н.)',
+-	validateStartNumber: 'List start number must be a whole number.'
++	validateStartNumber: 'Началното число на списъка трябва да бъде цяло.'
+ } );
+Index: src/common/lib/ckeditor/lang/en.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/lang/en.js	(revision d6e9327116b9c54bbb368545b65aa3af1b685191)
++++ src/common/lib/ckeditor/lang/en.js	(revision )
+@@ -433,5 +433,9 @@
+       "224": "Command"
+     },
+     "keyboardShortcut": "Keyboard shortcut"
+-  }
++  },
++  "infoWidget": "Info widget",
++  "infoWidgetSelect": "Choose type of info-box",
++  "infoWidgetEdit": "Edit type of info-box",
++  "edit": "Edit"
+ };
+\ No newline at end of file
+Index: src/common/lib/ckeditor/lang/de.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/lang/de.js	(revision d6e9327116b9c54bbb368545b65aa3af1b685191)
++++ src/common/lib/ckeditor/lang/de.js	(revision )
+@@ -433,5 +433,9 @@
+       "224": "Befehl"
+     },
+     "keyboardShortcut": "Tastaturkürzel"
+-  }
++  },
++  "infoWidget": "Info widget",
++  "infoWidgetSelect": "Wählen Sie den Widget-Typ",
++  "infoWidgetEdit": "Bearbeiten Sie den Widget-Typ",
++  "edit": "Bearbeiten"
+ };
+\ No newline at end of file

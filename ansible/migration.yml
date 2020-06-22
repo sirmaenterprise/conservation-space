@@ -1,0 +1,25 @@
+# All tasks in this playbook are executed on all hosts contained in the 'swarm-nodes' group.
+# If a task shouldn't be executed on a particular host it should be filtered using a when expression.
+#
+# Further this playbook will be executed several times - before/after provisioning, before/after deploying the stack.
+# Depending on the migration task it should be hooked to the appropriate phase using ansible tags, valid values are: before_provision, after_provision, before_deploy and after_deploy.
+# Also a task must be limited using the version being deployed.
+# If a task needs to be performed for 2.21.0-SNAPSHOT or above a 'when' expression need to be added e.g. `when: "'{{version}} >= 2.21.0-SNAPSHOT' | semver_match"`.
+#
+# It is also *very* important that tasks check if they've already been performed, the playbook doesn't track that in any way.
+#
+# Sort task by version in ascending order a.k.a 2.19 -> 2.20 ...newer version at the bottom
+#
+# If a migration requires more than one task put the tasks in a separate file under the `migration_tasks/` directory and import them here.
+---
+- hosts: swarm-nodes
+  become: true
+  tasks:
+
+    # Migration from embedded wso2is ldap to separate openldap service
+    - import_tasks: migration_tasks/2.21.0-wso2is-embedded-ldap-to-openldap.yml
+      vars:
+        version_expression: '{{version}} >= 2.21.0-SNAPSHOT'
+      when: 'version_expression | semver_match'
+      tags:
+        - before_deploy

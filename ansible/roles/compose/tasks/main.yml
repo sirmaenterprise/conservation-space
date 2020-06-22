@@ -1,0 +1,82 @@
+---
+- name: ensure sep configuration directories exist
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - /etc/sep
+    - /etc/sep/licenses
+    - /etc/sep/keystores
+    - /etc/sep/wildfly
+    - /etc/sep/assets
+    - /etc/sep/stacks
+    - /etc/sep/stacks/bin
+    - /etc/sep/config
+    - /etc/sep/proxy/vars
+
+# TODO: this should be inside the containers i.e the base container
+- name: provision dependencies wait script
+  template:
+    src: 0-wait-dependencies.sh
+    dest: /etc/sep/stacks/bin/0-wait-dependencies.sh
+    mode: +x
+
+- name: copy keystores
+  copy:
+    src: '{{item}}'
+    dest: '/etc/sep/keystores/{{item | basename}}'
+  with_fileglob:
+    - '{{files_directory}}/certs/*'
+
+- name: provision graphdb license
+  copy:
+    src: '{{sep.provision.graphdb.license}}'
+    dest: /etc/sep/licenses/GRAPHDB_ENTERPRISE.license
+
+- name: provision docker compose files
+  template:
+    src: '{{ item }}'
+    dest: /etc/sep/stacks/
+  with_items: '{{ sep.provision.stack_files }}'
+
+- name: provision sep models
+  copy:
+    src: '{{ sep.provision.models_file }}'
+    dest: /etc/sep/assets/
+  when: sep.provision.models_file is defined
+
+- name: provision models manifest
+  template:
+    src: models-manifest.json
+    dest: /etc/sep/assets/models-manifest.json
+  when: sep.provision.models_file is defined
+
+- name: provision service environment files
+  template:
+    src: service_env_file.j2
+    dest: /etc/sep/stacks/{{item.key}}.env
+  when: sep.provision.service_env_files is defined
+  with_dict: '{{sep.provision.service_env_files}}'
+
+# provision arbitrary files
+- name: provision arbitrary files - create destination directories
+  file:
+    path: '{{ item.dest | dirname }}'
+    state: directory
+  with_items: '{{ sep.provision.additional_files }}'
+  when: sep.provision.additional_files is defined
+
+- name: provision arbitrary files - copy files
+  copy:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+  with_items: '{{ sep.provision.additional_files }}'
+  when: sep.provision.additional_files is defined
+
+- name: add hosts to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: '{{ item.ip}} {{ item.host }}'
+    state: present
+  with_items: '{{ sep.provision.etc_hosts }}'
+  when: sep.provision.etc_hosts is defined

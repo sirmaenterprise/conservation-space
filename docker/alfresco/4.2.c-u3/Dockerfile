@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/openjdk-jdk:7
+ARG docker_registry=
+FROM $docker_registry/openjdk-jdk:7
 
 ENV VOLUME_ALF_DATA="/var/lib/alfresco" \
 	VOLUME_SOLR_DATA="/var/lib/alfresco-solr" \

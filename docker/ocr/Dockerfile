@@ -24,7 +24,8 @@ RUN \
 		tesseract-ocr-data-bul \
 		tesseract-ocr-data-dan \
 		tesseract-ocr-data-spa \
-		tesseract-ocr-data-chi_sim tesseract-ocr-data-chi_tra \
+		tesseract-ocr-data-chi_sim \
+		tesseract-ocr-data-chi_tra \
 		tesseract-ocr-data-hin \
 		tesseract-ocr-data-ara \
 		tesseract-ocr-data-por \
@@ -34,7 +35,8 @@ RUN \
 		tesseract-ocr-data-sqi \
 		tesseract-ocr-data-deu \
 		tesseract-ocr-data-fin \
-		tesseract-ocr-data-jpn && \
+		tesseract-ocr-data-jpn \
+		tesseract-ocr-data-nld && \
 	chmod +x /usr/local/bin/*
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=15s CMD healthcheck.sh

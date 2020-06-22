@@ -1,0 +1,21 @@
+Index: src/common/lib/ckeditor/plugins/image/dialogs/image.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/plugins/image/dialogs/image.js	(date 1486547220000)
++++ src/common/lib/ckeditor/plugins/image/dialogs/image.js	(date 1507887802000)
+@@ -570,11 +570,11 @@
+                 },
+                 onChange: function() {
+                   var reader = new FileReader();
+-                  reader.addEventListener('load', () => {
++                  reader.addEventListener('load', function() {
+                     var urlElement = this.getDialog().getContentElement( 'info', 'txtUrl' );
+                     urlElement.disable();
+                     urlElement.setValue(reader.result);
+-                  }, false);
++                  }.bind(this), false);
+                   reader.readAsDataURL(this.getInputElement().$.files[0]);
+                 }
+               },

@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/base:2
+ARG docker_registry=
+FROM $docker_registry/base:2
 
 ENV VOLUME_PGDATA="/var/lib/postgresql/data"\
 	WORK_MEM="160MB"\

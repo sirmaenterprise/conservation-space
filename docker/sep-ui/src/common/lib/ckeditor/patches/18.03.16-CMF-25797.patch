@@ -1,0 +1,28 @@
+Index: src/common/lib/ckeditor/plugins/table/dialogs/table.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/plugins/table/dialogs/table.js	(revision acbfb6bbf2777a0ca6eac2425df27f1fc625c8b7)
++++ src/common/lib/ckeditor/plugins/table/dialogs/table.js	(revision )
+@@ -184,6 +184,11 @@
+ 						tbody = table.getElementsByTag( 'tbody' ).getItem( 0 );
+ 
+ 						var previousFirstRow = tbody.getFirst();
++            var command = 'insertBefore';
++            if ( !previousFirstRow ) {
++              command = 'appendTo';
++              previousFirstRow = tbody;
++            }
+ 						while ( thead.getChildCount() > 0 ) {
+ 							theRow = thead.getFirst();
+ 							for ( i = 0; i < theRow.getChildCount(); i++ ) {
+@@ -193,7 +198,7 @@
+ 									newCell.removeAttribute( 'scope' );
+ 								}
+ 							}
+-							theRow.insertBefore( previousFirstRow );
++							theRow[command]( previousFirstRow );
+ 						}
+ 						thead.remove();
+ 					}

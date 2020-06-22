@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+
+Vagrant.require_version ">= 2.0.1"
+
+$sshd_pass_auth = <<-SCRIPT
+sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+systemctl reload sshd.service
+
+yum install -y python3
+alternatives --set python /usr/bin/python3
+SCRIPT
+
+Vagrant.configure('2') do |config|
+
+	config.vm.box = "bento/centos-8"
+
+	config.vm.provision "shell", inline: $sshd_pass_auth
+
+	config.vm.define "master" do |master|
+		master.vm.define "master"
+		master.vm.hostname = "master"
+
+		master.vm.network "private_network", ip: "172.17.8.102"
+		master.vm.network "forwarded_port", guest: 8080, host: 8080
+		master.vm.network "forwarded_port", guest: 443, host: 8443
+
+		master.vm.provider "virtualbox" do |vb|
+			vb.name = "master"
+
+			vb.memory = "7168"
+			vb.cpus = 3
+		end
+	end
+
+	config.vm.define "worker" do |worker|
+		worker.vm.define "worker"
+		worker.vm.hostname = "worker"
+
+		worker.vm.network "private_network", ip: "172.17.8.103"
+
+		worker.vm.provider "virtualbox" do |vb|
+			vb.name = "worker"
+
+			vb.memory = "1024"
+			vb.cpus = 1
+		end
+	end
+end

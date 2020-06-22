@@ -1,0 +1,264 @@
+---
+version: '3.3'
+
+services:
+  db:
+    image: '{{ docker_registry }}/sep-postgres:2.24.0'
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.db==yes
+    env_file: db.env
+    ports:
+      - target: 5432
+        published: 5432
+        mode: host
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  solr-audit:
+    image: '{{ docker_registry }}/sep-solr-audit:2.12.0-u1'
+    deploy:
+      placement:
+          constraints:
+              - node.labels.com.sirma.sep.solr.audit==yes
+    env_file: solr_audit.env
+    volumes:
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
+      - solr_audit_data:/var/lib/solr
+      - solr_audit_logs:/opt/solr/server/logs
+
+  solr:
+    image: '{{ docker_registry }}/sep-solr-core:2.12.0-u1'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.solr.core==yes
+    env_file: solr.env
+    volumes:
+      - solr_core_data:/var/lib/solr
+      - solr_core_logs:/opt/solr/server/logs
+
+  export:
+    image: '{{ docker_registry }}/export:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.other==yes
+    volumes:
+      - export_data:/opt/export/output
+      - export_logs:/opt/export/logs
+
+  compare:
+    image: '{{ docker_registry }}/compare-pdf:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.other==yes
+    volumes:
+      - compare-pdf_data:/opt/compare-pdf/output
+      - compare-pdf_logs:/opt/compare-pdf/logs
+
+  idp:
+    image: '{{ docker_registry }}/cs-wso2is:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.idp==yes
+    env_file: idp.env
+    volumes:
+      - idp_data:/opt/wso2is/repository/data
+      - idp_logs:/opt/wso2is/repository/logs
+      - /etc/sep/certs:/opt/wso2is/repository/resources/keystore
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
+
+  keycloak:
+    image: '{{ docker_registry }}/cs-keycloak:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.idp==yes
+    env_file: keycloak.env
+    ports:
+      - 8090:8080
+    volumes:
+      - keycloak_data:/opt/keycloak/standalone/data
+      - keycloak_logs:/opt/keycloak/standalone/log
+
+  ldap:
+    image: '{{ docker_registry }}/sep-openldap:2.25.0'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.idp==yes
+    volumes:
+      - ldap_data:/var/lib/openldap
+      - ldap_logs:/var/log/openldap
+
+  alfresco:
+    image: '{{ docker_registry }}/sep-alfresco:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.dms==yes
+    env_file: alfresco.env
+    volumes:
+      - alfresco_logs:/opt/tomcat/logs
+      - alfresco_data:/var/lib/alfresco
+      - alfresco_solr_data:/var/lib/alfresco-solr
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
+
+  graphdb:
+    image: '{{ docker_registry }}/graphdb:8.3.1-u5'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.semantic==yes
+    env_file: graphdb.env
+    ports:
+      - 8091:8091
+    volumes:
+      - gdb_data:/var/lib/graphdb
+      - gdb_logs:/opt/graphdb/logs
+      - /etc/sep/licenses/GRAPHDB_ENTERPRISE.license:/opt/graphdb/conf/graphdb.license
+
+  ocr:
+    image: '{{ docker_registry }}/ocr-service:2.28.0-SNAPSHOT'
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.ocr==yes
+
+  content-preview:
+    image: '{{ docker_registry }}/content-preview:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.preview==yes
+    volumes:
+      - content_preview_logs:/var/log/preview
+    volumes:
+      - content-preview_logs:/var/log/preview
+
+  image-processing:
+    image: '{{ docker_registry }}/image-processing:1.0.2'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    volumes:
+      - vsftpd_data:/data
+      - iiif_out:/var/www/localhost/images
+
+  iiif:
+    image: '{{ docker_registry }}/iip-server:6.0.0'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    env_file: iiif.env
+    volumes:
+      - vsftpd_data:/data
+      - iiif_out:/var/www/localhost/images
+  ftp:
+    image: '{{ docker_registry }}/vsftpd:3.0.3'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    env_file: ftp.env
+    volumes:
+      - vsftpd_data:/var/lib/vsftpd
+
+  iiif-access:
+    image: '{{ docker_registry }}/apache-server:1.1'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.iiif==yes
+    volumes:
+      - vsftpd_data:/var/www/html
+
+  wildfly:
+    image: '{{ docker_registry }}/cs-wildfly:2.28.0-SNAPSHOT'
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.web==yes
+    ports:
+      - target: 8787
+        published: 8787
+        mode: host
+      - target: 9990
+        published: 9990
+        mode: host
+    volumes:
+      - sep_data:/var/lib/sep
+      - wildfly_content:/opt/wildfly/standalone/data
+      - wildfly_logs:/opt/wildfly/standalone/log
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
+      - /etc/sep/certs:/opt/wildfly/standalone/configuration/sep/certs
+      - /etc/sep/assets:/etc/sep/assets
+    env_file: wildfly.env
+
+  ui:
+    image: '{{ docker_registry }}/sep-ui:2.28.0-SNAPSHOT'
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.web==yes
+    env_file: ui.env
+    volumes:
+      - /etc/sep/stacks/bin/0-wait-dependencies.sh:/docker-init.d/0-wait-dependencies.sh:ro
+
+  proxy:
+    image: '{{ docker_registry }}/http-proxy:2.28.0-SNAPSHOT'
+    env_file: proxy.env
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.sirma.sep.web==yes
+    volumes:
+      - proxy_logs:/var/log/nginx
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/sep/certs:/etc/nginx/ssl:ro
+      - /etc/sep/proxy/vars/101-proxy-override.yml:/etc/sep/proxy/vars/101-proxy-override.yml:ro
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+
+volumes:
+    pg_data:
+    gdb_data:
+    gdb_logs:
+    vsftpd_data:
+    iiif_out:
+    solr_core_data:
+    solr_core_logs:
+    solr_audit_data:
+    solr_audit_logs:
+    idp_data:
+    idp_logs:
+    ldap_data:
+    ldap_logs:
+    alfresco_data:
+    alfresco_solr_data:
+    alfresco_logs:
+    vsftpd_data:
+    iiif_out:
+    keycloak_data:
+    keycloak_logs:
+    wildfly_logs:
+    wildfly_content:
+    sep_data:
+    content_preview_logs:
+    proxy_logs:
+    export_data:
+    export_logs:
+    compare-pdf_data:
+    compare-pdf_logs:
+    content-preview_logs:

@@ -1,11 +1,59 @@
-FROM docker-reg.sirmaplatform.com/base:2
+FROM node:8
 
 ENV \
-	CHROMIUM_PATH="/usr/bin/chromium-browser" \
 	EXPORT_OUTPUT_DIR="/opt/export/output" \
 	EXPORT_LOG_FILE="/opt/export/logs/export.json" \
 	EXPORT_LOG_LEVEL="info" \
 	EXPORT_OUTPUT_CLEANER_AGE="60"
+
+RUN \
+	apt-get update && \
+	apt-get install -yq \
+		gconf-service \
+		libasound2 \
+		libatk1.0-0 \
+		libc6 \
+		libcairo2 \
+		libcups2 \
+		libdbus-1-3 \
+		libexpat1 \
+		libfontconfig1 \
+		libgcc1 \
+		libgconf-2-4 \
+		libgdk-pixbuf2.0-0 \
+		libglib2.0-0 \
+		libgtk-3-0 \
+		libnspr4 \
+		libpango-1.0-0 \
+		libpangocairo-1.0-0 \
+		libstdc++6 \
+		libx11-6 \
+		libx11-xcb1 \
+		libxcb1 \
+		libxcomposite1 \
+		libxcursor1 \
+		libxdamage1 \
+		libxext6 \
+		libxfixes3 \
+		libxi6 \
+		libxrandr2 \
+		libxrender1 \
+		libxss1 \
+		libxtst6 \
+		fonts-ipafont-gothic \
+		fonts-wqy-zenhei \
+		fonts-thai-tlwg \
+		fonts-kacst ttf-freefont \
+		ca-certificates \
+		fonts-liberation \
+		libappindicator1 \
+		libnss3 \
+		lsb-release \
+		xdg-utils \
+		cron && \
+		apt-get clean && \
+		apt-get autoremove -y && \
+		rm -rf /var/lib/apt/lists/*
 
 COPY rootfs/ /
 COPY package.json index.js /opt/export/
@@ -14,29 +62,17 @@ COPY lib /opt/export/lib
 WORKDIR /opt/export
 
 RUN \
-	apk --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.8/main add \
-		nodejs=8.14.0-r0 \
-		nodejs-npm=8.14.0-r0 \
-		freetype=2.9.1-r1 \
-		harfbuzz=1.7.6-r1 \
-		nss=3.36.1-r1 && \
-	# not only they bumped chromium four versions up, but they also seem to have broke it's dependencies
-	# https://github.com/GoogleChrome/puppeteer/issues/3019
-	apk --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.8/community add \
-		chromium=68.0.3440.75-r0 && \
-	PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm --progress=false --production install && \
+	npm --progress=false --production install && \
 	npm cache clean --force && \
-	apk --no-cache del nodejs-npm && \
-	chmod +x /etc/periodic/15min/export_cleanup /docker-init.d/*.sh /usr/local/bin/*.sh && \
-	mkdir "$EXPORT_OUTPUT_DIR" $(dirname $EXPORT_LOG_FILE) && \
+	chmod +x /etc/cron.hourly/export_cleanup /usr/local/bin/*.sh /entrypoint.sh && \
+	mkdir "$EXPORT_OUTPUT_DIR" /opt/export/logs && \
 	chown -R $DOCKER_USER:$DOCKER_USER /opt/export
 
 EXPOSE 8080
 
 VOLUME ["/opt/export/output", "/opt/export/logs"]
 
-WORKDIR /opt/export
-
 HEALTHCHECK CMD /usr/local/bin/healthcheck.sh
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "/opt/export/index.js"]

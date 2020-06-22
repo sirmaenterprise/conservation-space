@@ -1,0 +1,23 @@
+---
+- hosts: "{{ groups['swarm-managers'][0] }}"
+  become: true
+  tasks:
+    - name: remove docker stacks
+      shell: docker stack rm {{ item.value.name }}
+      with_dict: '{{ sep.deploy.stacks }}'
+      when:
+        - sep.deploy.strategy is defined
+        - sep.deploy.strategy.remove_before_redeploy | default(False)
+
+    - name: deploy docker stacks
+      environment: '{{sep.env_vars | default({})}}'
+      shell: docker stack deploy --prune --compose-file {{ item.value.file }} {{ item.value.name }}
+      with_dict: '{{ sep.deploy.stacks }}'
+      register: deploy_result
+      until: deploy_result.rc == 0
+      retries: 5
+
+    - name: remove old containers and images
+      shell: |
+        docker container prune -f
+        docker image prune -f || true

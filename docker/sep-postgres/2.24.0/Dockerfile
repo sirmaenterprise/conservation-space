@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/postgres:9
+ARG docker_registry=
+FROM $docker_registry/postgres:9
 
 ENV ROLE_PASS_ADMIN="admin" \
 	ROLE_PASS_SEP="sep"

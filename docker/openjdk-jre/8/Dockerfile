@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/base:2
+ARG docker_registry=
+FROM $docker_registry/base:2
 
 ENV JAVA_HOME "/usr/lib/jvm/java-1.8-openjdk/jre"
 

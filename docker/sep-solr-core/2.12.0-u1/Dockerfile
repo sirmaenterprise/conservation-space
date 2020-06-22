@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/solr:6.5.0-u1
+ARG docker_registry=
+FROM $docker_registry/solr:6.5.0-u1
 
 ENV SEP_VERSION="2.12.0"
 

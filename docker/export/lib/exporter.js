@@ -32,7 +32,6 @@ module.exports = (url, params = {}) => {
       }, timeout);
 
       browser = await puppeteer.launch({
-        executablePath: config.exporter.chromium,
         ignoreHTTPSErrors: true,
         dumpio: true,
         args: [
@@ -41,7 +40,8 @@ module.exports = (url, params = {}) => {
           // we need to be able to add capabilities or security profile to services (and in compose file) to remove the --no-sandbox parameter
           // https://github.com/moby/moby/issues/25885
           // https://github.com/moby/moby/issues/25209
-          '--no-sandbox'
+          '--no-sandbox',
+          '--disable-setuid-sandbox'
         ]
       })
 

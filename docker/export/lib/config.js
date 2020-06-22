@@ -19,7 +19,6 @@ module.exports = {
   },
 
   exporter: {
-    chromium: process.env.CHROMIUM_PATH || '/usr/bin/chromium-browser',
     viewport: {
       width: process.env.EXPORT_VIEWPORT_WIDTH || 1360,
       height: process.env.EXPORT_VIEWPORT_HEIGHT || 1020

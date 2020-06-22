@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/openjdk-jre:8
+ARG docker_registry=
+FROM $docker_registry/openjdk-jre:8
 
 ARG solr_version="5.5.3"
 

@@ -1,11 +1,14 @@
-FROM docker-reg.sirmaplatform.com/base:2
+ARG docker_registry=
+FROM $docker_registry/base:3
 
-ENV FTP_USER="ftp" \
+ENV \
+	FTP_USER="ftp" \
 	FTP_USER_PASS="ftp" \
 	PASV_MIN_PORT="4559" \
 	PASV_MAX_PORT="4564" \
 	PASV_PROMISCUOUS="NO" \
-	RUN_AS_ROOT="yes"
+	RUN_AS_ROOT="yes" \
+	VOLUME_VSFTPD_DATA=/var/lib/vsftpd
 
 COPY rootfs/ /
 
@@ -14,8 +17,10 @@ RUN \
 	chmod +x /usr/local/bin/*.sh && \
 	curl -sSL https://github.com/tiwe-de/libpam-pwdfile/archive/v1.0.tar.gz | tar xz && \
 	(cd libpam-pwdfile-1.0/; make install) && \
+	mkdir -p /var/lib/vsftpd && \
+	chown -R $DOCKER_USER:$DOCKER_USER /var/lib/vsftpd && \
 	rm -rf libpam-pwdfile-1.0/ && \
-	apk del build-base linux-pam-dev
+	apk --no-cache del build-base linux-pam-dev
 
 VOLUME /var/lib/vsftpd
 

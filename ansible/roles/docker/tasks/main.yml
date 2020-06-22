@@ -1,0 +1,51 @@
+---
+- name: load common vars
+  include_vars: common-vars.yml
+
+- include_tasks: centos.yml
+  when: ansible_distribution == 'CentOS'
+
+- include_tasks: ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: install docker
+  package:
+    name: '{{docker_package}}'
+    state: present
+
+- name: update docker config
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+  register: docker_config
+
+- name: ensure that systemd drop-in directory for docker exists
+  file:
+    path: /etc/systemd/system/docker.service.d/
+    state: directory
+
+- name: override exec start for docker
+  template:
+    src: override-exec-start.conf.j2
+    dest: /etc/systemd/system/docker.service.d/override-exec-start.conf
+  register: systemd_dropin
+
+- name: restart docker
+  systemd:
+    name: docker
+    daemon_reload: yes
+    state: restarted
+  when: systemd_dropin.changed or docker_config.changed
+
+- name: start and enable docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: add users to the docker group
+  user:
+    name: '{{ item }}'
+    groups: docker
+    append: yes
+  with_items: '{{ docker_users }}'

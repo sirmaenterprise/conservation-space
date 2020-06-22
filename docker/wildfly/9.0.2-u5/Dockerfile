@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/openjdk-jre:8-1
+ARG docker_registry=
+FROM $docker_registry/openjdk-jre:8-1
 
 ARG wildfly_home_dir="/opt/wildfly"
 
@@ -10,9 +11,9 @@ ENV JBOSS_HOME="$wildfly_home_dir" \
 COPY rootfs/ /
 
 RUN \
-	apk --no-cache add tar nss && \
+	apk --no-cache add tar && \
 	mkdir -p $wildfly_home_dir && \
-	curl http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz | tar -xz --strip-components=1 -C $wildfly_home_dir && \
+	curl -f https://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.tar.gz | tar -xz --strip-components=1 -C $wildfly_home_dir && \
 	rm -rf $wildfly_home_dir/README.txt \
 			$wildfly_home_dir/docs \
 			$wildfly_home_dir/welcome-content \

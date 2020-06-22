@@ -3,18 +3,18 @@ FROM ubuntu:xenial
 RUN \
 	apt-get update && \
 	apt-get install -y software-properties-common && \
-	add-apt-repository -y ppa:libreoffice/ppa && \
+	add-apt-repository -y ppa:libreoffice/libreoffice-6-1 && \
 	apt-get autoremove -y --purge software-properties-common && \
 	apt-get update && \
 	apt-get -y --no-install-recommends install \
 		openjdk-8-jre \
 		imagemagick \
 		ghostscript \
-		libreoffice=1:6.* \
-		libreoffice-writer=1:6.* \
-		libreoffice-java-common=1:6.* \
-		libreoffice-core=1:6.* \
-		libreoffice-common=1:6.* \
+		libreoffice=1:6.1.* \
+		libreoffice-writer=1:6.1.* \
+		libreoffice-java-common=1:6.1.* \
+		libreoffice-core=1:6.1.* \
+		libreoffice-common=1:6.1.* \
 		ure \
 		hyphen-fr \
 		hyphen-de \

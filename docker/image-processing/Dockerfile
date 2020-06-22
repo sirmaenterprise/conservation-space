@@ -45,10 +45,16 @@ RUN \
 	cc -o /opt/tiff-is-tiled /opt/tiff-is-tiled.c -ltiff && \
 	chmod +x /opt/image-processing.py /opt/tiff-is-tiled && \
 \
+	groupadd --gid 1000 dockeru && \
+	useradd --uid 1000 --gid 1000 --create-home --no-user-group --shell /bin/bash dockeru && \
+	mkdir -p /data /var/www/localhost/images && \
+	chown -R dockeru:dockeru /opt /data /var/www/localhost && \
+\
 	# Remove intermediate packages and clean-up apt-get cache
 	apt-get autoremove -y --purge software-properties-common build-essential checkinstall git wget pkg-config && \
 	apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+USER dockeru
 
 # -u is required for python to redirect properly the output to Docker's stdout
 CMD ["python", "-u", "/opt/image-processing.py"]

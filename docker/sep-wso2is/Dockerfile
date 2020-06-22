@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/wso2idp:5
+ARG docker_registry=
+FROM $docker_registry/wso2idp:5
 
 ENV ADMIN_USERNAME="admin" \
 	ADMIN_PASSWORD="admin" \

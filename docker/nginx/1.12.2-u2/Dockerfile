@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/base:2.0.1
+ARG docker_registry=
+FROM $docker_registry/base:2.0.1
 
 ENV RUN_AS_ROOT=yes \
 	NGINX_MAX_REQUEST_SIZE=10M \

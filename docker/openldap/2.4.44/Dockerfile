@@ -1,4 +1,5 @@
-FROM docker-reg.sirmaplatform.com/base:2
+ARG docker_registry=
+FROM $docker_registry/base:2
 
 ENV VOLUME_LDAP_DATA=/var/lib/openldap \
 	VOLUME_LDAP_LOGS=/var/log/openldap \

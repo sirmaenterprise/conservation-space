@@ -1,0 +1,24 @@
+Index: src/common/lib/ckeditor/plugins/image/dialogs/image.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/common/lib/ckeditor/plugins/image/dialogs/image.js	(revision cedd5ea4949f8bc898fad2c9f01e2e9e93b7344b)
++++ src/common/lib/ckeditor/plugins/image/dialogs/image.js	(revision 7b0ca276a0ea1ca7a5af89e8acfe4220cadcdaaa)
+@@ -559,7 +559,15 @@
+ 										element.removeAttribute( 'src' );
+ 									}
+ 								},
+-								validate: CKEDITOR.dialog.validate.notEmpty( editor.lang.image.urlMissing )
++								validate: function() {
++                  // custom validation is needed because if a big image is embedded as base64, the standard notEmpty
++                  // ckeditor dialog validator throws error because it uses a regex with greedy capturing which exhausted
++                  // the engine resources
++                  var value = this && this.getValue ? this.getValue() : arguments[ 0 ];
++                  value = value && value.trim();
++                  var notEmpty = value.length > 0;
++                  return !notEmpty ? editor.lang.image.urlMissing : true;
++								}
+ 							},
+               {
+                 type: 'file',

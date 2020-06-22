@@ -1,11 +1,13 @@
 FROM alpine:3.6
 
-ENV LANG=en_US.utf8 \
+ENV \
+	LANG=en_US.utf8 \
 	DOCKER_USER=dockeru
 
 COPY rootfs/ /
 
-RUN apk --no-cache add curl bash && \
+RUN \
+	apk --no-cache add curl bash && \
 	mkdir /opt /docker-init.d && \
 	addgroup $DOCKER_USER && \
 	adduser $DOCKER_USER -S -G $DOCKER_USER -s /bin/bash && \
